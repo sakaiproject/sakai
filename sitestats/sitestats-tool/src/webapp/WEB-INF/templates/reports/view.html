@@ -13,7 +13,7 @@
   <sakai-sitestats-report-panel th:attr="endpoint=${reportEndpoint}">
   </sakai-sitestats-report-panel>
   <div class="d-flex flex-wrap gap-2 mt-3 noprint">
-    <a class="btn btn-link" th:href="@{/reports(siteId=${siteId})}"
+    <a class="btn btn-link" th:href="${preview} ? @{/reports/preview/{id}/edit(id=${previewId},siteId=${siteId})} : @{/reports(siteId=${siteId})}"
        th:text="#{report_back}">Back to reports</a>
     <th:block th:if="${preview}">
       <a class="btn btn-link"
