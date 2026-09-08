@@ -31,7 +31,9 @@
                 menuLinkSpan.html(menuLink.text());
 
                 setupMessageNav('messageNew');
-                setupMessageNav('messagePending');
+                if (<h:outputText value="#{ForumTool.selectedTopic.isModeratePostings}" />) {
+                    setupMessageNav('messagePending');
+                }
 
             });
 			var markAsNotReadText = "<h:outputText value="#{msgs.cdfm_mark_as_not_read}"/>";

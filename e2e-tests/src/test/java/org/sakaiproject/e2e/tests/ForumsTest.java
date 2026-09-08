@@ -32,6 +32,7 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class ForumsTest extends SakaiUiTestBase {
 
     private static String sakaiUrl;
+    private static final String PENDING_TITLE = "Pending student conversation";
     private static final String FORUM_TITLE = "Playwright Forum " + System.currentTimeMillis();
     private static final String TOPIC_TITLE = "Playwright Topic " + System.currentTimeMillis();
 
@@ -55,6 +56,7 @@ class ForumsTest extends SakaiUiTestBase {
             .click();
 
         page.locator("form input[type=\"text\"]:visible").first().fill(FORUM_TITLE);
+        page.locator("input[type=checkbox][id$=moderated]").check();
         page.locator("button[type=\"submit\"]:has-text(\"Save\"), button[type=\"submit\"]:has-text(\"Create\"), input[type=\"submit\"][value*=\"Save\"], input[type=\"submit\"][value*=\"Create\"], .act button:has-text(\"Save\"), .act button:has-text(\"Create\"), .act input[value*=\"Save\"], .act input[value*=\"Create\"]")
             .first()
             .click(new Locator.ClickOptions().setForce(true));
@@ -91,4 +93,41 @@ class ForumsTest extends SakaiUiTestBase {
 
         assertThat(page.getByText(TOPIC_TITLE).first()).isVisible();
     }
+    @Test
+    @Order(3)
+    void studentSeesPendingPostWithoutModeratorNavigation() {
+        openTopic("student0011");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
+                .setName("Start a New Conversation").setExact(true)).click();
+        page.locator("input[id$=df_compose_title]").fill(PENDING_TITLE);
+        sakai.typeCkEditor("dfCompose:df_compose_body", "<p>Please review this pending message.</p>");
+        page.locator("input[id$=post]").click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(PENDING_TITLE).setExact(true)).first().click();
+        assertThat(page.locator(".messagePending").first()).isVisible();
+        assertThat(page.getByText("Go to first pending message", new Page.GetByTextOptions().setExact(true))
+                .filter(new Locator.FilterOptions().setVisible(true))).hasCount(0);
+    }
+
+    @Test
+    @Order(4)
+    void moderatorKeepsPendingNavigationAfterMessageIsRead() {
+        openTopic("instructor1");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(PENDING_TITLE).setExact(true)).first().click();
+        Locator pendingNavigation = page.getByRole(AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Go to first pending message").setExact(true));
+        assertThat(pendingNavigation).isVisible();
+        assertThat(page.locator(".messageNew")).hasCount(0);
+        assertThat(pendingNavigation).isVisible();
+        pendingNavigation.click();
+        assertThat(page.locator(".messagePending").first()).isInViewport();
+    }
+
+    private void openTopic(String user) {
+        sakai.login(user);
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Discussion");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(FORUM_TITLE).setExact(true)).first().click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true)).first().click();
+    }
+
 }

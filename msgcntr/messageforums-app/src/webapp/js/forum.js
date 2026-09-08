@@ -291,71 +291,43 @@ var instrumentThreads = function(target){
     });
 }
 
-function setupMessageNav(messageType){
-	$('.messagesThreaded tr').each(function(rowIndex){
-		$(this).prop('rowCount',rowIndex)
-		});
-    if ($("." + messageType).size() >= 1) {
-        if (messageType == "messageNew") {
-            tofirst = $("#firstNewItemTitleHolder").text();
-            tonext = $("#nextNewItemTitleHolder").text();
-            last = $("#lastNewItemTitleHolder").text();
-        }
-        else {
-            tofirst = $("#firstPendingItemTitleHolder").text();
-            tonext = $("#nextPendingItemTitleHolder").text();
-            last = $("#lastPendingItemTitleHolder").text();
-        }
-		//go to first new or pending message
-		if ($('#messNavHolder').find('.jumpToNew[rel="setupMessageNav"]').length === 0) {
-			$('#messNavHolder').append("<span class='jumpToNew specialLink' rel='setupMessageNav'><a class='button' href='#" + messageType + "newMess0'>" + tofirst + "</a></span>");
-		}
-        //instrument link targets (clicking on "New" goes to next one, same with "Pending")
-		$("." + messageType).each(function(intIndex){
-            var parentRow = $(this).parents('tr');
-			var parentTable = $(this).parents('table');
-			var totalTableRows =$(parentTable).find('tr').size()
-            $(parentRow).addClass(messageType + 'Next');
-            $(this).after("<a class=\"messageNewAnchor\" name='" + messageType + "newMess" + intIndex + "'> </a>");
-            if (intIndex !== ($("." + messageType).size() - 1)) {
-                $(this).css({
-                    cursor: "pointer"
-                });
-                $(this).prop("title", tonext);
-                $(this).click(function(){
-                    //in message type is "New" find next new by crawling the DOM
-                    // (real next one may have been marked as read, so no longer news)
-                    if (messageType === 'messageNew') {
-                        const thisIndex = parseInt($(parentRow).prop('rowCount')) + 1;
-                        const targetElement = $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0);
-                        if (targetElement.length) {
-                            targetElement[0].scrollIntoView({ behavior: 'smooth' });$
-                        }
-                    }
-                    // if "Pending" just link directly to next one
-                    else {
-                        // Scroll the target into view using jquery
-                        const targetElement = $("a[name='" +  messageType + "newMess" + (intIndex + 1) + "']");
-                        if (targetElement.length) {
-                            targetElement[0].scrollIntoView({ behavior: 'smooth' });$
-                        }
-                    }
-                });
-                // Scroll the new message into view
-                $('#messNavHolder a').click(function(e) {$
-                    e.preventDefault();$
-                    const targetPosPrep = $(this).attr('href').replace('#','');$
-                    const targetElement = $("a[name='" + targetPosPrep + "']");$
-                    if (targetElement.length) {$
-                        targetElement[0].scrollIntoView({ behavior: 'smooth' });$
-                    }$
-                });$
-            }
-            else {
-                $(this).prop("title", last);
-            }
-        });
-    }
+function setupMessageNav(messageType) {
+    const holder = document.getElementById('messNavHolder');
+    if (!holder) return;
+    const selector = `.${messageType}`;
+    const messages = [...document.querySelectorAll(selector)];
+    const navSelector = `[data-message-type="${messageType}"]`;
+    holder.querySelector(navSelector)?.remove();
+    if (messages.length === 0) return;
+
+    const labelType = messageType === 'messageNew' ? 'New' : 'Pending';
+    const firstLabel = document.getElementById(`first${labelType}ItemTitleHolder`).textContent;
+    const nextLabel = document.getElementById(`next${labelType}ItemTitleHolder`).textContent;
+    const lastLabel = document.getElementById(`last${labelType}ItemTitleHolder`).textContent;
+    const scrollToMessage = message => message?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+    });
+
+    messages.forEach((message, index) => {
+        const isLast = index === messages.length - 1;
+        message.title = isLast ? lastLabel : nextLabel;
+        message.style.cursor = isLast ? '' : 'pointer';
+        message.onclick = isLast ? null : () => {
+            const remaining = [...document.querySelectorAll(selector)];
+            scrollToMessage(remaining[remaining.indexOf(message) + 1]);
+        };
+    });
+
+    const nav = document.createElement('span');
+    nav.className = 'jumpToNew specialLink';
+    nav.dataset.messageType = messageType;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'button';
+    button.textContent = firstLabel;
+    button.onclick = () => scrollToMessage(document.querySelector(selector));
+    nav.append(button);
+    holder.append(nav);
 }
 
 function doAjax(messageId, topicId, self){
@@ -434,14 +406,8 @@ function doAjaxRead(messageId, topicId, self){
         success: function(msg){
             if (msg.match(/SUCCESS/)) {
                 setTimeout(function(){
-					$(self).parents('tr').removeClass('messageNewNext');
 					$(self).parents("div").children("span.messageNew").remove();
 					$(self).parents("div").children("div.messageMetadata").find("span.unreadMsg").removeClass('unreadMsg');
-					$(self).parents("div").parents("div").children('a.messageNewAnchor').remove();
-					// remove "Go to first new message" link if all messages have been marked as "read"
-					if ($('.messagesThreaded').find('a.messageNewAnchor').size() === 0) {
-					    $('.jumpToNew').remove();
-					}
 					//add button
 					if (isMarkAsNotReadValue === "true") {
 						$(self).prepend(

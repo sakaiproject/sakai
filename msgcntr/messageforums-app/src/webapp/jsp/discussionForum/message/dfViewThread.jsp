@@ -35,7 +35,9 @@
 				menuLinkSpan.addClass('current');
 				menuLinkSpan.html(menuLink.text());
 
-				setupMessageNav('messagePending');
+				if (<h:outputText value="#{ForumTool.selectedTopic.isModeratePostings}" />) {
+					setupMessageNav('messagePending');
+				}
 				setupMessageNav('messageNew');
 				if ($('div.hierItemBlock').length >= 1){
 					$('.itemNav').clone().addClass('specialLink').appendTo('form')
