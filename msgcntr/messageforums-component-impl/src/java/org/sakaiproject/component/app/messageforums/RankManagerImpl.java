@@ -25,12 +25,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import org.sakaiproject.api.app.messageforums.Rank;
 import org.sakaiproject.api.app.messageforums.RankImage;
 import org.sakaiproject.api.app.messageforums.RankManager;
@@ -51,11 +48,20 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class RankManagerImpl extends HibernateDaoSupport implements RankManager {
+public class RankManagerImpl implements RankManager {
     private static final String QUERY_BY_CONTEXT_ID_USERID = "findRanksByContextIdUserID";
     private static final String QUERY_BY_CONTEXT_ID_NUM_POSTS_BASED = "findRanksByContextIdBasedOnNumPost";
     private static final String QUERY_BY_CONTEXT_ID = "findRanksByContextId";
@@ -76,6 +82,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     
     private ToolManager toolManager;
     @Setter private FormattedText formattedText;
+    @Setter private SessionFactory sessionFactory;
     
     public void init() {
         log.info("init()");
@@ -125,13 +132,14 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             log.warn("saveRank invoked, but ranks are disabled");
             return;
         }
+        Session session = sessionFactory.getCurrentSession();
         rank.setUuid(getNextUuid());
         rank.setCreated(new Date());
         rank.setCreatedBy(getCurrentUser());
         rank.setModified(new Date());
         rank.setModifiedBy(getCurrentUser());
         rank.setContextId(getContextId());
-        getHibernateTemplate().saveOrUpdate(rank);
+        rank = session.merge(rank);
         if (log.isDebugEnabled()) log.debug("saveRank executed for rank = " + rank.getTitle() + " contextid = " + rank.getContextId());
     }
 
@@ -146,13 +154,17 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
         {
             return new ArrayList();
         }
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_CONTEXT_ID);
-            q.setParameter("contextId", contextId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<RankImpl> cq = cb.createQuery(RankImpl.class);
+        Root<RankImpl> root = cq.from(RankImpl.class);
+
+        cq.select(root)
+          .where(cb.equal(root.get("contextId"), contextId))
+          .orderBy(cb.asc(root.get("title")));
+
+        return session.createQuery(cq).getResultList();
     }
 
     public List findRanksByContextIdOrderByMinPostDesc(final String contextId) {
@@ -169,13 +181,22 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             return new ArrayList();
         }
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_CONTEXT_ID_ORDER_BY_MIN_POST_DESC);
-            q.setParameter("contextId", contextId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<RankImpl> cq = cb.createQuery(RankImpl.class);
+        Root<RankImpl> root = cq.from(RankImpl.class);
+
+        cq.select(root)
+          .where(
+              cb.and(
+                  cb.equal(root.get("contextId"), contextId),
+                  cb.equal(root.get("type"), "2")
+              )
+          )
+          .orderBy(cb.desc(root.get("minPosts")));
+
+        return session.createQuery(cq).getResultList();
     }
 
     private String getCurrentUser() {
@@ -219,6 +240,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
 
     public void removeRank(Rank rank) {
         log.info("removeRank(Rank rank)");
+        Session session = sessionFactory.getCurrentSession();
         if (!isRanksEnabled())
         {
             log.warn("removeRank invoked, but ranks are disabled");
@@ -227,17 +249,18 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
         if (rank.getRankImage() != null) {
             removeImageAttachmentObject(rank.getRankImage());
         }
-        getHibernateTemplate().delete(getHibernateTemplate().merge(rank));
+        session.remove(rank);
     }
 
     public void removeImageAttachmentObject(RankImage o) {
         log.info("removeImageAttachmentObject(RankImage o)");
+        Session session = sessionFactory.getCurrentSession();
         if (!isRanksEnabled())
         {
             log.warn("removeImageAttachmentObject invoked, but ranks are disabled");
             return;
         }
-        getHibernateTemplate().delete(getHibernateTemplate().merge(o));
+        session.remove(o);
     }
 
     public void removeImageAttachToRank(final Rank rank, final RankImage imageAttach) {
@@ -252,24 +275,21 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             return;
         }
 
-        HibernateCallback hcb = session -> {
-            Rank returnedData = (Rank) session.get(RankImpl.class, rank.getId());
-            RankImage returnedAttach = (RankImage) session.get(RankImageImpl.class, Long.valueOf(imageAttach.getId()));
-            if (returnedData != null) {
-                returnedData.setRankImage(null);
-                session.saveOrUpdate(returnedData);
+        Session session = sessionFactory.getCurrentSession();
+        Rank returnedData = (Rank) session.get(RankImpl.class, rank.getId());
+        RankImage returnedAttach = (RankImage) session.get(RankImageImpl.class, Long.valueOf(imageAttach.getId()));
+        if (returnedData != null) {
+            returnedData.setRankImage(null);
+            session.merge(returnedData);
 
-                if (returnedAttach.getAttachmentId().toLowerCase().startsWith("/attachment"))
-                    try {
-                        contentHostingService.removeResource(returnedAttach.getAttachmentId());
-                        session.delete(returnedAttach);
-                    } catch (PermissionException | IdUnusedException | TypeException | InUseException e) {
-                        log.error(e.getMessage(), e);
-                    }
-            }
-            return null;
-        };
-        getHibernateTemplate().execute(hcb);
+            if (returnedAttach.getAttachmentId().toLowerCase().startsWith("/attachment"))
+                try {
+                    contentHostingService.removeResource(returnedAttach.getAttachmentId());
+                    session.remove(returnedAttach);
+                } catch (PermissionException | IdUnusedException | TypeException | InUseException e) {
+                    log.error(e.getMessage(), e);
+                }
+        }
     }
 
     public Rank getRankById(final Long rankId) {
@@ -288,14 +308,16 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             return null;
         }
 
-        HibernateCallback<Rank> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_RANK_ID);
-            q.setParameter("rankId", rankId);
-            return (Rank) q.uniqueResult();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        Rank rank = getHibernateTemplate().execute(hcb);
-        return rank;
+        CriteriaQuery<RankImpl> cq = cb.createQuery(RankImpl.class);
+        Root<RankImpl> root = cq.from(RankImpl.class);
+
+        cq.select(root)
+          .where(cb.equal(root.get("id"), rankId));
+
+        return session.createQuery(cq).uniqueResult();
     }
 
     public RankImage createRankImageAttachmentObject(String attachId, String name) {
@@ -304,6 +326,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             log.warn("createRankImageAttachmentObject invoked, but ranks are disabled");
             return null;
         }
+        Session session = sessionFactory.getCurrentSession();
         try {
             RankImage attach = new RankImageImpl();
             attach.setCreated(new Date());
@@ -323,7 +346,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             String tempString = cr.getUrl();
             attach.setAttachmentUrl(resourceUrlEscaping(tempString));
 
-            getHibernateTemplate().saveOrUpdate(attach);
+            session.merge(attach);
 
             return attach;
         } catch (Exception e) {
@@ -344,16 +367,13 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             return;
         }
 
-        HibernateCallback hcb = session -> {
-            Rank returnedData = (Rank) session.get(RankImpl.class, rank.getId());
-            if (returnedData != null) {
-                imageAttach.setRank(rank);
-                returnedData.setRankImage(imageAttach);
-                session.save(returnedData);
-            }
-            return null;
-        };
-        getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        Rank returnedData = (Rank) session.get(RankImpl.class, rank.getId());
+        if (returnedData != null) {
+            imageAttach.setRank(returnedData);
+            returnedData.setRankImage(imageAttach);
+            session.merge(returnedData);
+        }
     }
 
     /**
@@ -382,14 +402,23 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             return new ArrayList();
         }
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_CONTEXT_ID_USERID);
-            q.setParameter("contextId", contextId);
-            q.setParameter("userId", userid);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<RankImpl> cq = cb.createQuery(RankImpl.class);
+        Root<RankImpl> root = cq.from(RankImpl.class);
+
+        Join<RankImpl, String> assignJoin = root.join("assignToIds", JoinType.INNER);
+
+        cq.select(root)
+          .where(
+              cb.and(
+                  cb.equal(root.get("contextId"), contextId),
+                  cb.equal(assignJoin, userid)
+              )
+          );
+
+        return session.createQuery(cq).getResultList();
     }
 
     public List findRanksByContextIdBasedOnNumPost(final String contextId) {
@@ -406,12 +435,21 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             return new ArrayList();
         }
 
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_CONTEXT_ID_NUM_POSTS_BASED);
-            q.setParameter("contextId", contextId);
-            return q.list();
-        };
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        return getHibernateTemplate().execute(hcb);
+        CriteriaQuery<RankImpl> cq = cb.createQuery(RankImpl.class);
+        Root<RankImpl> root = cq.from(RankImpl.class);
+
+        cq.select(root)
+          .where(
+              cb.and(
+                  cb.equal(root.get("contextId"), contextId),
+                  cb.equal(root.get("type"), "2")
+              )
+          )
+          .orderBy(cb.asc(root.get("title")));
+
+        return session.createQuery(cq).getResultList();
     }
 }
