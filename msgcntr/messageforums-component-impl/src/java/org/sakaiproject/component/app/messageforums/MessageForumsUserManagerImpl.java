@@ -20,11 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.Query;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.MessageForumsUserManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
@@ -36,9 +33,15 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Transactional
-public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements MessageForumsUserManager {
+public class MessageForumsUserManagerImpl implements MessageForumsUserManager {
 
   private static final String QUERY_BY_USER_ID = "findUserByUserId";    
   
@@ -48,6 +51,7 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
   
   private EventTrackingService eventTrackingService;
   private ToolManager toolManager;
+  @Setter private SessionFactory sessionFactory;
 
   public void init() {
      log.info("init()");
@@ -86,15 +90,18 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
       saveForumUser(newUser);
       return newUser;
     }
-    
-    HibernateCallback<MessageForumsUser> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_BY_USER_ID);
-      q.setParameter("userId", userId);
-      return (MessageForumsUser) q.uniqueResult();
-    };
-  
-    MessageForumsUser user = getHibernateTemplate().execute(hcb);
-    
+
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+
+    CriteriaQuery<MessageForumsUserImpl> cq = cb.createQuery(MessageForumsUserImpl.class);
+    Root<MessageForumsUserImpl> userRoot = cq.from(MessageForumsUserImpl.class);
+
+    cq.select(userRoot)
+      .where(cb.equal(userRoot.get("userId"), userId));
+
+    MessageForumsUser user = session.createQuery(cq).uniqueResult();
+
     if (user == null){
       
       /** ensure user exists from user provider */
@@ -121,8 +128,9 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
    * @see org.sakaiproject.api.app.messageforums.MessageForumsUserManager#saveForumUser(org.sakaiproject.api.app.messageforums.MessageForumsUser)
    */
   public void saveForumUser(MessageForumsUser user)
-  {    
-    getHibernateTemplate().saveOrUpdate(user);
+  {
+    Session session = sessionFactory.getCurrentSession();
+    session.merge(user);
     log.debug("saveDiscussionForumTopic executed with topicId: " + user.getUuid());    
   }
 
