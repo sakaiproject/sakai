@@ -280,7 +280,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
             </div>
           ` : nothing}
           ${this.error ? html`
-            <div class="sak-banner-error mb-0 py-2">${this._i18n.error}</div>
+            <div class="sak-banner-error mb-0 py-2" role="alert">${this._i18n.error}</div>
           ` : nothing}
         </div>
       </div>

@@ -61,6 +61,7 @@
                  th:if="${filter.type == 'number'}"
                  type="number"
                  th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                 th:value="${filter.value}"
                  th:attr="data-report-filter=${filter.id}">
           <input class="form-control form-control-sm"
                  th:if="${filter.type == 'date'}"

@@ -43,14 +43,6 @@ export class SakaiSiteStatsHighlights extends SakaiShadowElement {
     this.hidden = true;
   }
 
-  connectedCallback() {
-
-    super.connectedCallback();
-    if (this.endpoint) {
-      this._load();
-    }
-  }
-
   updated(changedProperties) {
 
     if (changedProperties.has("endpoint") && this.endpoint) {

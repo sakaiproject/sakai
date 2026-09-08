@@ -25,7 +25,6 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUD
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -135,7 +134,7 @@ public class WidgetFilterCatalog {
 		if (ReportManager.WHEN_CUSTOM.equals(date)) {
 			return whenTo(request);
 		}
-		return Date.from(today().atTime(23, 59, 59).atZone(zoneId()).toInstant());
+		return endOfLocalDay(today());
 	}
 
 	boolean isDueInRange(java.time.Instant due, SiteStatsReportRequest request) {
@@ -274,13 +273,15 @@ public class WidgetFilterCatalog {
 		}
 		try {
 			LocalDate localDate = LocalDate.parse(date);
-			ZonedDateTime zonedDateTime = endOfDay
-					? localDate.atTime(23, 59, 59).atZone(zoneId())
-					: localDate.atStartOfDay(zoneId());
-			return Date.from(zonedDateTime.toInstant());
+			return endOfDay ? endOfLocalDay(localDate)
+					: Date.from(localDate.atStartOfDay(zoneId()).toInstant());
 		} catch (DateTimeParseException e) {
 			return null;
 		}
+	}
+
+	private Date endOfLocalDay(LocalDate localDate) {
+		return Date.from(localDate.plusDays(1).atStartOfDay(zoneId()).minusNanos(1).toInstant());
 	}
 
 	private ZoneId zoneId() {

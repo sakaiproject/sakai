@@ -13,6 +13,7 @@ import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportExportService;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 
 public class SiteStatsReportExportServiceImpl implements SiteStatsReportExportService {
 
@@ -46,6 +47,7 @@ public class SiteStatsReportExportServiceImpl implements SiteStatsReportExportSe
 		try {
 			siteStatsReportAccess.assertCanViewMetric(siteId, widgetId, metricId);
 			siteStatsWidgetCatalog.getWidgetMetricReportDefinition(siteId, widgetId, metricId,
+					new SiteStatsReportRequest(),
 					siteStatsWidgetCatalog.isOwnOnlyMetric(widgetId, metricId) ? siteStatsReportAccess.currentUserId() : null);
 			return true;
 		} catch (SecurityException | IllegalArgumentException e) {
@@ -69,7 +71,8 @@ public class SiteStatsReportExportServiceImpl implements SiteStatsReportExportSe
 	public Report getWidgetMetricReport(String siteId, String widgetId, String metricId) {
 		siteStatsReportAccess.assertCanViewMetric(siteId, widgetId, metricId);
 		String userId = siteStatsWidgetCatalog.isOwnOnlyMetric(widgetId, metricId) ? siteStatsReportAccess.currentUserId() : null;
-		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetMetricReportDefinition(siteId, widgetId, metricId, userId);
+		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetMetricReportDefinition(siteId, widgetId, metricId,
+				new SiteStatsReportRequest(), userId);
 		ReportDef reportDef = definition.getTableReportDef() != null ? definition.getTableReportDef() : definition.getChartReportDef();
 		if (reportDef == null) {
 			throw new IllegalArgumentException("Unknown SiteStats widget metric report: " + widgetId + "/" + metricId);

@@ -152,11 +152,11 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		String userId = siteStatsWidgetCatalog.isOwnOnlyMetric(widgetId, metricId) ? siteStatsReportAccess.currentUserId() : null;
-		SiteStatsReportView view = siteStatsWidgetCatalog.getWidgetMetricReportView(siteId, widgetId, metricId, userId);
+		SiteStatsReportView view = siteStatsWidgetCatalog.getWidgetMetricReportView(siteId, widgetId, metricId, safeRequest, userId);
 		if (view != null) {
 			return finishWidgetReportView(view, siteId, widgetId, null, metricId);
 		}
-		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetMetricReportDefinition(siteId, widgetId, metricId, userId);
+		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetMetricReportDefinition(siteId, widgetId, metricId, safeRequest, userId);
 		return buildWidgetReportView(siteId, definition, safeRequest, widgetId, null, metricId,
 				"Unknown SiteStats widget metric report: " + widgetId + "/" + metricId);
 	}

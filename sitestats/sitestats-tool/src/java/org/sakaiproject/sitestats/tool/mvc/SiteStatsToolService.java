@@ -466,7 +466,7 @@ public class SiteStatsToolService {
     }
 
     private Double validPreferenceThreshold(Double threshold) {
-        if (threshold == null || threshold.doubleValue() < 0) {
+        if (threshold == null || !Double.isFinite(threshold.doubleValue()) || threshold.doubleValue() < 0) {
             return null;
         }
         return threshold;

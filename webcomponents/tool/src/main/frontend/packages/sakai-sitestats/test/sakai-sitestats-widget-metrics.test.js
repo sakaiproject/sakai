@@ -58,4 +58,23 @@ describe("sakai-sitestats-widget-metrics tests", () => {
     await waitUntil(() => el.querySelector("[role='alert']"));
     expect(el.querySelector("[role='alert']").textContent).to.contain("Failed to load statistics");
   });
+
+  it("loads a preset endpoint once", async () => {
+
+    fetchMock.get(endpoint, [
+      {
+        id: "visits-total",
+        label: "Visits",
+        snapshot: { primary: "12" },
+      },
+    ]);
+
+    const el = await fixture(html`
+      <sakai-sitestats-widget-metrics endpoint=${endpoint}></sakai-sitestats-widget-metrics>
+    `);
+
+    await waitUntil(() => fetchMock.callHistory.called(endpoint));
+    await elementUpdated(el);
+    expect(fetchMock.callHistory.calls(endpoint).length).to.equal(1);
+  });
 });

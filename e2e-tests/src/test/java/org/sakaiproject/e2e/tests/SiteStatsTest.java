@@ -107,7 +107,7 @@ class SiteStatsTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHas(presenceTab))
             .locator(".sitestats-metric").first();
         assertThat(lastVisitMetric).isVisible();
-        assertThat(lastVisitMetric.locator(".sitestats-metric-primary")).not.toHaveText("");
+        assertThat(lastVisitMetric.locator(".sitestats-metric-primary")).not().hasText("");
         assertNoLegacyReportChartImages();
     }
 
@@ -148,12 +148,8 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(submissionsTab.locator("[data-report-filter='group']")).isVisible();
         assertThat(submissionsTab.locator("[data-report-filter='item']")).isVisible();
         assertThat(submissionsWidget.locator(".sitestats-widget-title")).containsText("Submissions");
-        assertThat(submissionsWidget.locator("dt")).containsText("On-time submissions");
-        assertThat(submissionsWidget.locator("dt")).containsText("Late submissions");
-        assertThat(submissionsWidget.locator("dt")).containsText("Missed submissions");
-        assertThat(submissionsWidget.locator("dt")).containsText("Submissions to grade");
-        assertThat(submissionsWidget.locator("dt")).containsText("Students at risk");
-        assertThat(submissionsWidget.locator("dt")).containsText("Median late delay");
+        assertWidgetHasMetricLabels(submissionsWidget, "On-time submissions", "Late submissions",
+            "Missed submissions", "Submissions to grade", "Students at risk", "Median late delay");
         assertTrue(submissionsWidget.locator("sakai-sitestats-highlights").count() <= 1);
         assertNoLegacyReportChartImages();
     }
@@ -185,10 +181,8 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(gradesTab.locator("[data-report-filter='item']")).isVisible();
         assertThat(gradesTab.locator("[data-report-filter='group']")).isVisible();
         assertThat(gradesWidget.locator(".sitestats-widget-title")).containsText("Grades");
-        assertThat(gradesWidget.locator("dt")).containsText("Items graded");
-        assertThat(gradesWidget.locator("dt")).containsText("Students fully graded");
-        assertThat(gradesWidget.locator("dt")).containsText("Class average");
-        assertThat(gradesWidget.locator("dt")).containsText("Students below threshold");
+        assertWidgetHasMetricLabels(gradesWidget, "Items graded", "Students fully graded",
+            "Class average", "Students below threshold");
         assertTrue(gradesWidget.locator("sakai-sitestats-highlights").count() <= 1);
         assertNoLegacyReportChartImages();
     }
@@ -428,6 +422,12 @@ class SiteStatsTest extends SakaiUiTestBase {
         sakai.toolClick("Statistics");
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Reports$", Pattern.CASE_INSENSITIVE))).click();
+    }
+
+    private void assertWidgetHasMetricLabels(Locator widget, String... labels) {
+        for (String label : labels) {
+            assertThat(widget.locator("dt").filter(new Locator.FilterOptions().setHasText(label))).hasCount(1);
+        }
     }
 
     private void assertReportSummaryRendered() {
