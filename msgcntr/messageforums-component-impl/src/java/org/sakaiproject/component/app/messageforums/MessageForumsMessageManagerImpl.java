@@ -2494,20 +2494,19 @@ public class MessageForumsMessageManagerImpl implements MessageForumsMessageMana
       CriteriaBuilder cb = session.getCriteriaBuilder();
       CriteriaQuery<PrivateMessageImpl> cq = cb.createQuery(PrivateMessageImpl.class);
       Root<PrivateMessageImpl> message = cq.from(PrivateMessageImpl.class);
-      message.fetch("recipients", JoinType.LEFT);
-      Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient =
-              (Join<PrivateMessageImpl, PrivateMessageRecipientImpl>) message.getFetches().iterator().next();
+      Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient = message.join("recipients", JoinType.INNER);
 
-      Predicate searchPredicate;
-      if (searchByAuthor) {
-          searchPredicate = cb.like(message.get("author"), likeText);
-      } else if (searchByText) {
-          searchPredicate = cb.like(message.get("title"), likeText);
-      } else if (searchByBody) {
-          searchPredicate = cb.like(message.get("body"), likeText);
-      } else {
-          searchPredicate = cb.conjunction();
+      List<Predicate> searchPredicates = new ArrayList<>();
+      if (searchByText) {
+          searchPredicates.add(cb.like(message.get("title"), likeText));
       }
+      if (searchByBody) {
+          searchPredicates.add(cb.like(message.get("body"), likeText));
+      }
+      if (searchByAuthor) {
+          searchPredicates.add(cb.like(message.get("author"), likeText));
+      }
+      Predicate searchPredicate = searchPredicates.isEmpty() ? cb.conjunction() : cb.or(searchPredicates.toArray(new Predicate[0]));
 
       Predicate datePredicate = searchByDate
               ? cb.between(message.get("created"), fromDate, toDate)
@@ -2517,17 +2516,21 @@ public class MessageForumsMessageManagerImpl implements MessageForumsMessageMana
               ? cb.equal(message.get("label"), selectedLabel)
               : cb.conjunction();
 
+      Predicate typePredicate = cb.equal(recipient.get("typeUuid"), typeUuid);
+      Predicate userPredicate = cb.equal(recipient.get("userId"), userId);
+      Predicate contextPredicate = cb.equal(recipient.get("contextId"), contextId);
+
       cq.select(message)
         .where(
             searchPredicate,
             datePredicate,
             labelPredicate,
-            cb.equal(recipient.get("typeUuid"), typeUuid),
-            cb.equal(recipient.get("userId"), userId),
-            cb.equal(recipient.get("contextId"), contextId)
+            typePredicate,
+            userPredicate,
+            contextPredicate
         );
 
-      return (List<PrivateMessage>) (List<?>) session.createQuery(cq).getResultList();
+      return session.createQuery(cq).getResultList();
   }
     
     private Integer convertBooleanToInteger(boolean value) {
