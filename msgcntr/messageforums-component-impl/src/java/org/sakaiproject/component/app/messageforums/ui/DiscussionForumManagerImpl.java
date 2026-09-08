@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
@@ -99,7 +100,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -110,8 +110,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Transactional
-public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
-    DiscussionForumManager {
+public class DiscussionForumManagerImpl implements DiscussionForumManager {
   private static final String MC_DEFAULT = "mc.default.";
   private AreaManager areaManager;
   private MessageForumsForumManager forumManager;
@@ -134,6 +133,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private ToolManager toolManager;
   private LearningResourceStoreService learningResourceStoreService;
   @Setter private UIPermissionsManager uiPermissionsManager;
+  @Setter private SessionFactory sessionFactory;
   
   public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 
