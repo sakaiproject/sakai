@@ -21,25 +21,31 @@ import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.calendar.api.OpaqueUrl;
 import org.sakaiproject.calendar.api.OpaqueUrlDao;
 import org.sakaiproject.calendar.dao.hbm.OpaqueUrlHbm;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+
 @Slf4j
 @Transactional
-public class OpaqueUrlDaoHbm extends HibernateDaoSupport implements OpaqueUrlDao {
-	
+public class OpaqueUrlDaoHbm implements OpaqueUrlDao {
+
+	@Setter private SessionFactory sessionFactory;
+
 	public OpaqueUrl newOpaqueUrl(String userUUID, String calendarRef) {
 		final OpaqueUrlHbm opaqueUrl = new OpaqueUrlHbm(userUUID, calendarRef, UUID.randomUUID().toString());
-		getHibernateTemplate().execute(session -> {
-            session.persist(opaqueUrl);
-            // We look for the opaque URL later on in the request so flush.
-            session.flush();
-            return null;
-        });
+		Session session = sessionFactory.getCurrentSession();
+
+		session.persist(opaqueUrl);
+		// We look for the opaque URL later on in the request so flush.
+		session.flush();
 		return opaqueUrl;
 	}
 
@@ -47,7 +53,23 @@ public class OpaqueUrlDaoHbm extends HibernateDaoSupport implements OpaqueUrlDao
 		OpaqueUrlHbm example = new OpaqueUrlHbm();
 		example.setUserUUID(userUUID);
 		example.setCalendarRef(calendarRef);
-		List<OpaqueUrl> results = getHibernateTemplate().findByExample(example);
+
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+
+		CriteriaQuery<OpaqueUrlHbm> cq = cb.createQuery(OpaqueUrlHbm.class);
+		Root<OpaqueUrlHbm> root = cq.from(OpaqueUrlHbm.class);
+
+		cq.select(root)
+		.where(
+			cb.and(
+				cb.equal(root.get("userUUID"), userUUID),
+				cb.equal(root.get("calendarRef"), calendarRef)
+			)
+		);
+
+		List<OpaqueUrl> results = (List<OpaqueUrl>) (List<?>) session.createQuery(cq).getResultList();
+
 		OpaqueUrl result = null;
 		if (results.size() > 0) {
 			result = results.get(0);
@@ -59,13 +81,15 @@ public class OpaqueUrlDaoHbm extends HibernateDaoSupport implements OpaqueUrlDao
 	}
 
 	public OpaqueUrl getOpaqueUrl(String opaqueUUID) {
-		return (OpaqueUrl) getHibernateTemplate().get(OpaqueUrlHbm.class, opaqueUUID);
+		Session session = sessionFactory.getCurrentSession();
+		return (OpaqueUrl) session.get(OpaqueUrlHbm.class, opaqueUUID);
 	}
 
 	public void deleteOpaqueUrl(String userUUID, String calendarRef) {
+		Session session = sessionFactory.getCurrentSession();
 		OpaqueUrl opaqueUrl = getOpaqueUrl(userUUID, calendarRef);
 		if (opaqueUrl != null) {
-			getHibernateTemplate().delete(opaqueUrl);
+			session.remove(opaqueUrl);
 		} else {
 			log.warn("Nothing to delete for userUUID: " + userUUID 
 					+ ", calendarRef: " + calendarRef);
