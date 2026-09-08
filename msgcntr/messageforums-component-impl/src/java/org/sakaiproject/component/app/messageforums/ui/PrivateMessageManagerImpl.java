@@ -36,23 +36,16 @@ import java.util.stream.Collectors;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
 import org.hibernate.LockMode;
-import org.hibernate.query.Query;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
+import org.hibernate.LockOptions;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -74,47 +67,62 @@ import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.TestUtil;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
+import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Root;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class PrivateMessageManagerImpl extends HibernateDaoSupport implements PrivateMessageManager {
+public class PrivateMessageManagerImpl implements PrivateMessageManager {
 
   private final String QUERY_AGGREGATE_COUNT = "findAggregatePvtMsgCntForUserInContext";  
   private final String QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT = "findPrvtMsgsByUserTypeContext";
@@ -131,7 +139,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private final String SHOW_MAIL_TO_LINK_PROPERTY = "msgcntr.messages.footer.show.mailto.link";
 
   private final String USER_NOT_DEFINED = "cannot find user with id ";
-
+  
   @Setter @Getter private MessageForumsMessageManager messageManager;
   @Setter private MessageForumsForumManager forumManager;
   @Setter private MessageForumsTypeManager typeManager;
@@ -149,6 +157,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   @Setter private PreferencesService preferencesService;
   @Setter private ServerConfigurationService serverConfigurationService;
   @Setter private FormattedText formattedText;
+  @Setter private SessionFactory sessionFactory;
 
   private final String MESSAGES_TITLE = "pvt_message_nav";// Mensajes-->Messages/need to be modified to support internationalization
   
@@ -256,7 +265,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     aggregateList.clear();
     aggregateList.addAll(initializeMessageCounts(userId, siteId));
     
-    getHibernateTemplate().lock(area, LockMode.NONE);
+    Session session = sessionFactory.getCurrentSession();
+    LockOptions lockOptions = new LockOptions(LockMode.NONE);
+    session.lock(area, lockOptions);
     
     PrivateForum pf;
     PrivateTopic schedulerTopicSaved;
@@ -340,7 +351,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 			schedulerTopicSaved = forumManager.savePrivateForumTopic(schedulerTopic, userId, siteId);
 			pf.addTopic(schedulerTopicSaved);
 		}
-       getHibernateTemplate().initialize(pf.getTopicsSet());
+		Hibernate.initialize(pf.getTopicsSet());
     }
 
     PrivateForum pfSaved = forumManager.savePrivateForum(pf, userId);
@@ -356,7 +367,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     
     /** reget to load topic foreign keys */
     PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNull(userId);
-    getHibernateTemplate().initialize(pf.getTopicsSet());
+    Hibernate.initialize(pf.getTopicsSet());
     return pf;
   }
 
@@ -368,7 +379,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     
     /** reget to load topic foreign keys */
     PrivateForum pf = forumManager.getPrivateForumByOwnerArea(userId, area);
-    getHibernateTemplate().initialize(pf.getTopicsSet());
+    Hibernate.initialize(pf.getTopicsSet());
     return pf;
   }
 
@@ -765,7 +776,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   public PrivateMessage initMessageWithAttachmentsAndRecipients(PrivateMessage msg){
     
     PrivateMessage pmReturn = (PrivateMessage) messageManager.getMessageByIdWithAttachments(msg.getId());    
-    getHibernateTemplate().initialize(pmReturn.getRecipients());
+    Hibernate.initialize(pmReturn.getRecipients());
     return pmReturn;
   }
   
@@ -784,18 +795,30 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
           + orderField + ", order:" + order + ")");
     }
 
-    HibernateCallback<List> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
-      Query qOrdered = session.createQuery(q.getQueryString() + " order by "
-          + orderField + " " + order);
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<PrivateMessageImpl> cq = cb.createQuery(PrivateMessageImpl.class);
+    Root<PrivateMessageImpl> root = cq.from(PrivateMessageImpl.class);
 
-      qOrdered.setParameter("userId", getCurrentUser());
-      qOrdered.setParameter("typeUuid", typeUuid);
-      qOrdered.setParameter("contextId", getContextId());
-      return qOrdered.list();
-    };
+    Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient =
+        root.join("recipients", JoinType.LEFT);
 
-    return getHibernateTemplate().execute(hcb);
+    root.fetch("recipients", JoinType.LEFT);
+
+    cq.select(root).where(
+        cb.equal(recipient.get("userId"), getCurrentUser()),
+        cb.equal(recipient.get("typeUuid"), typeUuid),
+        cb.equal(recipient.get("contextId"), getContextId())
+    );
+
+    Path<?> orderPath = root.get(orderField);
+    if ("desc".equalsIgnoreCase(order)) {
+        cq.orderBy(cb.desc(orderPath));
+    } else {
+        cq.orderBy(cb.asc(orderPath));
+    }
+
+    return session.createQuery(cq).list();
   }
   
   /**
@@ -818,16 +841,22 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       log.debug("getMessagesByTypeForASite(typeUuid:" + typeUuid + ")");
     }
 
-    HibernateCallback<List> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
 
-      q.setParameter("userId", getCurrentUser());
-      q.setParameter("typeUuid", typeUuid);
-      q.setParameter("contextId", contextId);
-      return q.list();
-    };
+    CriteriaQuery<PrivateMessageImpl> cq = cb.createQuery(PrivateMessageImpl.class);
+    Root<PrivateMessageImpl> message = cq.from(PrivateMessageImpl.class);
+    Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient = 
+        message.join("recipients", JoinType.LEFT);
 
-    return getHibernateTemplate().execute(hcb);
+    cq.select(message)
+      .where(
+          cb.equal(recipient.get("userId"), getCurrentUser()),
+          cb.equal(recipient.get("typeUuid"), typeUuid),
+          cb.equal(recipient.get("contextId"), contextId)
+      );
+
+    return session.createQuery(cq).getResultList();
   }
   
   public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final String userId, final String orderField,
@@ -837,17 +866,30 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       log.debug("getMessagesByTypeForASite(typeUuid:" + typeUuid + ")");
     }
 
-    HibernateCallback<List> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
-      Query qOrdered = session.createQuery(q.getQueryString() + " order by "
-              + orderField + " " + order);
-      qOrdered.setParameter("userId", userId);
-      qOrdered.setParameter("typeUuid", typeUuid);
-      qOrdered.setParameter("contextId", contextId);
-      return qOrdered.list();
-    };
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<PrivateMessageImpl> cq = cb.createQuery(PrivateMessageImpl.class);
+    Root<PrivateMessageImpl> root = cq.from(PrivateMessageImpl.class);
 
-    return getHibernateTemplate().execute(hcb);
+    Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient =
+        root.join("recipients", JoinType.LEFT);
+
+    root.fetch("recipients", JoinType.LEFT);
+
+    cq.select(root).where(
+        cb.equal(recipient.get("userId"), userId),
+        cb.equal(recipient.get("typeUuid"), typeUuid),
+        cb.equal(recipient.get("contextId"), contextId)
+    );
+
+    Path<?> orderPath = root.get(orderField);
+    if ("desc".equalsIgnoreCase(order)) {
+        cq.orderBy(cb.desc(orderPath));
+    } else {
+        cq.orderBy(cb.asc(orderPath));
+    }
+
+    return session.createQuery(cq).list();
   }
 
 
@@ -932,14 +974,23 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       log.debug("initializeMessageCounts executing");
     }
 
-    HibernateCallback<List> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_AGGREGATE_COUNT);
-      q.setParameter("contextId", contextId);
-      q.setParameter("userId", userId);
-      return q.list();
-    };
-        
-    return getHibernateTemplate().execute(hcb);
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+
+    CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+    Root<PrivateMessageRecipientImpl> recipient = cq.from(PrivateMessageRecipientImpl.class);
+
+    cq.select(cb.array(recipient.get("read"), recipient.get("typeUuid"), cb.count(recipient.get("read"))))
+    .where(
+        cb.equal(recipient.get("userId"), userId),
+        cb.equal(recipient.get("contextId"), contextId)
+    )
+    .groupBy(
+        recipient.get("read"),
+        recipient.get("typeUuid")
+    );
+
+    return session.createQuery(cq).getResultList();
   }
 
 
@@ -952,14 +1003,24 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
    * 	List of site id, count of unread message pairs
    */
   public List getPrivateMessageCountsForAllSites() {
-	  HibernateCallback<List> hcb = session -> {
-         Query q = session.getNamedQuery("findUnreadPvtMsgCntByUserForAllSites");
-         q.setParameter("userId", getCurrentUser());
-         return q.list();
-      };
-  
-	  return getHibernateTemplate().execute(hcb);
-	  
+	  Session session = sessionFactory.getCurrentSession();
+	    CriteriaBuilder cb = session.getCriteriaBuilder();
+
+	    CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+	    Root<PrivateMessageImpl> message = cq.from(PrivateMessageImpl.class);
+	    Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient = 
+	        message.join("recipients", JoinType.LEFT);
+
+	    cq.select(cb.array(recipient.get("contextId"), cb.count(recipient)))
+	    .where(
+	        cb.equal(recipient.get("userId"), getCurrentUser()),
+	        cb.isFalse(recipient.get("read")),
+	        cb.isFalse(message.get("draft")),
+	        cb.isFalse(message.get("deleted"))
+	    )
+	    .groupBy(recipient.get("contextId"));
+
+	    return session.createQuery(cq).getResultList();
   }
 
   /**
@@ -1753,13 +1814,18 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       throw new IllegalArgumentException("Null Argument");
     }
 
-    HibernateCallback<PrivateMessage> hcb = session -> {
-      Query q = session.getNamedQuery(QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS);
-      q.setParameter("id", message.getId());
-      return (PrivateMessage) q.uniqueResult();
-    };
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
 
-    PrivateMessage pvtMessage = getHibernateTemplate().execute(hcb);
+    CriteriaQuery<PrivateMessageImpl> cq = cb.createQuery(PrivateMessageImpl.class);
+    Root<PrivateMessageImpl> messageRoot = cq.from(PrivateMessageImpl.class);
+
+    messageRoot.fetch("recipients", JoinType.LEFT);
+
+    cq.select(messageRoot)
+        .where(cb.equal(messageRoot.get("id"), message.getId()));
+
+    PrivateMessage pvtMessage = session.createQuery(cq).uniqueResult();
 
     if (pvtMessage == null)
     {
@@ -2164,26 +2230,42 @@ return topicTypeUuid;
   
   public Area getAreaByContextIdAndTypeId(final String typeId) {
     log.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
-    HibernateCallback<Area> hcb = session -> {
-        Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
-        q.setParameter("contextId", getContextId());
-        q.setParameter("typeId", typeId);
-        return (Area) q.uniqueResult();
-    };
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
 
-    return getHibernateTemplate().execute(hcb);
+    CriteriaQuery<AreaImpl> cq = cb.createQuery(AreaImpl.class);
+    Root<AreaImpl> area = cq.from(AreaImpl.class);
+
+    area.fetch("membershipItemSet", JoinType.LEFT);
+    area.fetch("hiddenGroups", JoinType.LEFT);
+
+    cq.select(area)
+        .where(
+            cb.equal(area.get("contextId"), getContextId()),
+            cb.equal(area.get("typeUuid"), typeId)
+        );
+
+    return session.createQuery(cq).uniqueResult();
   }
   
   public Area getAreaByContextIdAndTypeId(final String typeId, String contextId) {
 	    log.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
-	    HibernateCallback<Area> hcb = session -> {
-	        Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
-	        q.setParameter("contextId", contextId);
-	        q.setParameter("typeId", typeId);
-	        return (Area) q.uniqueResult();
-	    };
+	    Session session = sessionFactory.getCurrentSession();
+	    CriteriaBuilder cb = session.getCriteriaBuilder();
 
-	    return getHibernateTemplate().execute(hcb);
+	    CriteriaQuery<AreaImpl> cq = cb.createQuery(AreaImpl.class);
+	    Root<AreaImpl> area = cq.from(AreaImpl.class);
+
+	    area.fetch("membershipItemSet", JoinType.LEFT);
+	    area.fetch("hiddenGroups", JoinType.LEFT);
+
+	    cq.select(area)
+	        .where(
+	            cb.equal(area.get("contextId"), contextId),
+	            cb.equal(area.get("typeUuid"), typeId)
+	        );
+
+	    return session.createQuery(cq).uniqueResult();
   }
   
   /**
@@ -2230,13 +2312,13 @@ return topicTypeUuid;
 
   public PrivateMessage getPrivateMessage(final String id) throws MessagingException {
 	  PrivateMessage currentMessage = (PrivateMessage) messageManager.getMessageByIdWithAttachments(Long.parseLong(decrypt(id)));
-	  getHibernateTemplate().initialize(currentMessage.getRecipients());
+	  Hibernate.initialize(currentMessage.getRecipients());
 	  return currentMessage;
   }
   
   public PrivateMessage getPrivateMessageByDecryptedId(String id) throws MessagingException {
 	  PrivateMessage currentMessage = (PrivateMessage) messageManager.getMessageByIdWithAttachments(Long.parseLong(id));
-	  getHibernateTemplate().initialize(currentMessage.getRecipients());
+	  Hibernate.initialize(currentMessage.getRecipients());
 	  return currentMessage;
   }
   
@@ -2372,27 +2454,45 @@ return topicTypeUuid;
   private int getNumMessageRespond(final String userId, final Long messageId) {
 	  log.debug("getNumMessageRespond executing");
 
-	  HibernateCallback<Number> hcb = session -> {
-		  Query q = session.getNamedQuery(QUERY_RESPONSED_COUNT);
-		  q.setParameter("userId", userId);
-		  q.setParameter("messageId", messageId);
-		  return (Number) q.uniqueResult();
-	  };
-    
-	  return getHibernateTemplate().execute(hcb).intValue();
+	  Session session = sessionFactory.getCurrentSession();
+	  CriteriaBuilder cb = session.getCriteriaBuilder();
+
+	  CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+	  Root<PrivateMessageImpl> message = cq.from(PrivateMessageImpl.class);
+	  Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient =
+			  message.join("recipients");
+
+	  cq.select(cb.count(message))
+	  .where(
+		  cb.equal(message.get("inReplyTo").get("id"), messageId),
+		  cb.equal(recipient.get("userId"), userId)
+	  );
+
+	  return session.createQuery(cq).uniqueResult().intValue();
   }
   
   private String getUserIdByFowardMail(final Long messageId, final String mail) {
 	  log.debug("getUserIdByFowardMail executing");
 
-	  HibernateCallback<String> hcb = session -> {
-		  Query q = session.getNamedQuery(QUERY_USER_ID_BY_FOWARD_MAIL);
-		  q.setParameter("messageId", messageId);
-		  q.setParameter("mail", mail);
-		  return (String)q.uniqueResult();
-	  };
+	  Session session = sessionFactory.getCurrentSession();
+	  CriteriaBuilder cb = session.getCriteriaBuilder();
 
-	  return getHibernateTemplate().execute(hcb);
+	  CriteriaQuery<String> cq = cb.createQuery(String.class);
+
+	  Root<PrivateMessageImpl> message = cq.from(PrivateMessageImpl.class);
+	  Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient =
+			  message.join("recipients");
+	  Root<PrivateForumImpl> privateForum = cq.from(PrivateForumImpl.class);
+
+	  cq.select(recipient.get("userId"))
+	  .where(
+		  cb.equal(message.get("id"), messageId),
+		  cb.equal(privateForum.get("autoForwardEmail"), mail),
+		  cb.equal(recipient.get("userId"), privateForum.get("owner"))
+	  );
+
+	  return session.createQuery(cq).uniqueResult();
   }
 
   public void processPvtMsgReplySentAction(PrivateMessage currentMessage, PrivateMessage rrepMsg) {
