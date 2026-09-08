@@ -6,8 +6,10 @@
  */
 package org.sakaiproject.site.tool.helper.participant;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantDisplayResolver;
 import org.sakaiproject.site.tool.helper.participant.impl.ParticipantMessage;
@@ -23,6 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 import lombok.Getter;
@@ -62,9 +65,10 @@ public class ParticipantAddController {
     }
 
     @PostMapping("/add")
-    public String submitAdd(@ModelAttribute AddForm form, Model model) {
+    public String submitAdd(@ModelAttribute AddForm form, Model model, RedirectAttributes redirectAttributes) {
         if (handler.submitAdd(form.getCsrfToken(), form.getOfficialAccountParticipant(),
                 form.getNonOfficialAccountParticipant(), ParticipantStatus.fromFormValue(form.getStatusChoice()))) {
+            redirectAttributes.addFlashAttribute("messages", messageViews());
             return "redirect:/roles";
         }
         model.addAttribute("addForm", createAddForm(handler.snapshot()));
@@ -173,13 +177,16 @@ public class ParticipantAddController {
     private String render(Model model, String view, int step) {
         model.addAttribute("siteTitle", handler.getSiteTitle());
         model.addAttribute("step", step);
-        List<ParticipantMessageView> messages = handler.getMessages().stream()
+        model.mergeAttributes(Map.of("messages", messageViews()));
+        return view;
+    }
+
+    private List<ParticipantMessageView> messageViews() {
+        return handler.getMessages().stream()
                 .map(message -> new ParticipantMessageView(
                         messageSource.getMessage(message.getCode(), message.getArgs(), LocaleContextHolder.getLocale()),
                         message.getSeverity()))
                 .toList();
-        model.addAttribute("messages", messages);
-        return view;
     }
 
     private RedirectView doneRedirect(String doneUrl) {
@@ -188,7 +195,7 @@ public class ParticipantAddController {
         return redirectView;
     }
 
-    public record ParticipantMessageView(String text, ParticipantMessage.Severity severity) {
+    public record ParticipantMessageView(String text, ParticipantMessage.Severity severity) implements Serializable {
 
         public String bannerClass() {
             return switch (severity) {

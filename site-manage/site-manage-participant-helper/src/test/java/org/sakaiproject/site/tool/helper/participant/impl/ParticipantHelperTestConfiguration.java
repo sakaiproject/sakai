@@ -7,6 +7,10 @@
 package org.sakaiproject.site.tool.helper.participant.impl;
 
 import org.mockito.Mockito;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -40,6 +44,26 @@ public class ParticipantHelperTestConfiguration {
     @Bean(name = "org.sakaiproject.user.api.UserDirectoryService")
     public UserDirectoryService userDirectoryService() {
         return Mockito.mock(UserDirectoryService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
+    public CourseManagementService courseManagementService() {
+        return Mockito.mock(CourseManagementService.class);
+    }
+
+    @Bean
+    public ThreadLocalManager threadLocalManager() {
+        return Mockito.mock(ThreadLocalManager.class);
+    }
+
+    @Bean
+    public ToolManager toolManager() {
+        return Mockito.mock(ToolManager.class);
+    }
+
+    @Bean
+    public LocaleService localeService() {
+        return Mockito.mock(LocaleService.class);
     }
 
     @Bean
