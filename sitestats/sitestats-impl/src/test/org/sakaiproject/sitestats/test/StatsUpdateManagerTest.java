@@ -1569,6 +1569,33 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
 	}
 
+	@Test
+	public void testSitePresencesRetainCompletedVisitWhenSessionReentersSite() {
+		Instant start = Instant.parse("2026-08-20T12:00:00Z");
+		String reference = "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX;
+		Event begin = statsUpdateManager.buildEvent(Date.from(start), StatsManager.SITEVISIT_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		Event end = statsUpdateManager.buildEvent(Date.from(start.plusSeconds(600)), StatsManager.SITEVISITEND_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		Event returnToSite = statsUpdateManager.buildEvent(Date.from(start.plusSeconds(900)), StatsManager.SITEVISIT_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+
+		assertTrue(statsUpdateManager.collectEvents(List.of(begin, end, returnToSite)));
+
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		assertEquals(Duration.ofMinutes(10).toMillis(), results.get(0).getDuration());
+		assertEquals(Integer.valueOf(1), results.get(0).getCurrentOpenSessions());
+
+		Event leaveAgain = statsUpdateManager.buildEvent(Date.from(start.plusSeconds(1200)), StatsManager.SITEVISITEND_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		assertTrue(statsUpdateManager.collectEvents(List.of(leaveAgain)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		assertEquals(Duration.ofMinutes(15).toMillis(), results.get(0).getDuration());
+		assertEquals(Integer.valueOf(0), results.get(0).getCurrentOpenSessions());
+	}
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testSitePresencesExistingPresence() throws InterruptedException {

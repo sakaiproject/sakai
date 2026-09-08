@@ -125,7 +125,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, LessonBuilderStat>			lessonBuilderStatMap	= Collections.synchronizedMap(new HashMap<>());
 	private Map<String, SiteActivity>				activityMap				= Collections.synchronizedMap(new HashMap<>());
 	private Map<String, SiteVisits>					visitsMap				= Collections.synchronizedMap(new HashMap<>());
-	private Map<SitePresenceKey, SitePresenceRecord>presencesMap			= Collections.synchronizedMap(new HashMap<>());
+	private Map<SitePresenceKey, List<SitePresenceRecord>> presencesMap			= Collections.synchronizedMap(new HashMap<>());
 	private Map<UniqueVisitsKey, Integer>			uniqueVisitsMap			= Collections.synchronizedMap(new HashMap<>());
 	private Map<String, ServerStat>					serverStatMap			= Collections.synchronizedMap(new HashMap<>());
 	private Map<String, UserStat>					userStatMap				= Collections.synchronizedMap(new HashMap<>());
@@ -748,7 +748,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 							.userId(userId)
 							.begin(dateTime.toInstant())
 							.build();
-					presencesMap.put(sitePresenceKey, beginningPresence);
+					List<SitePresenceRecord> sessionPresences = presencesMap.computeIfAbsent(sitePresenceKey, key -> new ArrayList<>());
+					// Preserve completed visits when the same session returns before the batch is saved.
+					if (!sessionPresences.isEmpty() && sessionPresences.get(sessionPresences.size() - 1).isBeginning()) {
+						sessionPresences.remove(sessionPresences.size() - 1);
+					}
+					sessionPresences.add(beginningPresence);
 				}
 			}finally{
 				lock.unlock();
@@ -759,7 +764,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			lock.lock();
 			try{
 				// Populate presence map with end events
-				SitePresenceRecord existingPresence = presencesMap.get(sitePresenceKey);
+				List<SitePresenceRecord> sessionPresences = presencesMap.get(sitePresenceKey);
+				SitePresenceRecord existingPresence = sessionPresences == null ? null : sessionPresences.get(sessionPresences.size() - 1);
 				if(existingPresence != null) {
 					existingPresence.setEnd(dateTime.toInstant());
 				} else {
@@ -768,7 +774,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 							.userId(userId)
 							.end(dateTime.toInstant())
 							.build();
-					presencesMap.put(sitePresenceKey, endingPresence);
+					presencesMap.computeIfAbsent(sitePresenceKey, key -> new ArrayList<>()).add(endingPresence);
 				}
 			}finally{
 				lock.unlock();
@@ -928,8 +934,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
                     if(presencesMap.size() > 0) {
                         Collection<SitePresenceRecord> tmp6 = null;
                         synchronized(presencesMap){
-                            tmp6 = presencesMap.values();
-                            presencesMap = Collections.synchronizedMap(new HashMap<SitePresenceKey, SitePresenceRecord>());
+                            tmp6 = presencesMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+                            presencesMap = Collections.synchronizedMap(new HashMap<SitePresenceKey, List<SitePresenceRecord>>());
                         }
                         doUpdateSitePresencesObjects(session, tmp6);
                     }
