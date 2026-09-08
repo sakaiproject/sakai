@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.sakaiproject.api.app.messageforums.EmailNotification;
 import org.sakaiproject.api.app.messageforums.EmailNotificationManager;
@@ -32,24 +34,27 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.EmailNotificationImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class EmailNotificationManagerImpl extends HibernateDaoSupport implements EmailNotificationManager {
+public class EmailNotificationManagerImpl implements EmailNotificationManager {
 
 	private static final String QUERY_BY_USER_ID = "findEmailNotificationByUserId";
 	private static final String QUERY_USERLIST_BY_NOTIFICATION_LEVEL = "findUserIdsByNotificationLevel";
@@ -59,6 +64,8 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 	private EventTrackingService eventTrackingService;
 	
 	private ToolManager toolManager;
+
+	@Setter private SessionFactory sessionFactory;
 
 	public void init() {
 		log.info("init()");
@@ -91,14 +98,21 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 			throw new IllegalArgumentException("Null Argument");
 		}
 
-		HibernateCallback<EmailNotification> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_BY_USER_ID);
-            q.setParameter("userId", userId);
-            q.setParameter("contextId", getContextId());
-            return (EmailNotification) q.uniqueResult();
-        };
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
 
-		EmailNotification emailNotification = getHibernateTemplate().execute(hcb);
+		CriteriaQuery<EmailNotificationImpl> cq = cb.createQuery(EmailNotificationImpl.class);
+		Root<EmailNotificationImpl> root = cq.from(EmailNotificationImpl.class);
+
+		cq.select(root)
+		.where(
+			cb.and(
+				cb.equal(root.get("userId"), userId),
+				cb.equal(root.get("contextId"), getContextId())
+			)
+		);
+
+		EmailNotification emailNotification = session.createQuery(cq).uniqueResult();
 
 		if (emailNotification == null) {
 			// this user has not set his emailnotification option. That's okay.
@@ -193,26 +207,30 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 		return ret;
 	}
 
-	private List<String> getSiteUsersByNotificationLevel(final String contextid,
-			final int notificationlevel) {
+	private List<String> getSiteUsersByNotificationLevel(final String contextid, final int notificationlevel) {
 
-			log.debug("getEmailNotification(userid: {})", notificationlevel);
+		log.debug("getEmailNotification(userid: {})", notificationlevel);
 
-		HibernateCallback<List<String>> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_USERLIST_BY_NOTIFICATION_LEVEL);
-            q.setParameter("contextId", contextid);
-            q.setParameter("level", notificationlevel);
-            return q.list();
-        };
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
 
- 
-		List<String> siteusers = getHibernateTemplate().execute(hcb);
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		Root<EmailNotificationImpl> root = cq.from(EmailNotificationImpl.class);
+
+		cq.select(root.get("userId"))
+			.where(
+				cb.and(
+					cb.equal(root.get("contextId"), contextid),
+					cb.equal(root.get("notificationLevel"), notificationlevel)
+				)
+			);
+
 
 		// get all site users that are
 		// either want all notification
 		// or reply to their own message
 
-		return siteusers;
+		return session.createQuery(cq).getResultList();
 
 	}
 
@@ -240,7 +258,8 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 	}
 
 	public void saveEmailNotification(EmailNotification emailoption) {
-		getHibernateTemplate().saveOrUpdate(emailoption);
+		Session session = sessionFactory.getCurrentSession();
+		emailoption = session.merge(emailoption);
 		
 		log.debug("saveEmailNotification executed for contextid={} userid={}",
 				emailoption.getContextId(), emailoption.getUserId());
