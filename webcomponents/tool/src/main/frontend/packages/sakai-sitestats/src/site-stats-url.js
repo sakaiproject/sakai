@@ -18,7 +18,7 @@ export const withQueryParam = (endpoint, name, value) => {
       }
     }
   }
-  if (value) {
+  if (value !== undefined && value !== null && value !== "") {
     parts.push(`${encodeURIComponent(name)}=${encodeURIComponent(value)}`);
   }
   return parts.length ? `${url.pathname}?${parts.join("&")}` : url.pathname;
