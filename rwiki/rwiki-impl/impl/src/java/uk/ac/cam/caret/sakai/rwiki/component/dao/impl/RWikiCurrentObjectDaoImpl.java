@@ -22,29 +22,27 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
-import org.hibernate.type.Type;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Predicate;
 import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl;
+import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectContentImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiCurrentObjectDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiHistoryObjectDao;
@@ -57,7 +55,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 // FIXME: Component
 @Slf4j
 @Transactional(readOnly = true)
-public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RWikiCurrentObjectDao, ObjectProxy {
+public class RWikiCurrentObjectDaoImpl implements RWikiCurrentObjectDao, ObjectProxy {
+	@Setter private SessionFactory sessionFactory;
+
 
 	protected RWikiObjectContentDao contentDAO = null;
 
@@ -68,14 +68,13 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 	public boolean exists(final String name) {
 		long start = System.currentTimeMillis();
 		try {
-			HibernateCallback<Number> callback = session -> (Number) session
-                    .createQuery("select count(*) from RWikiCurrentObjectImpl r where r.name = :name")
-                    .setParameter("name", name)
-                    .uniqueResult();
-
-			Integer count = getHibernateTemplate().execute(callback).intValue();
-
-			return (count > 0);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+			Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
+			cq.select(cb.count(root)).where(cb.equal(root.get("name"), name));
+			int count = session.createQuery(cq).uniqueResult().intValue();
+			return count > 0;
 		} finally {
 			long finish = System.currentTimeMillis();
 			TimeLogger.printTimer("RWikiObjectDaoImpl.exists: " + name, start, finish);
@@ -89,17 +88,14 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback<List<RWikiCurrentObject>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<RWikiCurrentObject> cq = cb.createQuery(RWikiCurrentObject.class);
-				Root<RWikiCurrentObject> root = cq.from(RWikiCurrentObject.class);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiCurrentObjectImpl> cq = cb.createQuery(RWikiCurrentObjectImpl.class);
+			Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
 
-				cq.select(root).where(cb.equal(root.get("name"), name));
+			cq.select(root).where(cb.equal(root.get("name"), name));
 
-				return session.createQuery(cq).getResultList();
-			};
-
-			List found = getHibernateTemplate().execute(callback);
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0)
 			{
 				log.debug("Found {} objects with name {}", found.size(), name);
@@ -114,161 +110,75 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 	}
 
 	public List findByGlobalNameAndContents(final String criteria, final String user, final String realm) {
-
-
-		// WARNING: In MySQL like does not produce a case sensitive search so
-		// this is Ok
-		// Oracle can probaly do it, but would need some set up (maybee)
-		// http://asktom.oracle.com/pls/ask/f?p=4950:8:::::F4950_P8_DISPLAYID:16370675423662
-
-
-		final StringBuffer expression = new StringBuffer();
-		final List criteriaList = new ArrayList();
-
-
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RWikiCurrentObjectImpl> cq = cb.createQuery(RWikiCurrentObjectImpl.class);
+		Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
+		Root<RWikiCurrentObjectContentImpl> content = cq.from(RWikiCurrentObjectContentImpl.class);
+		// Hibernate 6 rejects lower(CLOB) during type validation; keep the full content in SQL.
+		Expression<String> lowerContent = session.getCriteriaBuilder().sql("lower(?)", String.class, content.get("content"));
 		Matcher matcher = idPattern.matcher(criteria);
+		List<Predicate> alternatives = new ArrayList<>();
+		List<Predicate> exclusions = new ArrayList<>();
 
-		criteriaList.add(realm);
-		int t = 1;
-
-		Boolean firstParam = true;
-		Boolean onlyNotSearch = true;
-		Boolean firstNotSearchParam = true;
-
-		final StringBuffer expressionNotOperator = new StringBuffer();
-		final List criteriaListTmp = new ArrayList();
-		final List criteriaListTmp2 = new ArrayList();
-
-		String query = "select distinct r from RWikiCurrentObjectImpl as r, RWikiCurrentObjectContentImpl as c where r.realm = ?0 ";
-
-		while(matcher.find()){
-			if(!matcher.group(0).isEmpty()){
-
-				//check for and operator linkage (word and anotherWord)
-				if(matcher.group("and") != null) {
-					//update flags
-					if (onlyNotSearch) {
-						onlyNotSearch = false;
-					}
-					// left param --> check for!
-					if (matcher.group(2) != null) {
-						//check if first
-						if(firstParam){
-							expression.append(String.format(" (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t, t + 1));
-							firstParam = false;
-						}else{
-							expression.append(String.format(" or (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t, t + 1));
-						}
-					} else {
-						if(firstParam){
-							expression.append(String.format(" (lower(c.content) like ?%d or lower(r.name) like ?%d) ", t, t + 1));
-							firstParam = false;
-						}else {
-							expression.append(String.format(" or (lower(c.content) like ?%d or lower(r.name) like ?%d) ", t, t + 1));
-						}
-					}
-					//  right param --> check for!
-					if (matcher.group(4) != null) {
-						expression.append(String.format(" and (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t + 2, t + 3));
-					} else {
-						expression.append(String.format(" and (lower(c.content) like ?%d or lower(r.name) like ?%d) ", t + 2, t + 3));
-					}
-					criteriaListTmp.add("%" + matcher.group(3).toLowerCase() + "%");
-					criteriaListTmp.add("%" + matcher.group(3).toLowerCase() + "%");
-
-					criteriaListTmp.add("%" + matcher.group(5).toLowerCase() + "%");
-					criteriaListTmp.add("%" + matcher.group(5).toLowerCase() + "%");
-					t += 4;
-
-					// check for trailing and operator
-				}else if(matcher.group(6) != null){
-					//check for !
-					if(matcher.group(7) != null){
-						expression.append(String.format(" and (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t, t + 1));
-					}else {
-						expression.append(String.format(" and (lower(c.content)  like ?%d or lower(r.name) like ?%d) ", t, t + 1));
-					}
-					criteriaListTmp.add("%" + matcher.group(8).toLowerCase() + "%");
-					criteriaListTmp.add("%" + matcher.group(8).toLowerCase() + "%");
-					t+= 2;
-					//check for single search param
-				}else if(matcher.group(10) != null) {
-					//check for !
-					if(matcher.group(9) != null){
-						if(firstNotSearchParam){
-							expressionNotOperator.append(String.format(" (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t, t + 1));
-							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
-							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
-
-							//criteriaListTmp3_1.add("%" + matcher.group(11).toLowerCase() + "%");
-							firstNotSearchParam = false;
-						}else {
-							expressionNotOperator.append(String.format(" or (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t, t + 1));
-
-							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
-							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
-						}
-					}else{
-						if(onlyNotSearch){
-							onlyNotSearch = false;
-						}
-						if(firstParam){
-							expression.append(String.format(" (lower(c.content) like ?%d or lower(r.name) like ?%d) ", t, t + 1));
-							firstParam = false;
-						}else {
-							expression.append(String.format(" or (lower(c.content) like ?%d or lower(r.name) like ?%d) ", t, t + 1));
-						}
-						criteriaListTmp.add("%" + matcher.group(10).toLowerCase() + "%");
-						criteriaListTmp.add("%" + matcher.group(10).toLowerCase() + "%");
-					}
-					t+= 2;
+		while (matcher.find()) {
+			if (matcher.group(0).isEmpty()) {
+				continue;
+			}
+			if (matcher.group("and") != null) {
+				alternatives.add(cb.and(
+					searchTerm(cb, root, lowerContent, matcher.group(3), matcher.group(2) != null),
+					searchTerm(cb, root, lowerContent, matcher.group(5), matcher.group(4) != null)));
+			} else if (matcher.group(6) != null) {
+				int last = alternatives.size() - 1;
+				alternatives.set(last, cb.and(alternatives.get(last),
+					searchTerm(cb, root, lowerContent, matcher.group(8), matcher.group(7) != null)));
+			} else if (matcher.group(10) != null) {
+				Predicate term = searchTerm(cb, root, lowerContent, matcher.group(10), matcher.group(9) != null);
+				if (matcher.group(9) != null) {
+					exclusions.add(term);
+				} else {
+					alternatives.add(term);
 				}
 			}
 		}
 
-		if(!onlyNotSearch){
-			query += " and ( " + expression.toString();
-			criteriaListTmp.forEach(s -> {criteriaList.add(s);});
-
-			if(!criteriaListTmp2.isEmpty()){
-				query += " and ( " + expressionNotOperator.toString() + ")) ";
-				criteriaListTmp2.forEach(s -> {criteriaList.add(s);});
-
-			}else{
-				query += ") ";
+		Predicate expression = cb.conjunction();
+		if (!exclusions.isEmpty()) {
+			expression = cb.or(exclusions.toArray(new Predicate[0]));
+			if (!alternatives.isEmpty()) {
+				// Preserve the original HQL precedence: AND binds to the last OR term.
+				int last = alternatives.size() - 1;
+				alternatives.set(last, cb.and(alternatives.get(last), expression));
 			}
-
-		}else {
-			String expNotOp = expressionNotOperator.toString();
-			if (StringUtils.isNotBlank(expNotOp)) {
-				query += " and ( " + expNotOp + " )";
-				criteriaListTmp2.forEach(s -> {criteriaList.add(s);});
-			}
-
 		}
+		if (!alternatives.isEmpty()) {
+			expression = cb.or(alternatives.toArray(new Predicate[0]));
+		}
+		cq.select(root).distinct(true).where(
+			cb.equal(root.get("realm"), realm),
+			expression,
+			cb.equal(root.get("id"), content.get("rwikiid")))
+			.orderBy(cb.asc(root.get("name")));
+		return new ListProxy(session.createQuery(cq).getResultList(), this);
+	}
 
-		query += "and r.id = c.rwikiid order by r.name";
-
-		String finalQuery = query;
-		final List finalCriteriaList = criteriaList;
-
-		HibernateCallback<List> callback = session -> {
-			Query q = session.createNativeQuery(finalQuery);
-			// Set each positional parameter individually (1-based)
-			for (int i = 0; i < finalCriteriaList.size(); i++) {
-				q.setParameter(i + 1, finalCriteriaList.get(i));
-			}
-			return q.list();
-		};
-
-		return new ListProxy(getHibernateTemplate().execute(callback), this);
+	private Predicate searchTerm(CriteriaBuilder cb, Root<RWikiCurrentObjectImpl> root,
+			Expression<String> lowerContent, String term, boolean exclude) {
+		String pattern = "%" + term.toLowerCase() + "%";
+		if (exclude) {
+			return cb.and(cb.notLike(lowerContent, pattern),
+				cb.notLike(cb.lower(root.get("name")), pattern));
+		}
+		return cb.or(cb.like(lowerContent, pattern),
+			cb.like(cb.lower(root.get("name")), pattern));
 	}
 
 	@Transactional
 	public void update(RWikiCurrentObject rwo, RWikiHistoryObject rwho) {
 		// should have already checked
 		RWikiCurrentObjectImpl impl = (RWikiCurrentObjectImpl) rwo;
-		getHibernateTemplate().saveOrUpdate(impl);
+		sessionFactory.getCurrentSession().saveOrUpdate(impl);
 		// update the history
 		if (rwho != null) {
 			rwho.setRwikiobjectid(impl.getId());
@@ -295,46 +205,42 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 	}
 
 	public List findChangedSince(final Date since, final String realm) {
-		HibernateCallback<List> callback = session -> {
-			CriteriaBuilder cb = session.getCriteriaBuilder();
-			CriteriaQuery<RWikiCurrentObject> cq = cb.createQuery(RWikiCurrentObject.class);
-			Root<RWikiCurrentObject> root = cq.from(RWikiCurrentObject.class);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RWikiCurrentObjectImpl> cq = cb.createQuery(RWikiCurrentObjectImpl.class);
+		Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
 
-			cq.select(root)
-				.where(cb.and(
-					cb.greaterThanOrEqualTo(root.get("version"), since),
-					cb.equal(root.get("realm"), realm)
-				))
-			.orderBy(cb.desc(root.get("version")));
+		cq.select(root)
+			.where(cb.and(
+				cb.greaterThanOrEqualTo(root.get("version"), since),
+				cb.equal(root.get("realm"), realm)
+			))
+		.orderBy(cb.desc(root.get("version")));
 
-			return session.createQuery(cq).getResultList();
-		};
-
-		return new ListProxy(getHibernateTemplate().execute(callback), this);
+		List found = session.createQuery(cq).getResultList();
+		return new ListProxy(found, this);
 	}
 
 	public List findReferencingPages(final String name) {
-		HibernateCallback<List> callback = session -> session
-				.createQuery("select r.name " + "from RWikiCurrentObjectImpl r where referenced like :name")
-				.setParameter("name", "%::" + name + "::%")
-				.list();
-		return new ListProxy(getHibernateTemplate().execute(callback), this);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
+		cq.select(root.get("name")).where(cb.like(root.get("referenced"), "%::" + name + "::%"));
+		return new ListProxy(session.createQuery(cq).getResultList(), this);
 	}
 
 	public RWikiCurrentObject getRWikiCurrentObject(final RWikiObject reference) {
 		long start = System.currentTimeMillis();
 		try {
-			HibernateCallback<List<RWikiCurrentObject>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<RWikiCurrentObject> cq = cb.createQuery(RWikiCurrentObject.class);
-				Root<RWikiCurrentObject> root = cq.from(RWikiCurrentObject.class);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiCurrentObjectImpl> cq = cb.createQuery(RWikiCurrentObjectImpl.class);
+			Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
 
-				cq.select(root).where(cb.equal(root.get("id"), reference.getRwikiobjectid()));
+			cq.select(root).where(cb.equal(root.get("id"), reference.getRwikiobjectid()));
 
-				return session.createQuery(cq).getResultList();
-			};
-
-			List found = getHibernateTemplate().execute(callback);
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0) {
 				log.debug("Found {} objects with id {}", found.size(), reference.getRwikiobjectid());
 				return null;
@@ -373,34 +279,33 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 	}
 
 	public List getAll() {
-		HibernateCallback<List> callback = session -> {
-			CriteriaBuilder cb = session.getCriteriaBuilder();
-			CriteriaQuery<RWikiCurrentObject> cq = cb.createQuery(RWikiCurrentObject.class);
-			Root<RWikiCurrentObject> root = cq.from(RWikiCurrentObject.class);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RWikiCurrentObjectImpl> cq = cb.createQuery(RWikiCurrentObjectImpl.class);
+		Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
 
-			cq.select(root).orderBy(cb.desc(root.get("version")));
+		cq.select(root).orderBy(cb.desc(root.get("version")));
 
-			return session.createQuery(cq).getResultList();
-		};
-
-		return new ListProxy(getHibernateTemplate().execute(callback), this);
+		List found = session.createQuery(cq).getResultList();
+		return new ListProxy(found, this);
 	}
 
 	@Transactional
 	public void updateObject(RWikiObject rwo) {
-		getHibernateTemplate().saveOrUpdate(rwo);
+		sessionFactory.getCurrentSession().saveOrUpdate(rwo);
 	}
 
 	public int getPageCount(final String group) {
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback<Number> callback = session -> (Number) session
-					.createQuery("select count(*) from RWikiCurrentObjectImpl r where r.realm = :realm")
-					.setParameter("realm", group)
-					.uniqueResult();
-
-			return getHibernateTemplate().execute(callback).intValue();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+			Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
+			cq.select(cb.count(root)).where(cb.equal(root.get("realm"), group));
+			int count = session.createQuery(cq).uniqueResult().intValue();
+			return count;
 		}
 		finally
 		{
@@ -411,45 +316,46 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 	}
 
 	public List findRWikiSubPages(final String globalParentPageName) {
-		HibernateCallback<List> callback = session -> {
-            String search = globalParentPageName.replaceAll("([A%_])", "A$1");
-            return session.createQuery("from RWikiCurrentObjectImpl as r where r.name like concat( :search , '%' ) escape 'A' order by name asc")
-					.setParameter("search", search)
-					.list();
-        };
-		return new ListProxy(getHibernateTemplate().execute(callback), this);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RWikiCurrentObjectImpl> cq = cb.createQuery(RWikiCurrentObjectImpl.class);
+		Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
+		String search = globalParentPageName.replaceAll("([A%_])", "A$1") + "%";
+		cq.select(root).where(cb.like(root.get("name"), search, 'A')).orderBy(cb.asc(root.get("name")));
+		return new ListProxy(session.createQuery(cq).getResultList(), this);
 	}
 
 	public RWikiObject findLastRWikiSubPage(final String globalParentPageName) {
-		HibernateCallback<List> callback = session -> {
-            String search = globalParentPageName.replaceAll("([A%_])", "A$1");
-            return session.createQuery("from RWikiCurrentObjectImpl as r where r.name like concat( :search , '%' ) escape 'A' order by name desc")
-                    .setParameter("search", search)
-                    .list();
-        };
-		List l = getHibernateTemplate().execute(callback);
-		if (l == null || l.size() == 0) return null;
-		return (RWikiObject) l.get(0);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RWikiCurrentObjectImpl> cq = cb.createQuery(RWikiCurrentObjectImpl.class);
+		Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
+		String search = globalParentPageName.replaceAll("([A%_])", "A$1") + "%";
+		cq.select(root).where(cb.like(root.get("name"), search, 'A')).orderBy(cb.desc(root.get("name")));
+		List<RWikiCurrentObjectImpl> found = session.createQuery(cq).getResultList();
+		if (found.isEmpty()) return null;
+		return found.get(0);
 	}
 
 	public List findAllChangedSince(final Date time, final String basepath) {
-		HibernateCallback<List> callback = session -> {
-            String search = basepath.replaceAll("([A%_])", "A$1");
-            return session
-                    .createQuery("from RWikiCurrentObjectImpl as r where r.name like concat( :search , '%' ) escape 'A' and r.version >= :time order by r.version desc, r.name asc")
-                    .setParameter("search", search)
-                    .setParameter("time", time)
-                    .list();
-        };
-		return new ListProxy(getHibernateTemplate().execute(callback), this);
-
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RWikiCurrentObjectImpl> cq = cb.createQuery(RWikiCurrentObjectImpl.class);
+		Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
+		String search = basepath.replaceAll("([A%_])", "A$1") + "%";
+		cq.select(root).where(cb.like(root.get("name"), search, 'A'),
+			cb.greaterThanOrEqualTo(root.get("version"), time))
+			.orderBy(cb.desc(root.get("version")), cb.asc(root.get("name")));
+		return new ListProxy(session.createQuery(cq).getResultList(), this);
 	}
 
 	public List findAllPageNames() {
-		HibernateCallback<List> callback = session -> session
-				.createQuery("select r.name " + "from RWikiCurrentObjectImpl  r ")
-                .list();
-		return getHibernateTemplate().execute(callback);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		Root<RWikiCurrentObjectImpl> root = cq.from(RWikiCurrentObjectImpl.class);
+		cq.select(root.get("name"));
+		return session.createQuery(cq).getResultList();
 	}
 
 }
