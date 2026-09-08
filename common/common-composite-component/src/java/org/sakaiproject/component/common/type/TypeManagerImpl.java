@@ -21,27 +21,29 @@
 
 package org.sakaiproject.component.common.type;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import org.hibernate.HibernateException;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
-
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
 import org.sakaiproject.component.common.manager.PersistableHelper;
 import org.sakaiproject.id.api.IdManager;
 import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon </a>
  */
 @Slf4j
 @Transactional
-public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager {
+public class TypeManagerImpl implements TypeManager {
 	private static final String ID = "id";
 
 	private static final String FINDTYPEBYID = "findTypeById";
@@ -68,6 +70,8 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager 
 	
 	@Setter private IdManager idManager;
 
+	@Setter private SessionFactory sessionFactory;
+
 	/**
 	 * @see org.sakaiproject.api.type.TypeManager#createType(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
 	 */
@@ -78,6 +82,7 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager 
 			log.debug("createType(String " + authority + ", String " + domain + ", String " + keyword + ", String " + displayName
 					+ ", String " + description + ")");
 		}
+		Session session = sessionFactory.getCurrentSession();
 		// validation
 		if (authority == null || authority.length() < 1) throw new IllegalArgumentException("authority");
 		if (domain == null || domain.length() < 1) throw new IllegalArgumentException("domain");
@@ -92,7 +97,7 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager 
 		ti.setKeyword(keyword);
 		ti.setDisplayName(displayName);
 		ti.setDescription(description);
-		ti = getHibernateTemplate().merge(ti);
+		ti = session.merge(ti);
 		return ti;
 	}
 
@@ -102,13 +107,14 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager 
 		{
 			log.debug("saveType(Type " + type + ")");
 		}
+		Session session = sessionFactory.getCurrentSession();
 		if (type == null) throw new IllegalArgumentException("type");
 
 		if (type instanceof TypeImpl)
 		{ // found well known Type
 			TypeImpl ti = (TypeImpl) type;
 			persistableHelper.modifyPersistableFields(ti);
-			getHibernateTemplate().saveOrUpdate(ti);
+			session.merge(ti);
 		}
 		else
 		{ // found external Type
@@ -130,18 +136,26 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager 
 			throw new IllegalArgumentException("uuid");
 		}
 
-		final HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				Query q = session.getNamedQuery(FINDTYPEBYUUID);
-				q.setParameter(UUID, uuid);
-				q.setCacheable(cacheFindTypeByUuid);
-				return q.uniqueResult();
-			}
-		};
-		Type type = (Type) getHibernateTemplate().execute(hcb);
-		return type;
+		try {
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+
+			CriteriaQuery<TypeImpl> cq = cb.createQuery(TypeImpl.class);
+			Root<TypeImpl> root = cq.from(TypeImpl.class);
+
+			cq.select(root)
+			.where(cb.equal(root.get("uuid"), uuid));
+
+			Type type = session.createQuery(cq)
+				.setCacheable(cacheFindTypeByUuid)
+				.uniqueResult();
+
+			return type;
+
+		} catch (Exception e) {
+			log.error("Error getting type by uuid: " + uuid, e);
+			throw new RuntimeException("Error getting type by uuid", e);
+		}
 	}
 
 	/**
@@ -158,20 +172,32 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager 
 		if (domain == null || domain.length() < 1) throw new IllegalArgumentException("domain");
 		if (keyword == null || keyword.length() < 1) throw new IllegalArgumentException("keyword");
 
-		final HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				Query q = session.getNamedQuery(FINDTYPEBYTUPLE);
-				q.setParameter(AUTHORITY, authority);
-				q.setParameter(DOMAIN, domain);
-				q.setParameter(KEYWORD, keyword);
-				q.setCacheable(cacheFindTypeByTuple);
-				return q.uniqueResult();
-			}
-		};
-		Type type = (Type) getHibernateTemplate().execute(hcb);
-		return type;
+		try {
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+
+			CriteriaQuery<TypeImpl> cq = cb.createQuery(TypeImpl.class);
+			Root<TypeImpl> root = cq.from(TypeImpl.class);
+
+			cq.select(root)
+			.where(
+				cb.and(
+					cb.equal(root.get("authority"), authority),
+					cb.equal(root.get("domain"), domain),
+					cb.equal(root.get("keyword"), keyword)
+				)
+			);
+
+			Type type = session.createQuery(cq)
+				.setCacheable(cacheFindTypeByTuple)
+				.uniqueResult();
+
+			return type;
+
+		} catch (Exception e) {
+			log.error("Error getting type for authority: " + authority + ", domain: " + domain + ", keyword: " + keyword, e);
+			throw new RuntimeException("Error getting type", e);
+		}
 	}
 
 	/**
