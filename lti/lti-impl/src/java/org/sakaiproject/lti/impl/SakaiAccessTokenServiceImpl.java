@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -70,8 +71,10 @@ import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI13_PATH;
 @Slf4j
 public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
 
-    private static final String CACHE_PUBLIC = "key::public";
-    private static final String CACHE_PRIVATE = "key::private";
+
+    private static final String CACHE_KEYPAIR = "keypair";
+    private static final String PUBLIC = "public";
+    private static final String PRIVATE = "private";
     private static final String CLIENT_ASSERTION_REPLAY_CACHE_NAME = "org.sakaiproject.lti13.ClientAssertionReplay_cache";
 
     @Autowired
@@ -384,10 +387,10 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
 
         Cache igniteCache = resolveIgniteCache(SAT_CACHE_NAME);
         if (tokenKeyPair == null && igniteCache != null) {
-            Cache.ValueWrapper cachedPublic = igniteCache.get(CACHE_PUBLIC);
-            Cache.ValueWrapper cachedPrivate = igniteCache.get(CACHE_PRIVATE);
-            if (cachedPublic != null && cachedPrivate != null) {
-                tokenKeyPair = LTI13Util.strings2KeyPair((String) cachedPublic.get(), (String) cachedPrivate.get());
+            Cache.ValueWrapper cachedKeypairWrapper = igniteCache.get(CACHE_KEYPAIR);
+            if (cachedKeypairWrapper != null) {
+                Map<String, String> cachedKeypair = (Map<String, String>) cachedKeypairWrapper.get();
+                tokenKeyPair = LTI13Util.strings2KeyPair(cachedKeypair.get(PUBLIC), cachedKeypair.get(PRIVATE));
                 if (tokenKeyPair == null) {
                     log.error("Could not parse tokenKeyPair from Ignite cache");
                 } else {
@@ -405,15 +408,15 @@ public class SakaiAccessTokenServiceImpl implements SakaiAccessTokenService {
                 String privateB64Out = LTI13Util.getPrivateB64(tokenKeyPair);
                 igniteCache = resolveIgniteCache(SAT_CACHE_NAME);
                 if (igniteCache != null) {
-                    Cache.ValueWrapper cachedPublic = igniteCache.putIfAbsent(CACHE_PUBLIC, publicB64Out);
-                    Cache.ValueWrapper cachedPrivate = igniteCache.putIfAbsent(CACHE_PRIVATE, privateB64Out);
-                    if (cachedPublic != null || cachedPrivate != null) {
+                    Map<String, String> keypairMap = Map.of(PUBLIC, publicB64Out, PRIVATE, privateB64Out);
+                    Cache.ValueWrapper cachedKeypairWrapper = igniteCache.putIfAbsent(CACHE_KEYPAIR, keypairMap);
+                    if (cachedKeypairWrapper != null) {
                         // Someone else already holds (part of) the key pair; adopt the persisted winner.
-                        Cache.ValueWrapper winningPublic = igniteCache.get(CACHE_PUBLIC);
-                        Cache.ValueWrapper winningPrivate = igniteCache.get(CACHE_PRIVATE);
-                        if (winningPublic != null && winningPrivate != null) {
-                            tokenKeyPair = LTI13Util.strings2KeyPair(
-                                (String) winningPublic.get(), (String) winningPrivate.get());
+                        Cache.ValueWrapper winningKeypairWrapper = igniteCache.get(CACHE_KEYPAIR);
+                        if (winningKeypairWrapper != null) {
+                            Map<String, String> winningKeypair = (Map<String, String>) winningKeypairWrapper.get();
+                            tokenKeyPair
+                                = LTI13Util.strings2KeyPair(winningKeypair.get(PUBLIC), winningKeypair.get(PRIVATE));
                         }
                     }
                     log.info("Generated SAT signing key and stored in Ignite cache");
