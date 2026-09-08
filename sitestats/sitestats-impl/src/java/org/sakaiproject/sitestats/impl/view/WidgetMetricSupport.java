@@ -98,11 +98,11 @@ public class WidgetMetricSupport {
 		}
 		String trimmed = value.trim();
 		try {
-			return Double.valueOf(NumberFormat.getNumberInstance(currentLocale()).parse(trimmed).doubleValue());
-		} catch (ParseException e) {
+			return Double.valueOf(trimmed.replace(',', '.'));
+		} catch (NumberFormatException nfe) {
 			try {
-				return Double.valueOf(trimmed.replace(',', '.'));
-			} catch (NumberFormatException nfe) {
+				return Double.valueOf(NumberFormat.getNumberInstance(currentLocale()).parse(trimmed).doubleValue());
+			} catch (ParseException e) {
 				return null;
 			}
 		}
