@@ -10,7 +10,7 @@ const WHEN_TO = "whenTo";
 export class SakaiSiteStatsWidgetTab extends SakaiShadowElement {
 
   static properties = {
-    endpoint: { type: String },
+    endpoint: { type: String, reflect: true },
     filters: { attribute: false },
     open: { type: Boolean, reflect: true, useDefault: true },
     _activated: { state: true },

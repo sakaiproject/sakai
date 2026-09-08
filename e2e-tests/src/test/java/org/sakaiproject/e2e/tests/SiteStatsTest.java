@@ -63,7 +63,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         Locator widgetTab = page.locator(
             ".sitestats-widget-tab[endpoint*='/widgets/visits/tabs/bydate']");
         assertThat(widgetTab).hasCount(1);
-        assertTrue(widgetTab.getAttribute("open") != null);
+        widgetTab.locator("summary").click();
         widgetTab.getByLabel("Period:").selectOption("when-all");
 
         Locator reportPanel = widgetTab.locator("sakai-sitestats-report-panel");
@@ -142,7 +142,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         String metricsEndpoint = (String) submissionsWidget.locator("sakai-sitestats-widget-metrics")
             .evaluate("el => el.endpoint");
         assertTrue(metricsEndpoint.contains("itemType=sakai.assignment.grades"));
-        String tabEndpoint = submissionsTab.getAttribute("endpoint");
+        String tabEndpoint = (String) submissionsTab.evaluate("el => el.endpoint");
         assertTrue(tabEndpoint.contains("itemType=sakai.assignment.grades"));
         assertThat(submissionsTab.locator("[data-report-filter='itemType']")).hasCount(0);
         assertThat(submissionsTab.locator("[data-report-filter='group']")).isVisible();

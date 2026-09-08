@@ -132,6 +132,7 @@ describe("sakai-sitestats-widget-tab tests", () => {
     await elementUpdated(el);
 
     expect(el.endpoint).to.equal(updatedEndpoint);
+    expect(el.getAttribute("endpoint")).to.equal(updatedEndpoint);
     expect(el.shadowRoot.querySelector("sakai-sitestats-report-panel").endpoint).to.equal(updatedEndpoint);
     await waitUntil(() => fetchMock.callHistory.called(updatedEndpoint));
   });

@@ -42,8 +42,7 @@
       </sakai-sitestats-highlights>
       <sakai-sitestats-widget-tab class="sitestats-widget-tab"
                                   th:each="tab : ${widget.tabs}"
-                                  th:attr="endpoint=${widgetEndpoints.get(widget.id + ':' + tab.id)},
-                                           open=${null}">
+                                  th:attr="endpoint=${widgetEndpoints.get(widget.id + ':' + tab.id)}">
         <span slot="title" th:text="${tab.title}">Report</span>
         <div slot="filter" class="sitestats-widget-filter" th:each="filter : ${tab.filters}"
              th:hidden="${filter.id == 'whenFrom' or filter.id == 'whenTo'}">
