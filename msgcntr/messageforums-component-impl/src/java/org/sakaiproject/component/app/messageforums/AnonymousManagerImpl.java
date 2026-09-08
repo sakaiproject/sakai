@@ -24,21 +24,25 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.HibernateException;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
+import org.hibernate.query.Query;
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.AnonymousMapping;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AnonymousMappingImpl;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @see org.sakaiproject.api.app.messageforums.AnonymousManager
@@ -46,7 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Transactional
-public class AnonymousManagerImpl extends HibernateDaoSupport implements AnonymousManager
+public class AnonymousManagerImpl implements AnonymousManager
 {
 
 	// Padding used to enforce that anonIDs are always 6 characters
@@ -62,6 +66,7 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 	private final int MAX_IN_CLAUSE_SIZE = 1000;
 
 	private ServerConfigurationService serverConfigurationService;
+	@Setter private SessionFactory sessionFactory;
 	
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService)
 	{
@@ -116,28 +121,39 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 			return Collections.emptyList();
 		}
 
-		HibernateCallback<List<AnonymousMapping>> hcb = new HibernateCallback<List<AnonymousMapping>>()
-		{ 
-			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException
-			{
-				List<AnonymousMapping> mappings = new ArrayList<>();
-				// be mindful of Oracle's 1000 in clause limit
-				int minUser = 0;
-				int maxUser = Math.min(userIds.size(), MAX_IN_CLAUSE_SIZE);
-				while (minUser < userIds.size())
-				{
-					Query q = session.getNamedQuery(QUERY_BY_SITE_AND_USERS);
-					q.setParameter("siteId", siteId);
-					q.setParameterList("userIds", userIds.subList(minUser, maxUser));
-					mappings.addAll(q.list());
-					minUser += MAX_IN_CLAUSE_SIZE;
-					maxUser = Math.min(userIds.size(), minUser + MAX_IN_CLAUSE_SIZE);
-				}
-				return mappings;
-			}
-		};
+		try {
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
 
-		return getHibernateTemplate().execute(hcb);
+			List<AnonymousMapping> mappings = new ArrayList<>();
+			// be mindful of Oracle's 1000 in clause limit
+			int minUser = 0;
+			int maxUser = Math.min(userIds.size(), MAX_IN_CLAUSE_SIZE);
+			 while (minUser < userIds.size()) {
+				List<String> subList = userIds.subList(minUser, maxUser);
+
+				CriteriaQuery<AnonymousMappingImpl> cq = cb.createQuery(AnonymousMappingImpl.class);
+				Root<AnonymousMappingImpl> root = cq.from(AnonymousMappingImpl.class);
+
+				cq.select(root)
+				.where(
+					cb.and(
+						cb.equal(root.get("siteId"), siteId),
+							root.get("userId").in(subList)
+						)
+					);
+
+				mappings.addAll(session.createQuery(cq).getResultList());
+
+				minUser += MAX_IN_CLAUSE_SIZE;
+				maxUser = Math.min(userIds.size(), minUser + MAX_IN_CLAUSE_SIZE);
+			}
+			return mappings;
+
+		} catch (Exception e) {
+			log.error("Error finding mappings by site and users for siteId: " + siteId, e);
+			throw new RuntimeException("Error finding mappings by site and users", e);
+		}
 	}
 
 	/** {@inheritDoc} */
@@ -145,17 +161,16 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 	{
 		Map<String, String> anonIdMap = new HashMap<>();
 
-		HibernateCallback<List<AnonymousMapping>> hcb = new HibernateCallback<List<AnonymousMapping>>()
-		{
-			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException
-			{
-				Query q = session.getNamedQuery(QUERY_BY_SITE);
-				q.setParameter("siteId", siteId);
-				return q.list();
-			}
-		};
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
 
-		List<AnonymousMapping> mappings = getHibernateTemplate().execute(hcb);
+		CriteriaQuery<AnonymousMappingImpl> cq = cb.createQuery(AnonymousMappingImpl.class);
+		Root<AnonymousMappingImpl> root = cq.from(AnonymousMappingImpl.class);
+
+		cq.select(root)
+			.where(cb.equal(root.get("siteId"), siteId));
+
+		List<AnonymousMapping> mappings = new ArrayList<>(session.createQuery(cq).getResultList());
 
 		for (AnonymousMapping mapping : mappings)
 		{
@@ -244,7 +259,8 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 	/** {@inheritDoc} */
 	public void saveAnonMapping(AnonymousMapping anonMapping)
 	{
-		getHibernateTemplate().saveOrUpdate(anonMapping);
+		Session session = sessionFactory.getCurrentSession();
+		session.merge(anonMapping);
 	}
 
 	/**
