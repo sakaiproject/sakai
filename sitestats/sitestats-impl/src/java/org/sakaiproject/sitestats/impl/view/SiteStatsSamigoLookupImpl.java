@@ -160,10 +160,11 @@ public class SiteStatsSamigoLookupImpl implements SiteStatsSamigoLookup {
 				if (entry == null) {
 					continue;
 				}
-				entry.syncDates(access);
-				overrides.add(new SiteStatsSamigoDateOverride(StringUtils.trimToNull(entry.getUser()),
-						StringUtils.trimToNull(entry.getGroup()), toInstant(entry.getDueDate()),
-						toInstant(entry.getRetractDate())));
+				ExtendedTime synchronizedEntry = new ExtendedTime(entry);
+				synchronizedEntry.syncDates(access);
+				overrides.add(new SiteStatsSamigoDateOverride(StringUtils.trimToNull(synchronizedEntry.getUser()),
+						StringUtils.trimToNull(synchronizedEntry.getGroup()), toInstant(synchronizedEntry.getDueDate()),
+						toInstant(synchronizedEntry.getRetractDate())));
 			}
 			return overrides;
 		} catch (RuntimeException e) {

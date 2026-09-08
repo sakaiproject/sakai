@@ -434,9 +434,10 @@ public class SiteStatsSubmissionsAnalytics {
 		}
 		String role = filterCatalog.roleFilter(request);
 		if (!ReportManager.WHO_ALL.equals(role) && StringUtils.isNotBlank(role)) {
+			Site site = site(siteId);
 			Set<String> matchingRole = new HashSet<String>();
 			for (String candidate : remaining) {
-				if (role.equals(memberRoleFor(siteId, candidate))) {
+				if (role.equals(memberRoleFor(site, candidate))) {
 					matchingRole.add(candidate);
 				}
 			}
@@ -850,7 +851,14 @@ public class SiteStatsSubmissionsAnalytics {
 	}
 
 	private void sortCountRows(List<CountRow> rows) {
-		Collections.sort(rows, Comparator.comparing((CountRow row) -> row.label, String.CASE_INSENSITIVE_ORDER));
+		Collections.sort(rows, Comparator.comparing(this::countRowSortLabel, String.CASE_INSENSITIVE_ORDER));
+	}
+
+	private String countRowSortLabel(CountRow row) {
+		if (row.itemType != null) {
+			return row.label;
+		}
+		return displayUser(row.key);
 	}
 
 	private String displayUser(String userId) {
@@ -909,15 +917,22 @@ public class SiteStatsSubmissionsAnalytics {
 		return context.message(key);
 	}
 
-	private String memberRoleFor(String siteId, String userId) {
+	private Site site(String siteId) {
 		try {
-			Site site = context.getSiteService().getSite(siteId);
-			Member member = site.getMember(userId);
-			if (member != null && member.getRole() != null) {
-				return member.getRole().getId();
-			}
+			return context.getSiteService().getSite(siteId);
 		} catch (IdUnusedException e) {
 			log.warn("Site does not exist: {}", siteId);
+			return null;
+		}
+	}
+
+	private String memberRoleFor(Site site, String userId) {
+		if (site == null) {
+			return null;
+		}
+		Member member = site.getMember(userId);
+		if (member != null && member.getRole() != null) {
+			return member.getRole().getId();
 		}
 		return null;
 	}

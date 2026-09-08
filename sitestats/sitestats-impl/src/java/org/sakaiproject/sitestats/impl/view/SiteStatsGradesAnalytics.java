@@ -306,7 +306,7 @@ public class SiteStatsGradesAnalytics {
 				GradeDefinition grade = gradeFor(grades, item.getId(), expectedUser);
 				GradeCell cell = cell(siteId, item, expectedUser, grade, letterScales);
 				snapshot.add(cell);
-				itemTotals.add(cell);
+				itemTotals.add(cell, snapshot.threshold);
 				snapshot.user(expectedUser).add(cell);
 			}
 		}
@@ -500,9 +500,10 @@ public class SiteStatsGradesAnalytics {
 		}
 		String role = filterCatalog.roleFilter(request);
 		if (!ReportManager.WHO_ALL.equals(role) && StringUtils.isNotBlank(role)) {
+			Site site = site(siteId);
 			Set<String> matchingRole = new HashSet<String>();
 			for (String candidate : remaining) {
-				if (role.equals(memberRoleFor(siteId, candidate))) {
+				if (role.equals(memberRoleFor(site, candidate))) {
 					matchingRole.add(candidate);
 				}
 			}
@@ -529,15 +530,22 @@ public class SiteStatsGradesAnalytics {
 		}
 	}
 
-	private String memberRoleFor(String siteId, String userId) {
+	private Site site(String siteId) {
 		try {
-			Site site = context.getSiteService().getSite(siteId);
-			Member member = site.getMember(userId);
-			if (member != null && member.getRole() != null) {
-				return member.getRole().getId();
-			}
+			return context.getSiteService().getSite(siteId);
 		} catch (IdUnusedException e) {
 			log.warn("Site does not exist: {}", siteId);
+			return null;
+		}
+	}
+
+	private String memberRoleFor(Site site, String userId) {
+		if (site == null) {
+			return null;
+		}
+		Member member = site.getMember(userId);
+		if (member != null && member.getRole() != null) {
+			return member.getRole().getId();
 		}
 		return null;
 	}
@@ -1004,7 +1012,7 @@ public class SiteStatsGradesAnalytics {
 			this.itemType = itemType;
 		}
 
-		void add(GradeCell cell) {
+		void add(GradeCell cell, double threshold) {
 			if (cell.excused) {
 				return;
 			}
@@ -1014,6 +1022,9 @@ public class SiteStatsGradesAnalytics {
 				graded++;
 				earned += cell.score.doubleValue();
 				gradedPossible += cell.possible.doubleValue();
+				if (cell.percent() < threshold) {
+					below++;
+				}
 			}
 		}
 
@@ -1075,13 +1086,6 @@ public class SiteStatsGradesAnalytics {
 						belowUsers++;
 					} else {
 						meetingUsers++;
-					}
-				}
-			}
-			for (ItemTotals item : byItem.values()) {
-				for (GradeCell cell : cells) {
-					if (item.key.equals(cell.itemKey) && !cell.excused && cell.graded && cell.percent() < threshold) {
-						item.below++;
 					}
 				}
 			}

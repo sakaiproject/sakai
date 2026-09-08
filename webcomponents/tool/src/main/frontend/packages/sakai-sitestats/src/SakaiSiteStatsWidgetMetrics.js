@@ -21,12 +21,6 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
     this.loadTranslations("sitestats");
   }
 
-  connectedCallback() {
-
-    super.connectedCallback();
-    this._load();
-  }
-
   updated(changedProperties) {
 
     if (changedProperties.has("endpoint")) {

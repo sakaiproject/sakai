@@ -93,6 +93,10 @@ public class SiteStatsSamigoQuiz {
 			return null;
 		}
 		Set<String> groups = userGroupIds == null ? Collections.emptySet() : userGroupIds;
+		// Match Samigo ExtendedTimeDeliveryService.resolveEntriesByPublishedAssessment:
+		// a user-specific override wins over any group override. If the student is in
+		// multiple groups with overrides, the last match after lexicographic groupId
+		// (then userId) sort determines due and retract dates.
 		List<SiteStatsSamigoDateOverride> ordered = new ArrayList<SiteStatsSamigoDateOverride>(dateOverrides);
 		ordered.sort(Comparator
 				.comparing((SiteStatsSamigoDateOverride override) -> StringUtils.isBlank(override.getUserId()) ? 0 : 1)

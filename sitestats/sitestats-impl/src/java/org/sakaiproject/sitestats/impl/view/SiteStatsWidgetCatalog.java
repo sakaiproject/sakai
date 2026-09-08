@@ -129,15 +129,17 @@ public class SiteStatsWidgetCatalog {
 		buildRegistry();
 	}
 
-	public WidgetReportDefinition getWidgetMetricReportDefinition(String siteId, String widgetId, String metricId, String userId) {
+	public WidgetReportDefinition getWidgetMetricReportDefinition(String siteId, String widgetId, String metricId,
+			SiteStatsReportRequest request, String userId) {
 		WidgetMetricSpec spec = metricSpecs.get(key(widgetId, metricId));
 		if (spec == null || spec.getReportFactory() == null || !widgetAvailable(widgetId) || !spec.isAvailable()) {
 			throw new IllegalArgumentException("Unknown SiteStats widget metric report: " + widgetId + "/" + metricId);
 		}
-		return spec.getReportFactory().build(siteId, new SiteStatsReportRequest(), userId);
+		return spec.getReportFactory().build(siteId, SiteStatsReportRequest.normalized(request), userId);
 	}
 
-	public SiteStatsReportView getWidgetMetricReportView(String siteId, String widgetId, String metricId, String userId) {
+	public SiteStatsReportView getWidgetMetricReportView(String siteId, String widgetId, String metricId,
+			SiteStatsReportRequest request, String userId) {
 		WidgetMetricSpec spec = metricSpecs.get(key(widgetId, metricId));
 		if (spec == null || !widgetAvailable(widgetId) || !spec.isAvailable()) {
 			throw new IllegalArgumentException("Unknown SiteStats widget metric report: " + widgetId + "/" + metricId);
@@ -145,7 +147,7 @@ public class SiteStatsWidgetCatalog {
 		if (spec.getViewFactory() == null) {
 			return null;
 		}
-		return spec.getViewFactory().build(siteId, new SiteStatsReportRequest(), userId);
+		return spec.getViewFactory().build(siteId, SiteStatsReportRequest.normalized(request), userId);
 	}
 
 	private void buildRegistry() {

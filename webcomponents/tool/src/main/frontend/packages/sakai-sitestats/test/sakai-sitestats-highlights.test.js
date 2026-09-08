@@ -1,5 +1,6 @@
 import "../sakai-sitestats-highlights.js";
-import { elementUpdated, expect, fixture, html } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
+import fetchMock from "fetch-mock";
 
 describe("sakai-sitestats-highlights tests", () => {
 
@@ -54,5 +55,20 @@ describe("sakai-sitestats-highlights tests", () => {
 
     expect(el.hidden).to.be.false;
     expect(el.shadowRoot.querySelector("sakai-sitestats-chart")).to.exist;
+  });
+
+  it("loads a preset endpoint once", async () => {
+
+    const endpoint = "/api/sites/site1/sitestats/widgets/visits/highlights";
+    fetchMock.mockGlobal();
+    fetchMock.get(endpoint, [ funnelChart ]);
+    try {
+      const el = await fixture(html`<sakai-sitestats-highlights endpoint=${endpoint}></sakai-sitestats-highlights>`);
+      await waitUntil(() => fetchMock.callHistory.called(endpoint));
+      await elementUpdated(el);
+      expect(fetchMock.callHistory.calls(endpoint).length).to.equal(1);
+    } finally {
+      fetchMock.hardReset();
+    }
   });
 });
