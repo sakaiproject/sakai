@@ -5,10 +5,21 @@ export const withQueryParam = (endpoint, name, value) => {
   }
 
   const url = new URL(endpoint, window.location.href);
-  if (value) {
-    url.searchParams.set(name, value);
-  } else {
-    url.searchParams.delete(name);
+  const parts = [];
+  const search = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+  if (search) {
+    for (const part of search.split("&")) {
+      if (!part) {
+        continue;
+      }
+      const key = decodeURIComponent(part.split("=")[0].replaceAll("+", " "));
+      if (key !== name) {
+        parts.push(part);
+      }
+    }
   }
-  return `${url.pathname}${url.search}`;
+  if (value) {
+    parts.push(`${encodeURIComponent(name)}=${encodeURIComponent(value)}`);
+  }
+  return parts.length ? `${url.pathname}?${parts.join("&")}` : url.pathname;
 };
