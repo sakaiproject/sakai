@@ -931,14 +931,15 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
                     }
 
                     // do: SitePresences
-                    if(presencesMap.size() > 0) {
-                        Collection<SitePresenceRecord> tmp6 = null;
-                        synchronized(presencesMap){
-                            tmp6 = presencesMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
-                            presencesMap = Collections.synchronizedMap(new HashMap<SitePresenceKey, List<SitePresenceRecord>>());
-                        }
-                        doUpdateSitePresencesObjects(session, tmp6);
+                    Collection<SitePresenceRecord> tmp6;
+                    lock.lock();
+                    try {
+                        tmp6 = presencesMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+                        presencesMap = Collections.synchronizedMap(new HashMap<SitePresenceKey, List<SitePresenceRecord>>());
+                    } finally {
+                        lock.unlock();
                     }
+                    doUpdateSitePresencesObjects(session, tmp6);
 
                     // do: ServerStats
                     if(serverStatMap.size() > 0) {
