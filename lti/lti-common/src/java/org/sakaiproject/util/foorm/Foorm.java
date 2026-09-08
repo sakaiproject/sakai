@@ -42,8 +42,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import lombok.extern.slf4j.Slf4j;
 
 import org.tsugi.lti.LTIUtil;
@@ -152,12 +154,10 @@ public class Foorm {
 		}
 	}
 
-	// Expect to be overridden
 	public String htmlSpecialChars(String str) {
-		return str;
+		return ComponentManager.get(FormattedText.class).escapeHtml(str, false);
 	}
 
-	// Expect to be overridden
 	private String loadI18N(String key, ResourceLoader loader) {
 		return loader == null ? null : loader.getString(key, null);
 	}
