@@ -26,10 +26,12 @@ import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfQuestionModel;
+import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfItemGradingModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfMatchingRowModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfSelectionAnswerModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPrintPdfModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentStudentReportPdfModel;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -37,6 +39,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ContentsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FinBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ImageMapQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatchingBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
@@ -244,8 +247,123 @@ public class AssessmentPdfSnapshotBuilderTest {
         assertTrue(selection.isSelected());
     }
 
+    @Test
+    public void buildPrintModelCapturesImageMapRegionsAndOmitsTextKey() {
+        String regionJson = "{\"x1\":10,\"y1\":20,\"x2\":40,\"y2\":50}";
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, null);
+
+        SectionContentsBean section = mock(SectionContentsBean.class);
+        when(section.getItemContents()).thenReturn(List.of(item));
+        when(section.getAttachmentList()).thenReturn(Collections.emptyList());
+        when(section.getTitle()).thenReturn("Part 1");
+        when(section.getDescription()).thenReturn("");
+
+        DeliveryBean deliveryBean = mock(DeliveryBean.class);
+        when(deliveryBean.getAssessmentTitle()).thenReturn("Sample Quiz");
+        when(deliveryBean.getIsMathJaxEnabled()).thenReturn(Boolean.FALSE);
+
+        PrintSettingsBean printSettings = new PrintSettingsBean();
+        printSettings.setShowKeys(Boolean.TRUE);
+
+        AssessmentPrintPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .deliveryParts(List.of(section))
+                .printSettings(printSettings)
+                .buildPrintModel();
+
+        AssessmentPdfQuestionModel question = model.getParts().get(0).getQuestions().get(0);
+        assertNull(question.getItemAnswerKey());
+        assertTrue(question.getPrintChoices().isEmpty());
+        assertEquals("/group/site/hotspot.png", question.getImageMapSrc());
+        assertEquals(List.of("Heart"), question.getImageMapItemTexts());
+        assertEquals(List.of(regionJson), question.getImageMapRegionJsons());
+    }
+
+    @Test
+    public void buildStudentReportModelMapsImageMapRowsAfterRegionSnapshot() {
+        String regionJson = "{\"x1\":5,\"y1\":5,\"x2\":15,\"y2\":15}";
+        ImageMapQuestionBean imageMapBean = new ImageMapQuestionBean();
+        imageMapBean.setText("1. Heart");
+        imageMapBean.setIsCorrect(Boolean.TRUE);
+
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, imageMapBean);
+        item.setImageSrc("/group/site/hotspot.png");
+
+        DeliveryBean deliveryBean = studentReportDeliveryBean(item);
+        StudentScoresBean studentScoresBean = studentReportScoresBean(null);
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .studentScores(studentScoresBean)
+                .buildStudentReportModel();
+        AssessmentPdfQuestionModel question = model.getParts().get(0).getQuestions().get(0);
+
+        assertEquals("/group/site/hotspot.png", question.getImageSrc());
+        assertEquals(List.of(regionJson), question.getImageMapRegionJsons());
+        assertEquals(1, question.getImageMapRows().size());
+        assertEquals("1. Heart", question.getImageMapRows().get(0).getText());
+        assertEquals(Boolean.TRUE, question.getImageMapRows().get(0).getCorrect());
+    }
+
+    @Test
+    public void buildStudentReportModelSnapshotsImageMapClickSequenceFromItemText() {
+        String regionJson = "{\"x1\":5,\"y1\":5,\"x2\":15,\"y2\":15}";
+        ImageMapQuestionBean imageMapBean = new ImageMapQuestionBean();
+        imageMapBean.setText("1. Heart");
+        imageMapBean.setIsCorrect(Boolean.TRUE);
+
+        ItemContentsBean item = imageMapQuestionItem("/group/site/hotspot.png", "Heart", regionJson, imageMapBean);
+        item.setImageSrc("/group/site/hotspot.png");
+        ItemTextIfc itemText = (ItemTextIfc) item.getItemData().getItemTextArraySorted().get(0);
+        when(itemText.getId()).thenReturn(9001L);
+        when(itemText.getSequence()).thenReturn(1L);
+
+        ItemGradingData grading = new ItemGradingData();
+        grading.setAnswerText("{\"x\":10,\"y\":20}");
+        grading.setPublishedItemTextId(9001L);
+        item.setItemGradingDataArray(new java.util.ArrayList<>(List.of(grading)));
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(studentReportDeliveryBean(item))
+                .studentScores(studentReportScoresBean(null))
+                .buildStudentReportModel();
+        AssessmentPdfItemGradingModel click = model.getParts().get(0).getQuestions().get(0).getItemGradingData().get(0);
+
+        assertEquals("{\"x\":10,\"y\":20}", click.getAnswerText());
+        assertEquals(Long.valueOf(9001L), click.getPublishedItemTextId());
+        assertEquals(Integer.valueOf(1), click.getSequence());
+    }
+
     private static AssessmentPdfSnapshotBuilder snapshotBuilder() {
         return new AssessmentPdfSnapshotBuilder(mock(FormattedText.class), mock(ResourceLoader.class));
+    }
+
+    private static ItemContentsBean imageMapQuestionItem(String imageMapSrc, String itemText, String regionJson,
+            ImageMapQuestionBean imageMapRow) {
+        AnswerIfc answer = mock(AnswerIfc.class);
+        when(answer.getText()).thenReturn(regionJson);
+        when(answer.getLabel()).thenReturn("A");
+        when(answer.getIsCorrect()).thenReturn(Boolean.TRUE);
+
+        ItemTextIfc itemTextIfc = mock(ItemTextIfc.class);
+        when(itemTextIfc.getText()).thenReturn(itemText);
+        when(itemTextIfc.getAnswerArraySorted()).thenReturn(List.of(answer));
+
+        ItemDataIfc itemData = mock(ItemDataIfc.class);
+        when(itemData.getTypeId()).thenReturn(TypeIfc.IMAGEMAP_QUESTION);
+        when(itemData.getItemId()).thenReturn(1L);
+        when(itemData.getImageMapSrc()).thenReturn(imageMapSrc);
+        when(itemData.getAnswerKey()).thenReturn("A");
+        when(itemData.getItemTextArraySorted()).thenReturn(List.of(itemTextIfc));
+
+        ItemContentsBean item = new ItemContentsBean();
+        item.setItemData(itemData);
+        item.setSequence("1");
+        item.setItemGradingDataArray(new java.util.ArrayList<>());
+        if (imageMapRow != null) {
+            item.setMatchingArray(new java.util.ArrayList<>(List.of(imageMapRow)));
+        }
+        return item;
     }
 
     private static ItemContentsBean matchingQuestionItem() {

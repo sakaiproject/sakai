@@ -340,10 +340,16 @@ public final class AssessmentPdfValueTypes {
 
         private final String answerText;
         private final Long publishedItemTextId;
+        private final Integer sequence;
 
         public AssessmentPdfItemGradingModel(String answerText, Long publishedItemTextId) {
+            this(answerText, publishedItemTextId, null);
+        }
+
+        public AssessmentPdfItemGradingModel(String answerText, Long publishedItemTextId, Integer sequence) {
             this.answerText = answerText;
             this.publishedItemTextId = publishedItemTextId;
+            this.sequence = sequence;
         }
 
         public String getAnswerText() {
@@ -352,6 +358,10 @@ public final class AssessmentPdfValueTypes {
 
         public Long getPublishedItemTextId() {
             return publishedItemTextId;
+        }
+
+        public Integer getSequence() {
+            return sequence;
         }
     }
 
