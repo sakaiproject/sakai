@@ -77,7 +77,7 @@ public class AssignmentServiceSubmissionHistoryTest {
 
         assignmentService.archiveSubmissionHistory(submission);
 
-        Assert.assertEquals("<h4>Original submission time</h4><div style=\"margin:0;padding:0\"><p>Feedback</p>"
+        Assert.assertEquals("<h4>Original submission time</h4><div><p>Feedback</p>"
                 + "<ul><li><a href=\"/access/original?a=1&amp;b=2\">A &amp; &lt;B&gt;</a></li></ul></div>older history",
                 submission.getProperties().get(HISTORY));
         Assert.assertEquals(SUBMITTED, submission.getDateSubmitted());
@@ -122,7 +122,7 @@ public class AssignmentServiceSubmissionHistoryTest {
         submission.setFeedbackText("Feedback");
         submission.getProperties().put(AssignmentConstants.PROP_LAST_GRADED_DATE, "Graded date");
         assignmentService.archiveSubmissionHistory(submission);
-        Assert.assertEquals("<h4>Graded date</h4><div style=\"margin:0;padding:0\">Feedback</div>",
+        Assert.assertEquals("<h4>Graded date</h4><div>Feedback</div>",
                 submission.getProperties().get(HISTORY));
 
         submission.getProperties().clear();
@@ -131,7 +131,7 @@ public class AssignmentServiceSubmissionHistoryTest {
         when(userTimeService.dateTimeFormat(modified, FormatStyle.LONG, FormatStyle.LONG))
                 .thenReturn("Sakai-formatted modification time");
         assignmentService.archiveSubmissionHistory(submission);
-        Assert.assertEquals("<h4>Sakai-formatted modification time</h4><div style=\"margin:0;padding:0\">Feedback</div>",
+        Assert.assertEquals("<h4>Sakai-formatted modification time</h4><div>Feedback</div>",
                 submission.getProperties().get(HISTORY));
     }
 

@@ -2143,7 +2143,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         }
         String history = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
-        history = "<h4>" + historyDate + "</h4><div style=\"margin:0;padding:0\">"
+        history = "<h4>" + historyDate + "</h4><div>"
                 + StringUtils.trimToEmpty(submission.getFeedbackText()) + attachmentHistory + "</div>" + history;
         properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, history);
     }
