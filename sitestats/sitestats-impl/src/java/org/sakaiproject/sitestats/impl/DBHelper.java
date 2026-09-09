@@ -27,18 +27,21 @@ import java.util.List;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DBHelper extends HibernateDaoSupport {
+public class DBHelper {
 
 	private boolean		autoDdl					= false;
 	private String		dbVendor				= null;
 	private boolean		notifiedIndexesUpdate	= false;
+
+	@Setter private SessionFactory sessionFactory;
 
 	@Setter private ServerConfigurationService serverConfigurationService;
 
@@ -60,50 +63,45 @@ public class DBHelper extends HibernateDaoSupport {
 	}
 	
 	public void preloadDefaultReports() {
-		HibernateCallback hcb = session -> {
-            InputStreamReader isr = null;
-            BufferedReader br = null;
-            try{
-                ClassPathResource defaultReports = new ClassPathResource(dbVendor + "/default_reports.sql");
-                log.info("init(): - preloading sitestats default reports");
-                isr = new InputStreamReader(defaultReports.getInputStream());
-                br = new BufferedReader(isr);
-
-                session.getSessionFactory().openSession();
-                session.beginTransaction();
-                String sqlLine = null;
-                while((sqlLine = br.readLine()) != null) {
-                    sqlLine = sqlLine.trim();
-                    if(!sqlLine.equals("") && !sqlLine.startsWith("--")) {
-                        if(sqlLine.endsWith(";")) {
-                            sqlLine = sqlLine.substring(0, sqlLine.indexOf(";"));
-                        }
-                        try{
-                            session.createNativeQuery(sqlLine).executeUpdate();
-                            session.flush();
-                        }catch(Exception e){
-                            log.warn("Failed to preload default report: " + sqlLine, e);
-                        }
-                    }
-                }
-                session.getTransaction().commit();
-            }catch(Exception e){
-                log.error("Error while preloading default reports", e);
-            }finally{
-                if(session != null) {
-                    session.close();
-                }
-            }
-            return null;
-        };
-		getHibernateTemplate().execute(hcb);
+		ClassPathResource defaultReports = new ClassPathResource(dbVendor + "/default_reports.sql");
+		try (Session session = sessionFactory.openSession();
+			 InputStreamReader isr = new InputStreamReader(defaultReports.getInputStream());
+			 BufferedReader br = new BufferedReader(isr)) {
+			log.info("init(): - preloading sitestats default reports");
+			Transaction transaction = session.beginTransaction();
+			try {
+				String sqlLine;
+				while ((sqlLine = br.readLine()) != null) {
+					sqlLine = sqlLine.trim();
+					if (!sqlLine.equals("") && !sqlLine.startsWith("--")) {
+						if (sqlLine.endsWith(";")) {
+							sqlLine = sqlLine.substring(0, sqlLine.indexOf(";"));
+						}
+						try {
+							session.createNativeQuery(sqlLine).executeUpdate();
+							session.flush();
+						} catch (Exception e) {
+							log.warn("Failed to preload default report: {}", sqlLine, e);
+						}
+					}
+				}
+				transaction.commit();
+			} catch (Exception e) {
+				if (transaction.isActive()) {
+					transaction.rollback();
+				}
+				throw e;
+			}
+		} catch (Exception e) {
+			log.error("Error while preloading default reports", e);
+		}
 	}
 
 	public void updateIndexes() {
 		if(!dbVendor.equals("mysql") && !dbVendor.equals("oracle"))
 			return;
 		notifiedIndexesUpdate = false;
-		HibernateCallback hcb = session -> {
+		try (Session session = sessionFactory.openSession()) {
             session.doWork(c -> {
                 try{
                     List<String> sstEventsIxs = listIndexes(c, "SST_EVENTS");
@@ -151,9 +149,7 @@ public class DBHelper extends HibernateDaoSupport {
                     log.error("Error while updating indexes", e);
                 }
             });
-            return null;
-        };
-		getHibernateTemplate().execute(hcb);
+        }
 	}
 
 	private void notifyIndexesUpdate(){
