@@ -118,7 +118,7 @@ public class SiteStatsTestConfiguration {
             mock(org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup.class);
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    public SessionFactory sessionFactory(Properties hibernateProperties) throws IOException {
+    public SessionFactory sessionFactory(@Qualifier("hibernateProperties") Properties hibernateProperties) throws IOException {
         LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
         hibernateMappings.processAdditionalMappings(sfb);
         sfb.addProperties(hibernateProperties);
