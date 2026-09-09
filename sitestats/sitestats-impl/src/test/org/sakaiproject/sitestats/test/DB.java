@@ -24,7 +24,9 @@ import java.util.List;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.sitestats.impl.DetailedEventImpl;
 import org.sakaiproject.sitestats.impl.EventStatImpl;
 import org.sakaiproject.sitestats.impl.LessonBuilderStatImpl;
@@ -36,21 +38,22 @@ import org.sakaiproject.sitestats.impl.SitePresenceTotalImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 import org.sakaiproject.sitestats.impl.UserStatImpl;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DB extends HibernateDaoSupport {
+@Transactional
+public class DB {
+
+    @Setter private SessionFactory sessionFactory;
 
 	public void insertObject(final Object obj) {
         try {
-		    getHibernateTemplate().execute(session -> {
-                session.saveOrUpdate(obj);
-                return null;
-            });
-        } catch(DataAccessException dae) {
+            Session session = sessionFactory.getCurrentSession();
+            session.merge(obj);
+        } catch(DataAccessException | HibernateException dae) {
             log.error("Error while saving: {}", dae.getMessage(), dae);
         }
 	}
@@ -58,14 +61,12 @@ public class DB extends HibernateDaoSupport {
 	public <T> List<T> getResultsForClass(final Class<T> classz) {
         List<T> results;
 	    try {
-            results = getHibernateTemplate().execute(session -> {
-                CriteriaQuery criteriaQuery = session.getCriteriaBuilder().createQuery(classz);
-                Root<T> root = criteriaQuery.from(classz);
-                criteriaQuery.select(root);
-
-                return session.createQuery(criteriaQuery).getResultList();
-            });
-        } catch(DataAccessException dae) {
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaQuery<T> criteriaQuery = session.getCriteriaBuilder().createQuery(classz);
+            Root<T> root = criteriaQuery.from(classz);
+            criteriaQuery.select(root);
+            results = session.createQuery(criteriaQuery).getResultList();
+        } catch(DataAccessException | HibernateException dae) {
             log.error("Error while retrieving results: {}", dae.getMessage(), dae);
             results = new ArrayList<T>();
         }
@@ -81,11 +82,9 @@ public class DB extends HibernateDaoSupport {
 	@SuppressWarnings("unchecked")
 	public <T> void deleteAllForClass(final Class<T> classz) {
         try {
-             getHibernateTemplate().execute(session -> {
-                deleteAllOfClass(session, classz);
-                return null;
-            });
-        } catch(DataAccessException dae) {
+            Session session = sessionFactory.getCurrentSession();
+            deleteAllOfClass(session, classz);
+        } catch(DataAccessException | HibernateException dae) {
             log.error("Error while performing deletion: {}", dae.getMessage(), dae);
         }
 	}
@@ -93,21 +92,19 @@ public class DB extends HibernateDaoSupport {
 	@SuppressWarnings("unchecked")
 	public void deleteAll() {
         try{
-		    getHibernateTemplate().execute(session -> {
-                deleteAllOfClass(session, SiteVisitsImpl.class);
-                deleteAllOfClass(session, SiteActivityImpl.class);
-                deleteAllOfClass(session, EventStatImpl.class);
-                deleteAllOfClass(session, ResourceStatImpl.class);
-                deleteAllOfClass(session, SitePresenceImpl.class);
-                deleteAllOfClass(session, SitePresenceTotalImpl.class);
-                deleteAllOfClass(session, DetailedEventImpl.class);
-                deleteAllOfClass(session, LessonBuilderStatImpl.class);
-                deleteAllOfClass(session, UserStatImpl.class);
-                deleteAllOfClass(session, ServerStatImpl.class);
-                session.flush();
-                return null;
-            });
-        } catch(DataAccessException dae){
+            Session session = sessionFactory.getCurrentSession();
+            deleteAllOfClass(session, SiteVisitsImpl.class);
+            deleteAllOfClass(session, SiteActivityImpl.class);
+            deleteAllOfClass(session, EventStatImpl.class);
+            deleteAllOfClass(session, ResourceStatImpl.class);
+            deleteAllOfClass(session, SitePresenceImpl.class);
+            deleteAllOfClass(session, SitePresenceTotalImpl.class);
+            deleteAllOfClass(session, DetailedEventImpl.class);
+            deleteAllOfClass(session, LessonBuilderStatImpl.class);
+            deleteAllOfClass(session, UserStatImpl.class);
+            deleteAllOfClass(session, ServerStatImpl.class);
+            session.flush();
+        } catch(DataAccessException | HibernateException dae){
             log.error("Error while performing deletion: {}", dae.getMessage(), dae);
         }
 	}
