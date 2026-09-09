@@ -33,9 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
-import java.util.Vector;
 import java.util.stream.Collectors;
 
 import org.hibernate.Hibernate;
@@ -48,7 +46,6 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
@@ -57,7 +54,45 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.assessment.data.dao.assessment.*;
+import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswerFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTextAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
@@ -65,7 +100,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -81,13 +115,17 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.springframework.context.annotation.DeferredImportSelector.Group.Entry;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -98,7 +136,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	@Setter private SiteService siteService;
 	@Setter private ToolManager toolManager;
 	@Setter private UserDirectoryService userDirectoryService;
-	private SessionFactory sessionFactory;
+	@Setter private SessionFactory sessionFactory;
 
 	public static final String STARTDATE = "assessmentAccessControl.startDate";
 
@@ -165,17 +203,6 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public IdImpl getAssessmentTemplateId(long id) {
 		return new IdImpl(id);
-	}
-	
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-
-	protected Session getCurrentSession() {
-		if (sessionFactory == null) {
-			throw new DataAccessResourceFailureException("SessionFactory is null");
-		}
-		return sessionFactory.getCurrentSession();
 	}
 
 	public PublishedAssessmentData preparePublishedAssessment(AssessmentData a){
@@ -686,12 +713,15 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	 * We just want a quick answer whether Samigo is responsible for an id.
 	 */
 	public boolean isPublishedAssessmentIdValid(Long publishedAssessmentId) {
-		Session session = getCurrentSession();
-		Query<PublishedAssessmentData> query = session.createQuery(
-				"from PublishedAssessmentData where publishedAssessmentId = :id", 
-				PublishedAssessmentData.class);
-		query.setParameter("id", publishedAssessmentId);
-		List<PublishedAssessmentData> list = query.list();
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+		Root<PublishedAssessmentData> root = cq.from(PublishedAssessmentData.class);
+
+		cq.select(root)
+			.where(cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId));
+
+		List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 
 		if (!list.isEmpty()) {
 			PublishedAssessmentData f = list.get(0);
@@ -744,12 +774,16 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	}
 	
 	public Long getPublishedAssessmentId(Long assessmentId) {
-		Session session = getCurrentSession();
-		Query<PublishedAssessmentData> query = session.createQuery(
-				"from PublishedAssessmentData as p where p.assessmentId = :id order by p.createdDate desc", 
-				PublishedAssessmentData.class);
-		query.setParameter("id", assessmentId);
-		List<PublishedAssessmentData> list = query.list();
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+		Root<PublishedAssessmentData> root = cq.from(PublishedAssessmentData.class);
+
+		cq.select(root)
+			.where(cb.equal(root.get("assessmentId"), assessmentId))
+			.orderBy(cb.desc(root.get("createdDate")));
+
+		List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 		Long publishedId = 0L;
 		if (!list.isEmpty()) {
 			PublishedAssessmentData f = list.get(0);
@@ -910,7 +944,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public AssessmentData loadAssessment(Long assessmentId) {
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 			return session.get(AssessmentData.class, assessmentId);
 		} catch (Exception e) {
 			log.warn("Error loading assessment with ID {}: {}", assessmentId, e.toString());
@@ -921,7 +955,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	public PublishedAssessmentData loadPublishedAssessment(Long assessmentId) {
 		PublishedAssessmentData ret = null;
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 			ret = session.get(PublishedAssessmentData.class, assessmentId);
 		} catch (DataAccessException e) {
 			log.warn("could not access published assessment [{}], {}", assessmentId, e.toString());
@@ -938,17 +972,28 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		log.debug("Order by " + orderBy);
 
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> q = session.createQuery(query, PublishedAssessmentData.class);
-			q.setParameter("status", status);
-			List<PublishedAssessmentData> list = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+			Root<PublishedAssessmentData> root = cq.from(PublishedAssessmentData.class);
+
+			cq.select(root)
+				.where(cb.equal(root.get("status"), status));
+
+			Path<Object> orderPath = root.get(orderBy);
+			cq.orderBy(ascending ? cb.asc(orderPath) : cb.desc(orderPath));
+
+			List<PublishedAssessmentData> list = session.createQuery(cq).list();
 
 			List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
 			for (PublishedAssessmentData a : list) {
-				log.debug("Title: " + a.getTitle());
+				log.debug("Title: {}", a.getTitle());
 				assessmentList.add(new PublishedAssessmentFacade(a));
 			}
 			return assessmentList;
+		} catch (IllegalArgumentException e) {
+			log.warn("Invalid orderBy property '{}': {}", orderBy, e.toString());
+			return new ArrayList<>();
 		} catch (Exception e) {
 			log.warn("Error getting all takeable assessments: {}", e.toString());
 			return new ArrayList<>();
@@ -957,16 +1002,21 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public Integer getNumberOfSubmissions(final String publishedAssessmentId, final String agentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<Number> query = session.createQuery(
-					"select count(a) from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status",
-					Number.class);
-			query.setParameter("id", Long.parseLong(publishedAssessmentId));
-			query.setParameter("agent", agentId);
-			query.setParameter("forgrade", true);
-			query.setParameter("status", AssessmentGradingData.REMOVED);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+			Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
 
-			List<Number> list = query.list();
+			cq.select(cb.count(root));
+
+			cq.where(
+				cb.equal(root.get("publishedAssessmentId"), Long.parseLong(publishedAssessmentId)),
+				cb.equal(root.get("agentId"), agentId),
+				cb.isTrue(root.get("forGrade")),
+				cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+			);
+
+			List<Long> list = session.createQuery(cq).getResultList();
 			if (!list.isEmpty()) {
 				return list.get(0).intValue();
 			}
@@ -979,17 +1029,25 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public List<AssessmentGradingData> getNumberOfSubmissionsOfAllAssessmentsByAgent(final String agentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<AssessmentGradingData> query = session.createQuery(
-					"select new AssessmentGradingData(a.publishedAssessmentId, count(a)) " +
-						"from AssessmentGradingData as a where a.agentId = :agent and a.forGrade= :forgrade and a.status > :status " +
-						"group by a.publishedAssessmentId",
-					AssessmentGradingData.class);
-			query.setParameter("agent", agentId);
-			query.setParameter("forgrade", true);
-			query.setParameter("status", AssessmentGradingData.REMOVED);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+			Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
 
-			return query.list();
+			cq.select(cb.construct(AssessmentGradingData.class,
+				root.get("publishedAssessmentId"),
+				cb.count(root)
+			));
+
+			cq.where(
+				cb.equal(root.get("agentId"), agentId),
+				cb.isTrue(root.get("forGrade")),
+				cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+			);
+
+			cq.groupBy(root.get("publishedAssessmentId"));
+
+			return session.createQuery(cq).getResultList();
 		} catch (Exception e) {
 			log.warn("Error getting number of submissions for agent {}: {}", agentId, e.toString());
 			return new ArrayList<>();
@@ -1001,42 +1059,40 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		final List groupIds = getSiteGroupIdsForSubmittingAgent(agentId, siteId);
 
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 
-			if (groupIds.size() > 0) {
-				Query<AssessmentGradingData> q = session.createQuery(
-						"select new AssessmentGradingData("
-								+ " a.publishedAssessmentId, count(distinct a)) "
-								+ " from AssessmentGradingData as a, AuthorizationData as az "
-								+ " where a.agentId=:agentId and a.forGrade=:forGrade and a.status > :status"
-								+ " and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
-								+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId"
-								+ " group by a.publishedAssessmentId",
-						AssessmentGradingData.class);
-				q.setParameter("agentId", agentId);
-				q.setParameter("forGrade", true);
-				q.setParameter("status", AssessmentGradingData.REMOVED);
-				q.setParameter("siteId", siteId);
-				q.setParameterList("groupIds", groupIds);
-				q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-				return q.list();
-			} else {
-				Query<AssessmentGradingData> q = session.createQuery(
-						"select new AssessmentGradingData("
-								+ " a.publishedAssessmentId, count(a)) "
-								+ " from AssessmentGradingData as a, AuthorizationData as az "
-								+ " where a.agentId=:agentId and a.forGrade=:forGrade and a.status > :status "
-								+ " and az.agentIdString=:siteId "
-								+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId"
-								+ " group by a.publishedAssessmentId",
-						AssessmentGradingData.class);
-				q.setParameter("agentId", agentId);
-				q.setParameter("forGrade", true);
-				q.setParameter("status", AssessmentGradingData.REMOVED);
-				q.setParameter("siteId", siteId);
-				q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-				return q.list();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+
+			Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+			Root<AuthorizationData> azRoot = cq.from(AuthorizationData.class);
+
+			List<Predicate> commonPredicates = new ArrayList<>();
+			commonPredicates.add(cb.equal(aRoot.get("agentId"), agentId));
+			commonPredicates.add(cb.isTrue(aRoot.get("forGrade")));
+			commonPredicates.add(cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED));
+			commonPredicates.add(cb.equal(azRoot.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+			commonPredicates.add(cb.equal(aRoot.get("publishedAssessmentId"), azRoot.get("qualifierId")));
+
+			Predicate sitePredicate = cb.equal(azRoot.get("agentIdString"), siteId);
+			Predicate groupPredicate = null;
+			if (groupIds != null && !groupIds.isEmpty()) {
+				groupPredicate = azRoot.get("agentIdString").in(groupIds);
 			}
+			Predicate agentPredicate = (groupPredicate == null) ? sitePredicate : cb.or(sitePredicate, groupPredicate);
+			commonPredicates.add(agentPredicate);
+
+			Expression<Long> countExpression = (groupIds != null && !groupIds.isEmpty()) ? cb.countDistinct(aRoot) : cb.count(aRoot);
+
+			cq.select(cb.construct(AssessmentGradingData.class,
+				aRoot.get("publishedAssessmentId"),
+				countExpression
+			));
+
+			cq.where(commonPredicates.toArray(new Predicate[0]));
+			cq.groupBy(aRoot.get("publishedAssessmentId"));
+
+			return session.createQuery(cq).getResultList();
 		} catch (Exception e) {
 			log.warn("Error getting number of submissions for agent {} and site {}: {}", agentId, siteId, e.toString());
 			return new ArrayList<>();
@@ -1046,11 +1102,18 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	public List<PublishedAssessmentFacade> getAllPublishedAssessments(String sortString) {
 		String orderBy = getOrderBy(sortString);
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> query = session.createQuery(
-					"from PublishedAssessmentData p order by p." + orderBy,
-					PublishedAssessmentData.class);
-			List<PublishedAssessmentData> list = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+			Root<PublishedAssessmentData> root = cq.from(PublishedAssessmentData.class);
+
+			cq.select(root);
+
+			if (orderBy != null && !orderBy.isEmpty()) {
+				cq.orderBy(cb.asc(root.get(orderBy)));
+			}
+
+			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 
 			List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
 			for (PublishedAssessmentData a : list) {
@@ -1069,12 +1132,19 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		final String orderBy = getOrderBy(sortString);
 
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> query = session.createQuery(
-					"from PublishedAssessmentData as p where p.status = :status order by p." + orderBy,
-					PublishedAssessmentData.class);
-			query.setParameter("status", status);
-			List<PublishedAssessmentData> list = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+			Root<PublishedAssessmentData> root = cq.from(PublishedAssessmentData.class);
+
+			cq.select(root)
+				.where(cb.equal(root.get("status"), status));
+
+			if (orderBy != null && !orderBy.isEmpty()) {
+				cq.orderBy(cb.asc(root.get(orderBy)));
+			}
+
+			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 
 			List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
 			for (PublishedAssessmentData a : list) {
@@ -1111,7 +1181,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public void removeAssessment(Long assessmentId, String action) {
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 			PublishedAssessmentData assessment = session.get(PublishedAssessmentData.class, assessmentId);
 
 			if (assessment == null) {
@@ -1172,13 +1242,16 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		while (retryCount > 0) {
 			try {
 				Long assessmentId = assessment.getPublishedAssessmentId();
-				Session session = getCurrentSession();
+				Session session = sessionFactory.getCurrentSession();
 
-				Query<PublishedSecuredIPAddress> query = session.createQuery(
-						"from PublishedSecuredIPAddress s where s.assessment.publishedAssessmentId = :id",
-						PublishedSecuredIPAddress.class);
-				query.setParameter("id", assessmentId);
-				List<PublishedSecuredIPAddress> ip = query.list();
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<PublishedSecuredIPAddress> cq = cb.createQuery(PublishedSecuredIPAddress.class);
+				Root<PublishedSecuredIPAddress> root = cq.from(PublishedSecuredIPAddress.class);
+
+				cq.select(root)
+					.where(cb.equal(root.get("assessment").get("publishedAssessmentId"), assessmentId));
+
+				List<PublishedSecuredIPAddress> ip = session.createQuery(cq).getResultList();
 
 				if (!ip.isEmpty()) {
 					PublishedSecuredIPAddress s = ip.get(0);
@@ -1210,7 +1283,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				Session session = getCurrentSession();
+				Session session = sessionFactory.getCurrentSession();
 				session.merge(data);
 				retryCount = 0;
 			} catch (Exception e) {
@@ -1227,23 +1300,42 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		Date currentDate = new Date();
 		String orderBy = getOrderBy(sortString);
 		
-		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
-				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, p.lastModifiedDate, p.lastModifiedBy) "
-				+ " from PublishedAssessmentData p, PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment.publishedAssessmentId = p.publishedAssessmentId and p.status=:status and "
-				+ " p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId "
-				//+ " and (z.agentIdString=:siteId or z.agentIdString in (:groupIds)) "
-				+ " and z.agentIdString=:siteId "
-				+ " order by p." + orderBy;
-		query += (ascending ? " asc" : " desc");
-
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> q = session.createQuery(query, PublishedAssessmentData.class);
-			q.setParameter("status", 1);
-			q.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
-			q.setParameter("siteId", siteAgentId);
-			List<PublishedAssessmentData> l = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+
+			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+			Join<PublishedAssessmentData, PublishedAccessControl> cJoin = pRoot.join("accessControl");
+			Join<PublishedAssessmentData, AuthorizationData> zJoin = pRoot.join("authorizations");
+
+			cq.select(cb.construct(PublishedAssessmentData.class,
+				pRoot.get("publishedAssessmentId"),
+				pRoot.get("title"),
+				cJoin.get("releaseTo"),
+				cJoin.get("startDate"),
+				cJoin.get("dueDate"),
+				cJoin.get("retractDate"),
+				pRoot.get("lastModifiedDate"),
+				pRoot.get("lastModifiedBy")
+					));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(pRoot.get("status"), 1));
+			predicates.add(cb.equal(zJoin.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(zJoin.get("agentIdString"), siteAgentId));
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			if (orderBy != null && !orderBy.isEmpty()) {
+				Path<Object> orderPath = pRoot.get(orderBy);
+				if (ascending) {
+					cq.orderBy(cb.asc(orderPath));
+				} else {
+					cq.orderBy(cb.desc(orderPath));
+				}
+			}
+
+			List<PublishedAssessmentData> l = session.createQuery(cq).getResultList();
 
 			// we will filter the one that is past duedate & late submission date
 			List<PublishedAssessmentData> list = new ArrayList<>();
@@ -1298,30 +1390,54 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			String sortString, final String siteAgentId, boolean ascending) {
 		
 		String orderBy = getOrderBy(sortString);
-		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"
-				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, p.status, p.lastModifiedDate, p.lastModifiedBy) from PublishedAssessmentData p,"
-				+ " PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
-				+ " and ((p.status=:activeStatus and (c.dueDate<=:today or c.retractDate<=:today)) or p.status=:editStatus)"
-				+ " and p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId "
-				//+ " and (z.agentIdString=:siteId or z.agentIdString in (:groupIds)) "
-				+ " and z.agentIdString=:siteId "
-				+ " order by p." + orderBy;
-
-		if (ascending)
-			query += " asc";
-		else
-			query += " desc";
-
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> q = session.createQuery(query, PublishedAssessmentData.class);
-			q.setParameter("activeStatus", 1);
-			q.setParameter("today", new Date());
-			q.setParameter("editStatus", 3);
-			q.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
-			q.setParameter("siteId", siteAgentId);
-			List<PublishedAssessmentData> list = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+
+			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+			Root<PublishedAccessControl> cRoot = cq.from(PublishedAccessControl.class);
+			Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+
+			cq.select(cb.construct(PublishedAssessmentData.class,
+				pRoot.get("publishedAssessmentId"),
+				pRoot.get("title"),
+				cRoot.get("releaseTo"),
+				cRoot.get("startDate"),
+				cRoot.get("dueDate"),
+				cRoot.get("retractDate"),
+				pRoot.get("status"),
+				pRoot.get("lastModifiedDate"),
+				pRoot.get("lastModifiedBy")
+			));
+
+			Predicate joinC = cb.equal(cRoot.get("assessment").get("publishedAssessmentId"), pRoot.get("publishedAssessmentId"));
+			Predicate joinZ = cb.equal(zRoot.get("qualifierId"), pRoot.get("publishedAssessmentId"));
+
+			Predicate statusActive = cb.equal(pRoot.get("status"), 1);
+			Predicate dueDatePassed = cb.lessThanOrEqualTo(cRoot.get("dueDate"), new Date());
+			Predicate retractDatePassed = cb.lessThanOrEqualTo(cRoot.get("retractDate"), new Date());
+			Predicate dueOrRetract = cb.or(dueDatePassed, retractDatePassed);
+			Predicate activeWithDate = cb.and(statusActive, dueOrRetract);
+
+			Predicate statusEdit = cb.equal(pRoot.get("status"), 3);
+			Predicate orPredicate = cb.or(activeWithDate, statusEdit);
+
+			Predicate functionPredicate = cb.equal(zRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT");
+			Predicate sitePredicate = cb.equal(zRoot.get("agentIdString"), siteAgentId);
+
+			cq.where(cb.and(joinC, joinZ, orPredicate, functionPredicate, sitePredicate));
+
+			if (orderBy != null && !orderBy.isEmpty()) {
+				Path<Object> orderPath = pRoot.get(orderBy);
+				if (ascending) {
+					cq.orderBy(cb.asc(orderPath));
+				} else {
+					cq.orderBy(cb.desc(orderPath));
+				}
+			}
+
+			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 
 			List<PublishedAssessmentFacade> pubList = new ArrayList<>();
 			Map<String, String> groupsForSite = null;
@@ -1357,12 +1473,15 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public Set<PublishedSectionData> getSectionSetForAssessment(PublishedAssessmentIfc assessment) {
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedSectionData> query = session.createQuery(
-					"from PublishedSectionData s where s.assessment.publishedAssessmentId = :id",
-					PublishedSectionData.class);
-			query.setParameter("id", assessment.getPublishedAssessmentId());
-			List<PublishedSectionData> sectionList = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedSectionData> cq = cb.createQuery(PublishedSectionData.class);
+			Root<PublishedSectionData> root = cq.from(PublishedSectionData.class);
+
+			cq.select(root)
+				.where(cb.equal(root.get("assessment").get("publishedAssessmentId"), assessment.getPublishedAssessmentId()));
+
+			List<PublishedSectionData> sectionList = session.createQuery(cq).getResultList();
 
 			for (PublishedSectionData section : sectionList) {
 				Hibernate.initialize(section.getItemSet());
@@ -1389,7 +1508,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public PublishedItemData loadPublishedItem(Long itemId) {
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 			return session.load(PublishedItemData.class, itemId);
 		} catch (Exception e) {
 			log.warn("Error loading published item with ID {}: {}", itemId, e.toString());
@@ -1399,7 +1518,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public PublishedItemText loadPublishedItemText(Long itemTextId) {
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 			return session.load(PublishedItemText.class, itemTextId);
 		} catch (Exception e) {
 			log.warn("Error loading published item text with ID {}: {}", itemTextId, e.toString());
@@ -1419,75 +1538,87 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	 * @return
 	 */
 	public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, final String siteId) {
-
+		String orderField = orderBy;
+		boolean ascendingOrder = ascending;
 		final List<String> groupIds = getSiteGroupIdsForCurrentUser(siteId);
-		String query = "";
-		if (groupIds.size() > 0) {
-			query = "select distinct new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
-				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
-				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit, c.feedbackEndDate, c.feedbackScoreThreshold) "
-				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
-				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
-				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
-				+ " and p.publishedAssessmentId = f.assessment.publishedAssessmentId "
-				+ " and p.publishedAssessmentId = em.assessment.publishedAssessmentId "
-				+ " and (p.status=:activeStatus or p.status=:editStatus) and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
-				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
-				+ " order by ";
-		}
-		else {
-			query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
-				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
-				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit, c.feedbackEndDate, c.feedbackScoreThreshold) "
-				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
-				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
-				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
-				+ " and p.publishedAssessmentId = f.assessment.publishedAssessmentId "
-				+ " and p.publishedAssessmentId = em.assessment.publishedAssessmentId "
-				+ " and (p.status=:activeStatus or p.status=:editStatus) and az.agentIdString=:siteId "
-				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
-				+ " order by ";
-		}
-		if (ascending == false) {
-
-			if (orderBy.equals(DUE)) {
-				query += " c." + orderBy + " desc";
-			} else {
-				query += " p." + orderBy + " desc";
-			}
-		} else {
-			if (orderBy.equals(DUE)) {
-				query += " c." + orderBy + " asc";
-			} else {
-				query += " p." + orderBy + " asc";
-			}
-		}
 
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> q = session.createQuery(query, PublishedAssessmentData.class);
-			q.setParameter("activeStatus", 1);
-			q.setParameter("editStatus", 3);
-			q.setParameter("siteId", siteId);
-			if (groupIds.size() > 0) {
-				q.setParameterList("groupIds", groupIds);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+	
+			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+			Join<PublishedAssessmentData, PublishedAccessControl> cJoin = pRoot.join("accessControl");
+			Join<PublishedAssessmentData, PublishedFeedback> fJoin = pRoot.join("feedback");
+			Join<PublishedAssessmentData, PublishedEvaluationModel> emJoin = pRoot.join("evaluationModel");
+			Join<PublishedAssessmentData, AuthorizationData> azJoin = pRoot.join("authorizations");
+	
+			cq.select(cb.construct(PublishedAssessmentData.class,
+				pRoot.get("publishedAssessmentId"),
+				pRoot.get("title"),
+				cJoin.get("releaseTo"),
+				cJoin.get("startDate"),
+				cJoin.get("dueDate"),
+				cJoin.get("retractDate"),
+				cJoin.get("feedbackDate"),
+				fJoin.get("feedbackDelivery"),
+				fJoin.get("feedbackComponentOption"),
+				fJoin.get("feedbackAuthoring"),
+				cJoin.get("lateHandling"),
+				cJoin.get("unlimitedSubmissions"),
+				cJoin.get("submissionsAllowed"),
+				emJoin.get("scoringType"),
+				pRoot.get("status"),
+				pRoot.get("lastModifiedDate"),
+				cJoin.get("timeLimit"),
+				cJoin.get("feedbackEndDate"),
+				cJoin.get("feedbackScoreThreshold")
+			));
+	
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.or(cb.equal(pRoot.get("status"), 1), cb.equal(pRoot.get("status"), 3)));
+			predicates.add(cb.equal(azJoin.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(azJoin.get("qualifierId"), pRoot.get("publishedAssessmentId")));
+	
+			Predicate sitePredicate = cb.equal(azJoin.get("agentIdString"), siteId);
+			Predicate groupPredicate = null;
+			if (groupIds != null && !groupIds.isEmpty()) {
+				groupPredicate = azJoin.get("agentIdString").in(groupIds);
 			}
-			q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-
-			List<PublishedAssessmentData> list = q.list();
+			if (groupPredicate != null) {
+				predicates.add(cb.or(sitePredicate, groupPredicate));
+			} else {
+				predicates.add(sitePredicate);
+			}
+	
+			cq.where(predicates.toArray(new Predicate[0]));
+	
+			if (orderField != null && !orderField.isEmpty()) {
+				Path<Object> orderPath;
+				if (orderField.equals("dueDate")) {
+					orderPath = cJoin.get(orderField);
+				} else {
+					orderPath = pRoot.get(orderField);
+				}
+				if (ascendingOrder) {
+					cq.orderBy(cb.asc(orderPath));
+				} else {
+					cq.orderBy(cb.desc(orderPath));
+				}
+			}
+	
+			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 			List<PublishedAssessmentFacade> pubList = new ArrayList<>();
-			for (PublishedAssessmentData p : list) {
-				PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
-						p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p
-							.getRetractDate(), p.getFeedbackDate(), p
-							.getFeedbackDelivery(), p.getFeedbackComponentOption(), p.getFeedbackAuthoring(), p
-							.getLateHandling(), p.getUnlimitedSubmissions(), p
-							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate(), p.getTimeLimit(), p.getFeedbackEndDate(), p.getFeedbackScoreThreshold());
-				pubList.add(f);
-			}
-			return pubList;
+				for (PublishedAssessmentData p : list) {
+					PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
+							p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p
+								.getRetractDate(), p.getFeedbackDate(), p
+								.getFeedbackDelivery(), p.getFeedbackComponentOption(), p.getFeedbackAuthoring(), p
+								.getLateHandling(), p.getUnlimitedSubmissions(), p
+								.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate(), p.getTimeLimit(), p.getFeedbackEndDate(), p.getFeedbackScoreThreshold());
+					pubList.add(f);
+				}
+				return pubList;
 		} catch (Exception e) {
 			log.warn("Error getting basic info of all published assessments for site {}: {}", siteId, e.toString());
 			return new ArrayList<>();
@@ -1498,24 +1629,52 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String sortString, boolean ascending, final String siteAgentId) {
 		String orderBy = getOrderBy(sortString);
 		
-		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
-				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, p.status, p.lastModifiedDate, p.lastModifiedBy, "
-				+ "c.lateHandling, c.unlimitedSubmissions, c.submissionsAllowed) "
-				+ " from PublishedAssessmentData p, PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment.publishedAssessmentId = p.publishedAssessmentId "
-				+ " and p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId "
-				+ " and z.agentIdString=:siteId and (p.status=:activeStatus or p.status=:editStatus) "
-				+ " order by p." + orderBy;
-		query += (ascending ? " asc" : " desc");
-
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> q = session.createQuery(query, PublishedAssessmentData.class);
-			q.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
-			q.setParameter("siteId", siteAgentId);
-			q.setParameter("activeStatus", 1);
-			q.setParameter("editStatus", 3);
-			List<PublishedAssessmentData> list = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+
+			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+			Root<PublishedAccessControl> cRoot = cq.from(PublishedAccessControl.class);
+			Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+
+			cq.select(cb.construct(PublishedAssessmentData.class,
+				pRoot.get("publishedAssessmentId"),
+				pRoot.get("title"),
+				cRoot.get("releaseTo"),
+				cRoot.get("startDate"),
+				cRoot.get("dueDate"),
+				cRoot.get("retractDate"),
+				pRoot.get("status"),
+				pRoot.get("lastModifiedDate"),
+				pRoot.get("lastModifiedBy"),
+				cRoot.get("lateHandling"),
+				cRoot.get("unlimitedSubmissions"),
+				cRoot.get("submissionsAllowed")
+			));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(cRoot.get("assessment").get("publishedAssessmentId"), pRoot.get("publishedAssessmentId")));
+			predicates.add(cb.equal(zRoot.get("qualifierId"), pRoot.get("publishedAssessmentId")));
+			predicates.add(cb.equal(zRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(zRoot.get("agentIdString"), siteAgentId));
+			predicates.add(cb.or(
+				cb.equal(pRoot.get("status"), 1),
+				cb.equal(pRoot.get("status"), 3)
+			));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			if (orderBy != null && !orderBy.isEmpty()) {
+				Path<Object> orderPath = pRoot.get(orderBy);
+				if (ascending) {
+					cq.orderBy(cb.asc(orderPath));
+				} else {
+					cq.orderBy(cb.desc(orderPath));
+				}
+			}
+
+			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 
 			List<PublishedAssessmentFacade> pubList = new ArrayList<>();
 			Map<String, String> groupsForSite = null;
@@ -1596,31 +1755,54 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	public List<AssessmentGradingData> getBasicInfoOfLastSubmittedAssessments(final String agentId, String orderBy, boolean ascending) {
 		// 1. get total no. of submission per assessment by the given agent
 		// HashMap h = getTotalSubmissionPerAssessment(agentId);
-		final String query = "select new AssessmentGradingData("
-				+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
-				+ " a.submittedDate, a.isLate,"
-				+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
-				+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
-				+ " a.timeElapsed) "
-				+ " from AssessmentGradingData a, PublishedAssessmentData p"
-				+ " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade = :forgrade and a.agentId = :agent and a.status > :status"
-				+ " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
-
-		/*
-		 * The sorting for each type will be done in the action listener. if
-		 * (orderBy.equals(TITLE)) { query += ", p." + orderBy; } else if
-		 * (!orderBy.equals(SUBMITTED)) { query += ", a." + orderBy; } if
-		 * (!orderBy.equals(SUBMITTED)) { if (ascending == false) { query += "
-		 * desc"; } else { query += " asc"; } }
-		 */
-
 		try {
-			Session session = getCurrentSession();
-			Query<AssessmentGradingData> q = session.createQuery(query, AssessmentGradingData.class);
-			q.setParameter("forgrade", true);
-			q.setParameter("agent", agentId);
-			q.setParameter("status", AssessmentGradingData.REMOVED);
-			List<AssessmentGradingData> list = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+			Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+
+			cq.select(cb.construct(AssessmentGradingData.class,
+				aRoot.get("assessmentGradingId"),
+				pRoot.get("publishedAssessmentId"),
+				pRoot.get("title"),
+				aRoot.get("agentId"),
+				aRoot.get("submittedDate"),
+				aRoot.get("isLate"),
+				aRoot.get("forGrade"),
+				aRoot.get("totalAutoScore"),
+				aRoot.get("totalOverrideScore"),
+				aRoot.get("finalScore"),
+				aRoot.get("comments"),
+				aRoot.get("status"),
+				aRoot.get("gradedBy"),
+				aRoot.get("gradedDate"),
+				aRoot.get("attemptDate"),
+				aRoot.get("timeElapsed")
+			));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(aRoot.get("publishedAssessmentId"), pRoot.get("publishedAssessmentId")));
+			predicates.add(cb.isTrue(aRoot.get("forGrade")));
+			predicates.add(cb.equal(aRoot.get("agentId"), agentId));
+			predicates.add(cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			cq.orderBy(
+				cb.desc(pRoot.get("publishedAssessmentId")),
+				cb.desc(aRoot.get("submittedDate"))
+			);
+
+			/*
+			 * The sorting for each type will be done in the action listener. if
+			 * (orderBy.equals(TITLE)) { query += ", p." + orderBy; } else if
+			 * (!orderBy.equals(SUBMITTED)) { query += ", a." + orderBy; } if
+			 * (!orderBy.equals(SUBMITTED)) { if (ascending == false) { query += "
+			 * desc"; } else { query += " asc"; } }
+			 */
+
+			List<AssessmentGradingData> list = session.createQuery(cq).getResultList();
 
 			List<AssessmentGradingData> assessmentList = new ArrayList<>();
 			Long current = 0L;
@@ -1673,14 +1855,20 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
      */
 	public Integer getTotalSubmissionForEachAssessment(final Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<Number> query = session.createQuery(
-					"select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.publishedAssessmentId = :id and a.status > :status",
-					Number.class);
-			query.setParameter("forgrade", true);
-			query.setParameter("id", publishedAssessmentId);
-			query.setParameter("status", AssessmentGradingData.REMOVED);
-			List<Number> l = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+			Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+			cq.select(cb.count(root));
+
+			cq.where(
+				cb.isTrue(root.get("forGrade")),
+				cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+				cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+			);
+
+			List<Long> l = session.createQuery(cq).getResultList();
 
 			if (!l.isEmpty()) {
 				return l.get(0).intValue();
@@ -1694,16 +1882,21 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public Integer getTotalSubmission(final String agentId, final Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<Long> query = session.createQuery(
-					"select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.agentId = :agent and a.publishedAssessmentId = :id and a.status > :status",
-					Long.class);
-			query.setParameter("forgrade", true);
-			query.setParameter("agent", agentId);
-			query.setParameter("id", publishedAssessmentId);
-			query.setParameter("status", AssessmentGradingData.REMOVED);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+			Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
 
-			Long count = query.uniqueResult();
+			cq.select(cb.count(root));
+
+			cq.where(
+				cb.isTrue(root.get("forGrade")),
+				cb.equal(root.get("agentId"), agentId),
+				cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+				cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+			);
+
+			Long count = session.createQuery(cq).uniqueResult();
 			return count != null ? count.intValue() : 0;
 		} catch (Exception e) {
 			log.warn("Error getting total submissions for agent {} and assessment {}: {}", agentId, publishedAssessmentId, e.toString());
@@ -1717,13 +1910,21 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public PublishedAssessmentFacade getPublishedAssessmentIdByMetaLabel(final String label, final String entry) {
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> query = session.createQuery(
-					"select p from PublishedAssessmentData p, PublishedMetaData m where p=m.assessment and m.label = :label and m.entry = :entry",
-					PublishedAssessmentData.class);
-			query.setParameter("label", label);
-			query.setParameter("entry", entry);
-			List<PublishedAssessmentData> list = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+
+			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+			Root<PublishedMetaData> mRoot = cq.from(PublishedMetaData.class);
+
+			cq.select(pRoot)
+				.where(
+					cb.equal(pRoot, mRoot.get("assessment")),
+					cb.equal(mRoot.get("label"), label),
+					cb.equal(mRoot.get("entry"), entry)
+			);
+
+			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 
 			switch (list.size()) {
 				case 0:
@@ -1756,23 +1957,31 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		}
 
 		try {
-			Session session = getCurrentSession();
-			Query<Object[]> query = session.createQuery(
-					"select m.assessment.publishedAssessmentId, m.entry "
-							+ "from PublishedMetaData m "
-							+ "where m.assessment.publishedAssessmentId in (:publishedAssessmentIds) "
-							+ "and m.label = :label "
-							+ "order by m.assessment.publishedAssessmentId asc, m.id asc",
-							Object[].class);
-			query.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
-			query.setParameter("label", label);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-			return query.list().stream()
+			Root<PublishedMetaData> mRoot = cq.from(PublishedMetaData.class);
+			Join<PublishedMetaData, PublishedAssessmentData> aJoin = mRoot.join("assessment");
+
+			cq.select(cb.array(aJoin.get("publishedAssessmentId"), mRoot.get("entry")));
+
+			cq.where(
+				aJoin.get("publishedAssessmentId").in(publishedAssessmentIds),
+				cb.equal(mRoot.get("label"), label)
+			);
+
+			cq.orderBy(
+				cb.asc(aJoin.get("publishedAssessmentId")),
+				cb.asc(mRoot.get("id"))
+			);
+
+			return session.createQuery(cq).getResultList().stream()
 				.collect(Collectors.toMap(
-					row -> (Long) row[0],
-					row -> (String) row[1],
-					(existing, replacement) -> replacement,
-					LinkedHashMap::new
+						row -> (Long) row[0],
+						row -> (String) row[1],
+						(existing, replacement) -> replacement,
+						LinkedHashMap::new
 				));
 		} catch (Exception e) {
 			throw new DataAccessResourceFailureException("Failed to get assessment meta data entries", e);
@@ -1783,7 +1992,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				Session session = getCurrentSession();
+				Session session = sessionFactory.getCurrentSession();
 				session.merge(meta);
 				retryCount = 0;
 			} catch (Exception e) {
@@ -1812,24 +2021,39 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			// No site available
 		}
 
-		final String query = "select new PublishedFeedback("
-				+ " p.assessment.publishedAssessmentId,"
-				+ " p.feedbackDelivery,p.feedbackComponentOption,  p.feedbackAuthoring, p.editComponents, p.showQuestionText,"
-				+ " p.showStudentResponse, p.showCorrectResponse,"
-				+ " p.showStudentScore," + " p.showStudentQuestionScore,"
-				+ " p.showQuestionLevelFeedback, p.showSelectionLevelFeedback,"
-				+ " p.showGraderComments, p.showStatistics)"
-				+ " from PublishedFeedback p, AuthorizationData az"
-				+ " where az.qualifierId = p.assessment.publishedAssessmentId "
-				+ " and (az.agentIdString in (:agentIdString)) "
-				+ " and az.functionId=:functionId ";
-
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedFeedback> q = session.createQuery(query, PublishedFeedback.class);
-			q.setParameterList("agentIdString", listAgentId);
-			q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-			List<PublishedFeedback> l = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedFeedback> cq = cb.createQuery(PublishedFeedback.class);
+
+			Root<PublishedFeedback> pRoot = cq.from(PublishedFeedback.class);
+			Root<AuthorizationData> azRoot = cq.from(AuthorizationData.class);
+
+			cq.select(cb.construct(PublishedFeedback.class,
+				pRoot.get("assessment").get("publishedAssessmentId"),
+				pRoot.get("feedbackDelivery"),
+				pRoot.get("feedbackComponentOption"),
+				pRoot.get("feedbackAuthoring"),
+				pRoot.get("editComponents"),
+				pRoot.get("showQuestionText"),
+				pRoot.get("showStudentResponse"),
+				pRoot.get("showCorrectResponse"),
+				pRoot.get("showStudentScore"),
+				pRoot.get("showStudentQuestionScore"),
+				pRoot.get("showQuestionLevelFeedback"),
+				pRoot.get("showSelectionLevelFeedback"),
+				pRoot.get("showGraderComments"),
+				pRoot.get("showStatistics")
+			));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(azRoot.get("qualifierId"), pRoot.get("assessment").get("publishedAssessmentId")));
+			predicates.add(azRoot.get("agentIdString").in(listAgentId));
+			predicates.add(cb.equal(azRoot.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			List<PublishedFeedback> l = session.createQuery(cq).getResultList();
 
 			Map<Long, PublishedFeedback> h = new HashMap<>();
 			for (PublishedFeedback f : l) {
@@ -1851,14 +2075,29 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	 */
 	public Map<Long, PublishedAssessmentFacade> getAllAssessmentsReleasedToAuthenticatedUsers() {
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> query = session.createQuery(
-					"select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
-							+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) "
-							+ " from PublishedAssessmentData p, PublishedAccessControl c  "
-							+ " where c.assessment = p and c.releaseTo like '%Authenticated Users%'",
-					PublishedAssessmentData.class);
-			List<PublishedAssessmentData> l = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+
+			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+			Root<PublishedAccessControl> cRoot = cq.from(PublishedAccessControl.class);
+
+			cq.select(cb.construct(PublishedAssessmentData.class,
+				pRoot.get("publishedAssessmentId"),
+				pRoot.get("title"),
+				cRoot.get("releaseTo"),
+				cRoot.get("startDate"),
+				cRoot.get("dueDate"),
+				cRoot.get("retractDate")
+			));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(cRoot.get("assessment"), pRoot));
+			predicates.add(cb.like(cRoot.get("releaseTo"), "%Authenticated Users%"));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			List<PublishedAssessmentData> l = session.createQuery(cq).getResultList();
 
 			Map<Long, PublishedAssessmentFacade> h = new HashMap<>();
 			for (PublishedAssessmentData p : l) {
@@ -1873,13 +2112,18 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public String getPublishedAssessmentOwner(String publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<AuthorizationData> query = session.createQuery(
-					"select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id",
-					AuthorizationData.class);
-			query.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-			query.setParameter("id", publishedAssessmentId);
-			List<AuthorizationData> l = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+			Root<AuthorizationData> root = cq.from(AuthorizationData.class);
+
+			cq.select(root)
+				.where(
+					cb.equal(root.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+					cb.equal(root.get("qualifierId"), publishedAssessmentId)
+				);
+
+			List<AuthorizationData> l = session.createQuery(cq).getResultList();
 
 			if (!l.isEmpty()) {
 				AuthorizationData a = l.get(0);
@@ -1895,19 +2139,30 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	public boolean publishedAssessmentTitleIsUnique(final Long assessmentBaseId, final String title) {
 		final String currentSiteId = AgentFacade.getCurrentSiteId();
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> q = session.createQuery(
-					"select new PublishedAssessmentData(a.publishedAssessmentId, a.title, a.lastModifiedDate) " +
-					"from PublishedAssessmentData a, AuthorizationData z " +
-					"where a.title = :title and a.publishedAssessmentId != :id and a.status != :status " +
-					"and z.functionId = :fid and a.publishedAssessmentId = z.qualifierId and z.agentIdString = :site",
-					PublishedAssessmentData.class);
-			q.setParameter("title", title);
-			q.setParameter("id", assessmentBaseId);
-			q.setParameter("status", 2);
-			q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-			q.setParameter("site", currentSiteId);
-			List<PublishedAssessmentData> list = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+
+			Root<PublishedAssessmentData> aRoot = cq.from(PublishedAssessmentData.class);
+			Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+
+			cq.select(cb.construct(PublishedAssessmentData.class,
+				aRoot.get("publishedAssessmentId"),
+				aRoot.get("title"),
+				aRoot.get("lastModifiedDate")
+			));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(aRoot.get("title"), title));
+			predicates.add(cb.notEqual(aRoot.get("publishedAssessmentId"), assessmentBaseId));
+			predicates.add(cb.notEqual(aRoot.get("status"), 2));
+			predicates.add(cb.equal(zRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(aRoot.get("publishedAssessmentId"), zRoot.get("qualifierId")));
+			predicates.add(cb.equal(zRoot.get("agentIdString"), currentSiteId));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 
 			return list.isEmpty();
 		} catch (Exception e) {
@@ -1922,16 +2177,27 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		final String valueMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedSectionData> q = session.createQuery(
-					"select s from PublishedSectionData s, PublishedSectionMetaData m " +
-					"where s = m.section and s.assessment.publishedAssessmentId = :id and m.label = :key and (m.entry = :value or m.entry = :valueMultiple)",
-					PublishedSectionData.class);
-			q.setParameter("id", publishedAssessmentId);
-			q.setParameter("key", key);
-			q.setParameter("value", value);
-			q.setParameter("valueMultiple", valueMultiple);
-			List<PublishedSectionData> l = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedSectionData> cq = cb.createQuery(PublishedSectionData.class);
+
+			Root<PublishedSectionData> sRoot = cq.from(PublishedSectionData.class);
+			Root<PublishedSectionMetaData> mRoot = cq.from(PublishedSectionMetaData.class);
+
+			cq.select(sRoot);
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(sRoot, mRoot.get("section")));
+			predicates.add(cb.equal(sRoot.get("assessment").get("publishedAssessmentId"), publishedAssessmentId));
+			predicates.add(cb.equal(mRoot.get("label"), key));
+			predicates.add(cb.or(
+				cb.equal(mRoot.get("entry"), value),
+				cb.equal(mRoot.get("entry"), valueMultiple)
+			));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			List<PublishedSectionData> l = session.createQuery(cq).getResultList();
 
 			return !l.isEmpty();
 		} catch (Exception e) {
@@ -1949,17 +2215,27 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		final String entryMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
 		try {
-			Session session = getCurrentSession();
-			Query<Long> q = session.createQuery(
-					"select distinct s.assessment.publishedAssessmentId " +
-					"from PublishedSectionData s, PublishedSectionMetaData m " +
-					"where s.assessment.publishedAssessmentId in (:ids) and s = m.section and m.label = :label and (m.entry = :entry or m.entry = :entryMultiple)",
-					Long.class);
-			q.setParameter("label", key);
-			q.setParameter("entry", value);
-			q.setParameter("entryMultiple", entryMultiple);
-			q.setParameterList("ids", assessmentIds);
-			return q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+			Root<PublishedSectionData> sRoot = cq.from(PublishedSectionData.class);
+			Root<PublishedSectionMetaData> mRoot = cq.from(PublishedSectionMetaData.class);
+
+			cq.select(sRoot.get("assessment").get("publishedAssessmentId")).distinct(true);
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(sRoot.get("assessment").get("publishedAssessmentId").in(assessmentIds));
+			predicates.add(cb.equal(sRoot, mRoot.get("section")));
+			predicates.add(cb.equal(mRoot.get("label"), key));
+			predicates.add(cb.or(
+				cb.equal(mRoot.get("entry"), value),
+				cb.equal(mRoot.get("entry"), entryMultiple)
+			));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			return session.createQuery(cq).getResultList();
 		} catch (Exception e) {
 			log.warn("Error getting assessment IDs with random parts: {}", e.toString());
 			return new ArrayList<>();
@@ -1968,22 +2244,33 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public PublishedItemData getFirstPublishedItem(final Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 
-			Query<PublishedItemData> q1 = session.createQuery(
-					"select i from PublishedAssessmentData p, PublishedSectionData s, " +
-					" PublishedItemData i where p.publishedAssessmentId = :id and" +
-					" p.publishedAssessmentId = s.assessment.publishedAssessmentId and s = i.section",
-					PublishedItemData.class);
-			q1.setParameter("id", publishedAssessmentId);
-			List<PublishedItemData> l = q1.list();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
 
-			Query<PublishedSectionData> q2 = session.createQuery(
-					"select s from PublishedAssessmentData p, PublishedSectionData s " +
-					" where p.publishedAssessmentId = :id and p.publishedAssessmentId = s.assessment.publishedAssessmentId",
-					PublishedSectionData.class);
-			q2.setParameter("id", publishedAssessmentId);
-			List<PublishedSectionData> sec = q2.list();
+			CriteriaQuery<PublishedItemData> cq1 = cb.createQuery(PublishedItemData.class);
+			Root<PublishedAssessmentData> pRoot1 = cq1.from(PublishedAssessmentData.class);
+			Root<PublishedSectionData> sRoot1 = cq1.from(PublishedSectionData.class);
+			Root<PublishedItemData> iRoot = cq1.from(PublishedItemData.class);
+
+			cq1.select(iRoot);
+			cq1.where(
+				cb.equal(pRoot1.get("publishedAssessmentId"), publishedAssessmentId),
+				cb.equal(pRoot1.get("publishedAssessmentId"), sRoot1.get("assessment").get("publishedAssessmentId")),
+				cb.equal(sRoot1, iRoot.get("section"))
+			);
+			List<PublishedItemData> l = session.createQuery(cq1).getResultList();
+
+			CriteriaQuery<PublishedSectionData> cq2 = cb.createQuery(PublishedSectionData.class);
+			Root<PublishedAssessmentData> pRoot2 = cq2.from(PublishedAssessmentData.class);
+			Root<PublishedSectionData> sRoot2 = cq2.from(PublishedSectionData.class);
+
+			cq2.select(sRoot2);
+			cq2.where(
+				cb.equal(pRoot2.get("publishedAssessmentId"), publishedAssessmentId),
+				cb.equal(pRoot2.get("publishedAssessmentId"), sRoot2.get("assessment").get("publishedAssessmentId"))
+			);
+			List<PublishedSectionData> sec = session.createQuery(cq2).getResultList();
 
 			PublishedItemData returnItem = null;
 			if (sec.size() > 0 && l.size() > 0) {
@@ -2012,13 +2299,18 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public List<Long> getPublishedItemIds(final Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<Long> q = session.createQuery(
-					"select i.itemId from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData p " +
-					"where p.publishedAssessmentId = :id and p = s.assessment and i.section = s",
-					Long.class);
-			q.setParameter("id", publishedAssessmentId);
-			return q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+			Root<PublishedItemData> iRoot = cq.from(PublishedItemData.class);
+			Join<PublishedItemData, PublishedSectionData> sJoin = iRoot.join("section");
+			Join<PublishedSectionData, PublishedAssessmentData> pJoin = sJoin.join("assessment");
+
+			cq.select(iRoot.get("itemId"));
+			cq.where(cb.equal(pJoin.get("publishedAssessmentId"), publishedAssessmentId));
+
+			return session.createQuery(cq).getResultList();
 		} catch (Exception e) {
 			log.warn("Error getting published item IDs for assessment {}: {}", publishedAssessmentId, e.toString());
 			return new ArrayList<>();
@@ -2027,14 +2319,21 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public Set<PublishedItemData> getPublishedItemSet(final Long publishedAssessmentId, final Long sectionId) {
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedItemData> q = session.createQuery(
-					"select i from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData p " +
-					"where p.publishedAssessmentId = :id and i.section.id = :section and p = s.assessment and i.section = s",
-					PublishedItemData.class);
-			q.setParameter("id", publishedAssessmentId);
-			q.setParameter("section", sectionId);
-			List<PublishedItemData> assessmentGradings = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedItemData> cq = cb.createQuery(PublishedItemData.class);
+
+			Root<PublishedItemData> iRoot = cq.from(PublishedItemData.class);
+			Join<PublishedItemData, PublishedSectionData> sJoin = iRoot.join("section");
+			Join<PublishedSectionData, PublishedAssessmentData> pJoin = sJoin.join("assessment");
+
+			cq.select(iRoot)
+				.where(
+					cb.equal(pJoin.get("publishedAssessmentId"), publishedAssessmentId),
+					cb.equal(iRoot.get("section").get("id"), sectionId)
+				);
+
+			List<PublishedItemData> assessmentGradings = session.createQuery(cq).getResultList();
 
 			Set<PublishedItemData> itemSet = new HashSet<>();
 			for (PublishedItemData publishedItemData : assessmentGradings) {
@@ -2050,12 +2349,15 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public Long getItemType(final Long publishedItemId) {
 		try {
-			Session session = getCurrentSession();
-			Query<Long> q = session.createQuery(
-					"select p.typeId from PublishedItemData p where p.itemId = :id",
-					Long.class);
-			q.setParameter("id", publishedItemId);
-			List<Long> list = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+			Root<PublishedItemData> root = cq.from(PublishedItemData.class);
+
+			cq.select(root.get("typeId"))
+				.where(cb.equal(root.get("itemId"), publishedItemId));
+
+			List<Long> list = session.createQuery(cq).getResultList();
 
 			if (!list.isEmpty()) {
 				return list.get(0);
@@ -2095,7 +2397,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				if (extendedTimeFacade != null) {
 					extendedTimeFacade.deleteEntriesForPub(data);
 				}
-				Session session = getCurrentSession();
+				Session session = sessionFactory.getCurrentSession();
 				session.remove(data);
 				retryCount = 0;
 			} catch (Exception e) {
@@ -2107,12 +2409,15 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public Set<PublishedSectionData> getSectionSetForAssessment(Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedSectionData> q = session.createQuery(
-					"from PublishedSectionData s where s.assessment.publishedAssessmentId = :id",
-					PublishedSectionData.class);
-			q.setParameter("id", publishedAssessmentId);
-			List<PublishedSectionData> sectionList = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedSectionData> cq = cb.createQuery(PublishedSectionData.class);
+			Root<PublishedSectionData> root = cq.from(PublishedSectionData.class);
+
+			cq.select(root)
+				.where(cb.equal(root.get("assessment").get("publishedAssessmentId"), publishedAssessmentId));
+
+			List<PublishedSectionData> sectionList = session.createQuery(cq).getResultList();
 			return new HashSet<>(sectionList);
 		} catch (Exception e) {
 			log.warn("Error getting section set for assessment {}: {}", publishedAssessmentId, e.toString());
@@ -2141,17 +2446,28 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		final String valueMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedSectionData> q = session.createQuery(
-					"select s from PublishedSectionData s, PublishedSectionMetaData m " +
-					"where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and (m.entry = :value or m.entry = :valueMultiple)",
-					PublishedSectionData.class);
-			q.setParameter("id", publishedAssessmentId);
-			q.setParameter("section", sectionId);
-			q.setParameter("key", key);
-			q.setParameter("value", value);
-			q.setParameter("valueMultiple", valueMultiple);
-			List<PublishedSectionData> l = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedSectionData> cq = cb.createQuery(PublishedSectionData.class);
+
+			Root<PublishedSectionData> sRoot = cq.from(PublishedSectionData.class);
+			Root<PublishedSectionMetaData> mRoot = cq.from(PublishedSectionMetaData.class);
+
+			cq.select(sRoot);
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(sRoot, mRoot.get("section")));
+			predicates.add(cb.equal(sRoot.get("assessment").get("publishedAssessmentId"), publishedAssessmentId));
+			predicates.add(cb.equal(sRoot.get("id"), sectionId));
+			predicates.add(cb.equal(mRoot.get("label"), key));
+			predicates.add(cb.or(
+				cb.equal(mRoot.get("entry"), value),
+				cb.equal(mRoot.get("entry"), valueMultiple)
+			));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			List<PublishedSectionData> l = session.createQuery(cq).getResultList();
 
 			return !l.isEmpty();
 		} catch (Exception e) {
@@ -2165,16 +2481,24 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		final String value = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
 
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedSectionData> q = session.createQuery(
-					"select s from PublishedSectionData s, PublishedSectionMetaData m " +
-					"where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and m.entry = :value",
-					PublishedSectionData.class);
-			q.setParameter("id", publishedAssessmentId);
-			q.setParameter("section", sectionId);
-			q.setParameter("key", key);
-			q.setParameter("value", value);
-			List<PublishedSectionData> l = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedSectionData> cq = cb.createQuery(PublishedSectionData.class);
+
+			Root<PublishedSectionData> sRoot = cq.from(PublishedSectionData.class);
+			Join<PublishedSectionData, PublishedSectionMetaData> mJoin = sRoot.join("section");
+
+			cq.select(sRoot);
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(sRoot.get("assessment").get("publishedAssessmentId"), publishedAssessmentId));
+			predicates.add(cb.equal(sRoot.get("id"), sectionId));
+			predicates.add(cb.equal(mJoin.get("label"), key));
+			predicates.add(cb.equal(mJoin.get("entry"), value));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			List<PublishedSectionData> l = session.createQuery(cq).getResultList();
 
 			return !l.isEmpty();
 		} catch (Exception e) {
@@ -2201,99 +2525,176 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		
 		// take account of group release
 		final List<String> groupIds = getSiteGroupIdsForSubmittingAgent(agentId, siteId);
-		// sorted by submittedData DESC
-		final String order_last = " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
-		// sorted by finalScore DESC
-		final String order_highest = " order by p.publishedAssessmentId DESC, a.finalScore DESC, a.submittedDate DESC";
 
 		List<AssessmentGradingData> last_list;
 		List<AssessmentGradingData> highest_list;
 
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
 
 			// Get total no. of submission per assessment by the given agent
 			if (groupIds.size() > 0) {
-				final String hql = "select distinct new AssessmentGradingData("
-					+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
-					+ " a.submittedDate, a.isLate,"
-					+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
-					+ " '', a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
-					+ " a.timeElapsed) "
-					+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
-					+ " where a.publishedAssessmentId = p.publishedAssessmentId"
-					+ " and a.forGrade = :forGrade and a.status > :status and a.agentId = :agentId"
-					+ " and (az.agentIdString = :siteId or az.agentIdString in (:groupIds)) "
-					+ " and az.functionId = :functionId and az.qualifierId = p.publishedAssessmentId"
-					+ " and (p.status = :activeStatus or p.status = :editStatus) ";
+				CriteriaQuery<AssessmentGradingData> cqLast = cb.createQuery(AssessmentGradingData.class);
+				Root<AssessmentGradingData> aRootLast = cqLast.from(AssessmentGradingData.class);
+				Root<PublishedAssessmentData> pRootLast = cqLast.from(PublishedAssessmentData.class);
+				Root<AuthorizationData> azRootLast = cqLast.from(AuthorizationData.class);
 
-				// this list is sorted by submittedDate desc.
-				Query<AssessmentGradingData> q_last = session.createQuery(hql + order_last, AssessmentGradingData.class);
-				q_last.setParameter("forGrade", true);
-				q_last.setParameter("status", AssessmentGradingData.REMOVED);
-				q_last.setParameter("agentId", agentId);
-				q_last.setParameter("siteId", siteId);
-				q_last.setParameterList("groupIds", groupIds);
-				q_last.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-				q_last.setParameter("activeStatus", 1);
-				q_last.setParameter("editStatus", 3);
-				last_list = q_last.list();
+				cqLast.select(cb.construct(AssessmentGradingData.class,
+						aRootLast.get("assessmentGradingId"), pRootLast.get("publishedAssessmentId"), pRootLast.get("title"), aRootLast.get("agentId"),
+						aRootLast.get("submittedDate"), aRootLast.get("isLate"),
+						aRootLast.get("forGrade"), aRootLast.get("totalAutoScore"), aRootLast.get("totalOverrideScore"), aRootLast.get("finalScore"),
+						cb.literal(""), aRootLast.get("status"), aRootLast.get("gradedBy"), aRootLast.get("gradedDate"), aRootLast.get("attemptDate"),
+						aRootLast.get("timeElapsed")
+				)).distinct(true);
 
-				// this list is sorted by finalScore desc.
-				Query<AssessmentGradingData> q_highest = session.createQuery(hql + order_highest, AssessmentGradingData.class);
-				q_highest.setParameter("forGrade", true);
-				q_highest.setParameter("status", AssessmentGradingData.REMOVED);
-				q_highest.setParameter("agentId", agentId);
-				q_highest.setParameter("siteId", siteId);
-				q_highest.setParameterList("groupIds", groupIds);
-				q_highest.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-				q_highest.setParameter("activeStatus", 1);
-				q_highest.setParameter("editStatus", 3);
-				highest_list = q_highest.list();
+				List<Predicate> predicatesLast = new ArrayList<>();
+				predicatesLast.add(cb.equal(aRootLast.get("publishedAssessmentId"), pRootLast.get("publishedAssessmentId")));
+				predicatesLast.add(cb.isTrue(aRootLast.get("forGrade")));
+				predicatesLast.add(cb.greaterThan(aRootLast.get("status"), AssessmentGradingData.REMOVED));
+				predicatesLast.add(cb.equal(aRootLast.get("agentId"), agentId));
+				predicatesLast.add(cb.or(
+					cb.equal(azRootLast.get("agentIdString"), siteId),
+					azRootLast.get("agentIdString").in(groupIds)
+				));
+				predicatesLast.add(cb.equal(azRootLast.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+				predicatesLast.add(cb.equal(azRootLast.get("qualifierId"), pRootLast.get("publishedAssessmentId")));
+				predicatesLast.add(cb.or(
+					cb.equal(pRootLast.get("status"), 1),
+					cb.equal(pRootLast.get("status"), 3)
+				));
+
+				cqLast.where(predicatesLast.toArray(new Predicate[0]));
+				// sorted by submittedData DESC
+				cqLast.orderBy(
+					cb.desc(pRootLast.get("publishedAssessmentId")),
+					cb.desc(aRootLast.get("submittedDate"))
+				);
+
+				last_list = session.createQuery(cqLast).getResultList();
+
+				CriteriaQuery<AssessmentGradingData> cqHighest = cb.createQuery(AssessmentGradingData.class);
+				Root<AssessmentGradingData> aRootHighest = cqHighest.from(AssessmentGradingData.class);
+				Root<PublishedAssessmentData> pRootHighest = cqHighest.from(PublishedAssessmentData.class);
+				Root<AuthorizationData> azRootHighest = cqHighest.from(AuthorizationData.class);
+
+				cqHighest.select(cb.construct(AssessmentGradingData.class,
+					aRootHighest.get("assessmentGradingId"), pRootHighest.get("publishedAssessmentId"), pRootHighest.get("title"), aRootHighest.get("agentId"),
+					aRootHighest.get("submittedDate"), aRootHighest.get("isLate"),
+					aRootHighest.get("forGrade"), aRootHighest.get("totalAutoScore"), aRootHighest.get("totalOverrideScore"), aRootHighest.get("finalScore"),
+					cb.literal(""), aRootHighest.get("status"), aRootHighest.get("gradedBy"), aRootHighest.get("gradedDate"), aRootHighest.get("attemptDate"),
+					aRootHighest.get("timeElapsed")
+				)).distinct(true);
+
+				List<Predicate> predicatesHighest = new ArrayList<>();
+				predicatesHighest.add(cb.equal(aRootHighest.get("publishedAssessmentId"), pRootHighest.get("publishedAssessmentId")));
+				predicatesHighest.add(cb.isTrue(aRootHighest.get("forGrade")));
+				predicatesHighest.add(cb.greaterThan(aRootHighest.get("status"), AssessmentGradingData.REMOVED));
+				predicatesHighest.add(cb.equal(aRootHighest.get("agentId"), agentId));
+				predicatesHighest.add(cb.or(
+					cb.equal(azRootHighest.get("agentIdString"), siteId),
+					azRootHighest.get("agentIdString").in(groupIds)
+				));
+				predicatesHighest.add(cb.equal(azRootHighest.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+				predicatesHighest.add(cb.equal(azRootHighest.get("qualifierId"), pRootHighest.get("publishedAssessmentId")));
+				predicatesHighest.add(cb.or(
+					cb.equal(pRootHighest.get("status"), 1),
+					cb.equal(pRootHighest.get("status"), 3)
+				));
+
+				cqHighest.where(predicatesHighest.toArray(new Predicate[0]));
+				// sorted by finalScore DESC
+				cqHighest.orderBy(
+					cb.desc(pRootHighest.get("publishedAssessmentId")),
+					cb.desc(aRootHighest.get("finalScore")),
+					cb.desc(aRootHighest.get("submittedDate"))
+				);
+
+				highest_list = session.createQuery(cqHighest).getResultList();
 			} else {
-				final String hql = "select new AssessmentGradingData("
-					+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
-					+ " a.submittedDate, a.isLate,"
-					+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
-					+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
-					+ " a.timeElapsed) "
-					+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
-					+ " where a.publishedAssessmentId = p.publishedAssessmentId"
-					+ " and a.forGrade = :forGrade and a.status > :status and a.agentId = :agentId"
-					+ " and az.agentIdString = :siteId "
-					+ " and az.functionId = :functionId and az.qualifierId = p.publishedAssessmentId";
+				CriteriaQuery<AssessmentGradingData> cqLast = cb.createQuery(AssessmentGradingData.class);
+				Root<AssessmentGradingData> aRootLast = cqLast.from(AssessmentGradingData.class);
+				Root<PublishedAssessmentData> pRootLast = cqLast.from(PublishedAssessmentData.class);
+				Root<AuthorizationData> azRootLast = cqLast.from(AuthorizationData.class);
 
-				// this list is sorted by submittedDate desc.
-				Query<AssessmentGradingData> q_last = session.createQuery(hql + order_last, AssessmentGradingData.class);
-				q_last.setParameter("forGrade", true);
-				q_last.setParameter("status", AssessmentGradingData.REMOVED);
-				q_last.setParameter("agentId", agentId);
-				q_last.setParameter("siteId", siteId);
-				q_last.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-				last_list = q_last.list();
+				cqLast.select(cb.construct(AssessmentGradingData.class,
+					aRootLast.get("assessmentGradingId"), pRootLast.get("publishedAssessmentId"), pRootLast.get("title"), aRootLast.get("agentId"),
+					aRootLast.get("submittedDate"), aRootLast.get("isLate"),
+					aRootLast.get("forGrade"), aRootLast.get("totalAutoScore"), aRootLast.get("totalOverrideScore"), aRootLast.get("finalScore"),
+					aRootLast.get("comments"), aRootLast.get("status"), aRootLast.get("gradedBy"), aRootLast.get("gradedDate"), aRootLast.get("attemptDate"),
+					aRootLast.get("timeElapsed")
+				));
 
-				// this list is sorted by finalScore desc.
-				Query<AssessmentGradingData> q_highest = session.createQuery(hql + order_highest, AssessmentGradingData.class);
-				q_highest.setParameter("forGrade", true);
-				q_highest.setParameter("status", AssessmentGradingData.REMOVED);
-				q_highest.setParameter("agentId", agentId);
-				q_highest.setParameter("siteId", siteId);
-				q_highest.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-				highest_list = q_highest.list();
+				List<Predicate> predicatesLast = new ArrayList<>();
+				predicatesLast.add(cb.equal(aRootLast.get("publishedAssessmentId"), pRootLast.get("publishedAssessmentId")));
+				predicatesLast.add(cb.isTrue(aRootLast.get("forGrade")));
+				predicatesLast.add(cb.greaterThan(aRootLast.get("status"), AssessmentGradingData.REMOVED));
+				predicatesLast.add(cb.equal(aRootLast.get("agentId"), agentId));
+				predicatesLast.add(cb.equal(azRootLast.get("agentIdString"), siteId));
+				predicatesLast.add(cb.equal(azRootLast.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+				predicatesLast.add(cb.equal(azRootLast.get("qualifierId"), pRootLast.get("publishedAssessmentId")));
+
+				cqLast.where(predicatesLast.toArray(new Predicate[0]));
+				// sorted by submittedData DESC
+				cqLast.orderBy(
+					cb.desc(pRootLast.get("publishedAssessmentId")),
+					cb.desc(aRootLast.get("submittedDate"))
+				);
+
+				last_list = session.createQuery(cqLast).getResultList();
+
+				CriteriaQuery<AssessmentGradingData> cqHighest = cb.createQuery(AssessmentGradingData.class);
+				Root<AssessmentGradingData> aRootHighest = cqHighest.from(AssessmentGradingData.class);
+				Root<PublishedAssessmentData> pRootHighest = cqHighest.from(PublishedAssessmentData.class);
+				Root<AuthorizationData> azRootHighest = cqHighest.from(AuthorizationData.class);
+
+				cqHighest.select(cb.construct(AssessmentGradingData.class,
+					aRootHighest.get("assessmentGradingId"), pRootHighest.get("publishedAssessmentId"), pRootHighest.get("title"), aRootHighest.get("agentId"),
+					aRootHighest.get("submittedDate"), aRootHighest.get("isLate"),
+					aRootHighest.get("forGrade"), aRootHighest.get("totalAutoScore"), aRootHighest.get("totalOverrideScore"), aRootHighest.get("finalScore"),
+					aRootHighest.get("comments"), aRootHighest.get("status"), aRootHighest.get("gradedBy"), aRootHighest.get("gradedDate"), aRootHighest.get("attemptDate"),
+					aRootHighest.get("timeElapsed")
+				));
+
+				List<Predicate> predicatesHighest = new ArrayList<>();
+				predicatesHighest.add(cb.equal(aRootHighest.get("publishedAssessmentId"), pRootHighest.get("publishedAssessmentId")));
+				predicatesHighest.add(cb.isTrue(aRootHighest.get("forGrade")));
+				predicatesHighest.add(cb.greaterThan(aRootHighest.get("status"), AssessmentGradingData.REMOVED));
+				predicatesHighest.add(cb.equal(aRootHighest.get("agentId"), agentId));
+				predicatesHighest.add(cb.equal(azRootHighest.get("agentIdString"), siteId));
+				predicatesHighest.add(cb.equal(azRootHighest.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+				predicatesHighest.add(cb.equal(azRootHighest.get("qualifierId"), pRootHighest.get("publishedAssessmentId")));
+
+				cqHighest.where(predicatesHighest.toArray(new Predicate[0]));
+				// sorted by finalScore DESC
+				cqHighest.orderBy(
+					cb.desc(pRootHighest.get("publishedAssessmentId")),
+					cb.desc(aRootHighest.get("finalScore")),
+					cb.desc(aRootHighest.get("submittedDate"))
+				);
+
+				highest_list = session.createQuery(cqHighest).getResultList();
 			}
 
 			//getEvaluationModel();
-			final String query = "select e.assessment.publishedAssessmentId, e.scoringType, ac.submissionsAllowed  " +
-			"from PublishedEvaluationModel e, PublishedAccessControl ac, AuthorizationData az " +
-			"where e.assessment.publishedAssessmentId = ac.assessment.publishedAssessmentId " +
-			"and az.qualifierId = ac.assessment.publishedAssessmentId and az.agentIdString in (:agentIdString) and az.functionId = :functionId";
+			CriteriaQuery<Object[]> cqEval = cb.createQuery(Object[].class);
+			Root<PublishedEvaluationModel> eRoot = cqEval.from(PublishedEvaluationModel.class);
+			Root<PublishedAccessControl> acRoot = cqEval.from(PublishedAccessControl.class);
+			Root<AuthorizationData> azRootEval = cqEval.from(AuthorizationData.class);
+
+			cqEval.select(cb.array(eRoot.get("assessment").get("publishedAssessmentId"), eRoot.get("scoringType"), acRoot.get("submissionsAllowed")));
 
 			groupIds.add(siteId);
 
-			Query<Object[]> q_eval = session.createQuery(query, Object[].class);
-			q_eval.setParameterList("agentIdString", groupIds);
-			q_eval.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
-			List<Object[]> l = q_eval.list();
+			List<Predicate> predicatesEval = new ArrayList<>();
+			predicatesEval.add(cb.equal(eRoot.get("assessment").get("publishedAssessmentId"), acRoot.get("assessment").get("publishedAssessmentId")));
+			predicatesEval.add(cb.equal(azRootEval.get("qualifierId"), acRoot.get("assessment").get("publishedAssessmentId")));
+			predicatesEval.add(azRootEval.get("agentIdString").in(groupIds));
+			predicatesEval.add(cb.equal(azRootEval.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+
+			cqEval.where(predicatesEval.toArray(new Predicate[0]));
+
+			List<Object[]> l = session.createQuery(cqEval).getResultList();
 
 			Map<Long, Integer> scoringTypeMap = new HashMap<>();
 			for (Object[] o : l) {
@@ -2365,20 +2766,40 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public PublishedAssessmentData getBasicInfoOfPublishedAssessment(final Long publishedId) {
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> query = session.createQuery(
-					"select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
-							+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-							+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
-							+ " c.unlimitedSubmissions, c.submissionsAllowed, c.feedbackEndDate, c.feedbackScoreThreshold) "
-							+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
-							+ " PublishedFeedback as f"
-							+ " where c.assessment.publishedAssessmentId = p.publishedAssessmentId "
-							+ " and p.publishedAssessmentId = f.assessment.publishedAssessmentId "
-							+ " and p.publishedAssessmentId = :id",
-					PublishedAssessmentData.class);
-			query.setParameter("id", publishedId);
-			List<PublishedAssessmentData> list = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+
+			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+			Root<PublishedAccessControl> cRoot = cq.from(PublishedAccessControl.class);
+			Root<PublishedFeedback> fRoot = cq.from(PublishedFeedback.class);
+
+			cq.select(cb.construct(PublishedAssessmentData.class,
+				pRoot.get("publishedAssessmentId"),
+				pRoot.get("title"),
+				cRoot.get("releaseTo"),
+				cRoot.get("startDate"),
+				cRoot.get("dueDate"),
+				cRoot.get("retractDate"),
+				cRoot.get("feedbackDate"),
+				fRoot.get("feedbackDelivery"),
+				fRoot.get("feedbackComponentOption"),
+				fRoot.get("feedbackAuthoring"),
+				cRoot.get("lateHandling"),
+				cRoot.get("unlimitedSubmissions"),
+				cRoot.get("submissionsAllowed"),
+				cRoot.get("feedbackEndDate"),
+				cRoot.get("feedbackScoreThreshold")
+			));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(cRoot.get("assessment").get("publishedAssessmentId"), pRoot.get("publishedAssessmentId")));
+			predicates.add(cb.equal(pRoot.get("publishedAssessmentId"), fRoot.get("assessment").get("publishedAssessmentId")));
+			predicates.add(cb.equal(pRoot.get("publishedAssessmentId"), publishedId));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 
 			if (!list.isEmpty()) {
 				return list.get(0);
@@ -2392,13 +2813,18 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public String getPublishedAssessmentSiteId(String publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<AuthorizationData> q = session.createQuery(
-					"select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id",
-					AuthorizationData.class);
-			q.setParameter("fid", "TAKE_PUBLISHED_ASSESSMENT");
-			q.setParameter("id", publishedAssessmentId);
-			List<AuthorizationData> l = q.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+			Root<AuthorizationData> root = cq.from(AuthorizationData.class);
+
+			cq.select(root)
+				.where(
+					cb.equal(root.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"),
+					cb.equal(root.get("qualifierId"), publishedAssessmentId)
+			);
+
+			List<AuthorizationData> l = session.createQuery(cq).getResultList();
 
 			PublishedAssessmentData publishedAssessment = loadPublishedAssessment(Long.valueOf(publishedAssessmentId));
 			Boolean releaseToGroups = null;
@@ -2452,15 +2878,25 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	 */
 	public Integer getPublishedItemCountForRandomSections(final Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<String> query = session.createQuery(
-					"select m.entry from PublishedSectionData s, PublishedAssessmentData p, PublishedSectionMetaData m " +
-					"where p.publishedAssessmentId = :publishedAssessmentId and m.label = :metaDataLabel and p = s.assessment and m.section = s",
-					String.class);
-			query.setParameter("publishedAssessmentId", publishedAssessmentId);
-			query.setParameter("metaDataLabel", SectionDataIfc.NUM_QUESTIONS_DRAWN);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<String> cq = cb.createQuery(String.class);
 
-			List<String> list = query.list();
+			Root<PublishedSectionData> sRoot = cq.from(PublishedSectionData.class);
+			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+			Root<PublishedSectionMetaData> mRoot = cq.from(PublishedSectionMetaData.class);
+
+			cq.select(mRoot.get("entry"));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(pRoot.get("publishedAssessmentId"), publishedAssessmentId));
+			predicates.add(cb.equal(mRoot.get("label"), SectionDataIfc.NUM_QUESTIONS_DRAWN));
+			predicates.add(cb.equal(pRoot, sRoot.get("assessment")));
+			predicates.add(cb.equal(mRoot.get("section"), sRoot));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			List<String> list = session.createQuery(cq).getResultList();
 
 			int sum = 0;
 			for (String entry : list) {
@@ -2485,17 +2921,25 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	 */
 	public Integer getPublishedItemCountForNonRandomSections(final Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<Number> query = session.createQuery(
-					"select count(i) from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData p, PublishedSectionMetaData m " +
-					"where p.publishedAssessmentId = :publishedAssessmentId and m.label = :metaDataLabel " +
-					"and p = s.assessment and i.section = s and m.section = s and m.entry = :metaDataEntry",
-					Number.class);
-			query.setParameter("publishedAssessmentId", publishedAssessmentId);
-			query.setParameter("metaDataLabel", SectionDataIfc.AUTHOR_TYPE);
-			query.setParameter("metaDataEntry", SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 
-			List<Number> list = query.list();
+			Root<PublishedItemData> iRoot = cq.from(PublishedItemData.class);
+			Join<PublishedItemData, PublishedSectionData> sJoin = iRoot.join("section");
+			Join<PublishedSectionData, PublishedAssessmentData> pJoin = sJoin.join("assessment");
+			Join<PublishedSectionData, PublishedSectionMetaData> mJoin = sJoin.join("sectionMetaData");
+
+			cq.select(cb.count(iRoot));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(pJoin.get("publishedAssessmentId"), publishedAssessmentId));
+			predicates.add(cb.equal(mJoin.get("label"), SectionDataIfc.AUTHOR_TYPE));
+			predicates.add(cb.equal(mJoin.get("entry"), SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			List<Long> list = session.createQuery(cq).getResultList();
 			if (!list.isEmpty()) {
 				return list.get(0).intValue();
 			}
@@ -2508,13 +2952,15 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public Integer getPublishedSectionCount(final Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<Number> query = session.createQuery(
-					"select count(s) from PublishedSectionData s, PublishedAssessmentData p " +
-					"where p.publishedAssessmentId = :id and p = s.assessment",
-					Number.class);
-			query.setParameter("id", publishedAssessmentId);
-			List<Number> list = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+			Root<PublishedSectionData> sRoot = cq.from(PublishedSectionData.class);
+
+			cq.select(cb.count(sRoot))
+				.where(cb.equal(sRoot.get("assessment").get("publishedAssessmentId"), publishedAssessmentId));
+
+			List<Long> list = session.createQuery(cq).getResultList();
 
 			if (!list.isEmpty()) {
 				return list.get(0).intValue();
@@ -2528,12 +2974,15 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public PublishedAttachmentData getPublishedAttachmentData(Long attachmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAttachmentData> query = session.createQuery(
-					"select a from PublishedAttachmentData a where a.attachmentId = :id",
-					PublishedAttachmentData.class);
-			query.setParameter("id", attachmentId);
-			List<PublishedAttachmentData> l = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAttachmentData> cq = cb.createQuery(PublishedAttachmentData.class);
+			Root<PublishedAttachmentData> root = cq.from(PublishedAttachmentData.class);
+
+			cq.select(root)
+				.where(cb.equal(root.get("attachmentId"), attachmentId));
+
+			List<PublishedAttachmentData> l = session.createQuery(cq).getResultList();
 
 			if (!l.isEmpty()) {
 				return l.get(0);
@@ -2552,7 +3001,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				Session session = getCurrentSession();
+				Session session = sessionFactory.getCurrentSession();
 				session.merge(data);
 				retryCount = 0;
 			} catch (Exception e) {
@@ -2566,7 +3015,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				Session session = getCurrentSession();
+				Session session = sessionFactory.getCurrentSession();
 				session.merge(section.getData());
 				retryCount = 0;
 			} catch (Exception e) {
@@ -2605,7 +3054,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				Session session = getCurrentSession();
+				Session session = sessionFactory.getCurrentSession();
 				session.merge(section);
 				retryCount = 0;
 			} catch (Exception e) {
@@ -2618,7 +3067,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public PublishedSectionFacade getSection(Long sectionId) {
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 			PublishedSectionData publishedSection = session.get(PublishedSectionData.class, sectionId);
 
 			if (publishedSection == null) {
@@ -2635,14 +3084,16 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public AssessmentAccessControlIfc loadPublishedAccessControl(Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAccessControl> query = session.createQuery(
-					"select c from PublishedAssessmentData as p, PublishedAccessControl as c " +
-					"where c.assessment.publishedAssessmentId = p.publishedAssessmentId " +
-					"and p.publishedAssessmentId = :id",
-					PublishedAccessControl.class);
-			query.setParameter("id", publishedAssessmentId);
-			List<PublishedAccessControl> list = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAccessControl> cq = cb.createQuery(PublishedAccessControl.class);
+			Root<PublishedAccessControl> cRoot = cq.from(PublishedAccessControl.class);
+			Join<PublishedAccessControl, PublishedAssessmentData> pJoin = cRoot.join("assessment");
+
+			cq.select(cRoot)
+				.where(cb.equal(pJoin.get("publishedAssessmentId"), publishedAssessmentId));
+
+			List<PublishedAccessControl> list = session.createQuery(cq).getResultList();
 
 			if (!list.isEmpty()) {
 				return list.get(0);
@@ -2658,7 +3109,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				Session session = getCurrentSession();
+				Session session = sessionFactory.getCurrentSession();
 				session.merge(publishedAccessControl);
 				retryCount = 0;
 			} catch (Exception e) {
@@ -2761,14 +3212,18 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public List<String> getReleaseToGroupIdsForPublishedAssessment(final String publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<String> query = session.createQuery(
-					"select agentIdString from AuthorizationData az where az.functionId = :functionId and az.qualifierId = :publishedAssessmentId",
-					String.class);
-			query.setParameter("publishedAssessmentId", publishedAssessmentId);
-			query.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<String> cq = cb.createQuery(String.class);
+			Root<AuthorizationData> root = cq.from(AuthorizationData.class);
 
-			return query.list();
+			cq.select(root.get("agentIdString"))
+				.where(
+					cb.equal(root.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"),
+					cb.equal(root.get("qualifierId"), publishedAssessmentId)
+				);
+
+			return session.createQuery(cq).getResultList();
 		} catch (Exception e) {
 			log.warn("Error getting release to group IDs for assessment {}: {}", publishedAssessmentId, e.toString());
 			return new ArrayList<>();
@@ -2777,12 +3232,15 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public Integer getPublishedAssessmentStatus(Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<Integer> query = session.createQuery(
-					"select p.status from PublishedAssessmentData p where p.publishedAssessmentId = :id",
-					Integer.class);
-			query.setParameter("id", publishedAssessmentId);
-			List<Integer> l = query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
+			Root<PublishedAssessmentData> root = cq.from(PublishedAssessmentData.class);
+
+			cq.select(root.get("status"))
+				.where(cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId));
+
+			List<Integer> l = session.createQuery(cq).getResultList();
 
 			if (!l.isEmpty()) {
 				return l.get(0);
@@ -2843,7 +3301,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				Session session = getCurrentSession();
+				Session session = sessionFactory.getCurrentSession();
 				PublishedAssessmentAttachment assessmentAttachment = session.get(PublishedAssessmentAttachment.class, assessmentAttachmentId);
 
 				if (assessmentAttachment == null) {
@@ -2915,7 +3373,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				Session session = getCurrentSession();
+				Session session = sessionFactory.getCurrentSession();
 				PublishedSectionAttachment sectionAttachment = session.get(PublishedSectionAttachment.class, sectionAttachmentId);
 
 				if (sectionAttachment == null) {
@@ -2945,7 +3403,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			return;
 		}
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 			for (AttachmentIfc attachment : list) {
 				session.merge(attachment);
 			}
@@ -2957,7 +3415,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 			PublishedAssessmentData a = session.get(PublishedAssessmentData.class, publishedAssessmentId);
 
 			if (a == null) {
@@ -2974,17 +3432,29 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public Map<Long, String> getToGradebookPublishedAssessmentSiteIdMap() {
 		try {
-			Session session = getCurrentSession();
-			Query<Object[]> query = session.createQuery(
-					"select em.assessment.publishedAssessmentId, a.agentIdString " +
-					"from PublishedEvaluationModel em, AuthorizationData a " +
-					"where a.functionId = 'OWN_PUBLISHED_ASSESSMENT' " +
-					"and em.assessment.publishedAssessmentId = a.qualifierId " +
-					"and (em.toGradeBook = '1' or em.toGradeBook = :gradebook)",
-					Object[].class);
-			query.setParameter("gradebook", EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString());
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-			List<Object[]> l = query.list();
+			Root<PublishedEvaluationModel> emRoot = cq.from(PublishedEvaluationModel.class);
+			Root<AuthorizationData> aRoot = cq.from(AuthorizationData.class);
+
+			cq.select(cb.array(
+				emRoot.get("assessment").get("publishedAssessmentId"),
+				aRoot.get("agentIdString")
+			));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(aRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(emRoot.get("assessment").get("publishedAssessmentId"), aRoot.get("qualifierId")));
+			predicates.add(cb.or(
+				cb.equal(emRoot.get("toGradeBook"), "1"),
+				cb.equal(emRoot.get("toGradeBook"), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())
+			));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			List<Object[]> l = session.createQuery(cq).getResultList();
 			Map<Long, String> map = new HashMap<>();
 			for (Object[] o : l) {
 				if (o.length >= 2 && o[0] != null) {
@@ -3000,20 +3470,26 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public List<AssessmentGradingData> getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId) {
 		try {
-			Session session = getCurrentSession();
-			Query<AssessmentGradingData> query = session.createQuery(
-					"select a from AssessmentGradingData as a, AuthorizationData as az " +
-					"where a.agentId = :agentId and a.forGrade = :forGrade and a.status > :status " +
-					"and az.agentIdString = :siteId " +
-					"and az.functionId = :functionId and az.qualifierId = a.publishedAssessmentId",
-					AssessmentGradingData.class);
-			query.setParameter("agentId", agentId);
-			query.setParameter("forGrade", true);
-			query.setParameter("status", AssessmentGradingData.REMOVED);
-			query.setParameter("siteId", siteId);
-			query.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
 
-			return query.list();
+			Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+			Root<AuthorizationData> azRoot = cq.from(AuthorizationData.class);
+
+			cq.select(aRoot);
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(aRoot.get("agentId"), agentId));
+			predicates.add(cb.isTrue(aRoot.get("forGrade")));
+			predicates.add(cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED));
+			predicates.add(cb.equal(azRoot.get("agentIdString"), siteId));
+			predicates.add(cb.equal(azRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(azRoot.get("qualifierId"), aRoot.get("publishedAssessmentId")));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			return session.createQuery(cq).getResultList();
 		} catch (Exception e) {
 			log.warn("Error getting assessment grading data for agent {} and site {}: {}", agentId, siteId, e.toString());
 			return new ArrayList<>();
@@ -3181,13 +3657,18 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public List getQuestionsIdList(final Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<Long> query = session.createQuery(
-					"select i.itemId from PublishedItemData i, PublishedSectionData s, PublishedAssessmentData a " +
-					"where a = s.assessment and s = i.section and a.publishedAssessmentId = :publishedAssessmentId",
-					Long.class);
-			query.setParameter("publishedAssessmentId", publishedAssessmentId);
-			return query.list();
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+			Root<PublishedItemData> iRoot = cq.from(PublishedItemData.class);
+			Join<PublishedItemData, PublishedSectionData> sJoin = iRoot.join("section");
+			Join<PublishedSectionData, PublishedAssessmentData> aJoin = sJoin.join("assessment");
+
+			cq.select(iRoot.get("itemId"))
+				.where(cb.equal(aJoin.get("publishedAssessmentId"), publishedAssessmentId));
+
+			return session.createQuery(cq).getResultList();
 		} catch (Exception e) {
 			log.warn("Error getting question IDs for assessment {}: {}", publishedAssessmentId, e.getMessage());
 			return new ArrayList<>();
@@ -3197,18 +3678,28 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public List<PublishedAssessmentData> getPublishedDeletedAssessments(final String siteAgentId) {
 		try {
-			Session session = getCurrentSession();
-			Query<PublishedAssessmentData> query = session.createQuery(
-				"select new PublishedAssessmentData(p.publishedAssessmentId, p.title, p.lastModifiedDate) " +
-					"from PublishedAssessmentData p, AuthorizationData z " +
-					"where p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId " +
-					"and z.agentIdString=:siteId and p.status=:inactiveStatus",
-				PublishedAssessmentData.class);
-			query.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT");
-			query.setParameter("siteId", siteAgentId);
-			query.setParameter("inactiveStatus", AssessmentIfc.DEAD_STATUS);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
 
-			return query.list();
+			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+			Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+
+			cq.select(cb.construct(PublishedAssessmentData.class,
+				pRoot.get("publishedAssessmentId"),
+				pRoot.get("title"),
+				pRoot.get("lastModifiedDate")
+			));
+
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(pRoot.get("publishedAssessmentId"), zRoot.get("qualifierId")));
+			predicates.add(cb.equal(zRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(zRoot.get("agentIdString"), siteAgentId));
+			predicates.add(cb.equal(pRoot.get("status"), AssessmentIfc.DEAD_STATUS));
+
+			cq.where(predicates.toArray(new Predicate[0]));
+
+			return session.createQuery(cq).getResultList();
 		} catch (Exception e) {
 			log.warn("Error getting deleted assessments for site {}: {}", siteAgentId, e.toString());
 			return new ArrayList<>();
@@ -3217,7 +3708,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 	public void restorePublishedAssessment(Long publishedAssessmentId) {
 		try {
-			Session session = getCurrentSession();
+			Session session = sessionFactory.getCurrentSession();
 			PublishedAssessmentData assessment = session.get(PublishedAssessmentData.class, publishedAssessmentId);
 
 			if (assessment == null) {
