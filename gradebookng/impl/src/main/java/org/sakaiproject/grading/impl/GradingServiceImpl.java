@@ -2293,8 +2293,8 @@ public class GradingServiceImpl implements GradingService {
                     eventsToAdd.add(event);
                 }
             } else {
-                // if the grade is something other than null, add a new AGR
-                if (StringUtils.isNotBlank(newGrade) && (StringUtils.isNotBlank(gradeDef.getGrade()) || excuse != currentExcuse)) {
+                // A score or an excused status requires a grade record.
+                if (StringUtils.isNotBlank(newGrade) || excuse) {
                     gradeRec = new AssignmentGradeRecord(assignment, studentId, convertedGrade);
                     gradeRec.setGraderId(graderUid);
                     gradeRec.setDateRecorded(gradedDate);

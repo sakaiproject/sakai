@@ -462,6 +462,40 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void excuseStudentsWithoutScores() {
+        Gradebook gradebook = createGradebook();
+        Long assignmentId = createAssignment1(gradebook);
+
+        gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), siteId, assignmentId, user1, null, true);
+        gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), siteId, assignmentId, user2, "", true);
+
+        for (String studentId : List.of(user1, user2)) {
+            GradeDefinition grade = gradingService.getGradeDefinitionForStudentForItem(
+                    gradebook.getUid(), siteId, assignmentId, studentId);
+            assertTrue(grade.isExcused());
+            assertNull(grade.getGrade());
+            assertEquals(1, gradingService.getGradingEvents(studentId, assignmentId).size());
+        }
+
+        gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), siteId, assignmentId, user1, null, false);
+        GradeDefinition included = gradingService.getGradeDefinitionForStudentForItem(
+                gradebook.getUid(), siteId, assignmentId, user1);
+        assertFalse(included.isExcused());
+        assertNull(included.getGrade());
+    }
+
+    @Test
+    public void blankUnexcusedScoreDoesNotCreateGradingEvent() {
+        Gradebook gradebook = createGradebook();
+        Long assignmentId = createAssignment1(gradebook);
+
+        gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), siteId, assignmentId, user1, "", false);
+
+        assertTrue(gradingService.getGradingEvents(user1, assignmentId).isEmpty());
+        assertFalse(gradingService.getIsAssignmentExcused(gradebook.getUid(), assignmentId, user1));
+    }
+
+    @Test
     public void getAverageCourseGrade() {
 
         Gradebook gradebook = createGradebook();
