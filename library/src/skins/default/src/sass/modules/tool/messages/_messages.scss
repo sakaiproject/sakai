@@ -238,8 +238,11 @@
 	// The skin's .portletBody has a fixed margin-bottom: 3rem !important (modules/tool/_base.scss)
 	// that collapses through <body> into <html>, inflating document.documentElement.scrollHeight by
 	// that same amount (measured live: 42px) regardless of actual content - wasted space under every
-	// slide.
-	.portletBody {
+	// slide. .Mrphs-sakai-motd alone isn't enough to scope this: it's on <body> for every sakai.motd
+	// render, including the default single-message fallback (motd.carousel.enabled=false), which needs
+	// to keep the skin's normal margin - motd-carousel-body is only added when the carousel itself
+	// actually renders (see chef_synoptic_message-List.vm).
+	.portletBody.motd-carousel-body {
 		margin-bottom: 0 !important;
 	}
 
@@ -305,6 +308,11 @@
 			[data-bs-target] {
 				background-color: #adb5bd;
 				opacity: 1;
+				// Bootstrap's own rule for these is flex: 0 1 auto (flex-shrink: 1), so without this
+				// the dots shrink individually to fit rather than the strip overflowing - with up to
+				// 200 messages (sakai.motd.xml) that collapses them into unusable slivers instead of
+				// letting overflow-x above actually scroll.
+				flex-shrink: 0;
 
 				&.active {
 					background-color: #333;

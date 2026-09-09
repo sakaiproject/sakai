@@ -1,5 +1,9 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/recent/chef_synoptic_message-List.vm,v 1.6 2005/05/20 17:28:19 suiyy.umich.edu Exp $
-<div class="portletBody">
+## motd-carousel-body marks the skin's .portletBody margin-bottom override (see
+## modules/tool/messages/_messages.scss) as scoped to the carousel actually rendering,
+## not just to the sakai.motd tool - that class is also on <body> for the default
+## single-message fallback, which needs to keep the skin's normal margin.
+<div class="portletBody#if ($toolId=="sakai.motd" && $motdCarouselEnabled && !$messages.isEmpty()) motd-carousel-body#end">
 	#set($counter = 0)
 
 		#if ($toolId=="sakai.motd")
@@ -31,8 +35,13 @@
 						#foreach ($item in $messages)
 							#set($counter = $counter + 1)
 							#set($props = $item.Properties)
+							#set($motdSlideNumber = $motdIndex + 1)
 							<div class="carousel-item #if ($motdIndex == 0)active#end">
-								<div class="p-3">
+								## tabindex so keyboard users can scroll a message that exceeds
+								## motd.carousel.max-height (WCAG 2.1.1) - this container can be a
+								## scroll area (see .p-3's overflow-y in _messages.scss) with no
+								## other focusable content of its own to land on otherwise.
+								<div class="p-3" tabindex="0" role="group" aria-label="$tlang.getFormattedMessage("motd.slide", $motdSlideNumber)">
 									#if ($showSubject)
 										#if ($props && !$props.isEmpty() && $props.getProperty("releaseDate"))
 											#set($releasedate = $props.getTimeProperty("releaseDate"))
