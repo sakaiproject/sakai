@@ -35,6 +35,7 @@ import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -402,6 +403,18 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		}
 		context.put("show_newlines", ((Boolean) state.getAttribute(STATE_SHOW_NEWLINES)).toString());
 
+		// off by default so upgrading installs keep today's single-message MOTD
+		// behaviour until an admin explicitly opts in
+		boolean motdCarouselEnabled = ServerConfigurationService.getBoolean("motd.carousel.enabled", false);
+		context.put("motdCarouselEnabled", motdCarouselEnabled);
+
+		// how long (in ms) the MOTD carousel shows each message before auto-advancing
+		context.put("motdCarouselInterval", ServerConfigurationService.getInt("motd.carousel.interval", 4000));
+
+		// cap (in px) on how tall a single message's body can grow before it scrolls
+		// internally instead of pushing the rest of the page down further
+		context.put("motdCarouselMaxHeight", ServerConfigurationService.getInt("motd.carousel.max-height", 400));
+
 		try
 		{
 			MessageService service = (MessageService) state.getAttribute(STATE_SERVICE);
@@ -412,6 +425,14 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			if (state.getAttribute(STATE_ITEMS) != null)
 			{
 				items = ((Integer) state.getAttribute(STATE_ITEMS)).intValue();
+			}
+			// sakai.motd.xml configures items=200 so the carousel has enough messages
+			// to rotate through, but with the carousel turned off that would silently
+			// stack every active message instead of the single one admins have always
+			// gotten - cap back to 1 to match the pre-carousel behaviour.
+			if ("sakai.motd".equals(tool.getId()) && !motdCarouselEnabled)
+			{
+				items = 1;
 			}
 
 			String serviceName = (String) state.getAttribute(STATE_SERVICE_NAME);
