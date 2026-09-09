@@ -27,9 +27,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.hibernate.query.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
+import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -47,13 +53,13 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Transactional
-public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport implements AssignmentSupplementItemService {
+public class AssignmentSupplementItemServiceImpl implements AssignmentSupplementItemService {
+
+	@Setter private SessionFactory sessionFactory;
 
    /** Dependency: UserDirectoryService */
 	protected UserDirectoryService m_userDirectoryService = null;
@@ -124,10 +130,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	{
 		try 
 		{
-			getHibernateTemplate().saveOrUpdate(attachment);
+			sessionFactory.getCurrentSession().saveOrUpdate(attachment);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn("{}.saveModelAnswerQuestion() Hibernate could not save attachment {}", this, attachment.getId(), e);
 			return false;
@@ -139,13 +145,11 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public List<String> getAttachmentListForSupplementItem(final AssignmentSupplementItemWithAttachment item)
 	{	
-		HibernateCallback<List<String>> hcb = session -> {
-          Query q = session.getNamedQuery("findAttachmentBySupplementItem");
-          q.setParameter("item", item);
-          return q.list();
-        };
-	        
-	    return getHibernateTemplate().execute(hcb);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		Root<AssignmentSupplementItemAttachment> root = cq.from(AssignmentSupplementItemAttachment.class);
+		cq.select(root.get("attachmentId")).where(cb.equal(root.get("assignmentSupplementItemWithAttachment"), item));
+		return sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 	}
 	
 	/**
@@ -173,10 +177,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	{
 		try 
 		{
-			getHibernateTemplate().delete(getHibernateTemplate().merge(attachment));
+			sessionFactory.getCurrentSession().remove(sessionFactory.getCurrentSession().merge(attachment));
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn("{}.removeAttachment() Hibernate could not delete attachment {}", this, attachment.getId(), e);
 			return false;
@@ -199,10 +203,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	{
 		try 
 		{
-			getHibernateTemplate().saveOrUpdate(mItem);
+			sessionFactory.getCurrentSession().saveOrUpdate(mItem);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn("{}.saveModelAnswerQuestion() Hibernate could not save model answer for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
@@ -217,10 +221,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 
 		try 
 		{
-			getHibernateTemplate().delete(getHibernateTemplate().merge(mItem));
+			sessionFactory.getCurrentSession().remove(sessionFactory.getCurrentSession().merge(mItem));
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn("{}.removeModelAnswer() Hibernate could not delete ModelAnswer for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
@@ -233,7 +237,11 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public AssignmentModelAnswerItem getModelAnswer(String assignmentId)
 	{
-		List<AssignmentModelAnswerItem> rvList = (List<AssignmentModelAnswerItem>) getHibernateTemplate().findByNamedQueryAndNamedParam("findModelAnswerByAssignmentId", "id", assignmentId);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<AssignmentModelAnswerItem> cq = cb.createQuery(AssignmentModelAnswerItem.class);
+		Root<AssignmentModelAnswerItem> root = cq.from(AssignmentModelAnswerItem.class);
+		cq.select(root).where(cb.equal(root.get("assignmentId"), assignmentId));
+		List<AssignmentModelAnswerItem> rvList = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 		if (rvList != null && rvList.size() == 1)
 		{
 			return rvList.get(0);
@@ -257,10 +265,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	{
 		try 
 		{
-			getHibernateTemplate().saveOrUpdate(nItem);
+			sessionFactory.getCurrentSession().saveOrUpdate(nItem);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn("{}.saveNoteItem() Hibernate could not save private note for assignment {}", this, nItem.getAssignmentId(), e);
 			return false;
@@ -275,10 +283,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 
 		try 
 		{
-			getHibernateTemplate().delete(getHibernateTemplate().merge(mItem));
+			sessionFactory.getCurrentSession().remove(sessionFactory.getCurrentSession().merge(mItem));
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn("{}.removeNoteItem() Hibernate could not delete NoteItem for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
@@ -291,7 +299,11 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public AssignmentNoteItem getNoteItem(String assignmentId)
 	{
-		List<AssignmentNoteItem> rvList = (List<AssignmentNoteItem>) getHibernateTemplate().findByNamedQueryAndNamedParam("findNoteItemByAssignmentId", "id", assignmentId);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<AssignmentNoteItem> cq = cb.createQuery(AssignmentNoteItem.class);
+		Root<AssignmentNoteItem> root = cq.from(AssignmentNoteItem.class);
+		cq.select(root).where(cb.equal(root.get("assignmentId"), assignmentId));
+		List<AssignmentNoteItem> rvList = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 		if (rvList != null && rvList.size() == 1)
 		{
 			return rvList.get(0);
@@ -316,10 +328,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	{
 		try 
 		{
-			getHibernateTemplate().saveOrUpdate(nItem);
+			sessionFactory.getCurrentSession().saveOrUpdate(nItem);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn("{}.saveAllPurposeItem() Hibernate could not save private AllPurpose for assignment {}", this, nItem.getAssignmentId(), e);
 			return false;
@@ -333,10 +345,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	{
 		try
 		{
-			getHibernateTemplate().delete(getHibernateTemplate().merge(mItem));
+			sessionFactory.getCurrentSession().remove(sessionFactory.getCurrentSession().merge(mItem));
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn("{}.removeAllPurposeItem() Hibernate could not delete AllPurposeItem for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
@@ -367,7 +379,11 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public AssignmentAllPurposeItem getAllPurposeItem(String assignmentId)
 	{
-		List<AssignmentAllPurposeItem> rvList = (List<AssignmentAllPurposeItem>) getHibernateTemplate().findByNamedQueryAndNamedParam("findAllPurposeItemByAssignmentId", "id", assignmentId);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<AssignmentAllPurposeItem> cq = cb.createQuery(AssignmentAllPurposeItem.class);
+		Root<AssignmentAllPurposeItem> root = cq.from(AssignmentAllPurposeItem.class);
+		cq.select(root).where(cb.equal(root.get("assignmentId"), assignmentId));
+		List<AssignmentAllPurposeItem> rvList = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 		if (rvList != null && rvList.size() == 1)
 		{
 			return rvList.get(0);
@@ -390,10 +406,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	{
 		try 
 		{
-			getHibernateTemplate().saveOrUpdate(access);
+			sessionFactory.getCurrentSession().saveOrUpdate(access);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn("{}.saveAllPurposeItemAccess() Hibernate could not save access {} for {}", this, access.getAccess(), access.getAssignmentAllPurposeItem().getTitle(), e);
 			return false;
@@ -408,10 +424,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 
 		try 
 		{
-			getHibernateTemplate().delete(getHibernateTemplate().merge(access));
+			sessionFactory.getCurrentSession().remove(sessionFactory.getCurrentSession().merge(access));
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn("{}.removeAllPurposeItemAccess() Hibernate could not delete access for all purpose item {} for access {}", this, access.getAssignmentAllPurposeItem().getId(), access.getAccess(), e);
 			return false;
@@ -423,13 +439,11 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public List<String> getAccessListForAllPurposeItem(final AssignmentAllPurposeItem item)
 	{	
-		HibernateCallback<List<String>> hcb = session -> {
-          Query q = session.getNamedQuery("findAccessByAllPurposeItem");
-          q.setParameter("item", item);
-          return q.list();
-        };
-	        
-	    return getHibernateTemplate().execute(hcb);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		Root<AssignmentAllPurposeItemAccess> root = cq.from(AssignmentAllPurposeItemAccess.class);
+		cq.select(root.get("access")).where(cb.equal(root.get("assignmentAllPurposeItem"), item));
+		return sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 	}
 
     public boolean canViewModelAnswer(Assignment a, AssignmentSubmission s) {
