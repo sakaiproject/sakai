@@ -45,11 +45,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.comparators.NullComparator;
 import org.apache.commons.lang3.StringUtils;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -74,9 +72,12 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
+import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.GradingAttachmentData;
@@ -98,6 +99,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -105,34 +107,23 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.SakaiCollators;
 import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
-import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
 public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQueriesAPI {
 
-	private SessionFactory sessionFactory;
-
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-
-	protected Session getCurrentSession() {
-		if (sessionFactory == null) {
-			throw new DataAccessResourceFailureException("SessionFactory is null");
-		}
-		return sessionFactory.getCurrentSession();
-	}
+    @Setter private SessionFactory sessionFactory;
 
     /**
      * Default empty Constructor
@@ -176,20 +167,32 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
                     ? " and a.forGrade = true"
                     : " and (a.forGrade = true or (a.forGrade = false and a.status = :noSubmission))";
 
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
 
-            Query<AssessmentGradingData> query = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id" +
-                    " and a.status > :removed" +
-                    forGradeClause +
-                    " order by a.agentId asc, a.finalScore desc, a.submittedDate desc",
-                    AssessmentGradingData.class);
-            query.setParameter("id", publishedId);
-            query.setParameter("removed", AssessmentGradingData.REMOVED);
-            if (!getSubmittedOnly) {
-                query.setParameter("noSubmission", AssessmentGradingData.NO_SUBMISSION);
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("publishedAssessmentId"), publishedId));
+            predicates.add(cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED));
+
+            if (getSubmittedOnly) {
+                predicates.add(cb.isTrue(root.get("forGrade")));
+            } else {
+                Predicate forGradeTrue = cb.isTrue(root.get("forGrade"));
+                Predicate forGradeFalseNoSubmission = cb.and(
+                        cb.isFalse(root.get("forGrade")),
+                        cb.equal(root.get("status"), AssessmentGradingData.NO_SUBMISSION));
+                predicates.add(cb.or(forGradeTrue, forGradeFalseNoSubmission));
             }
-            List<AssessmentGradingData> list = query.list();
+
+            cq.where(predicates.toArray(new Predicate[0]));
+            cq.orderBy(
+                    cb.asc(root.get("agentId")),
+                    cb.desc(root.get("finalScore")),
+                    cb.desc(root.get("submittedDate")));
+
+            List<AssessmentGradingData> list = session.createQuery(cq).list();
 
             Map<Long, List<AssessmentGradingAttachment>> attachmentMap = getAssessmentGradingAttachmentMap(publishedId);
             for (AssessmentGradingData data : list) {
@@ -202,18 +205,27 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
             // last submission
             if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
-                Query<AssessmentGradingData> q2 = session.createQuery(
-                        "from AssessmentGradingData a where a.publishedAssessmentId = :id" +
-                        " and a.status > :removed" +
-                        forGradeClause +
-                        " order by a.agentId asc, a.submittedDate desc",
-                        AssessmentGradingData.class);
-                q2.setParameter("id", publishedId);
-                q2.setParameter("removed", AssessmentGradingData.REMOVED);
-                if (!getSubmittedOnly) {
-                    q2.setParameter("noSubmission", AssessmentGradingData.NO_SUBMISSION);
+
+                List<Predicate> predicates2 = new ArrayList<>();
+                predicates2.add(cb.equal(root.get("publishedAssessmentId"), publishedId));
+                predicates2.add(cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED));
+
+                if (getSubmittedOnly) {
+                    predicates.add(cb.isTrue(root.get("forGrade")));
+                } else {
+                    Predicate forGradeTrue = cb.isTrue(root.get("forGrade"));
+                    Predicate forGradeFalseNoSubmission = cb.and(
+                            cb.isFalse(root.get("forGrade")),
+                            cb.equal(root.get("status"), AssessmentGradingData.NO_SUBMISSION));
+                    predicates.add(cb.or(forGradeTrue, forGradeFalseNoSubmission));
                 }
-                list = q2.list();
+
+                cq.where(predicates.toArray(new Predicate[0]));
+                cq.orderBy(
+                        cb.asc(root.get("agentId")),
+                        cb.desc(root.get("submittedDate")));
+
+                list = session.createQuery(cq).getResultList();
             }
 
             if (which.equals(EvaluationModelIfc.ALL_SCORE.toString()) || which.equals(EvaluationModelIfc.AVERAGE_SCORE.toString())) {
@@ -241,14 +253,19 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
     @SuppressWarnings("unchecked")
     public List<AssessmentGradingData> getAllSubmissions(final String publishedId) {
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status",
-                    AssessmentGradingData.class);
-            q.setParameter("id", Long.parseLong(publishedId));
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("publishedAssessmentId"), Long.parseLong(publishedId)));
+            predicates.add(cb.isTrue(root.get("forGrade")));
+            predicates.add(cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED));
+
+            cq.where(predicates.toArray(new Predicate[0]));
+
+            return session.createQuery(cq).getResultList();
         } catch (Exception e) {
             log.warn("Error getting all submissions for publishedId {}: {}", publishedId, e.getMessage());
             return new ArrayList<>();
@@ -257,14 +274,22 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
     public List<AssessmentGradingData> getAllAssessmentGradingData(final Long publishedId) {
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status <> :status and a.status <> :removed order by a.agentId asc, a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedId);
-            q.setParameter("status", AssessmentGradingData.NO_SUBMISSION);
-            q.setParameter("removed", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("publishedAssessmentId"), publishedId));
+            predicates.add(cb.notEqual(root.get("status"), AssessmentGradingData.NO_SUBMISSION));
+            predicates.add(cb.notEqual(root.get("status"), AssessmentGradingData.REMOVED));
+
+            cq.where(predicates.toArray(new Predicate[0]));
+            cq.orderBy(
+               cb.asc(root.get("agentId")),
+               cb.desc(root.get("submittedDate")));
+
+            List<AssessmentGradingData> list = session.createQuery(cq).getResultList();
 
             list.forEach(agd -> agd.setItemGradingSet(getItemGradingSet(agd.getAssessmentGradingId())));
 
@@ -293,7 +318,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
             HashMap<Long, List<ItemGradingData>> map = new HashMap<>();
 
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
             Root<ItemGradingData> root = cq.from(ItemGradingData.class);
@@ -371,19 +396,23 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
      */
     public Map<Long, List<ItemGradingData>> getLastItemGradingData(final Long publishedId, final String agentId) {
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             // I am debating should I use (a.forGrade=false and a.status=NO_SUBMISSION) or attemptDate is not null
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id " +
-                            "and a.agentId = :agent and a.forGrade = :forgrade and a.status <> :status and a.status <> :removed " +
-                            "order by a.submittedDate DESC",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedId);
-            q.setParameter("agent", agentId);
-            q.setParameter("forgrade", false);
-            q.setParameter("status", AssessmentGradingData.NO_SUBMISSION);
-            q.setParameter("removed", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> scores = q.list();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("publishedAssessmentId"), publishedId));
+            predicates.add(cb.equal(root.get("agentId"), agentId));
+            predicates.add(cb.isFalse(root.get("forGrade")));
+            predicates.add(cb.notEqual(root.get("status"), AssessmentGradingData.NO_SUBMISSION));
+            predicates.add(cb.notEqual(root.get("status"), AssessmentGradingData.REMOVED));
+
+            cq.where(predicates.toArray(new Predicate[0]));
+            cq.orderBy(cb.desc(root.get("submittedDate")));
+
+            List<AssessmentGradingData> scores = session.createQuery(cq).getResultList();
 
             if (scores.isEmpty()) {
                 return new HashMap<>();
@@ -438,45 +467,51 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
                 return new HashMap<>();
             }
 
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+            List<AssessmentGradingData> scores = null;
             log.debug("scoringoption = " + scoringoption);
 
-            List<AssessmentGradingData> scores;
             if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)) {
                 // last submission
                 if (assessmentGradingId == null) {
-                    Query<AssessmentGradingData> q = session.createQuery(
-                            "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate DESC",
-                            AssessmentGradingData.class);
-                    q.setParameter("id", publishedId);
-                    q.setParameter("agent", agentId);
-                    q.setParameter("forgrade", true);
-                    q.setParameter("status", AssessmentGradingData.REMOVED);
-                    scores = q.list();
+                    List<Predicate> predicates = new ArrayList<>();
+                    predicates.add(cb.equal(root.get("publishedAssessmentId"), publishedId));
+                    predicates.add(cb.equal(root.get("agentId"), agentId));
+                    predicates.add(cb.isTrue(root.get("forGrade")));
+                    predicates.add(cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED));
+
+                    cq.where(predicates.toArray(new Predicate[0]));
+                    cq.orderBy(cb.desc(root.get("submittedDate")));
+
+                    scores = session.createQuery(cq).getResultList();
                 } else {
-                    Query<AssessmentGradingData> q = session.createQuery(
-                            "from AssessmentGradingData a where a.assessmentGradingId = :id",
-                            AssessmentGradingData.class);
-                    q.setParameter("id", assessmentGradingId);
-                    scores = q.list();
+                    cq.where(cb.equal(root.get("assessmentGradingId"), assessmentGradingId));
+
+                    scores = session.createQuery(cq).getResultList();
                 }
             } else {
                 // highest submission
                 if (assessmentGradingId == null) {
-                    Query<AssessmentGradingData> q = session.createQuery(
-                            "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.finalScore DESC, a.submittedDate DESC",
-                            AssessmentGradingData.class);
-                    q.setParameter("id", publishedId);
-                    q.setParameter("agent", agentId);
-                    q.setParameter("forgrade", true);
-                    q.setParameter("status", AssessmentGradingData.REMOVED);
-                    scores = q.list();
+                    List<Predicate> predicates = new ArrayList<>();
+                    predicates.add(cb.equal(root.get("publishedAssessmentId"), publishedId));
+                    predicates.add(cb.equal(root.get("agentId"), agentId));
+                    predicates.add(cb.isTrue(root.get("forGrade")));
+                    predicates.add(cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED));
+
+                    cq.where(predicates.toArray(new Predicate[0]));
+                    cq.orderBy(
+                        cb.desc(root.get("finalScore")),
+                        cb.desc(root.get("submittedDate"))
+                    );
+
+                    scores = session.createQuery(cq).getResultList();
                 } else {
-                    Query<AssessmentGradingData> q = session.createQuery(
-                            "from AssessmentGradingData a where a.assessmentGradingId = :id",
-                            AssessmentGradingData.class);
-                    q.setParameter("id", assessmentGradingId);
-                    scores = q.list();
+                    cq.where(cb.equal(root.get("assessmentGradingId"), assessmentGradingId));
+
+                    scores = session.createQuery(cq).getResultList();
                 }
             }
 
@@ -513,7 +548,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                Session session = getCurrentSession();
+                Session session = sessionFactory.getCurrentSession();
                 session.persist(a);
                 retryCount = 0;
             } catch (Exception e) {
@@ -526,7 +561,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
     public int getSubmissionSizeOfPublishedAssessment(Long publishedAssessmentId) {
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<Long> cq = cb.createQuery(Long.class);
             Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
@@ -740,7 +775,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
         while (retryCount > 0) {
             try {
                 saveMediaToContent(mediaData);
-                Session session = getCurrentSession();
+                Session session = sessionFactory.getCurrentSession();
                 session.merge(mediaData);
                 retryCount = 0;
             } catch (Exception e) {
@@ -770,7 +805,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
                 }
                 mediaLocation = mediaData.getLocation();
                 mediaFilename = mediaData.getFilename();
-                Session session = getCurrentSession();
+                Session session = sessionFactory.getCurrentSession();
                 session.remove(mediaData);
                 retryCount = 0;
             } catch (Exception e) {
@@ -802,7 +837,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
     public MediaData getMedia(Long mediaId) {
 
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             MediaData mediaData = session.get(MediaData.class, mediaId);
 
             if (mediaData == null) {
@@ -827,12 +862,14 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
         List<MediaData> a = new ArrayList<>();
 
         try {
-            Session session = getCurrentSession();
-            Query<MediaData> q = session.createQuery(
-                    "from MediaData m where m.itemGradingData.itemGradingId = :id",
-                    MediaData.class);
-            q.setParameter("id", itemGradingId);
-            List<MediaData> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<MediaData> cq = cb.createQuery(MediaData.class);
+            Root<MediaData> root = cq.from(MediaData.class);
+
+            cq.where(cb.equal(root.get("itemGradingData").get("itemGradingId"), itemGradingId));
+
+            List<MediaData> list = session.createQuery(cq).getResultList();
 
             for (MediaData mediaData : list) {
                 mediaData.setContentResource(getMediaContentResource(mediaData));
@@ -850,13 +887,19 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
         log.debug("*** itemGradingId =" + itemGradingId);
         List<MediaData> a = new ArrayList<>();
         try {
-            Session session = getCurrentSession();
-            Query<MediaData> q = session.createQuery(
-                    "select new MediaData(m.mediaId, m.filename, m.fileSize, m.duration, m.createdDate) " +
-                            " from MediaData m where m.itemGradingData.itemGradingId = :id",
-                    MediaData.class);
-            q.setParameter("id", itemGradingId);
-            List<MediaData> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<MediaData> cq = cb.createQuery(MediaData.class);
+            Root<MediaData> root = cq.from(MediaData.class);
+            cq.select(cb.construct(MediaData.class,
+                root.get("mediaId"),
+                root.get("filename"),
+                root.get("fileSize"),
+                root.get("duration"),
+                root.get("createdDate")
+            ));
+            cq.where(cb.equal(root.get("itemGradingData").get("itemGradingId"), itemGradingId));
+            List<MediaData> list = session.createQuery(cq).getResultList();
 
             for (MediaData mediaData : list) {
                 mediaData.setContentResource(getMediaContentResource(mediaData));
@@ -875,14 +918,18 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
         Map<Long, List<ItemGradingData>> map = new HashMap<>();
 
         try {
-            Session session = getCurrentSession();
-            Query<ItemGradingData> q = session.createQuery(
-                    "select i from MediaData m, ItemGradingData i " +
-                            "where m.itemGradingData.itemGradingId = i.itemGradingId " +
-                            "and i.assessmentGradingId = :id",
-                    ItemGradingData.class);
-            q.setParameter("id", assessmentGradingId);
-            List<ItemGradingData> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
+            Root<ItemGradingData> itemRoot = cq.from(ItemGradingData.class);
+            Root<MediaData> mediaRoot = cq.from(MediaData.class);
+
+            cq.select(itemRoot);
+            cq.where(
+                cb.equal(mediaRoot.get("itemGradingData").get("itemGradingId"), itemRoot.get("itemGradingId")),
+                cb.equal(itemRoot.get("assessmentGradingId"), assessmentGradingId)
+            );
+            List<ItemGradingData> list = session.createQuery(cq).getResultList();
 
             for (ItemGradingData itemGradingData : list) {
                 List<ItemGradingData> al = new ArrayList<>();
@@ -901,12 +948,14 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
     public ArrayList getMediaArray(ItemGradingData item) {
         ArrayList<MediaData> a = new ArrayList<>();
         try {
-            Session session = getCurrentSession();
-            Query<MediaData> q = session.createQuery(
-                    "from MediaData m where m.itemGradingData = :id",
-                    MediaData.class);
-            q.setParameter("id", item);
-            List<MediaData> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<MediaData> cq = cb.createQuery(MediaData.class);
+            Root<MediaData> root = cq.from(MediaData.class);
+
+            cq.where(cb.equal(root.get("itemGradingData"), item));
+
+            List<MediaData> list = session.createQuery(cq).getResultList();
 
             for (MediaData mediaData : list) {
                 mediaData.setContentResource(getMediaContentResource(mediaData));
@@ -926,7 +975,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
             final List<ItemGradingData> list = itemScores.get(publishedItemId);
             log.debug("list size list.size() = " + list.size());
 
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<MediaData> cq = cb.createQuery(MediaData.class);
             Root<MediaData> root = cq.from(MediaData.class);
@@ -961,12 +1010,14 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
     public List<Long> getMediaConversionBatch() {
         try {
-            Session session = getCurrentSession();
-            Query<Long> q = session.createQuery(
-                    "SELECT id FROM MediaData WHERE dbMedia IS NOT NULL AND location IS NULL",
-                    Long.class);
-            q.setMaxResults(10);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+            Root<MediaData> root = cq.from(MediaData.class);
+            cq.select(root.get("id"));
+            cq.where(cb.and(cb.isNotNull(root.get("dbMedia")), cb.isNull(root.get("location"))));
+
+            return session.createQuery(cq).setMaxResults(10).getResultList();
         } catch (Exception e) {
             log.warn("Error getting media conversion batch: {}", e.toString()	);
             return new ArrayList<>();
@@ -975,11 +1026,16 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
     public boolean markMediaForConversion(final List<Long> mediaIds) {
         try {
-            Session session = getCurrentSession();
-            Query<?> q = session.createQuery(
-                    "UPDATE MediaData SET location = 'CONVERTING' WHERE id in (:ids)");
-            q.setParameterList("ids", mediaIds);
-            int updatedCount = q.executeUpdate();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+
+            CriteriaUpdate<MediaData> update = cb.createCriteriaUpdate(MediaData.class);
+            Root<MediaData> root = update.from(MediaData.class);
+
+            update.set("location", "CONVERTING");
+            update.where(root.get("id").in(mediaIds));
+
+            int updatedCount = session.createQuery(update).executeUpdate();
             return updatedCount == mediaIds.size();
         } catch (Exception e) {
             log.warn("Error marking media for conversion: {}", e.toString());
@@ -989,11 +1045,20 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
     public List<Long> getMediaWithDataAndLocation() {
         try {
-            Session session = getCurrentSession();
-            Query<Long> q = session.createQuery(
-                    "SELECT id FROM MediaData WHERE dbMedia IS NOT NULL AND location IS NOT NULL",
-                    Long.class);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+            Root<MediaData> root = cq.from(MediaData.class);
+
+            cq.select(root.get("id"));
+            cq.where(
+                cb.and(
+                    cb.isNotNull(root.get("dbMedia")),
+                    cb.isNotNull(root.get("location"))
+                )
+            );
+
+            return session.createQuery(cq).getResultList();
         } catch (Exception e) {
             log.warn("Error getting media with data and location: {}", e.toString());
             return new ArrayList<>();
@@ -1002,11 +1067,15 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
     public List<Long> getMediaInConversion() {
         try {
-            Session session = getCurrentSession();
-            Query<Long> q = session.createQuery(
-                    "SELECT id FROM MediaData WHERE location = 'CONVERTING'",
-                    Long.class);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+            Root<MediaData> root = cq.from(MediaData.class);
+
+            cq.select(root.get("id"));
+            cq.where(cb.equal(root.get("location"), "CONVERTING"));
+
+            return session.createQuery(cq).getResultList();
         } catch (Exception e) {
             log.warn("Error getting media in conversion: {}", e.toString());
             return new ArrayList<>();
@@ -1015,7 +1084,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
     public ItemGradingData getLastItemGradingDataByAgent(final Long publishedItemId, final String agentId) {
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             Query<ItemGradingData> q = session.createQuery(
                     "from ItemGradingData i where i.publishedItemId = :id and i.agentId = :agent",
                     ItemGradingData.class);
@@ -1036,12 +1105,14 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
     public ItemGradingData getItemGradingData(final Long itemGradingId) {
         try {
-            Session session = getCurrentSession();
-            Query<ItemGradingData> q = session.createQuery(
-                    "from ItemGradingData i where i.itemGradingId = :id",
-                    ItemGradingData.class);
-            q.setParameter("id", itemGradingId);
-            List<ItemGradingData> itemGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
+            Root<ItemGradingData> root = cq.from(ItemGradingData.class);
+
+            cq.where(cb.equal(root.get("itemGradingId"), itemGradingId));
+
+            List<ItemGradingData> itemGradings = session.createQuery(cq).getResultList();
             
             if (itemGradings.isEmpty()) {
                 return null;
@@ -1058,14 +1129,20 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
         log.debug("****publishedItemId={}", publishedItemId);
 
         try {
-            Session session = getCurrentSession();
-            Query<ItemGradingData> q = session.createQuery(
-                    "from ItemGradingData i where i.assessmentGradingId = :gradingid and i.publishedItemId = :itemid",
-                    ItemGradingData.class);
-            q.setParameter("gradingid", assessmentGradingId);
-            q.setParameter("itemid", publishedItemId);
-            q.setMaxResults(1);
-            List<ItemGradingData> itemGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
+            Root<ItemGradingData> root = cq.from(ItemGradingData.class);
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("assessmentGradingId"), assessmentGradingId));
+            predicates.add(cb.equal(root.get("publishedItemId"), publishedItemId));
+
+            cq.where(predicates.toArray(new Predicate[0]));
+
+            List<ItemGradingData> itemGradings = session.createQuery(cq)
+                    .setMaxResults(1)
+                    .getResultList();
 
             if (itemGradings.isEmpty()) {
                 return null;
@@ -1084,7 +1161,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
 
 public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             AssessmentGradingData gdata = session.get(AssessmentGradingData.class, id);
 
             if (gdata == null) {
@@ -1128,7 +1205,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public ItemGradingData getItemGrading(Long id) {
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             return session.load(ItemGradingData.class, id);
         } catch (Exception e) {
             log.warn("Error getting item grading with id {}: {}", id, e.toString());
@@ -1137,20 +1214,25 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     }
 
     public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
-        AssessmentGradingData ag = null;
         // don't pick the assessmentGradingData that is created by instructor entering comments/scores
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status not in (:status1, :status2) order by a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentIdString);
-            q.setParameter("forgrade", false);
-            q.setParameter("status1", AssessmentGradingData.NO_SUBMISSION);
-            q.setParameter("status2", AssessmentGradingData.REMOVED);
-            q.setMaxResults(1);
-            ag = q.uniqueResult();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId));
+            predicates.add(cb.equal(root.get("agentId"), agentIdString));
+            predicates.add(cb.isFalse(root.get("forGrade")));
+            predicates.add(root.get("status").in(AssessmentGradingData.NO_SUBMISSION, AssessmentGradingData.REMOVED).not());
+
+            cq.where(predicates.toArray(new Predicate[0]));
+            cq.orderBy(cb.desc(root.get("submittedDate")));
+
+            AssessmentGradingData ag = session.createQuery(cq)
+                .setMaxResults(1)
+                .uniqueResult();
 
             if (ag != null) {
                 ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
@@ -1167,16 +1249,23 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         AssessmentGradingData ag = null;
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentIdString);
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.equal(root.get("agentId"), agentIdString),
+                  cb.equal(root.get("forGrade"), true),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(cb.desc(root.get("submittedDate")));
+
+            Query<AssessmentGradingData> q = session.createQuery(cq);
             q.setMaxResults(1);
-            
+
             if (assessmentGradingId == null) {
                 ag = q.uniqueResult();
             } else {
@@ -1213,15 +1302,22 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         AssessmentGradingData ag = null;
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.status > :status order by a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentIdString);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            q.setMaxResults(1);
-            ag = q.uniqueResult();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.equal(root.get("agentId"), agentIdString),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(cb.desc(root.get("submittedDate")));
+
+            ag = session.createQuery(cq)
+                .setMaxResults(1)
+                .uniqueResult();
 
             if (ag != null) {
                 ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
@@ -1238,7 +1334,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                Session session = getCurrentSession();
+                Session session = sessionFactory.getCurrentSession();
                 session.merge(item);
                 retryCount = 0;
             } catch (Exception e) {
@@ -1253,7 +1349,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         boolean success = false;
         while (retryCount > 0) {
             try {
-                Session session = getCurrentSession();
+                Session session = sessionFactory.getCurrentSession();
                 session.merge(assessment);
                 retryCount = 0;
                 success = true;
@@ -1267,7 +1363,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public List<Long> getAssessmentGradingIds(final Long publishedItemId) {
     	try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             Query<Long> q = session.createQuery(
                     "select g.assessmentGradingId from ItemGradingData g where g.publishedItemId = :id",
                     Long.class);
@@ -1283,16 +1379,25 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         AssessmentGradingData ag = null;
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and " +
-                            " a.agentId = :agent and a.status > :status order by a.finalScore desc, a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            q.setMaxResults(1);
-            ag = q.uniqueResult();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.equal(root.get("agentId"), agentId),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(
+                  cb.desc(root.get("finalScore")),
+                  cb.desc(root.get("submittedDate"))
+              );
+
+            ag = session.createQuery(cq)
+                    .setMaxResults(1)
+                    .uniqueResult();
 
             if (ag != null) {
                 ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
@@ -1309,16 +1414,24 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         AssessmentGradingData ag = null;
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and " +
-                            " a.forGrade = :forgrade and a.status > :status order by a.finalScore desc, a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentId);
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.equal(root.get("agentId"), agentId),
+                  cb.isTrue(root.get("forGrade")),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(
+                  cb.desc(root.get("finalScore")),
+                  cb.desc(root.get("submittedDate"))
+              );
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
             if (assessmentGradingId == null) {
                 if (!assessmentGradings.isEmpty()) {
@@ -1354,13 +1467,22 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public List getLastAssessmentGradingList(final Long publishedAssessmentId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> query = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.submittedDate desc",
-                    AssessmentGradingData.class);
-            query.setParameter("id", publishedAssessmentId);
-            query.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = query.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(
+                  cb.asc(root.get("agentId")),
+                  cb.desc(root.get("submittedDate"))
+              );
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
             return new ArrayList<>(assessmentGradings.stream()
                     .collect(Collectors.toMap(
@@ -1378,15 +1500,26 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public List getLastSubmittedAssessmentGradingList(final Long publishedAssessmentId) {
 
     	try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> query = session.createQuery(
-                    "select a from AssessmentGradingData a left join fetch a.assessmentGradingAttachmentSet " +
-                            "where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status order by a.agentId asc, a.submittedDate desc",
-                    AssessmentGradingData.class);
-            query.setParameter("id", publishedAssessmentId);
-            query.setParameter("forgrade", true);
-            query.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = query.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            root.fetch("assessmentGradingAttachmentSet", JoinType.LEFT);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.isTrue(root.get("forGrade")),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(
+                  cb.asc(root.get("agentId")),
+                  cb.desc(root.get("submittedDate"))
+              )
+              .distinct(true);
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
             return new ArrayList<>(assessmentGradings.stream()
                     .collect(Collectors.toMap(
@@ -1404,7 +1537,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public List getLastSubmittedOrGradedAssessmentGradingList(final Long publishedAssessmentId) {
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
             Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
@@ -1445,13 +1578,22 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public List<AssessmentGradingData> getHighestAssessmentGradingList(final Long publishedAssessmentId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> query = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.finalScore desc",
-                    AssessmentGradingData.class);
-            query.setParameter("id", publishedAssessmentId);
-            query.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = query.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(
+                  cb.asc(root.get("agentId")),
+                  cb.desc(root.get("finalScore"))
+              );
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
             return new ArrayList<>(assessmentGradings.stream()
                     .collect(Collectors.toMap(
@@ -1469,7 +1611,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public List<AssessmentGradingData> getHighestSubmittedOrGradedAssessmentGradingList(final Long publishedAssessmentId) {
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
             Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
@@ -1515,20 +1657,35 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         Map<Long, List<Long>> h = new HashMap<>();
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "select new AssessmentGradingData(" +
-                            " a.assessmentGradingId, p.itemId, " +
-                            " a.agentId, a.finalScore, a.submittedDate) " +
-                            " from ItemGradingData i, AssessmentGradingData a," +
-                            " PublishedItemData p where " +
-                            " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and " +
-                            " a.publishedAssessmentId = :id and a.status > :status " +
-                            " order by a.agentId asc, a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<ItemGradingData> iRoot = cq.from(ItemGradingData.class);
+            Root<PublishedItemData> pRoot = cq.from(PublishedItemData.class);
+
+            cq.select(cb.construct(AssessmentGradingData.class,
+                aRoot.get("assessmentGradingId"),
+                pRoot.get("itemId"),
+                aRoot.get("agentId"),
+                aRoot.get("finalScore"),
+                aRoot.get("submittedDate")
+            ));
+
+            cq.where(
+                cb.equal(iRoot.get("assessmentGradingId"), aRoot.get("assessmentGradingId")),
+                cb.equal(iRoot.get("publishedItemId"), pRoot.get("itemId")),
+                cb.equal(aRoot.get("publishedAssessmentId"), publishedAssessmentId),
+                cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED)
+            );
+
+            cq.orderBy(
+                cb.asc(aRoot.get("agentId")),
+                cb.desc(aRoot.get("submittedDate"))
+            );
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
             String currentAgent = "";
             Date submittedDate = null;
@@ -1573,20 +1730,35 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         Map<Long, List<Long>> h = new HashMap<>();
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "select new AssessmentGradingData(" +
-                            " a.assessmentGradingId, p.itemId, " +
-                            " a.agentId, a.finalScore, a.submittedDate) " +
-                            " from ItemGradingData i, AssessmentGradingData a, " +
-                            " PublishedItemData p where " +
-                            " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and " +
-                            " a.publishedAssessmentId = :id and a.status > :status " +
-                            " order by a.agentId asc, a.finalScore desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<ItemGradingData> iRoot = cq.from(ItemGradingData.class);
+            Root<PublishedItemData> pRoot = cq.from(PublishedItemData.class);
+
+            cq.select(cb.construct(AssessmentGradingData.class,
+                aRoot.get("assessmentGradingId"),
+                pRoot.get("itemId"),
+                aRoot.get("agentId"),
+                aRoot.get("finalScore"),
+                aRoot.get("submittedDate")
+            ));
+
+            cq.where(
+                cb.equal(iRoot.get("assessmentGradingId"), aRoot.get("assessmentGradingId")),
+                cb.equal(iRoot.get("publishedItemId"), pRoot.get("itemId")),
+                cb.equal(aRoot.get("publishedAssessmentId"), publishedAssessmentId),
+                cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED)
+            );
+
+            cq.orderBy(
+                cb.asc(aRoot.get("agentId")),
+                cb.desc(aRoot.get("finalScore"))
+            );
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
             String currentAgent = "";
             Double finalScore = null;
@@ -1627,12 +1799,15 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Set<ItemGradingData> getItemGradingSet(final Long assessmentGradingId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<ItemGradingData> q = session.createQuery(
-                    "from ItemGradingData i where i.assessmentGradingId = :id",
-                    ItemGradingData.class);
-            q.setParameter("id", assessmentGradingId);
-            List<ItemGradingData> itemGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
+            Root<ItemGradingData> root = cq.from(ItemGradingData.class);
+
+            cq.select(root)
+              .where(cb.equal(root.get("assessmentGradingId"), assessmentGradingId));
+
+            List<ItemGradingData> itemGradings = session.createQuery(cq).getResultList();
 
             return new HashSet<>(itemGradings);
         } catch (Exception e) {
@@ -1644,12 +1819,15 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Map<Long, ItemGradingData> getItemGradingMap(final Long assessmentGradingId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<ItemGradingData> q = session.createQuery(
-                    "from ItemGradingData i where i.assessmentGradingId = :id",
-                    ItemGradingData.class);
-            q.setParameter("id", assessmentGradingId);
-            List<ItemGradingData> itemGradingList = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
+            Root<ItemGradingData> root = cq.from(ItemGradingData.class);
+
+            cq.select(root)
+              .where(cb.equal(root.get("assessmentGradingId"), assessmentGradingId));
+
+            List<ItemGradingData> itemGradingList = session.createQuery(cq).getResultList();
 
             return itemGradingList.stream()
                     .collect(Collectors.toMap(
@@ -1668,18 +1846,26 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toMap(AssessmentGradingData::getAssessmentGradingId, a -> a));
 
-            Session session = getCurrentSession();
-            Query<ItemGradingData> q = session.createQuery(
-                    "select new ItemGradingData(i.itemGradingId, a.assessmentGradingId) " +
-                            " from ItemGradingData i, AssessmentGradingData a " +
-                            " where i.assessmentGradingId = a.assessmentGradingId " +
-                            " and a.publishedAssessmentId = :id " +
-                            " and a.forGrade = :forgrade and a.status > :status",
-                    ItemGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            List<ItemGradingData> l = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
+
+            Root<ItemGradingData> iRoot = cq.from(ItemGradingData.class);
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+
+            cq.select(cb.construct(ItemGradingData.class,
+                iRoot.get("itemGradingId"),
+                aRoot.get("assessmentGradingId")
+            ));
+
+            cq.where(
+                cb.equal(iRoot.get("assessmentGradingId"), aRoot.get("assessmentGradingId")),
+                cb.equal(aRoot.get("publishedAssessmentId"), publishedAssessmentId),
+                cb.isTrue(aRoot.get("forGrade")),
+                cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED)
+            );
+
+            List<ItemGradingData> l = session.createQuery(cq).getResultList();
 
             return l.stream()
                     .filter(i -> Objects.nonNull(submissionDataMap.get(i.getAssessmentGradingId())))
@@ -1697,7 +1883,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                Session session = getCurrentSession();
+                Session session = sessionFactory.getCurrentSession();
                 c.stream()
                     .filter(Objects::nonNull)
                     .forEach(entity -> {
@@ -1718,10 +1904,10 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             return;
         }
 
+        Session session = sessionFactory.getCurrentSession();
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                Session session = getCurrentSession();
                 for (ItemGradingData itemGradingData : c) {
                     if (itemGradingData != null) {
                         session.merge(itemGradingData);
@@ -1738,14 +1924,22 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public PublishedAssessmentIfc getPublishedAssessmentByAssessmentGradingId(final Long assessmentGradingId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<PublishedAssessmentData> q = session.createQuery(
-                    "select p from PublishedAssessmentData p, AssessmentGradingData a " +
-                            "where a.publishedAssessmentId = p.publishedAssessmentId and a.assessmentGradingId = :id",
-                    PublishedAssessmentData.class);
-            q.setParameter("id", assessmentGradingId);
-            q.setMaxResults(1);
-            List<PublishedAssessmentData> pubList = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+
+            Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+
+            cq.select(pRoot)
+              .where(
+                  cb.equal(aRoot.get("publishedAssessmentId"), pRoot.get("publishedAssessmentId")),
+                  cb.equal(aRoot.get("assessmentGradingId"), assessmentGradingId)
+              );
+
+            List<PublishedAssessmentData> pubList = session.createQuery(cq)
+                .setMaxResults(1)
+                .getResultList();
 
             if (pubList != null && !pubList.isEmpty()) {
                 return pubList.get(0);
@@ -1760,14 +1954,20 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public PublishedAssessmentIfc getPublishedAssessmentByPublishedItemId(final Long publishedItemId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<PublishedAssessmentData> q = session.createQuery(
-                    "select p from PublishedAssessmentData p, PublishedItemData i " +
-                            "where p.publishedAssessmentId = i.section.assessment.publishedAssessmentId and i.itemId = :id",
-                    PublishedAssessmentData.class);
-            q.setParameter("id", publishedItemId);
-            q.setMaxResults(1);
-            List<PublishedAssessmentData> pubList = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
+
+            Root<PublishedItemData> iRoot = cq.from(PublishedItemData.class);
+            Join<PublishedItemData, SectionData> sectionJoin = iRoot.join("section");
+            Join<SectionData, PublishedAssessmentData> assessmentJoin = sectionJoin.join("assessment");
+
+            cq.select(assessmentJoin)
+              .where(cb.equal(iRoot.get("itemId"), publishedItemId));
+
+            List<PublishedAssessmentData> pubList = session.createQuery(cq)
+                    .setMaxResults(1)
+                    .getResultList();
 
             if (pubList != null && !pubList.isEmpty()) {
                 return pubList.get(0);
@@ -1782,19 +1982,35 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public List<Integer> getLastItemGradingDataPosition(final Long assessmentGradingId, final String agentId) {
         List<Integer> position = new ArrayList<>();
         try {
-            Session session = getCurrentSession();
-            Query<Integer> q = session.createQuery(
-                    "select s.sequence " +
-                            " from ItemGradingData i, PublishedItemData pi, PublishedSectionData s " +
-                            " where i.agentId = :agent and i.assessmentGradingId = :id " +
-                            " and pi.itemId = i.publishedItemId " +
-                            " and pi.section.id = s.id " +
-                            " group by i.publishedItemId, s.sequence, pi.sequence " +
-                            " order by s.sequence desc , pi.sequence desc",
-                    Integer.class);
-            q.setParameter("agent", agentId);
-            q.setParameter("id", assessmentGradingId);
-            List<Integer> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
+
+            Root<ItemGradingData> itemRoot = cq.from(ItemGradingData.class);
+            Root<PublishedItemData> piRoot = cq.from(PublishedItemData.class);
+            Root<PublishedSectionData> sectionRoot = cq.from(PublishedSectionData.class);
+
+            cq.select(sectionRoot.get("sequence"));
+
+            cq.where(
+                cb.equal(itemRoot.get("agentId"), agentId),
+                cb.equal(itemRoot.get("assessmentGradingId"), assessmentGradingId),
+                cb.equal(piRoot.get("itemId"), itemRoot.get("publishedItemId")),
+                cb.equal(piRoot.get("section").get("id"), sectionRoot.get("id"))
+            );
+
+            cq.groupBy(
+                itemRoot.get("publishedItemId"),
+                sectionRoot.get("sequence"),
+                piRoot.get("sequence")
+            );
+
+            cq.orderBy(
+                cb.desc(sectionRoot.get("sequence")),
+                cb.desc(piRoot.get("sequence"))
+            );
+
+            List<Integer> list = session.createQuery(cq).getResultList();
 
             if (list.isEmpty()) {
                 position.add(0);
@@ -1830,12 +2046,15 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public List<Long> getPublishedItemIds(final Long assessmentGradingId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<Long> q = session.createQuery(
-                    "select i.publishedItemId from ItemGradingData i where i.assessmentGradingId = :id",
-                    Long.class);
-            q.setParameter("id", assessmentGradingId);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+            Root<ItemGradingData> root = cq.from(ItemGradingData.class);
+
+            cq.select(root.get("publishedItemId"))
+              .where(cb.equal(root.get("assessmentGradingId"), assessmentGradingId));
+
+            return session.createQuery(cq).getResultList();
         } catch (Exception e) {
             log.warn("Error getting published item ids for assessment {}: {}", assessmentGradingId, e.toString());
             return new ArrayList<>();
@@ -1844,12 +2063,15 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public List<Long> getItemGradingIds(final Long assessmentGradingId) {
         try {
-            Session session = getCurrentSession();
-            Query<Long> q = session.createQuery(
-                    "select i.itemGradingId from ItemGradingData i where i.assessmentGradingId = :id",
-                    Long.class);
-            q.setParameter("id", assessmentGradingId);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+            Root<ItemGradingData> root = cq.from(ItemGradingData.class);
+
+            cq.select(root.get("itemGradingId"))
+              .where(cb.equal(root.get("assessmentGradingId"), assessmentGradingId));
+
+            return session.createQuery(cq).getResultList();
         } catch (Exception e) {
             log.warn("Error getting item grading ids for assessment {}: {}", assessmentGradingId, e.toString());
             return new ArrayList<>();
@@ -1859,28 +2081,34 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Set<PublishedItemData> getItemSet(final Long publishedAssessmentId, final Long sectionId) {
 
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
 
-            Query<Long> q1 = session.createQuery(
-                    "select distinct p.itemId " +
-                            "from PublishedItemData p, AssessmentGradingData a, ItemGradingData i " +
-                            "where a.publishedAssessmentId = :id and a.forGrade = :forgrade and p.section.id = :sectionid " +
-                            "and i.assessmentGradingId = a.assessmentGradingId " +
-                            "and p.itemId = i.publishedItemId and a.status > :status",
-                    Long.class);
-            q1.setParameter("id", publishedAssessmentId);
-            q1.setParameter("forgrade", true);
-            q1.setParameter("sectionid", sectionId);
-            q1.setParameter("status", AssessmentGradingData.REMOVED);
-            List<Long> itemIds = q1.list();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+            Root<PublishedItemData> pRoot = cq.from(PublishedItemData.class);
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<ItemGradingData> iRoot = cq.from(ItemGradingData.class);
+
+            cq.select(pRoot.get("itemId")).distinct(true);
+
+            cq.where(
+                cb.equal(aRoot.get("publishedAssessmentId"), publishedAssessmentId),
+                cb.isTrue(aRoot.get("forGrade")),
+                cb.equal(pRoot.get("section").get("id"), sectionId),
+                cb.equal(iRoot.get("assessmentGradingId"), aRoot.get("assessmentGradingId")),
+                cb.equal(pRoot.get("itemId"), iRoot.get("publishedItemId")),
+                cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED)
+            );
+
+            List<Long> itemIds = session.createQuery(cq).getResultList();
 
             if (itemIds.isEmpty()) {
                 return new HashSet<>();
             }
 
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<PublishedItemData> cq = cb.createQuery(PublishedItemData.class);
-            Root<PublishedItemData> root = cq.from(PublishedItemData.class);
+            CriteriaQuery<PublishedItemData> cq2 = cb.createQuery(PublishedItemData.class);
+            Root<PublishedItemData> root = cq2.from(PublishedItemData.class);
             
             if (itemIds.size() > 1000) {
                 List<Predicate> inPredicates = new ArrayList<>();
@@ -1893,7 +2121,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                 cq.where(root.get("itemId").in(itemIds));
             }
 
-            List<PublishedItemData> publishedItems = session.createQuery(cq).getResultList();
+            List<PublishedItemData> publishedItems = session.createQuery(cq2).getResultList();
             return new HashSet<>(publishedItems);
             
         } catch (Exception e) {
@@ -1907,16 +2135,22 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         Long typeId = Long.valueOf(-1);
 
         try {
-            Session session = getCurrentSession();
-            Query<Long> q = session.createQuery(
-                    "select p.typeId " +
-                            "from PublishedItemData p, ItemGradingData i " +
-                            "where i.itemGradingId = :id " +
-                            "and p.itemId = i.publishedItemId",
-                    Long.class);
-            q.setParameter("id", itemGradingId);
-            q.setMaxResults(1);
-            List<Long> typeIds = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+            Root<PublishedItemData> pRoot = cq.from(PublishedItemData.class);
+            Root<ItemGradingData> iRoot = cq.from(ItemGradingData.class);
+
+            cq.select(pRoot.get("typeId"))
+              .where(
+                  cb.equal(iRoot.get("itemGradingId"), itemGradingId),
+                  cb.equal(pRoot.get("itemId"), iRoot.get("publishedItemId"))
+              );
+
+            List<Long> typeIds = session.createQuery(cq)
+                .setMaxResults(1)
+                .getResultList();
             
             if (typeIds != null && !typeIds.isEmpty()) {
                 typeId = typeIds.get(0);
@@ -1933,15 +2167,21 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public List<AssessmentGradingData> getAllAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
 
        try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentIdString);
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.equal(root.get("agentId"), agentIdString),
+                  cb.isTrue(root.get("forGrade")),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(cb.desc(root.get("submittedDate")));
+
+            return session.createQuery(cq).getResultList();
         } catch (Exception e) {
             log.warn("Error getting assessment grading by agent for assessment {} and agent {}: {}", 
                     publishedAssessmentId, agentIdString, e.toString());
@@ -1959,7 +2199,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         }
 
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<ItemGradingData> cq = cb.createQuery(ItemGradingData.class);
             Root<ItemGradingData> root = cq.from(ItemGradingData.class);
@@ -1978,20 +2218,36 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Map<Long, Map<String, Integer>> getSiteSubmissionCountHash(final String siteId) {
         Map<Long, Map<String, Integer>> siteSubmissionCountHash = new HashMap<>();
         try {
-            Session session = getCurrentSession();
-            Query<Object[]> q = session.createQuery(
-                    "select a.publishedAssessmentId, a.agentId, count(*) " +
-                            "from AssessmentGradingData a, AuthorizationData au  " +
-                            "where a.forGrade = :forgrade and au.functionId = :fid and au.agentIdString = :agent and a.publishedAssessmentId = au.qualifierId and a.status > :status " +
-                            "group by a.publishedAssessmentId, a.agentId " +
-                            "order by a.publishedAssessmentId, a.agentId",
-                    Object[].class);
-            q.setParameter("forgrade", true);
-            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("agent", siteId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            q.setCacheable(true);
-            List<Object[]> countList = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<AuthorizationData> auRoot = cq.from(AuthorizationData.class);
+
+            cq.select(cb.array(aRoot.get("publishedAssessmentId"), aRoot.get("agentId"), cb.count(aRoot)));
+
+            cq.where(
+                cb.isTrue(aRoot.get("forGrade")),
+                cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+                cb.equal(auRoot.get("agentIdString"), siteId),
+                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED)
+            );
+
+            cq.groupBy(
+                aRoot.get("publishedAssessmentId"),
+                aRoot.get("agentId")
+            );
+
+            cq.orderBy(
+                cb.asc(aRoot.get("publishedAssessmentId")),
+                cb.asc(aRoot.get("agentId"))
+            );
+
+            List<Object[]> countList = session.createQuery(cq)
+                    .setCacheable(true)
+                    .getResultList();
             
             Map<String, Integer> numberSubmissionPerStudentHash = new HashMap<>();
             Long lastPublishedAssessmentId = -1L;
@@ -2019,22 +2275,43 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Map<Long, Map<String, Long>> getSiteInProgressCountHash(final String siteId) {
         Map<Long, Map<String, Long>> siteInProgressCountHash = new HashMap<>();
         try {
-            Session session = getCurrentSession();
-            Query<Object[]> q = session.createQuery(
-                    "select a.publishedAssessmentId, a.agentId, count(*) " +
-                            "from AssessmentGradingData a, AuthorizationData au  " +
-                            "where a.forGrade = :forgrade and au.functionId = :fid and au.agentIdString = :agent " +
-                            "and a.publishedAssessmentId = au.qualifierId and (a.status = :status1 or a.status = :status2) " +
-                            "group by a.publishedAssessmentId, a.agentId " +
-                            "order by a.publishedAssessmentId, a.agentId",
-                    Object[].class);
-            q.setParameter("forgrade", false);
-            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("agent", siteId);
-            q.setParameter("status1", AssessmentGradingData.IN_PROGRESS);
-            q.setParameter("status2", AssessmentGradingData.ASSESSMENT_UPDATED);
-            q.setCacheable(true);
-            List<Object[]> countList = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<AuthorizationData> auRoot = cq.from(AuthorizationData.class);
+
+            cq.select(cb.array(
+                aRoot.get("publishedAssessmentId"),
+                aRoot.get("agentId"),
+                cb.count(aRoot)
+            ));
+
+            cq.where(
+                cb.isFalse(aRoot.get("forGrade")),
+                cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+                cb.equal(auRoot.get("agentIdString"), siteId),
+                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.or(
+                    cb.equal(aRoot.get("status"), AssessmentGradingData.IN_PROGRESS),
+                    cb.equal(aRoot.get("status"), AssessmentGradingData.ASSESSMENT_UPDATED)
+                )
+            );
+
+            cq.groupBy(
+                aRoot.get("publishedAssessmentId"),
+                aRoot.get("agentId")
+            );
+
+            cq.orderBy(
+                cb.asc(aRoot.get("publishedAssessmentId")),
+                cb.asc(aRoot.get("agentId"))
+            );
+
+            List<Object[]> countList = session.createQuery(cq)
+                .setCacheable(true)
+                .getResultList();
             
             Map<String, Long> numberInProgressPerStudentHash = new HashMap<>();
             Long lastPublishedAssessmentId = -1L;
@@ -2061,18 +2338,26 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public int getActualNumberRetake(final Long publishedAssessmentId, final String agentIdString) {
 
         try {
-            Session session = getCurrentSession();
-            Query<Long> q = session.createQuery(
-                    "select count(*) from AssessmentGradingData a, StudentGradingSummaryData s " +
-                            " where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade " +
-                            " and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
-                            " and a.submittedDate > s.createdDate and a.status > :status",
-                    Long.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentIdString);
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            Long count = q.uniqueResult();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<StudentGradingSummaryData> sRoot = cq.from(StudentGradingSummaryData.class);
+
+            cq.select(cb.count(aRoot));
+
+            cq.where(
+                cb.equal(aRoot.get("publishedAssessmentId"), publishedAssessmentId),
+                cb.equal(aRoot.get("agentId"), agentIdString),
+                cb.isTrue(aRoot.get("forGrade")),
+                cb.equal(aRoot.get("publishedAssessmentId"), sRoot.get("publishedAssessmentId")),
+                cb.equal(aRoot.get("agentId"), sRoot.get("agentId")),
+                cb.greaterThan(aRoot.get("submittedDate"), sRoot.get("createdDate")),
+                cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED)
+            );
+
+            Long count = session.createQuery(cq).uniqueResult();
             
             return count != null ? Math.toIntExact(count) : 0;
         } catch (Exception e) {
@@ -2085,23 +2370,40 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Map<Long, Map<String, Long>> getSiteActualNumberRetakeHash(final String siteId) {
         Map<Long, Map<String, Long>> actualNumberRetakeHash = new HashMap<>();
         try {
-            Session session = getCurrentSession();
-            Query<Object[]> q = session.createQuery(
-                    "select a.publishedAssessmentId, a.agentId, count(*) " +
-                            " from AssessmentGradingData a, StudentGradingSummaryData s, AuthorizationData au, PublishedAssessmentData p " +
-                            " where a.forGrade = :forgrade and au.functionId = :fid and au.agentIdString = :agent and a.publishedAssessmentId = au.qualifierId" +
-                            " and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
-                            " and a.submittedDate > s.createdDate" +
-                            " and a.publishedAssessmentId = p.publishedAssessmentId" +
-                            " and p.status != 2 and a.status > :astatus" +
-                            " group by a.publishedAssessmentId, a.agentId" +
-                            " order by a.publishedAssessmentId",
-                    Object[].class);
-            q.setParameter("forgrade", true);
-            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("astatus", AssessmentGradingData.REMOVED);
-            q.setParameter("agent", siteId);
-            List<Object[]> countList = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<StudentGradingSummaryData> sRoot = cq.from(StudentGradingSummaryData.class);
+            Root<AuthorizationData> auRoot = cq.from(AuthorizationData.class);
+            Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+
+            cq.select(cb.array(aRoot.get("publishedAssessmentId"), aRoot.get("agentId"), cb.count(aRoot)));
+
+            cq.where(
+                cb.isTrue(aRoot.get("forGrade")),
+                cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+                cb.equal(auRoot.get("agentIdString"), siteId),
+                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.equal(aRoot.get("publishedAssessmentId"), sRoot.get("publishedAssessmentId")),
+                cb.equal(aRoot.get("agentId"), sRoot.get("agentId")),
+                cb.greaterThan(aRoot.get("submittedDate"), sRoot.get("createdDate")),
+                cb.equal(aRoot.get("publishedAssessmentId"), pRoot.get("publishedAssessmentId")),
+                cb.notEqual(pRoot.get("status"), 2),
+                cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED)
+            );
+
+            cq.groupBy(
+                aRoot.get("publishedAssessmentId"),
+                aRoot.get("agentId")
+            );
+
+            cq.orderBy(
+                cb.asc(aRoot.get("publishedAssessmentId"))
+            );
+
+            List<Object[]> countList = session.createQuery(cq).getResultList();
             
             Map<String, Long> actualNumberRetakePerStudentHash = new HashMap<>();
             Long lastPublishedAssessmentId = -1L;
@@ -2128,18 +2430,27 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Map<Long, Integer> getActualNumberRetakeHash(final String agentIdString) {
         Map<Long, Integer> actualNumberRetakeHash = new HashMap<>();
         try {
-            Session session = getCurrentSession();
-            Query<Object[]> q = session.createQuery(
-                    "select a.publishedAssessmentId, count(*) from AssessmentGradingData a, StudentGradingSummaryData s " +
-                            " where a.agentId = :agent and a.forGrade = :forgrade " +
-                            " and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
-                            " and a.submittedDate > s.createdDate and a.status > :status" +
-                            " group by a.publishedAssessmentId",
-                    Object[].class);
-            q.setParameter("agent", agentIdString);
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            List<Object[]> countList = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<StudentGradingSummaryData> sRoot = cq.from(StudentGradingSummaryData.class);
+
+            cq.select(cb.array(aRoot.get("publishedAssessmentId"), cb.count(aRoot)));
+
+            cq.where(
+                cb.equal(aRoot.get("agentId"), agentIdString),
+                cb.isTrue(aRoot.get("forGrade")),
+                cb.equal(aRoot.get("publishedAssessmentId"), sRoot.get("publishedAssessmentId")),
+                cb.equal(aRoot.get("agentId"), sRoot.get("agentId")),
+                cb.greaterThan(aRoot.get("submittedDate"), sRoot.get("createdDate")),
+                cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED)
+            );
+
+            cq.groupBy(aRoot.get("publishedAssessmentId"));
+
+            List<Object[]> countList = session.createQuery(cq).getResultList();
             
             for (Object[] o : countList) {
                 actualNumberRetakeHash.put((Long) o[0], ((Number) o[1]).intValue());
@@ -2153,15 +2464,18 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public List<StudentGradingSummaryData> getStudentGradingSummaryData(final Long publishedAssessmentId, final String agentIdString) {
         try {
-            Session session = getCurrentSession();
-            Query<StudentGradingSummaryData> q = session.createQuery(
-                    "select s " +
-                            "from StudentGradingSummaryData s " +
-                            "where s.publishedAssessmentId = :id and s.agentId = :agent",
-                    StudentGradingSummaryData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentIdString);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<StudentGradingSummaryData> cq = cb.createQuery(StudentGradingSummaryData.class);
+            Root<StudentGradingSummaryData> root = cq.from(StudentGradingSummaryData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.equal(root.get("agentId"), agentIdString)
+              );
+
+            return session.createQuery(cq).getResultList();
         } catch (Exception e) {
             log.warn("Error getting student grading summary data for assessment {} and agent {}: {}", 
                     publishedAssessmentId, agentIdString, e.toString());
@@ -2171,16 +2485,20 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public int getNumberRetake(final Long publishedAssessmentId, final String agentIdString) {
         try {
-            Session session = getCurrentSession();
-            Query<Integer> q = session.createQuery(
-                    "select s.numberRetake " +
-                            "from StudentGradingSummaryData s " +
-                            "where s.publishedAssessmentId = :id and s.agentId = :agent",
-                    Integer.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentIdString);
-            q.setMaxResults(1);
-            Integer result = q.uniqueResult();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
+            Root<StudentGradingSummaryData> root = cq.from(StudentGradingSummaryData.class);
+
+            cq.select(root.get("numberRetake"))
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.equal(root.get("agentId"), agentIdString)
+              );
+
+            Integer result = session.createQuery(cq)
+                .setMaxResults(1)
+                .uniqueResult();
             
             return result != null ? result : 0;
         } catch (Exception e) {
@@ -2192,14 +2510,15 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public Map<Long, StudentGradingSummaryData> getNumberRetakeHash(final String agentIdString) {
         try {
-            Session session = getCurrentSession();
-            Query<StudentGradingSummaryData> q = session.createQuery(
-                    "select s " +
-                            "from StudentGradingSummaryData s " +
-                            "where s.agentId = :agent",
-                    StudentGradingSummaryData.class);
-            q.setParameter("agent", agentIdString);
-            List<StudentGradingSummaryData> numberRetakeList = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<StudentGradingSummaryData> cq = cb.createQuery(StudentGradingSummaryData.class);
+            Root<StudentGradingSummaryData> root = cq.from(StudentGradingSummaryData.class);
+
+            cq.select(root)
+              .where(cb.equal(root.get("agentId"), agentIdString));
+
+            List<StudentGradingSummaryData> numberRetakeList = session.createQuery(cq).getResultList();
             
             return numberRetakeList.stream()
                     .collect(Collectors.toMap(
@@ -2217,17 +2536,25 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Map<Long, Map<String, Integer>> getSiteNumberRetakeHash(final String siteId) {
         Map<Long, Map<String, Integer>> siteNumberRetakeHash = new HashMap<>();
         try {
-            Session session = getCurrentSession();
-            Query<StudentGradingSummaryData> q = session.createQuery(
-                    "select s " +
-                            "from StudentGradingSummaryData s, AuthorizationData au " +
-                            "where au.functionId = :fid and au.agentIdString = :agent " +
-                            "and s.publishedAssessmentId = au.qualifierId " +
-                            "order by s.publishedAssessmentId, s.agentId",
-                    StudentGradingSummaryData.class);
-            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("agent", siteId);
-            List<StudentGradingSummaryData> countList = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<StudentGradingSummaryData> cq = cb.createQuery(StudentGradingSummaryData.class);
+
+            Root<StudentGradingSummaryData> sRoot = cq.from(StudentGradingSummaryData.class);
+            Root<AuthorizationData> auRoot = cq.from(AuthorizationData.class);
+
+            cq.select(sRoot)
+              .where(
+                  cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+                  cb.equal(auRoot.get("agentIdString"), siteId),
+                  cb.equal(sRoot.get("publishedAssessmentId"), auRoot.get("qualifierId"))
+              )
+              .orderBy(
+                  cb.asc(sRoot.get("publishedAssessmentId")),
+                  cb.asc(sRoot.get("agentId"))
+              );
+
+            List<StudentGradingSummaryData> countList = session.createQuery(cq).getResultList();
 
             Long lastPublishedAssessmentId = -1L;
             Map<String, Integer> numberRetakePerStudentHash = null;
@@ -2255,7 +2582,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                Session session = getCurrentSession();
+                Session session = sessionFactory.getCurrentSession();
                 session.merge(studentGradingSummaryData);
                 retryCount = 0;
             } catch (Exception e) {
@@ -2267,17 +2594,21 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public int getLateSubmissionsNumberByAgentId(final Long publishedAssessmentId, final String agentIdString, final Date dueDate) {
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.submittedDate > :submitted and a.status > :status",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentIdString);
-            q.setParameter("forgrade", true);
-            q.setParameter("submitted", dueDate);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
 
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.equal(root.get("agentId"), agentIdString),
+                  cb.isTrue(root.get("forGrade")),
+                  cb.greaterThan(root.get("submittedDate"), dueDate),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              );
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
             return assessmentGradings.size();
         } catch (Exception e) {
             log.warn("Error getting late submissions count for assessment {} and agent {}: {}", 
@@ -2297,17 +2628,30 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                 return new ArrayList<>();
             }
             
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a " +
-                            "where a.publishedAssessmentId = :id and (a.forGrade = :forgrade1 or (a.forGrade = :forgrade2 and a.status = :status and a.finalScore <> 0)) " +
-                            "order by a.agentId ASC, a.submittedDate",
-                    AssessmentGradingData.class);
-            q.setParameter("id", id);
-            q.setParameter("forgrade1", true);
-            q.setParameter("forgrade2", false);
-            q.setParameter("status", AssessmentGradingData.NO_SUBMISSION);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            Predicate idPredicate = cb.equal(root.get("publishedAssessmentId"), id);
+            Predicate forGradeTrue = cb.isTrue(root.get("forGrade"));
+            Predicate forGradeFalse = cb.isFalse(root.get("forGrade"));
+            Predicate statusNoSubmission = cb.equal(root.get("status"), AssessmentGradingData.NO_SUBMISSION);
+            Predicate finalScoreNotZero = cb.notEqual(root.get("finalScore"), 0);
+
+            Predicate orCondition = cb.or(
+                forGradeTrue,
+                cb.and(forGradeFalse, statusNoSubmission, finalScoreNotZero)
+            );
+
+            cq.select(root)
+              .where(cb.and(idPredicate, orCondition))
+              .orderBy(
+                  cb.asc(root.get("agentId")),
+                  cb.asc(root.get("submittedDate"))
+              );
+
+            return session.createQuery(cq).getResultList();
         } catch (Exception e) {
             log.warn("Error getting all ordered submissions for publishedId {}: {}", publishedId, e.toString());
             return new ArrayList<>();
@@ -3272,17 +3616,21 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public void removeUnsubmittedAssessmentGradingData(final AssessmentGradingData data) {
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent " +
-                            "and a.forGrade = :forgrade and a.status = :status " +
-                            "order by a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", data.getPublishedAssessmentId());
-            q.setParameter("agent", data.getAgentId());
-            q.setParameter("forgrade", false);
-            q.setParameter("status", AssessmentGradingData.NO_SUBMISSION);
-            List<AssessmentGradingData> assessmentGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), data.getPublishedAssessmentId()),
+                  cb.equal(root.get("agentId"), data.getAgentId()),
+                  cb.isFalse(root.get("forGrade")),
+                  cb.equal(root.get("status"), AssessmentGradingData.NO_SUBMISSION)
+              )
+              .orderBy(cb.desc(root.get("submittedDate")));
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
             
             if (!assessmentGradings.isEmpty()) {
                 deleteAll(assessmentGradings);
@@ -3300,14 +3648,22 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public boolean getHasGradingData(final Long publishedAssessmentId) {
          try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            q.setMaxResults(1);
-            return !q.list().isEmpty();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              );
+
+            List<AssessmentGradingData> list = session.createQuery(cq)
+                    .setMaxResults(1)
+                    .getResultList();
+
+            return !list.isEmpty();
          } catch (Exception e) {
             log.warn("Error checking if assessment {} has grading data: {}", publishedAssessmentId, e.toString());
             return false;
@@ -3316,13 +3672,22 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public List<Boolean> getHasGradingDataAndHasSubmission(final Long publishedAssessmentId) {
     	try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.status > :status order by a.agentId asc, a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(
+                  cb.asc(root.get("agentId")),
+                  cb.desc(root.get("submittedDate"))
+              );
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
             
             // first element represents hasGradingData
             // second element represents hasSubmission
@@ -3373,7 +3738,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         bindVar.append("%");
 
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             Query<String> q = session.createQuery(
                     "select filename from MediaData m where m.itemGradingData.itemGradingId = :id and m.createdBy = :agent and m.filename like :file",
                     String.class);
@@ -3428,14 +3793,19 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         bindVar.append(filename.substring(dotIndex));
 
         try {
-            Session session = getCurrentSession();
-            Query<String> q = session.createQuery(
-                    "select filename from MediaData m where m.itemGradingData.itemGradingId = :id and m.createdBy = :agent and m.filename like :file",
-                    String.class);
-            q.setParameter("id", itemGradingId);
-            q.setParameter("agent", agentId);
-            q.setParameter("file", bindVar.toString());
-            List<String> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<String> cq = cb.createQuery(String.class);
+            Root<MediaData> root = cq.from(MediaData.class);
+
+            cq.select(root.get("filename"))
+              .where(
+                  cb.equal(root.get("itemGradingData").get("itemGradingId"), itemGradingId),
+                  cb.equal(root.get("createdBy"), agentId),
+                  cb.like(root.get("filename"), bindVar.toString())
+              );
+
+            List<String> list = session.createQuery(cq).getResultList();
             
             if (list.isEmpty()) {
                 return filename;
@@ -3484,20 +3854,33 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         Set<Long> needResubmitAssessmentIds = new LinkedHashSet<>();
 
         try {
-            Session session = getCurrentSession();
-            Query<Object[]> q = session.createQuery(
-                    "select distinct a.publishedAssessmentId, a.status from AssessmentGradingData a, AuthorizationData az " +
-                            " where a.agentId = :agent and az.agentIdString = :site and az.functionId = :fid " +
-                            " and az.qualifierId = a.publishedAssessmentId and a.forGrade = :forgrade and (a.status = :status1 or a.status = :status2) " +
-                            " order by a.status",
-                    Object[].class);
-            q.setParameter("agent", agentId);
-            q.setParameter("site", siteId);
-            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("forgrade", false);
-            q.setParameter("status1", AssessmentGradingData.ASSESSMENT_UPDATED);
-            q.setParameter("status2", AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT);
-            List<Object[]> results = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<AuthorizationData> azRoot = cq.from(AuthorizationData.class);
+
+            cq.select(cb.array(
+                aRoot.get("publishedAssessmentId"),
+                aRoot.get("status")
+            )).distinct(true);
+
+            cq.where(
+                cb.equal(aRoot.get("agentId"), agentId),
+                cb.equal(azRoot.get("agentIdString"), siteId),
+                cb.equal(azRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+                cb.equal(azRoot.get("qualifierId"), aRoot.get("publishedAssessmentId")),
+                cb.isFalse(aRoot.get("forGrade")),
+                cb.or(
+                    cb.equal(aRoot.get("status"), AssessmentGradingData.ASSESSMENT_UPDATED),
+                    cb.equal(aRoot.get("status"), AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT)
+                )
+            );
+
+            cq.orderBy(cb.asc(aRoot.get("status")));
+
+            List<Object[]> results = session.createQuery(cq).getResultList();
 
             if (results != null) {
                 for (Object[] row : results) {
@@ -3529,17 +3912,24 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public List getSiteNeedResubmitList(String siteId) {
     	try {
-            Session session = getCurrentSession();
-            Query<Long> q = session.createQuery(
-                    "select distinct a.publishedAssessmentId from AssessmentGradingData a, AuthorizationData au " +
-                            "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
-                            "and a.forGrade = :forgrade and a.status = :status",
-                    Long.class);
-            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("site", siteId);
-            q.setParameter("forgrade", false);
-            q.setParameter("status", AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<AuthorizationData> auRoot = cq.from(AuthorizationData.class);
+
+            cq.select(aRoot.get("publishedAssessmentId")).distinct(true);
+
+            cq.where(
+                cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+                cb.equal(auRoot.get("agentIdString"), siteId),
+                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.isFalse(aRoot.get("forGrade")),
+                cb.equal(aRoot.get("status"), AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT)
+            );
+
+            return session.createQuery(cq).getResultList();
         } catch (Exception e) {
             log.warn("Error getting site need resubmit list for site {}: {}", siteId, e.toString());
             return new ArrayList<>();
@@ -3552,25 +3942,72 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         int failures = 0;
 
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
 
-            Query<AssessmentGradingData> query = session.createQuery(
-                    "select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
-                            " a.agentId, a.submittedDate, a.isLate, a.forGrade, a.totalAutoScore, a.totalOverrideScore, " +
-                            " a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
-                            " from AssessmentGradingData a, PublishedAccessControl c " +
-                            " where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
-                            " and ((c.lateHandling = 1 and c.retractDate <= :currentTime) or (c.lateHandling = 2 and c.dueDate <= :currentTime))" +
-                            " and a.status not in (:status) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
-                            " and a.attemptDate is not null " +
-                            " order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId",
-                    AssessmentGradingData.class);
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
 
-            query.setParameter("currentTime", currentTime);
-            query.setParameterList("status", Arrays.asList(AssessmentGradingData.REMOVED, AssessmentGradingData.NO_SUBMISSION));
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<PublishedAccessControl> cRoot = cq.from(PublishedAccessControl.class);
+
+            cq.select(cb.construct(AssessmentGradingData.class,
+                    aRoot.get("assessmentGradingId"),
+                    aRoot.get("publishedAssessmentId"),
+                    aRoot.get("agentId"),
+                    aRoot.get("submittedDate"),
+                    aRoot.get("isLate"),
+                    aRoot.get("forGrade"),
+                    aRoot.get("totalAutoScore"),
+                    aRoot.get("totalOverrideScore"),
+                    aRoot.get("finalScore"),
+                    aRoot.get("comments"),
+                    aRoot.get("status"),
+                    aRoot.get("gradedBy"),
+                    aRoot.get("gradedDate"),
+                    aRoot.get("attemptDate"),
+                    aRoot.get("timeElapsed")
+            ));
+
+            Predicate joinCondition = cb.equal(
+                    aRoot.get("publishedAssessmentId"),
+                    cRoot.get("assessment").get("publishedAssessmentId"));
+
+            Predicate lateHandlingCondition = cb.or(
+                    cb.and(
+                            cb.equal(cRoot.get("lateHandling"), 1),
+                            cb.lessThanOrEqualTo(cRoot.get("retractDate"), currentTime)),
+                    cb.and(
+                            cb.equal(cRoot.get("lateHandling"), 2),
+                            cb.lessThanOrEqualTo(cRoot.get("dueDate"), currentTime))
+            );
+
+            Predicate statusNotIn = cb.not(
+                    aRoot.get("status").in(Arrays.asList(AssessmentGradingData.REMOVED, AssessmentGradingData.NO_SUBMISSION)));
+
+            Predicate autoSubmissionNotRun = cb.or(
+                    cb.equal(aRoot.get("hasAutoSubmissionRun"), 0),
+                    cb.isNull(aRoot.get("hasAutoSubmissionRun")));
+
+            cq.where(
+                    joinCondition,
+                    lateHandlingCondition,
+                    statusNotIn,
+                    autoSubmissionNotRun,
+                    cb.equal(cRoot.get("autoSubmit"), 1),
+                    cb.isNotNull(aRoot.get("attemptDate"))
+            );
+
+            cq.orderBy(
+                    cb.asc(aRoot.get("publishedAssessmentId")),
+                    cb.asc(aRoot.get("agentId")),
+                    cb.desc(aRoot.get("forGrade")),
+                    cb.asc(aRoot.get("assessmentGradingId"))
+            );
+
+            Query<AssessmentGradingData> query = session.createQuery(cq);
             query.setTimeout(300);
 
-            List<AssessmentGradingData> list = query.list();
+            List<AssessmentGradingData> list = query.getResultList();
 
             Iterator<AssessmentGradingData> iter = list.iterator();
             String lastAgentId = "";
@@ -3716,7 +4153,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                Session session = getCurrentSession();
+                Session session = sessionFactory.getCurrentSession();
                 ItemGradingAttachment itemGradingAttachment = session.get(ItemGradingAttachment.class, attachmentId);
                 
                 if (itemGradingAttachment == null) {
@@ -3749,7 +4186,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                Session session = getCurrentSession();
+                Session session = sessionFactory.getCurrentSession();
                 AssessmentGradingAttachment assessmentGradingAttachment = session.get(AssessmentGradingAttachment.class, attachmentId);
                 
                 if (assessmentGradingAttachment == null) {
@@ -3780,7 +4217,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public void saveOrUpdateAttachments(List<AttachmentIfc> list) {
         try {
-            Session session = getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             for (AttachmentIfc attachment : list) {
                 if (attachment != null) {
                     session.merge(attachment);
@@ -3794,18 +4231,32 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public HashMap getInProgressCounts(String siteId) {
         try {
-            Session session = getCurrentSession();
-            Query<Object[]> q = session.createQuery(
-                    "select a.publishedAssessmentId, count(*) from AssessmentGradingData a, AuthorizationData au " +
-                            "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
-                            "and a.forGrade = :forgrade and (a.status = :status1 or a.status = :status2) group by a.publishedAssessmentId",
-                    Object[].class);
-            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("site", siteId);
-            q.setParameter("forgrade", false);
-            q.setParameter("status1", AssessmentGradingData.IN_PROGRESS);
-            q.setParameter("status2", AssessmentGradingData.ASSESSMENT_UPDATED);
-            List<Object[]> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<AuthorizationData> auRoot = cq.from(AuthorizationData.class);
+
+            cq.select(cb.array(
+                aRoot.get("publishedAssessmentId"),
+                cb.count(aRoot)
+            ));
+
+            cq.where(
+                cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+                cb.equal(auRoot.get("agentIdString"), siteId),
+                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.isFalse(aRoot.get("forGrade")),
+                cb.or(
+                    cb.equal(aRoot.get("status"), AssessmentGradingData.IN_PROGRESS),
+                    cb.equal(aRoot.get("status"), AssessmentGradingData.ASSESSMENT_UPDATED)
+                )
+            );
+
+            cq.groupBy(aRoot.get("publishedAssessmentId"));
+
+            List<Object[]> list = session.createQuery(cq).getResultList();
             
             HashMap<Long, Long> inProgressCountsMap = new HashMap<>();
             for (Object[] o : list) {
@@ -3820,19 +4271,35 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public HashMap getSubmittedCounts(String siteId) {
         try {
-            Session session = getCurrentSession();
-            Query<Object[]> q = session.createQuery(
-                    "select a.publishedAssessmentId, count(distinct a.agentId) " +
-                            "from AssessmentGradingData a, AuthorizationData au, PublishedAssessmentData p " +
-                            "where au.functionId = :fid and au.agentIdString = :site and a.publishedAssessmentId = au.qualifierId " +
-                            "and a.forGrade = :forgrade and a.status > :status and a.publishedAssessmentId = p.publishedAssessmentId and " +
-                            "(p.lastNeedResubmitDate is null or a.submittedDate >= p.lastNeedResubmitDate) group by a.publishedAssessmentId",
-                    Object[].class);
-            q.setParameter("fid", "OWN_PUBLISHED_ASSESSMENT");
-            q.setParameter("site", siteId);
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            List<Object[]> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<AuthorizationData> auRoot = cq.from(AuthorizationData.class);
+            Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
+
+            cq.select(cb.array(
+                aRoot.get("publishedAssessmentId"),
+                cb.countDistinct(aRoot.get("agentId"))
+            ));
+
+            cq.where(
+                cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
+                cb.equal(auRoot.get("agentIdString"), siteId),
+                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.isTrue(aRoot.get("forGrade")),
+                cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED),
+                cb.equal(aRoot.get("publishedAssessmentId"), pRoot.get("publishedAssessmentId")),
+                cb.or(
+                    cb.isNull(pRoot.get("lastNeedResubmitDate")),
+                    cb.greaterThanOrEqualTo(aRoot.get("submittedDate"), pRoot.get("lastNeedResubmitDate"))
+                )
+            );
+
+            cq.groupBy(aRoot.get("publishedAssessmentId"));
+
+            List<Object[]> list = session.createQuery(cq).getResultList();
             
             HashMap<Long, Long> startedCountsMap = new HashMap<>();
             for (Object[] o : list) {
@@ -3964,15 +4431,21 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Double getAverageSubmittedAssessmentGrading(final Long publishedAssessmentId, final String agentId) {
         double averageScore = 0.0;
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentId);
-            q.setParameter("forgrade", true);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.equal(root.get("agentId"), agentId),
+                  cb.isTrue(root.get("forGrade")),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(cb.desc(root.get("submittedDate")));
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
             if (!assessmentGradings.isEmpty()) {
                 Double cumulativeScore = 0D;
@@ -4001,14 +4474,23 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public List<AssessmentGradingData> getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> query = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.forGrade = :forgrade and a.status > :status order by a.agentId asc, a.finalScore desc",
-                    AssessmentGradingData.class);
-            query.setParameter("id", publishedAssessmentId);
-            query.setParameter("forgrade", true);
-            query.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = query.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.isTrue(root.get("forGrade")),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(
+                  cb.asc(root.get("agentId")),
+                  cb.desc(root.get("finalScore"))
+              );
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
             return new ArrayList<>(assessmentGradings.stream()
                     .collect(Collectors.toMap(AssessmentGradingData::getAgentId, p -> p, (p, q) -> p))
@@ -4023,20 +4505,35 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         Map<Long, List<Long>> h = new HashMap<>();
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "select new AssessmentGradingData(" +
-                            " a.assessmentGradingId, p.itemId, " +
-                            " a.agentId, a.finalScore, a.submittedDate) " +
-                            " from ItemGradingData i, AssessmentGradingData a," +
-                            " PublishedItemData p where " +
-                            " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and " +
-                            " a.publishedAssessmentId = :id and a.status > :status" +
-                            " order by a.agentId asc, a.submittedDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            List<AssessmentGradingData> assessmentGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+
+            Root<ItemGradingData> iRoot = cq.from(ItemGradingData.class);
+            Root<AssessmentGradingData> aRoot = cq.from(AssessmentGradingData.class);
+            Root<PublishedItemData> pRoot = cq.from(PublishedItemData.class);
+
+            cq.select(cb.construct(AssessmentGradingData.class,
+                aRoot.get("assessmentGradingId"),
+                pRoot.get("itemId"),
+                aRoot.get("agentId"),
+                aRoot.get("finalScore"),
+                aRoot.get("submittedDate")
+            ));
+
+            cq.where(
+                cb.equal(iRoot.get("assessmentGradingId"), aRoot.get("assessmentGradingId")),
+                cb.equal(iRoot.get("publishedItemId"), pRoot.get("itemId")),
+                cb.equal(aRoot.get("publishedAssessmentId"), publishedAssessmentId),
+                cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED)
+            );
+
+            cq.orderBy(
+                cb.asc(aRoot.get("agentId")),
+                cb.desc(aRoot.get("submittedDate"))
+            );
+
+            List<AssessmentGradingData> assessmentGradings = session.createQuery(cq).getResultList();
 
             String currentAgent = "";
             Date submittedDate = null;
@@ -4075,12 +4572,15 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     private Map<Long, Set<ItemGradingAttachment>> getItemGradingAttachmentMap(final Set itemGradingIds) {
 
         try {
-            Session session = getCurrentSession();
-            Query<ItemGradingAttachment> q = session.createQuery(
-                    "from ItemGradingAttachment a where a.itemGrading.itemGradingId in (:itemGradingIds)",
-                    ItemGradingAttachment.class);
-            q.setParameterList("itemGradingIds", itemGradingIds);
-            List<ItemGradingAttachment> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingAttachment> cq = cb.createQuery(ItemGradingAttachment.class);
+            Root<ItemGradingAttachment> root = cq.from(ItemGradingAttachment.class);
+
+            cq.select(root)
+              .where(root.get("itemGrading").get("itemGradingId").in(itemGradingIds));
+
+            List<ItemGradingAttachment> list = session.createQuery(cq).getResultList();
             Set<ItemGradingAttachment> itemGradingAttachmentList = new HashSet<>(list);
             return processItemGradingAttachment(itemGradingAttachmentList);
         } catch (Exception e) {
@@ -4092,12 +4592,15 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     private Map<Long, Set<ItemGradingAttachment>> getItemGradingAttachmentMap(final Long publishedItemId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<ItemGradingAttachment> q = session.createQuery(
-                    "select a from ItemGradingAttachment a where a.itemGrading.publishedItemId = :publishedItemId",
-                    ItemGradingAttachment.class);
-            q.setParameter("publishedItemId", publishedItemId);
-            List<ItemGradingAttachment> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingAttachment> cq = cb.createQuery(ItemGradingAttachment.class);
+            Root<ItemGradingAttachment> root = cq.from(ItemGradingAttachment.class);
+
+            cq.select(root)
+              .where(cb.equal(root.get("itemGrading").get("publishedItemId"), publishedItemId));
+
+            List<ItemGradingAttachment> list = session.createQuery(cq).getResultList();
             Set<ItemGradingAttachment> itemGradingAttachmentSet = new HashSet<>(list);
             return processItemGradingAttachment(itemGradingAttachmentSet);
         } catch (Exception e) {
@@ -4109,12 +4612,15 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Map<Long, List<AssessmentGradingAttachment>> getAssessmentGradingAttachmentMap(final Long pubAssessmentId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingAttachment> q = session.createQuery(
-                    "select a from AssessmentGradingAttachment a where a.assessmentGrading.publishedAssessmentId = :pubAssessmentId",
-                    AssessmentGradingAttachment.class);
-            q.setParameter("pubAssessmentId", pubAssessmentId);
-            List<AssessmentGradingAttachment> assessmentGradingAttachmentList = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingAttachment> cq = cb.createQuery(AssessmentGradingAttachment.class);
+            Root<AssessmentGradingAttachment> root = cq.from(AssessmentGradingAttachment.class);
+
+            cq.select(root)
+              .where(cb.equal(root.get("assessmentGrading").get("publishedAssessmentId"), pubAssessmentId));
+
+            List<AssessmentGradingAttachment> assessmentGradingAttachmentList = session.createQuery(cq).getResultList();
             return processAssessmentGradingAttachment(assessmentGradingAttachmentList);
         } catch (Exception e) {
             log.warn("Error getting assessment grading attachment map for assessment {}: {}", pubAssessmentId, e.toString());
@@ -4125,14 +4631,16 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public Map<Long, Set<ItemGradingAttachment>> getItemGradingAttachmentMapByAssessmentGradingId(final Long assessmentGradingId) {
 
         try {
-            Session session = getCurrentSession();
-            Query<ItemGradingAttachment> q = session.createQuery(
-                    "select a from ItemGradingAttachment a, ItemGradingData i " +
-                            "where a.itemGrading.itemGradingId = i.itemGradingId " +
-                            "and i.assessmentGradingId = :assessmentGradingId",
-                    ItemGradingAttachment.class);
-            q.setParameter("assessmentGradingId", assessmentGradingId);
-            List<ItemGradingAttachment> list = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ItemGradingAttachment> cq = cb.createQuery(ItemGradingAttachment.class);
+            Root<ItemGradingAttachment> root = cq.from(ItemGradingAttachment.class);
+            Join<ItemGradingAttachment, ItemGradingData> itemGradingJoin = root.join("itemGrading");
+
+            cq.select(root)
+              .where(cb.equal(itemGradingJoin.get("assessmentGradingId"), assessmentGradingId));
+
+            List<ItemGradingAttachment> list = session.createQuery(cq).getResultList();
             Set<ItemGradingAttachment> itemGradingAttachmentList = new HashSet<>(list);
             return processItemGradingAttachment(itemGradingAttachmentList);
         } catch (Exception e) {
@@ -4213,15 +4721,21 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public List<AssessmentGradingData> getUnSubmittedAssessmentGradingDataList(final Long publishedAssessmentId, final String agentIdString) {
         try {
-            Session session = getCurrentSession();
-            Query<AssessmentGradingData> q = session.createQuery(
-                    "from AssessmentGradingData a where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade and a.status > :status order by a.attemptDate desc",
-                    AssessmentGradingData.class);
-            q.setParameter("id", publishedAssessmentId);
-            q.setParameter("agent", agentIdString);
-            q.setParameter("forgrade", false);
-            q.setParameter("status", AssessmentGradingData.REMOVED);
-            return q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<AssessmentGradingData> cq = cb.createQuery(AssessmentGradingData.class);
+            Root<AssessmentGradingData> root = cq.from(AssessmentGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("publishedAssessmentId"), publishedAssessmentId),
+                  cb.equal(root.get("agentId"), agentIdString),
+                  cb.isFalse(root.get("forGrade")),
+                  cb.greaterThan(root.get("status"), AssessmentGradingData.REMOVED)
+              )
+              .orderBy(cb.desc(root.get("attemptDate")));
+
+            return session.createQuery(cq).getResultList();
         } catch (Exception e) {
             log.warn("Error getting unsubmitted assessment grading data list for assessment {} and agent {}: {}", 
                     publishedAssessmentId, agentIdString, e.toString());
@@ -4231,17 +4745,19 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
 
     public SectionGradingData getSectionGradingData(Long assessmentGradingId, Long sectionId, String agentId) {
         try {
-            Session session = getCurrentSession();
-            Query<SectionGradingData> q = session.createQuery(
-                    "from SectionGradingData s where " +
-                        "s.assessmentGradingId = :assessmentGradingId " +
-                        "and s.publishedSectionId = :sectionId " +
-                        "and s.agentId = :agent",
-                    SectionGradingData.class);
-            q.setParameter("assessmentGradingId", assessmentGradingId);
-            q.setParameter("sectionId", sectionId);
-            q.setParameter("agent", agentId);
-            List<SectionGradingData> sectionGradings = q.list();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<SectionGradingData> cq = cb.createQuery(SectionGradingData.class);
+            Root<SectionGradingData> root = cq.from(SectionGradingData.class);
+
+            cq.select(root)
+              .where(
+                  cb.equal(root.get("assessmentGradingId"), assessmentGradingId),
+                  cb.equal(root.get("publishedSectionId"), sectionId),
+                  cb.equal(root.get("agentId"), agentId)
+              );
+
+            List<SectionGradingData> sectionGradings = session.createQuery(cq).getResultList();
             
             if (sectionGradings.isEmpty()) {
                 return null;
@@ -4258,7 +4774,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                Session session = getCurrentSession();
+                Session session = sessionFactory.getCurrentSession();
                 session.merge(item);
                 retryCount = 0;
             } catch (Exception e) {
