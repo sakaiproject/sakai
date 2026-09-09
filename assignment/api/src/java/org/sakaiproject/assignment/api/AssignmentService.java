@@ -406,6 +406,17 @@ public interface AssignmentService extends EntityProducer {
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException;
 
     /**
+     * Archives the current feedback text and visible submitted attachments in the existing HTML history.
+     * Call before changing the submission's submitted flag, date, feedback, or attachments, including
+     * when saving the first draft of a resubmission. Draft attachments are not archived.
+     * This only changes the supplied submission; the caller remains responsible for saving it through
+     * {@link #updateSubmission(AssignmentSubmission)} and its permission checks.
+     *
+     * @param submission the existing submission before the resubmission changes
+     */
+    void archiveSubmissionHistory(AssignmentSubmission submission);
+
+    /**
      * @param reference
      * @return
      * @throws IdUnusedException

@@ -35,6 +35,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.FormatStyle;
 import java.time.format.DateTimeFormatter;
@@ -2122,6 +2123,47 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             log.warn("siteHasTool {} {}", e.getMessage(), siteId);
         }
         return false;
+    }
+
+    @Override
+    public void archiveSubmissionHistory(AssignmentSubmission submission) {
+        String attachmentHistory = submission.getSubmitted() ? getSubmissionAttachmentHistory(submission) : "";
+        if (StringUtils.isBlank(submission.getFeedbackText()) && StringUtils.isBlank(attachmentHistory)) {
+            return;
+        }
+
+        Map<String, String> properties = submission.getProperties();
+        Instant previousSubmissionDate = submission.getDateSubmitted();
+        String historyDate;
+        if (previousSubmissionDate != null) {
+            historyDate = userTimeService.dateTimeFormat(previousSubmissionDate, FormatStyle.LONG, FormatStyle.LONG);
+        } else {
+            historyDate = properties.get(AssignmentConstants.PROP_LAST_GRADED_DATE);
+            if (StringUtils.isBlank(historyDate) && submission.getDateModified() != null) {
+                // Preserve the legacy fallback used by grading history for submissions without a submitted date.
+                historyDate = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
+                        .withZone(ZoneId.systemDefault()).format(submission.getDateModified());
+            }
+        }
+        String history = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
+        history = "<h4>" + historyDate + "</h4><div style=\"margin:0;padding:0\">"
+                + StringUtils.trimToEmpty(submission.getFeedbackText()) + attachmentHistory + "</div>" + history;
+        properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, history);
+    }
+
+    private String getSubmissionAttachmentHistory(AssignmentSubmission submission) {
+        String attachmentLinks = submission.getAttachments().stream()
+                .map(entityManager::newReference)
+                .filter(reference -> reference.getProperties() != null
+                        && !"true".equals(reference.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION)))
+                .map(reference -> {
+                    String displayName = reference.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+                    return "<li><a href=\"" + formattedText.escapeHtml(reference.getUrl(), false) + "\">"
+                            + formattedText.escapeHtml(displayName) + "</a></li>";
+                })
+                .collect(Collectors.joining());
+
+        return StringUtils.isBlank(attachmentLinks) ? "" : "<ul>" + attachmentLinks + "</ul>";
     }
 
     @Override
