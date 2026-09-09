@@ -18,8 +18,6 @@ package org.sakaiproject.assignment.impl;
 import javax.annotation.Resource;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -128,11 +126,12 @@ public class AssignmentServiceSubmissionHistoryTest {
                 submission.getProperties().get(HISTORY));
 
         submission.getProperties().clear();
-        submission.setDateModified(SUBMITTED);
+        Instant modified = SUBMITTED.plusSeconds(3600);
+        submission.setDateModified(modified);
+        when(userTimeService.dateTimeFormat(modified, FormatStyle.LONG, FormatStyle.LONG))
+                .thenReturn("Sakai-formatted modification time");
         assignmentService.archiveSubmissionHistory(submission);
-        String expectedDate = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
-                .withZone(ZoneId.systemDefault()).format(SUBMITTED);
-        Assert.assertEquals("<h4>" + expectedDate + "</h4><div style=\"margin:0;padding:0\">Feedback</div>",
+        Assert.assertEquals("<h4>Sakai-formatted modification time</h4><div style=\"margin:0;padding:0\">Feedback</div>",
                 submission.getProperties().get(HISTORY));
     }
 

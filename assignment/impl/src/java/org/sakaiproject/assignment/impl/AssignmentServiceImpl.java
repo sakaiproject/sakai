@@ -35,7 +35,6 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.FormatStyle;
 import java.time.format.DateTimeFormatter;
@@ -2140,9 +2139,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } else {
             historyDate = properties.get(AssignmentConstants.PROP_LAST_GRADED_DATE);
             if (StringUtils.isBlank(historyDate) && submission.getDateModified() != null) {
-                // Preserve the legacy fallback used by grading history for submissions without a submitted date.
-                historyDate = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
-                        .withZone(ZoneId.systemDefault()).format(submission.getDateModified());
+                historyDate = userTimeService.dateTimeFormat(submission.getDateModified(), FormatStyle.LONG, FormatStyle.LONG);
             }
         }
         String history = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
