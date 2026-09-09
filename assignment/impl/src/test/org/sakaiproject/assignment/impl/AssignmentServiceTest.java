@@ -71,6 +71,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -131,6 +132,8 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -147,6 +150,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     private static final Faker faker = new Faker();
+    private static final String PEER_REVIEW_INVOKEE = "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService";
 
     @Resource(name = "org.sakaiproject.announcement.api.AnnouncementService")
     private AnnouncementService announcementService;
@@ -160,6 +164,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     private EventTrackingService eventTrackingService;
     @Autowired private FormattedText formattedText;
     @Autowired private GradingService gradingService;
+    @Autowired private ScheduledInvocationManager scheduledInvocationManager;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
@@ -266,8 +271,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void testPublishAssignmentIntegratesCalendarAndAnnouncement() throws Exception {
-        AssignmentServiceImpl service = integrationService();
+        Assignment assignment = createPublishableAssignment(false);
+        String siteId = assignment.getContext();
+        String assignmentId = assignment.getId();
         Calendar calendar = mock(Calendar.class);
         CalendarEvent calendarEvent = mock(CalendarEvent.class);
         CalendarEventEdit calendarEventEdit = mock(CalendarEventEdit.class);
@@ -277,8 +285,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         ResourcePropertiesEdit messageProperties = mock(ResourcePropertiesEdit.class);
         Event updateEvent = mock(Event.class);
         Event availableEvent = mock(Event.class);
-        Assignment assignment = mock(Assignment.class);
-        Map<String, String> properties = new HashMap<>();
+        Map<String, String> properties = assignment.getProperties();
         Instant openTime = Instant.parse("2099-04-14T16:00:00Z");
         Instant dueTime = Instant.parse("2099-04-21T16:00:00Z");
 
@@ -287,22 +294,17 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         properties.put(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION,
                 AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
 
-        when(assignment.getProperties()).thenReturn(properties);
-        when(assignment.getDraft()).thenReturn(Boolean.TRUE);
-        when(assignment.getTitle()).thenReturn("Bulk Publish Assignment");
-        when(assignment.getDueDate()).thenReturn(dueTime);
-        when(assignment.getOpenDate()).thenReturn(openTime);
-        when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.SITE);
-        when(assignment.getId()).thenReturn("assignment-id");
-        when(assignment.getContext()).thenReturn("site-id");
-        when(calendarService.calendarReference("site-id", SiteService.MAIN_CONTAINER)).thenReturn("calendar-ref");
+        assignment.setTitle("Bulk Publish Assignment");
+        assignment.setDueDate(dueTime);
+        assignment.setOpenDate(openTime);
+        when(calendarService.calendarReference(siteId, SiteService.MAIN_CONTAINER)).thenReturn("calendar-ref");
         when(calendarService.getCalendar("calendar-ref")).thenReturn(calendar);
         when(calendar.addEvent(Mockito.any(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.eq("Deadline"), Mockito.eq(""), Mockito.eq(CalendarEvent.EventAccess.SITE),
                 Mockito.anyList(), Mockito.isNull())).thenReturn(calendarEvent);
         when(calendarEvent.getId()).thenReturn("calendar-event-id");
         when(calendar.getEditEvent("calendar-event-id", CalendarService.EVENT_ADD_CALENDAR)).thenReturn(calendarEventEdit);
-        when(announcementService.channelReference("site-id", SiteService.MAIN_CONTAINER)).thenReturn("announcement-ref");
+        when(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER)).thenReturn("announcement-ref");
         when(announcementService.getAnnouncementChannel("announcement-ref")).thenReturn(channel);
         when(channel.addAnnouncementMessage()).thenReturn(message);
         when(message.getAnnouncementHeaderEdit()).thenReturn(header);
@@ -320,13 +322,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(userTimeService.dateTimeFormat(openTime, null, null)).thenReturn("Apr 14, 2026 12:00 PM EDT");
         when(userTimeService.dateTimeFormat(dueTime, FormatStyle.MEDIUM, FormatStyle.LONG)).thenReturn("Apr 21, 2026 12:00 PM EDT");
         when(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT,
-                "/assignment/a/site-id/assignment-id", true)).thenReturn(updateEvent);
+                "/assignment/a/" + siteId + "/" + assignmentId, true)).thenReturn(updateEvent);
         when(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT,
-                "/assignment/a/site-id/assignment-id", true)).thenReturn(availableEvent);
+                "/assignment/a/" + siteId + "/" + assignmentId, true)).thenReturn(availableEvent);
 
-        service.publishAssignment(assignment);
+        assignmentService.publishAssignment(assignment);
 
-        verify(assignment).setDraft(Boolean.FALSE);
+        Assert.assertFalse(assignmentService.getAssignment(assignmentId).getDraft());
         verify(calendar).addEvent(Mockito.any(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.eq("Deadline"), Mockito.eq(""), Mockito.eq(CalendarEvent.EventAccess.SITE),
                 Mockito.anyList(), Mockito.isNull());
@@ -341,7 +343,120 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals("announcement-id", properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
         verify(eventTrackingService).post(updateEvent);
         verify(eventTrackingService).delay(availableEvent, openTime);
-        verify(service, Mockito.atLeast(3)).updateAssignment(assignment);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void publishAssignmentSchedulesPeerReview() throws Exception {
+        Assignment assignment = createPublishableAssignment(true);
+
+        assignmentService.publishAssignment(assignment);
+
+        Assert.assertFalse(assignmentService.getAssignment(assignment.getId()).getDraft());
+        org.mockito.InOrder order = Mockito.inOrder(scheduledInvocationManager);
+        order.verify(scheduledInvocationManager).deleteDelayedInvocation(
+                PEER_REVIEW_INVOKEE, assignment.getId());
+        order.verify(scheduledInvocationManager).createDelayedInvocation(
+                assignment.getCloseDate(), PEER_REVIEW_INVOKEE, assignment.getId());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void republishAssignmentReplacesPeerReviewSchedule() throws Exception {
+        Assignment assignment = createPublishableAssignment(true);
+        assignmentService.publishAssignment(assignment);
+        Instant newCloseDate = assignment.getCloseDate().plusSeconds(3600);
+        assignment.setCloseDate(newCloseDate);
+
+        assignmentService.publishAssignment(assignment);
+
+        verify(scheduledInvocationManager, Mockito.times(2)).deleteDelayedInvocation(
+                PEER_REVIEW_INVOKEE, assignment.getId());
+        verify(scheduledInvocationManager).createDelayedInvocation(
+                newCloseDate, PEER_REVIEW_INVOKEE, assignment.getId());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void publishAssignmentWithoutPeerAssessmentRemovesStaleSchedule() throws Exception {
+        Assignment assignment = createPublishableAssignment(false);
+
+        assignmentService.publishAssignment(assignment);
+
+        verify(scheduledInvocationManager).deleteDelayedInvocation(PEER_REVIEW_INVOKEE, assignment.getId());
+        verify(scheduledInvocationManager, Mockito.never()).createDelayedInvocation(
+                Mockito.any(Instant.class), eq(PEER_REVIEW_INVOKEE), eq(assignment.getId()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void unpublishAssignmentRemovesPeerReviewSchedule() throws Exception {
+        Assignment assignment = createPublishableAssignment(true);
+        assignmentService.publishAssignment(assignment);
+
+        assignmentService.unpublishAssignment(assignment);
+
+        Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getDraft());
+        verify(scheduledInvocationManager, Mockito.times(2)).deleteDelayedInvocation(
+                PEER_REVIEW_INVOKEE, assignment.getId());
+        verify(scheduledInvocationManager, Mockito.times(1)).createDelayedInvocation(
+                assignment.getCloseDate(), PEER_REVIEW_INVOKEE, assignment.getId());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void deniedPublishDoesNotSchedulePeerReview() throws Exception {
+        Assignment assignment = createPublishableAssignment(true);
+        denyUpdate(assignment);
+
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.publishAssignment(assignment));
+
+        Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getDraft());
+        verify(scheduledInvocationManager, Mockito.never()).deleteDelayedInvocation(
+                PEER_REVIEW_INVOKEE, assignment.getId());
+        verify(scheduledInvocationManager, Mockito.never()).createDelayedInvocation(
+                Mockito.any(Instant.class), eq(PEER_REVIEW_INVOKEE), eq(assignment.getId()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void deniedUnpublishPreservesPeerReviewSchedule() throws Exception {
+        Assignment assignment = createPublishableAssignment(true);
+        assignmentService.publishAssignment(assignment);
+        denyUpdate(assignment);
+
+        Assert.assertThrows(PermissionException.class, () -> assignmentService.unpublishAssignment(assignment));
+
+        Assert.assertFalse(assignmentService.getAssignment(assignment.getId()).getDraft());
+        verify(scheduledInvocationManager, Mockito.times(1)).deleteDelayedInvocation(
+                PEER_REVIEW_INVOKEE, assignment.getId());
+    }
+
+    private Assignment createPublishableAssignment(boolean peerAssessment) throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        when(securityService.unlock(eq(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT),
+                eq(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())))
+                .thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn(context);
+        when(siteService.getSite(context)).thenReturn(site);
+        assignment.setDraft(true);
+        assignment.setAllowPeerAssessment(peerAssessment);
+        assignment.setOpenDate(Instant.parse("2099-04-14T16:00:00Z"));
+        assignment.setDueDate(Instant.parse("2099-04-21T16:00:00Z"));
+        assignment.setCloseDate(Instant.parse("2099-04-22T16:00:00Z"));
+        assignmentService.updateAssignment(assignment);
+        return assignment;
+    }
+
+    private void denyUpdate(Assignment assignment) {
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(false);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT,
+                AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).reckon().getReference())).thenReturn(false);
     }
 
     private AssignmentServiceImpl integrationService() throws PermissionException {

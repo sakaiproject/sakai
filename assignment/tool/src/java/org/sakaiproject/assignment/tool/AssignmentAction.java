@@ -11307,8 +11307,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         assignmentService.publishAssignment(assignment);
 
-        assignmentPeerAssessmentService.schedulePeerReview(assignment.getId());
-
         if (addToResolvedGradebookOnPublish) {
             integrateAssignmentWithGradebook(state, assignment.getTitle(), oAssociateGradebookAssignment, assignment,
                     assignment.getTitle(), assignment.getDueDate(), assignment.getTypeOfGrade(), assignment.getMaxGradePoint().toString(),
@@ -11414,9 +11412,7 @@ public class AssignmentAction extends PagedResourceActionII {
             try {
                 String id = AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getId();
                 Assignment assignment = assignmentService.getAssignment(id);
-                assignment.setDraft(Boolean.TRUE);
-                assignmentService.updateAssignment(assignment);
-                assignmentPeerAssessmentService.removeScheduledPeerReview(assignment.getId());
+                assignmentService.unpublishAssignment(assignment);
             } catch (IdUnusedException e) {
                 log.warn("Cannot find assignment with ref: {}", ref);
                 addAlert(state, rb.getFormattedMessage("options_cannotFindAssignment", ref));

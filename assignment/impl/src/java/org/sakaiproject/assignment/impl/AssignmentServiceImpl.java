@@ -82,6 +82,7 @@ import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentConstants.SubmissionStatus;
 import org.sakaiproject.assignment.api.AssignmentEntity;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentService.OpenDateNotification;
@@ -230,6 +231,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private ApplicationContext applicationContext;
     @Setter private AssignmentActivityProducer assignmentActivityProducer;
     @Setter private AssignmentDueReminderService assignmentDueReminderService;
+    @Setter private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Setter private ObjectFactory<AssignmentEntity> assignmentEntityFactory;
     @Setter private AssignmentRepository assignmentRepository;
     @Setter private AssignmentSupplementItemService assignmentSupplementItemService;
@@ -1707,10 +1709,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         boolean wasDraft = BooleanUtils.toBoolean(assignment.getDraft());
         assignment.setDraft(Boolean.FALSE);
         updateAssignmentInTransaction(assignment);
+        assignmentPeerAssessmentService.schedulePeerReview(assignment.getId());
 
         if (wasDraft) {
             integrateOnFirstPublish(assignment);
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void unpublishAssignment(Assignment assignment) throws PermissionException {
+        Assert.notNull(assignment, "Assignment cannot be null");
+
+        assignment.setDraft(Boolean.TRUE);
+        updateAssignmentInTransaction(assignment);
+        assignmentPeerAssessmentService.removeScheduledPeerReview(assignment.getId());
     }
 
     private void updateAssignmentInTransaction(Assignment assignment) throws PermissionException {
