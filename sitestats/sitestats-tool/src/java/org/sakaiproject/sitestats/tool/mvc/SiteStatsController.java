@@ -208,10 +208,12 @@ public class SiteStatsController {
 
     @GetMapping("/useractivity/events/{eventId}")
     public String userActivityDetails(@PathVariable long eventId,
-            @RequestParam(required = false) String siteId, Model model) {
+            @RequestParam(required = false) String siteId,
+            @ModelAttribute UserActivityForm userActivityForm, Model model) {
         SiteStatsToolService.EventDetailsResult result = toolService.eventDetails(siteId, eventId);
         commonModel(model, result.getSiteId(), "useractivity");
         model.addAttribute("eventDetails", result);
+        model.addAttribute("userActivityForm", userActivityForm);
         return "user-activity-details";
     }
 

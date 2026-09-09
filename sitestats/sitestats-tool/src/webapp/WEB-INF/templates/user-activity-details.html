@@ -15,7 +15,10 @@
       </dd>
     </th:block>
   </dl>
-  <a class="btn btn-link" th:href="@{/useractivity(siteId=${siteId})}"
+  <a class="btn btn-link" th:href="@{/useractivity(siteId=${siteId},
+       userId=${userActivityForm.userId},toolId=${userActivityForm.toolId},
+       startDate=${userActivityForm.startDate},endDate=${userActivityForm.endDate},
+       page=${userActivityForm.page})}"
      th:text="#{back}">Back</a>
 </main>
 </body>
