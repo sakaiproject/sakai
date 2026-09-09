@@ -43,6 +43,8 @@
                 <prop key="hibernate.cache.use_second_level_cache">${hibernate.cache.use_second_level_cache}</prop>
                 <prop key="hibernate.query.substitutions">true 1, false 0</prop>
                 <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+                <prop key="hibernate.jdbc.time_zone">UTC</prop>
+                <prop key="hibernate.id.new_generator_mappings">true</prop>
             </props>
         </property>
         <property name="mappingResources">

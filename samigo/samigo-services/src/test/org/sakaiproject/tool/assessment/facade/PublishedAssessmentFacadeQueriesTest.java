@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,15 +41,12 @@ public class PublishedAssessmentFacadeQueriesTest {
 	@Test
 	public void getAssessmentMetaDataEntriesByLabelKeepsLastValueWhenAssessmentIdIsDuplicated() {
 		PublishedAssessmentFacadeQueries queries = new PublishedAssessmentFacadeQueries();
-		HibernateTemplate hibernateTemplate = mock(HibernateTemplate.class);
+		SessionFactory sessionFactory = mock(SessionFactory.class);
 		Session session = mock(Session.class);
 		Query<Object[]> query = mock(Query.class);
-		queries.setHibernateTemplate(hibernateTemplate);
+		queries.setSessionFactory(sessionFactory);
 
-		when(hibernateTemplate.execute(any(HibernateCallback.class))).thenAnswer(invocation -> {
-			HibernateCallback<Map<Long, String>> callback = invocation.getArgument(0);
-			return callback.doInHibernate(session);
-		});
+		when(sessionFactory.getCurrentSession()).thenReturn(session);
 		when(session.createQuery(anyString(), eq(Object[].class))).thenReturn(query);
 		when(query.setParameterList(eq("publishedAssessmentIds"), anyCollection())).thenReturn(query);
 		when(query.setParameter(eq("label"), anyString())).thenReturn(query);
@@ -73,11 +71,10 @@ public class PublishedAssessmentFacadeQueriesTest {
 	@Test(expected = DataAccessResourceFailureException.class)
 	public void getAssessmentMetaDataEntriesByLabelPropagatesDataAccessExceptions() {
 		PublishedAssessmentFacadeQueries queries = new PublishedAssessmentFacadeQueries();
-		HibernateTemplate hibernateTemplate = mock(HibernateTemplate.class);
-		queries.setHibernateTemplate(hibernateTemplate);
+		SessionFactory sessionFactory = mock(SessionFactory.class);
+		queries.setSessionFactory(sessionFactory);
 
-		when(hibernateTemplate.execute(any(HibernateCallback.class)))
-			.thenThrow(new DataAccessResourceFailureException("db failure"));
+		when(sessionFactory.getCurrentSession()).thenThrow(new DataAccessResourceFailureException("db failure"));
 
 		queries.getAssessmentMetaDataEntriesByLabel(Arrays.asList(101L), "secureDeliveryModule");
 	}
