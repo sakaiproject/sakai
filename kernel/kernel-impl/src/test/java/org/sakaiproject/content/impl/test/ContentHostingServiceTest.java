@@ -33,12 +33,14 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdInvalidException;
@@ -106,6 +108,53 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		
 	}
 	
+    @Test
+    public void testImportPreservesPublicAndAuthenticatedAccess() throws Exception {
+        ContentHostingService content = getService(ContentHostingService.class);
+        Session session = getService(SessionManager.class).getCurrentSession();
+        session.setUserEid("admin");
+        session.setUserId("admin");
+
+        for (String role : List.of(AuthzGroupService.ANON_ROLE, AuthzGroupService.AUTH_ROLE)) {
+            String source = "/import-access-" + role + "/";
+            String target = "/import-access-copy-" + role + "/";
+            content.commitCollection(content.addCollection(source));
+            content.commitCollection(content.addCollection(target));
+            ContentCollectionEdit folder = content.addCollection(source + "folder/");
+            folder.addRoleAccess(role);
+            content.commitCollection(folder);
+            ContentResourceEdit child = content.addResource(source + "folder/child.txt");
+            child.setContent(new byte[0]);
+            content.commitResource(child);
+            ContentResourceEdit file = content.addResource(source + "file.txt");
+            file.setContent(new byte[0]);
+            file.addRoleAccess(role);
+            content.commitResource(file);
+            ContentResourceEdit restricted = content.addResource(source + "restricted.txt");
+            restricted.setContent(new byte[0]);
+            content.commitResource(restricted);
+
+            ((EntityTransferrer) content).transferCopyEntities(source, target, null, null);
+
+            Assert.assertTrue(content.getCollection(target + "folder/").getRoleAccessIds().contains(role));
+            Assert.assertTrue(content.getResource(target + "folder/child.txt").getInheritedRoleAccessIds().contains(role));
+            Assert.assertTrue(content.getResource(target + "file.txt").getRoleAccessIds().contains(role));
+            Assert.assertTrue(content.getResource(target + "restricted.txt").getRoleAccessIds().isEmpty());
+
+            ContentCollectionEdit root = content.editCollection(source);
+            root.addRoleAccess(role);
+            content.commitCollection(root);
+            ContentResourceEdit inherited = content.addResource(source + "inherited.txt");
+            inherited.setContent(new byte[0]);
+            content.commitResource(inherited);
+            ((EntityTransferrer) content).transferCopyEntities(source, target, List.of(inherited.getId()), null);
+
+            Assert.assertTrue(content.getResource(target + "inherited.txt").getRoleAccessIds().contains(role));
+            Assert.assertTrue(content.getCollection(target).getRoleAccessIds().isEmpty());
+            Assert.assertTrue(content.getResource(target + "restricted.txt").getInheritedRoleAccessIds().isEmpty());
+        }
+    }
+
 	@Test
 	public void testSaveRetriveFolder() {
 		ContentHostingService ch = getService(ContentHostingService.class);
