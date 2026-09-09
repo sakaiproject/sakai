@@ -4575,7 +4575,6 @@ public class SimplePageBean {
 			i.setWidth(width);
 			i.setAlt(alt);
 			i.setDescription(description);
-			i.setHtml(mimetype);
 			i.setPrerequisite(this.prerequisite);
 			setItemGroups(i, selectedGroups);
 			update(i);

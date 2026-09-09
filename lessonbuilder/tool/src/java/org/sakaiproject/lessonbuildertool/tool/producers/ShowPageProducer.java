@@ -4921,8 +4921,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "alt-label", messageLocator.getMessage("simplepage.alt_label"));
 		UIInput.make(form, "alt", "#{simplePageBean.alt}");
 
-		UIInput.make(form, "mimetype", "#{simplePageBean.mimetype}");
-
 		UICommand.make(form, "edit-multimedia-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.editMultimedia}");
 
 		UIInput.make(form, "multimedia-item-id", "#{simplePageBean.itemId}");
