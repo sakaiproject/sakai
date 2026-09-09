@@ -792,21 +792,21 @@ public class LTIServiceImpl implements LTIService {
 	@Override
 	public void deleteTool(Long key, String siteId) throws Exception {
 
-		boolean isAdminRole = isAdmin(siteId);
+		boolean isAdminSiteAndMaintainer = isAdmin(siteId);
 
 		LtiTool tool = toolRepository.findById(key).orElseThrow(() -> new Exception("No tool for id " + key));
 
 		// Non-admins can only delete tools in their own site
-		if (!isAdminRole && !StringUtils.equals(siteId, tool.getSiteId())) {
+		if (!isAdminSiteAndMaintainer && !isMaintain(siteId)) {
 			log.warn("Non admins can only delete tools in sites they maintain. Refusing to delete tool {} from site {}", key, siteId);
 			throw new Exception("Unauthorized");
 		}
 
 		tool.getContents().forEach(content -> {
 
-			// Admin edits all sites with the content item
 			String contentSiteId = siteId;
-			if (isAdminRole) {
+			if (isAdminSiteAndMaintainer) {
+				// Admin edits all sites with the content item
 				contentSiteId = content.getSiteId();
 			}
 
