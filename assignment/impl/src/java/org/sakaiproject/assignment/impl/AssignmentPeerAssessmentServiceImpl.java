@@ -33,7 +33,7 @@ import jakarta.persistence.criteria.Root;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.query.Query;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
@@ -54,8 +54,6 @@ import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Getter;
@@ -66,11 +64,12 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Slf4j
 @Transactional
-public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport implements AssignmentPeerAssessmentService {
+public class AssignmentPeerAssessmentServiceImpl implements AssignmentPeerAssessmentService {
 
     private static final String PEER_ASSESSMENT_RETRY_COUNT_PROP = "peerAssessmentRetryCount";
     private static final String PEER_ASSESSMENT_LAST_ATTEMPT_KEY = "peerAssessmentLastAttempt";
 
+    private SessionFactory sessionFactory;
     private ScheduledInvocationManager scheduledInvocationManager;
     protected AssignmentService assignmentService;
     private SecurityService securityService = null;
@@ -234,8 +233,8 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 
                 // remove items
                 if (!removeItems.isEmpty()) {
-                    getHibernateTemplate().deleteAll(removeItems);
-                    getHibernateTemplate().flush();
+                    removeItems.forEach(sessionFactory.getCurrentSession()::remove);
+                    sessionFactory.getCurrentSession().flush();
                     existingItems.removeAll(removeItems);
                 }
 
@@ -292,7 +291,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 }
                 if (!newItems.isEmpty()) {
                     for (PeerAssessmentItem item : newItems) {
-                        getHibernateTemplate().saveOrUpdate(item);
+                        sessionFactory.getCurrentSession().saveOrUpdate(item);
                     }
                     success = true;
                     clearRetryCounters(assignment);
@@ -375,13 +374,12 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             //return an empty list
             return listPeerAssessmentItem;
         }
-        HibernateCallback<List<PeerAssessmentItem>> hcb = session -> {
-            Query q = session.getNamedQuery("findPeerAssessmentItemsBySubmissions");
-            q.setParameterList("submissionIds", submissionsIds);
-            return q.list();
-        };
-
-        listPeerAssessmentItem = getHibernateTemplate().execute(hcb);
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<PeerAssessmentItem> cq = cb.createQuery(PeerAssessmentItem.class);
+        Root<PeerAssessmentItem> root = cq.from(PeerAssessmentItem.class);
+        cq.select(root).where(root.get("id").get("submissionId").in(submissionsIds))
+            .orderBy(cb.asc(root.get("assignmentId")), cb.asc(root.get("id").get("submissionId")), cb.asc(root.get("id").get("assessorUserId")));
+        listPeerAssessmentItem = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 
         for (PeerAssessmentItem item : listPeerAssessmentItem) {
             item.setScaledFactor(scaledFactor);
@@ -396,14 +394,13 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             //return an empty list
             return listPeerAssessmentItem;
         }
-        HibernateCallback<List<PeerAssessmentItem>> hcb = session -> {
-            Query q = session.getNamedQuery("findPeerAssessmentItemsByUserAndAssignment");
-            q.setParameter("assignmentId", assignmentId);
-            q.setParameter("assessorUserId", assessorUserId);
-            return q.list();
-        };
-
-        listPeerAssessmentItem = getHibernateTemplate().execute(hcb);
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<PeerAssessmentItem> cq = cb.createQuery(PeerAssessmentItem.class);
+        Root<PeerAssessmentItem> root = cq.from(PeerAssessmentItem.class);
+        cq.select(root).where(cb.equal(root.get("id").get("assessorUserId"), assessorUserId),
+            cb.equal(root.get("assignmentId"), assignmentId))
+            .orderBy(cb.asc(root.get("assignmentId")), cb.asc(root.get("id").get("submissionId")), cb.asc(root.get("id").get("assessorUserId")));
+        listPeerAssessmentItem = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 
         for (PeerAssessmentItem item : listPeerAssessmentItem) {
             item.setScaledFactor(scaledFactor);
@@ -418,13 +415,12 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             //return an empty list
             return listPeerAssessmentItem;
         }
-        HibernateCallback<List<PeerAssessmentItem>> hcb = session -> {
-            Query q = session.getNamedQuery("findPeerAssessmentItemsBySubmissionId");
-            q.setParameter("submissionId", submissionId);
-            return q.list();
-        };
-
-        listPeerAssessmentItem = getHibernateTemplate().execute(hcb);
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<PeerAssessmentItem> cq = cb.createQuery(PeerAssessmentItem.class);
+        Root<PeerAssessmentItem> root = cq.from(PeerAssessmentItem.class);
+        cq.select(root).where(cb.equal(root.get("id").get("submissionId"), submissionId))
+            .orderBy(cb.asc(root.get("assignmentId")), cb.asc(root.get("id").get("submissionId")), cb.asc(root.get("id").get("assessorUserId")));
+        listPeerAssessmentItem = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 
         for (PeerAssessmentItem item : listPeerAssessmentItem) {
             item.setScaledFactor(scaledFactor);
@@ -439,13 +435,12 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             //return an empty list
             return listPeerAssessmentItem;
         }
-        HibernateCallback<List<PeerAssessmentItem>> hcb = session -> {
-            Query q = session.getNamedQuery("findPeerAssessmentItemsByAssignmentId");
-            q.setParameter("assignmentId", assignmentId);
-            return q.list();
-        };
-
-        listPeerAssessmentItem = getHibernateTemplate().execute(hcb);
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<PeerAssessmentItem> cq = cb.createQuery(PeerAssessmentItem.class);
+        Root<PeerAssessmentItem> root = cq.from(PeerAssessmentItem.class);
+        cq.select(root).where(cb.equal(root.get("assignmentId"), assignmentId))
+            .orderBy(cb.asc(root.get("assignmentId")), cb.asc(root.get("id").get("submissionId")), cb.asc(root.get("id").get("assessorUserId")));
+        listPeerAssessmentItem = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 
         for (PeerAssessmentItem item : listPeerAssessmentItem) {
             item.setScaledFactor(scaledFactor);
@@ -459,14 +454,13 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             //return an empty list
             return null;
         }
-        HibernateCallback<List<PeerAssessmentItem>> hcb = session -> {
-            Query q = session.getNamedQuery("findPeerAssessmentItemsByUserAndSubmission");
-            q.setParameter("submissionId", submissionId);
-            q.setParameter("assessorUserId", assessorUserId);
-            return q.list();
-        };
-
-        List<PeerAssessmentItem> results = getHibernateTemplate().execute(hcb);
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<PeerAssessmentItem> cq = cb.createQuery(PeerAssessmentItem.class);
+        Root<PeerAssessmentItem> root = cq.from(PeerAssessmentItem.class);
+        cq.select(root).where(cb.equal(root.get("id").get("assessorUserId"), assessorUserId),
+            cb.equal(root.get("id").get("submissionId"), submissionId))
+            .orderBy(cb.asc(root.get("assignmentId")), cb.asc(root.get("id").get("submissionId")), cb.asc(root.get("id").get("assessorUserId")));
+        List<PeerAssessmentItem> results = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
         if (results != null && results.size() == 1) {
             return results.get(0);
         } else {
@@ -479,30 +473,25 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             //return an empty list
             return new ArrayList<>();
         }
-        HibernateCallback<List<PeerAssessmentAttachment>> hcb = session -> {
-            Query q = session.getNamedQuery("findPeerAssessmentAttachmentsByUserAndSubmission");
-            q.setParameter("submissionId", submissionId);
-            q.setParameter("assessorUserId", assessorUserId);
-            return q.list();
-        };
-
-        return getHibernateTemplate().execute(hcb);
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<PeerAssessmentAttachment> cq = cb.createQuery(PeerAssessmentAttachment.class);
+        Root<PeerAssessmentAttachment> root = cq.from(PeerAssessmentAttachment.class);
+        cq.select(root).where(cb.equal(root.get("assessorUserId"), assessorUserId),
+            cb.equal(root.get("submissionId"), submissionId))
+            .orderBy(cb.asc(root.get("resourceId")), cb.asc(root.get("submissionId")), cb.asc(root.get("assessorUserId")));
+        return sessionFactory.getCurrentSession().createQuery(cq).getResultList();
     }
 
     public PeerAssessmentAttachment getPeerAssessmentAttachment(final String submissionId, final String assessorUserId, final String resourceId) {
-    	HibernateCallback<List<PeerAssessmentAttachment>> hcb = session -> {
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<PeerAssessmentAttachment> cq = cb.createQuery(PeerAssessmentAttachment.class);
-            Root<PeerAssessmentAttachment> root = cq.from(PeerAssessmentAttachment.class);
-            cq.where(
-                cb.equal(root.get("submissionId"), submissionId),
-                cb.equal(root.get("assessorUserId"), assessorUserId),
-                cb.equal(root.get("resourceId"), resourceId)
-            );
-            return session.createQuery(cq).list();
-        };
-
-        List<PeerAssessmentAttachment> attachments = getHibernateTemplate().execute(hcb);
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<PeerAssessmentAttachment> cq = cb.createQuery(PeerAssessmentAttachment.class);
+        Root<PeerAssessmentAttachment> root = cq.from(PeerAssessmentAttachment.class);
+        cq.where(
+            cb.equal(root.get("submissionId"), submissionId),
+            cb.equal(root.get("assessorUserId"), assessorUserId),
+            cb.equal(root.get("resourceId"), resourceId)
+        );
+        List<PeerAssessmentAttachment> attachments = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
         if (attachments == null || attachments.isEmpty()) {
             return null;
         } else {
@@ -512,8 +501,8 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 
     public void savePeerAssessmentItem(PeerAssessmentItem item, String siteId, String event) {
         if (item != null && item.getId().getAssessorUserId() != null && item.getId().getSubmissionId() != null) {
-            getHibernateTemplate().saveOrUpdate(item);
-            getHibernateTemplate().flush();
+            sessionFactory.getCurrentSession().saveOrUpdate(item);
+            sessionFactory.getCurrentSession().flush();
             String reference = AssignmentReferenceReckoner.reckoner().peerAssessmentItem(item).context(siteId).reckon().getReference();
             eventTrackingService.post(eventTrackingService.newEvent(event, reference, true));
         }
@@ -522,15 +511,15 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
     public void savePeerAssessmentAttachments(PeerAssessmentItem item) {
         if (item != null && item.getAttachmentList() != null) {
             for (PeerAssessmentAttachment element : item.getAttachmentList()) {
-                getHibernateTemplate().saveOrUpdate(element);
+                sessionFactory.getCurrentSession().saveOrUpdate(element);
             }
-            getHibernateTemplate().flush();
+            sessionFactory.getCurrentSession().flush();
         }
     }
 
     public void removePeerAttachment(PeerAssessmentAttachment peerAssessmentAttachment) {
-        getHibernateTemplate().delete(getHibernateTemplate().merge(peerAssessmentAttachment));
-        getHibernateTemplate().flush();
+        sessionFactory.getCurrentSession().remove(sessionFactory.getCurrentSession().merge(peerAssessmentAttachment));
+        sessionFactory.getCurrentSession().flush();
     }
 
     public boolean updateScore(String submissionId, String assessorId) {
