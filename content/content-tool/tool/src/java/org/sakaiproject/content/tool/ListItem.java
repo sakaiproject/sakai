@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.tool;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -1737,9 +1738,17 @@ public class ListItem
 			if(this.hasQuota)
 			{
 				String quota = params.getString("quota" + index);
-				if(quota != null && quota.trim().matches("^\\d+$"))
+				if(quota != null && quota.trim().matches("^\\d+(\\.\\d+)?$"))
 				{
-					this.quota = quota.trim();
+					try
+					{
+						// The form uses MB; the content service stores whole KB.
+						this.quota = Long.toString(new BigDecimal(quota.trim()).multiply(BigDecimal.valueOf(1024)).longValueExact());
+					}
+					catch (ArithmeticException e)
+					{
+						log.debug("Quota must fit in a long and represent a whole number of KB");
+					}
 				}
 			}
 			else
@@ -3642,6 +3651,11 @@ public class ListItem
 	public boolean hasQuota() 
 	{
 		return hasQuota;
+	}
+
+	public String getQuotaInMegabytes()
+	{
+		return quota == null ? null : new BigDecimal(quota).divide(BigDecimal.valueOf(1024)).stripTrailingZeros().toPlainString();
 	}
 
 	public String getQuota() 
