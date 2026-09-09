@@ -91,7 +91,7 @@ describe("sakai-rubric-grading tests", () => {
     fetchMock.get(data.rubric1Url, data.rubric1)
       .get(data.associationUrl, data.association)
       .get(data.evaluationUrl, data.evaluation)
-      .post(saveUrl, ({ options }) => JSON.parse(options.body));
+      .post(saveUrl, (url, opts) => JSON.parse(opts.body));
 
     const el = await fixture(html`
       <sakai-rubric-grading
@@ -109,7 +109,7 @@ describe("sakai-rubric-grading tests", () => {
     el.querySelector("#rating-item-1").click();
     await saved;
 
-    let request = JSON.parse(fetchMock.callHistory.lastCall(saveUrl).options.body);
+    let request = JSON.parse(fetchMock.lastCall(saveUrl)[1].body);
     expect(request.criterionOutcomes.every(outcome => !outcome.pointsAdjusted)).to.be.true;
 
     const fineTuneInput = el.querySelector(".fine-tune-points");
@@ -118,7 +118,7 @@ describe("sakai-rubric-grading tests", () => {
     fineTuneInput.dispatchEvent(new Event("input"));
     await saved;
 
-    request = JSON.parse(fetchMock.callHistory.lastCall(saveUrl).options.body);
+    request = JSON.parse(fetchMock.lastCall(saveUrl)[1].body);
     expect(request.criterionOutcomes[0].points).to.equal(0);
     expect(request.criterionOutcomes[0].pointsAdjusted).to.be.true;
 
@@ -127,7 +127,7 @@ describe("sakai-rubric-grading tests", () => {
     fineTuneInput.dispatchEvent(new Event("input"));
     await saved;
 
-    request = JSON.parse(fetchMock.callHistory.lastCall(saveUrl).options.body);
+    request = JSON.parse(fetchMock.lastCall(saveUrl)[1].body);
     expect(request.criterionOutcomes[0].points).to.equal(1);
     expect(request.criterionOutcomes[0].pointsAdjusted).to.be.false;
 
@@ -136,7 +136,7 @@ describe("sakai-rubric-grading tests", () => {
     fineTuneInput.dispatchEvent(new Event("input"));
     await saved;
 
-    request = JSON.parse(fetchMock.callHistory.lastCall(saveUrl).options.body);
+    request = JSON.parse(fetchMock.lastCall(saveUrl)[1].body);
     expect(request.criterionOutcomes[0].points).to.equal(1.8);
     expect(request.criterionOutcomes[0].pointsAdjusted).to.be.true;
   });
