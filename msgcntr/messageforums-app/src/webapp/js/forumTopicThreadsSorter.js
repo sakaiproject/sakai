@@ -93,11 +93,11 @@
 		return result;
 	}
 
-	function sortTable(table, columnIndex, ascending, locale) {
+	function sortTable(table, originalRows, columnIndex, ascending, locale) {
 		const tbody = table.tBodies[0];
 		if (!tbody) return;
 
-		const rows = Array.from(tbody.rows);
+		const rows = originalRows.slice();
 		const sortMode = table.tHead.rows[0].cells[columnIndex]?.querySelector("[data-sakai-forum-sort]")?.dataset.sakaiForumSort;
 		const sortFlat = sortMode === "author";
 		const sortByThread = sortMode === "thread";
@@ -151,6 +151,8 @@
 	function init(table, userLocale) {
 		if (!table?.tHead?.rows.length) return;
 
+		// Keep the rendered hierarchy: author and date sorts can separate replies from their parents.
+		const originalRows = Array.from(table.tBodies[0]?.rows || []);
 		const headers = Array.from(table.tHead.rows[0].cells);
 		const locale = userLocale.replaceAll("_", "-");
 		let expanded = true;
@@ -194,7 +196,7 @@
 				const ascending = header.dataset.sortDirection !== "asc";
 				header.dataset.sortDirection = ascending ? "asc" : "desc";
 				setSortClasses(header, ascending);
-				sortTable(table, columnIndex, ascending, locale);
+				sortTable(table, originalRows, columnIndex, ascending, locale);
 			});
 		});
 	}
