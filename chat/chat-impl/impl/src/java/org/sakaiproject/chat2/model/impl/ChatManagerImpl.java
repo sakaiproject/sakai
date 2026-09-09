@@ -26,6 +26,7 @@ import com.google.common.cache.CacheBuilder;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
@@ -58,8 +59,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
-import org.hibernate.query.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 import org.jgroups.Address;
 import org.jgroups.JChannel;
@@ -98,7 +99,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -110,7 +110,9 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 @Slf4j
 @Transactional
-public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager, Receiver {
+public class ChatManagerImpl implements ChatManager, Receiver {
+
+    @Setter private SessionFactory sessionFactory;
 
     @Getter private int messagesMax = 100;
 
@@ -158,14 +160,6 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             return -1 * (o1.getMessageDate().compareTo(o2.getMessageDate()));
         }
     };     
-
-    // part of HibernateDaoSupport; this is the only context in which it is OK                                             
-    // to modify the template configuration                                                                                
-    protected void initDao() throws Exception {
-        super.initDao();
-        getHibernateTemplate().setCacheQueries(true);
-        log.info("initDao template " + getHibernateTemplate());
-    }
 
     /**
      * Called on after the startup of the singleton.  This sets the global
@@ -299,7 +293,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         if (checkAuthz)
             checkPermission(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext());
 
-        getHibernateTemplate().saveOrUpdate(channel);
+        sessionFactory.getCurrentSession().saveOrUpdate(channel);
     }
 
 
@@ -312,7 +306,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             return;
 
         checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
-        getHibernateTemplate().delete(getHibernateTemplate().merge(channel));
+        sessionFactory.getCurrentSession().remove(sessionFactory.getCurrentSession().merge(channel));
 
         sendDeleteChannel(channel);
     }
@@ -322,7 +316,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      * {@inheritDoc}
      */
     public ChatChannel getChatChannel(String chatChannelId) {
-        return (ChatChannel)getHibernateTemplate().get(
+        return (ChatChannel)sessionFactory.getCurrentSession().get(
                 ChatChannel.class, chatChannelId);
     }
 
@@ -401,7 +395,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             localMax = messagesMax;
         }
 
-        Session session = this.getSessionFactory().getCurrentSession();
+        Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<ChatMessage> c = cb.createQuery(ChatMessage.class);
         Root<ChatMessage> root = c.from(ChatMessage.class);
@@ -459,7 +453,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         }
         int count = 0;
         if (channel != null) {
-            Session session = this.getSessionFactory().getCurrentSession();
+            Session session = sessionFactory.getCurrentSession();
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<Long> cq = cb.createQuery(Long.class);
             Root<ChatMessage> root = cq.from(ChatMessage.class);
@@ -506,7 +500,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     public void updateMessage(ChatMessage message)
     {
-        getHibernateTemplate().saveOrUpdate(message);
+        sessionFactory.getCurrentSession().saveOrUpdate(message);
     }
 
     /**
@@ -554,7 +548,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                 message.setMigratedMessageId(migratedId);
 
 
-                getHibernateTemplate().save(message);
+                sessionFactory.getCurrentSession().save(message);
 
             }
 
@@ -679,7 +673,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         if(!getCanDelete(message))
             checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, message.getChatChannel().getContext());
 
-        getHibernateTemplate().delete(getHibernateTemplate().merge(message));
+        sessionFactory.getCurrentSession().remove(sessionFactory.getCurrentSession().merge(message));
 
         sendDeleteMessage(message);
     }
@@ -709,7 +703,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      * {@inheritDoc}
      */
     public ChatMessage getMessage(String chatMessageId) {
-        return (ChatMessage)getHibernateTemplate().get(
+        return (ChatMessage)sessionFactory.getCurrentSession().get(
                 ChatMessage.class, chatMessageId);
     }
 
@@ -718,7 +712,11 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     protected ChatMessage getMigratedMessage(String migratedMessageId) {
-        List<ChatMessage> messages = (List<ChatMessage>) getHibernateTemplate().findByNamedQueryAndNamedParam("findMigratedMessage", "messageId", migratedMessageId);
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<ChatMessage> cq = cb.createQuery(ChatMessage.class);
+        Root<ChatMessage> root = cq.from(ChatMessage.class);
+        cq.select(root).where(cb.equal(root.get("migratedMessageId"), migratedMessageId));
+        List<ChatMessage> messages = sessionFactory.getCurrentSession().createQuery(cq).setCacheable(true).getResultList();
         ChatMessage message = null;
         if (messages.size() > 0)
             message = messages.get(0);
@@ -730,7 +728,11 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     public List<ChatChannel> getContextChannels(String context, boolean lazy) {
-        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQueryAndNamedParam("findChannelsInContext", "context", context);
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<ChatChannel> cq = cb.createQuery(ChatChannel.class);
+        Root<ChatChannel> root = cq.from(ChatChannel.class);
+        cq.select(root).where(cb.equal(root.get("context"), context)).orderBy(cb.asc(root.get("title")));
+        List<ChatChannel> channels = sessionFactory.getCurrentSession().createQuery(cq).setCacheable(true).getResultList();
         if (!lazy) {
             for (Iterator<ChatChannel> i = channels.iterator(); i.hasNext();) {
                 ChatChannel channel = i.next();
@@ -745,12 +747,16 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     public List<ChatChannel> getContextChannels(String context, String defaultNewTitle, String placement) {
-        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQueryAndNamedParam("findChannelsInContext", "context", context);
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<ChatChannel> cq = cb.createQuery(ChatChannel.class);
+        Root<ChatChannel> root = cq.from(ChatChannel.class);
+        cq.select(root).where(cb.equal(root.get("context"), context)).orderBy(cb.asc(root.get("title")));
+        List<ChatChannel> channels = sessionFactory.getCurrentSession().createQuery(cq).setCacheable(true).getResultList();
 
         if(channels.size() == 0) {
             try {
                 ChatChannel channel = createNewChannel(context, defaultNewTitle, true, false, placement);
-                getHibernateTemplate().save(channel);
+                sessionFactory.getCurrentSession().save(channel);
                 channels.add(channel);
             }
             catch (PermissionException e) {
@@ -767,7 +773,13 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     public ChatChannel getDefaultChannel(String contextId, String placement) {
-        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQueryAndNamedParam("findDefaultChannelsInContext", new String[] {"context", "placement"}, new Object[] {contextId, placement});
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<ChatChannel> cq = cb.createQuery(ChatChannel.class);
+        Root<ChatChannel> root = cq.from(ChatChannel.class);
+        cq.select(root).where(cb.equal(root.get("context"), contextId),
+            cb.equal(root.get("placement"), placement), cb.isTrue(root.get("placementDefaultChannel")))
+            .orderBy(cb.asc(root.get("title")));
+        List<ChatChannel> channels = sessionFactory.getCurrentSession().createQuery(cq).setCacheable(true).getResultList();
         if (channels.size() == 0) {
             channels = getContextChannels(contextId, "", placement);
         }
@@ -783,7 +795,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     public void sendMessage(ChatMessage message) {
         ChatMessageTxSync txSync = new ChatMessageTxSync(message);
 
-        getHibernateTemplate().flush();
+        sessionFactory.getCurrentSession().flush();
         txSync.afterCompletion(ChatMessageTxSync.STATUS_COMMITTED);
 
         sendToCluster(new TransferableChatMessage(message));
@@ -944,15 +956,14 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      *
      */
     protected void resetPlacementDefaultChannel(String context, String placement) {
-        Session session = null;
-
         try {
-            session = getSessionFactory().getCurrentSession();
-            session.createMutationQuery("update CHAT2_CHANNEL c set c.placementDefaultChannel = :channel, c.PLACEMENT_ID = NULL WHERE c.context = :context and c.PLACEMENT_ID = :placement")
-                .setParameter("channel", false)
-                .setParameter("context", context)
-                .setParameter("placement", placement)
-                .executeUpdate();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaUpdate<ChatChannel> update = cb.createCriteriaUpdate(ChatChannel.class);
+            Root<ChatChannel> root = update.from(ChatChannel.class);
+            update.set("placementDefaultChannel", false).set("placement", (String) null)
+                .where(cb.equal(root.get("context"), context), cb.equal(root.get("placement"), placement));
+            session.createMutationQuery(update).executeUpdate();
         } catch(Exception e) {
             log.warn(e.getMessage());
         }
