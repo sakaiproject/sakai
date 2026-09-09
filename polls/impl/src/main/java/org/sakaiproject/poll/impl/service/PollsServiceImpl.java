@@ -1485,6 +1485,16 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     @Transactional(readOnly = true)
+    public int getNumberUsersCanVote(Poll poll) {
+        Objects.requireNonNull(poll, "poll cannot be null");
+        List<String> siteRefs = List.of(siteService.siteReference(poll.getSiteId()));
+        return (int) authzGroupService.getUsersIsAllowed(PERMISSION_VOTE, siteRefs).stream()
+                .filter(userId -> userCanViewPoll(poll, userId))
+                .count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public boolean userCanViewPoll(Poll poll, String userId) {
 
         if (poll == null) {
