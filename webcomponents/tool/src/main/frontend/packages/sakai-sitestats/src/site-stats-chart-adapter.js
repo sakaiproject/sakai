@@ -57,21 +57,22 @@ export function siteStatsChartData(chart, theme = SITE_STATS_CHART_FALLBACK_THEM
   };
 }
 
-export function siteStatsChartOptions(chart, theme = SITE_STATS_CHART_FALLBACK_THEME, showItemLabels = true) {
+export function siteStatsChartOptions(chart, theme = SITE_STATS_CHART_FALLBACK_THEME, showItemLabels = true, compact = false) {
 
   const chartType = siteStatsChartType(chart);
+  const compactChart = compact || chart?.compact === true;
 
   return {
     responsive: true,
     maintainAspectRatio: false,
     layout: {
       padding: {
-        top: showItemLabels && chartType !== "pie" ? 18 : 0,
+        top: showItemLabels && !compactChart && chartType !== "pie" ? 18 : 0,
       },
     },
     plugins: {
       legend: {
-        display: chart.datasets.length > 1 || chartType === "pie",
+        display: !compactChart && (chart.datasets.length > 1 || chartType === "pie"),
         labels: {
           color: theme.textColor,
         },
@@ -84,7 +85,7 @@ export function siteStatsChartOptions(chart, theme = SITE_STATS_CHART_FALLBACK_T
     elements: {
       bar: {
         borderSkipped: false,
-        borderRadius: useDepthEffect(chart) ? 2 : 0,
+        borderRadius: compactChart ? 1 : (useDepthEffect(chart) ? 2 : 0),
       },
       line: {
         borderColor: theme.borderColor,
@@ -95,21 +96,33 @@ export function siteStatsChartOptions(chart, theme = SITE_STATS_CHART_FALLBACK_T
     },
     scales: chartType === "pie" ? {} : {
       x: {
+        border: {
+          color: theme.borderColor,
+        },
         grid: {
+          display: !compactChart,
           color: theme.gridColor,
         },
         ticks: {
+          display: !compactChart,
           autoSkip: true,
+          maxTicksLimit: compactChart ? 8 : undefined,
           color: theme.mutedTextColor,
           maxRotation: 0,
+          font: compactChart ? { size: 10 } : undefined,
         },
       },
       y: {
         beginAtZero: true,
+        border: {
+          color: theme.borderColor,
+        },
         grid: {
+          display: !compactChart,
           color: theme.gridColor,
         },
         ticks: {
+          display: !compactChart,
           color: theme.mutedTextColor,
         },
       },

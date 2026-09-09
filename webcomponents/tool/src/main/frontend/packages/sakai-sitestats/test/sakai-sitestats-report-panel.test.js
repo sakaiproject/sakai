@@ -7,7 +7,6 @@ describe("sakai-sitestats-report-panel tests", () => {
 
   const endpoint = "/api/sites/site1/sitestats/widgets/visits/tabs/bydate?include=table,chart";
   const chartOnlyEndpoint = "/api/sites/site1/sitestats/widgets/visits/tabs/bydate?include=chart";
-  const tableOnlyEndpoint = "/api/sites/site1/sitestats/widgets/visits/tabs/bydate?include=table";
 
   beforeEach(() => {
     window.sessionStorage.clear();
@@ -80,7 +79,6 @@ describe("sakai-sitestats-report-panel tests", () => {
     await waitUntil(() => chartEl._i18n);
     await elementUpdated(chartEl);
     expect(chartEl.renderTableFallback).to.be.false;
-    expect(tableEl.hideCaption).to.be.true;
     expect(chartEl.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden")).to.not.exist;
   });
 
@@ -126,52 +124,6 @@ describe("sakai-sitestats-report-panel tests", () => {
 
     expect(el.shadowRoot.querySelector("sakai-sitestats-table")).to.not.exist;
     expect(chartEl.renderTableFallback).to.be.true;
-  });
-
-  it("keeps table captions visible in table-only mode", async () => {
-
-    fetchMock.get(tableOnlyEndpoint, {
-      siteId: "site1",
-      presentationMode: "how-presentation-table",
-      table: {
-        caption: "Visits",
-        columns: [
-          { key: "date", label: "Date", type: "date" },
-          { key: "visits", label: "Visits", type: "number", align: "end" },
-        ],
-        rows: [
-          {
-            cells: {
-              date: { raw: "2026-06-17", display: "6/17/26" },
-              visits: { raw: 3, display: "3" },
-            },
-          },
-        ],
-      },
-      chart: {
-        title: "Visits",
-        type: "bar",
-        xKey: "date",
-        yKey: "visits",
-        datasets: [
-          {
-            key: "visits",
-            label: "Visits",
-            points: [{ x: "2026-06-17", label: "6/17/26", y: 3 }],
-          },
-        ],
-      },
-    });
-
-    const el = await fixture(html`<sakai-sitestats-report-panel endpoint="${tableOnlyEndpoint}"></sakai-sitestats-report-panel>`);
-    await waitUntil(() => el.shadowRoot.querySelector("sakai-sitestats-table"));
-    const tableEl = el.shadowRoot.querySelector("sakai-sitestats-table");
-    await waitUntil(() => tableEl.shadowRoot?.querySelector("caption"));
-
-    const caption = tableEl.shadowRoot.querySelector("caption");
-    expect(el.shadowRoot.querySelector("sakai-sitestats-chart")).to.not.exist;
-    expect(tableEl.hideCaption).to.be.false;
-    expect(caption.classList.contains("visually-hidden")).to.be.false;
   });
 
   it("renders an alert when the endpoint fails", async () => {

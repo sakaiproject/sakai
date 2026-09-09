@@ -75,4 +75,79 @@ class LessonsTest extends SakaiUiTestBase {
         page.locator("#save").click(new Locator.ClickOptions().setForce(true));
         assertThat(page.locator("#content")).isVisible();
     }
+
+    @Test
+    @Order(3)
+    void canPromoteOnlySubpagesToSiteNavigation() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Lessons");
+
+        addSubpage("Promote Me");
+
+        sakai.toolClick("Lessons");
+        openAddMorePages();
+        chooseExistingPageForSiteNavigation();
+
+        Locator lessonsRadio = page.locator("input[type=radio][title^=\"Lessons \"]").first();
+        assertThat(lessonsRadio).isDisabled();
+        lessonsRadio.evaluate("element => element.removeAttribute('disabled')");
+        lessonsRadio.check();
+        useSelectedItem();
+        assertThat(page.locator("body")).containsText("The page could not be added to site navigation.");
+        Locator currentSiteNavigation = page.locator("li.site-list-item.is-current-site .site-page-list a.btn-nav");
+        assertThat(currentSiteNavigation.filter(new Locator.FilterOptions()
+            .setHasText(Pattern.compile("^\\s*Lessons\\s*$", Pattern.CASE_INSENSITIVE)))).hasCount(1);
+
+        openAddMorePages();
+        chooseExistingPageForSiteNavigation();
+        Locator subpageRadio = page.locator("input[type=radio][title^=\"Promote Me \"]").first();
+        assertThat(subpageRadio).isEnabled();
+        subpageRadio.check();
+        useSelectedItem();
+
+        sakai.toolClick("Promote Me");
+        assertThat(page.locator(".neoPortletTitleWrap")).containsText("Promote Me");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
+        Locator moreToolsDialog = page.locator("#moreDiv");
+        assertThat(moreToolsDialog).isVisible();
+        assertThat(moreToolsDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add More Pages").setExact(true))).isVisible();
+    }
+
+    private void addSubpage(String title) {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+
+        Locator addContentDialog = page.locator("#addContentDiv");
+        assertThat(addContentDialog).isVisible();
+        addContentDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add Subpage").setExact(true)).click();
+
+        Locator subpageDialog = page.locator("#subpage-dialog");
+        assertThat(subpageDialog).isVisible();
+        subpageDialog.locator("#subpage-title").fill(title);
+        subpageDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Create").setExact(true)).click();
+
+        assertThat(page.locator("#subpage-breadcrumb-div")).containsText(title);
+    }
+
+    private void openAddMorePages() {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
+        Locator moreToolsDialog = page.locator("#moreDiv");
+        assertThat(moreToolsDialog).isVisible();
+        moreToolsDialog.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Add More Pages").setExact(true)).click();
+        assertThat(page.locator("#new-page-dialog")).isVisible();
+    }
+
+    private void chooseExistingPageForSiteNavigation() {
+        page.locator("#new-page-dialog").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+            .setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
+    }
+
+    private void useSelectedItem() {
+        page.locator(".PagePicker").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+            .setName(Pattern.compile("Use selected item", Pattern.CASE_INSENSITIVE))).click();
+    }
 }

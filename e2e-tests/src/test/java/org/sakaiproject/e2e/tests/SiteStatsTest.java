@@ -74,6 +74,34 @@ class SiteStatsTest extends SakaiUiTestBase {
         Locator table = reportPanel.locator("sakai-sitestats-table table");
         assertThat(table).isVisible();
         assertThat(reportPanel.locator("sakai-sitestats-chart")).hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/visits/tabs/byrole']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/member-adoption/tabs/']"))
+            .hasCount(0);
+        Locator visitsWidget = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(widgetTab));
+        assertTrue(visitsWidget.locator("sakai-sitestats-highlights").count() <= 1);
+        assertNoLegacyReportChartImages();
+    }
+
+    @Test
+    @Order(9)
+    void presenceAccessWidgetRendersThroughJsonPanel() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        Locator presenceTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/presence-access/tabs/bydate']");
+        assertThat(presenceTab).hasCount(1);
+        presenceTab.locator("summary").click();
+
+        Locator reportPanel = presenceTab.locator("sakai-sitestats-report-panel");
+        assertThat(reportPanel).isVisible();
+        Locator lastVisitMetric = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(presenceTab))
+            .locator(".sitestats-metric").first();
+        assertThat(lastVisitMetric).isVisible();
         assertNoLegacyReportChartImages();
     }
 
@@ -101,19 +129,14 @@ class SiteStatsTest extends SakaiUiTestBase {
     @Test
     @Order(4)
     void createsReportViaReportsFlow() {
-        sakai.login("instructor1");
-        page.navigate(sakaiUrl);
-        sakai.toolClick("Statistics");
-
-        page.locator(".navIntraTool a, .navIntraTool button, a, button")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reports$", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        openReportsAsInstructor();
 
         Locator addReportLink = page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE))).first();
-        addReportLink.click(new Locator.ClickOptions().setForce(true));
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Add$", Pattern.CASE_INSENSITIVE)));
+        addReportLink.click();
 
         Locator activity = page.getByLabel("Activity:");
+        assertThat(activity).isVisible();
         assertThat(activity.locator("option[value='what-resources']")).hasCount(0);
         assertThat(page.locator("#event-options")).isHidden();
         activity.selectOption("what-events");
@@ -164,12 +187,14 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.getByLabel(Pattern.compile("Presentation", Pattern.CASE_INSENSITIVE)).selectOption("how-presentation-both");
 
         page.locator("button:has-text(\"Generate report\"), input[type=\"submit\"][value*=\"Generate report\"]").first().click(new Locator.ClickOptions().setForce(true));
-        assertThat(page.getByText(REPORT_TITLE).first()).isVisible();
+        assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName(REPORT_TITLE))).isVisible();
         Locator reportPanel = page.locator("sakai-sitestats-report-panel").first();
         assertThat(reportPanel).isVisible();
         assertThat(reportPanel).hasAttribute("endpoint", Pattern.compile("/api/sites/.*/sitestats/"));
         assertReportSummaryRendered();
         assertReportTableRenderedWithData();
+        assertThat(page.locator("main > div.d-flex.noprint a.btn-link")).hasCount(4);
         assertThat(page.locator("sakai-sitestats-report-panel sakai-sitestats-chart canvas").first()).isVisible();
         page.waitForFunction(siteStatsCanvasHasPixelsScript());
         assertTrue(Boolean.TRUE.equals(page.evaluate(siteStatsCanvasHasPixelsScript())));
@@ -188,7 +213,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Save report$", Pattern.CASE_INSENSITIVE))).click();
 
-        assertThat(page.getByRole(AriaRole.STATUS)).containsText(
+        assertThat(page.locator(".sak-banner-success")).containsText(
             "Report '" + SAVED_REPORT_TITLE + "' saved successfully");
         assertThat(page.getByRole(AriaRole.HEADING,
             new Page.GetByRoleOptions().setName(SAVED_REPORT_TITLE))).isVisible();
@@ -261,7 +286,8 @@ class SiteStatsTest extends SakaiUiTestBase {
         APIResponse permissionsResponse = page.request().post("/api/sites/" + siteId + "/permissions",
             RequestOptions.create().setForm(FormData.create()
                 .set("ref", "/site/" + siteId)
-                .set("Student:sitestats.view", "true")));
+                .set("Student:sitestats.view", "true")
+                .set("Student:sitestats.own", "true")));
         assertTrue(permissionsResponse.ok(),
             "Unable to grant student access to Statistics: HTTP " + permissionsResponse.status());
 
@@ -273,6 +299,12 @@ class SiteStatsTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(Pattern.compile("^Overview$", Pattern.CASE_INSENSITIVE)))).isVisible();
         assertThat(page.getByRole(AriaRole.NAVIGATION,
             new Page.GetByRoleOptions().setName("SiteStats"))).hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-presence-access/']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/presence-access/tabs/']"))
+            .hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/member-adoption/']"))
+            .hasCount(0);
     }
 
     @Test

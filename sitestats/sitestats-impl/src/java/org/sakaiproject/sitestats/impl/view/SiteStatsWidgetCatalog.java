@@ -16,8 +16,10 @@ import java.util.Map;
 
 import lombok.Setter;
 
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetricSnapshot;
@@ -93,6 +95,15 @@ public class SiteStatsWidgetCatalog {
 		return spec.getReportFactory().build(siteId, SiteStatsReportRequest.normalized(request), userId);
 	}
 
+	public SiteStatsReportView getWidgetReportView(String siteId, String widgetId, String tabId,
+			SiteStatsReportRequest request, String userId) {
+		WidgetTabSpec spec = tabSpecs.get(key(widgetId, tabId));
+		if (spec == null || spec.getViewFactory() == null || !widgetAvailable(widgetId)) {
+			return null;
+		}
+		return spec.getViewFactory().build(siteId, SiteStatsReportRequest.normalized(request), userId);
+	}
+
 	public void init() {
 		buildRegistry();
 	}
@@ -153,6 +164,7 @@ public class SiteStatsWidgetCatalog {
 		}
 		widget.setTabs(tabs);
 		widget.setMetrics(toMetrics(siteId, spec, userId, true));
+		widget.setHighlights(toHighlights(siteId, spec, userId));
 		return widget;
 	}
 
@@ -176,6 +188,23 @@ public class SiteStatsWidgetCatalog {
 			}
 		}
 		return metrics;
+	}
+
+	private List<SiteStatsChart> toHighlights(String siteId, WidgetSpec spec, String userId) {
+		List<SiteStatsChart> charts = new ArrayList<SiteStatsChart>();
+		if (spec.getHighlights() == null) {
+			return charts;
+		}
+		for (WidgetHighlightSpec highlight : spec.getHighlights()) {
+			if (!highlight.isAvailable() || highlight.getFactory() == null) {
+				continue;
+			}
+			SiteStatsChart chart = highlight.getFactory().build(siteId, userId);
+			if (chart != null) {
+				charts.add(chart);
+			}
+		}
+		return charts;
 	}
 
 	private SiteStatsWidgetMetric toMetric(String siteId, WidgetSpec spec, WidgetMetricSpec metric, String userId, boolean includeValues) {

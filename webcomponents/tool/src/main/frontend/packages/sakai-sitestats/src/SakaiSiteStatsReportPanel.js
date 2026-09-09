@@ -2,7 +2,6 @@ import { html, css, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import "../sakai-sitestats-chart.js";
 import "../sakai-sitestats-table.js";
-import { hasSiteStatsChartData } from "./site-stats-chart-adapter.js";
 
 export class SakaiSiteStatsReportPanel extends SakaiShadowElement {
 
@@ -104,9 +103,6 @@ export class SakaiSiteStatsReportPanel extends SakaiShadowElement {
     const presentationMode = this._report.presentationMode || "how-presentation-both";
     const showChart = this._report.chart && presentationMode !== "how-presentation-table";
     const showTable = this._report.table && presentationMode !== "how-presentation-chart";
-    const hideTableCaption = showChart && showTable
-      && hasSiteStatsChartData(this._report.chart)
-      && this._sameText(this._report.chart.title, this._report.table.caption);
 
     return html`
       <div class="panel">
@@ -118,10 +114,7 @@ export class SakaiSiteStatsReportPanel extends SakaiShadowElement {
           </sakai-sitestats-chart>
         ` : nothing}
         ${showTable ? html`
-          <sakai-sitestats-table
-              .hideCaption=${hideTableCaption}
-              .table=${this._report.table}>
-          </sakai-sitestats-table>
+          <sakai-sitestats-table .table=${this._report.table}></sakai-sitestats-table>
         ` : nothing}
       </div>
     `;
@@ -143,11 +136,6 @@ export class SakaiSiteStatsReportPanel extends SakaiShadowElement {
         `)}
       </dl>
     `;
-  }
-
-  _sameText(first, second) {
-
-    return Boolean(first && second && String(first).trim() === String(second).trim());
   }
 
   async _load() {

@@ -16,7 +16,7 @@ describe("sakai-sitestats-table tests", () => {
     fetchMock.hardReset();
   });
 
-  it("renders table captions visibly by default", async () => {
+  it("keeps table captions available to assistive technology without rendering them visibly", async () => {
 
     const table = {
       caption: "Visits",
@@ -25,27 +25,6 @@ describe("sakai-sitestats-table tests", () => {
     };
 
     const el = await fixture(html`<sakai-sitestats-table .table=${table}></sakai-sitestats-table>`);
-    await waitUntil(() => el.shadowRoot.querySelector("caption"));
-
-    const caption = el.shadowRoot.querySelector("caption");
-    expect(caption.textContent).to.equal("Visits");
-    expect(caption.classList.contains("visually-hidden")).to.be.false;
-  });
-
-  it("can keep captions available to assistive technology without rendering them visibly", async () => {
-
-    const table = {
-      caption: "Visits",
-      columns: [{ key: "date", label: "Date", type: "date" }],
-      rows: [{ cells: { date: { raw: "2026-06-17", display: "6/17/26" } } }],
-    };
-
-    const el = await fixture(html`
-      <sakai-sitestats-table
-          .hideCaption=${true}
-          .table=${table}>
-      </sakai-sitestats-table>
-    `);
     await waitUntil(() => el.shadowRoot.querySelector("caption"));
 
     const caption = el.shadowRoot.querySelector("caption");

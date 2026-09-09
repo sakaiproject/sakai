@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -38,6 +39,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -72,6 +79,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.transaction.TestTransaction;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +94,7 @@ import java.time.ZoneId;
 public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired private DB db;
+	@Autowired private PlatformTransactionManager transactionManager;
 	@Autowired private MemoryService memoryService;
 	@Autowired private ReportManager reportManager;
 	@Autowired private ResourceLoader resourceLoader;
@@ -1567,6 +1578,93 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
 		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
 		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testPresenceDrainWaitsForConcurrentAppend() throws Exception {
+		TestTransaction.flagForCommit();
+		TestTransaction.end();
+		TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+		CountDownLatch collecting = new CountDownLatch(1);
+		CountDownLatch releaseCollection = new CountDownLatch(1);
+		CountDownLatch flushing = new CountDownLatch(1);
+		ExecutorService executor = Executors.newFixedThreadPool(2);
+		Instant start = Instant.parse("2026-08-20T12:00:00Z");
+		String reference = "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX;
+		// Pause the incoming event's date conversion while collection owns the presence lock.
+		Date returnDate = new Date(start.plusSeconds(900).toEpochMilli()) {
+			@Override
+			public Instant toInstant() {
+				collecting.countDown();
+				try {
+					if (!releaseCollection.await(10, TimeUnit.SECONDS)) {
+						throw new AssertionError("Timed out waiting to append the returning visit");
+					}
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					throw new AssertionError(e);
+				}
+				return super.toInstant();
+			}
+		};
+		Event begin = statsUpdateManager.buildEvent(Date.from(start), StatsManager.SITEVISIT_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		Event end = statsUpdateManager.buildEvent(Date.from(start.plusSeconds(600)), StatsManager.SITEVISITEND_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		Event returnToSite = statsUpdateManager.buildEvent(returnDate, StatsManager.SITEVISIT_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		try {
+			Future<Boolean> collector = executor.submit(() -> transaction.execute(status ->
+					statsUpdateManager.collectEvents(List.of(begin, end, returnToSite))));
+			assertTrue(collecting.await(10, TimeUnit.SECONDS));
+			Future<Boolean> flush = executor.submit(() -> transaction.execute(status -> {
+				flushing.countDown();
+				return statsUpdateManager.collectEvents(new Event[] {null});
+			}));
+			assertTrue(flushing.await(10, TimeUnit.SECONDS));
+			assertThrows(TimeoutException.class, () -> flush.get(1, TimeUnit.SECONDS));
+			releaseCollection.countDown();
+			assertTrue(flush.get(10, TimeUnit.SECONDS));
+			assertTrue(collector.get(10, TimeUnit.SECONDS));
+			transaction.executeWithoutResult(status -> {
+				List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+				assertEquals(1, results.size());
+				assertEquals(Duration.ofMinutes(10).toMillis(), results.get(0).getDuration());
+				assertEquals(Integer.valueOf(1), results.get(0).getCurrentOpenSessions());
+			});
+		} finally {
+			releaseCollection.countDown();
+			executor.shutdown();
+			assertTrue(executor.awaitTermination(15, TimeUnit.SECONDS));
+			transaction.executeWithoutResult(status -> db.deleteAll());
+		}
+	}
+
+	@Test
+	public void testSitePresencesRetainCompletedVisitWhenSessionReentersSite() {
+		Instant start = Instant.parse("2026-08-20T12:00:00Z");
+		String reference = "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX;
+		Event begin = statsUpdateManager.buildEvent(Date.from(start), StatsManager.SITEVISIT_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		Event end = statsUpdateManager.buildEvent(Date.from(start.plusSeconds(600)), StatsManager.SITEVISITEND_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		Event returnToSite = statsUpdateManager.buildEvent(Date.from(start.plusSeconds(900)), StatsManager.SITEVISIT_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+
+		assertTrue(statsUpdateManager.collectEvents(List.of(begin, end, returnToSite)));
+
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		assertEquals(Duration.ofMinutes(10).toMillis(), results.get(0).getDuration());
+		assertEquals(Integer.valueOf(1), results.get(0).getCurrentOpenSessions());
+
+		Event leaveAgain = statsUpdateManager.buildEvent(Date.from(start.plusSeconds(1200)), StatsManager.SITEVISITEND_EVENTID,
+				reference, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		assertTrue(statsUpdateManager.collectEvents(List.of(leaveAgain)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		assertEquals(Duration.ofMinutes(15).toMillis(), results.get(0).getDuration());
+		assertEquals(Integer.valueOf(0), results.get(0).getCurrentOpenSessions());
 	}
 
 	@SuppressWarnings("unchecked")

@@ -12,6 +12,7 @@ import java.util.function.BooleanSupplier;
 
 import lombok.Setter;
 
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.ReportManager;
@@ -36,6 +37,10 @@ abstract class AbstractSiteStatsWidgetDefinition implements SiteStatsWidgetDefin
 		return support.getEventRegistryService();
 	}
 
+	protected SiteService siteService() {
+		return support.getSiteService();
+	}
+
 	protected WidgetFilterCatalog filterCatalog() {
 		return support.getFilterCatalog();
 	}
@@ -50,7 +55,12 @@ abstract class AbstractSiteStatsWidgetDefinition implements SiteStatsWidgetDefin
 
 	protected WidgetSpec widgetSpec(String id, String titleKey, String icon, String audience, BooleanSupplier available,
 			List<WidgetTabSpec> tabs, List<WidgetMetricSpec> metrics) {
-		return new WidgetSpec(id, titleKey, icon, audience, available, tabs, metrics);
+		return widgetSpec(id, titleKey, icon, audience, available, tabs, metrics, Collections.emptyList());
+	}
+
+	protected WidgetSpec widgetSpec(String id, String titleKey, String icon, String audience, BooleanSupplier available,
+			List<WidgetTabSpec> tabs, List<WidgetMetricSpec> metrics, List<WidgetHighlightSpec> highlights) {
+		return new WidgetSpec(id, titleKey, icon, audience, available, tabs, metrics, highlights);
 	}
 
 	protected List<WidgetTabSpec> tabs(WidgetTabSpec... tabs) {
@@ -61,8 +71,25 @@ abstract class AbstractSiteStatsWidgetDefinition implements SiteStatsWidgetDefin
 		return Collections.unmodifiableList(Arrays.asList(metrics));
 	}
 
+	protected List<WidgetHighlightSpec> highlights(WidgetHighlightSpec... highlights) {
+		return Collections.unmodifiableList(Arrays.asList(highlights));
+	}
+
+	protected WidgetHighlightSpec highlightSpec(String id, String titleKey, WidgetHighlightFactory factory) {
+		return highlightSpec(id, titleKey, () -> true, factory);
+	}
+
+	protected WidgetHighlightSpec highlightSpec(String id, String titleKey, BooleanSupplier available,
+			WidgetHighlightFactory factory) {
+		return new WidgetHighlightSpec(id, titleKey, available, factory);
+	}
+
 	protected WidgetTabSpec tabSpec(String widgetId, String id, String titleKey, WidgetReportFactory reportFactory, String... filterIds) {
 		return new WidgetTabSpec(widgetId, id, titleKey, Arrays.asList(filterIds), reportFactory);
+	}
+
+	protected WidgetTabSpec viewTabSpec(String widgetId, String id, String titleKey, WidgetReportViewFactory viewFactory, String... filterIds) {
+		return new WidgetTabSpec(widgetId, id, titleKey, Arrays.asList(filterIds), null, viewFactory);
 	}
 
 	protected WidgetMetricSpec metricSpec(String widgetId, String id, String labelKey, String audience,

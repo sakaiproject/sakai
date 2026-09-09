@@ -67,7 +67,7 @@
 
     </script>
 
-    <t:dataTable value="#{searchQuestionBean.results.entrySet().toArray()}" var="item_search_result" styleClass="table table-striped tablesorter" id="searchquestions-questions" rowIndexVar="row">
+    <t:dataTable value="#{searchQuestionBean.results.entrySet().toArray()}" var="item_search_result" styleClass="table table-striped" id="searchquestions-questions" rowIndexVar="row">
 
     <h:column>
     <f:facet name="header">

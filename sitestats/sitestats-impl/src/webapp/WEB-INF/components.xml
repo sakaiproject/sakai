@@ -260,6 +260,7 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.sitestats.impl.view.WidgetFilterCatalog"
@@ -290,8 +291,12 @@
 
 	<bean id="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.PresenceAccessWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.PresenceAccessWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.StudentPresenceAccessWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.StudentPresenceAccessWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"
@@ -306,7 +311,9 @@
 		<property name="widgetDefinitions">
 			<list>
 				<ref bean="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.PresenceAccessWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.StudentPresenceAccessWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"/>

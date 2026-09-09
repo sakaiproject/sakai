@@ -23,6 +23,7 @@ class WidgetSpec {
 	private final BooleanSupplier available;
 	private final List<WidgetTabSpec> tabs;
 	private final List<WidgetMetricSpec> metrics;
+	private final List<WidgetHighlightSpec> highlights;
 
 	boolean isAvailable() {
 		return available.getAsBoolean();

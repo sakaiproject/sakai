@@ -17,6 +17,7 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
 
   static properties = {
     chart: { type: Object },
+    compact: { type: Boolean, reflect: true },
     renderTableFallback: { type: Boolean, attribute: "render-table-fallback" },
     _fallbackTable: { state: true },
   };
@@ -59,15 +60,22 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
         box-shadow: inset 0 -0.45rem 0 rgba(0, 0, 0, 0.08);
       }
 
+      :host([compact]) .chart-frame {
+        block-size: 5rem;
+        min-block-size: 5rem;
+        padding: 0.25rem 0.35rem;
+        border: 0;
+        background: transparent;
+      }
+
+      :host([compact]) figcaption {
+        margin-block-start: 0.35rem;
+        font-size: 0.8rem;
+      }
+
       canvas {
         inline-size: 100%;
         block-size: 100%;
-      }
-
-      figcaption {
-        margin-block-start: 0.5rem;
-        color: var(--sakai-text-color-dimmed, #5f6773);
-        font-size: 0.9rem;
       }
 
       .empty {
@@ -103,7 +111,7 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
 
   updated(changedProperties) {
 
-    if (changedProperties.has("chart") || changedProperties.has("_i18n")) {
+    if (changedProperties.has("chart") || changedProperties.has("compact") || changedProperties.has("_i18n")) {
       this._fallbackTable = siteStatsFallbackTable(this.chart, this._i18n);
       this.updateComplete.then(() => this._renderChart());
     }
@@ -126,10 +134,10 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
         <div class=${useDepthEffect(this.chart) ? "chart-frame depth" : "chart-frame"}>
           <canvas aria-label="${chartLabel}" role="img"></canvas>
         </div>
-        ${this.chart.title ? html`<figcaption>${this.chart.title}</figcaption>` : nothing}
+        ${this.chart.title ? html`<figcaption class="visually-hidden">${this.chart.title}</figcaption>` : nothing}
       </figure>
       ${this.renderTableFallback && this._fallbackTable
-        ? html`<sakai-sitestats-table class="visually-hidden" .hideCaption=${true} .table=${this._fallbackTable}></sakai-sitestats-table>`
+        ? html`<sakai-sitestats-table class="visually-hidden" .table=${this._fallbackTable}></sakai-sitestats-table>`
         : nothing}
     `;
   }
@@ -146,11 +154,12 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
     const theme = siteStatsChartTheme(this);
     this._themeSignature = siteStatsChartThemeSignature(theme);
     const showItemLabels = this._showItemLabels();
+    const compact = this._isCompact();
 
     this._chartInstance = new Chart(canvas, {
       type: siteStatsChartType(this.chart),
       data: siteStatsChartData(this.chart, theme),
-      options: siteStatsChartOptions(this.chart, theme, showItemLabels),
+      options: siteStatsChartOptions(this.chart, theme, showItemLabels, compact),
       plugins: showItemLabels ? [ this._valueLabelsPlugin(theme) ] : [],
     });
 
@@ -190,9 +199,14 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
     this._scheduleOncePerFrame("_resizeHandle", () => this._chartInstance?.resize());
   }
 
+  _isCompact() {
+
+    return this.compact === true || this.chart?.compact === true;
+  }
+
   _showItemLabels() {
 
-    return this.chart?.itemLabelsVisible !== false;
+    return !this._isCompact() && this.chart?.itemLabelsVisible !== false;
   }
 
   _valueLabelsPlugin(theme) {

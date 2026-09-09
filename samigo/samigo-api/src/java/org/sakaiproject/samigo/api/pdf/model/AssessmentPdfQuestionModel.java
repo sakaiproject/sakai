@@ -48,6 +48,7 @@ public final class AssessmentPdfQuestionModel implements Serializable {
     private final List<AssessmentPdfValueTypes.AssessmentPdfEmiPromptModel> emiPrompts;
     private final String imageMapSrc;
     private final List<String> imageMapItemTexts;
+    private final List<String> imageMapRegionJsons;
     private final List<AssessmentPdfValueTypes.AssessmentPdfPrintChoiceModel> printChoices;
     private final String sequence;
     private final String text;
@@ -102,6 +103,7 @@ public final class AssessmentPdfQuestionModel implements Serializable {
         this.emiPrompts = copy(builder.emiPrompts);
         this.imageMapSrc = builder.imageMapSrc;
         this.imageMapItemTexts = copy(builder.imageMapItemTexts);
+        this.imageMapRegionJsons = copy(builder.imageMapRegionJsons);
         this.printChoices = copy(builder.printChoices);
         this.sequence = builder.sequence;
         this.text = builder.text;
@@ -219,6 +221,10 @@ public final class AssessmentPdfQuestionModel implements Serializable {
 
     public List<String> getImageMapItemTexts() {
         return imageMapItemTexts;
+    }
+
+    public List<String> getImageMapRegionJsons() {
+        return imageMapRegionJsons;
     }
 
     public List<AssessmentPdfValueTypes.AssessmentPdfPrintChoiceModel> getPrintChoices() {
@@ -373,6 +379,7 @@ public final class AssessmentPdfQuestionModel implements Serializable {
         private List<AssessmentPdfValueTypes.AssessmentPdfEmiPromptModel> emiPrompts;
         private String imageMapSrc;
         private List<String> imageMapItemTexts;
+        private List<String> imageMapRegionJsons;
         private List<AssessmentPdfValueTypes.AssessmentPdfPrintChoiceModel> printChoices;
         private String sequence;
         private String text;
@@ -499,6 +506,11 @@ public final class AssessmentPdfQuestionModel implements Serializable {
 
         public Builder imageMapItemTexts(List<String> imageMapItemTexts) {
             this.imageMapItemTexts = imageMapItemTexts;
+            return this;
+        }
+
+        public Builder imageMapRegionJsons(List<String> imageMapRegionJsons) {
+            this.imageMapRegionJsons = imageMapRegionJsons;
             return this;
         }
 

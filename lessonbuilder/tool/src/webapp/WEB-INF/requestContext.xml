@@ -342,6 +342,7 @@
 		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
 		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
 		<property name="removedPageService" ref="org.sakaiproject.lessonbuildertool.service.RemovedPageService" />
+		<property name="pagePromotionService" ref="org.sakaiproject.lessonbuildertool.service.PagePromotionService" />
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
 		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService"/>

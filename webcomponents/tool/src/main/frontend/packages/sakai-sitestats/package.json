@@ -20,6 +20,7 @@
     ".": "./index.js",
     "./sakai-sitestats-report-panel.js": "./sakai-sitestats-report-panel.js",
     "./sakai-sitestats-widget-tab.js": "./sakai-sitestats-widget-tab.js",
+    "./sakai-sitestats-highlights.js": "./sakai-sitestats-highlights.js",
     "./sakai-sitestats-chart.js": "./sakai-sitestats-chart.js",
     "./sakai-sitestats-table.js": "./sakai-sitestats-table.js"
   },

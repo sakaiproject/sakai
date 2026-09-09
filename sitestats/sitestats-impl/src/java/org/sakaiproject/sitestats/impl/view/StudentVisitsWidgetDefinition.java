@@ -6,20 +6,21 @@
 package org.sakaiproject.sitestats.impl.view;
 
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_OWN;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_AVERAGE_PRESENCE;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_PRESENCE;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_TOTAL;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_DATE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.HIGHLIGHT_VISITS_LAST_30_DAYS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_PRESENCE_LAST_VISIT;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_TOTAL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_VISITS_TRAFFIC_TREND;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_VISITS;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 
 public class StudentVisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
@@ -31,11 +32,13 @@ public class StudentVisitsWidgetDefinition extends AbstractSiteStatsWidgetDefini
 						FILTER_DATE)),
 				metrics(
 						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TOTAL, "overview_title_visits_sum", AUDIENCE_OWN,
-								null, this::studentVisitsTotalValue),
-						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_AVERAGE_PRESENCE, "overview_title_presence_time_avg", AUDIENCE_OWN,
-								() -> Boolean.TRUE.equals(statsManager().getEnableSitePresences()), null, this::studentVisitsAveragePresenceValue),
-						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_PRESENCE, "overview_title_presence_time", AUDIENCE_OWN,
-								() -> Boolean.TRUE.equals(statsManager().getEnableSitePresences()), null, this::studentVisitsPresenceValue)));
+								this::studentVisitsByDateDefinition, this::studentVisitsTotalValue),
+						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_PRESENCE_LAST_VISIT, "overview_title_last_visit",
+								AUDIENCE_OWN, null, this::studentLastVisitValue),
+						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TRAFFIC_TREND, "overview_title_traffic_trend",
+								AUDIENCE_OWN, this::studentVisitsByDateDefinition, this::studentTrafficTrendValue)),
+				highlights(highlightSpec(HIGHLIGHT_VISITS_LAST_30_DAYS, "overview_title_visits_last30days",
+						this::studentVisitsLast30DaysChart)));
 	}
 
 	private WidgetReportDefinition studentVisitsByDateDefinition(String siteId, SiteStatsReportRequest request, String userId) {
@@ -58,17 +61,15 @@ public class StudentVisitsWidgetDefinition extends AbstractSiteStatsWidgetDefini
 		return WidgetMetricValue.of(Long.toString(statsManager().getTotalSiteVisitsForUser(siteId, userId)));
 	}
 
-	private WidgetMetricValue studentVisitsAveragePresenceValue(String siteId, String userId) {
-		long visits = statsManager().getTotalSiteVisitsForUser(siteId, userId);
-		if (visits == 0 || StringUtils.isBlank(userId)) {
-			return WidgetMetricValue.of("0");
-		}
-		long duration = metricSupport().sitePresenceDuration(siteId, Arrays.asList(userId));
-		return WidgetMetricValue.of(metricSupport().msToString(duration / visits));
+	private WidgetMetricValue studentLastVisitValue(String siteId, String userId) {
+		return metricSupport().lastVisitValue(siteId, userId, false);
 	}
 
-	private WidgetMetricValue studentVisitsPresenceValue(String siteId, String userId) {
-		long duration = StringUtils.isBlank(userId) ? 0 : metricSupport().sitePresenceDuration(siteId, Arrays.asList(userId));
-		return WidgetMetricValue.of(metricSupport().msToString(duration));
+	private WidgetMetricValue studentTrafficTrendValue(String siteId, String userId) {
+		return metricSupport().trafficTrendValue(siteId, userId);
+	}
+
+	private SiteStatsChart studentVisitsLast30DaysChart(String siteId, String userId) {
+		return metricSupport().last30DaysVisitsChart(siteId, userId);
 	}
 }

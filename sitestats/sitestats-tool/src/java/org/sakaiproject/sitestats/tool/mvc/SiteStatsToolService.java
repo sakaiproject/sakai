@@ -73,6 +73,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.tool.transformers.ResolvedRefTransformer;
+import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -80,6 +81,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @Slf4j
@@ -160,18 +164,27 @@ public class SiteStatsToolService {
     public OverviewResult overviewWithEndpoints(String requestedSiteId) {
         SiteStatsOverview overview = overview(requestedSiteId);
         Map<String, String> widgetEndpoints = new LinkedHashMap<String, String>();
+        Map<String, String> widgetHighlightsJson = new LinkedHashMap<String, String>();
         SiteStatsReportRequest reportRequest = new SiteStatsReportRequest();
         reportRequest.setIncludeTable(true);
         reportRequest.setIncludeChart(true);
+        ObjectMapper objectMapper = MapperFactory.createDefaultJsonMapper();
         for (SiteStatsWidget widget : overview.getWidgets()) {
             if (widget.isVisible()) {
                 for (SiteStatsWidgetTab tab : widget.getTabs()) {
                     widgetEndpoints.put(widget.getId() + ":" + tab.getId(), SiteStatsApiUrls.widgetReport(
                             overview.getSiteId(), widget.getId(), tab.getId(), reportRequest));
                 }
+                if (widget.getHighlights() != null && !widget.getHighlights().isEmpty()) {
+                    try {
+                        widgetHighlightsJson.put(widget.getId(), objectMapper.writeValueAsString(widget.getHighlights()));
+                    } catch (JsonProcessingException e) {
+                        log.warn("Unable to serialize SiteStats widget highlights for {}", widget.getId(), e);
+                    }
+                }
             }
         }
-        return new OverviewResult(overview, widgetEndpoints);
+        return new OverviewResult(overview, widgetEndpoints, widgetHighlightsJson);
     }
 
     public List<SiteStatsReportSummary> reports(String requestedSiteId) {
@@ -206,8 +219,10 @@ public class SiteStatsToolService {
         return new CopiedReport(saveReport(report.getSiteId(), form), report.getSiteId());
     }
 
-    public boolean canViewPreview(String requestedSiteId, String previewId) {
-        return reportExportService.canExportPreviewReport(reportSite(requestedSiteId), previewId);
+    public ReportDef previewReportDefinition(String requestedSiteId, String previewId) {
+        String siteId = reportSite(requestedSiteId);
+        ReportDef report = reportAccessService.previewReportDefinition(siteId, previewId);
+        return new ReportDef(report, siteId);
     }
 
     public ReportDef buildReport(String requestedSiteId, SiteStatsReportForm form) {
@@ -478,7 +493,8 @@ public class SiteStatsToolService {
             events = detailedEventsManager.getDetailedEvents(tracking,
                     new PagingParams(offset, PAGE_SIZE), new SortingParams("eventDate", true)).stream()
                     .map(event -> new ActivityEvent(event.getId(), eventName(event.getEventId()), event.getEventRef(),
-                            event.getEventDate().toInstant().toString(), formatTimestamp(event.getEventDate())))
+                            event.getEventDate().toInstant().toString(), formatTimestamp(event.getEventDate()),
+                            detailedEventsManager.isResolvable(event.getEventId())))
                     .collect(Collectors.toList());
             statsManager.logEvent(new UserId(form.getUserId()), StatsManager.LOG_ACTION_TRACK, siteId, false);
         }
@@ -602,6 +618,7 @@ public class SiteStatsToolService {
     public static class OverviewResult {
         private final SiteStatsOverview overview;
         private final Map<String, String> widgetEndpoints;
+        private final Map<String, String> widgetHighlightsJson;
     }
 
     @Getter
@@ -661,6 +678,7 @@ public class SiteStatsToolService {
         private final String reference;
         private final String timestamp;
         private final String displayTimestamp;
+        private final boolean resolvable;
     }
 
     @Getter

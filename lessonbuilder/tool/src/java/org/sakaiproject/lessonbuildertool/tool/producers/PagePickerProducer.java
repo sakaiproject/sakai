@@ -182,10 +182,17 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         UISelect select = UISelect.make(form, "page-span", values.toArray(new String[0]),
                 "#{simplePageBean.selectedEntity}", null);
 
+        // In newTopLevel mode, disable top-level pages (including when they also appear as shared subpages).
+        Set<Long> topLevelPageIds = activePages.stream()
+                .filter(PageNode::topLevel)
+                .map(node -> node.page().getPageId())
+                .collect(Collectors.toUnmodifiableSet());
+
         int index = 0;
         for (PageNode node : activePages) {
             renderPageChoice(form, "active-page:", select, index++, node.page(), node.pageItem().getName(),
-                    node.level(), node.topLevel(), node.pageItem().getId(), pageIndex.sharedPageIds(), siteId);
+                    node.level(), node.topLevel(), node.pageItem().getId(), pageIndex.sharedPageIds(), siteId,
+                    params.newTopLevel && topLevelPageIds.contains(node.page().getPageId()));
         }
 
         if (!removedPages.isEmpty()) {
@@ -193,7 +200,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             UIOutput.make(section, "heading", messageLocator.getMessage("simplepage.chooser.unused"));
             for (SimplePage page : removedPages) {
                 renderPageChoice(section, "removed-page:", select, index++, page, page.getTitle(), 0, false, null,
-                        pageIndex.sharedPageIds(), siteId);
+                        pageIndex.sharedPageIds(), siteId,
+                        params.newTopLevel && topLevelPageIds.contains(page.getPageId()));
             }
         }
 
@@ -223,14 +231,18 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
     private void renderPageChoice(UIContainer rowContainer, String branchId, UISelect select, int index,
             SimplePage page, String title,
-            int level, boolean topLevel, Long itemId, Set<Long> sharedPageIds, String siteId) {
+            int level, boolean topLevel, Long itemId, Set<Long> sharedPageIds, String siteId,
+            boolean disableSelection) {
         UIBranchContainer row = UIBranchContainer.make(rowContainer, branchId);
         if (topLevel) {
             row.decorate(new UIFreeAttributeDecorator("class", "top-level-page"));
         }
-        UISelectChoice.make(row, "select", select.getFullID(), index)
-                .decorate(new UIFreeAttributeDecorator("title",
-                        title + " " + messageLocator.getMessage("simplepage.select")));
+        UISelectChoice radio = UISelectChoice.make(row, "select", select.getFullID(), index);
+        radio.decorate(new UIFreeAttributeDecorator("title",
+                title + " " + messageLocator.getMessage("simplepage.select")));
+        if (disableSelection) {
+            radio.decorate(new UIFreeAttributeDecorator("disabled", "disabled"));
+        }
 
         GeneralViewParameters preview = new GeneralViewParameters(PreviewProducer.VIEW_ID);
         preview.setSendingPage(page.getPageId());
@@ -316,7 +328,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
     public List reportNavigationCases() {
         List<NavigationCase> cases = new ArrayList<>();
         cases.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
-        cases.add(new NavigationCase("failure", new SimpleViewParameters(ForumPickerProducer.VIEW_ID)));
+        cases.add(new NavigationCase("failure", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
         cases.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
         cases.add(new NavigationCase("selectpage", new GeneralViewParameters(ReorderProducer.VIEW_ID)));
         GeneralViewParameters selectSite = new GeneralViewParameters(PagePickerProducer.VIEW_ID);

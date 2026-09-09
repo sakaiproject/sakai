@@ -36,7 +36,6 @@ import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.CheckboxCellEven
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.CircleCellEvent;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.ImageMapCircle;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.ImageMapQuestionCellEvent;
-import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfItemGradingModel;
 import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.BACKGROUND_GRAY;
@@ -54,9 +53,6 @@ import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.WARNING_BG;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.WARNING_COLOR;
 import static org.sakaiproject.samigo.impl.pdf.AssessmentPdfStyle.fontWithColor;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
@@ -66,7 +62,6 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
-import org.apache.commons.lang3.Strings;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -91,7 +86,8 @@ public class AssessmentPdfQuestionRenderer {
     private static final Set<Long> PRINT_NO_KEY_TYPES = Set.of(
             TypeIfc.MULTIPLE_CHOICE_SURVEY,
             TypeIfc.AUDIO_RECORDING,
-            TypeIfc.FILE_UPLOAD);
+            TypeIfc.FILE_UPLOAD,
+            TypeIfc.IMAGEMAP_QUESTION);
 
     private static final Set<Long> PRINT_FEEDBACK_TYPES = Set.of(
             TypeIfc.MULTIPLE_CORRECT,
@@ -105,11 +101,11 @@ public class AssessmentPdfQuestionRenderer {
             TypeIfc.IMAGEMAP_QUESTION);
 
     private final AssessmentPdfContentHelper contentHelper;
-    private final ObjectMapper jsonMapper;
+    private final AssessmentPdfImageMapCoords imageMapCoords;
 
     public AssessmentPdfQuestionRenderer(AssessmentPdfContentHelper contentHelper) {
         this.contentHelper = contentHelper;
-        this.jsonMapper = MapperFactory.createDefaultJsonMapper();
+        this.imageMapCoords = new AssessmentPdfImageMapCoords(MapperFactory.createDefaultJsonMapper());
     }
 
     public void render(Document document, QuestionRenderContext context) throws Exception {
@@ -218,7 +214,7 @@ public class AssessmentPdfQuestionRenderer {
         } else if (Objects.equals(questionType, TypeIfc.EXTENDED_MATCHING_ITEMS)) {
             renderPrintExtendedMatching(document, context, question);
         } else if (Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION)) {
-            renderPrintImageMapOptions(document, context, question);
+            renderPrintImageMapOptions(document, context, question, printSettings);
         }
     }
 
@@ -396,30 +392,21 @@ public class AssessmentPdfQuestionRenderer {
         }
     }
 
-    private void renderPrintImageMapOptions(Document document, QuestionRenderContext context, AssessmentPdfQuestionModel question) throws Exception {
+    private void renderPrintImageMapOptions(Document document, QuestionRenderContext context, AssessmentPdfQuestionModel question, AssessmentPdfPrintSettingsModel printSettings) throws Exception {
         List<String> itemTexts = question.getImageMapItemTexts();
         for (int k = 0; k < itemTexts.size(); k++) {
             document.add(new Paragraph((k + 1) + ". " + itemTexts.get(k), fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
         }
 
-        String imsrc = question.getImageMapSrc();
-        if (StringUtils.isBlank(imsrc)) {
-            return;
+        boolean showKeys = printSettings != null && Boolean.TRUE.equals(printSettings.getShowKeys());
+        if (showKeys) {
+            Paragraph keyLabel = new Paragraph(AssessmentPdfBundle.getPrintString("answer_key") + ":",
+                    fontWithColor(context.smallBoldFont(), SECONDARY_COLOR));
+            keyLabel.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
+            document.add(keyLabel);
         }
-        Optional<Image> loadedImage = contentHelper.loadContentImage(AssessmentPdfContentHelper.resolveContentResourceId(imsrc));
-        if (loadedImage.isEmpty()) {
-            log.warn("Could not load image map image [{}] for the printable assessment", imsrc);
-            return;
-        }
-        Image image = loadedImage.get();
-        contentHelper.scaleImageForPage(image);
-        PdfPTable imageTable = new PdfPTable(1);
-        imageTable.setWidthPercentage(100f);
-        contentHelper.configureSplittableTable(imageTable);
-        PdfPCell imageCell = new PdfPCell(image);
-        imageCell.setBorder(Rectangle.NO_BORDER);
-        imageTable.addCell(imageCell);
-        document.add(imageTable);
+        List<Rectangle> answerRectangles = showKeys ? imageMapCoords.parseRectangles(imageMapRegionJsons(question)) : List.of();
+        renderImageMapImage(document, imageMapSource(question), answerRectangles, List.of(), "the printable assessment");
     }
 
     private void renderPrintAnswerKey(Document document, QuestionRenderContext context, AssessmentPdfQuestionModel question, Long questionType, AssessmentPdfPrintSettingsModel printSettings) throws Exception {
@@ -662,69 +649,66 @@ public class AssessmentPdfQuestionRenderer {
 
     private void renderReportImageMap(Document document, AssessmentPdfQuestionModel question, Long questionType)
             throws Exception {
-        if (!Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION) || StringUtils.isBlank(question.getImageSrc())) {
+        if (!Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION)) {
+            return;
+        }
+        Paragraph keyLabel = new Paragraph(AssessmentPdfBundle.getEvaluationString("ans_key") + ":",
+                fontWithColor(AssessmentPdfStyle.SMALL_BOLD_FONT, SECONDARY_COLOR));
+        keyLabel.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
+        document.add(keyLabel);
+        renderImageMapImage(document, imageMapSource(question), imageMapCoords.parseRectangles(imageMapRegionJsons(question)),
+                imageMapCoords.parseCircles(question.getItemGradingData()), "the student report");
+    }
+
+    private void renderImageMapImage(Document document, String imageSrc, List<Rectangle> answerRectangles,
+            List<ImageMapCircle> answerCircles, String warnContext) throws Exception {
+        if (StringUtils.isBlank(imageSrc)) {
             return;
         }
         // Read the image straight out of content hosting rather than fetching our own server over
         // HTTP: a self request has no session, so a non-public image would come back denied.
-        Optional<Image> loadedImage = contentHelper.loadContentImage(AssessmentPdfContentHelper.resolveContentResourceId(question.getImageSrc()));
+        Optional<Image> loadedImage = contentHelper.loadContentImage(AssessmentPdfContentHelper.resolveContentResourceId(imageSrc));
         if (loadedImage.isEmpty()) {
-            log.warn("Could not load image map image [{}] for the student report", question.getImageSrc());
+            log.warn("Could not load image map image [{}] for {}", imageSrc, warnContext);
             return;
         }
         Image image = loadedImage.get();
         contentHelper.scaleImageForPage(image);
-        PdfPTable tableImage = new PdfPTable(1);
-        tableImage.setWidthPercentage(100f);
-        contentHelper.configureSplittableTable(tableImage);
-        PdfPCell cellImage = new PdfPCell();
-        cellImage.setBorderWidth(0);
-        cellImage.setPadding(0);
-        cellImage.addElement(image);
+        PdfPTable imageTable = new PdfPTable(1);
+        imageTable.setWidthPercentage(100f);
+        imageTable.setKeepTogether(true);
+        PdfPCell imageCell = new PdfPCell(image);
+        imageCell.setBorder(Rectangle.NO_BORDER);
+        imageCell.setPadding(0);
+        if (!answerRectangles.isEmpty() || !answerCircles.isEmpty()) {
+            // getWidth/getHeight are the intrinsic size the answer coordinates are stored against;
+            // getScaledWidth/Height are what scaleImageForPage left the image occupying on the page.
+            imageCell.setCellEvent(new ImageMapQuestionCellEvent(answerCircles, answerRectangles,
+                    image.getWidth(), image.getHeight(), image.getScaledWidth(), image.getScaledHeight()));
+        }
+        imageTable.addCell(imageCell);
+        document.add(imageTable);
+    }
 
-        List<Rectangle> answerRectangles = new ArrayList<>();
+    private static String imageMapSource(AssessmentPdfQuestionModel question) {
+        if (StringUtils.isNotBlank(question.getImageSrc())) {
+            return question.getImageSrc();
+        }
+        return question.getImageMapSrc();
+    }
+
+    private List<String> imageMapRegionJsons(AssessmentPdfQuestionModel question) {
+        List<String> regionJsons = question.getImageMapRegionJsons();
+        if (regionJsons != null && !regionJsons.isEmpty()) {
+            return regionJsons;
+        }
+        List<String> fromSelectionAnswers = new ArrayList<>();
         for (AssessmentPdfSelectionAnswerModel answer : question.getSelectionAnswers()) {
-            String plainTextAnswer = answer.getPlainTextAnswer();
-            if (StringUtils.isBlank(plainTextAnswer) || Strings.CI.equals(plainTextAnswer, "undefined")) {
-                continue;
-            }
-            try {
-                JsonNode jsonNode = jsonMapper.readTree(plainTextAnswer);
-                // path() rather than get() so an absent coordinate is a MissingNode rather than a
-                // null that would abort the whole report, and asDouble so a numeric string coerces
-                // instead of silently collapsing the region to the origin
-                answerRectangles.add(new Rectangle((float) jsonNode.path("x1").asDouble(), (float) jsonNode.path("y1").asDouble(),
-                        (float) jsonNode.path("x2").asDouble(), (float) jsonNode.path("y2").asDouble()));
-            } catch (JsonProcessingException e) {
-                log.warn("Skipping unparseable image map answer rectangle [{}], {}", plainTextAnswer, e.toString());
+            if (StringUtils.isNotBlank(answer.getPlainTextAnswer())) {
+                fromSelectionAnswers.add(answer.getPlainTextAnswer());
             }
         }
-
-        List<AssessmentPdfItemGradingModel> itemsGrading = question.getItemGradingData();
-        List<ImageMapCircle> answerCircles = new ArrayList<>();
-        for (AssessmentPdfItemGradingModel itemGrading : itemsGrading) {
-            String answerText = itemGrading.getAnswerText();
-            Long publishedItemTextId = itemGrading.getPublishedItemTextId();
-            if (publishedItemTextId != null && StringUtils.isNotBlank(itemGrading.getAnswerText())) {
-                try {
-                    JsonNode jsonNode = jsonMapper.readTree(answerText);
-                    // asDouble coerces a numeric string and yields 0 for anything absent or
-                    // non-numeric, which is the origin fallback these coordinates already wanted
-                    float x = (float) jsonNode.path("x").asDouble();
-                    float y = (float) jsonNode.path("y").asDouble();
-                    answerCircles.add(new ImageMapCircle(x, y, publishedItemTextId.intValue()));
-                } catch (JsonProcessingException e) {
-                    log.warn("Skipping unparseable image map response for published item text {} [{}], {}", publishedItemTextId, answerText, e.toString());
-                }
-            }
-        }
-        // getWidth/getHeight are the intrinsic size the answer coordinates are stored against;
-        // getScaledWidth/Height are what scaleImageForPage left the image occupying on the page.
-        cellImage.setCellEvent(new ImageMapQuestionCellEvent(answerCircles, answerRectangles,
-                image.getWidth(), image.getHeight(), image.getScaledWidth(), image.getScaledHeight()));
-        contentHelper.configureSplittableCell(cellImage);
-        tableImage.addCell(cellImage);
-        document.add(tableImage);
+        return fromSelectionAnswers;
     }
 
     private void renderReportChoiceAnswers(Document document, QuestionRenderContext context, AssessmentPdfQuestionModel question, Long questionType) throws Exception {
@@ -796,6 +780,7 @@ public class AssessmentPdfQuestionRenderer {
         int cellsAdded = 0;
 
         if (Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION)) {
+            matchingTable.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
             for (AssessmentPdfImageMapRowModel imageMapRow : question.getImageMapRows()) {
                 if (StringUtils.isBlank(imageMapRow.getText())) {
                     continue;

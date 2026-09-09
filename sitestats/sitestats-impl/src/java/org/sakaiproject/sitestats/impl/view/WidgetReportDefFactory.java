@@ -53,6 +53,13 @@ public class WidgetReportDefFactory {
 		return reportDef;
 	}
 
+	ReportDef presenceBase(String siteId, SiteStatsReportRequest request) {
+		ReportDef reportDef = baseReportDef(siteId);
+		reportDef.getReportParams().setWhat(ReportManager.WHAT_PRESENCES);
+		applyRoleFilter(reportDef.getReportParams(), request);
+		return reportDef;
+	}
+
 	ReportDef activityMetricBase(String siteId) {
 		ReportDef reportDef = baseMetricReportDef(siteId);
 		ReportParams params = reportDef.getReportParams();

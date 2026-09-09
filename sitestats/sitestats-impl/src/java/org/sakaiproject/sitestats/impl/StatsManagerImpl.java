@@ -2812,10 +2812,10 @@ if (log.isDebugEnabled()) {
 				if(queryType == Q_TYPE_LESSON && sortBy.equals(T_PAGE_ACTION) && totalsBy.contains(T_PAGE_ACTION)) {
 					sortField = "s.pageAction";
 				}
-				if((sortBy.equals(T_DATE) || sortBy.equals(T_LASTDATE)) 
-						&& 
-						(totalsBy.contains(T_DATE) || totalsBy.contains(T_LASTDATE) )) {
+				if (sortBy.equals(T_DATE) && totalsBy.contains(T_DATE)) {
 					sortField = "s.date";
+				} else if ((sortBy.equals(T_DATE) || sortBy.equals(T_LASTDATE)) && totalsBy.contains(T_LASTDATE)) {
+					sortField = "max(s.date)";
 				}
 				if(sortBy.equals(T_DURATION)) {
 					sortField = "sum(s.duration)";

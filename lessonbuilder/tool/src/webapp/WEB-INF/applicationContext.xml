@@ -391,6 +391,17 @@ simplePageBean.addForumSummary,
 
   </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.service.PagePromotionService"
+	class="org.sakaiproject.lessonbuildertool.service.PagePromotionService">
+	<constructor-arg ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	<constructor-arg ref="org.sakaiproject.site.api.SiteService" />
+	<constructor-arg>
+	  <bean class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+	  </bean>
+	</constructor-arg>
+  </bean>
+
 	<bean id="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap" class="java.util.HashMap">       
 		<constructor-arg>
 			<map>

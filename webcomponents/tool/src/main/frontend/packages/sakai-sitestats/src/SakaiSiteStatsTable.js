@@ -8,7 +8,6 @@ export class SakaiSiteStatsTable extends SakaiShadowElement {
   static properties = {
     table: { type: Object },
     compact: { type: Boolean },
-    hideCaption: { type: Boolean, attribute: "hide-caption" },
   };
 
   static styles = [
@@ -31,12 +30,6 @@ export class SakaiSiteStatsTable extends SakaiShadowElement {
         background: var(--sakai-background-color-1, #fff);
       }
 
-      caption {
-        padding-block: 0.5rem;
-        text-align: start;
-        font-weight: 600;
-      }
-
       th,
       td {
         border: 1px solid var(--sakai-border-color, #d8dde6);
@@ -47,8 +40,8 @@ export class SakaiSiteStatsTable extends SakaiShadowElement {
 
       th {
         background: var(--sakai-background-color-2, #f5f7f9);
-        font-weight: 600;
         white-space: nowrap;
+        font-size: 0.9125rem;
       }
 
       td[data-align="end"],
@@ -70,8 +63,9 @@ export class SakaiSiteStatsTable extends SakaiShadowElement {
       }
 
       .empty {
+        font-size: 0.9125rem;
         border: 1px solid var(--sakai-border-color, #d8dde6);
-        padding: 1rem;
+        padding: 0.45rem 0.6rem;
         background: var(--sakai-background-color-2, #f8f9fb);
       }
 
@@ -102,7 +96,7 @@ export class SakaiSiteStatsTable extends SakaiShadowElement {
     return html`
       <div class="table-wrap">
         <table>
-          ${this.table.caption ? html`<caption class=${this.hideCaption ? "visually-hidden" : nothing}>${this.table.caption}</caption>` : nothing}
+          ${this.table.caption ? html`<caption class="visually-hidden">${this.table.caption}</caption>` : nothing}
           <thead>
             <tr>
               ${repeat(this.table.columns, column => column.key, column => html`

@@ -364,7 +364,9 @@ public class SiteStatsTestConfiguration {
 
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")
     public UserTimeService userTimeService() {
-        return mock(UserTimeService.class);
+        UserTimeService userTimeService = mock(UserTimeService.class);
+        when(userTimeService.getLocalTimeZone()).thenReturn(java.util.TimeZone.getTimeZone("America/New_York"));
+        return userTimeService;
     }
 
 }

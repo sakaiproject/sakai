@@ -1222,18 +1222,20 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         
         	
         	if (isMessageFromForums){
-        		if(!originalReadStatus && read){
+        		// status.setRead above negates read, so these transition checks intentionally use the opposite value.
+        		if(!originalReadStatus && !read){
         			//status is changing from Unread to Read, so decrement unread number for Synoptic Messages
         			decrementForumSynopticToolInfo(userId, context, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-        		}else if(originalReadStatus && !read){
+        		}else if(originalReadStatus && read){
         			//status is changing from Read to Unread, so increment unread number for Synoptic Messages
         			incrementForumSynopticToolInfo(userId, context, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
         		}
         	}else{
-        		if(!originalReadStatus && read){
+        		// status.setRead above negates read, so these transition checks intentionally use the opposite value.
+        		if(!originalReadStatus && !read){
         			//status is changing from Unread to Read, so decrement unread number for Synoptic Messages
         			decrementMessagesSynopticToolInfo(userId, context, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-        		}else if(originalReadStatus && !read){
+        		}else if(originalReadStatus && read){
         			//status is changing from Read to Unread, so increment unread number for Synoptic Messages
         			incrementMessagesSynopticToolInfo(userId, context, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
         		}

@@ -45,6 +45,7 @@ public class DataTableConfigTest {
                 .orderable(true)
                 .searchable(true)
                 .type(DataTableColumn.TYPE_ANY_NUM)
+                .orderDataType(DataTableColumn.ORDER_DATA_TYPE_DOM_SPAN)
                 .build();
 
         DataTableConfig config = new DataTableConfigBuilder(resourceLoader)
@@ -59,6 +60,7 @@ public class DataTableConfigTest {
         assertTrue(json, json.contains("\"paging\":true"));
         assertTrue(json, json.contains("\"lengthMenu\":[[5,10,-1]]"));
         assertTrue(json, json.contains("\"targets\":\"_all\""));
+        assertTrue(json, json.contains("\"orderDataType\":\"dom-span\""));
         assertTrue(json, json.contains("\"infoEmpty\":\"No questions available\""));
         assertTrue(json, json.contains("\"emptyTable\":\"No questions available\""));
         assertTrue(json, json.contains("\"zeroRecords\":\"No questions available\""));

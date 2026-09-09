@@ -15,6 +15,8 @@ import java.util.LinkedHashSet;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.EventStat;
+import org.sakaiproject.sitestats.api.SitePresence;
+import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
@@ -23,6 +25,8 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.impl.EventStatImpl;
+import org.sakaiproject.sitestats.impl.SitePresenceImpl;
+import org.sakaiproject.sitestats.impl.SitePresenceTotalImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 
 final class SiteStatsTestFixtures {
@@ -74,6 +78,26 @@ final class SiteStatsTestFixtures {
 		EventStat stat = new EventStatImpl(0, siteId, userId, eventId, count, date);
 		stat.setToolId(toolId);
 		return stat;
+	}
+
+	static SitePresence presenceStat(String siteId, String userId, java.util.Date date, long durationMs) {
+		return SitePresenceImpl.builder()
+				.siteId(siteId)
+				.userId(userId)
+				.date(date)
+				.duration(durationMs)
+				.lastVisitStartTime(date)
+				.currentOpenSessions(Integer.valueOf(0))
+				.build();
+	}
+
+	static SitePresenceTotal presenceTotal(String siteId, String userId, java.util.Date lastVisit, int visits) {
+		SitePresenceTotalImpl total = new SitePresenceTotalImpl();
+		total.setSiteId(siteId);
+		total.setUserId(userId);
+		total.setLastVisitTime(lastVisit);
+		total.setTotalVisits(visits);
+		return total;
 	}
 
 	static ReportDef visitReport(String siteId, String userId) {

@@ -231,3 +231,122 @@
 		pointer-events: none;
 	}
 }
+
+// sakai.motd's carousel (see chef_synoptic_message-List.vm). Scoped to this tool's own
+// body class so it only affects the MOTD widget's own page, not the rest of the portal.
+.#{$namespace}sakai-motd {
+	// The skin's .portletBody has a fixed margin-bottom: 3rem !important (modules/tool/_base.scss)
+	// that collapses through <body> into <html>, inflating document.documentElement.scrollHeight by
+	// that same amount (measured live: 42px) regardless of actual content - wasted space under every
+	// slide. .Mrphs-sakai-motd alone isn't enough to scope this: it's on <body> for every sakai.motd
+	// render, including the default single-message fallback (motd.carousel.enabled=false), which needs
+	// to keep the skin's normal margin - motd-carousel-body is only added when the carousel itself
+	// actually renders (see chef_synoptic_message-List.vm).
+	.portletBody.motd-carousel-body {
+		margin-bottom: 0 !important;
+	}
+
+	#motdCarousel {
+		// Bootstrap's default opacity for these icons is 0.5, a known WCAG 1.4.11 (Non-text Contrast)
+		// risk - a semi-transparent icon can drop below the required 3:1 contrast depending on what's
+		// behind it. Raised via Bootstrap's own CSS variable rather than fighting the opacity rule directly.
+		--bs-carousel-control-opacity: 0.9;
+
+		// Cap how tall a single message can push the iframe before it scrolls internally instead.
+		// Deliberately on the message body, not the iframe itself: the resize script measures content
+		// with getBoundingClientRect(), which already reports the clipped height once overflow is hidden
+		// behind a scrollbar here - so the cap only needs enforcing once, in CSS, and the existing resize
+		// logic naturally never grows the iframe past it. The max-height value itself is admin-configurable
+		// (motd.carousel.max-height), so it comes in as a CSS custom property set inline on #motdCarousel.
+		.carousel-item > .p-3 {
+			max-height: var(--motd-carousel-max-height);
+			overflow-y: auto;
+
+			// Bootstrap's default prev/next controls are a 15%-wide, full-height clickable zone with no
+			// background, sized for full-width hero carousels. On this narrow widget that's a large chunk
+			// of each side, and message text can wrap directly underneath the icon with nothing to set it
+			// apart - reported as a legibility problem (T&L feedback). Padding matches the shrunk control
+			// width below so text never flows under the icon. !important because .p-3 itself is Bootstrap's
+			// own padding:1rem!important utility class (Bootstrap 5 generates !important on all its
+			// utilities by default) - a plain padding-left/right here silently loses to that regardless of
+			// selector specificity.
+			padding-left: 2.5rem !important;
+			padding-right: 2.5rem !important;
+		}
+
+		.carousel-control-prev,
+		.carousel-control-next {
+			width: 2.5rem;
+		}
+	}
+
+	// Row of indicator dots + toggle button, centered as a group, immediately next to each other
+	// rather than spread across the full width.
+	.motd-carousel-toggle-wrap {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+
+		// Reset Bootstrap's absolute bottom-of-carousel positioning now that the dots are a normal flex
+		// item here instead, and give them an explicit color: their default (white, 0.5 opacity; black
+		// only once .active) was tuned to sit on top of a colored message background, not the plain
+		// background out here. Items can go up to 200 (see sakai.motd.xml), so the strip needs to be able
+		// to shrink and scroll rather than overflow the widget and push the toggle button off to the side.
+		// flex-grow is deliberately 0, not 1: growing to fill the row is what actually caused the overflow
+		// fix to break centering for the common case of just a few dots, by claiming all the row's space
+		// instead of just its own content width - shrink-only still lets it give way and scroll once there
+		// really isn't room, without doing that every time.
+		.carousel-indicators {
+			position: static;
+			margin: 0;
+			flex: 0 1 auto;
+			min-width: 0;
+			overflow-x: auto;
+			justify-content: flex-start;
+
+			[data-bs-target] {
+				background-color: #adb5bd;
+				opacity: 1;
+				// Bootstrap's own rule for these is flex: 0 1 auto (flex-shrink: 1), so without this
+				// the dots shrink individually to fit rather than the strip overflowing - with up to
+				// 200 messages (sakai.motd.xml) that collapses them into unusable slivers instead of
+				// letting overflow-x above actually scroll.
+				flex-shrink: 0;
+
+				&.active {
+					background-color: #333;
+				}
+			}
+		}
+	}
+
+	// Filled circle rather than a bare icon - a circle with its own fill color keeps the icon's contrast
+	// (WCAG 1.4.11) consistent regardless of which color a given message's background happens to be,
+	// instead of depending on the icon alone standing out against whatever's behind it. Sized a bit larger
+	// than the bare-icon version for visibility, well past the ~24x24px minimum (WCAG 2.5.8).
+	.motd-carousel-toggle {
+		background-color: #e9ecef;
+		border: 0;
+		border-radius: 50%;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
+		line-height: 0;
+		cursor: pointer;
+
+		.motd-carousel-toggle-icon {
+			display: inline-block;
+			width: 1rem;
+			height: 1rem;
+			background-repeat: no-repeat;
+			background-position: center;
+			background-size: contain;
+			background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23333'%3e%3crect x='4' y='2' width='3' height='12'/%3e%3crect x='9' y='2' width='3' height='12'/%3e%3c/svg%3e");
+		}
+
+		&[aria-pressed="true"] .motd-carousel-toggle-icon {
+			background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23333'%3e%3cpath d='M4 2l10 6-10 6z'/%3e%3c/svg%3e");
+		}
+	}
+}

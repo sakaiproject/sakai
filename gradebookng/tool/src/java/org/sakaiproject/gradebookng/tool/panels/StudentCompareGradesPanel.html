@@ -65,19 +65,17 @@
             }
             generateTable(window.GbComparisonData);
 
-            var $table = $(".studentGradesComparison-TableContainer table");
+            const table = document.querySelector(".studentGradesComparison-TableContainer table");
+            if (!table) return;
 
-            $table.tablesorter({
-              theme : "bootstrap",
-              widthFixed: true,
-              headerTemplate : '{content} {icon}',
-              widgets : [ "uitheme" ],
-              sortReset   : true,
-              textExtraction: function(node) {
-                var $node = $(node);
-                return $(node).text().trim();
-              },
-              cssInfoBlock: "gb-summary-category-tbody"
+            new DataTable(table, {
+              paging: false,
+              info: false,
+              searching: false,
+              order: [],
+              columnDefs: [
+                { targets: "_all", type: "html" }
+              ]
             });
         </script>
 
