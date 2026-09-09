@@ -154,6 +154,9 @@ class LessonsTest extends SakaiUiTestBase {
         assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
         page.reload();
         assertThat(embeddedImage).isVisible();
+        assertThat(embeddedImage).hasAttribute("width", "120");
+        assertThat(embeddedImage).hasAttribute("height", "80");
+        assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
         assertThat(page.locator(".image-col .mm-type")).hasText("image/png");
     }
 
