@@ -2125,6 +2125,45 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    public void archiveSubmissionHistory(AssignmentSubmission submission) {
+        String attachmentHistory = submission.getSubmitted() ? getSubmissionAttachmentHistory(submission) : "";
+        if (StringUtils.isBlank(submission.getFeedbackText()) && StringUtils.isBlank(attachmentHistory)) {
+            return;
+        }
+
+        Map<String, String> properties = submission.getProperties();
+        Instant previousSubmissionDate = submission.getDateSubmitted();
+        String historyDate;
+        if (previousSubmissionDate != null) {
+            historyDate = userTimeService.dateTimeFormat(previousSubmissionDate, FormatStyle.LONG, FormatStyle.LONG);
+        } else {
+            historyDate = properties.get(AssignmentConstants.PROP_LAST_GRADED_DATE);
+            if (StringUtils.isBlank(historyDate) && submission.getDateModified() != null) {
+                historyDate = userTimeService.dateTimeFormat(submission.getDateModified(), FormatStyle.LONG, FormatStyle.LONG);
+            }
+        }
+        String history = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
+        history = "<h4>" + historyDate + "</h4><div>"
+                + StringUtils.trimToEmpty(submission.getFeedbackText()) + attachmentHistory + "</div>" + history;
+        properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, history);
+    }
+
+    private String getSubmissionAttachmentHistory(AssignmentSubmission submission) {
+        String attachmentLinks = submission.getAttachments().stream()
+                .map(entityManager::newReference)
+                .filter(reference -> reference.getProperties() != null
+                        && !"true".equals(reference.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION)))
+                .map(reference -> {
+                    String displayName = reference.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+                    return "<li><a href=\"" + formattedText.escapeHtml(reference.getUrl(), false) + "\">"
+                            + formattedText.escapeHtml(displayName) + "</a></li>";
+                })
+                .collect(Collectors.joining());
+
+        return StringUtils.isBlank(attachmentLinks) ? "" : "<ul>" + attachmentLinks + "</ul>";
+    }
+
+    @Override
     @Transactional
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException {
         Assert.notNull(submission, "Submission cannot be null");

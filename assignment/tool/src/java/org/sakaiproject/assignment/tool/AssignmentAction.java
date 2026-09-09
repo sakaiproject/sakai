@@ -7482,8 +7482,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         setResubmissionProperties(a, submission);
                     }
 
-                    // Preserve the student submission time before replacing it with the resubmission time below.
-                    Instant previousSubmissionDate = submission.getDateSubmitted();
+                    assignmentService.archiveSubmissionHistory(submission);
 
                     // update submission info after resubmission which prevents updating resubmission count for the first submission
                     submission.setUserSubmission(true);
@@ -7551,17 +7550,6 @@ public class AssignmentAction extends PagedResourceActionII {
                         submission.setGrade(null);
                         submission.setGradeReleased(false);
 
-                    }
-
-                    // following involves content, not grading, so always do on resubmit, not just if graded
-                    if (StringUtils.isNotBlank(submission.getFeedbackText())) {
-                        // keep the history of assignment feed back text
-                        String prevSubmittedDate = previousSubmissionDate == null
-                                ? prevGradedDate
-                                : userTimeService.dateTimeFormat(previousSubmissionDate, FormatStyle.LONG, FormatStyle.LONG);
-                        String feedbackTextHistory = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
-                        feedbackTextHistory = "<h4>" + prevSubmittedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + submission.getFeedbackText() + "</div>" + feedbackTextHistory;
-                        properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, feedbackTextHistory);
                     }
 
                     if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
