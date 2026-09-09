@@ -15,19 +15,14 @@
  */
 package org.sakaiproject.tool.assessment.facade;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 /**********************************************************************************
  * $URL$
@@ -50,21 +45,16 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentD
  *
  **********************************************************************************/
 
-@RunWith(MockitoJUnitRunner.class)
-public class PublishedAssesmentFacadeTest {
+@ContextConfiguration(locations={"/spring-hibernate.xml"})
+public class PublishedAssesmentFacadeTest  extends AbstractJUnit4SpringContextTests{
 
-	@InjectMocks
-	private PublishedAssessmentFacadeQueries queries;
-
-	@Mock
-	private SessionFactory sessionFactory;
-
-	@Mock
-	private Session session;
+	//our object
+	PublishedAssessmentFacadeQueries queries = null;
 
 	@Before
-	public void setUp() {
-		when(sessionFactory.getCurrentSession()).thenReturn(session);
+	public void onSetUpInTransaction() throws Exception {
+		queries = new PublishedAssessmentFacadeQueries();
+		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
 	}
 
 	@Test
@@ -74,8 +64,6 @@ public class PublishedAssesmentFacadeTest {
 		 * not to escalate an exception
 		 */
 		try {
-			when(session.get(eq(PublishedAssessmentData.class), eq(999999L))).thenReturn(null);
-
 			PublishedAssessmentData item = queries.loadPublishedAssessment(999999L);
 			Assert.assertNull(item);
 		} catch (Exception e) {
