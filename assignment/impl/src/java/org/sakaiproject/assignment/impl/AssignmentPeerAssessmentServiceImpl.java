@@ -69,7 +69,7 @@ public class AssignmentPeerAssessmentServiceImpl implements AssignmentPeerAssess
     private static final String PEER_ASSESSMENT_RETRY_COUNT_PROP = "peerAssessmentRetryCount";
     private static final String PEER_ASSESSMENT_LAST_ATTEMPT_KEY = "peerAssessmentLastAttempt";
 
-    private SessionFactory sessionFactory;
+    @Setterprivate SessionFactory sessionFactory;
     private ScheduledInvocationManager scheduledInvocationManager;
     protected AssignmentService assignmentService;
     private SecurityService securityService = null;
