@@ -424,17 +424,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				// do update job
 				isIdle = false;
 				long startTime = System.currentTimeMillis();
-				int eventCount = collectThreadQueue.size();
-				if(eventCount > 0) {
-					//long startTime2 = System.currentTimeMillis();
-					while(collectThreadQueue.size() > 0){
+				TransactionTemplate tx = new TransactionTemplate(transactionManager);
+				tx.execute(status -> {
+					while (collectThreadQueue.size() > 0) {
 						preProcessEvent(collectThreadQueue.remove(0));
 					}
-					//long endTime2 = System.currentTimeMillis();
-					//log.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime2-startTime2) + " ms");
-				}
-				TransactionTemplate tx = new TransactionTemplate(transactionManager);
-				tx.execute(status -> doUpdateConsolidatedEvents());
+					return doUpdateConsolidatedEvents();
+				});
 				isIdle = true;
 				totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
 
