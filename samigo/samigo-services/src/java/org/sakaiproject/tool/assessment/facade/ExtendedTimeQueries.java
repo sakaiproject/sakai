@@ -20,25 +20,30 @@ package org.sakaiproject.tool.assessment.facade;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.hibernate.type.ManyToOneType;
-import org.hibernate.type.spi.TypeConfiguration;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Leonardo Canessa [lcanessa1 (at) udayton (dot) edu]
  */
 @Slf4j
 @Transactional
-public class ExtendedTimeQueries extends HibernateDaoSupport implements ExtendedTimeQueriesAPI {
+public class ExtendedTimeQueries implements ExtendedTimeQueriesAPI {
+
+    @Setter private SessionFactory sessionFactory;
 
     /**
      * init
@@ -55,12 +60,14 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
         log.debug("getEntriesForAss " + ass.getAssessmentBaseId());
 
         try {
-            HibernateCallback hcb = (Session s) -> {
-                Query q = s.getNamedQuery(QUERY_GET_ENTRIES_FOR_ASSESSMENT);
-                q.setParameter(ASSESSMENT_ID, ass);
-                return q.list();
-            };
-            return (List<ExtendedTime>) getHibernateTemplate().execute(hcb);
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ExtendedTime> cq = cb.createQuery(ExtendedTime.class);
+            Root<ExtendedTime> root = cq.from(ExtendedTime.class);
+
+            cq.select(root).where(cb.equal(root.get("assessmentId"), ass.getAssessmentBaseId()));
+
+            return session.createQuery(cq).getResultList();
         } catch (DataAccessException e) {
             log.error("Failed to get Extended TimeEntries for Assessment: " + ass.getAssessmentBaseId(), e);
             return null;
@@ -75,13 +82,15 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
         log.debug("getEntriesForPub " + pub.getPublishedAssessmentId());
 
         try {
-            HibernateCallback hcb = (Session s) -> {
-                Query q = s.getNamedQuery(QUERY_GET_ENTRIES_FOR_PUBLISHED);
-                q.setParameter(PUBLISHED_ID, pub);
-                return q.list();
-            };
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ExtendedTime> cq = cb.createQuery(ExtendedTime.class);
+            Root<ExtendedTime> root = cq.from(ExtendedTime.class);
 
-            return (List<ExtendedTime>) getHibernateTemplate().execute(hcb);
+            cq.select(root)
+              .where(cb.equal(root.get("publishedAssessmentId"), pub.getPublishedAssessmentId()));
+
+            return session.createQuery(cq).getResultList();
         } catch (DataAccessException e) {
             log.error("Failed to get Extended Time Entries for Published Assessment: " + pub.getPublishedAssessmentId(), e);
             return null;
@@ -97,22 +106,20 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
 
         try {
             final boolean hasGroups = groupIds != null && !groupIds.isEmpty();
-            final String hql = hasGroups
-                    ? "from ExtendedTime eTime where eTime.pubAssessment.publishedAssessmentId in (:publishedAssessmentIds) and "
-                            + "(eTime.user = :userId or eTime.group in (:groupIds))"
-                    : "from ExtendedTime eTime where eTime.pubAssessment.publishedAssessmentId in (:publishedAssessmentIds) and "
-                            + "eTime.user = :userId";
-            HibernateCallback hcb = (Session s) -> {
-                Query q = s.createQuery(hql);
-                q.setParameterList("publishedAssessmentIds", publishedAssessmentIds);
-                q.setParameter("userId", userId);
-                if (hasGroups) {
-                    q.setParameterList("groupIds", groupIds);
-                }
-                return q.list();
-            };
 
-            return (List<ExtendedTime>) getHibernateTemplate().execute(hcb);
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ExtendedTime> cq = cb.createQuery(ExtendedTime.class);
+            Root<ExtendedTime> root = cq.from(ExtendedTime.class);
+
+            Predicate pubIdPredicate = root.get("pubAssessment").get("publishedAssessmentId").in(publishedAssessmentIds);
+            Predicate userOrGroupPredicate = hasGroups
+                ? cb.or(cb.equal(root.get("user"), userId), root.get("group").in(groupIds))
+                : cb.equal(root.get("user"), userId);
+
+            cq.select(root).where(cb.and(pubIdPredicate, userOrGroupPredicate));
+
+            return session.createQuery(cq).getResultList();
         } catch (DataAccessException e) {
             log.error("Failed to get extended time entries for published assessments: {}", publishedAssessmentIds, e);
             return null;
@@ -144,7 +151,7 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
         log.debug("updating entry assessment: '" + e.getAssessmentId() + "' pubId: '" + e.getPubAssessmentId() + "' user: '" + e.getUser() + "' group: " + e.getGroup());
 
         try {
-            getHibernateTemplate().saveOrUpdate(e);
+            sessionFactory.getCurrentSession().merge(e);
             return true;
         } catch (DataAccessException de) {
             log.error("Error updating extended time entry" , de);
@@ -166,7 +173,7 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
         log.debug("Removing ExtendedTime entry id: " + e.getId());
 
        try {
-           getHibernateTemplate().delete(getHibernateTemplate().merge(e));
+    	   sessionFactory.getCurrentSession().remove(sessionFactory.getCurrentSession().merge(e));
            return true;
        } catch (DataAccessException de) {
            log.error("Failed to delete extendedTime entry, id: " + e.getId() + ".", de);
@@ -183,11 +190,14 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
         log.debug("Removing ExtendedTime entries for published assessment id: {}", publishedAssessmentId);
 
         try {
-            HibernateCallback<Integer> hcb = session -> session
-                    .createQuery("delete from ExtendedTime e where e.pubAssessment.publishedAssessmentId = :publishedAssessmentId")
-                    .setParameter("publishedAssessmentId", publishedAssessmentId)
-                    .executeUpdate();
-            getHibernateTemplate().execute(hcb);
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaDelete<ExtendedTime> delete = cb.createCriteriaDelete(ExtendedTime.class);
+            Root<ExtendedTime> e = delete.from(ExtendedTime.class);
+
+            delete.where(cb.equal(e.get("pubAssessment").get("publishedAssessmentId"), publishedAssessmentId));
+
+            session.createQuery(delete).executeUpdate();
             return true;
         } catch (DataAccessException de) {
             log.error("Failed to delete extended time entries for published assessment id: {}.", publishedAssessmentId, de);
@@ -198,14 +208,18 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
     @SuppressWarnings("unchecked")
     private ExtendedTime getPubAndX(final String query, final PublishedAssessmentIfc pub, final String secondParam, final String secondParamValue) {
         try{
-            HibernateCallback hcb = (Session s) -> {
-                Query q = s.getNamedQuery(query);
-                q.setParameter(PUBLISHED_ID, pub);
-                q.setParameter(secondParam, secondParamValue);
-                return q.uniqueResult();
-            };
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ExtendedTime> cq = cb.createQuery(ExtendedTime.class);
+            Root<ExtendedTime> root = cq.from(ExtendedTime.class);
 
-            return (ExtendedTime) getHibernateTemplate().execute(hcb);
+            cq.select(root).where(cb.and(
+                cb.equal(root.get("pubAssessment").get("publishedAssessmentId"),
+                    pub.getPublishedAssessmentId()),
+                cb.equal(root.get(secondParam), secondParamValue)
+            ));
+
+            return session.createQuery(cq).uniqueResult();
         } catch (DataAccessException e) {
             log.error("Failed to get extended time for pub: " + pub.getPublishedAssessmentId() + " and user/group: " + secondParamValue, e);
             return null;
@@ -215,12 +229,14 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
     public ExtendedTime getEntry(final String entryId){
         log.debug("getEntry " + entryId);
         try {
-            HibernateCallback hcb = (Session s) -> {
-                Query q = s.getNamedQuery(QUERY_GET_ENTRY);
-                q.setParameter(ENTRY_ID, Long.valueOf(entryId));
-                return q.uniqueResult();
-            };
-            return (ExtendedTime) getHibernateTemplate().execute(hcb);
+             Session session = sessionFactory.getCurrentSession();
+             CriteriaBuilder cb = session.getCriteriaBuilder();
+             CriteriaQuery<ExtendedTime> cq = cb.createQuery(ExtendedTime.class);
+             Root<ExtendedTime> root = cq.from(ExtendedTime.class);
+
+             cq.select(root).where(cb.equal(root.get("entryId"), Long.valueOf(entryId)));
+
+             return session.createQuery(cq).uniqueResult();
         } catch (DataAccessException e) {
             log.error("Failed to get Extended Time Entries for Published Assessment: " + entryId, e);
             return null;
