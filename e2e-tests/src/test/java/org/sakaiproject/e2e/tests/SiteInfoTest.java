@@ -83,9 +83,12 @@ class SiteInfoTest extends SakaiUiTestBase {
                 .filter(new Locator.FilterOptions().setHasText("instructor1"));
         assertThat(existingParticipantMessage).containsText("instructor1");
         assertThat(existingParticipantMessage).not().containsText("[Ljava.lang.Object;");
-        page.locator("#officialAccountParticipant").fill("student0011\nstudent0011");
+        page.locator("#officialAccountParticipant").fill("instructor1\nstudent0011\nstudent0011");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
         page.waitForLoadState();
+
+        assertThat(existingParticipantMessage).isVisible();
+        assertThat(existingParticipantMessage).containsText("instructor1");
 
         page.locator("#different-role").check(new Locator.CheckOptions().setForce(true));
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
