@@ -27,9 +27,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -40,11 +39,16 @@ import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.criteria.*;
 import jakarta.persistence.PersistenceException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 /**
  * <p>Description: Facade for AuthZ queries, standalone version.
  * <p>Sakai Project Copyright (c) 2005</p>
@@ -54,7 +58,7 @@ import jakarta.persistence.PersistenceException;
  */
 @Slf4j
 @Transactional
-public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQueriesFacadeAPI
+public class AuthzQueriesFacade implements AuthzQueriesFacadeAPI
 {
   // can convert these to use the resource bundle....
   private final static String HQL_QUERY_CHECK_AUTHZ =
@@ -71,6 +75,7 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
     "where asset.assessmentBaseId=authz.qualifierId and " +
     "authz.agentIdString = :agentId and authz.functionId = :functionId";
 
+  @Setter private SessionFactory sessionFactory;
   private AuthzGroupService authzGroupService;
 
   public void setAuthzGroupService(AuthzGroupService authzGroupService) {
@@ -92,12 +97,17 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
   public boolean isAuthorized(final String agentId,
       final String functionId, final String qualifierId)
   {
-    final HibernateCallback<List<AuthorizationData>> hcb = session -> session
-            .createQuery("select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id")
-            .setParameter("fid", functionId)
-            .setParameter("id", qualifierId)
-            .list();
-    List<AuthorizationData> authorizationList = getHibernateTemplate().execute(hcb);
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+    Root<AuthorizationData> auData = cq.from(AuthorizationData.class);
+
+    cq.select(auData).where(cb.and(
+        cb.equal(auData.get("functionId"), functionId),
+        cb.equal(auData.get("qualifierId"), qualifierId)
+    ));
+
+    List<AuthorizationData> authorizationList = session.createQuery(cq).getResultList();
 
     String currentSiteId = null;
     if (ToolManager.getCurrentPlacement() != null)
@@ -136,19 +146,20 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
       throw new IllegalArgumentException("Null Argument");
     }
     final String queryAgentId = ToolManager.getCurrentPlacement().getContext();
+    final String effectiveAgentId = (agentId == null) ? queryAgentId : agentId;
 
-    HibernateCallback hcb = session -> {
-      Query query = session.createQuery(HQL_QUERY_CHECK_AUTHZ);
-      if(agentId == null) {
-        query.setParameter("agentId", queryAgentId);
-      } else {
-        query.setParameter("agentId", agentId);
-      }
-      query.setParameter("functionId", functionId);
-      query.setParameter("qualifierId", qualifierId);
-      return query.uniqueResult();
-    };
-    Object result = getHibernateTemplate().execute(hcb);
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+    Root<AuthorizationData> a = cq.from(AuthorizationData.class);
+
+    cq.select(a).where(cb.and(
+        cb.equal(a.get("agentId"), effectiveAgentId),
+        cb.equal(a.get("functionId"), functionId),
+        cb.equal(a.get("qualifierId"), qualifierId)
+    ));
+
+    AuthorizationData result = session.createQuery(cq).uniqueResult();
 
     if(result != null)
       return true;
@@ -176,7 +187,7 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
       ad.setQualifierId(qualifierId);
       ad.setLastModifiedBy(UserDirectoryService.getCurrentUser().getId());
       ad.setLastModifiedDate(lastModifiedDate);
-      getHibernateTemplate().save(ad);
+      sessionFactory.getCurrentSession().merge(ad);
       return ad;
     }
   }
@@ -188,13 +199,18 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
     {
       throw new IllegalArgumentException("Null Argument");
     }
-    HibernateCallback<List<AuthorizationData>> hcb = session -> {
-      Query query = session.createQuery(HQL_QUERY_BY_AGENT_FUNC);
-      query.setParameter("agentId", agentId);
-      query.setParameter("functionId", functionId);
-      return query.list();
-    };
-    List<AuthorizationData> returnList = getHibernateTemplate().execute(hcb);
+
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+    Root<AuthorizationData> a = cq.from(AuthorizationData.class);
+
+    cq.select(a).where(cb.and(
+        cb.equal(a.get("agentId"), agentId),
+        cb.equal(a.get("functionId"), functionId)
+    ));
+
+    List<AuthorizationData> returnList = session.createQuery(cq).getResultList();
 
     if (returnList == null) {
       returnList = new ArrayList<>();
@@ -210,30 +226,42 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
     {
       throw new IllegalArgumentException("Null Argument");
     }
-    HibernateCallback<List<AssessmentBaseData>> hcb = session -> {
-      Query query = session.createQuery(HQL_QUERY_ASSESS_BY_AGENT_FUNC);
-      query.setParameter("agentId", agentId);
-      query.setParameter("functionId", functionId);
-      return query.list();
-    };
-    return getHibernateTemplate().execute(hcb);
+
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AssessmentBaseData> cq = cb.createQuery(AssessmentBaseData.class);
+    Root<AssessmentBaseData> a = cq.from(AssessmentBaseData.class);
+
+    cq.select(a).where(cb.and(
+        cb.equal(a.get("agentId"), agentId),
+        cb.equal(a.get("functionId"), functionId)
+    ));
+
+    return session.createQuery(cq).getResultList();
   }
 
   public void removeAuthorizationByQualifier(String qualifierId, boolean isPublishedAssessment) {
-    String query="select a from AuthorizationData a where a.qualifierId="+qualifierId;
-    String clause="";
-    if (isPublishedAssessment){
-      clause = " and (a.functionId='OWN_PUBLISHED_ASSESSMENT'"+
-               " or a.functionId='TAKE_PUBLISHED_ASSESSMENT'"+
-               " or a.functionId='VIEW_PUBLISHED_ASSESSMENT_FEEDBACK'"+
-               " or a.functionId='GRADE_PUBLISHED_ASSESSMENT'"+
-               " or a.functionId='VIEW_PUBLISHED_ASSESSMENT')";
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaDelete<AuthorizationData> delete = cb.createCriteriaDelete(AuthorizationData.class);
+    Root<AuthorizationData> a = delete.from(AuthorizationData.class);
+
+    Predicate byQualifier = cb.equal(a.get("qualifierId"), qualifierId);
+    Predicate byFunction;
+    if (isPublishedAssessment) {
+        byFunction = a.get("functionId").in(
+                "OWN_PUBLISHED_ASSESSMENT",
+                "TAKE_PUBLISHED_ASSESSMENT",
+                "VIEW_PUBLISHED_ASSESSMENT_FEEDBACK",
+                "GRADE_PUBLISHED_ASSESSMENT",
+                "VIEW_PUBLISHED_ASSESSMENT");
+    } else {
+        byFunction = cb.equal(a.get("functionId"), "EDIT_ASSESSMENT");
     }
-    else{
-	clause = " and a.functionId='EDIT_ASSESSMENT'";
-    }
-    List l = getHibernateTemplate().find(query+clause);
-    getHibernateTemplate().deleteAll(l);
+
+    delete.where(cb.and(byQualifier, byFunction));
+
+    session.createQuery(delete).executeUpdate();
   }
 
   /**
@@ -242,9 +270,17 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
    * @param functionId
    */
   public void removeAuthorizationByQualifierAndFunction(String qualifierId, String functionId) {
-	    String query="select a from AuthorizationData a where a.qualifierId = :id and a.functionId = :fid";
-	    List l = getHibernateTemplate().findByNamedParam(query, new String[] {"id", "fid"}, new String[] {qualifierId, functionId});
-	    getHibernateTemplate().deleteAll(l);
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaDelete<AuthorizationData> delete = cb.createCriteriaDelete(AuthorizationData.class);
+    Root<AuthorizationData> a = delete.from(AuthorizationData.class);
+
+    delete.where(cb.and(
+        cb.equal(a.get("qualifierId"), qualifierId),
+        cb.equal(a.get("functionId"), functionId)
+    ));
+
+    session.createQuery(delete).executeUpdate();
   }
   
   /**
@@ -254,11 +290,18 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
    * @param qualifierId
    */
   public void removeAuthorizationByAgentQualifierAndFunction(String agentId, String qualifierId, String functionId) {
-	    String query="select a from AuthorizationData a where a.qualifierId = :id and a.agentIdString = :agent and a.functionId = :fid";
-	    List l = getHibernateTemplate().findByNamedParam(query, new String[] {"id", "agent", "fid"},new String[] {qualifierId, agentId, functionId});
-	    if (l != null && l.size() > 0) {
-	    	getHibernateTemplate().deleteAll(l);
-	    }
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaDelete<AuthorizationData> delete = cb.createCriteriaDelete(AuthorizationData.class);
+    Root<AuthorizationData> a = delete.from(AuthorizationData.class);
+
+    delete.where(cb.and(
+        cb.equal(a.get("qualifierId"),   qualifierId),
+        cb.equal(a.get("agentIdString"), agentId),
+        cb.equal(a.get("functionId"),    functionId)
+    ));
+
+    session.createQuery(delete).executeUpdate();
   }
   
   
@@ -276,17 +319,31 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
   }
 
   public List getAuthorizationByAgentAndFunction(String agentId, String functionId) {
-    String query = "select a from AuthorizationData a where a.agentIdString = :agent and a.functionId = :fid";
-    return getHibernateTemplate().findByNamedParam(query, new String[] {"agent", "fid"}, new String[] {agentId, functionId});
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+    Root<AuthorizationData> a = cq.from(AuthorizationData.class);
+
+    cq.select(a).where(cb.and(
+        cb.equal(a.get("agentIdString"), agentId),
+        cb.equal(a.get("functionId"), functionId)
+    ));
+
+    return session.createQuery(cq).getResultList();
   }
 
   public List<AuthorizationData> getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId) {
-    HibernateCallback<List<AuthorizationData>> hcb = session -> session
-            .createQuery("select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id")
-            .setParameter("fid", functionId)
-            .setParameter("id", qualifierId)
-            .list();
-    return getHibernateTemplate().execute(hcb);
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+    Root<AuthorizationData> a = cq.from(AuthorizationData.class);
+
+    cq.select(a).where(cb.and(
+        cb.equal(a.get("functionId"), functionId),
+        cb.equal(a.get("qualifierId"), qualifierId)
+    ));
+
+    return session.createQuery(cq).getResultList();
   }
 
   public boolean checkMembership(String siteId) {
@@ -305,7 +362,7 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
   }
 
     public void hardDeleteAuthzData(String agentId) {
-      Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+      Session session = sessionFactory.getCurrentSession();
       CriteriaBuilder cb = session.getCriteriaBuilder();
       CriteriaDelete<AuthorizationData> delete = cb.createCriteriaDelete(AuthorizationData.class);
       Root<AuthorizationData> authorizationData = delete.from(AuthorizationData.class);
