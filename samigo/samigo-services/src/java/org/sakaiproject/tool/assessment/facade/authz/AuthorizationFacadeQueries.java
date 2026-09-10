@@ -25,32 +25,46 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.authz.QualifierData;
+import org.sakaiproject.tool.assessment.data.dao.authz.QualifierHierarchyData;
 import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIfc;
 import org.sakaiproject.tool.assessment.data.ifc.authz.QualifierIfc;
 import org.sakaiproject.tool.assessment.facade.DataFacadeException;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class AuthorizationFacadeQueries extends HibernateDaoSupport implements AuthorizationFacadeQueriesAPI{
+public class AuthorizationFacadeQueries implements AuthorizationFacadeQueriesAPI{
+
+  @Setter private SessionFactory sessionFactory;
 
   public AuthorizationFacadeQueries() {
   }
 
   public QualifierIteratorFacade getQualifierParents(final String qualifierId) {
-    final HibernateCallback<List<QualifierData>> hcb = session -> session
-            .createQuery("select p from QualifierData as p, QualifierData as c, QualifierHierarchyData as q " +
-                    "where p.qualifierId = q.parentId and c.qualifierId = q.childId and q.childId = :id")
-            .setParameter("id", qualifierId)
-            .list();
-    List<QualifierData> parents = getHibernateTemplate().execute(hcb);
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<QualifierData> cq = cb.createQuery(QualifierData.class);
+
+    Root<QualifierData> p = cq.from(QualifierData.class);
+    Root<QualifierHierarchyData> q = cq.from(QualifierHierarchyData.class);
+
+    cq.select(p).where(cb.and(
+        cb.equal(p.get("qualifierId"), q.get("parentId")),
+        cb.equal(q.get("childId"), qualifierId)
+    ));
+
+    List<QualifierData> parents = session.createQuery(cq).getResultList();
 
     List<QualifierFacade> a = new ArrayList<>();
     for (QualifierData data : parents) {
@@ -61,12 +75,21 @@ public class AuthorizationFacadeQueries extends HibernateDaoSupport implements A
   }
 
   public QualifierIteratorFacade getQualifierChildren(final String qualifierId) {
-    final HibernateCallback<List<QualifierData>> hcb = session -> session
-            .createQuery("select p from QualifierData as p, QualifierData as c, QualifierHierarchyData as q " +
-                    "where p.qualifierId = q.parentId and c.qualifierId = q.childId and q.parentId = :id")
-            .setParameter("id", qualifierId)
-            .list();
-    List<QualifierData> children = getHibernateTemplate().execute(hcb);
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<QualifierData> cq = cb.createQuery(QualifierData.class);
+
+    Root<QualifierData> p = cq.from(QualifierData.class);
+    Root<QualifierData> c = cq.from(QualifierData.class);
+    Root<QualifierHierarchyData> q = cq.from(QualifierHierarchyData.class);
+
+    cq.select(p).where(cb.and(
+        cb.equal(p.get("qualifierId"), q.get("parentId")),
+        cb.equal(c.get("qualifierId"), q.get("childId")),
+        cb.equal(q.get("parentId"), qualifierId)
+    ));
+
+    List<QualifierData> children = session.createQuery(cq).getResultList();
 
     List<QualifierFacade> a = new ArrayList<>();
     for (QualifierData data : children) {
@@ -92,7 +115,7 @@ public class AuthorizationFacadeQueries extends HibernateDaoSupport implements A
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
-       getHibernateTemplate().save(data);
+        sessionFactory.getCurrentSession().merge(data);
         retryCount = 0;
       }
       catch (Exception e) {
@@ -112,7 +135,7 @@ public class AuthorizationFacadeQueries extends HibernateDaoSupport implements A
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
-        getHibernateTemplate().save(data);
+        sessionFactory.getCurrentSession().merge(data);
         retryCount = 0;
       }
       catch (Exception e) {
