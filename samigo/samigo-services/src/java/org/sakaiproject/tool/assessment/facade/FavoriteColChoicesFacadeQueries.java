@@ -18,41 +18,52 @@ package org.sakaiproject.tool.assessment.facade;
 import java.util.Iterator;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class FavoriteColChoicesFacadeQueries extends HibernateDaoSupport implements FavoriteColChoicesFacadeQueriesAPI {
+public class FavoriteColChoicesFacadeQueries implements FavoriteColChoicesFacadeQueriesAPI {
+
+    @Setter private SessionFactory sessionFactory;
 
     public FavoriteColChoicesFacadeQueries() {
     }
 
     public void saveOrUpdate(final FavoriteColChoices choices) {
 
-        HibernateCallback<List<FavoriteColChoices>> hcb = session -> {
-            Query q = session.createQuery("from FavoriteColChoices as a where a.favoriteName = :name");
-            q.setParameter("name", choices.getFavoriteName());
-            return q.list();
-        };
-        List<FavoriteColChoices> favoriteList = getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<FavoriteColChoices> cq = cb.createQuery(FavoriteColChoices.class);
+        Root<FavoriteColChoices> a = cq.from(FavoriteColChoices.class);
+
+        cq.select(a).where(cb.equal(a.get("favoriteName"), choices.getFavoriteName()));
+
+        List<FavoriteColChoices> favoriteList = session.createQuery(cq).getResultList();
+
         if (favoriteList != null) {
             Iterator iter = favoriteList.iterator();
             if (iter.hasNext()) {
                 FavoriteColChoices fChoice = (FavoriteColChoices) iter.next();
                 //remove the existing entry
-                getHibernateTemplate().delete(fChoice);
+                session.remove(fChoice);
             }
         }
         int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
         while (retryCount > 0) {
             try {
-                getHibernateTemplate().save(choices);
+                session.persist(choices);
                 retryCount = 0;
             } catch (Exception e) {
                 log.warn("problem saving favoriteColChoices: " + e.getMessage());
@@ -63,11 +74,13 @@ public class FavoriteColChoicesFacadeQueries extends HibernateDaoSupport impleme
 
     public List<FavoriteColChoices> getFavoriteColChoicesByAgent(final String siteAgentId) {
 
-        HibernateCallback<List<FavoriteColChoices>> hcb = session -> {
-            Query q = session.createQuery("from FavoriteColChoices as a where a.ownerStringId = :site");
-            q.setParameter("site", siteAgentId);
-            return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<FavoriteColChoices> cq = cb.createQuery(FavoriteColChoices.class);
+        Root<FavoriteColChoices> a = cq.from(FavoriteColChoices.class);
+
+        cq.select(a).where(cb.equal(a.get("ownerStringId"), siteAgentId));
+
+        return session.createQuery(cq).getResultList();
     }
 }

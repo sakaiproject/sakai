@@ -21,28 +21,34 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.query.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Root;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
-		PublishedItemFacadeQueriesAPI {
+public class PublishedItemFacadeQueries implements PublishedItemFacadeQueriesAPI {
 
 	@Setter private ItemHashUtil itemHashUtil;
+	@Setter private SessionFactory sessionFactory;
 
 	public IdImpl getItemId(String id) {
 		return new IdImpl(id);
@@ -57,20 +63,20 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 	}
 
 	public PublishedItemFacade getItem(Long itemId, String agent) {
-		PublishedItemData item = (PublishedItemData) getHibernateTemplate()
+		PublishedItemData item = (PublishedItemData) sessionFactory.getCurrentSession()
 				.get(PublishedItemData.class, itemId);
 		return new PublishedItemFacade(item);
 	}
 	
 	public PublishedItemFacade getItem(String itemId) {
-		PublishedItemData item = (PublishedItemData) getHibernateTemplate()
+		PublishedItemData item = (PublishedItemData) sessionFactory.getCurrentSession()
 				.get(PublishedItemData.class, Long.valueOf(itemId));
 		return new PublishedItemFacade(item);
 	}
 
 	public Boolean itemExists(String itemId) {
 		try {
-			if (getHibernateTemplate().get(PublishedItemData.class,  Long.valueOf(itemId))==null){
+			if (sessionFactory.getCurrentSession().get(PublishedItemData.class,  Long.valueOf(itemId))==null){
 				return false;
 			}else{
 				return true;
@@ -81,12 +87,14 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 	}
 
 	public Map<String, ItemFacade> getPublishedItemsByHash(String hash) {
-		final HibernateCallback<List<PublishedItemData>> hcb = session -> {
-				Query q = session.createQuery("from PublishedItemData where hash = :hash");
-				q.setParameter("hash", hash);
-				return q.list();
-		};
-		List<PublishedItemData> list1 = getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<PublishedItemData> cq = cb.createQuery(PublishedItemData.class);
+		Root<PublishedItemData> root = cq.from(PublishedItemData.class);
+
+		cq.select(root).where(cb.equal(root.get("hash"), hash));
+
+		List<PublishedItemData> list1 = session.createQuery(cq).getResultList();
 
 		Map<String, ItemFacade> itemFacadeMap = new HashMap();
 
@@ -99,13 +107,14 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 	}
 
 	public void deleteItemContent(Long itemId, String agent) {
-		PublishedItemData item = getHibernateTemplate().get(PublishedItemData.class, itemId);
+		Session session = sessionFactory.getCurrentSession();
+		PublishedItemData item = session.get(PublishedItemData.class, itemId);
 
 		if (item != null) { // need to dissociate with item before deleting in Hibernate 3
 			item.getItemTextSet().clear();
 			item.getItemMetaDataSet().clear();
 			item.getItemFeedbackSet().clear();
-			getHibernateTemplate().merge(item);
+			session.merge(item);
 		}
 	}
 
@@ -114,14 +123,17 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		// TODO when we add item search indexing, this is going to have to change to
 		// first read in all the affected item IDs so we can generate events for each
 		// (similar to what we do in the tag service)
-		getHibernateTemplate().execute(session -> session.createQuery("update PublishedItemTag it " +
-						"set it.tagLabel = :tagLabel, it.tagCollectionId = :tagCollectionId, it.tagCollectionName = :tagCollectionName " +
-						"where it.tagId = :tagId")
-				.setParameter("tagLabel", tagView.tagLabel)
-				.setParameter("tagCollectionId", tagView.tagCollectionId)
-				.setParameter("tagCollectionName", tagView.tagCollectionName)
-				.setParameter("tagId", tagView.tagId)
-				.executeUpdate());
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaUpdate<PublishedItemTag> update = cb.createCriteriaUpdate(PublishedItemTag.class);
+		Root<PublishedItemTag> root = update.from(PublishedItemTag.class);
+
+		update.set(root.get("tagLabel"), tagView.tagLabel)
+			.set(root.get("tagCollectionId"), tagView.tagCollectionId)
+			.set(root.get("tagCollectionName"), tagView.tagCollectionName)
+			.where(cb.equal(root.get("tagId"), tagView.tagId));
+
+		session.createQuery(update).executeUpdate();
 	}
 
 	@Override
@@ -129,9 +141,14 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		// TODO when we add item search indexing, this is going to have to change to
 		// first read in all the affected item IDs so we can generate events for each
 		// (similar to what we do in the tag service)
-		getHibernateTemplate().execute(session -> session.createQuery("delete PublishedItemTag it where it.tagId = :tagId")
-				.setParameter("tagId", tagId)
-				.executeUpdate());
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaDelete<PublishedItemTag> delete = cb.createCriteriaDelete(PublishedItemTag.class);
+		Root<PublishedItemTag> root = delete.from(PublishedItemTag.class);
+
+		delete.where(cb.equal(root.get("tagId"), tagId));
+
+		session.createQuery(delete).executeUpdate();
 	}
 
 	@Override
@@ -139,12 +156,15 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		// TODO when we add item search indexing, this is going to have to change to
 		// first read in all the affected item IDs so we can generate events for each
 		// (similar to what we do in the tag service)
-		getHibernateTemplate().execute(session -> session.createQuery("update PublishedItemTag it " +
-						"set it.tagCollectionName = :tagCollectionName " +
-						"where it.tagCollectionId = :tagCollectionId")
-				.setParameter("tagCollectionName", tagCollectionView.tagCollectionName)
-				.setParameter("tagCollectionId", tagCollectionView.tagCollectionId)
-				.executeUpdate());
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaUpdate<PublishedItemTag> update = cb.createCriteriaUpdate(PublishedItemTag.class);
+		Root<PublishedItemTag> root = update.from(PublishedItemTag.class);
+
+		update.set(root.get("tagCollectionName"), tagCollectionView.tagCollectionName)
+			.where(cb.equal(root.get("tagCollectionId"), tagCollectionView.tagCollectionId));
+
+		session.createQuery(update).executeUpdate();
 	}
 
 	@Override
@@ -152,9 +172,14 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		// TODO when we add item search indexing, this is going to have to change to
 		// first read in all the affected item IDs so we can generate events for each
 		// (similar to what we do in the tag service)
-		getHibernateTemplate().execute(session -> session.createQuery("delete PublishedItemTag it where it.tagCollectionId = :tagCollectionId")
-				.setParameter("tagCollectionId", tagCollectionId)
-				.executeUpdate());
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaDelete<PublishedItemTag> delete = cb.createCriteriaDelete(PublishedItemTag.class);
+		Root<PublishedItemTag> root = delete.from(PublishedItemTag.class);
+
+		delete.where(cb.equal(root.get("tagCollectionId"), tagCollectionId));
+
+		session.createQuery(delete).executeUpdate();
 	}
 
 	@Override
@@ -180,12 +205,23 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 
 	@Override
 	public Long getPublishedAssessmentId(Long itemId) {
-		final HibernateCallback<List<Long>> hcb = session -> {
-			Query q = session.createQuery("select s.assessment.publishedAssessmentId from PublishedSectionData s, PublishedItemData i where s.id = i.section AND i.itemId = :itemId");
-			q.setParameter("itemId", itemId);
-			return q.list();
-		};
-		List<Long> list1 = getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+		Root<PublishedSectionData> s = cq.from(PublishedSectionData.class);
+		Root<PublishedItemData>   i = cq.from(PublishedItemData.class);
+
+		cq.select(s.get("assessment").get("publishedAssessmentId"))
+			.where(cb.and(
+				cb.equal(s.get("id"), i.get("section")),
+				cb.equal(i.get("itemId"), itemId)
+			));
+
+		List<Long> list1 = session.createQuery(cq)
+			.setMaxResults(1)
+			.getResultList();
+
 		if (list1.isEmpty()) {
 			return -1L;
 		} else {
@@ -195,7 +231,8 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 
 	@Override
  	public void removeItemAttachment(Long itemAttachmentId) {
-		PublishedItemAttachment itemAttachment = getHibernateTemplate().get(PublishedItemAttachment.class, itemAttachmentId);
+		Session session = sessionFactory.getCurrentSession();
+		PublishedItemAttachment itemAttachment = session.get(PublishedItemAttachment.class, itemAttachmentId);
 		ItemDataIfc item = itemAttachment.getItem();
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
@@ -203,7 +240,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 				if (item != null) {
 					Set<ItemAttachmentIfc> itemAttachmentSet = item.getItemAttachmentSet();
 					itemAttachmentSet.remove(itemAttachment);
-					getHibernateTemplate().merge(item);
+					session.merge(item);
 					retryCount = 0;
 				}
 			} catch (Exception e) {
