@@ -35,16 +35,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
@@ -116,19 +111,25 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareSe
 import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class AssessmentFacadeQueries extends HibernateDaoSupport implements AssessmentFacadeQueriesAPI {
+public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 
 	// private ResourceBundle rb =
 	// ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
 	public static final String TITLE = "title";
+	@Setter private SessionFactory sessionFactory;
 
 	public AssessmentFacadeQueries() {
 	}
@@ -170,6 +171,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 	
 	public Long addTemplate() {
+		Session session = sessionFactory.getCurrentSession();
 		AssessmentTemplateData assessmentTemplate = new AssessmentTemplateData(
 			 Long.valueOf(0), "title", "description", "comments",
 				TypeD.HOMEWORK, Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),
@@ -191,7 +193,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				.intValue();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().save(assessmentTemplate);
+				session.persist(assessmentTemplate);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem saving template: " + e.getMessage());
@@ -203,13 +205,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public void removeTemplate(Long assessmentId) {
-		AssessmentTemplateData assessment = (AssessmentTemplateData) getHibernateTemplate()
-				.load(AssessmentTemplateData.class, assessmentId);
+		Session session = sessionFactory.getCurrentSession();
+		AssessmentTemplateData assessment = (AssessmentTemplateData) session
+				.get(AssessmentTemplateData.class, assessmentId);
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().delete(assessment);
+				session.remove(assessment);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem delete template: " + e.getMessage());
@@ -220,7 +223,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public Long addAssessment(Long assessmentTemplateId) {
-
+		Session session = sessionFactory.getCurrentSession();
 		AssessmentData assessment = new AssessmentData( Long.valueOf(0),
 				"assessment title", "assessment description",
 				"assessment acomments", assessmentTemplateId, TypeD.HOMEWORK,
@@ -241,7 +244,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				.intValue();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().save(assessment);
+				session.persist(assessment);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem saving assessment: " + e.getMessage());
@@ -253,8 +256,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public AssessmentBaseData load(Long id) {
-		AssessmentBaseData a = (AssessmentBaseData) getHibernateTemplate()
-				.load(AssessmentBaseData.class, id);
+		Session session = sessionFactory.getCurrentSession();
+		AssessmentBaseData a = (AssessmentBaseData) session
+				.get(AssessmentBaseData.class, id);
 		if (a.getIsTemplate().equals(Boolean.TRUE)) {
 			return (AssessmentTemplateData) a;
 		} else {
@@ -263,12 +267,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public AssessmentTemplateData loadTemplate(Long assessmentTemplateId) {
-		return (AssessmentTemplateData) getHibernateTemplate().load(
+		Session session = sessionFactory.getCurrentSession();
+		return (AssessmentTemplateData) session.get(
 				AssessmentTemplateData.class, assessmentTemplateId);
 	}
 
 	public AssessmentData loadAssessment(Long assessmentId) {
-		return (AssessmentData) getHibernateTemplate().load(
+		Session session = sessionFactory.getCurrentSession();
+		return (AssessmentData) session.get(
 				AssessmentData.class, assessmentId);
 	}
 
@@ -278,8 +284,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	 */
 	public AssessmentTemplateFacade getAssessmentTemplate(
 			Long assessmentTemplateId) {
-		AssessmentTemplateData template = (AssessmentTemplateData) getHibernateTemplate()
-				.load(AssessmentTemplateData.class, assessmentTemplateId);
+		Session session = sessionFactory.getCurrentSession();
+		AssessmentTemplateData template = (AssessmentTemplateData) session
+				.get(AssessmentTemplateData.class, assessmentTemplateId);
 		return new AssessmentTemplateFacade(template);
 	}
 
@@ -288,18 +295,24 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	public List<AssessmentTemplateFacade> getAllAssessmentTemplates() {
 		final String agent = AgentFacade.getAgentString();
 		final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
-		HibernateCallback<List<AssessmentTemplateData>> hcb = session -> {
-            Query q = session.createQuery(
-                    "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)"
-                            + " from AssessmentTemplateData a where a.assessmentBaseId = :id or"
-                            + " a.createdBy = :agent or a.typeId = :type order by a.title"
-            );
-            q.setParameter("id", 1L);
-            q.setParameter("agent", agent);
-            q.setParameter("type", typeId);
-            return q.list();
-        };
-		List<AssessmentTemplateData> list = getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentTemplateData> cq = cb.createQuery(AssessmentTemplateData.class);
+		Root<AssessmentTemplateData> root = cq.from(AssessmentTemplateData.class);
+
+		cq.select(cb.construct(AssessmentTemplateData.class,
+			root.get("assessmentBaseId"),
+			root.get("title"),
+			root.get("lastModifiedDate"),
+			root.get("typeId")));
+		cq.where(cb.or(
+			cb.equal(root.get("assessmentBaseId"), 1L),
+			cb.equal(root.get("createdBy"), agent),
+			cb.equal(root.get("typeId"), typeId)));
+		cq.orderBy(cb.asc(root.get("title")));
+
+		List<AssessmentTemplateData> list = session.createQuery(cq).list();
+
 		List<AssessmentTemplateFacade> templateList = new ArrayList<>();
 		for (AssessmentTemplateData a : list) {
 			AssessmentTemplateFacade f = new AssessmentTemplateFacade(a);
@@ -313,18 +326,25 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	public List<AssessmentTemplateFacade> getAllActiveAssessmentTemplates() {
 		final String agent = AgentFacade.getAgentString();
 		final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
-		HibernateCallback<List<AssessmentTemplateData>> hcb = session -> {
-            Query q = session.createQuery(
-            		"select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)"
-					+ " from AssessmentTemplateData a where a.status = :status and (a.assessmentBaseId = :id or"
-					+ " a.createdBy = :agent or a.typeId = :type) order by a.title");
-            q.setParameter("status", 1);
-            q.setParameter("id", 1L);
-            q.setParameter("agent", agent);
-            q.setParameter("type", typeId);
-            return q.list();
-        };
-		List<AssessmentTemplateData> list = getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentTemplateData> cq = cb.createQuery(AssessmentTemplateData.class);
+		Root<AssessmentTemplateData> root = cq.from(AssessmentTemplateData.class);
+
+		cq.select(cb.construct(AssessmentTemplateData.class,
+			root.get("assessmentBaseId"),
+			root.get("title"),
+			root.get("lastModifiedDate"),
+			root.get("typeId")));
+		cq.where(
+			cb.equal(root.get("status"), 1),
+			cb.or(
+				cb.equal(root.get("assessmentBaseId"), 1L),
+				cb.equal(root.get("createdBy"), agent),
+				cb.equal(root.get("typeId"), typeId)));
+		cq.orderBy(cb.asc(root.get("title")));
+
+		List<AssessmentTemplateData> list = session.createQuery(cq).list();
 
 		List<AssessmentTemplateFacade> templateList = new ArrayList<>();
 		for (AssessmentTemplateData a : list) {
@@ -346,19 +366,23 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	public List<AssessmentTemplateFacade> getTitleOfAllActiveAssessmentTemplates() {
 		final String agent = AgentFacade.getAgentString();
 		final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
-		HibernateCallback<List<AssessmentTemplateData>> hcb = session -> {
-            Query q = session.createQuery(
-					"select new AssessmentTemplateData(a.assessmentBaseId, a.title) "
-							+ " from AssessmentTemplateData a where a.status = :status and "
-							+ " (a.assessmentBaseId = :id or a.createdBy = :agent or typeId = :type) order by a.title"
-			);
-            q.setParameter("status", 1);
-            q.setParameter("id", Long.valueOf(1));
-            q.setParameter("agent", agent);
-            q.setParameter("type", typeId.longValue());
-            return q.list();
-        };
-		List<AssessmentTemplateData> list = getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentTemplateData> cq = cb.createQuery(AssessmentTemplateData.class);
+		Root<AssessmentTemplateData> root = cq.from(AssessmentTemplateData.class);
+
+		cq.select(cb.construct(AssessmentTemplateData.class,
+			root.get("assessmentBaseId"),
+			root.get("title")));
+		cq.where(
+			cb.equal(root.get("status"), 1),
+			cb.or(
+				cb.equal(root.get("assessmentBaseId"), 1L),
+				cb.equal(root.get("createdBy"), agent),
+				cb.equal(root.get("typeId"), typeId)));
+		cq.orderBy(cb.asc(root.get("title")));
+
+		List<AssessmentTemplateData> list = session.createQuery(cq).list();
 
 		List<AssessmentTemplateFacade> templateList = new ArrayList<>();
 		for (AssessmentTemplateData a : list) {
@@ -370,8 +394,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public AssessmentFacade getAssessment(Long assessmentId) {
+		Session session = sessionFactory.getCurrentSession();
 		try {
-			AssessmentData assessment = getHibernateTemplate().get(AssessmentData.class, assessmentId);
+			AssessmentData assessment = session.get(AssessmentData.class, assessmentId);
 			if (assessment != null) {
 				assessment.setSectionSet(getSectionSetForAssessment(assessment));
 				return new AssessmentFacade(assessment);
@@ -383,20 +408,32 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	private Set<SectionData> getSectionSetForAssessment(AssessmentData assessment) {
-		List<SectionData> sectionList = (List<SectionData>) getHibernateTemplate().findByNamedParam("from SectionData s where s.assessment.assessmentBaseId = :id", "id", assessment.getAssessmentBaseId());
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SectionData> cq = cb.createQuery(SectionData.class);
+		Root<SectionData> root = cq.from(SectionData.class);
+		cq.where(cb.equal(root.get("assessment").get("assessmentBaseId"), assessment.getAssessmentBaseId()));
+
+		List<SectionData> sectionList = session.createQuery(cq).list();
 		Hibernate.initialize(sectionList);
 		return new HashSet<>(sectionList);
 	}
 
 	public void removeAssessment(final Long assessmentId) {
+		Session session = sessionFactory.getCurrentSession();
 		// if pubAssessment exist, simply set assessment to inactive else delete assessment
-		List<PublishedAssessmentData> count = (List<PublishedAssessmentData>) getHibernateTemplate()
-				.findByNamedParam("select count(p) from PublishedAssessmentData p where p.assessmentId = :id", "id", assessmentId);
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<PublishedAssessmentData> root = cq.from(PublishedAssessmentData.class);
+		cq.select(cb.count(root));
+		cq.where(cb.equal(root.get("assessmentId"), assessmentId));
+
+		List count = session.createQuery(cq).list();
 
 		log.debug("removeAssesment: no. of pub Assessment = {}", count.size());
 		Iterator iter = count.iterator();
 		int i = ((Long) iter.next()).intValue();
-		AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
+		AssessmentData assessment = (AssessmentData) session.get(AssessmentData.class, assessmentId);
 		// SAK-42943 Commented because attachments aren't removed on soft deletion, but this will be handy whenever hard deletion is added
 		/*if (i < 1) {
 			AssessmentService s = new AssessmentService();
@@ -414,7 +451,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().update(assessment);
+				session.merge(assessment);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem updating asssessment: " + e.getMessage());
@@ -514,6 +551,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 		// this assessment came with one default section
 		AssessmentData assessment = null;
+		Session session = sessionFactory.getCurrentSession();
 		try {
 			assessment = prepareAssessment(title, description, typeId,
 					templateId, siteId);
@@ -521,7 +559,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			throw new Exception(e);
 		}
 		assessment.setSectionSet(new HashSet());
-		getHibernateTemplate().save(assessment);
+		session.merge(assessment);
 
 		// register assessment with current site
 		registerWithSite(assessment.getAssessmentId().toString(), siteId);
@@ -573,6 +611,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 		// this assessment comes with a default section
 		AssessmentData assessment = null;
+		Session session = sessionFactory.getCurrentSession();
 		try {
 			assessment = prepareAssessment(title, description, typeId,
 					templateId, siteId);
@@ -584,7 +623,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				.intValue();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().save(assessment);
+				session.merge(assessment);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem saving assessment: " + e.getMessage());
@@ -615,7 +654,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public List<AssessmentFacade> getAllAssessments(String orderBy) {
-		List<AssessmentData> list = (List<AssessmentData>) getHibernateTemplate().find("from AssessmentData a order by a." + orderBy);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentData> cq = cb.createQuery(AssessmentData.class);
+		Root<AssessmentData> root = cq.from(AssessmentData.class);
+		cq.select(root);
+		cq.orderBy(cb.asc(root.get(orderBy)));
+
+		List<AssessmentData> list = session.createQuery(cq).list();
 		List<AssessmentFacade> assessmentList = new ArrayList<>();
 		for (AssessmentData a : list) {;
 			assessmentList.add(new AssessmentFacade(a));
@@ -624,8 +670,15 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public List<AssessmentFacade> getAllActiveAssessments(String orderBy) {
-		List<AssessmentData> list = (List<AssessmentData>) getHibernateTemplate().findByNamedParam(
-				"from AssessmentData a where a.status = :status order by a." + orderBy, "status", 1);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentData> cq = cb.createQuery(AssessmentData.class);
+		Root<AssessmentData> root = cq.from(AssessmentData.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("status"), 1));
+		cq.orderBy(cb.asc(root.get(orderBy)));
+
+		List<AssessmentData> list = session.createQuery(cq).list();
 		List<AssessmentFacade> assessmentList = new ArrayList<>();
 		for (AssessmentData a : list) {
 			a.setSectionSet(getSectionSetForAssessment(a));
@@ -636,14 +689,18 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public List<AssessmentFacade> getBasicInfoOfAllActiveAssessments(String orderBy, boolean ascending) {
-		String query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)from AssessmentData a where a.status = :status order by a." + orderBy;
-		if (ascending) {
-			query += " asc";
-		} else {
-			query += " desc";
-		}
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentData> cq = cb.createQuery(AssessmentData.class);
+		Root<AssessmentData> root = cq.from(AssessmentData.class);
 
-		List<AssessmentData> list = (List<AssessmentData>) getHibernateTemplate().findByNamedParam(query, "status", 1);
+		cq.select(cb.construct(AssessmentData.class,
+				root.get("assessmentBaseId"),
+				root.get("title"),
+				root.get("lastModifiedDate")));
+		cq.where(cb.equal(root.get("status"), 1));
+		cq.orderBy(ascending ? cb.asc(root.get(orderBy)) : cb.desc(root.get(orderBy)));
+		List<AssessmentData> list = session.createQuery(cq).list();
 
 		List<AssessmentFacade> assessmentList = new ArrayList<>();
 		for (AssessmentData a : list) {
@@ -654,40 +711,55 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 	public List<AssessmentFacade> getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy, final String siteAgentId, boolean ascending) {
 		// Get the list of assessment
-		StringBuilder sb = new StringBuilder("select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.lastModifiedBy, ac.startDate, ac.dueDate, ac.releaseTo) ");
-		sb.append("from AssessmentData a, AuthorizationData z, AssessmentAccessControl ac where a.status = :status and ");
-		sb.append("a.assessmentBaseId=z.qualifierId and z.functionId = :fid ");
-		sb.append("and z.agentIdString = :site ");
-		sb.append("and ac.assessmentBase.assessmentBaseId = a.assessmentBaseId order by a.");
-		sb.append(orderBy);
-		
-		String query = sb.toString();
-		if (ascending)
-			query += " asc";
-		else
-			query += " desc";
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentData> cq = cb.createQuery(AssessmentData.class);
 
-		final String hql = query;
-		HibernateCallback<List<AssessmentData>> hcb = session -> {
-            Query q = session.createQuery(hql);
-            q.setParameter("status", 1);
-            q.setParameter("fid", "EDIT_ASSESSMENT");
-            q.setParameter("site", siteAgentId);
-            return q.list();
-        };
-		List<AssessmentData> list = getHibernateTemplate().execute(hcb);
+		Root<AssessmentData> aRoot = cq.from(AssessmentData.class);
+		Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+		Root<AssessmentAccessControl> acRoot = cq.from(AssessmentAccessControl.class);
+
+		cq.select(cb.construct(AssessmentData.class,
+			aRoot.get("assessmentBaseId"),
+			aRoot.get("title"),
+			aRoot.get("lastModifiedDate"),
+			aRoot.get("lastModifiedBy"),
+			acRoot.get("startDate"),
+			acRoot.get("dueDate"),
+			acRoot.get("releaseTo")));
+
+		cq.where(
+			cb.equal(aRoot.get("status"), 1),
+			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+			cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
+			cb.equal(zRoot.get("agentIdString"), siteAgentId),
+			cb.equal(acRoot.get("assessmentBase").get("assessmentBaseId"), aRoot.get("assessmentBaseId")));
+
+		cq.orderBy(ascending ? cb.asc(aRoot.get(orderBy)) : cb.desc(aRoot.get(orderBy)));
+
+		List<AssessmentData> list = session.createQuery(cq).list();
 
 		// Get the number of question in each assessment
-		HibernateCallback<List<Object[]>> hcb2 = session -> {
-            Query q2 = session.createQuery(
-            		"select a.assessmentBaseId, count(*) from ItemData i, SectionData s,  AssessmentData a, AuthorizationData z " +
-							"where a = s.assessment and s = i.section and a.assessmentBaseId = z.qualifierId and z.functionId = :fid and z.agentIdString = :site " +
-							"group by a.assessmentBaseId ");
-            q2.setParameter("fid", "EDIT_ASSESSMENT");
-            q2.setParameter("site", siteAgentId);
-            return q2.list();
-        };
-		List<Object[]> questionSizeList = getHibernateTemplate().execute(hcb2);
+		CriteriaBuilder cb2 = session.getCriteriaBuilder();
+		CriteriaQuery<Object[]> cq2 = cb.createQuery(Object[].class);
+
+		Root<ItemData> iRoot = cq2.from(ItemData.class);
+		Root<SectionData> sRoot = cq2.from(SectionData.class);
+		Root<AssessmentData> aRoot2 = cq2.from(AssessmentData.class);
+		Root<AuthorizationData> zRoot2 = cq2.from(AuthorizationData.class);
+
+		cq2.select(cb2.array(
+			aRoot2.get("assessmentBaseId"),
+			cb2.count(iRoot)));
+		cq.where(
+				cb.equal(aRoot2.get("assessmentBaseId"), sRoot.get("assessment").get("assessmentBaseId")),
+				cb.equal(sRoot.get("sectionId"), iRoot.get("section").get("sectionId")),
+				cb.equal(aRoot2.get("assessmentBaseId"), zRoot2.get("qualifierId")),
+				cb.equal(zRoot2.get("functionId"), "EDIT_ASSESSMENT"),
+				cb.equal(zRoot2.get("agentIdString"), siteAgentId));
+		cq.groupBy(aRoot2.get("assessmentBaseId"));
+
+		List<Object[]> questionSizeList = session.createQuery(cq2).list();
 		Map<Object, Object> questionSizeMap = new HashMap<>();
 		for (Object[] o : questionSizeList) {
 			questionSizeMap.put(o[0], o[1]);
@@ -747,20 +819,25 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public List<AssessmentFacade> getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy, final String siteAgentId) {
-		HibernateCallback<List<AssessmentData>> hcb = session -> {
-			Query q = session.createQuery(
-					"select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) "
-							+ " from AssessmentData a, AuthorizationData z where a.status = :status and "
-							+ " a.assessmentBaseId=z.qualifierId and z.functionId = :fid "
-							+ " and z.agentIdString = :site order by a." + orderBy
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentData> cq = cb.createQuery(AssessmentData.class);
 
-			);
-			q.setParameter("status", 1);
-            q.setParameter("fid", "EDIT_ASSESSMENT");
-            q.setParameter("site", siteAgentId);
-            return q.list();
-        };
-		List<AssessmentData> list = getHibernateTemplate().execute(hcb);
+		Root<AssessmentData> aRoot = cq.from(AssessmentData.class);
+		Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+
+		cq.select(cb.construct(AssessmentData.class,
+			aRoot.get("assessmentBaseId"),
+			aRoot.get("title"),
+			aRoot.get("lastModifiedDate")));
+		cq.where(
+			cb.equal(aRoot.get("status"), 1),
+			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+			cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
+			cb.equal(zRoot.get("agentIdString"), siteAgentId));
+		cq.orderBy(cb.asc(aRoot.get(orderBy)));
+
+		List<AssessmentData> list = session.createQuery(cq).list();
 
 		List<AssessmentFacade> assessmentList = new ArrayList<>();
 		for (AssessmentData a : list) {
@@ -770,7 +847,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public AssessmentFacade getBasicInfoOfAnAssessment(Long assessmentId) {
-		AssessmentData a = (AssessmentData) getHibernateTemplate().load(
+		Session session = sessionFactory.getCurrentSession();
+		AssessmentData a = (AssessmentData) session.get(
 				AssessmentData.class, assessmentId);
 		AssessmentFacade f = new AssessmentFacade(a.getAssessmentBaseId(), a
 				.getTitle(), a.getLastModifiedDate());
@@ -787,8 +865,15 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public List<AssessmentFacade> getSettingsOfAllActiveAssessments(String orderBy) {
-		List<AssessmentData> list = (List<AssessmentData>) getHibernateTemplate().findByNamedParam(
-				"from AssessmentData a where a.status = :status order by a." + orderBy, "status", 1);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentData> cq = cb.createQuery(AssessmentData.class);
+		Root<AssessmentData> root = cq.from(AssessmentData.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("status"), 1));
+		cq.orderBy(cb.asc(root.get(orderBy)));
+
+		List<AssessmentData> list = session.createQuery(cq).list();
 		// IMPORTANT:
 		// 1. we do not want any Section info, so set loadSection to false
 		// 2. We have also declared SectionData as lazy loading. If loadSection
@@ -813,19 +898,41 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public int getQuestionSize(final Long assessmentId) {
-		HibernateCallback<Number> hcb = session -> (Number) session
-				.createQuery("select count(i) from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId = :id")
-				.setParameter("id", assessmentId)
-				.uniqueResult();
-		return getHibernateTemplate().execute(hcb).intValue();
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+		Root<ItemData> iRoot = cq.from(ItemData.class);
+		Root<SectionData> sRoot = cq.from(SectionData.class);
+		Root<AssessmentData> aRoot = cq.from(AssessmentData.class);
+
+		cq.select(cb.count(iRoot));
+		cq.where(
+			cb.equal(aRoot.get("assessmentBaseId"), sRoot.get("assessment").get("assessmentBaseId")),
+			cb.equal(sRoot.get("sectionId"), iRoot.get("section").get("sectionId")),
+			cb.equal(aRoot.get("assessmentBaseId"), assessmentId));
+
+		Long count = session.createQuery(cq).uniqueResult();
+
+		return count == null ? 0 : count.intValue();
 	}
 
 	public List getQuestionsIdList(final Long assessmentId) {
-		HibernateCallback<List<Long>> hcb = session -> session
-				.createQuery("select i.itemId from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId = :id")
-				.setParameter("id", assessmentId)
-				.list();
-		return getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+		Root<ItemData> iRoot = cq.from(ItemData.class);
+		Root<SectionData> sRoot = cq.from(SectionData.class);
+		Root<AssessmentData> aRoot = cq.from(AssessmentData.class);
+
+		cq.select(iRoot.get("itemId"));
+		cq.where(
+			cb.equal(aRoot.get("assessmentBaseId"), sRoot.get("assessment").get("assessmentBaseId")),
+			cb.equal(sRoot.get("sectionId"), iRoot.get("section").get("sectionId")),
+			cb.equal(aRoot.get("assessmentBaseId"), assessmentId));
+
+		return session.createQuery(cq).list();
 	}
 
 	public void deleteAllSecuredIP(AssessmentIfc assessment) {
@@ -833,13 +940,19 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		while (retryCount > 0) {
 			try {
 				Long assessmentId = assessment.getAssessmentId();
-				List ip = getHibernateTemplate()
-						.findByNamedParam("from SecuredIPAddress s where s.assessment.assessmentBaseId = :id", "id", assessmentId);
+				Session session = sessionFactory.getCurrentSession();
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<SecuredIPAddress> cq = cb.createQuery(SecuredIPAddress.class);
+				Root<SecuredIPAddress> root = cq.from(SecuredIPAddress.class);
+
+				List<SecuredIPAddress> ip = session.createQuery(cq).list();
 				if (ip.size() > 0) {
 					SecuredIPAddress s = (SecuredIPAddress) ip.get(0);
 					AssessmentData a = (AssessmentData) s.getAssessment();
 					a.setSecuredIPAddressSet(new HashSet());
-					getHibernateTemplate().deleteAll(ip);
+					for (SecuredIPAddress securedIP : ip) {
+						session.remove(securedIP);
+					}
 					retryCount = 0;
 				} else
 					retryCount = 0;
@@ -852,6 +965,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public void saveOrUpdate(AssessmentFacade assessment) {
+		Session session = sessionFactory.getCurrentSession();
 		AssessmentData data = (AssessmentData) assessment.getData();
 		data.setLastModifiedBy(AgentFacade.getAgentString());
 		data.setLastModifiedDate(new Date());
@@ -859,7 +973,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		data.setCategoryId(assessment.getCategoryId());
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().saveOrUpdate(data);
+				session.merge(data);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save new settings: " + e.getMessage());
@@ -874,13 +988,20 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				List metadatas = getHibernateTemplate()
-						.findByNamedParam("from AssessmentMetaData a where a.assessment.assessmentBaseId = :id", "id", t.getAssessmentBaseId());
+				Session session = sessionFactory.getCurrentSession();
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<AssessmentMetaData> cq = cb.createQuery(AssessmentMetaData.class);
+				Root<AssessmentMetaData> root = cq.from(AssessmentMetaData.class);
+				cq.where(cb.equal(root.get("assessment").get("assessmentBaseId"), t.getAssessmentBaseId()));
+
+				List<AssessmentMetaData> metadatas = session.createQuery(cq).list();
 				if (metadatas.size() > 0) {
 					AssessmentMetaDataIfc m = (AssessmentMetaDataIfc) metadatas.get(0);
 					AssessmentBaseIfc a = (AssessmentBaseIfc) m.getAssessment();
 					a.setAssessmentMetaDataSet(new HashSet());
-					getHibernateTemplate().deleteAll(metadatas);
+					for (AssessmentMetaData metadata : metadatas) {
+						session.remove(metadata);
+					}
 					retryCount = 0;
 				} else
 					retryCount = 0;
@@ -893,12 +1014,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public void saveOrUpdate(final AssessmentTemplateData template) {
+		Session session = sessionFactory.getCurrentSession();
 		template.setLastModifiedBy(AgentFacade.getAgentString());
 		template.setLastModifiedDate(new Date());
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().saveOrUpdate(template);
+				session.merge(template);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update template: " + e.getMessage());
@@ -909,10 +1031,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public void deleteTemplate(Long templateId) {
+		Session session = sessionFactory.getCurrentSession();
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().delete(
+				session.remove(
 						getAssessmentTemplate(templateId).getData());
 				retryCount = 0;
 			} catch (Exception e) {
@@ -924,6 +1047,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public SectionFacade addSection(Long assessmentId) {
+		Session session = sessionFactory.getCurrentSession();
 		// #1 - get the assessment and attach teh new section to it
 		// we are working with Data instead of Facade in this method but should
 		// return
@@ -958,7 +1082,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				.intValue();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().saveOrUpdate(section);
+				session.merge(section);
 				retryCount = 0;
 			} catch (Exception e) {
 				log
@@ -972,12 +1096,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public SectionFacade getSection(Long sectionId) {
-		SectionData section = (SectionData) getHibernateTemplate().load(
+		SectionData section = (SectionData) sessionFactory.getCurrentSession().get(
 				SectionData.class, sectionId);
 		return new SectionFacade(section);
 	}
 
 	public void removeSection(Long sectionId) {
+		Session session = sessionFactory.getCurrentSession();
 		SectionData section = loadSection(sectionId);
 		if (section != null) {
 			// need to check that items in the selected section is not
@@ -1020,7 +1145,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 			while (retryCount > 0) {
 				try {
-					getHibernateTemplate().update(assessment); // sections
+					session.merge(assessment); // sections
 					// reordered
 					retryCount = 0;
 				} catch (Exception e) {
@@ -1040,7 +1165,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 			while (retryCount > 0) {
 				try {
-					getHibernateTemplate().delete(section);
+					session.remove(section);
 					retryCount = 0;
 				} catch (Exception e) {
 					log.warn("problem deletint section: " + e.getMessage());
@@ -1052,15 +1177,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public SectionData loadSection(Long sectionId) {
-		return (SectionData) getHibernateTemplate().load(SectionData.class,
+		return (SectionData) sessionFactory.getCurrentSession().get(SectionData.class,
 				sectionId);
 	}
 
 	public void saveOrUpdateSection(SectionFacade section) {
+		Session session = sessionFactory.getCurrentSession();
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().saveOrUpdate(section.getData());
+				session.merge(section.getData());
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update section: " + e.getMessage());
@@ -1078,8 +1204,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	 * @return
 	 */
 	private List loadAllItems(Long sectionId) {
-		return getHibernateTemplate().find(
-				"from ItemData i where i.section.sectionId=" + sectionId);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<ItemData> cq = cb.createQuery(ItemData.class);
+		Root<ItemData> root = cq.from(ItemData.class);
+		cq.where(cb.equal(root.get("section").get("sectionId"), sectionId));
+
+		return session.createQuery(cq).list();
 	}
 
 	/**
@@ -1089,6 +1220,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	 * @param destSectionId
 	 */
 	public void moveAllItems(Long sourceSectionId, Long destSectionId) {
+		Session session = sessionFactory.getCurrentSession();
 		SectionData destSection = loadSection(destSectionId);
 		List list = loadAllItems(sourceSectionId);
 		Set set = destSection.getItemSet();
@@ -1106,7 +1238,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().update(destSection);
+				session.merge(destSection);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem updating section: " + e.getMessage());
@@ -1123,6 +1255,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	 * @param sourceSectionId
 	 */
 	public void removeAllItems(Long sourceSectionId) {
+		Session	session = sessionFactory.getCurrentSession();
 		SectionData section = loadSection(sourceSectionId);
 
 		AssessmentData assessment = (AssessmentData) section.getAssessment();
@@ -1140,7 +1273,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 			while (retryCount > 0) {
 				try {
-					getHibernateTemplate().update(item);
+					session.merge(item);
 					retryCount = 0;
 				} catch (Exception e) {
 					log.warn("problem updating item: " + e.getMessage());
@@ -1153,7 +1286,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().update(assessment); // sections
+				session.merge(assessment); // sections
 				// reordered
 				retryCount = 0;
 			} catch (Exception e) {
@@ -1168,17 +1301,25 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		final String agent = AgentFacade.getAgentString();
 		final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
 
-		HibernateCallback<List<AssessmentTemplateData>> hcb = session -> {
-            Query q = session.createQuery(
-            		"select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)" +
-							" from AssessmentTemplateData a where a.status = 1 and (a.assessmentBaseId = :id or" +
-							" a.createdBy = :agent or typeId = :type) order by a." + orderBy);
-            q.setParameter("id", 1L);
-            q.setParameter("agent", agent);
-            q.setParameter("type", typeId);
-            return q.list();
-        };
-		List<AssessmentTemplateData> list = getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentTemplateData> cq = cb.createQuery(AssessmentTemplateData.class);
+		Root<AssessmentTemplateData> root = cq.from(AssessmentTemplateData.class);
+
+		cq.select(cb.construct(AssessmentTemplateData.class,
+			root.get("assessmentBaseId"),
+			root.get("title"),
+			root.get("lastModifiedDate"),
+			root.get("typeId")));
+		cq.where(
+			cb.equal(root.get("status"), 1),
+			cb.or(
+				cb.equal(root.get("assessmentBaseId"), 1L),
+				cb.equal(root.get("createdBy"), agent),
+				cb.equal(root.get("typeId"), typeId)));
+		cq.orderBy(cb.asc(root.get(orderBy)));
+
+		List<AssessmentTemplateData> list = session.createQuery(cq).list();
 
 		List<AssessmentTemplateFacade> assessmentList = new ArrayList<>();
 		for (AssessmentTemplateData a : list) {
@@ -1197,6 +1338,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public void checkForQuestionPoolItem(SectionData section, Map qpItemHash) {
+		Session session = sessionFactory.getCurrentSession();
 		Set itemSet = section.getItemSet();
 		Set newItemSet = new HashSet();
 		Iterator iter = itemSet.iterator();
@@ -1209,7 +1351,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 				while (retryCount > 0) {
 					try {
-						getHibernateTemplate().update(item);
+						session.merge(item);
 						retryCount = 0;
 					} catch (Exception e) {
 						log.warn("problem updating item: " + e.getMessage());
@@ -1225,7 +1367,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().update(section);
+				session.merge(section);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem updating section: " + e.getMessage());
@@ -1243,37 +1385,42 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		title = title.trim();
 		final String agentString = AgentFacade.getAgentString();
 		List<AssessmentBaseData> list;
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
 		boolean isUnique = true;
 		if (isTemplate) { // templates are person scoped
 			final String titlef = title;
-			HibernateCallback<List<AssessmentBaseData>> hcb = session -> {
-                Query q = session.createQuery(
-                		"select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate) " +
-								"from AssessmentTemplateData a, AuthorizationData z where " +
-								"a.title = :title and a.assessmentBaseId != :id and a.createdBy = :agent and a.status = :status");
-                q.setParameter("title", titlef);
-                q.setParameter("id", assessmentBaseId);
-                q.setParameter("agent", agentString);
-                q.setParameter("status", 1);
-                return q.list();
-            };
-			list = getHibernateTemplate().execute(hcb);
+			CriteriaQuery<AssessmentBaseData> cq = cb.createQuery(AssessmentBaseData.class);
+			Root<AssessmentTemplateData> aRoot = cq.from(AssessmentTemplateData.class);
+			Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+			cq.select(cb.construct(AssessmentTemplateData.class,
+					aRoot.get("assessmentBaseId"),
+					aRoot.get("title"),
+					aRoot.get("lastModifiedDate")));
+			cq.where(
+					cb.equal(aRoot.get("title"), title),
+					cb.notEqual(aRoot.get("assessmentBaseId"), assessmentBaseId),
+					cb.equal(aRoot.get("createdBy"), agentString),
+					cb.equal(aRoot.get("status"), 1));
+
+			list = session.createQuery(cq).list();
 		} else { // assessments are site scoped
-			final String titlef = title;
-			HibernateCallback<List<AssessmentBaseData>> hcb = session -> {
-                Query q = session.createQuery(
-                		"select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)" +
-								" from AssessmentData a, AuthorizationData z where " +
-								" a.title = :title and a.assessmentBaseId != :id and z.functionId = :fid and " +
-								" a.assessmentBaseId = z.qualifierId and z.agentIdString = :site and a.status = :status");
-                q.setParameter("title", titlef);
-                q.setParameter("id", assessmentBaseId);
-                q.setParameter("fid", "EDIT_ASSESSMENT");
-                q.setParameter("site", siteId);
-                q.setParameter("status", 1);
-                return q.list();
-            };
-			list = getHibernateTemplate().execute(hcb);
+			CriteriaQuery<AssessmentBaseData> cq = cb.createQuery(AssessmentBaseData.class);
+			Root<AssessmentData> aRoot = cq.from(AssessmentData.class);
+			Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+			cq.select(cb.construct(AssessmentData.class,
+				aRoot.get("assessmentBaseId"),
+				aRoot.get("title"),
+				aRoot.get("lastModifiedDate")));
+			cq.where(
+					cb.equal(aRoot.get("title"), title),
+					cb.notEqual(aRoot.get("assessmentBaseId"), assessmentBaseId),
+					cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
+					cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+					cb.equal(zRoot.get("agentIdString"), siteId),
+					cb.equal(aRoot.get("status"), 1));
+
+			list = session.createQuery(cq).list();
 		}
 		for (AssessmentBaseData a : list) {
 			if ((title).equals(a.getTitle().trim())) {
@@ -1285,19 +1432,28 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public List<AssessmentData> getAssessmentByTemplate(final Long templateId) {
-		HibernateCallback<List<AssessmentData>> hcb = session -> session
-				.createQuery("select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) "
-					+ "from AssessmentData a where a.assessmentTemplateId = :id")
-					.setParameter("id", templateId)
-					.list();
-		return getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentData> cq = cb.createQuery(AssessmentData.class);
+		Root<AssessmentData> root = cq.from(AssessmentData.class);
+
+		cq.select(cb.construct(AssessmentData.class,
+			root.get("assessmentBaseId"),
+			root.get("title"),
+			root.get("lastModifiedDate")));
+		cq.where(cb.equal(root.get("assessmentTemplateId"), templateId));
+
+		return session.createQuery(cq).list();
 	}
 
 	public List getDefaultMetaDataSet() {
-		HibernateCallback<List<AssessmentMetaData>> hcb = session -> session.createQuery("from AssessmentMetaData m where m.assessment.assessmentBaseId = :id")
-				.setParameter("id", 1L)
-				.list();
-		return getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentMetaData> cq = cb.createQuery(AssessmentMetaData.class);
+		Root<AssessmentMetaData> root = cq.from(AssessmentMetaData.class);
+		cq.where(cb.equal(root.get("assessment").get("assessmentBaseId"), 1L));
+
+		return session.createQuery(cq).list();
 	}
 
 	public long fileSizeInKB(long fileSize) {
@@ -1331,13 +1487,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 	public void updateAssessmentLastModifiedInfo(
 			AssessmentFacade assessment) {
+		Session session = sessionFactory.getCurrentSession();
 		AssessmentData data = (AssessmentData) assessment.getData();
 		data.setLastModifiedBy(AgentFacade.getAgentString());
 		data.setLastModifiedDate(new Date());
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().update(data);
+				session.merge(data);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem update assessment: " + e.getMessage());
@@ -1478,7 +1635,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public void removeSectionAttachment(Long sectionAttachmentId) {
-		SectionAttachment sectionAttachment = getHibernateTemplate().load(SectionAttachment.class, sectionAttachmentId);
+		Session session = sessionFactory.getCurrentSession();
+		SectionAttachment sectionAttachment = session.get(SectionAttachment.class, sectionAttachmentId);
 		SectionDataIfc section = sectionAttachment.getSection();
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
@@ -1487,7 +1645,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 					// before deleting in Hibernate 3
 					Set set = section.getSectionAttachmentSet();
 					set.remove(sectionAttachment);
-					getHibernateTemplate().delete(sectionAttachment);
+					session.remove(sectionAttachment);
 					retryCount = 0;
 				}
 			} catch (Exception e) {
@@ -1539,7 +1697,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public void removeAssessmentAttachment(Long assessmentAttachmentId) {
-		AssessmentAttachment assessmentAttachment = getHibernateTemplate().load(AssessmentAttachment.class, assessmentAttachmentId);
+		Session session = sessionFactory.getCurrentSession();
+		AssessmentAttachment assessmentAttachment = session.get(AssessmentAttachment.class, assessmentAttachmentId);
 		AssessmentIfc assessment = assessmentAttachment.getAssessment();
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
@@ -1549,7 +1708,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 					// Hibernate 3
 					Set set = assessment.getAssessmentAttachmentSet();
 					set.remove(assessmentAttachment);
-					getHibernateTemplate().delete(assessmentAttachment);
+					session.remove(assessmentAttachment);
 					retryCount = 0;
 				}
 			} catch (Exception e) {
@@ -1599,24 +1758,33 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public void saveOrUpdateAttachments(List<AttachmentIfc> list) {
-	    for (AttachmentIfc attachment : list) {
-	        getHibernateTemplate().saveOrUpdate(attachment);
-	    }
+		Session session = sessionFactory.getCurrentSession();
+		for (AttachmentIfc attachment : list) {
+			session.merge(attachment);
+		}
 	}
 
 	public List<AssessmentData> getAllActiveAssessmentsByAgent(final String siteAgentId) {
-		HibernateCallback<List<AssessmentData>> hcb = session -> session.createQuery(
-            		"select a from AssessmentData a,AuthorizationData z where a.status = :status and " +
-							"a.assessmentBaseId=z.qualifierId and z.functionId = :fid and z.agentIdString = :site")
-				.setParameter("status", 1)
-				.setParameter("fid", "EDIT_ASSESSMENT")
-				.setParameter("site", siteAgentId)
-				.list();
-		return getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentData> cq = cb.createQuery(AssessmentData.class);
+
+		Root<AssessmentData> aRoot = cq.from(AssessmentData.class);
+		Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+
+		cq.select(aRoot);
+		cq.where(
+			cb.equal(aRoot.get("status"), 1),
+			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+			cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
+			cb.equal(zRoot.get("agentIdString"), siteAgentId));
+
+		return session.createQuery(cq).list();
 	}
 
 	@Override
 	public void copyAllAssessments(String fromContext, String toContext, List<String> ids, Map<String,String> transversalMap) {
+		Session session = sessionFactory.getCurrentSession();
 		List<AssessmentData> list = getAllActiveAssessmentsByAgent(fromContext);
 
 		if (CollectionUtils.isNotEmpty(ids)) {
@@ -1665,7 +1833,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			AssessmentData copiedAssessment = prepareAssessment(sourceAssessment, ServerConfigurationService.getServerUrl(), toContext, true);
 			String uniqueTitle = getUniqueImportedTitle(copiedAssessment.getTitle(), usedTitles);
 			copiedAssessment.setTitle(uniqueTitle);
-			getHibernateTemplate().saveOrUpdate(copiedAssessment);
+			session.merge(copiedAssessment);
 
 			String sourceAssessmentId = (sourceAssessment.getAssessmentBaseId() == null) ? null : sourceAssessment.getAssessmentBaseId().toString();
 			Map<String, String> releaseToGroups = releaseToGroupsByAssessmentId.getOrDefault(sourceAssessmentId, Collections.emptyMap());
@@ -1759,20 +1927,21 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 			copiedCount++;
 			if (copiedCount % 10 == 0) {
-				getHibernateTemplate().flush();
+				session.flush();
 			}
 		}
-		getHibernateTemplate().flush();
+		session.flush();
 
 	}
 	
 	public void copyAssessment(String assessmentId, String appendCopyTitle) {
+		Session session = sessionFactory.getCurrentSession();
 		AssessmentData assessmentData = loadAssessment(Long.valueOf(assessmentId));
 		assessmentData.setSectionSet(getSectionSetForAssessment(assessmentData));
 		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
 		AssessmentData newAssessmentData = prepareAssessment(assessmentData, ServerConfigurationService.getServerUrl(), AgentFacade.getCurrentSiteId(), false);
 		updateTitleForCopy(newAssessmentData, appendCopyTitle);
-		getHibernateTemplate().saveOrUpdate(newAssessmentData);
+		session.merge(newAssessmentData);
 		
 		// authorization
 		PersistenceService.getInstance().getAuthzQueriesFacade()
@@ -1813,7 +1982,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				}
 			}
 		}
-		getHibernateTemplate().saveOrUpdate(newAssessmentData);
+		session.merge(newAssessmentData);
 	}
 
     private void updateTitleForCopy(AssessmentData assessmentData, String appendCopyTitle){
@@ -1836,17 +2005,21 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
     	log.debug(title);
     	final String currentSiteId = AgentFacade.getCurrentSiteId();
     	final String titlef = title + "%";
-    	HibernateCallback<List<String>> hcb = session -> {
-            Query q = session.createQuery(
-            		"select a.title from AssessmentData a, AuthorizationData z " +
-							"where a.title like :title and z.functionId='EDIT_ASSESSMENT' " +
-							"and a.assessmentBaseId=z.qualifierId and z.agentIdString = :site"
-			);
-            q.setParameter("title", titlef);
-            q.setParameter("site", currentSiteId);
-            return q.list();
-        };
-    	List<String> list = getHibernateTemplate().execute(hcb);
+    	Session session = sessionFactory.getCurrentSession();
+    	CriteriaBuilder cb = session.getCriteriaBuilder();
+    	CriteriaQuery<String> cq = cb.createQuery(String.class);
+
+    	Root<AssessmentData> aRoot = cq.from(AssessmentData.class);
+    	Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+
+    	cq.select(aRoot.get("title"));
+    	cq.where(
+    		cb.like(aRoot.get("title"), titlef),
+    		cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
+    		cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+    		cb.equal(zRoot.get("agentIdString"), currentSiteId));
+
+    	List<String> list = session.createQuery(cq).list();
 
     	int startIndex = title.length();
     	int maxNumCopy = 0;
@@ -2375,10 +2548,15 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
   
   public String getAssessmentSiteId (String assessmentId){
-	    List<AuthorizationData> l = (List<AuthorizationData>) getHibernateTemplate()
-				.findByNamedParam("select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id",
-						new String[] {"fid", "id"},
-						new Object[] {"EDIT_ASSESSMENT", assessmentId});
+	    Session session = sessionFactory.getCurrentSession();
+	    CriteriaBuilder cb = session.getCriteriaBuilder();
+	    CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+	    Root<AuthorizationData> root = cq.from(AuthorizationData.class);
+	    cq.where(
+	        cb.equal(root.get("functionId"), "EDIT_ASSESSMENT"),
+	        cb.equal(root.get("qualifierId"), assessmentId));
+
+	    List<AuthorizationData> l = session.createQuery(cq).list();
 	    if (!l.isEmpty()) {
 	      AuthorizationData a = l.get(0);
 	      return a.getAgentIdString();
@@ -2387,8 +2565,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
   }
   
   public String getAssessmentCreatedBy(String assessmentId) {
-    List<AssessmentData> l = (List<AssessmentData>) getHibernateTemplate().findByNamedParam(
-    		"select a from AssessmentData a where a.assessmentBaseId = :id", "id", Long.parseLong(assessmentId));
+     Session session = sessionFactory.getCurrentSession();
+     CriteriaBuilder cb = session.getCriteriaBuilder();
+     CriteriaQuery<AssessmentData> cq = cb.createQuery(AssessmentData.class);
+     Root<AssessmentData> root = cq.from(AssessmentData.class);
+     cq.where(cb.equal(root.get("assessmentBaseId"), Long.parseLong(assessmentId)));
+
+     List<AssessmentData> l = session.createQuery(cq).list();
     if (!l.isEmpty()){
     	AssessmentData a = l.get(0);
       return a.getCreatedBy();
@@ -2425,25 +2608,23 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	private Map<String, Map<String, String>> getReleaseToGroupsByAssessmentIds(final String siteId, final List<String> assessmentIds) {
+		Session session = sessionFactory.getCurrentSession();
 		Map<String, Map<String, String>> releaseToGroupsByAssessmentId = new HashMap<>();
 		if (CollectionUtils.isEmpty(assessmentIds)) {
 			return releaseToGroupsByAssessmentId;
 		}
 
-		HibernateCallback<List<AuthorizationData>> hcb = session -> {
-			CriteriaBuilder cb = session.getCriteriaBuilder();
-			CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
-			Root<AuthorizationData> root = cq.from(AuthorizationData.class);
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+		Root<AuthorizationData> root = cq.from(AuthorizationData.class);
 
-			Predicate functionIdPredicate = cb.equal(root.get("functionId"), "TAKE_ASSESSMENT");
-			Predicate qualifierIdPredicate =
-					HibernateCriterionUtils.PredicateInSplitter(cb, root.<String>get("qualifierId"), assessmentIds);
+		Predicate functionIdPredicate = cb.equal(root.get("functionId"), "TAKE_ASSESSMENT");
+		Predicate qualifierIdPredicate =
+				HibernateCriterionUtils.PredicateInSplitter(cb, root.<String>get("qualifierId"), assessmentIds);
 
-			cq.select(root).where(cb.and(functionIdPredicate, qualifierIdPredicate));
-			return session.createQuery(cq).getResultList();
-		};
+		cq.select(root).where(cb.and(functionIdPredicate, qualifierIdPredicate));
+		List<AuthorizationData> authorizations = session.createQuery(cq).getResultList();
 
-		List<AuthorizationData> authorizations = getHibernateTemplate().execute(hcb);
 		if (CollectionUtils.isEmpty(authorizations)) {
 			return releaseToGroupsByAssessmentId;
 		}
@@ -2462,16 +2643,23 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	private Set<String> getActiveAssessmentTitlesForSite(final String siteId) {
-		HibernateCallback<List<String>> hcb = session -> session.createQuery(
-				"select a.title from AssessmentData a,AuthorizationData z where a.status = :status and " +
-						"a.assessmentBaseId=z.qualifierId and z.functionId = :fid and z.agentIdString = :site")
-				.setParameter("status", 1)
-				.setParameter("fid", "EDIT_ASSESSMENT")
-				.setParameter("site", siteId)
-				.list();
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+
+		Root<AssessmentData> aRoot = cq.from(AssessmentData.class);
+		Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+
+		cq.select(aRoot.get("title"));
+		cq.where(
+			cb.equal(aRoot.get("status"), 1),
+			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+			cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
+			cb.equal(zRoot.get("agentIdString"), siteId));
+
+		List<String> existingTitles = session.createQuery(cq).list();
 
 		Set<String> titles = new HashSet<>();
-		List<String> existingTitles = getHibernateTemplate().execute(hcb);
 		if (CollectionUtils.isNotEmpty(existingTitles)) {
 			existingTitles.stream().filter(title -> title != null).forEach(title -> titles.add(title.trim()));
 		}
@@ -2525,21 +2713,30 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		return groupInfo;
 	}
 
-    public List<AssessmentData> getDeletedAssessments(final String siteAgentId) {
-        final HibernateCallback<List<AssessmentData>> hcb = session -> session.createQuery(
-            "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) " +
-                "from AssessmentData a, AuthorizationData z " +
-                "where a.assessmentBaseId=z.qualifierId and z.functionId=:functionId " +
-                "and z.agentIdString=:siteId and a.status=:inactiveStatus ")
-                .setParameter("functionId", "EDIT_ASSESSMENT")
-                .setParameter("siteId", siteAgentId)
-                .setParameter("inactiveStatus", AssessmentIfc.DEAD_STATUS)
-                .list();
-        return getHibernateTemplate().execute(hcb);
+	public List<AssessmentData> getDeletedAssessments(final String siteAgentId) {
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<AssessmentData> cq = cb.createQuery(AssessmentData.class);
+
+		Root<AssessmentData> aRoot = cq.from(AssessmentData.class);
+		Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
+
+		cq.select(cb.construct(AssessmentData.class,
+			aRoot.get("assessmentBaseId"),
+			aRoot.get("title"),
+			aRoot.get("lastModifiedDate")));
+		cq.where(
+			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+			cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
+			cb.equal(zRoot.get("agentIdString"), siteAgentId),
+			cb.equal(aRoot.get("status"), AssessmentIfc.DEAD_STATUS));
+
+		return session.createQuery(cq).list();
     }
 
     public void restoreAssessment(Long assessmentId) {
-    	AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
+    	Session session = sessionFactory.getCurrentSession();
+    	AssessmentData assessment = (AssessmentData) session.get(AssessmentData.class, assessmentId);
     	assessment.setLastModifiedBy(AgentFacade.getAgentString());
     	assessment.setLastModifiedDate(new Date());
     	assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
@@ -2550,7 +2747,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
     	int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     	while (retryCount > 0) {
     		try {
-    			getHibernateTemplate().update(assessment);
+    			session.merge(assessment);
     			retryCount = 0;
     		} catch (Exception e) {
     			log.warn("problem updating asssessment: " + e.getMessage());
@@ -2565,7 +2762,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			return Collections.emptySet();
 		}
 
-		Session session = currentSession();
+		Session session = sessionFactory.getCurrentSession();
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<String> cq = cb.createQuery(String.class);
 		Root<ItemData> root = cq.from(ItemData.class);
