@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.Session;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -146,9 +147,24 @@ public class DetailedEventsManagerImpl implements DetailedEventsManager
 
 	/* End Spring methods */
 
-	private Optional<List<Predicate>> basicCriteriaForTrackingParams(CriteriaBuilder cb,
-			Root<DetailedEventImpl> root, final TrackingParams params)
+	private static class CriteriaData {
+		final CriteriaBuilder cb;
+		final JpaCriteriaQuery<DetailedEventImpl> cq;
+		final Root<DetailedEventImpl> root;
+
+		CriteriaData(CriteriaBuilder cb, JpaCriteriaQuery<DetailedEventImpl> cq, Root<DetailedEventImpl> root) {
+			this.cb = cb;
+			this.cq = cq;
+			this.root = root;
+		}
+	}
+
+	private Optional<CriteriaData> basicCriteriaForTrackingParams(Session session, final TrackingParams params)
 	{
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		JpaCriteriaQuery<DetailedEventImpl> cq = session.getCriteriaBuilder().createQuery(DetailedEventImpl.class);
+		Root<DetailedEventImpl> root = cq.from(DetailedEventImpl.class);
+
 		List<Predicate> predicates = new ArrayList<>();
 
 		if (StringUtils.isNotBlank(params.siteId))
@@ -185,7 +201,8 @@ public class DetailedEventsManagerImpl implements DetailedEventsManager
 			predicates.add(cb.not(root.get(EVENT_ID_COL).in(anonEvents)));
 		}
 
-		return Optional.of(predicates);
+		cq.select(root).where(predicates.toArray(new Predicate[0]));
+		return Optional.of(new CriteriaData(cb, cq, root));
 	}
 
 	@Override
@@ -197,25 +214,22 @@ public class DetailedEventsManagerImpl implements DetailedEventsManager
 		}
 
 		Session session = sessionFactory.getCurrentSession();
-		CriteriaBuilder cb = session.getCriteriaBuilder();
-		CriteriaQuery<DetailedEventImpl> cq = cb.createQuery(DetailedEventImpl.class);
-		Root<DetailedEventImpl> root = cq.from(DetailedEventImpl.class);
-		Optional<List<Predicate>> critOpt = basicCriteriaForTrackingParams(cb, root, trackingParams);
+		Optional<CriteriaData> critOpt = basicCriteriaForTrackingParams(session, trackingParams);
 		if (!critOpt.isPresent())
 		{
 			return Collections.emptyList();
 		}
-		cq.where(critOpt.get().toArray(new Predicate[0]));
+		CriteriaData cd = critOpt.get();
 
 		if (sortingParams != null && StringUtils.isNotBlank(sortingParams.sortProp))
 		{
 			String sortProp = sortingParams.sortProp;
-			cq.orderBy(sortingParams.asc
-				? cb.asc(root.get(sortProp))
-				: cb.desc(root.get(sortProp)));
+			cd.cq.orderBy(sortingParams.asc
+				? cd.cb.asc(cd.root.get(sortProp))
+				: cd.cb.desc(cd.root.get(sortProp)));
 		}
 
-		Query<DetailedEventImpl> query = session.createQuery(cq);
+		Query<DetailedEventImpl> query = session.createQuery(cd.cq);
 
 		if (pagingParams.startInt >= 0 && pagingParams.pageSizeInt > 0)
 		{
@@ -389,18 +403,13 @@ public class DetailedEventsManagerImpl implements DetailedEventsManager
 		}
 
 		Session session = sessionFactory.getCurrentSession();
-		CriteriaBuilder cb = session.getCriteriaBuilder();
-		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-		Root<DetailedEventImpl> root = cq.from(DetailedEventImpl.class);
-		Optional<List<Predicate>> critOpt = basicCriteriaForTrackingParams(cb, root, trackingParams);
+		Optional<CriteriaData> critOpt = basicCriteriaForTrackingParams(session, trackingParams);
 		if (!critOpt.isPresent())
 		{
 			return 0L;
 		}
 
-		cq.where(critOpt.get().toArray(new Predicate[0]));
-		cq.select(cb.count(root));
-
-		return session.createQuery(cq).uniqueResult();
+		CriteriaData cd = critOpt.get();
+		return session.createQuery(cd.cq.createCountQuery()).uniqueResult();
 	}
 }
