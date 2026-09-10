@@ -31,7 +31,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
 import org.hibernate.query.Query;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
@@ -45,8 +49,6 @@ import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,36 +66,34 @@ import lombok.extern.slf4j.Slf4j;
 		readOnly = true,
 		noRollbackFor = IdNotFoundException.class
 )
-public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport implements CourseManagementService {
+public class CourseManagementServiceHibernateImpl implements CourseManagementService {
+
+	@Setter private SessionFactory sessionFactory;
 
 	private static final ResourceLoader enrollmentsMessages = new ResourceLoader("enrollmentstatus");
 
 	/**
-	 * A generic approach to finding objects by their eid.  This is "coding by convention",
-	 * since it expects the parameterized query to use "eid" as the single named parameter.
+	 * Finds a mapped object by its eid property.
 	 * 
 	 * @param eid The eid of the object we're trying to load
-	 * @param className The name of the class / interface we're looking for
+	 * @param type The mapped class we're looking for
 	 * @return The object, if found
 	 * @throws IdNotFoundException
 	 */
-	private Object getObjectByEid(final String eid, final String className) throws IdNotFoundException {
-		HibernateCallback hc = session -> {
-            StringBuilder hql = new StringBuilder();
-            hql.append("from ").append(className).append(" as obj where obj.eid=:eid");
-            Query q = session.createQuery(hql.toString());
-            q.setParameter("eid", eid);
-            Object result = q.uniqueResult();
-            if(result == null) {
-                throw new IdNotFoundException(eid, className);
-            }
-            return result;
-        };
-		return getHibernateTemplate().execute(hc);
+	private <T> T getObjectByEid(final String eid, final Class<T> type) throws IdNotFoundException {
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<T> cq = cb.createQuery(type);
+		Root<T> root = cq.from(type);
+		cq.select(root).where(cb.equal(root.get("eid"), eid));
+		T result = sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
+		if (result == null) {
+			throw new IdNotFoundException(eid, type.getName());
+		}
+		return result;
 	}
-	
+
 	public CourseSet getCourseSet(String eid) throws IdNotFoundException {
-		return (CourseSet)getObjectByEid(eid, CourseSetCmImpl.class.getName());
+		return (CourseSet)getObjectByEid(eid, CourseSetCmImpl.class);
 	}
 
 	public Set<CourseSet> getChildCourseSets(final String parentCourseSetEid) throws IdNotFoundException {
@@ -101,12 +101,23 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 		if(!isCourseSetDefined(parentCourseSetEid)) {
 			throw new IdNotFoundException(parentCourseSetEid, CourseSetCmImpl.class.getName());
 		}
-		return new HashSet<CourseSet>((List<CourseSet>) getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findChildCourseSets", "parentEid", parentCourseSetEid));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<CourseSet> cq = cb.createQuery(CourseSet.class);
+		Root<CourseSetCmImpl> root = cq.from(CourseSetCmImpl.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("parent").get("eid"), parentCourseSetEid));
+		Query<CourseSet> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<CourseSet>((List<CourseSet>) q.list());
 	}
 
 	public Set<CourseSet> getCourseSets() {
-		return new HashSet<CourseSet>((List<CourseSet>) getHibernateTemplate().findByNamedQuery("findTopLevelCourseSets"));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<CourseSet> cq = cb.createQuery(CourseSet.class);
+		Root<CourseSetCmImpl> root = cq.from(CourseSetCmImpl.class);
+		cq.select(root);
+		cq.where(root.get("parent").isNull());
+		Query<CourseSet> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<CourseSet>((List<CourseSet>) q.list());
 	}
 
 	public Set<Membership> getCourseSetMemberships(String courseSetEid) throws IdNotFoundException {
@@ -114,18 +125,21 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	}
 
 	public CanonicalCourse getCanonicalCourse(String eid) throws IdNotFoundException {
-		return (CanonicalCourse)getObjectByEid(eid, CanonicalCourseCmImpl.class.getName());
+		return (CanonicalCourse)getObjectByEid(eid, CanonicalCourseCmImpl.class);
 	}
 
 	public Set<CanonicalCourse> getEquivalentCanonicalCourses(String canonicalCourseEid) {
 		final CanonicalCourseCmImpl canonicalCourse = (CanonicalCourseCmImpl)getCanonicalCourse(canonicalCourseEid);
-		HibernateCallback<List<CanonicalCourse>> hc = session -> {
-            Query q = session.getNamedQuery("findEquivalentCanonicalCourses");
-            q.setParameter("crossListing", canonicalCourse.getCrossListing());
-            q.setParameter("canonicalCourse", canonicalCourse);
-            return q.list();
-        };
-		return new HashSet<>(getHibernateTemplate().execute(hc));
+		if (canonicalCourse.getCrossListing() == null) {
+			return new HashSet<>();
+		}
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<CanonicalCourse> cq = cb.createQuery(CanonicalCourse.class);
+		Root<CanonicalCourseCmImpl> root = cq.from(CanonicalCourseCmImpl.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("crossListing"), canonicalCourse.getCrossListing()), cb.notEqual(root, canonicalCourse));
+		Query<CanonicalCourse> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<>(q.list());
 	}
 
 	public Set<CanonicalCourse> getCanonicalCourses(final String courseSetEid) throws IdNotFoundException {
@@ -133,28 +147,33 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	}
 
 	public List <AcademicSession> getAcademicSessions() {
-	    return getHibernateTemplate().execute((HibernateCallback<List<AcademicSession>>) session -> {
-            Query query = session.getNamedQuery("findAcademicSessions");
-            query.setCacheable(true);
-            return query.list();
-        });
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<AcademicSession> cq = cb.createQuery(AcademicSession.class);
+		Root<AcademicSessionCmImpl> root = cq.from(AcademicSessionCmImpl.class);
+		cq.select(root);
+		cq.orderBy(cb.desc(root.get("startDate")));
+		Query<AcademicSession> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return q.setCacheable(true).list();
 
 	}
 
 	public List <AcademicSession> getCurrentAcademicSessions() {
-	    return getHibernateTemplate().execute((HibernateCallback<List<AcademicSession>>) session -> {
-            Query query = session.getNamedQuery("findCurrentAcademicSessions");
-            query.setCacheable(true);
-            return query.list();
-        });
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<AcademicSession> cq = cb.createQuery(AcademicSession.class);
+		Root<AcademicSessionCmImpl> root = cq.from(AcademicSessionCmImpl.class);
+		cq.select(root);
+		cq.where(cb.isTrue(root.get("current")));
+		cq.orderBy(cb.desc(root.get("startDate")));
+		Query<AcademicSession> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return q.setCacheable(true).list();
 	}
 
 	public AcademicSession getAcademicSession(final String eid) throws IdNotFoundException {
-		return (AcademicSession)getObjectByEid(eid, AcademicSessionCmImpl.class.getName());
+		return (AcademicSession)getObjectByEid(eid, AcademicSessionCmImpl.class);
 	}
 	
 	public CourseOffering getCourseOffering(String eid) throws IdNotFoundException {
-		return (CourseOffering)getObjectByEid(eid, CourseOfferingCmImpl.class.getName());
+		return (CourseOffering)getObjectByEid(eid, CourseOfferingCmImpl.class);
 	}
 
 	public Set<CourseOffering> getCourseOfferingsInCourseSet(final String courseSetEid) throws IdNotFoundException {
@@ -166,13 +185,16 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 
 	public Set<CourseOffering> getEquivalentCourseOfferings(String courseOfferingEid) throws IdNotFoundException {
 		final CourseOfferingCmImpl courseOffering = (CourseOfferingCmImpl)getCourseOffering(courseOfferingEid);
-		HibernateCallback<List<CourseOffering>> hc = session -> {
-            Query q = session.getNamedQuery("findEquivalentCourseOfferings");
-            q.setParameter("crossListing", courseOffering.getCrossListing());
-            q.setParameter("courseOffering", courseOffering);
-            return q.list();
-        };
-		return new HashSet<>(getHibernateTemplate().execute(hc));
+		if (courseOffering.getCrossListing() == null) {
+			return new HashSet<>();
+		}
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<CourseOffering> cq = cb.createQuery(CourseOffering.class);
+		Root<CourseOfferingCmImpl> root = cq.from(CourseOfferingCmImpl.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("crossListing"), courseOffering.getCrossListing()), cb.notEqual(root, courseOffering));
+		Query<CourseOffering> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<>(q.list());
 	}
 
 	public Set<Membership> getCourseOfferingMemberships(String courseOfferingEid) throws IdNotFoundException {
@@ -188,39 +210,39 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	 * @return
 	 */
 	private Set<Membership> getMemberships(final AbstractMembershipContainerCmImpl container) {
-		
-		// This may be a dynamic proxy.  In that case, make sure we're using the class
-		// that hibernate understands.
-		final String className = Hibernate.getClass(container).getName();
-		
-		HibernateCallback<List<Membership>> hc = session -> {
-            StringBuilder sb = new StringBuilder("select mbr from MembershipCmImpl as mbr, ");
-                sb.append(className);
-                sb.append(" as container where mbr.memberContainer=container ");
-                sb.append("and container.eid=:eid");
-            Query q = session.createQuery(sb.toString());
-            q.setParameter("eid", container.getEid());
-            return q.list();
-        };
-		return new HashSet<>(getHibernateTemplate().execute(hc));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Membership> cq = cb.createQuery(Membership.class);
+		Root<MembershipCmImpl> root = cq.from(MembershipCmImpl.class);
+		cq.select(root).where(cb.equal(root.get("memberContainer"), container));
+		return new HashSet<>(sessionFactory.getCurrentSession().createQuery(cq).getResultList());
 	}
 
 	public Section getSection(String eid) throws IdNotFoundException {
-		return (Section)getObjectByEid(eid, SectionCmImpl.class.getName());
+		return (Section)getObjectByEid(eid, SectionCmImpl.class);
 	}
 
 	public Set<Section> getSections(String courseOfferingEid) throws IdNotFoundException {
 		CourseOffering courseOffering = getCourseOffering(courseOfferingEid);
-		return new HashSet<Section>((List<Section>) getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findTopLevelSectionsInCourseOffering", "courseOffering", courseOffering));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Section> cq = cb.createQuery(Section.class);
+		Root<SectionCmImpl> root = cq.from(SectionCmImpl.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("courseOffering"), courseOffering), root.get("parent").isNull());
+		Query<Section> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<Section>((List<Section>) q.list());
 	}
 
 	public Set<Section> getChildSections(final String parentSectionEid) throws IdNotFoundException {
 		if( ! isSectionDefined(parentSectionEid)) {
 			throw new IdNotFoundException(parentSectionEid, SectionCmImpl.class.getName());
 		}
-		return new HashSet<Section>((List<Section>) getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findChildSections", "parentEid", parentSectionEid));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Section> cq = cb.createQuery(Section.class);
+		Root<SectionCmImpl> root = cq.from(SectionCmImpl.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("parent").get("eid"), parentSectionEid));
+		Query<Section> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<Section>((List<Section>) q.list());
 	}
 
 	public Set<Membership> getSectionMemberships(String sectionEid) throws IdNotFoundException {
@@ -228,33 +250,46 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	}
 
 	public EnrollmentSet getEnrollmentSet(String eid) throws IdNotFoundException {
-		return (EnrollmentSet)getObjectByEid(eid, EnrollmentSetCmImpl.class.getName());
+		return (EnrollmentSet)getObjectByEid(eid, EnrollmentSetCmImpl.class);
 	}
 
 	public Set<EnrollmentSet> getEnrollmentSets(final String courseOfferingEid) throws IdNotFoundException {
 		if(! isCourseOfferingDefined(courseOfferingEid)) {
 			throw new IdNotFoundException(courseOfferingEid, CourseOfferingCmImpl.class.getName());
 		}
-		return new HashSet<EnrollmentSet>((List<EnrollmentSet>) getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findEnrollmentSetsByCourseOffering", "courseOfferingEid", courseOfferingEid));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<EnrollmentSet> cq = cb.createQuery(EnrollmentSet.class);
+		Root<EnrollmentSetCmImpl> root = cq.from(EnrollmentSetCmImpl.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("courseOffering").get("eid"), courseOfferingEid));
+		Query<EnrollmentSet> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<EnrollmentSet>((List<EnrollmentSet>) q.list());
 	}
 
 	public Set<Enrollment> getEnrollments(final String enrollmentSetEid) throws IdNotFoundException {
 		if( ! isEnrollmentSetDefined(enrollmentSetEid)) {
 			throw new IdNotFoundException(enrollmentSetEid, EnrollmentSetCmImpl.class.getName());
 		}
-		return new HashSet<Enrollment>((List<Enrollment>) getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findEnrollments", "enrollmentSetEid", enrollmentSetEid));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Enrollment> cq = cb.createQuery(Enrollment.class);
+		Root<EnrollmentCmImpl> root = cq.from(EnrollmentCmImpl.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("enrollmentSet").get("eid"), enrollmentSetEid));
+		Query<Enrollment> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<Enrollment>((List<Enrollment>) q.list());
 	}
 
 	public boolean isEnrolled(final String userId, final Set<String> enrollmentSetEids) {
-		HibernateCallback hc = session -> {
-            Query q = session.getNamedQuery("countEnrollments");
-            q.setParameter("userId", userId);
-            q.setParameterList("enrollmentSetEids", enrollmentSetEids);
-            return q.uniqueResult();
-        };
-		int i = ((Number)getHibernateTemplate().execute(hc)).intValue();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<EnrollmentCmImpl> root = cq.from(EnrollmentCmImpl.class);
+		cq.select(cb.count(root));
+		cq.where(
+			cb.equal(root.get("userId"), userId),
+			root.get("enrollmentSet").get("eid").in(enrollmentSetEids),
+			cb.isFalse(root.get("dropped")));
+		Query<Long> q = sessionFactory.getCurrentSession().createQuery(cq);
+		int i = ((Number)q.uniqueResult()).intValue();
 		if(log.isDebugEnabled()) log.debug(userId + " is enrolled in " + i + " of these " + enrollmentSetEids.size() + " EnrollmentSets" );
 		return i > 0;
 	}
@@ -270,13 +305,13 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 			log.warn("Could not find an enrollment set with eid=" + enrollmentSetEid);
 			return null;
 		}
-		HibernateCallback hc = session -> {
-            Query q = session.getNamedQuery("findEnrollment");
-            q.setParameter("userId", userId);
-            q.setParameter("enrollmentSetEid", enrollmentSetEid);
-            return q.uniqueResult();
-        };
-		return (Enrollment)getHibernateTemplate().execute(hc);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Enrollment> cq = cb.createQuery(Enrollment.class);
+		Root<EnrollmentCmImpl> root = cq.from(EnrollmentCmImpl.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("enrollmentSet").get("eid"), enrollmentSetEid), cb.equal(root.get("userId"), userId));
+		Query<Enrollment> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return (Enrollment)q.uniqueResult();
 	}
 	
 	public Set<String> getInstructorsOfRecordIds(String enrollmentSetEid) throws IdNotFoundException {
@@ -286,23 +321,55 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 
 
 	public Set<EnrollmentSet> findCurrentlyEnrolledEnrollmentSets(final String userId) {
-		return new HashSet<EnrollmentSet>((List<EnrollmentSet>) getHibernateTemplate().findByNamedQueryAndNamedParam("findCurrentlyEnrolledEnrollmentSets", "userId", userId));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<EnrollmentSet> cq = cb.createQuery(EnrollmentSet.class);
+		Root<EnrollmentCmImpl> root = cq.from(EnrollmentCmImpl.class);
+		cq.select(root.get("enrollmentSet"));
+		cq.where(
+			cb.equal(root.get("userId"), userId),
+			cb.isFalse(root.get("dropped")),
+			cb.or(root.get("enrollmentSet").get("courseOffering").get("startDate").isNull(), cb.lessThanOrEqualTo(root.get("enrollmentSet").get("courseOffering").get("startDate"), cb.currentDate())),
+			cb.or(root.get("enrollmentSet").get("courseOffering").get("endDate").isNull(), cb.greaterThanOrEqualTo(root.get("enrollmentSet").get("courseOffering").get("endDate"), cb.currentDate())));
+		Query<EnrollmentSet> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<EnrollmentSet>((List<EnrollmentSet>) q.list());
 	}
 
 
 	public Set<EnrollmentSet> findCurrentlyInstructingEnrollmentSets(final String userId) {
-		return new HashSet<EnrollmentSet>((List<EnrollmentSet>) getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findCurrentlyInstructingEnrollmentSets", "userId", userId));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<EnrollmentSet> cq = cb.createQuery(EnrollmentSet.class);
+		Root<EnrollmentSetCmImpl> root = cq.from(EnrollmentSetCmImpl.class);
+		cq.select(root);
+		cq.where(
+			cb.isMember(userId, root.get("officialInstructors")),
+			cb.or(root.get("courseOffering").get("startDate").isNull(), cb.lessThanOrEqualTo(root.get("courseOffering").get("startDate"), cb.currentDate())),
+			cb.or(root.get("courseOffering").get("endDate").isNull(), cb.greaterThanOrEqualTo(root.get("courseOffering").get("endDate"), cb.currentDate())));
+		Query<EnrollmentSet> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<EnrollmentSet>((List<EnrollmentSet>) q.list());
 	}
 
 	public Set<Section> findInstructingSections(final String userId) {
-		return new HashSet<Section>((List<Section>) getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findInstructingSections", "userId", userId));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Section> cq = cb.createQuery(Section.class);
+		Root<SectionCmImpl> root = cq.from(SectionCmImpl.class);
+		cq.select(root);
+		cq.where(cb.isMember(userId, root.get("enrollmentSet").get("officialInstructors")));
+		Query<Section> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<Section>((List<Section>) q.list());
 	}
 
 	public Set<Section> findEnrolledSections(final String userId) {
-		return new HashSet<Section>((List<Section>) getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findEnrolledSections", "userId", userId));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Section> cq = cb.createQuery(Section.class);
+		Root<SectionCmImpl> root = cq.from(SectionCmImpl.class);
+		Root<EnrollmentCmImpl> enrollment = cq.from(EnrollmentCmImpl.class);
+		cq.select(root);
+		cq.where(
+			cb.equal(enrollment.get("userId"), userId),
+			cb.equal(root.get("enrollmentSet"), enrollment.get("enrollmentSet")),
+			cb.isFalse(enrollment.get("dropped")));
+		Query<Section> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<Section>((List<Section>) q.list());
 	}
 
 	
@@ -322,56 +389,80 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 			return new ArrayList<CourseOffering>();
 		}
 
-		HibernateCallback<List<CourseOffering>> hc = session -> {
-			return session.getNamedQuery("findActiveCourseOfferingsInCanonicalCourse")
-					.setParameter("now", new Date())
-					.setParameter("canonicalCourse", canonicalCourse)
-					.list();
-		};
-		return new ArrayList<>(getHibernateTemplate().execute(hc));
+		Date now = new Date();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<CourseOffering> cq = cb.createQuery(CourseOffering.class);
+		Root<CourseOfferingCmImpl> root = cq.from(CourseOfferingCmImpl.class);
+		cq.select(root);
+		cq.where(
+			cb.lessThanOrEqualTo(root.get("startDate"), now),
+			cb.greaterThanOrEqualTo(root.get("endDate"), now),
+			cb.equal(root.get("canonicalCourse"), canonicalCourse));
+		Query<CourseOffering> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new ArrayList<>(q.list());
 	}
 	
 	
 	public Set<Section> findInstructingSections(final String userId, final String academicSessionEid) {
-		HibernateCallback<List<Section>> hc = session -> {
-            Query q = session.getNamedQuery("findInstructingSectionsByAcademicSession");
-            q.setParameter("userId", userId);
-            q.setParameter("academicSessionEid", academicSessionEid);
-            return q.list();
-        };
-		return new HashSet<>(getHibernateTemplate().execute(hc));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Section> cq = cb.createQuery(Section.class);
+		Root<SectionCmImpl> root = cq.from(SectionCmImpl.class);
+		cq.select(root);
+		cq.where(
+			cb.isMember(userId, root.get("enrollmentSet").get("officialInstructors")),
+			cb.equal(root.get("courseOffering").get("academicSession").get("eid"), academicSessionEid));
+		Query<Section> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<>(q.list());
 	}
 
 	public Set<CourseOffering> findCourseOfferings(final String courseSetEid, final String academicSessionEid) throws IdNotFoundException {
-		HibernateCallback<List<CourseOffering>> hc = session -> {
-            Query q = session.getNamedQuery("findCourseOfferingsByCourseSetAndAcademicSession");
-            q.setParameter("courseSetEid", courseSetEid);
-            q.setParameter("academicSessionEid", academicSessionEid);
-            return q.list();
-        };
-		return new HashSet<>(getHibernateTemplate().execute(hc));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<CourseOffering> cq = cb.createQuery(CourseOffering.class);
+		Root<CourseOfferingCmImpl> root = cq.from(CourseOfferingCmImpl.class);
+		cq.select(root);
+		cq.where(
+			cb.equal(root.get("academicSession").get("eid"), academicSessionEid),
+			cb.equal(root.join("courseSets").get("eid"), courseSetEid));
+		Query<CourseOffering> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<>(q.list());
 	}
 
 	public boolean isEmpty(final String courseSetEid) {
-		HibernateCallback hc = session -> {
-            Query q = session.getNamedQuery("findNonEmptyCourseSet");
-            q.setParameter("eid", courseSetEid);
-            return q.list().isEmpty();
-        };
-		return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<CourseSet> cq = cb.createQuery(CourseSet.class);
+		Root<CourseSetCmImpl> root = cq.from(CourseSetCmImpl.class);
+		cq.select(root);
+		cq.where(
+			cb.equal(root.get("eid"), courseSetEid),
+			cb.or(cb.isNotEmpty(root.get("canonicalCourses")), cb.isNotEmpty(root.get("courseOfferings"))));
+		Query<CourseSet> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return ((Boolean)q.list().isEmpty()).booleanValue();
 	}
 
 
 	public List<CourseSet> findCourseSets(final String category) {
-		return (List<CourseSet>) getHibernateTemplate().findByNamedQueryAndNamedParam("findCourseSetByCategory", "category", category);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<CourseSet> cq = cb.createQuery(CourseSet.class);
+		Root<CourseSetCmImpl> root = cq.from(CourseSetCmImpl.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("category"), category));
+		cq.orderBy(cb.asc(root.get("title")));
+		Query<CourseSet> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return (List<CourseSet>) q.list();
 	}
 
 
 	public Map<String, String> findCourseOfferingRoles(final String userEid) {
 		// Keep track of CourseOfferings that we've already queried
 		Set<String> queriedCourseOfferingEids = new HashSet<String>();
-		List results = getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findCourseOfferingRoles", "userEid", userEid);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+		Root<CourseOfferingCmImpl> container = cq.from(CourseOfferingCmImpl.class);
+		Root<MembershipCmImpl> membership = cq.from(MembershipCmImpl.class);
+		cq.multiselect(container.get("eid"), membership.get("role"));
+		cq.where(cb.equal(membership.get("userId"), userEid), cb.equal(membership.get("memberContainer"), container));
+		Query<Object[]> q = sessionFactory.getCurrentSession().createQuery(cq);
+		List results = q.list();
 		Map<String, String> courseOfferingRoleMap = new HashMap<String, String>();
 		for(Iterator iter = results.iterator(); iter.hasNext();) {
 			Object[] oa = (Object[])iter.next();
@@ -382,8 +473,14 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	}
 
 	public Map<String, String> findCourseSetRoles(final String userEid) {
-		List results = getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findCourseSetRoles", "userEid", userEid);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+		Root<CourseSetCmImpl> container = cq.from(CourseSetCmImpl.class);
+		Root<MembershipCmImpl> membership = cq.from(MembershipCmImpl.class);
+		cq.multiselect(container.get("eid"), membership.get("role"));
+		cq.where(cb.equal(membership.get("userId"), userEid), cb.equal(membership.get("memberContainer"), container));
+		Query<Object[]> q = sessionFactory.getCurrentSession().createQuery(cq);
+		List results = q.list();
 		Map<String, String> courseSetRoleMap = new HashMap<String, String>();
 		for(Iterator iter = results.iterator(); iter.hasNext();) {
 			Object[] oa = (Object[])iter.next();
@@ -394,8 +491,14 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 
 
 	public Map<String, String> findSectionRoles(final String userEid) {
-		List results = getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findSectionRoles", "userEid", userEid);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+		Root<SectionCmImpl> container = cq.from(SectionCmImpl.class);
+		Root<MembershipCmImpl> membership = cq.from(MembershipCmImpl.class);
+		cq.multiselect(container.get("eid"), membership.get("role"));
+		cq.where(cb.equal(membership.get("userId"), userEid), cb.equal(membership.get("memberContainer"), container));
+		Query<Object[]> q = sessionFactory.getCurrentSession().createQuery(cq);
+		List results = q.list();
 		Map<String, String> sectionRoleMap = new HashMap<String, String>();
 		for(Iterator iter = results.iterator(); iter.hasNext();) {
 			Object[] oa = (Object[])iter.next();
@@ -405,14 +508,17 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	}
 
 	public Map<String, String> findSectionRoles(final String userEid, final String academicSessionEid) {
-		HibernateCallback hc = session -> {
-			Query q = session.getNamedQuery("findSectionRolesByAcademicSession");
-			q.setParameter("userEid", userEid);
-			q.setParameter("academicSessionEid", academicSessionEid);
-			return q.list();
-		};
-
-		List<Object[]> results = new ArrayList<>((List<Object[]>) getHibernateTemplate().execute(hc));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+		Root<SectionCmImpl> container = cq.from(SectionCmImpl.class);
+		Root<MembershipCmImpl> membership = cq.from(MembershipCmImpl.class);
+		cq.multiselect(container.get("eid"), membership.get("role"));
+		cq.where(
+			cb.equal(membership.get("userId"), userEid),
+			cb.equal(membership.get("memberContainer"), container),
+			cb.equal(container.get("courseOffering").get("academicSession").get("eid"), academicSessionEid));
+		Query<Object[]> q = sessionFactory.getCurrentSession().createQuery(cq);
+		List<Object[]> results = new ArrayList<>((List<Object[]>) q.list());
 		Map<String, String> sectionRoleMap = new HashMap<>();
 		for(Object[] oa : results) {
 			sectionRoleMap.put((String) oa[0], (String) oa[1]);
@@ -425,42 +531,90 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 		if(!isCanonicalCourseDefined(canonicalCourseEid)) {
 			throw new IdNotFoundException(canonicalCourseEid, CanonicalCourseCmImpl.class.getName());
 		}
-		return new HashSet<CourseOffering>((List<CourseOffering>) getHibernateTemplate().findByNamedQueryAndNamedParam("findCourseOfferingsByCanonicalCourse", "canonicalCourseEid", canonicalCourseEid));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<CourseOffering> cq = cb.createQuery(CourseOffering.class);
+		Root<CourseOfferingCmImpl> root = cq.from(CourseOfferingCmImpl.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get("canonicalCourse").get("eid"), canonicalCourseEid));
+		Query<CourseOffering> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return new HashSet<CourseOffering>((List<CourseOffering>) q.list());
 	}
 
 	public boolean isAcademicSessionDefined(String eid) {
-		return ((Number)getHibernateTemplate().findByNamedQueryAndNamedParam("isAcademicSessionDefined", "eid", eid).get(0)).intValue() == 1;
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<AcademicSessionCmImpl> root = cq.from(AcademicSessionCmImpl.class);
+		cq.select(cb.count(root));
+		cq.where(cb.equal(root.get("eid"), eid));
+		Query<Long> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return ((Number)q.list().get(0)).intValue() == 1;
 	}
 
 	public boolean isCanonicalCourseDefined(String eid) {
-		return ((Number)getHibernateTemplate().findByNamedQueryAndNamedParam("isCanonicalCourseDefined", "eid", eid).get(0)).intValue() == 1;
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<CanonicalCourseCmImpl> root = cq.from(CanonicalCourseCmImpl.class);
+		cq.select(cb.count(root));
+		cq.where(cb.equal(root.get("eid"), eid));
+		Query<Long> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return ((Number)q.list().get(0)).intValue() == 1;
 	}
 
 	public boolean isCourseOfferingDefined(String eid) {
-		return ((Number)getHibernateTemplate().findByNamedQueryAndNamedParam("isCourseOfferingDefined", "eid", eid).get(0)).intValue() == 1;
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<CourseOfferingCmImpl> root = cq.from(CourseOfferingCmImpl.class);
+		cq.select(cb.count(root));
+		cq.where(cb.equal(root.get("eid"), eid));
+		Query<Long> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return ((Number)q.list().get(0)).intValue() == 1;
 	}
 
 	public boolean isCourseSetDefined(String eid) {
-		return ((Number)getHibernateTemplate().findByNamedQueryAndNamedParam("isCourseSetDefined", "eid", eid).get(0)).intValue() == 1;
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<CourseSetCmImpl> root = cq.from(CourseSetCmImpl.class);
+		cq.select(cb.count(root));
+		cq.where(cb.equal(root.get("eid"), eid));
+		Query<Long> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return ((Number)q.list().get(0)).intValue() == 1;
 	}
 
 	public boolean isEnrollmentSetDefined(String eid) {
-		return ((Number)getHibernateTemplate().findByNamedQueryAndNamedParam("isEnrollmentSetDefined", "eid", eid).get(0)).intValue() == 1;
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<EnrollmentSetCmImpl> root = cq.from(EnrollmentSetCmImpl.class);
+		cq.select(cb.count(root));
+		cq.where(cb.equal(root.get("eid"), eid));
+		Query<Long> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return ((Number)q.list().get(0)).intValue() == 1;
 	}
 
 	public boolean isSectionDefined(String eid) {
-		return ((Number)getHibernateTemplate().findByNamedQueryAndNamedParam("isSectionDefined", "eid", eid).get(0)).intValue() == 1;
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<SectionCmImpl> root = cq.from(SectionCmImpl.class);
+		cq.select(cb.count(root));
+		cq.where(cb.equal(root.get("eid"), eid));
+		Query<Long> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return ((Number)q.list().get(0)).intValue() == 1;
 	}
 
 	public List<String> getSectionCategories() {
-		return (List<String>) getHibernateTemplate().findByNamedQuery("findSectionCategories");
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		Root<SectionCategoryCmImpl> root = cq.from(SectionCategoryCmImpl.class);
+		cq.select(root.get("categoryCode"));
+		cq.orderBy(cb.asc(root.get("categoryCode")));
+		Query<String> q = sessionFactory.getCurrentSession().createQuery(cq);
+		return (List<String>) q.list();
 	}
 
 	public String getSectionCategoryDescription(String categoryCode) {
 		if(categoryCode == null) {
 			return null;
 		}
-		SectionCategory cat = (SectionCategory)getHibernateTemplate().get(SectionCategoryCmImpl.class, categoryCode);
+		SectionCategory cat = (SectionCategory)sessionFactory.getCurrentSession().get(SectionCategoryCmImpl.class, categoryCode);
 		if(cat == null) {
 			return null;
 		} else {
