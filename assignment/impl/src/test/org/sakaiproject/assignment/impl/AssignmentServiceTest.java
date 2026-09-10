@@ -2335,6 +2335,39 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void getSubmissionsForAssignmentIds() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String submitterOne = UUID.randomUUID().toString();
+        String submitterTwo = UUID.randomUUID().toString();
+        Assignment homework = createNewAssignment(context);
+        Assignment essay = createNewAssignment(context);
+        AssignmentSubmission homeworkOne = createNewSubmission(context, submitterOne, homework);
+        AssignmentSubmission homeworkTwo = createNewSubmission(context, submitterTwo, homework);
+        AssignmentSubmission essayOne = createNewSubmission(context, submitterOne, essay);
+
+        Assert.assertTrue(assignmentService.getSubmissions(Collections.emptyList()).isEmpty());
+        Assert.assertTrue(assignmentService.getSubmissions((Collection<String>) null).isEmpty());
+        Assert.assertTrue(assignmentService.getSubmissions(Arrays.asList("", "  ")).isEmpty());
+
+        Map<String, Set<AssignmentSubmission>> byAssignment = assignmentService.getSubmissions(
+                Arrays.asList(homework.getId(), essay.getId(), "missing-assignment-id", "", homework.getId()));
+
+        Assert.assertEquals(3, byAssignment.size());
+        Assert.assertThat(byAssignment.get(homework.getId()).size(), is(2));
+        Assert.assertThat(byAssignment.get(essay.getId()).size(), is(1));
+        Assert.assertTrue(byAssignment.get("missing-assignment-id").isEmpty());
+        Assert.assertTrue(byAssignment.get(homework.getId()).contains(homeworkOne));
+        Assert.assertTrue(byAssignment.get(homework.getId()).contains(homeworkTwo));
+        Assert.assertTrue(byAssignment.get(essay.getId()).contains(essayOne));
+        Assert.assertFalse(byAssignment.containsKey(""));
+
+        AssignmentSubmission loaded = byAssignment.get(homework.getId()).iterator().next();
+        Assert.assertNotNull(loaded.getAssignment());
+        Assert.assertEquals(homework.getId(), loaded.getAssignment().getId());
+        Assert.assertFalse(loaded.getSubmitters().isEmpty());
+    }
+
+    @Test
     public void gradeUpdateFromAssignmentEventObserver() {
         char ds = DecimalFormatSymbols.getInstance(Locale.ENGLISH).getDecimalSeparator();
         when(formattedText.getDecimalSeparator()).thenReturn(Character.toString(ds));

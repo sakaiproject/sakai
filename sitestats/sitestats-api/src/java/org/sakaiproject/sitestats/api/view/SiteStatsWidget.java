@@ -26,4 +26,6 @@ public class SiteStatsWidget implements Serializable {
 	private List<SiteStatsWidgetTab> tabs = new ArrayList<SiteStatsWidgetTab>();
 	private List<SiteStatsWidgetMetric> metrics = new ArrayList<SiteStatsWidgetMetric>();
 	private List<SiteStatsChart> highlights = new ArrayList<SiteStatsChart>();
+	private List<SiteStatsFilterOption> toolFilters = new ArrayList<SiteStatsFilterOption>();
+	private boolean highlightsConfigured;
 }

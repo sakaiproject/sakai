@@ -129,7 +129,7 @@ public class WidgetReportDefFactory {
 	}
 
 	void applyRoleFilter(ReportParams params, SiteStatsReportRequest request) {
-		params.setWhen(filterCatalog.dateFilter(request));
+		applyWhen(params, request);
 		String role = filterCatalog.roleFilter(request);
 		if (!ReportManager.WHO_ALL.equals(role)) {
 			params.setWho(ReportManager.WHO_ROLE);
@@ -138,12 +138,12 @@ public class WidgetReportDefFactory {
 	}
 
 	void applyDateGrouping(ReportParams params, SiteStatsReportRequest request, boolean sortByDate) {
+		applyWhen(params, request);
 		String date = filterCatalog.dateFilter(request);
-		params.setWhen(date);
-		if (date.equals(ReportManager.WHEN_LAST365DAYS) || date.equals(ReportManager.WHEN_ALL)) {
+		if (usesMonthlyGrouping(request, date)) {
 			params.setHowSortBy(sortByDate ? StatsManager.T_DATEMONTH : params.getHowSortBy());
 			params.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_MONTH);
-		} else if (date.equals(ReportManager.WHEN_LAST30DAYS)) {
+		} else if (date.equals(ReportManager.WHEN_LAST30DAYS) || date.equals(ReportManager.WHEN_CUSTOM)) {
 			params.setHowSortBy(sortByDate ? StatsManager.T_DATE : params.getHowSortBy());
 			params.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
 		} else {
@@ -155,13 +155,32 @@ public class WidgetReportDefFactory {
 	List<String> dateTotals(SiteStatsReportRequest request, String... extraColumns) {
 		List<String> totalsBy = new ArrayList<String>();
 		String date = filterCatalog.dateFilter(request);
-		if (date.equals(ReportManager.WHEN_LAST365DAYS) || date.equals(ReportManager.WHEN_ALL)) {
+		if (usesMonthlyGrouping(request, date)) {
 			totalsBy.add(StatsManager.T_DATEMONTH);
 		} else {
 			totalsBy.add(StatsManager.T_DATE);
 		}
 		totalsBy.addAll(Arrays.asList(extraColumns));
 		return totalsBy;
+	}
+
+	void applyWhen(ReportParams params, SiteStatsReportRequest request) {
+		String date = filterCatalog.dateFilter(request);
+		params.setWhen(date);
+		if (ReportManager.WHEN_CUSTOM.equals(date)) {
+			params.setWhenFrom(filterCatalog.whenFrom(request));
+			params.setWhenTo(filterCatalog.whenTo(request));
+		}
+	}
+
+	boolean isIncompleteCustomRange(SiteStatsReportRequest request) {
+		return filterCatalog.isIncompleteCustomRange(request);
+	}
+
+	private boolean usesMonthlyGrouping(SiteStatsReportRequest request, String date) {
+		return date.equals(ReportManager.WHEN_LAST365DAYS)
+				|| date.equals(ReportManager.WHEN_ALL)
+				|| filterCatalog.isLongCustomRange(request);
 	}
 
 	private ReportDef resourceLikeBase(String siteId, SiteStatsReportRequest request, String what, String refRoot, String actionFilter) {

@@ -11,42 +11,63 @@
     No statistics are available for this site.
   </div>
   <div class="sitestats-widgets" th:if="${!#lists.isEmpty(overview.widgets)}">
-    <section class="sitestats-widget" th:each="widget : ${overview.widgets}" th:if="${widget.visible}">
+    <section class="sitestats-widget" th:each="widget : ${overview.widgets}" th:if="${widget.visible}"
+             th:attr="data-metrics-endpoint=${metricEndpoints.get(widget.id)},
+                      data-highlights-endpoint=${highlightEndpoints.get(widget.id)}">
       <h2 class="sitestats-widget-title" th:text="${widget.title}">Report</h2>
-      <dl class="sitestats-metrics" th:if="${!#lists.isEmpty(widget.metrics)}">
-        <div class="sitestats-metric" th:each="metric : ${widget.metrics}"
-             th:title="${metric.snapshot.detail != metric.snapshot.primary ? metric.snapshot.detail : null}">
-          <dt th:text="${metric.label}"></dt>
-          <dd class="mb-0">
-            <span class="sitestats-metric-primary" th:text="${metric.snapshot.primary}"></span>
-            <span class="sitestats-metric-percentage"
-                  th:if="${metric.snapshot.percentage != null}"
-                  th:text="${#numbers.formatPercent(metric.snapshot.percentage / 100.0, 0, 0)}"></span>
-            <span class="visually-hidden"
-                  th:if="${metric.snapshot.detail != null and metric.snapshot.detail != metric.snapshot.primary}"
-                  th:text="${metric.snapshot.detail}"></span>
-          </dd>
-        </div>
-      </dl>
+      <sakai-sitestats-tool-filter class="sitestats-tool-filter" role="group"
+                                   th:if="${!#lists.isEmpty(widget.toolFilters)}"
+                                   th:attr="aria-label=#{overview_tool_filters}">
+        <span class="sitestats-tool-filter-label" th:text="#{overview_tool_filters}">Tools:</span>
+        <button type="button"
+                class="sitestats-tool-chip"
+                th:each="tool : ${widget.toolFilters}"
+                th:attr="data-tool-id=${tool.value}"
+                th:aria-label="${tool.label}"
+                th:title="${tool.label}"
+                aria-pressed="true">
+          <span class="si sitestats-tool-chip-icon"
+                th:classappend="${tool.icon}"
+                aria-hidden="true"></span>
+          <span class="sitestats-tool-chip-label" th:text="${tool.label}">Assignments</span>
+        </button>
+      </sakai-sitestats-tool-filter>
+      <sakai-sitestats-widget-metrics
+          th:if="${!#lists.isEmpty(widget.metrics)}"
+          th:attr="endpoint=${metricEndpoints.get(widget.id)}">
+      </sakai-sitestats-widget-metrics>
       <sakai-sitestats-highlights class="sitestats-highlights"
-                                  th:if="${widgetHighlightsJson.containsKey(widget.id)}"
+                                  th:if="${widget.highlightsConfigured and !#lists.isEmpty(widget.highlights)}"
                                   th:attr="charts=${widgetHighlightsJson.get(widget.id)}">
       </sakai-sitestats-highlights>
       <sakai-sitestats-widget-tab class="sitestats-widget-tab"
                                   th:each="tab : ${widget.tabs}"
-                                  th:attr="endpoint=${widgetEndpoints.get(widget.id + ':' + tab.id)},
-                                           open=${widget.id == 'visits' and tab.id == 'bydate' ? 'open' : null}">
+                                  th:attr="endpoint=${widgetEndpoints.get(widget.id + ':' + tab.id)}">
         <span slot="title" th:text="${tab.title}">Report</span>
-        <div slot="filter" class="sitestats-widget-filter" th:each="filter : ${tab.filters}">
+        <div slot="filter" class="sitestats-widget-filter" th:each="filter : ${tab.filters}"
+             th:hidden="${filter.id == 'whenFrom' or filter.id == 'whenTo'}">
           <label class="form-label"
                  th:for="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
                  th:text="${filter.label}"></label>
           <select class="form-select form-select-sm"
+                  th:if="${filter.type == null or filter.type == 'select'}"
                   th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
                   th:attr="data-report-filter=${filter.id}">
             <option th:each="option : ${filter.options}"
                     th:value="${option.value}" th:text="${option.label}"></option>
           </select>
+          <input class="form-control form-control-sm"
+                 th:if="${filter.type == 'number'}"
+                 type="number"
+                 th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                 th:value="${filter.value}"
+                 th:attr="data-report-filter=${filter.id}">
+          <input class="form-control form-control-sm"
+                 th:if="${filter.type == 'date'}"
+                 type="date"
+                 th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                 th:value="${filter.value}"
+                 th:attr="data-report-filter=${filter.id}">
         </div>
       </sakai-sitestats-widget-tab>
     </section>

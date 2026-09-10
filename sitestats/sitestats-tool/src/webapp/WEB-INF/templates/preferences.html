@@ -23,6 +23,15 @@
         <label class="form-check-label" for="student-own-stats"
                th:text="#{prefs_showOwnStatisticsToStudents}"></label>
       </div>
+      <div class="mt-3">
+        <label class="form-label" for="grades-threshold" th:text="#{prefs_grades_threshold}">
+          Grade completion threshold (%)
+        </label>
+        <input id="grades-threshold" class="form-control w-auto" type="number" min="0" max="100" step="any"
+               th:field="*{gradesThreshold}" th:placeholder="${#numbers.formatInteger(defaultGradesThreshold,1)}"/>
+        <div class="form-text"
+             th:text="#{prefs_grades_threshold_default(${#numbers.formatInteger(defaultGradesThreshold,1)})}"></div>
+      </div>
     </fieldset>
     <fieldset class="mb-4">
       <legend class="h4" th:text="#{instructions_prefs_sep_chart}">Chart presentation options</legend>

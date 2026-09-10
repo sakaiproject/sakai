@@ -7,4 +7,5 @@ failed_to_load_statistics_unknown=Failed to load statistics
 no_data_available=No data available
 site_statistics_chart=Site statistics chart
 label=Label
+overview_tool_filters_min_one=Keep at least one tool selected.
 `;

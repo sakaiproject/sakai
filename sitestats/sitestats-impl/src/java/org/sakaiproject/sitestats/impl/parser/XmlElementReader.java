@@ -60,6 +60,18 @@ final class XmlElementReader {
 		return parseBoolean(value, element.getTagName(), name);
 	}
 
+	static Double optionalDouble(Element element, String name) throws Exception {
+		String value = optionalValue(element, name);
+		if(value == null || value.trim().isEmpty()) {
+			return null;
+		}
+		try {
+			return Double.valueOf(value.trim());
+		} catch(NumberFormatException e) {
+			throw new Exception("Invalid double value '" + value + "' for '" + name + "' on " + element.getTagName() + " tag.", e);
+		}
+	}
+
 	static float optionalFloat(Element element, String name, float defaultValue) throws Exception {
 		String value = optionalValue(element, name);
 		if(value == null) {

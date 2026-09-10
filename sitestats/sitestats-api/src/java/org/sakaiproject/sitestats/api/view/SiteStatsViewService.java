@@ -15,6 +15,10 @@ public interface SiteStatsViewService {
 
 	public List<SiteStatsWidgetMetric> getWidgetMetrics(String siteId, String widgetId);
 
+	public List<SiteStatsWidgetMetric> getWidgetMetrics(String siteId, String widgetId, SiteStatsReportRequest request);
+
+	public List<SiteStatsChart> getWidgetHighlights(String siteId, String widgetId, SiteStatsReportRequest request);
+
 	public SiteStatsWidgetMetric getWidgetMetric(String siteId, String widgetId, String metricId);
 
 	public List<SiteStatsReportSummary> getReports(String siteId);

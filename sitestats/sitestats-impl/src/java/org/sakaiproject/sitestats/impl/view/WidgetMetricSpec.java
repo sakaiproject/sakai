@@ -21,9 +21,14 @@ class WidgetMetricSpec {
 	private final String audience;
 	private final BooleanSupplier available;
 	private final WidgetReportFactory reportFactory;
+	private final WidgetReportViewFactory viewFactory;
 	private final WidgetMetricValueFactory valueFactory;
 
 	boolean isAvailable() {
 		return available.getAsBoolean();
+	}
+
+	boolean isReportable() {
+		return reportFactory != null || viewFactory != null;
 	}
 }

@@ -22,9 +22,11 @@ import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -62,7 +64,10 @@ import org.sakaiproject.sitestats.impl.view.SiteStatsChartMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportSummaryMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
+import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalogFactory;
 import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetContext;
+import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinition;
+import org.sakaiproject.sitestats.impl.view.ViewFactoryFixtureWidgetDefinition;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEntityManager;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -80,6 +85,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -106,6 +112,9 @@ public class SiteStatsTestConfiguration {
     static {
         System.setProperty("sakai.tests.enabled", "true");
     }
+
+    private final org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup samigoLookupMock =
+            mock(org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup.class);
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public SessionFactory sessionFactory(Properties hibernateProperties) throws IOException {
@@ -144,6 +153,21 @@ public class SiteStatsTestConfiguration {
     @Bean(name = "org.sakaiproject.alias.api.AliasService")
     public AliasService aliasService() {
         return mock(AliasService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.assignment.api.AssignmentService")
+    public org.sakaiproject.assignment.api.AssignmentService assignmentService() {
+        return mock(org.sakaiproject.assignment.api.AssignmentService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.grading.api.GradingService")
+    public org.sakaiproject.grading.api.GradingService gradingService() {
+        return mock(org.sakaiproject.grading.api.GradingService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup")
+    public org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup samigoLookup() {
+        return samigoLookupMock;
     }
 
     @Bean(name = "org.sakaiproject.announcement.api.AnnouncementService")
@@ -257,7 +281,15 @@ public class SiteStatsTestConfiguration {
 
     @Bean
     public BeanPostProcessor siteStatsResourceLoaderPostProcessor(ResourceLoader resourceLoader) {
-        return new BeanPostProcessor() {
+        return new InstantiationAwareBeanPostProcessor() {
+            @Override
+            public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+                if (org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookupImpl.class.equals(beanClass)) {
+                    return samigoLookupMock;
+                }
+                return null;
+            }
+
             @Override
             public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
                 if (bean instanceof ReportManagerImpl) {
@@ -272,6 +304,14 @@ public class SiteStatsTestConfiguration {
                     ((SiteStatsReportSummaryMapper) bean).setMessages(resourceLoader);
                 } else if (bean instanceof SiteStatsWidgetContext) {
                     ((SiteStatsWidgetContext) bean).setMessages(resourceLoader);
+                } else if (bean instanceof SiteStatsWidgetCatalogFactory) {
+                    SiteStatsWidgetCatalogFactory factory = (SiteStatsWidgetCatalogFactory) bean;
+                    List<SiteStatsWidgetDefinition> definitions = new ArrayList<>(factory.getWidgetDefinitions());
+                    definitions.add(new ViewFactoryFixtureWidgetDefinition());
+                    factory.setWidgetDefinitions(definitions);
+                } else if (bean instanceof org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics) {
+                    ((org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics) bean)
+                            .setSamigoLookup(samigoLookupMock);
                 }
                 return bean;
             }

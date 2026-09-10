@@ -5,7 +5,10 @@
  */
 package org.sakaiproject.sitestats.impl.view;
 
+import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
+
+@FunctionalInterface
 interface WidgetMetricValueFactory {
 
-	WidgetMetricValue getValue(String siteId, String userId);
+	WidgetMetricValue getValue(String siteId, String userId, SiteStatsReportRequest request);
 }

@@ -16,6 +16,97 @@
     padding: $standard-space-3x $standard-spacing;
   }
 
+  .sitestats-widget:has(.sitestats-tool-filter) .sitestats-widget-title {
+    padding-block-end: $standard-space;
+  }
+
+  .sitestats-tool-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $standard-space;
+    padding: 0 $standard-spacing $standard-space-2x;
+  }
+
+  .sitestats-tool-filter-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .sitestats-tool-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: $standard-space;
+    margin: 0;
+    padding: $standard-space $standard-space-2x;
+    border: 1px solid var(--sakai-border-color);
+    border-radius: 999px;
+    background: var(--sakai-background-color-1);
+    color: var(--sakai-text-color-1);
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    cursor: pointer;
+    appearance: none;
+    position: relative;
+
+    &:hover {
+      background: var(--sakai-background-color-2);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-outline-color);
+      outline-offset: 2px;
+    }
+
+    &[aria-pressed="true"] {
+      border-color: var(--sakai-text-color-1);
+      background: var(--sakai-background-color-2);
+      font-weight: 600;
+    }
+
+    &[aria-pressed="false"] {
+      color: var(--sakai-text-color-dimmed);
+    }
+
+    &[aria-disabled="true"] {
+      cursor: not-allowed;
+    }
+  }
+
+  .sitestats-tool-chip-icon {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  @media (max-width: 640px) {
+    .sitestats-tool-chip {
+      padding: $standard-space;
+    }
+
+    .sitestats-tool-chip-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  }
+
+  sakai-sitestats-widget-metrics {
+    display: block;
+  }
+
+  .sitestats-metrics-status {
+    padding: $standard-space-2x $standard-spacing;
+    background: var(--sakai-background-color-2);
+    border-block: 1px solid var(--sakai-border-color);
+  }
+
   .sitestats-metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
@@ -37,6 +128,7 @@
   .sitestats-metric-primary {
     line-height: 1.25;
     font-weight: 800;
+    word-break: break-word;
   }
 
   .sitestats-metric-percentage {
@@ -48,8 +140,13 @@
   .sitestats-highlights {
     display: block;
     width: 100%;
-    padding: $standard-space-2x $standard-spacing;
+    padding: $standard-space-2x;
     border-block-end: 1px solid var(--sakai-border-color);
+    background: var(--sakai-background-color-2);
+
+    &[hidden] {
+      display: none;
+    }
   }
 
   .sitestats-widget-tab {

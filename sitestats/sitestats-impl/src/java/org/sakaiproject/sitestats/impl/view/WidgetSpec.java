@@ -24,6 +24,7 @@ class WidgetSpec {
 	private final List<WidgetTabSpec> tabs;
 	private final List<WidgetMetricSpec> metrics;
 	private final List<WidgetHighlightSpec> highlights;
+	private final List<String> toolFilterIds;
 
 	boolean isAvailable() {
 		return available.getAsBoolean();

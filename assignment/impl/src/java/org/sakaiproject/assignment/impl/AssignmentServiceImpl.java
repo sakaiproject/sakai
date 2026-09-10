@@ -2657,6 +2657,38 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Map<String, Set<AssignmentSubmission>> getSubmissions(Collection<String> assignmentIds) {
+        Map<String, Set<AssignmentSubmission>> byAssignment = new HashMap<String, Set<AssignmentSubmission>>();
+        if (assignmentIds == null || assignmentIds.isEmpty()) {
+            return byAssignment;
+        }
+        for (String assignmentId : assignmentIds) {
+            if (StringUtils.isNotBlank(assignmentId) && !byAssignment.containsKey(assignmentId)) {
+                byAssignment.put(assignmentId, new HashSet<AssignmentSubmission>());
+            }
+        }
+        if (byAssignment.isEmpty()) {
+            return byAssignment;
+        }
+        List<AssignmentSubmission> submissions = assignmentRepository.findSubmissions(byAssignment.keySet());
+        if (submissions == null) {
+            return byAssignment;
+        }
+        for (AssignmentSubmission submission : submissions) {
+            if (submission == null || submission.getAssignment() == null) {
+                continue;
+            }
+            String assignmentId = submission.getAssignment().getId();
+            Set<AssignmentSubmission> forAssignment = byAssignment.get(assignmentId);
+            if (forAssignment != null) {
+                forAssignment.add(submission);
+            }
+        }
+        return byAssignment;
+    }
+
+    @Override
     public String getAssignmentStatus(String assignmentId) {
         Assignment assignment = null;
         try {
