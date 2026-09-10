@@ -97,6 +97,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
+import org.sakaiproject.tool.assessment.util.ImageMapCoordinates;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.util.comparator.ImageMapGradingItemComparator;
@@ -2133,36 +2134,25 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	 }
 	 
 	 ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(data.getPublishedItemTextId());
-	 
-	 List answerArray = (List) itemTextIfc.getAnswerArray();
-	 AnswerIfc answerIfc= (AnswerIfc) answerArray.get(0); 
-	 
-	 try{
-		 String area = answerIfc.getText();
-		 Integer areax1=Integer.valueOf(area.substring(area.indexOf("\"x1\":")+5,area.indexOf(",", area.indexOf("\"x1\":"))));
-		 Integer areay1=Integer.valueOf(area.substring(area.indexOf("\"y1\":")+5,area.indexOf(",", area.indexOf("\"y1\":"))));
-		 Integer areax2=Integer.valueOf(area.substring(area.indexOf("\"x2\":")+5,area.indexOf(",", area.indexOf("\"x2\":"))));
-		 Integer areay2=Integer.valueOf(area.substring(area.indexOf("\"y2\":")+5,area.indexOf("}", area.indexOf("\"y2\":"))));
-		 
-		 String point = data.getAnswerText();
-		 Integer pointx=Integer.valueOf(point.substring(point.indexOf("\"x\":")+4,point.indexOf(",", point.indexOf("\"x\":"))));
-		 Integer pointy=Integer.valueOf(point.substring(point.indexOf("\"y\":")+4,point.indexOf("}", point.indexOf("\"y\":"))));
-		
-				 
-		 if (((pointx>=areax1)&&(pointx<=areax2))&&((pointy>=areay1)&&(pointy<=areay2))) {
-			 totalScore=answerScore;
-			 data.setIsCorrect(Boolean.TRUE);
-		 }else{
-			 totalScore=0;
-		 }
-	}catch(Exception ex){
-		 totalScore=0;
+	 if (itemTextIfc == null || itemTextIfc.getAnswerArray() == null || itemTextIfc.getAnswerArray().isEmpty()) {
+		 return 0;
 	 }
-	 	  
-    
+	 AnswerIfc answerIfc = (AnswerIfc) itemTextIfc.getAnswerArray().get(0);
+	 if (answerIfc == null) {
+		 return 0;
+	 }
+
+	 Optional<ImageMapCoordinates.Region> region = ImageMapCoordinates.parseRegion(answerIfc.getText());
+	 Optional<ImageMapCoordinates.Point> point = ImageMapCoordinates.parseStudentPoint(data.getAnswerText());
+	 if (region.isPresent() && point.isPresent() && region.get().contains(point.get().getClickX(), point.get().getClickY())) {
+		 totalScore = answerScore;
+		 data.setIsCorrect(Boolean.TRUE);
+	 } else {
+		 totalScore = 0;
+	 }
+
     return totalScore;
   }
-  
 
   /**
    * Validate a students numeric answer 

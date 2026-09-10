@@ -180,10 +180,8 @@ public final class AssessmentPdfCellEvents {
                 PdfGState transparentState = new PdfGState();
                 transparentState.setFillOpacity(0.3f);
                 transparentState.setStrokeOpacity(0.8f);
-                float imageX = studentMarkerHotspotX(answerCircle.getX());
-                float imageY = studentMarkerHotspotY(answerCircle.getY());
-                float transformedX = x + imageX * scaleX;
-                float transformedY = y + drawnHeight - imageY * scaleY;
+                float transformedX = x + answerCircle.getX() * scaleX;
+                float transformedY = y + drawnHeight - answerCircle.getY() * scaleY;
                 if (answerCircle.getX() != 0 && answerCircle.getY() != 0) {
                     canvas.circle(transformedX, transformedY, radius);
                     canvas.setGState(transparentState);
@@ -217,10 +215,8 @@ public final class AssessmentPdfCellEvents {
             }
 
             for (ImageMapCircle answerCircle : answerCircles) {
-                float imageX = studentMarkerHotspotX(answerCircle.getX());
-                float imageY = studentMarkerHotspotY(answerCircle.getY());
-                float transformedX = x + imageX * scaleX;
-                float transformedY = y + drawnHeight - imageY * scaleY;
+                float transformedX = x + answerCircle.getX() * scaleX;
+                float transformedY = y + drawnHeight - answerCircle.getY() * scaleY;
                 if (answerCircle.getX() != 0 && answerCircle.getY() != 0) {
                     try {
                         canvas.beginText();
@@ -302,29 +298,5 @@ public final class AssessmentPdfCellEvents {
             this.y = y;
             this.sequence = sequence;
         }
-    }
-
-    /**
-     * Compensates for delivery storing the marker top-left, not the click
-     * ({@code selection.student.js} uses {@code click - (width/2, height/2)}).
-     * These deltas match the current 18×16 crosshair box in imageQuestion.student.css;
-     * they are not a live CSS contract.
-     *
-     * TODO: Stored image-map JSON is the .pointerClass top-left, so this PDF (and grading)
-     * must guess the click. Changing height/padding-left in imageQuestion.student.css
-     * desyncs the yellow dots (small regions look missed even when the on-screen marker
-     * sits on the target). 9 and 8 are half of that 18×16 box, an approximation of the
-     * crosshair center, not the live div (width includes the item number). Drop this
-     * offset once item grading stores the image click; then draw and score {x,y} as-is.
-     */
-    static final float STUDENT_MARKER_OFFSET_X = 9f;
-    static final float STUDENT_MARKER_OFFSET_Y = 8f;
-
-    static float studentMarkerHotspotX(float storedX) {
-        return storedX + STUDENT_MARKER_OFFSET_X;
-    }
-
-    static float studentMarkerHotspotY(float storedY) {
-        return storedY + STUDENT_MARKER_OFFSET_Y;
     }
 }

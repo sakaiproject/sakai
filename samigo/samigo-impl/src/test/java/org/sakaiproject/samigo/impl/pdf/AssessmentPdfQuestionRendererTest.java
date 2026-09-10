@@ -44,6 +44,7 @@ import org.sakaiproject.samigo.api.pdf.model.AssessmentStudentReportPdfModel;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.ImageMapCircle;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.ImageMapQuestionCellEvent;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.util.ImageMapCoordinates;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,7 +63,8 @@ public class AssessmentPdfQuestionRendererTest {
     private static final String MAP_RESOURCE = "/group/site/map.png";
     private static final String STUDENT_RESOURCE = "/group/site/student.png";
     private static final String VALID_REGION = "{\"x1\":17,\"y1\":19,\"x2\":181,\"y2\":283}";
-    private static final String STUDENT_CLICK = "{\"x\":555,\"y\":666}";
+    private static final String STUDENT_CLICK = "{\"click\":true,\"x\":555,\"y\":666}";
+    private static final String LEGACY_CLICK = "{\"x\":555,\"y\":666}";
 
     @Test
     public void extractJsonObjectStripsPrefixAndUndefined() {
@@ -109,6 +111,22 @@ public class AssessmentPdfQuestionRendererTest {
     }
 
     @Test
+    public void parseCirclesUsesStoredClickWhenFlagPresentAndOffsetsLegacyTopLeft() {
+        AssessmentPdfImageMapCoords coords = new AssessmentPdfImageMapCoords(new ObjectMapper());
+        List<ImageMapCircle> clickCircles = coords.parseCircles(List.of(
+                new AssessmentPdfItemGradingModel(STUDENT_CLICK, 1L)));
+        assertEquals(1, clickCircles.size());
+        assertEquals(555f, clickCircles.get(0).getX(), 0.01f);
+        assertEquals(666f, clickCircles.get(0).getY(), 0.01f);
+
+        List<ImageMapCircle> legacyCircles = coords.parseCircles(List.of(
+                new AssessmentPdfItemGradingModel(LEGACY_CLICK, 1L)));
+        assertEquals(1, legacyCircles.size());
+        assertEquals(555f + (float) ImageMapCoordinates.LEGACY_OFFSET_X, legacyCircles.get(0).getX(), 0.01f);
+        assertEquals(666f + (float) ImageMapCoordinates.LEGACY_OFFSET_Y, legacyCircles.get(0).getY(), 0.01f);
+    }
+
+    @Test
     public void parseCirclesUsesItemTextSequenceNotPublishedId() {
         AssessmentPdfImageMapCoords coords = new AssessmentPdfImageMapCoords(new ObjectMapper());
         List<ImageMapCircle> circles = coords.parseCircles(List.of(
@@ -117,14 +135,6 @@ public class AssessmentPdfQuestionRendererTest {
         assertEquals(2, circles.size());
         assertEquals(2, circles.get(0).getSequence());
         assertEquals(1, circles.get(1).getSequence());
-    }
-
-    @Test
-    public void studentMarkerHotspotShiftsStoredTopLeftTowardClick() {
-        assertEquals(555f + AssessmentPdfCellEvents.STUDENT_MARKER_OFFSET_X,
-                AssessmentPdfCellEvents.studentMarkerHotspotX(555f), 0.01f);
-        assertEquals(666f + AssessmentPdfCellEvents.STUDENT_MARKER_OFFSET_Y,
-                AssessmentPdfCellEvents.studentMarkerHotspotY(666f), 0.01f);
     }
 
     @Test
