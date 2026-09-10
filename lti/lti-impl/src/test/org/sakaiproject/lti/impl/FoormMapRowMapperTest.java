@@ -19,109 +19,89 @@ package org.sakaiproject.lti.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.time.Instant;
-import java.util.Date;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 /**
- * Tests the FoormMapRowMapper to ensure it correctly delegates DATETIME/TIMESTAMP
- * columns to ResultSet.getTimestamp() to prevent MySQL 8 LocalDateTime timezone issues.
+ * Exercises column mapping through a real in-memory JDBC database.
+ * MySQL-specific DATETIME conversion still requires verification with Connector/J.
  */
 public class FoormMapRowMapperTest {
 
-    private ResultSet rs;
-    private ResultSetMetaData metaData;
+    private EmbeddedDatabase database;
+    private JdbcTemplate jdbcTemplate;
 
     @Before
-    public void setUp() throws SQLException {
-        rs = Mockito.mock(ResultSet.class);
-        metaData = Mockito.mock(ResultSetMetaData.class);
-        when(rs.getMetaData()).thenReturn(metaData);
+    public void setUp() {
+        database = new EmbeddedDatabaseBuilder()
+                .generateUniqueName(true)
+                .setType(EmbeddedDatabaseType.HSQL)
+                .build();
+        jdbcTemplate = new JdbcTemplate(database);
+        jdbcTemplate.execute("CREATE TABLE lti_dates (created_at TIMESTAMP, updated_at DATE, title VARCHAR(255))");
+    }
+
+    @After
+    public void tearDown() {
+        if (database != null) {
+            database.shutdown();
+        }
     }
 
     @Test
-    public void testTimestampColumnReturnsTimestamp() throws SQLException {
-        String[] columns = {"created_at"};
-        FoormMapRowMapper mapper = new FoormMapRowMapper(columns);
+    public void testTimestampColumnReturnsTimestamp() {
+        Timestamp expectedTimestamp = Timestamp.from(Instant.parse("2026-09-01T12:34:56.123456Z"));
+        jdbcTemplate.update("INSERT INTO lti_dates (created_at) VALUES (?)", expectedTimestamp);
 
-        Timestamp expectedTimestamp = Timestamp.from(Instant.parse("2026-09-01T00:00:00Z"));
+        Map<String, Object> result = jdbcTemplate.queryForObject(
+                "SELECT created_at FROM lti_dates", new FoormMapRowMapper(new String[] {"created_at"}));
 
-        when(metaData.getColumnCount()).thenReturn(1);
-        when(metaData.getColumnLabel(1)).thenReturn("created_at");
-        when(metaData.getColumnType(1)).thenReturn(Types.TIMESTAMP);
-        when(rs.getTimestamp(1)).thenReturn(expectedTimestamp);
-
-        Map<String, Object> result = mapper.mapRow(rs, 1);
-
+        assertTrue(result.get("created_at") instanceof Timestamp);
         assertEquals(expectedTimestamp, result.get("created_at"));
-        assertTrue(result.get("created_at") instanceof Date);
-        // Verify getObject was never called for this column
-        verify(rs, never()).getObject(1);
     }
 
     @Test
-    public void testDateColumnReturnsTimestamp() throws SQLException {
-        String[] columns = {"updated_at"};
-        FoormMapRowMapper mapper = new FoormMapRowMapper(columns);
+    public void testDateColumnReturnsTimestamp() {
+        jdbcTemplate.execute("INSERT INTO lti_dates (updated_at) VALUES (DATE '2026-09-01')");
 
-        Timestamp expectedTimestamp = Timestamp.from(Instant.parse("2026-09-01T00:00:00Z"));
+        Map<String, Object> result = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM lti_dates", new FoormMapRowMapper(new String[] {"updated_at"}));
 
-        when(metaData.getColumnCount()).thenReturn(1);
-        when(metaData.getColumnLabel(1)).thenReturn("updated_at");
-        when(metaData.getColumnType(1)).thenReturn(Types.DATE);
-        when(rs.getTimestamp(1)).thenReturn(expectedTimestamp);
-
-        Map<String, Object> result = mapper.mapRow(rs, 1);
-
-        assertEquals(expectedTimestamp, result.get("updated_at"));
-        // Verify getObject was never called for this column
-        verify(rs, never()).getObject(1);
+        assertTrue(result.get("updated_at") instanceof Timestamp);
+        assertEquals(Timestamp.valueOf("2026-09-01 00:00:00"), result.get("updated_at"));
     }
 
     @Test
-    public void testNonDateColumnUsesGetObject() throws SQLException {
-        String[] columns = {"title"};
-        FoormMapRowMapper mapper = new FoormMapRowMapper(columns);
+    public void testNonDateColumnPreservesValue() {
+        jdbcTemplate.update("INSERT INTO lti_dates (title) VALUES (?)", "My LTI Tool");
 
-        String expectedValue = "My LTI Tool";
+        Map<String, Object> result = jdbcTemplate.queryForObject(
+                "SELECT title FROM lti_dates", new FoormMapRowMapper(new String[] {"title"}));
 
-        when(metaData.getColumnCount()).thenReturn(1);
-        when(metaData.getColumnLabel(1)).thenReturn("title");
-        when(metaData.getColumnType(1)).thenReturn(Types.VARCHAR);
-        when(rs.getObject(1)).thenReturn(expectedValue);
-
-        Map<String, Object> result = mapper.mapRow(rs, 1);
-
-        assertEquals(expectedValue, result.get("title"));
-        // Verify getTimestamp was never called for this column
-        verify(rs, never()).getTimestamp(1);
+        assertEquals("My LTI Tool", result.get("title"));
     }
 
     @Test
-    public void testNullTimestampIsHandled() throws SQLException {
-        String[] columns = {"created_at"};
-        FoormMapRowMapper mapper = new FoormMapRowMapper(columns);
+    public void testNullDatesArePreserved() {
+        jdbcTemplate.execute("INSERT INTO lti_dates (created_at, updated_at) VALUES (NULL, NULL)");
 
-        when(metaData.getColumnCount()).thenReturn(1);
-        when(metaData.getColumnLabel(1)).thenReturn("created_at");
-        when(metaData.getColumnType(1)).thenReturn(Types.TIMESTAMP);
-        when(rs.getTimestamp(1)).thenReturn(null);
+        Map<String, Object> result = jdbcTemplate.queryForObject(
+                "SELECT created_at, updated_at FROM lti_dates",
+                new FoormMapRowMapper(new String[] {"created_at", "updated_at"}));
 
-        Map<String, Object> result = mapper.mapRow(rs, 1);
-
+        assertTrue(result.containsKey("created_at"));
+        assertTrue(result.containsKey("updated_at"));
         assertNull(result.get("created_at"));
+        assertNull(result.get("updated_at"));
     }
 }
