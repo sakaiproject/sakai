@@ -351,7 +351,7 @@ class PollTest extends SakaiUiTestBase {
         page.locator("form:visible input[type=\"submit\"], form:visible button[type=\"submit\"]").first()
             .click(new Locator.ClickOptions().setForce(true));
 
-        assertThat(page.locator(".sak-banner-error")).containsText("Row 3");
+        assertThat(page.locator("[role=\"alert\"].sak-banner-error")).containsText("Row 3");
     }
 
     private Locator addOptionControl() {
