@@ -400,6 +400,14 @@ public interface PollsService {
     int getNumberUsersCanVote(String siteId);
 
     /**
+     * Count site users with vote permission who can access this poll.
+     * Applies group restrictions and the same access exceptions as voting.
+     * @param poll the poll
+     * @return number of eligible voters
+     */
+    int getNumberUsersCanVote(Poll poll);
+
+    /**
      * Return a map of group id -> group title for the given site. Returns an empty map if site not found.
      */
     Map<String, String> getGroupTitlesForSite(String siteId);
