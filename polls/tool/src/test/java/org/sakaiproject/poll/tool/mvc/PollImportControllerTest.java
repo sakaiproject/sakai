@@ -17,9 +17,12 @@ package org.sakaiproject.poll.tool.mvc;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.sakaiproject.poll.api.service.PollImportError;
+import org.sakaiproject.poll.api.service.PollImportException;
 
 public class PollImportControllerTest {
 
@@ -52,5 +55,20 @@ public class PollImportControllerTest {
         byte[] windows1252Bytes = text.getBytes(Charset.forName("windows-1252"));
         String decoded = PollImportController.decodeUploadedFile(windows1252Bytes);
         Assert.assertEquals(text, decoded);
+    }
+
+    @Test
+    public void rejectsMalformedBytesAfterUtf8Bom() {
+        // A UTF-8 BOM declares the encoding; a decode failure after it means the file is
+        // corrupt, not a legitimate Windows-1252 export (Excel never writes a BOM for that).
+        byte[] bom = { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF };
+        byte[] invalidUtf8 = { (byte) 0xFF, (byte) 0xFE };
+        byte[] bytes = Arrays.copyOf(bom, bom.length + invalidUtf8.length);
+        System.arraycopy(invalidUtf8, 0, bytes, bom.length, invalidUtf8.length);
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            PollImportController.decodeUploadedFile(bytes)
+        );
+        Assert.assertEquals(PollImportError.WRONG_FORMAT, exception.getError());
     }
 }

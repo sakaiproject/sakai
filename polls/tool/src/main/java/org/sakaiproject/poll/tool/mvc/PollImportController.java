@@ -17,6 +17,7 @@
 package org.sakaiproject.poll.tool.mvc;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
@@ -31,6 +32,7 @@ import java.util.StringJoiner;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.poll.api.importformat.PollImportCsvFormat;
+import org.sakaiproject.poll.api.service.PollImportError;
 import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.site.api.Group;
@@ -209,8 +211,8 @@ public class PollImportController {
             throw new IllegalArgumentException(messageSource.getMessage("poll_import_error_file", null, locale));
         }
 
-        try {
-            return decodeUploadedFile(file.getInputStream().readAllBytes());
+        try (InputStream inputStream = file.getInputStream()) {
+            return decodeUploadedFile(inputStream.readAllBytes());
         } catch (IOException e) {
             log.warn("Unable to read imported poll file {}", file.getOriginalFilename(), e);
             throw new IllegalArgumentException(messageSource.getMessage("poll_import_error_file", null, locale), e);
@@ -220,16 +222,23 @@ public class PollImportController {
     /**
      * Decodes an uploaded CSV as UTF-8, honoring a BOM if present. When there is no BOM and the
      * bytes aren't valid UTF-8, falls back to Windows-1252 — the encoding Excel on Windows writes
-     * by default when saving as "CSV (Comma delimited)" instead of "CSV UTF-8".
+     * by default when saving as "CSV (Comma delimited)" instead of "CSV UTF-8". A BOM explicitly
+     * declares UTF-8, so a decode failure after a BOM means the file is corrupt rather than a
+     * legitimate Windows-1252 export (Excel never writes a BOM for that encoding) — reject it
+     * instead of silently importing garbled text.
      */
     static String decodeUploadedFile(byte[] bytes) {
-        int offset = hasUtf8Bom(bytes) ? 3 : 0;
+        boolean hasBom = hasUtf8Bom(bytes);
+        int offset = hasBom ? 3 : 0;
         CharsetDecoder strictUtf8Decoder = StandardCharsets.UTF_8.newDecoder()
                 .onMalformedInput(CodingErrorAction.REPORT)
                 .onUnmappableCharacter(CodingErrorAction.REPORT);
         try {
             return strictUtf8Decoder.decode(ByteBuffer.wrap(bytes, offset, bytes.length - offset)).toString();
         } catch (CharacterCodingException e) {
+            if (hasBom) {
+                throw new PollImportException(PollImportError.WRONG_FORMAT, e);
+            }
             return new String(bytes, offset, bytes.length - offset, FALLBACK_UPLOAD_CHARSET);
         }
     }
