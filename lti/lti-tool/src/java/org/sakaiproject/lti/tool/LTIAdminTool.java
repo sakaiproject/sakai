@@ -1951,6 +1951,10 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
 			Long visible = LTIUtil.toLong(tool.get(LTIService.LTI_VISIBLE));
 			context.put("tool_visible", visible);
+
+			Long allowLaunch = LTIUtil.toLong(tool.get(LTIService.LTI_MT_LAUNCH));
+			Long allowLinkSelection = LTIUtil.toLong(tool.get(LTIService.LTI_MT_LINKSELECTION));
+			context.put("disableSiteLink", allowLaunch < 1 && allowLinkSelection > 0);
 		}
 
 		String flow = data.getParameters().getString(FLOW_PARAMETER);

@@ -46,7 +46,7 @@
 #if ( $formInput )
 		$formInput
 <div id="input-add-site-link">
-<input #if($placement) disabled="disabled" checked="checked" #end type="checkbox" name="add_site_link"/> $tlang.getString("bl_addlink")
+<input #if($placement) disabled="disabled" checked="checked" #elseif($disableSiteLink) disabled="disabled" #end type="checkbox" name="add_site_link"/> $tlang.getString("bl_addlink")
 </div>
 #else
 #if ( $oldContentId )
