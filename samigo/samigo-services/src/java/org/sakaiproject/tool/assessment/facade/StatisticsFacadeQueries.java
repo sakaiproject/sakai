@@ -25,29 +25,31 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class StatisticsFacadeQueries extends HibernateDaoSupport implements StatisticsFacadeQueriesAPI {
+public class StatisticsFacadeQueries implements StatisticsFacadeQueriesAPI {
 
 
     private static int IN_QUERY_BATCH_SIZE = 50;
+    @Setter private SessionFactory sessionFactory;
 
 
     public Map<Long, Set<PublishedAnswer>> getPublishedAnswerMap(@NonNull Collection<Long> publishedItemIds) {
@@ -56,27 +58,24 @@ public class StatisticsFacadeQueries extends HibernateDaoSupport implements Stat
         }
 
         try {
-            HibernateCallback<Map<Long, Set<PublishedAnswer>>> hibernateCallback = session -> {
-                CriteriaBuilder cb = session.getCriteriaBuilder();
-                Stream<PublishedAnswer> resultStream = Stream.empty();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            Stream<PublishedAnswer> resultStream = Stream.empty();
 
-                for (List<Long> batchItemIds : batches(publishedItemIds, IN_QUERY_BATCH_SIZE)) {
-                    CriteriaQuery<PublishedAnswer> criteriaQuery = cb.createQuery(PublishedAnswer.class);
-                    Root<PublishedAnswer> root = criteriaQuery.from(PublishedAnswer.class);
+            for (List<Long> batchItemIds : batches(publishedItemIds, IN_QUERY_BATCH_SIZE)) {
+                CriteriaQuery<PublishedAnswer> criteriaQuery = cb.createQuery(PublishedAnswer.class);
+                Root<PublishedAnswer> root = criteriaQuery.from(PublishedAnswer.class);
 
-                    // Filter by itemId of published item
-                    Predicate itemIdPredicate = root.<PublishedItemData>get("item").get("itemId").in(batchItemIds);
-                    criteriaQuery.where(itemIdPredicate);
+                // Filter by itemId of published item
+                Predicate itemIdPredicate = root.<PublishedItemData>get("item").get("itemId").in(batchItemIds);
+                criteriaQuery.where(itemIdPredicate);
 
-                    resultStream = Stream.concat(resultStream, session.createQuery(criteriaQuery).getResultStream());
-                }
+                resultStream = Stream.concat(resultStream, session.createQuery(criteriaQuery).getResultStream());
+            }
 
-                Function<PublishedAnswer, Long> keyMapper = publishedAnswer -> publishedAnswer.getItem().getItemId();
+            Function<PublishedAnswer, Long> keyMapper = publishedAnswer -> publishedAnswer.getItem().getItemId();
 
-                return resultStream.collect(Collectors.groupingBy(keyMapper, Collectors.toSet()));
-            };
-
-            return getHibernateTemplate().execute(hibernateCallback);
+            return resultStream.collect(Collectors.groupingBy(keyMapper, Collectors.toSet()));
         } catch (Exception e) {
             log.warn("Could not get publishedAnswerMap due to {}: {}", e.toString(), ExceptionUtils.getStackTrace(e));
             return Collections.emptyMap();
@@ -89,25 +88,22 @@ public class StatisticsFacadeQueries extends HibernateDaoSupport implements Stat
         }
 
         try {
-            HibernateCallback<Map<Long, Set<ItemGradingData>>> hibernateCallback = session -> {
-                CriteriaBuilder cb = session.getCriteriaBuilder();
-                Stream<ItemGradingData> resultStream = Stream.empty();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            Stream<ItemGradingData> resultStream = Stream.empty();
 
-                for (List<Long> batchItemIds : batches(publishedItemIds, IN_QUERY_BATCH_SIZE)) {
-                    CriteriaQuery<ItemGradingData> criteriaQuery = cb.createQuery(ItemGradingData.class);
-                    Root<ItemGradingData> root = criteriaQuery.from(ItemGradingData.class);
+            for (List<Long> batchItemIds : batches(publishedItemIds, IN_QUERY_BATCH_SIZE)) {
+                CriteriaQuery<ItemGradingData> criteriaQuery = cb.createQuery(ItemGradingData.class);
+                Root<ItemGradingData> root = criteriaQuery.from(ItemGradingData.class);
 
-                    // Filter by publishedItemId
-                    Predicate itemIdPredicate = root.get("publishedItemId").in(batchItemIds);
-                    criteriaQuery.where(itemIdPredicate);
+                // Filter by publishedItemId
+                Predicate itemIdPredicate = root.get("publishedItemId").in(batchItemIds);
+                criteriaQuery.where(itemIdPredicate);
 
-                    resultStream = Stream.concat(resultStream, session.createQuery(criteriaQuery).getResultStream());
-                }
+                resultStream = Stream.concat(resultStream, session.createQuery(criteriaQuery).getResultStream());
+            }
 
-                return resultStream.collect(Collectors.groupingBy(ItemGradingData::getPublishedItemId, Collectors.toSet()));
-            };
-
-            return getHibernateTemplate().execute(hibernateCallback);
+            return resultStream.collect(Collectors.groupingBy(ItemGradingData::getPublishedItemId, Collectors.toSet()));
         } catch (Exception e) {
             log.warn("Could not get gradingDataMap due to {}: {}", e.toString(), ExceptionUtils.getStackTrace(e));
             return Collections.emptyMap();
@@ -120,25 +116,22 @@ public class StatisticsFacadeQueries extends HibernateDaoSupport implements Stat
         }
 
         try {
-            HibernateCallback<List<PublishedItemData>> hibernateCallback = session -> {
-                CriteriaBuilder cb = session.getCriteriaBuilder();
-                List<PublishedItemData> resultList = new ArrayList<>();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            List<PublishedItemData> resultList = new ArrayList<>();
 
-                for (List<String> batchHashes : batches(hashes, IN_QUERY_BATCH_SIZE)) {
-                    CriteriaQuery<PublishedItemData> criteriaQuery = cb.createQuery(PublishedItemData.class);
-                    Root<PublishedItemData> root = criteriaQuery.from(PublishedItemData.class);
+            for (List<String> batchHashes : batches(hashes, IN_QUERY_BATCH_SIZE)) {
+                CriteriaQuery<PublishedItemData> criteriaQuery = cb.createQuery(PublishedItemData.class);
+                Root<PublishedItemData> root = criteriaQuery.from(PublishedItemData.class);
 
-                    // Filter by hash
-                    Predicate hashPredicate = root.<PublishedItemData>get("hash").in(batchHashes);
-                    criteriaQuery.where(hashPredicate);
+                // Filter by hash
+                Predicate hashPredicate = root.<PublishedItemData>get("hash").in(batchHashes);
+                criteriaQuery.where(hashPredicate);
 
-                    resultList.addAll(session.createQuery(criteriaQuery).getResultList());
-                }
+                resultList.addAll(session.createQuery(criteriaQuery).getResultList());
+            }
 
-                return resultList;
-            };
-
-            return getHibernateTemplate().execute(hibernateCallback);
+            return resultList;
         } catch (Exception e) {
             log.warn("Could not get items due to {}: {}", e.toString(), ExceptionUtils.getStackTrace(e));
             return Collections.emptyList();
