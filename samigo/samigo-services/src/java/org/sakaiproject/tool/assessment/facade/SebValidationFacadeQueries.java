@@ -17,43 +17,56 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.util.Optional;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SebValidationData;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
 
 @SuppressWarnings("unchecked")
 @Transactional
-public class SebValidationFacadeQueries extends HibernateDaoSupport implements SebValidationFacadeQueriesAPI {
+public class SebValidationFacadeQueries implements SebValidationFacadeQueriesAPI {
+
+  @Setter private SessionFactory sessionFactory;
 
   public Optional<SebValidationData> getLastSebValidation(final Long assessmentId, final String agentId) {
 
-    HibernateCallback<Optional<SebValidationData>> hibernateCallback = session -> {
-      Query<SebValidationData> query = session.getNamedQuery(QUERY_GET_ENTRY_FOR_ASSESSMENT_AND_AGENT);
-      query.setParameter("publishedId", assessmentId);
-      query.setParameter("agentId", agentId);
-      query.setMaxResults(1);
-      return query.uniqueResultOptional();
-    };
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<SebValidationData> cq = cb.createQuery(SebValidationData.class);
+    Root<SebValidationData> root = cq.from(SebValidationData.class);
+    cq.where(
+        cb.equal(root.get("publishedAssessmentId"), assessmentId),
+        cb.equal(root.get("agentId"), agentId));
+    cq.orderBy(cb.desc(root.get("id")));
+    Query<SebValidationData> query = session.createQuery(cq);
+    query.setMaxResults(1);
 
-    return getHibernateTemplate().execute(hibernateCallback);
+    return query.uniqueResultOptional();
   }
 
   public void saveSebValidation(Long assessmentId, String agentId, String url, String configKeyHash, String examKeyHash) {
-    getHibernateTemplate().save(new SebValidationData(null, assessmentId, false, agentId, url, configKeyHash, examKeyHash));
+    Session session = sessionFactory.getCurrentSession();
+    session.persist(new SebValidationData(null, assessmentId, false, agentId, url, configKeyHash, examKeyHash));
   }
 
   public void expireSebValidations(Long assessmentId, String agentId) {
-    HibernateCallback<Boolean> hibernateCallback = session -> {
-      Query<SebValidationData> query = session.getNamedQuery(QUERY_EXPIRE_CONFIGS_FOR_ASSESSMENT_AND_AGENT);
-      query.setParameter("publishedId", assessmentId);
-      query.setParameter("agentId", agentId);
-      // Get query results and return the last
-      query.executeUpdate();
-      return true;
-    };
-    getHibernateTemplate().execute(hibernateCallback);
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaUpdate<SebValidationData> cu = cb.createCriteriaUpdate(SebValidationData.class);
+    Root<SebValidationData> root = cu.from(SebValidationData.class);
+    cu.set(root.get("expired"), true);
+    cu.where(
+        cb.equal(root.get("publishedAssessmentId"), assessmentId),
+        cb.equal(root.get("agentId"), agentId));
+
+    session.createQuery(cu).executeUpdate();
   }
 
 }

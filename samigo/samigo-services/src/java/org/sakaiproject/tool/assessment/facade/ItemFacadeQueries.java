@@ -28,10 +28,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -40,19 +47,24 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacadeQueriesAPI {
+public class ItemFacadeQueries implements ItemFacadeQueriesAPI {
 
   @Setter private ItemHashUtil itemHashUtil;
+  @Setter private SessionFactory sessionFactory;
 
   public IdImpl getItemId(String id){
     return new IdImpl(id);
@@ -64,12 +76,14 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     return new IdImpl(id);
   }
 
-  public List list() {
-    return getHibernateTemplate().find("from ItemData");
+  public List<ItemData> list() {
+    Session session = sessionFactory.getCurrentSession();
+    Query<ItemData> q = session.createQuery("from ItemData", ItemData.class);
+    return q.list();
   }
 
   public void show(Long itemId) {
-    getHibernateTemplate().load(ItemData.class, itemId);
+    sessionFactory.getCurrentSession().get(ItemData.class, itemId);
   }
 
   public ItemFacade getItem(Long itemId, String agent) {
@@ -77,7 +91,8 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
     public void deleteItem(Long itemId, String agent) {
-        ItemData item = getHibernateTemplate().get(ItemData.class, itemId);
+        Session session = sessionFactory.getCurrentSession();
+        ItemData item = session.get(ItemData.class, itemId);
         // get list of attachment in item
         if (item != null) {
             AssessmentService service = new AssessmentService();
@@ -89,36 +104,43 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
             if (section != null) {
                 section.getItemSet().remove(item);
             }
-            getHibernateTemplate().delete(item);
+            session.remove(item);
         }
     }
 
     public void deleteItemContent(Long itemId, String agent) {
-        ItemData item = getHibernateTemplate().get(ItemData.class, itemId);
+        Session session = sessionFactory.getCurrentSession();
+        ItemData item = session.get(ItemData.class, itemId);
 
         if (item != null) {
             item.getItemTextSet().clear();
             item.getItemMetaDataSet().clear();
             item.getItemFeedbackSet().clear();
-            getHibernateTemplate().merge(item);
+            session.merge(item);
         }
     }
 
     public void deleteItemMetaData(final Long itemId, final String label) {
+        Session session = sessionFactory.getCurrentSession();
         // delete metadata by label
-        ItemData item = getHibernateTemplate().get(ItemData.class, itemId);
+        ItemData item = session.get(ItemData.class, itemId);
 
-        List<ItemMetaDataIfc> itemmetadatalist = (List<ItemMetaDataIfc>) getHibernateTemplate()
-                .findByNamedParam("from ItemMetaData imd where imd.item.itemId = :id and imd.label = :label",
-                        new String[] {"id", "label"},
-                        new Object[] {itemId, label});
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ItemMetaDataIfc> cq = cb.createQuery(ItemMetaDataIfc.class);
+        Root<ItemMetaData> root = cq.from(ItemMetaData.class);
+        cq.where(
+                cb.equal(root.get("item").get("itemId"), itemId),
+                cb.equal(root.get("label"), label));
+
+        List<ItemMetaDataIfc> itemmetadatalist = (List<ItemMetaDataIfc>) session.createQuery(cq).list();
 
         item.getItemMetaDataSet().removeAll(itemmetadatalist);
-        getHibernateTemplate().merge(item);
+        session.merge(item);
     }
 
     public void addItemMetaData(Long itemId, String label, String value) {
-        ItemData item = (ItemData) getHibernateTemplate().get(ItemData.class, itemId);
+        Session session = sessionFactory.getCurrentSession();
+        ItemData item = (ItemData) session.get(ItemData.class, itemId);
         if (item != null) {
             log.debug("**Id = {}, **score = {}, **grade = {}, **CorrectFeedback is lazy = {}, **Objective not lazy = {}",
                     item.getItemId(),
@@ -128,7 +150,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
                     item.getItemMetaDataByLabel("ITEM_OBJECTIVE")
             );
             item.getItemMetaDataSet().add(new ItemMetaData(item, label, value));
-            getHibernateTemplate().merge(item);
+            session.merge(item);
         }
     }
 
@@ -140,23 +162,25 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
  }
 
     public void removeItemAttachment(Long itemAttachmentId) {
-        ItemAttachment itemAttachment = getHibernateTemplate().load(ItemAttachment.class, itemAttachmentId);
+        Session session = sessionFactory.getCurrentSession();
+        ItemAttachment itemAttachment = session.get(ItemAttachment.class, itemAttachmentId);
         ItemDataIfc item = itemAttachment.getItem();
         if (item != null) {
             item.getItemAttachmentSet().remove(itemAttachment);
-            getHibernateTemplate().merge(item);
+            session.merge(item);
         }
     }
 
     public List<ItemFacade> saveItems(final List<ItemFacade> items) throws DataFacadeException {
         log.debug("Persist items: {}", items);
+        Session session = sessionFactory.getCurrentSession();
         try {
             for (ItemFacade item : items) {
                 ItemDataIfc itemData = item.getData();
                 itemData.setLastModifiedDate(new Date());
                 itemData.setLastModifiedBy(AgentFacade.getAgentString());
                 itemData.setHash(itemHashUtil.hashItem(itemData));
-                itemData = getHibernateTemplate().merge(itemData);
+                itemData = session.merge(itemData);
                 item.setData(itemData);
                 item.setItemId(itemData.getItemId());
 
@@ -164,7 +188,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
                     AssessmentIfc assessment = itemData.getSection().getAssessment();
                     assessment.setLastModifiedBy(AgentFacade.getAgentString());
                     assessment.setLastModifiedDate(new Date());
-                    getHibernateTemplate().merge(assessment);
+                    session.merge(assessment);
                 }
             }
             return items;
@@ -190,8 +214,9 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
   public ItemFacade getItem(Long itemId) {
 	  ItemData item;
+	  Session session = sessionFactory.getCurrentSession();
 	  try {
-		  item = getHibernateTemplate().load(ItemData.class, itemId);
+		  item = session.get(ItemData.class, itemId);
 	  } catch (DataAccessException e) {
 		  log.warn("unable to retrieve item [{}] due to:", itemId, e);
 		  return null;
@@ -200,8 +225,9 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
     public Boolean itemExists(Long itemId) {
+        Session session = sessionFactory.getCurrentSession();
         try {
-            if (getHibernateTemplate().get(ItemData.class, itemId)==null){
+            if (session.get(ItemData.class, itemId)==null){
                 return false;
             }else{
                 return true;
@@ -213,8 +239,13 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
   public Map<String, ItemFacade> getItemsByHash(String hash) {
 
-        List<ItemData> list1 = (List<ItemData>) getHibernateTemplate()
-                .findByNamedParam("from ItemData where hash = :hash", "hash", hash);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ItemData> cq = cb.createQuery(ItemData.class);
+        Root<ItemData> root = cq.from(ItemData.class);
+        cq.where(cb.equal(root.get("hash"), hash));
+
+        List<ItemData> list1 = session.createQuery(cq).getResultList();
 
         Map<String, ItemFacade> itemFacadeMap = new HashMap();
 
@@ -228,34 +259,35 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
 
   public Map<String, ItemFacade> getItemsByKeyword(final String keyword) {
-	    final HibernateCallback<List<ItemData>> hcb = session -> {
-            Query q = session.createQuery("select ab from ItemData ab, ItemText itext where itext.item=ab and itext.text like :text");
-            q.setParameter("text", keyword);
-            return q.list();
-        };
-	    List<ItemData> list1 = getHibernateTemplate().execute(hcb);
 
-	    final HibernateCallback<List<ItemData>> hcb2 = session -> {
-            Query q = session.createQuery("select distinct ab from ItemData ab, Answer answer where answer.item=ab and answer.text like :text");
-            q.setParameter("text", keyword);
-            return q.list();
-        };
-	    List<ItemData> list2 = getHibernateTemplate().execute(hcb2);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ItemData> cq1 = cb.createQuery(ItemData.class);
+        Root<ItemData> root1 = cq1.from(ItemData.class);
+        Join<ItemData, ItemText> join1 = root1.join("itemTextSet");
+        cq1.select(root1).where(cb.like(join1.get("text"), keyword));
+        List<ItemData> list1 = session.createQuery(cq1).getResultList();
 
-	    final HibernateCallback<List<ItemData>> hcb3 = session -> {
-            Query q = session.createQuery("select ab from ItemData ab, ItemMetaData md where md.item=ab and md.entry like :keyword and md.label = :label");
-            q.setParameter("keyword", keyword);
-            q.setParameter("label", "KEYWORD");
-            return q.list();
-        };
-	    List<ItemData> list3 = getHibernateTemplate().execute(hcb3);
+        CriteriaQuery<ItemData> cq2 = cb.createQuery(ItemData.class);
+        Root<ItemData> root2 = cq2.from(ItemData.class);
+        Join<ItemData, ItemText> joinText2 = root2.join("itemTextSet");
+        Join<ItemText, Answer> joinAnswer2 = joinText2.join("answerSet");
+        cq2.select(root2).distinct(true).where(cb.like(joinAnswer2.get("text"), keyword));
+        List<ItemData> list2 = session.createQuery(cq2).getResultList();
 
-	    final HibernateCallback<List<ItemData>> hcb4 = session -> {
-            Query q = session.createQuery("select ab from ItemData ab where ab.instruction like :keyword");
-            q.setParameter("keyword", keyword);
-            return q.list();
-        };
-	    List<ItemData> list4 = getHibernateTemplate().execute(hcb4);
+        CriteriaQuery<ItemData> cq3 = cb.createQuery(ItemData.class);
+        Root<ItemData> root3 = cq3.from(ItemData.class);
+        Join<ItemData, ItemMetaData> join3 = root3.join("itemMetaDataSet");
+        cq3.select(root3).where(
+                cb.like(join3.get("entry"), keyword),
+                cb.equal(join3.get("label"), "KEYWORD")
+        );
+        List<ItemData> list3 = session.createQuery(cq3).getResultList();
+
+        CriteriaQuery<ItemData> cq4 = cb.createQuery(ItemData.class);
+        Root<ItemData> root4 = cq4.from(ItemData.class);
+        cq4.select(root4).where(cb.like(root4.get("instruction"), keyword));
+        List<ItemData> list4 = session.createQuery(cq4).getResultList();
 
     Map<String, ItemFacade> itemfacadeMap = new HashMap();
 
@@ -291,10 +323,13 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
    * for recording - use the first one (index 0).
    */
   public Long getItemTextId(final Long publishedItemId) {
-      List<Long> list = getHibernateTemplate().execute(session -> session
-            .createQuery("select i.id from PublishedItemText i where i.item.itemId = :id")
-            .setParameter("id", publishedItemId)
-            .list());
+	    Session session = sessionFactory.getCurrentSession();
+	    CriteriaBuilder cb = session.getCriteriaBuilder();
+	    CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+	    Root<PublishedItemText> root = cq.from(PublishedItemText.class);
+	    cq.select(root.get("id"));
+	    cq.where(cb.equal(root.get("item").get("itemId"), publishedItemId));
+	    List<Long> list = session.createQuery(cq).list();
 
 	    log.debug("list.size() = {}", list.size());
 	    Long itemTextId = -1l;
@@ -308,13 +343,17 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         // TODO when we add item search indexing, this is going to have to change to
         // first read in all the affected item IDs so we can generate events for each
         // (similar to what we do in the tag service)
-        getHibernateTemplate().execute(session -> session
-                .createQuery("update ItemTag it set it.tagLabel = :tagLabel, it.tagCollectionId = :tagCollectionId, it.tagCollectionName = :tagCollectionName where it.tagId = :tagId")
-                .setParameter("tagLabel", tagView.tagLabel)
-                .setParameter("tagCollectionId", tagView.tagCollectionId)
-                .setParameter("tagCollectionName", tagView.tagCollectionName)
-                .setParameter("tagId", tagView.tagId)
-                .executeUpdate());
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<ItemTag> cu = cb.createCriteriaUpdate(ItemTag.class);
+        Root<ItemTag> root = cu.from(ItemTag.class);
+
+        cu.set(root.get("tagLabel"), tagView.tagLabel);
+        cu.set(root.get("tagCollectionId"), tagView.tagCollectionId);
+        cu.set(root.get("tagCollectionName"), tagView.tagCollectionName);
+        cu.where(cb.equal(root.get("tagId"), tagView.tagId));
+
+        session.createMutationQuery(cu).executeUpdate();
     }
 
     @Override
@@ -322,10 +361,14 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         // TODO when we add item search indexing, this is going to have to change to
         // first read in all the affected item IDs so we can generate events for each
         // (similar to what we do in the tag service)
-        getHibernateTemplate().execute(session -> session
-                .createQuery("delete ItemTag it where it.tagId = :tagId")
-                .setParameter("tagId", tagId)
-                .executeUpdate());
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<ItemTag> cd = cb.createCriteriaDelete(ItemTag.class);
+        Root<ItemTag> root = cd.from(ItemTag.class);
+
+        cd.where(cb.equal(root.get("tagId"), tagId));
+
+        session.createMutationQuery(cd).executeUpdate();
     }
 
     @Override
@@ -333,11 +376,15 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         // TODO when we add item search indexing, this is going to have to change to
         // first read in all the affected item IDs so we can generate events for each
         // (similar to what we do in the tag service)
-        getHibernateTemplate().execute(session -> session
-                .createQuery("update ItemTag it set it.tagCollectionName = :tagCollectionName where it.tagCollectionId = :tagCollectionId")
-                .setParameter("tagCollectionName", tagCollectionView.tagCollectionName)
-                .setParameter("tagCollectionId", tagCollectionView.tagCollectionId)
-                .executeUpdate());
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<ItemTag> cu = cb.createCriteriaUpdate(ItemTag.class);
+        Root<ItemTag> root = cu.from(ItemTag.class);
+
+        cu.set(root.get("tagCollectionName"), tagCollectionView.tagCollectionName);
+        cu.where(cb.equal(root.get("tagCollectionId"), tagCollectionView.tagCollectionId));
+
+        session.createMutationQuery(cu).executeUpdate();
     }
 
     @Override
@@ -345,19 +392,27 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         // TODO when we add item search indexing, this is going to have to change to
         // first read in all the affected item IDs so we can generate events for each
         // (similar to what we do in the tag service)
-        getHibernateTemplate().execute(session -> session
-                .createQuery("delete ItemTag it where it.tagCollectionId = :tagCollectionId")
-                .setParameter("tagCollectionId", tagCollectionId)
-                .executeUpdate());
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<ItemTag> cd = cb.createCriteriaDelete(ItemTag.class);
+        Root<ItemTag> root = cd.from(ItemTag.class);
+
+        cd.where(cb.equal(root.get("tagCollectionId"), tagCollectionId));
+
+        session.createMutationQuery(cd).executeUpdate();
     }
 
 
     @Override
     public List<Long> getItemsIdsByHash(String hash) {
-        List<Long> list1 = getHibernateTemplate().execute(session -> session
-                .createQuery("select ab.itemId from ItemData ab where ab.hash = :hash ")
-                .setParameter("hash", hash)
-                .list());
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<ItemData> root = cq.from(ItemData.class);
+        cq.select(root.get("itemId"));
+        cq.where(cb.equal(root.get("hash"), hash));
+
+        List<Long> list1 = session.createQuery(cq).list();
 
         return list1;
     }
@@ -366,10 +421,15 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
     @Override
     public Long getAssessmentId(Long itemId) {
-        List<Number> list1 = getHibernateTemplate().execute(session -> session
-            .createQuery("select s.assessment.assessmentBaseId from SectionData s, ItemData i where s.id = i.section AND i.itemId = :itemId")
-            .setParameter("itemId", itemId)
-            .list());
+    	Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<ItemData> itemRoot = cq.from(ItemData.class);
+        Join<ItemData, SectionData> sectionJoin = itemRoot.join("section");
+        cq.select(sectionJoin.get("assessment").get("assessmentBaseId"));
+        cq.where(cb.equal(itemRoot.get("itemId"), itemId));
+
+        List<Long> list1 = session.createQuery(cq).list();
 
         if (list1.isEmpty()) {
             return -1L;
