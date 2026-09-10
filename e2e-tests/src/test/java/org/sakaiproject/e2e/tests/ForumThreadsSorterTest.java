@@ -55,7 +55,7 @@ class ForumThreadsSorterTest {
             page.evaluate("sakaiForumThreadsSorter.init(document.getElementById('threads'), 'en_US')");
 
             page.locator("[data-sakai-forum-sort=author]").click();
-            assertOrder(page, "A", "B", "A second reply", "B reply", "A reply", "A nested");
+            assertOrder(page, "A", "A reply", "A nested", "A second reply", "B", "B reply");
             page.locator("[data-sakai-forum-sort=date]").click();
             assertOrder(page, "A", "A reply", "A second reply", "A nested", "B", "B reply");
             page.locator("[data-sakai-forum-sort=date]").click();
@@ -64,7 +64,7 @@ class ForumThreadsSorterTest {
             page.locator("[data-sakai-forum-sort=thread]").click();
             assertOrder(page, "A", "A reply", "A nested", "A second reply", "B", "B reply");
             page.locator("[data-sakai-forum-sort=author]").click();
-            assertOrder(page, "A nested", "A reply", "B reply", "A second reply", "B", "A");
+            assertOrder(page, "B", "B reply", "A", "A reply", "A nested", "A second reply");
             page.locator("[data-sakai-forum-sort=thread]").click();
             assertOrder(page, "B", "B reply", "A", "A second reply", "A reply", "A nested");
             page.locator("[data-sakai-forum-sort=date]").click();

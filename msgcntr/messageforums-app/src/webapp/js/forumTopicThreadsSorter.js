@@ -99,25 +99,21 @@
 
 		const rows = originalRows.slice();
 		const sortMode = table.tHead.rows[0].cells[columnIndex]?.querySelector("[data-sakai-forum-sort]")?.dataset.sakaiForumSort;
-		const sortFlat = sortMode === "author";
-		const sortByThread = sortMode === "thread";
 		const sortedRows = [];
+		const groups = buildGroups(rows).sort((left, right) =>
+			compareRows(columnIndex, ascending, locale)(left.parent, right.parent));
 
-		if (sortFlat) {
-			sortedRows.push(...rows.sort(compareRows(columnIndex, ascending, locale)));
-		} else {
-			const groups = buildGroups(rows).sort((left, right) =>
-				compareRows(columnIndex, ascending, locale)(left.parent, right.parent));
-
-			groups.forEach(group => {
-				sortedRows.push(group.parent);
-				if (sortByThread) {
-					sortedRows.push(...descendantsByThread(group.descendants, columnIndex, ascending, locale));
-				} else {
-					sortedRows.push(...group.descendants.sort(compareRows(columnIndex, ascending, locale)));
-				}
-			});
-		}
+		groups.forEach(group => {
+			sortedRows.push(group.parent);
+			if (sortMode === "author") {
+				// Sort conversations by their opening author without rearranging replies.
+				sortedRows.push(...group.descendants);
+			} else if (sortMode === "thread") {
+				sortedRows.push(...descendantsByThread(group.descendants, columnIndex, ascending, locale));
+			} else {
+				sortedRows.push(...group.descendants.sort(compareRows(columnIndex, ascending, locale)));
+			}
+		});
 
 		sortedRows.forEach(row => tbody.appendChild(row));
 	}
@@ -151,7 +147,7 @@
 	function init(table, userLocale) {
 		if (!table?.tHead?.rows.length) return;
 
-		// Keep the rendered hierarchy: author and date sorts can separate replies from their parents.
+		// Keep the rendered hierarchy so later sorts can restore reply nesting after date sorting.
 		const originalRows = Array.from(table.tBodies[0]?.rows || []);
 		const headers = Array.from(table.tHead.rows[0].cells);
 		const locale = userLocale.replaceAll("_", "-");
