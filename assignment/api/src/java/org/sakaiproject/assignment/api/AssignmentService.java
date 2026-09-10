@@ -373,12 +373,20 @@ public interface AssignmentService extends EntityProducer {
     public void updateAssignment(Assignment assignment) throws PermissionException;
 
     /**
-     * Publishes a draft assignment and performs first-publish integrations.
+     * Publishes an assignment, synchronizes its peer review schedule, and performs first-publish integrations.
      *
      * @param assignment the Assignment to publish.
      * @throws PermissionException if current User does not have permission to update the assignment.
      */
     public void publishAssignment(Assignment assignment) throws PermissionException;
+
+    /**
+     * Returns an assignment to draft and removes its scheduled peer review.
+     *
+     * @param assignment the Assignment to unpublish.
+     * @throws PermissionException if the current user cannot update the assignment.
+     */
+    public void unpublishAssignment(Assignment assignment) throws PermissionException;
 
     /**
      * Integrates assignment availability and due dates with Announcement and Calendar tools.
