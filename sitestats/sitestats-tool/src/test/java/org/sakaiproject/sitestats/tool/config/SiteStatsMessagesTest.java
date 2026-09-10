@@ -32,6 +32,7 @@ public class SiteStatsMessagesTest {
     public void setUp() {
         ResourceBundleMessageSource source = new ResourceBundleMessageSource();
         source.setBasename("Messages");
+        source.setFallbackToSystemLocale(false);
         messageSource = source;
     }
 
