@@ -24,9 +24,15 @@ package org.sakaiproject.sitemanage.impl;
 
 import java.util.List;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestion;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionAnswer;
@@ -37,15 +43,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Transactional
-public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements SiteSetupQuestionService {
+public class SiteSetupQuestionServiceImpl implements SiteSetupQuestionService {
 	
-	private static final String QUERY_ANY_SITETYPE_QUESTIONS = "findAnySiteTypeQuestions";
-	
-	private static final String QUERY_ALL_QUESTIONS = "findAllSiteSetupQuestions";
-	
-	private static final String QUERY_QUESTIONS_BY_SITETYPE = "findQuestionsBySiteType";
-	
-	private static final String QUERY_ANSWER_BY_ID = "findAnswerById";
+	@Setter private SessionFactory sessionFactory;
 
 	/**
 	 * Init
@@ -68,7 +68,11 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	 */
    public boolean hasAnySiteTypeQuestions()
    {
-	   List<SiteTypeQuestions> rvList = (List<SiteTypeQuestions>) getHibernateTemplate().findByNamedQuery(QUERY_ANY_SITETYPE_QUESTIONS);
+	   CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+	   CriteriaQuery<SiteTypeQuestions> cq = cb.createQuery(SiteTypeQuestions.class);
+	   Root<SiteTypeQuestionsImpl> root = cq.from(SiteTypeQuestionsImpl.class);
+	   cq.select(root);
+	   List<SiteTypeQuestions> rvList = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 	   if (rvList != null && !rvList.isEmpty())
 	   {
 		   return true;
@@ -81,7 +85,11 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	 */
   public void removeAllSiteTypeQuestions()
   {
-	  List<SiteTypeQuestions> qList = (List<SiteTypeQuestions>) getHibernateTemplate().findByNamedQuery(QUERY_ANY_SITETYPE_QUESTIONS);
+	  CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+	  CriteriaQuery<SiteTypeQuestions> cq = cb.createQuery(SiteTypeQuestions.class);
+	  Root<SiteTypeQuestionsImpl> root = cq.from(SiteTypeQuestionsImpl.class);
+	  cq.select(root);
+	  List<SiteTypeQuestions> qList = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 	  if (qList != null && !qList.isEmpty())
 	  {
 		  for(SiteTypeQuestions q : qList)
@@ -96,7 +104,11 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	 */
 	public List<SiteSetupQuestion> getAllSiteQuestions()
 	{
-		return (List<SiteSetupQuestion>) getHibernateTemplate().findByNamedQuery(QUERY_ALL_QUESTIONS);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<SiteSetupQuestion> cq = cb.createQuery(SiteSetupQuestion.class);
+		Root<SiteSetupQuestionImpl> root = cq.from(SiteSetupQuestionImpl.class);
+		cq.select(root);
+		return sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 	}
 	
 	/**
@@ -105,7 +117,11 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	public SiteTypeQuestions getSiteTypeQuestions(String siteType)
 	{
 		SiteTypeQuestions rv = null;
-		List<SiteTypeQuestions> rvList = (List<SiteTypeQuestions>) getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_QUESTIONS_BY_SITETYPE, "siteType", siteType);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<SiteTypeQuestions> cq = cb.createQuery(SiteTypeQuestions.class);
+		Root<SiteTypeQuestionsImpl> root = cq.from(SiteTypeQuestionsImpl.class);
+		cq.select(root).where(cb.equal(root.get("siteType"), siteType));
+		List<SiteTypeQuestions> rvList = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 		if (rvList != null && rvList.size() == 1)
 		{
 			rv = rvList.get(0);
@@ -115,7 +131,11 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	
 	public SiteSetupQuestionAnswer getSiteSetupQuestionAnswer(String answerId)
 	{
-		List<SiteSetupQuestionAnswer> rvList = (List<SiteSetupQuestionAnswer>) getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_ANSWER_BY_ID, "id", answerId);
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<SiteSetupQuestionAnswer> cq = cb.createQuery(SiteSetupQuestionAnswer.class);
+		Root<SiteSetupQuestionAnswerImpl> root = cq.from(SiteSetupQuestionAnswerImpl.class);
+		cq.select(root).where(cb.equal(root.get("id"), answerId));
+		List<SiteSetupQuestionAnswer> rvList = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 		if (rvList != null && rvList.size() == 1)
 		{
 			return rvList.get(0);
@@ -142,10 +162,10 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	{
 		try 
 		{
-			getHibernateTemplate().saveOrUpdate(q);
+			sessionFactory.getCurrentSession().saveOrUpdate(q);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.warn(this + ".saveSiteSetupQuestion() Hibernate could not save. question=" + q.getQuestion());
 			return false;
@@ -159,11 +179,10 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	{
 		try 
 		{
-			//org.hibernate.LockMode cannot be resolved. It is indirectly referenced from required .class files.
-			getHibernateTemplate().delete(question);
+			sessionFactory.getCurrentSession().delete(question);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.error("Hibernate could not delete: question={}", question.getQuestion(), e);
 			return false;
@@ -189,10 +208,10 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	{
 		try 
 		{
-			getHibernateTemplate().saveOrUpdate(answer);
+			sessionFactory.getCurrentSession().saveOrUpdate(answer);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 		 	log.warn("Hibernate could not save. answer={}", answer.getAnswer(), e);
 			return false;
@@ -206,11 +225,10 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	{
 		try 
 		{
-			//org.hibernate.LockMode cannot be resolved. It is indirectly referenced from required .class files.
-			getHibernateTemplate().delete(answer);
+			sessionFactory.getCurrentSession().delete(answer);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.error("Hibernate could not delete: answer={}", answer.getAnswer(), e);
 			return false;
@@ -236,10 +254,10 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	{
 		try 
 		{
-			getHibernateTemplate().saveOrUpdate(siteTypeQuestions);
+			sessionFactory.getCurrentSession().saveOrUpdate(siteTypeQuestions);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 		 	log.warn("Hibernate could not save. siteType={}", siteTypeQuestions.getSiteType());
 			return false;
@@ -253,11 +271,10 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	{
 		try 
 		{
-			//org.hibernate.LockMode cannot be resolved. It is indirectly referenced from required .class files.
-			getHibernateTemplate().delete(siteTypeQuestions);
+			sessionFactory.getCurrentSession().delete(siteTypeQuestions);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.error("Hibernate could not delete: siteType={}", siteTypeQuestions.getSiteType(), e);
 			return false;
@@ -283,10 +300,10 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	{
 		try 
 		{
-			getHibernateTemplate().saveOrUpdate(siteSetupUserAnswer);
+			sessionFactory.getCurrentSession().saveOrUpdate(siteSetupUserAnswer);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 		 	log.warn("Hibernate could not save. Site={} user={} question={}", siteSetupUserAnswer.getSiteId(), siteSetupUserAnswer.getUserId(), siteSetupUserAnswer.getQuestionId(), e);
 			return false;
@@ -300,11 +317,10 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	{
 		try 
 		{
-			//org.hibernate.LockMode cannot be resolved. It is indirectly referenced from required .class files.
-			getHibernateTemplate().delete(siteSetupUserAnswer);
+			sessionFactory.getCurrentSession().delete(siteSetupUserAnswer);
 			return true;
 		}
-		catch (DataAccessException e)
+		catch (DataAccessException | HibernateException e)
 		{
 			log.error("Hibernate could not delete: Site={} user={} question={}", siteSetupUserAnswer.getSiteId(), siteSetupUserAnswer.getUserId(), siteSetupUserAnswer.getQuestionId());
 			return false;
