@@ -32,6 +32,7 @@
         </div>
 
         <script>
+          (() => {
             function generateTable(data){
               let tableHeaders = document.querySelector(".studentGradesComparison-TableContainer > table thead");
               let tableBody = document.querySelector(".studentGradesComparison-TableContainer > table tbody");
@@ -77,6 +78,7 @@
                 { targets: "_all", type: "html" }
               ]
             });
+          })();
         </script>
 
 	</wicket:panel>

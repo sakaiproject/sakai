@@ -309,7 +309,7 @@ GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML) {
 GradebookGradeSummary.prototype.setupTableSorting = function() {
   const table = this.$content[0]?.querySelector(".gb-summary-grade-panel table");
 
-  if (!table || table.tBodies.length > 1 || !table.querySelector("tbody td:not(:empty)") || DataTable.isDataTable(table)) return;
+  if (!table || table.dataset.groupedSorting || !table.querySelector("tbody td:not(:empty)") || DataTable.isDataTable(table)) return;
 
   table.querySelectorAll("td, th").forEach(node => {
     let sortValue = node.textContent.trim();
@@ -324,11 +324,67 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
     node.setAttribute("data-order", sortValue);
   });
 
+  if (table.tBodies.length > 1) {
+    this.setupGroupedTableSorting(table);
+    return;
+  }
+
   new DataTable(table, {
     paging: false,
     info: false,
     searching: false,
     order: []
+  });
+};
+
+
+GradebookGradeSummary.prototype.setupGroupedTableSorting = function(table) {
+  // Category headings and assignment bodies must stay in place for category toggles.
+  const groups = Array.from(table.tBodies)
+    .filter(body => body.classList.contains("gb-summary-assignments-tbody"))
+    .map(body => ({ body, rows: Array.from(body.rows) }));
+  const collator = new Intl.Collator(sakai.locale.userLanguage, { numeric: true, sensitivity: "base" });
+  const headers = Array.from(table.tHead.rows[0].cells);
+  table.dataset.groupedSorting = "true";
+
+  headers.forEach((header, columnIndex) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "btn btn-link p-0 text-reset text-start fw-bold";
+    button.append(...header.childNodes);
+    const icon = document.createElement("span");
+    icon.className = "bi bi-arrow-down-up ms-1";
+    icon.setAttribute("aria-hidden", "true");
+    button.append(icon);
+    header.append(button);
+
+    button.addEventListener("click", () => {
+      const previous = header.getAttribute("aria-sort");
+      const direction = previous === "ascending" ? "descending" : previous === "descending" ? null : "ascending";
+      headers.forEach(other => {
+        other.removeAttribute("aria-sort");
+        other.querySelector("button > .bi").className = "bi bi-arrow-down-up ms-1";
+      });
+      if (direction) {
+        header.setAttribute("aria-sort", direction);
+        icon.className = `bi bi-caret-${direction === "ascending" ? "up" : "down"}-fill ms-1`;
+      }
+
+      groups.forEach(({ body, rows }) => {
+        const sorted = rows.slice();
+        if (direction) {
+          sorted.sort((left, right) => {
+            const a = left.cells[columnIndex].dataset.order;
+            const b = right.cells[columnIndex].dataset.order;
+            const comparison = a !== "" && b !== "" && Number.isFinite(Number(a)) && Number.isFinite(Number(b))
+              ? Number(a) - Number(b)
+              : collator.compare(a, b);
+            return direction === "ascending" ? comparison : -comparison;
+          });
+        }
+        sorted.forEach(row => body.append(row));
+      });
+    });
   });
 };
 
