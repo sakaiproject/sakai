@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -63,8 +62,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.api.FormattedText;
-import org.springframework.orm.hibernate5.HibernateTemplate;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -86,20 +83,10 @@ import uk.org.ponder.messageutil.MessageLocator;
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
 
-// this monstrosity has to do hibernate directly to avoid the dreaded 
-// multiple objects with the same ID error. I do merge rather than save.
-// unfortunately the normal API does saveOrUpdate.
-//  This is complicated by the fact that we sessionFactory is set only
-// when the main bean is set up. But setGroups is only called from 
-// instances of this class that aren't the bean. Hence in the bean
-// we save a copy of the session factory and then set it in the
-// instance when we need it.
-
 @Slf4j
-public class ForumEntity extends HibernateDaoSupport implements LessonEntity, ForumInterface {
+public class ForumEntity implements LessonEntity, ForumInterface {
 
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
-    private static SessionFactory sessionFactory = null;
 
     static MessageForumsForumManager forumManager = (MessageForumsForumManager)
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsForumManager");
@@ -142,18 +129,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     public void setSimplePageToolDao(Object dao) {
 	//	log.info("set dao " + dao);
 	simplePageToolDao = (SimplePageToolDao) dao;
-    }
-
-    private static HibernateTemplate hibernateTemplate = null;
-
-    public void init () {	
-	sessionFactory = getSessionFactory();
-    }
-
-    protected void initDao() throws Exception {
-	super.initDao();
-	log.info("initDao template " + getHibernateTemplate());
-	hibernateTemplate = getHibernateTemplate();
     }
 
     public void destroy()
