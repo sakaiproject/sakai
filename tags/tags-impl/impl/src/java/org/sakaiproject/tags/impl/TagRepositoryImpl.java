@@ -33,13 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class TagRepositoryImpl extends SpringCrudRepositoryImpl<Tag, String> implements TagRepository {
     @Override
-    @Transactional
-    public Tag create(Tag tag) {
-        sessionFactory.getCurrentSession().persist(tag);
-        return tag;
-    }
-
-    @Override
     public List<Tag> findAssociatedTags(String collectionId, String itemId) {
         return query("select t from TagServiceTag t, TagAssociation a "
             + "where t.tagId = a.tagId and t.tagCollectionId = :collection and a.itemId = :item")
