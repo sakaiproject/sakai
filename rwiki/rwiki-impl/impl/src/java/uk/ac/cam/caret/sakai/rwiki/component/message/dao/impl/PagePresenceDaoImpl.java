@@ -24,11 +24,11 @@ package uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl;
 import java.util.Date;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,9 +44,12 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
  * @author ieb
  */
 @Slf4j
-public class PagePresenceDaoImpl extends HibernateDaoSupport implements
+@Transactional(readOnly = true)
+public class PagePresenceDaoImpl implements
 		PagePresenceDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -79,19 +82,16 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback<List<PagePresence>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<PagePresence> cq = cb.createQuery(PagePresence.class);
-				Root<PagePresence> root = cq.from(PagePresence.class);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PagePresenceImpl> cq = cb.createQuery(PagePresenceImpl.class);
+			Root<PagePresenceImpl> root = cq.from(PagePresenceImpl.class);
 
-				cq.select(root)
-					.where(cb.equal(root.get("pagespace"), pageSpace))
-					.orderBy(cb.desc(root.get("lastseen")));
+			cq.select(root)
+				.where(cb.equal(root.get("pagespace"), pageSpace))
+				.orderBy(cb.desc(root.get("lastseen")));
 
-				return session.createQuery(cq).getResultList();
-			};
-
-			List l = (List) getHibernateTemplate().execute(callback);
+			List l = session.createQuery(cq).getResultList();
 			log.info("Found  " + l.size() + " in " + pageSpace);
 			return l;
 		}
@@ -118,21 +118,19 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback<List<PagePresence>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<PagePresence> cq = cb.createQuery(PagePresence.class);
-				Root<PagePresence> root = cq.from(PagePresence.class);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PagePresenceImpl> cq = cb.createQuery(PagePresenceImpl.class);
+			Root<PagePresenceImpl> root = cq.from(PagePresenceImpl.class);
 
-				cq.select(root)
-					.where(cb.and(
-						cb.equal(root.get("pagename"), pageName),
-						cb.equal(root.get("pagespace"), pageSpace)
-					))
-				.orderBy(cb.desc(root.get("lastseen")));
+			cq.select(root)
+				.where(cb.and(
+					cb.equal(root.get("pagename"), pageName),
+					cb.equal(root.get("pagespace"), pageSpace)
+				))
+			.orderBy(cb.desc(root.get("lastseen")));
 
-				return session.createQuery(cq).getResultList();
-			};
-			return getHibernateTemplate().execute(callback);
+			return session.createQuery(cq).getResultList();
 		}
 		finally
 		{
@@ -156,17 +154,14 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback<List<PagePresence>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<PagePresence> cq = cb.createQuery(PagePresence.class);
-				Root<PagePresence> root = cq.from(PagePresence.class);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PagePresenceImpl> cq = cb.createQuery(PagePresenceImpl.class);
+			Root<PagePresenceImpl> root = cq.from(PagePresenceImpl.class);
 
-				cq.select(root).where(cb.equal(root.get("user"), user));
+			cq.select(root).where(cb.equal(root.get("user"), user));
 
-				return session.createQuery(cq).getResultList();
-			};
-
-			return getHibernateTemplate().execute(callback);
+			return session.createQuery(cq).getResultList();
 		}
 		finally
 		{
@@ -190,17 +185,14 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback<List<PagePresence>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<PagePresence> cq = cb.createQuery(PagePresence.class);
-				Root<PagePresence> root = cq.from(PagePresence.class);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PagePresenceImpl> cq = cb.createQuery(PagePresenceImpl.class);
+			Root<PagePresenceImpl> root = cq.from(PagePresenceImpl.class);
 
-				cq.select(root).where(cb.equal(root.get("sessionid"), sessionid));
+			cq.select(root).where(cb.equal(root.get("sessionid"), sessionid));
 
-				return session.createQuery(cq).getResultList();
-			};
-
-			List found = (List) getHibernateTemplate().execute(callback);
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0)
 			{
 				if (log.isDebugEnabled())
@@ -233,7 +225,7 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 	@Transactional
 	public void update(Object o)
 	{
-		getHibernateTemplate().saveOrUpdate(o);
+		sessionFactory.getCurrentSession().saveOrUpdate(o);
 	}
 
 	/*
@@ -251,20 +243,17 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback<List<PagePresence>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<PagePresence> cq = cb.createQuery(PagePresence.class);
-				Root<PagePresence> root = cq.from(PagePresence.class);
-				cq.select(root)
-					.where(cb.and(
-						cb.equal(root.get("pagespace"), pageSpace),
-						cb.notEqual(root.get("pagename"), pageName)
-					))
-					.orderBy(cb.desc(root.get("lastseen")));
-				return session.createQuery(cq).getResultList();
-			};
-
-			List l = (List) getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<PagePresenceImpl> cq = cb.createQuery(PagePresenceImpl.class);
+			Root<PagePresenceImpl> root = cq.from(PagePresenceImpl.class);
+			cq.select(root)
+				.where(cb.and(
+					cb.equal(root.get("pagespace"), pageSpace),
+					cb.notEqual(root.get("pagename"), pageName)
+				))
+				.orderBy(cb.desc(root.get("lastseen")));
+			List l = session.createQuery(cq).getResultList();
 			log.info("Found " + l.size() + " in " + pageSpace + " : "
 					+ pageName);
 			return l;
