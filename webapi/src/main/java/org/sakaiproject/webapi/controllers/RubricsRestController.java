@@ -57,6 +57,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -552,7 +553,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
         ContentDisposition contentDisposition = rubricsService.getRubric(rubricId).map(rubric -> {
             String filename = rubricsService.createContextualFilename(rubric, toolId, itemId, evaluatedItemId, siteId);
             filename = StringUtils.isNotBlank(filename) ? filename : "_";
-            return ContentDisposition.builder("attachment").filename(String.format("%s.pdf", filename)).build();
+            return ContentDisposition.builder("attachment").filename(String.format("%s.pdf", filename), StandardCharsets.UTF_8).build();
         }).orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
 
         return ResponseEntity.ok().headers(h -> h.setContentDisposition(contentDisposition))

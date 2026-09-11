@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.util.FilenameUtil;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
@@ -49,6 +51,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
 import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 
 @Slf4j
 public class ExportRubrics implements ActionListener {
@@ -92,10 +96,12 @@ public class ExportRubrics implements ActionListener {
 
         FacesContext faces = FacesContext.getCurrentInstance();
         HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
-        String fileName = tBean.getAssessmentName().replaceAll(" ", "_") + "_" + templateFilename;
+        String fileName = FilenameUtil.cleanFilename(
+            tBean.getAssessmentName() + "_" + templateFilename + "_" + rb.getString("rubrics") + ".zip");
 
         response.reset();
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "_" + rb.getString("rubrics") + ".zip\"");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+            .filename(fileName, StandardCharsets.UTF_8).build().toString());
         response.setContentType("application/zip");
         response.setContentLength(baos.size());
 
