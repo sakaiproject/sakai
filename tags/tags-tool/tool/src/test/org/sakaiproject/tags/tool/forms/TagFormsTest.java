@@ -69,6 +69,34 @@ public class TagFormsTest {
     }
 
     @Test
+    public void tagFormTreatsInvalidNumericMetadataAsNull() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setParameter("creationDate", "not-a-number");
+        request.setParameter("lastModificationDate", "9223372036854775808");
+        request.setParameter("externalCreationDate", " ");
+        request.setParameter("lastUpdateDateInExternalSystem", "1234567890123");
+        Tag tag = TagForm.fromRequest("tag", request).toTag();
+        assertNull(tag.getCreationDate());
+        assertNull(tag.getLastModificationDate());
+        assertNull(tag.getExternalCreationDate());
+        assertEquals(Long.valueOf(1234567890123L), tag.getLastUpdateDateInExternalSystem());
+    }
+
+    @Test
+    public void collectionFormTreatsInvalidNumericMetadataAsNull() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setParameter("creationDate", "not-a-number");
+        request.setParameter("lastModificationDate", "9223372036854775808");
+        request.setParameter("lastSynchronizationDate", " ");
+        request.setParameter("lastUpdateDateInExternalSystem", "1234567890123");
+        TagCollection collection = TagCollectionForm.fromRequest("collection", request).toTagCollection();
+        assertNull(collection.getCreationDate());
+        assertNull(collection.getLastModificationDate());
+        assertNull(collection.getLastSynchronizationDate());
+        assertEquals(Long.valueOf(1234567890123L), collection.getLastUpdateDateInExternalSystem());
+    }
+
+    @Test
     public void explicitZeroAndFalseRemainDistinctFromNull() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter("externalCreationDate", "0");
