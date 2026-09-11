@@ -135,6 +135,7 @@ class ConversationsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Manage Tags").setExact(true)).click();
         row = manager.locator(".tag-row").filter(new Locator.FilterOptions().setHasText(label + " edited"));
         assertThat(row).hasCount(1);
+        page.onceDialog(dialog -> dialog.accept());
         row.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Delete").setExact(true)).click();
         assertThat(row).hasCount(0);
     }
