@@ -61,8 +61,6 @@ public class TagsExportedXMLSyncJob extends TagSynchronizer implements Job {
 	private ServerConfigurationService serverConfigurationService;
 	private EmailService emailService;
 
-	private String collectionToUpdate=null;
-	private Boolean collectionToUpdateMoreThanOne=false;
 
 
 	/**
@@ -97,58 +95,63 @@ public class TagsExportedXMLSyncJob extends TagSynchronizer implements Job {
 	public synchronized void syncAllTags() {
 
 		long start = System.currentTimeMillis();
+		String collectionToUpdate = null;
+		boolean collectionToUpdateMoreThanOne = false;
 
 		if(log.isInfoEnabled()) {
 			log.info("Starting Full XML Tag Collection synchronization");
 		}
-		try{
+		try (InputStream input = getTagsXmlInputStream()) {
 			XMLInputFactory factory = XMLInputFactory.newInstance();
-			XMLStreamReader xsr = factory.createXMLStreamReader(getTagsXmlInputStream());
-			xsr.nextTag();
-			xsr.nextTag();
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer t = tf.newTransformer();
+			XMLStreamReader xsr = factory.createXMLStreamReader(input);
+			try {
+				xsr.nextTag();
+				xsr.nextTag();
+				TransformerFactory tf = TransformerFactory.newInstance();
+				Transformer t = tf.newTransformer();
 
-			while (hasImportElement(xsr)) {
-				DOMResult result = new DOMResult();
-				t.transform(new StAXSource(xsr), result);
+				while (hasImportElement(xsr)) {
+					DOMResult result = new DOMResult();
+					t.transform(new StAXSource(xsr), result);
 
-				Node nNode = result.getNode();
-				Element element = ((Document)nNode).getDocumentElement();
+					Node nNode = result.getNode();
+					Element element = ((Document)nNode).getDocumentElement();
 
 
-				String tagLabel =	getString("tagLabel",element);
-				String tagId = getString("tagId",element);
-				String externalId = getString("externalId",element);
-				String description = getString("description",element);
-				long externalCreationDate = stringToLong(getString("externalCreationDate",element),0L);
-				long lastUpdateDateInExternalSystem = stringToLong(getString("lastUpdateDateInExternalSystem",element),0L);
-				String externalHierarchyCode =getString("externalHierarchyCode",element);
-				String externalType = getString("externalType",element);
-				String alternativeLabels = getString("alternativeLabels",element);
-				String tagCollectionId =  getString("tagCollectionId",element);
+					String tagLabel =	getString("tagLabel",element);
+					String tagId = getString("tagId",element);
+					String externalId = getString("externalId",element);
+					String description = getString("description",element);
+					long externalCreationDate = stringToLong(getString("externalCreationDate",element),0L);
+					long lastUpdateDateInExternalSystem = stringToLong(getString("lastUpdateDateInExternalSystem",element),0L);
+					String externalHierarchyCode =getString("externalHierarchyCode",element);
+					String externalType = getString("externalType",element);
+					String alternativeLabels = getString("alternativeLabels",element);
+					String tagCollectionId =  getString("tagCollectionId",element);
 
-				if (collectionToUpdate!=null && !collectionToUpdateMoreThanOne){
-					if (!(collectionToUpdate.equals(tagCollectionId))){
-						collectionToUpdateMoreThanOne=true;
+					if (collectionToUpdate!=null && !collectionToUpdateMoreThanOne){
+						if (!(collectionToUpdate.equals(tagCollectionId))){
+							collectionToUpdateMoreThanOne=true;
+						}
+					}else{
+						collectionToUpdate=tagCollectionId;
 					}
-				}else{
-					collectionToUpdate=tagCollectionId;
-				}
-				String data =  getString("data",element);
-				String parentId = getString("parentId",element);
+					String data =  getString("data",element);
+					String parentId = getString("parentId",element);
 
-				boolean updated = tagId != null && tagId.length() == VALID_ID_LENGTH
-						&& updateLabelWithId(tagId, externalId, tagCollectionId, tagLabel, description,
+					boolean updated = tagId != null && tagId.length() == VALID_ID_LENGTH
+							&& updateLabelWithId(tagId, externalId, tagCollectionId, tagLabel, description,
+									alternativeLabels, externalCreationDate, lastUpdateDateInExternalSystem,
+									parentId, externalHierarchyCode, externalType, data);
+					if (!updated) {
+						updateOrCreateTagWithCollectionId(externalId, tagCollectionId, tagLabel, description,
 								alternativeLabels, externalCreationDate, lastUpdateDateInExternalSystem,
 								parentId, externalHierarchyCode, externalType, data);
-				if (!updated) {
-					updateOrCreateTagWithCollectionId(externalId, tagCollectionId, tagLabel, description,
-							alternativeLabels, externalCreationDate, lastUpdateDateInExternalSystem,
-							parentId, externalHierarchyCode, externalType, data);
+					}
 				}
+			} finally {
+				xsr.close();
 			}
-
 			updateTagCollectionSynchronizationWithCollectionId(collectionToUpdate,0L);
 			//We will delete the old ones when there is only one collectionID in the file.
 			if (collectionToUpdate!=null && !collectionToUpdateMoreThanOne) {
@@ -160,8 +163,6 @@ public class TagsExportedXMLSyncJob extends TagSynchronizer implements Job {
 			sendStatusMail(2,e.getMessage());
 		}
 
-		String collectionToUpdate=null;
-		Boolean collectionToUpdateMoreThanOne=false;
 		if(log.isInfoEnabled()) {
 			log.info("Finished Full XML Tags synchronization in " + (System.currentTimeMillis() - start) + " ms");
 		}

@@ -76,26 +76,22 @@ public class TagCollectionForm extends BaseForm {
 
 
     public static TagCollectionForm fromTagCollection(TagCollection existingTagCollection) {
-        try {
-            String uuid = existingTagCollection.getTagCollectionId();
+        String uuid = existingTagCollection.getTagCollectionId();
 
-            return new TagCollectionForm(uuid,
-                    existingTagCollection.getName(),
-                    existingTagCollection.getDescription(),
-                    existingTagCollection.getCreatedBy(),
-                    existingTagCollection.getCreationDate(),
-                    existingTagCollection.getExternalSourceName(),
-                    existingTagCollection.getExternalSourceDescription(),
-                    existingTagCollection.getLastModifiedBy(),
-                    existingTagCollection.getLastModificationDate(),
-                    existingTagCollection.getExternalUpdate(),
-                    existingTagCollection.getExternalCreation(),
-                    existingTagCollection.getLastSynchronizationDate(),
-                    existingTagCollection.getLastUpdateDateInExternalSystem());
+        return new TagCollectionForm(uuid,
+                existingTagCollection.getName(),
+                existingTagCollection.getDescription(),
+                existingTagCollection.getCreatedBy(),
+                existingTagCollection.getCreationDate(),
+                existingTagCollection.getExternalSourceName(),
+                existingTagCollection.getExternalSourceDescription(),
+                existingTagCollection.getLastModifiedBy(),
+                existingTagCollection.getLastModificationDate(),
+                existingTagCollection.getExternalUpdate(),
+                existingTagCollection.getExternalCreation(),
+                existingTagCollection.getLastSynchronizationDate(),
+                existingTagCollection.getLastUpdateDateInExternalSystem());
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
 

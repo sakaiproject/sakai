@@ -92,49 +92,52 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 		if(log.isInfoEnabled()) {
 			log.info("Starting MESH Tag Collection synchronization");
 		}
-		try{
+		try (InputStream input = getTagsXmlInputStream()) {
 			XMLInputFactory factory = XMLInputFactory.newInstance();
-			XMLStreamReader xsr = factory.createXMLStreamReader(getTagsXmlInputStream());
-			xsr.next();
-			xsr.nextTag();
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer t = tf.newTransformer();
+			XMLStreamReader xsr = factory.createXMLStreamReader(input);
+			try {
+				xsr.next();
+				xsr.nextTag();
+				TransformerFactory tf = TransformerFactory.newInstance();
+				Transformer t = tf.newTransformer();
 
-			while (xsr.nextTag() == XMLStreamConstants.START_ELEMENT) {
-				DOMResult result = new DOMResult();
-				t.transform(new StAXSource(xsr), result);
+				while (xsr.nextTag() == XMLStreamConstants.START_ELEMENT) {
+					DOMResult result = new DOMResult();
+					t.transform(new StAXSource(xsr), result);
 
-				Node nNode = result.getNode();
-				Element element = ((Document)nNode).getDocumentElement();
-				String tagLabel="undefined";
-				counterTotal++;
+					Node nNode = result.getNode();
+					Element element = ((Document)nNode).getDocumentElement();
+					String tagLabel="undefined";
+					counterTotal++;
 
-				try {
-					Element descriptorName = (Element) element.getElementsByTagName("DescriptorName").item(0);
-					tagLabel =	getString("String",descriptorName);
-					String externalId = getString("DescriptorUI",element);
-					String description = getString("Annotation",element);
-					long externalCreationDate = xmlDateToMs(element.getElementsByTagName("DateCreated").item(0),externalId);
-					long lastUpdateDateInExternalSystem = xmlDateToMs(element.getElementsByTagName("DateRevised").item(0),externalId);
-					String externalHierarchyCode = xmlTreeToString(element.getElementsByTagName("TreeNumberList").item(0),externalId);
-					String externalType = element.getAttribute("DescriptorClass");
-					String alternativeLabels = xmlToAlternativeLabels(element.getElementsByTagName("ConceptList").item(0), externalId);
-					updateOrCreateTagWithExternalSourceName(externalId, "MESH",  tagLabel,  description,
-							alternativeLabels,  externalCreationDate, lastUpdateDateInExternalSystem,  null,
-							externalHierarchyCode,  externalType,  null);
-					counterSuccess++;
-					lastSuccessfulLabel=tagLabel;
-				} catch (Exception e) {
-					log.warn("Mesh XML can't be processed for this Label: " + tagLabel + ". If the value is undefined, then, the previous successful label was: " + lastSuccessfulLabel,e);
-					sendStatusMail(2,e.getMessage());
-				}
-				if(counterTotal%1000==0){
-					log.info(counterSuccess + "/" + counterTotal + " labels processed correctly... and still processing. " + (counterTotal - counterSuccess) + " errors by the moment");
-				}
+					try {
+						Element descriptorName = (Element) element.getElementsByTagName("DescriptorName").item(0);
+						tagLabel =	getString("String",descriptorName);
+						String externalId = getString("DescriptorUI",element);
+						String description = getString("Annotation",element);
+						long externalCreationDate = xmlDateToMs(element.getElementsByTagName("DateCreated").item(0),externalId);
+						long lastUpdateDateInExternalSystem = xmlDateToMs(element.getElementsByTagName("DateRevised").item(0),externalId);
+						String externalHierarchyCode = xmlTreeToString(element.getElementsByTagName("TreeNumberList").item(0),externalId);
+						String externalType = element.getAttribute("DescriptorClass");
+						String alternativeLabels = xmlToAlternativeLabels(element.getElementsByTagName("ConceptList").item(0), externalId);
+						updateOrCreateTagWithExternalSourceName(externalId, "MESH",  tagLabel,  description,
+								alternativeLabels,  externalCreationDate, lastUpdateDateInExternalSystem,  null,
+								externalHierarchyCode,  externalType,  null);
+						counterSuccess++;
+						lastSuccessfulLabel=tagLabel;
+					} catch (Exception e) {
+						log.warn("Mesh XML can't be processed for this Label: " + tagLabel + ". If the value is undefined, then, the previous successful label was: " + lastSuccessfulLabel,e);
+						sendStatusMail(2,e.getMessage());
+					}
+					if(counterTotal%1000==0){
+						log.info(counterSuccess + "/" + counterTotal + " labels processed correctly... and still processing. " + (counterTotal - counterSuccess) + " errors by the moment");
+					}
 
 
-			} // end while
-			xsr.close();
+				} // end while
+			} finally {
+				xsr.close();
+			}
 			updateTagCollectionSynchronization("MESH",0L);
 			deleteTagsOlderThanDateFromCollection("MESH",start);
 			sendStatusMail(1,"Imported from MESH finished. Num of labels processed successfully " + counterSuccess + "of" + counterTotal);
