@@ -41,6 +41,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.util.FilenameUtil;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
@@ -95,11 +96,12 @@ public class ExportRubrics implements ActionListener {
 
         FacesContext faces = FacesContext.getCurrentInstance();
         HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
-        String fileName = tBean.getAssessmentName().replaceAll(" ", "_") + "_" + templateFilename;
+        String fileName = FilenameUtil.cleanFilename(
+            tBean.getAssessmentName() + "_" + templateFilename + "_" + rb.getString("rubrics") + ".zip");
 
         response.reset();
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
-            .filename(fileName + "_" + rb.getString("rubrics") + ".zip", StandardCharsets.UTF_8).build().toString());
+            .filename(fileName, StandardCharsets.UTF_8).build().toString());
         response.setContentType("application/zip");
         response.setContentLength(baos.size());
 
