@@ -587,6 +587,34 @@ public class TagServiceTest {
     }
 
     @Test
+    public void fullImportDoesNotCarryCollectionStateBetweenRuns() throws Exception {
+        TagCollection first = collection("First import collection");
+        TagCollection second = collection("Second import collection");
+        Tag oldFirst = tag(first, "Old first");
+        Tag oldSecond = tag(second, "Old second");
+        jdbc.update("UPDATE tagservice_tag SET lastmodificationdate=1");
+        when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
+        when(configuration.getString("tags.fullxmltagsfile", "tags/fullxmltags.xml")).thenReturn("full.xml");
+        Path xml = files.getRoot().toPath().resolve("full.xml");
+        String row = "<Tag><externalId>imported</externalId><tagCollectionId>%s</tagCollectionId>"
+            + "<tagLabel>Imported</tagLabel></Tag>";
+        Files.writeString(xml, "<Tags>" + String.format(row, first.getTagCollectionId())
+            + String.format(row, second.getTagCollectionId()) + "</Tags>");
+        fullImport.execute(null);
+        // A file spanning multiple collections must not delete old tags.
+        assertTrue(service.getTag(oldFirst.getTagId()).isPresent());
+        assertTrue(service.getTag(oldSecond.getTagId()).isPresent());
+
+        Files.writeString(xml, "<Tags>" + String.format(row, second.getTagCollectionId()) + "</Tags>");
+        fullImport.execute(null);
+        // The next single-collection import must make its own deletion decision.
+        assertTrue(service.getTag(oldFirst.getTagId()).isPresent());
+        assertFalse(service.getTag(oldSecond.getTagId()).isPresent());
+        assertEquals(1, service.getTagsInCollection(second.getTagCollectionId()).size());
+        assertTrue(service.getTagForExternalIdAndCollection("imported", second.getTagCollectionId()).isPresent());
+    }
+
+    @Test
     public void outerRollbackUndoesTagsCollectionsAndAssociationsAndSuppressesEvents() {
         TransactionTemplate transaction = new TransactionTemplate(transactionManager);
         String collectionId = UUID.randomUUID().toString();
