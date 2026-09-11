@@ -1962,26 +1962,32 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
 			Root<PublishedMetaData> mRoot = cq.from(PublishedMetaData.class);
-			Join<PublishedMetaData, PublishedAssessmentData> aJoin = mRoot.join("assessment");
 
-			cq.select(cb.array(aJoin.get("publishedAssessmentId"), mRoot.get("entry")));
+			cq.select(cb.array(
+				mRoot.get("assessment").get("publishedAssessmentId"),
+				mRoot.get("entry")
+			));
 
-			cq.where(
-				aJoin.get("publishedAssessmentId").in(publishedAssessmentIds),
-				cb.equal(mRoot.get("label"), label)
-			);
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(mRoot.get("assessment").get("publishedAssessmentId").in(publishedAssessmentIds));
+			predicates.add(cb.equal(mRoot.get("label"), label));
+
+			cq.where(predicates.toArray(new Predicate[0]));
 
 			cq.orderBy(
-				cb.asc(aJoin.get("publishedAssessmentId")),
+				cb.asc(mRoot.get("assessment").get("publishedAssessmentId")),
 				cb.asc(mRoot.get("id"))
 			);
 
-			return session.createQuery(cq).getResultList().stream()
+			List<Object[]> list = session.createQuery(cq).getResultList();
+
+			return list.stream()
 				.collect(Collectors.toMap(
-						row -> (Long) row[0],
-						row -> (String) row[1],
-						(existing, replacement) -> replacement,
-						LinkedHashMap::new
+					row -> (Long) row[0],
+					row -> (String) row[1],
+					// Keep the latest value to preserve prior behavior and avoid page failures when historical duplicate rows exist.
+					(existing, replacement) -> replacement,
+					LinkedHashMap::new
 				));
 		} catch (Exception e) {
 			throw new DataAccessResourceFailureException("Failed to get assessment meta data entries", e);

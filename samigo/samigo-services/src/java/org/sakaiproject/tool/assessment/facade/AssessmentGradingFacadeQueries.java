@@ -1335,7 +1335,12 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         while (retryCount > 0) {
             try {
                 Session session = sessionFactory.getCurrentSession();
-                session.merge(item);
+                if (item.getItemGradingId() == null) {
+                    session.persist(item);
+                } else {
+                    session.merge(item);
+                }
+                session.flush();
                 retryCount = 0;
             } catch (Exception e) {
                 log.warn("problem saving itemGrading: " + e.toString());
@@ -1350,7 +1355,12 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         while (retryCount > 0) {
             try {
                 Session session = sessionFactory.getCurrentSession();
-                session.merge(assessment);
+                if (assessment.getAssessmentGradingId() == null) {
+                    session.persist(assessment);
+                } else {
+                    session.merge(assessment);
+                }
+                session.flush();
                 retryCount = 0;
                 success = true;
             } catch (Exception e) {
