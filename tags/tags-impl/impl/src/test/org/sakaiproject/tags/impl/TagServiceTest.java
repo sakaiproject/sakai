@@ -190,7 +190,7 @@ public class TagServiceTest {
         service.updateTagCollection(service.getTagCollection(tag.getTagCollectionId()).get());
         assertUntouchedNullMetadata(tag);
         assertNull(jdbc.queryForObject("SELECT lastupdatedateinexternalsystem FROM tagservice_tag WHERE tagid=?", Long.class, tag.getTagId()));
-        jdbc.queryForMap("SELECT lastmodificationdate, lastsynchronizationdate, lastupdatedateinexternalsystem "
+        jdbc.queryForMap("SELECT lastsynchronizationdate, lastupdatedateinexternalsystem "
             + "FROM tagservice_collection WHERE tagcollectionid=?", tag.getTagCollectionId())
             .forEach((column, value) -> assertNull(column, value));
         assertNotNull(jdbc.queryForObject("SELECT lastmodificationdate FROM tagservice_tag WHERE tagid=?", Long.class, tag.getTagId()));
@@ -297,12 +297,27 @@ public class TagServiceTest {
     }
 
     @Test
-    public void unchangedCollectionDoesNotChangeAuditOrPostEvent() {
+    public void unchangedCollectionRefreshesAuditWithoutEvent() {
         TagCollection original = collection("Unchanged collection");
+        jdbc.update("UPDATE tagservice_collection SET lastmodificationdate=1 WHERE tagcollectionid=?", original.getTagCollectionId());
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("editor");
         clearInvocations(events);
         service.updateTagCollection(original);
-        assertEquals(original.getLastModificationDate(), service.getTagCollection(original.getTagCollectionId()).get().getLastModificationDate());
+        assertTrue(service.getTagCollection(original.getTagCollectionId()).get().getLastModificationDate() > 1L);
+        assertEquals("editor", service.getTagCollection(original.getTagCollectionId()).get().getLastModifiedBy());
         verify(events, never()).post(any());
+    }
+
+    @Test
+    public void movingTagBetweenCollectionsIsPersistedAndGeneratesContentEvent() {
+        Tag tag = tag(collection("Source"), "Moved tag");
+        TagCollection target = collection("Target");
+        clearInvocations(events);
+        service.updateTag(tag.toBuilder().tagCollectionId(target.getTagCollectionId()).build());
+        Tag saved = service.getTag(tag.getTagId()).get();
+        assertEquals(target.getTagCollectionId(), saved.getTagCollectionId());
+        assertEquals("Target", saved.getCollectionName());
+        verify(events).post(argThat(event -> event.getEvent().equals("tags.update.tag")));
     }
 
     @Test

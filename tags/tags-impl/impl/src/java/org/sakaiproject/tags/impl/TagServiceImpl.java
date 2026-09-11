@@ -321,22 +321,20 @@ public class TagServiceImpl implements TagService {
     public void updateTag(Tag tag) {
         Tag original = tagRepository.findById(tag.getTagId())
             .orElseThrow(() -> new TagServiceException("No tag with id " + tag.getTagId()));
-        boolean generateEvent = isEventGeneratingUpdate(tag, original);
-        if (isDirtyingUpdate(tag, original)) {
-            original.setTagCollectionId(tag.getTagCollectionId());
-            original.setTagLabel(tag.getTagLabel());
-            original.setDescription(tag.getDescription());
-            original.setExternalId(tag.getExternalId());
-            original.setAlternativeLabels(tag.getAlternativeLabels());
-            original.setExternalCreation(tag.getExternalCreation());
-            original.setExternalCreationDate(tag.getExternalCreationDate());
-            original.setExternalUpdate(tag.getExternalUpdate());
-            original.setLastUpdateDateInExternalSystem(tag.getLastUpdateDateInExternalSystem());
-            original.setParentId(tag.getParentId());
-            original.setExternalHierarchyCode(tag.getExternalHierarchyCode());
-            original.setExternalType(tag.getExternalType());
-            original.setData(tag.getData());
-        }
+        boolean generateEvent = hasContentChanges(tag, original);
+        original.setTagCollectionId(tag.getTagCollectionId());
+        original.setTagLabel(tag.getTagLabel());
+        original.setDescription(tag.getDescription());
+        original.setExternalId(tag.getExternalId());
+        original.setAlternativeLabels(tag.getAlternativeLabels());
+        original.setExternalCreation(tag.getExternalCreation());
+        original.setExternalCreationDate(tag.getExternalCreationDate());
+        original.setExternalUpdate(tag.getExternalUpdate());
+        original.setLastUpdateDateInExternalSystem(tag.getLastUpdateDateInExternalSystem());
+        original.setParentId(tag.getParentId());
+        original.setExternalHierarchyCode(tag.getExternalHierarchyCode());
+        original.setExternalType(tag.getExternalType());
+        original.setData(tag.getData());
         // Importers use this timestamp even for otherwise unchanged tags.
         original.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
         original.setLastModificationDate(Instant.now().toEpochMilli());
@@ -350,10 +348,7 @@ public class TagServiceImpl implements TagService {
     public void updateTagCollection(TagCollection collection) {
         TagCollection original = tagCollectionRepository.findById(collection.getTagCollectionId())
             .orElseThrow(() -> new TagServiceException("No collection with id " + collection.getTagCollectionId()));
-        if (!isDirtyingUpdate(collection, original)) {
-            return;
-        }
-        boolean generateEvent = isEventGeneratingUpdate(collection, original);
+        boolean generateEvent = hasContentChanges(collection, original);
         original.setName(collection.getName());
         original.setDescription(collection.getDescription());
         original.setExternalSourceName(collection.getExternalSourceName());
@@ -442,38 +437,24 @@ public class TagServiceImpl implements TagService {
         });
     }
 
-    private boolean isDirtyingUpdate(Tag proposed, Tag original) {
-        return isEventGeneratingUpdate(proposed, original)
-                || !(Objects.equals(proposed.getExternalCreation(), original.getExternalCreation()))
-                || !(Objects.equals(proposed.getExternalCreationDate(), original.getExternalCreationDate()))
-                || !(Objects.equals(proposed.getExternalUpdate(), original.getExternalUpdate()))
-                || !(Objects.equals(proposed.getLastUpdateDateInExternalSystem(), original.getLastUpdateDateInExternalSystem()));
+    // These comparisons control events only; Hibernate detects persistence changes.
+    private boolean hasContentChanges(Tag proposed, Tag original) {
+        return !Objects.equals(proposed.getTagCollectionId(), original.getTagCollectionId())
+                || !Objects.equals(proposed.getTagLabel(), original.getTagLabel())
+                || !Objects.equals(proposed.getDescription(), original.getDescription())
+                || !Objects.equals(proposed.getExternalId(), original.getExternalId())
+                || !Objects.equals(proposed.getAlternativeLabels(), original.getAlternativeLabels())
+                || !Objects.equals(proposed.getParentId(), original.getParentId())
+                || !Objects.equals(proposed.getExternalHierarchyCode(), original.getExternalHierarchyCode())
+                || !Objects.equals(proposed.getExternalType(), original.getExternalType())
+                || !Objects.equals(proposed.getData(), original.getData());
     }
 
-    private boolean isEventGeneratingUpdate(Tag proposed, Tag original) {
-        return !(Objects.equals(proposed.getTagLabel(), original.getTagLabel()))
-                || !(Objects.equals(proposed.getDescription(), original.getDescription()))
-                || !(Objects.equals(proposed.getExternalId(), original.getExternalId()))
-                || !(Objects.equals(proposed.getAlternativeLabels(), original.getAlternativeLabels()))
-                || !(Objects.equals(proposed.getParentId(), original.getParentId()))
-                || !(Objects.equals(proposed.getExternalHierarchyCode(), original.getExternalHierarchyCode()))
-                || !(Objects.equals(proposed.getExternalType(), original.getExternalType()))
-                || !(Objects.equals(proposed.getData(), original.getData()));
-    }
-
-    private boolean isDirtyingUpdate(TagCollection proposed, TagCollection original) {
-        return isEventGeneratingUpdate(proposed, original)
-                || !Objects.equals(proposed.getExternalCreation(), original.getExternalCreation())
-                || !(Objects.equals(proposed.getExternalUpdate(), original.getExternalUpdate()))
-                || !(Objects.equals(proposed.getLastSynchronizationDate(), original.getLastSynchronizationDate()))
-                || !(Objects.equals(proposed.getLastUpdateDateInExternalSystem(), original.getLastUpdateDateInExternalSystem()));
-    }
-
-    private boolean isEventGeneratingUpdate(TagCollection proposed, TagCollection original) {
-        return !(Objects.equals(proposed.getName(), original.getName()))
-                || !(Objects.equals(proposed.getDescription(), original.getDescription()))
-                || !(Objects.equals(proposed.getExternalSourceName(), original.getExternalSourceName()))
-                || !(Objects.equals(proposed.getExternalSourceDescription(), original.getExternalSourceDescription()));
+    private boolean hasContentChanges(TagCollection proposed, TagCollection original) {
+        return !Objects.equals(proposed.getName(), original.getName())
+                || !Objects.equals(proposed.getDescription(), original.getDescription())
+                || !Objects.equals(proposed.getExternalSourceName(), original.getExternalSourceName())
+                || !Objects.equals(proposed.getExternalSourceDescription(), original.getExternalSourceDescription());
     }
 
 }
