@@ -38,20 +38,30 @@
         return payload;
     }
 
+    let orderSaveQueue = Promise.resolve();
+
     function saveOrder() {
         const reorderUrl = rootBody.dataset.reorderUrl;
         if (!reorderUrl) return;
 
-        fetch(reorderUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify(buildOrderPayload())
-        }).then(function (response) {
-            if (!response.ok) throw new Error('Failed to save category order');
-        }).catch(function () {
+        const payload = buildOrderPayload();
+
+        orderSaveQueue = orderSaveQueue
+            .catch(() => undefined)
+            .then(() => fetch(reorderUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            }))
+            .then(function (response) {
+                if (!response.ok) throw new Error('Failed to save category order');
+            });
+
+        orderSaveQueue.catch(function () {
             window.location.reload();
         });
     }
@@ -146,6 +156,8 @@
         }
     });
 
+    
+
     const initialChildContainers = rootBody.querySelectorAll('.vt-category-children');
     initialChildContainers.forEach(function (container) {
         setupSortable(container, {
@@ -165,6 +177,90 @@
                 saveOrder();
             }
         });
+    });
+
+    function moveCategoryNode(node, direction) {
+        if (!node) return;
+        const parent = node.parentElement;
+        const isRoot = parent === rootBody;
+
+        if (direction === 'down') {
+            if (isRoot) {
+                const nextRoot = node.nextElementSibling;
+                if (!nextRoot || !nextRoot.classList.contains('vt-category-node')) return;
+
+                const nodeHasChildren = String(node.dataset.hasChildren) === 'true';
+                const nextChildContainer = nextRoot.querySelector(':scope > .vt-category-children');
+
+                // Move inside the adjacent root node if empty to prevent depth > 2
+                if (!nodeHasChildren && nextChildContainer) {
+                    nextChildContainer.insertBefore(node, nextChildContainer.firstChild);
+                } else {
+                    // Swap root positions if node already has children
+                    rootBody.insertBefore(nextRoot, node);
+                }
+            } else {
+                const nextChild = node.nextElementSibling;
+                if (nextChild && nextChild.classList.contains('vt-category-node')) {
+                    // Reorder within the same child container
+                    parent.insertBefore(node, nextChild.nextElementSibling);
+                } else {
+                    // Promote to root level after the parent node
+                    const parentNode = parent.closest('.vt-category-node');
+                    if (parentNode) {
+                        rootBody.insertBefore(node, parentNode.nextElementSibling);
+                    }
+                }
+            }
+        } else if (direction === 'up') {
+            if (isRoot) {
+                const prevRoot = node.previousElementSibling;
+                if (!prevRoot || !prevRoot.classList.contains('vt-category-node')) return;
+
+                const nodeHasChildren = String(node.dataset.hasChildren) === 'true';
+                const prevChildContainer = prevRoot.querySelector(':scope > .vt-category-children');
+
+                // Move as last child of previous root node if empty
+                if (!nodeHasChildren && prevChildContainer) {
+                    prevChildContainer.appendChild(node);
+                } else {
+                    // Swap root positions if node already has children
+                    rootBody.insertBefore(node, prevRoot);
+                }
+            } else {
+                const prevChild = node.previousElementSibling;
+                if (prevChild && prevChild.classList.contains('vt-category-node')) {
+                    // Reorder within the same child container
+                    parent.insertBefore(node, prevChild);
+                } else {
+                    // Promote to root level before the parent node
+                    const parentNode = parent.closest('.vt-category-node');
+                    if (parentNode) {
+                        rootBody.insertBefore(node, parentNode);
+                    }
+                }
+            }
+        }
+
+        updateVisualClasses();
+        saveOrder();
+    }
+
+    document.addEventListener('click', function (evt) {
+        const btnUp = evt.target.closest('.vt-btn-move-up');
+        const btnDown = evt.target.closest('.vt-btn-move-down');
+
+        if (btnUp) {
+            evt.preventDefault();
+            const node = btnUp.closest('.vt-category-node');
+            moveCategoryNode(node, 'up');
+            btnUp.focus();
+        } else if (btnDown) {
+            evt.preventDefault();
+            const node = btnDown.closest('.vt-category-node');
+            moveCategoryNode(node, 'down');
+            btnDown.focus();
+        }
     });
 
     updateVisualClasses();
