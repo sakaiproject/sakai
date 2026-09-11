@@ -22,11 +22,11 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,25 +43,24 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 // FIXME: Component
 @Slf4j
 @Transactional(readOnly = true)
-public class RWikiHistoryObjectContentDaoImpl extends HibernateDaoSupport
+public class RWikiHistoryObjectContentDaoImpl
 		implements RWikiObjectContentDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	public RWikiObjectContent getContentObject(final RWikiObject parent)
 	{
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback<List<RWikiHistoryObjectContent>> callback = session -> {
-				CriteriaBuilder cb = session.getCriteriaBuilder();
-				CriteriaQuery<RWikiHistoryObjectContent> cq = cb.createQuery(RWikiHistoryObjectContent.class);
-				Root<RWikiHistoryObjectContent> root = cq.from(RWikiHistoryObjectContent.class);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiHistoryObjectContentImpl> cq = cb.createQuery(RWikiHistoryObjectContentImpl.class);
+			Root<RWikiHistoryObjectContentImpl> root = cq.from(RWikiHistoryObjectContentImpl.class);
 
-				cq.select(root).where(cb.equal(root.get("rwikiid"), parent.getId()));
+			cq.select(root).where(cb.equal(root.get("rwikiid"), parent.getId()));
 
-				return session.createQuery(cq).getResultList();
-			};
-
-			List found = (List) getHibernateTemplate().execute(callback);
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0)
 			{
 				log.debug("Found {} objects with id {}", found.size(), parent.getId());
@@ -90,7 +89,7 @@ public class RWikiHistoryObjectContentDaoImpl extends HibernateDaoSupport
 	public void update(RWikiObjectContent content)
 	{
 		RWikiHistoryObjectContentImpl impl = (RWikiHistoryObjectContentImpl) content;
-		getHibernateTemplate().saveOrUpdate(impl);
+		sessionFactory.getCurrentSession().saveOrUpdate(impl);
 	}
 
 }
