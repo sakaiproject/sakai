@@ -24,6 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.DateTimeException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamException;
 import org.w3c.dom.Node;
@@ -31,8 +34,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 
 import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.sakaiproject.tags.api.*;
@@ -48,19 +49,6 @@ public abstract class TagSynchronizer {
 	@Setter private TagService tagService;
 	
 	protected abstract InputStream getTagsXmlInputStream();
-
-	protected Date getDate(String str) {
-		if(StringUtils.isBlank(str)) {
-			return null;
-		}
-		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-		try {
-			return df.parse(str);
-		} catch (ParseException pe) {
-			log.warn("Invalid date: " + str);
-			return null;
-		}
-	}
 
 	protected String getTagCollectionIdFromExternalSourceName(String name) {
 		if (StringUtils.isBlank(name)) {
@@ -177,21 +165,20 @@ public abstract class TagSynchronizer {
 	}
 
 	protected long xmlDateToMs(Node nNode, String element) {
-
+		if (nNode == null) {
+			return 0L;
+		}
+		Element node = (Element) nNode;
 		try {
-			Element node = (Element) nNode;
-			String dateText = getString("Day", node) + "/" + getString("Month", node) + "/" + getString("Year", node);
-			Date d = getDate(dateText);
-			try {
-				long timestamp = d.getTime();
-				return timestamp;
-			} catch (Exception e) {
-				log.debug("The date format is not the expected at: " + element, e);
-				log.debug("DateText is:" + dateText);
-				return 0L;
-			}
-		}catch (Exception e){
-			log.debug("The date format is not the expected when importing a tag or collection at: " + element, e);
+			LocalDate date = LocalDate.of(
+					Integer.parseInt(getString("Year", node)),
+					Integer.parseInt(getString("Month", node)),
+					Integer.parseInt(getString("Day", node)));
+			// Source dates have no time or zone; use midnight UTC consistently across servers.
+			return date.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli();
+		} catch (DateTimeException | NumberFormatException e) {
+			log.warn("Invalid XML date for {}: year={}, month={}, day={}", element,
+					getString("Year", node), getString("Month", node), getString("Day", node));
 			return 0L;
 		}
 	}
