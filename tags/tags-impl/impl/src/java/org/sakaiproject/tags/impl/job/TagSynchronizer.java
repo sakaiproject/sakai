@@ -66,9 +66,12 @@ public abstract class TagSynchronizer {
 		if (StringUtils.isBlank(name)) {
 			return null;
 		}
-		return tagService.getTagCollectionForExternalSourceName(name)
-				.orElseThrow(() -> new TagServiceException("No collection for external source " + name))
-				.getTagCollectionId();
+		Optional<TagCollection> collection = tagService.getTagCollectionForExternalSourceName(name);
+		if (collection.isPresent()) {
+			return collection.get().getTagCollectionId();
+		}
+		log.warn("No collection for external source {}", name);
+		return null;
 	}
 
 	protected void updateOrCreateTagWithExternalSourceName(String externalId, String externalSourceName, String tagLabel, String description,
@@ -138,9 +141,12 @@ public abstract class TagSynchronizer {
 			log.warn("Missing external source name for collection synchronization");
 			return;
 		}
-		TagCollection collection = tagService.getTagCollectionForExternalSourceName(externalSourceName)
-				.orElseThrow(() -> new TagServiceException("No collection for external source " + externalSourceName));
-		updateSynchronization(collection, lastUpdateDateInExternalSystem);
+		Optional<TagCollection> collection = tagService.getTagCollectionForExternalSourceName(externalSourceName);
+		if (collection.isPresent()) {
+			updateSynchronization(collection.get(), lastUpdateDateInExternalSystem);
+		} else {
+			log.warn("No collection for external source {} for synchronization", externalSourceName);
+		}
 	}
 
 	protected void updateTagCollectionSynchronizationWithCollectionId(String collectionId, long lastUpdateDateInExternalSystem) {
