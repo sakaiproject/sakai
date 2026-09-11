@@ -38,6 +38,7 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -49,6 +50,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  * A data object representing a tag.
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "TagServiceTag")
@@ -142,13 +144,5 @@ public class Tag implements PersistableEntity<String> {
     public String getId() {
         return tagId;
     }
-
-    public Errors validate() {
-        Errors errors = new Errors();
-        //At this moment there is not extra validation. This can be the place to do this in the future
-        return errors;
-    }
-
-
 }
     

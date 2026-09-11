@@ -202,10 +202,7 @@ public class TagForm extends BaseForm {
             errors.addError("description", "contains_xss");
         }
 
-        // Merge with model-level validation errors
-        Errors modelErrors = toTag().validate();
-
-        return errors.merge(modelErrors);
+        return errors;
     }
 
     public Tag toTag() {

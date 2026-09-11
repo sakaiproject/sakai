@@ -113,7 +113,6 @@ public class TagCollectionsHandler extends CrudHandler {
         String uuid = extractId(request);
         TagCollectionForm tagCollectionForm = TagCollectionForm.fromRequest(uuid, request);
 
-        this.addErrors(tagCollectionForm.validate());
 
         if (CrudMode.CREATE.equals(mode)) {
             if (tagService.getTagCollectionForExternalSourceName(tagCollectionForm.toTagCollection().getExternalSourceName()).isPresent()){

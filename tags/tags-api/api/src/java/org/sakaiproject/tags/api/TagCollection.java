@@ -32,6 +32,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -41,6 +42,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  * The interface for the tag service.
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "TagServiceCollection")
@@ -107,12 +109,6 @@ public class TagCollection implements PersistableEntity<String> {
     @JsonIgnore
     public String getId() {
         return tagCollectionId;
-    }
-
-    public Errors validate() {
-        Errors errors = new Errors();
-        //At this moment there is not extra validation. This can be the place to do this in the future
-        return errors;
     }
 }
     

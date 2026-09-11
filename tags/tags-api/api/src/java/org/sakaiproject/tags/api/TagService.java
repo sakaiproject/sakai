@@ -40,8 +40,6 @@ public interface TagService {
 
     public void init();
 
-    public void destroy();
-
     public String createTag(Tag tag);
 
     public void updateTag(Tag tag);

@@ -34,7 +34,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,9 +70,9 @@ public class TagServiceImpl implements TagService {
     private static final int TAGSERVICE_MAXPAGESIZE_DEFAULT_VALUE = 200;
     private static final int TAG_MAX_LABEL = 255;
 
-    @Getter @Setter private FunctionManager functionManager;
-    @Getter @Setter private ServerConfigurationService serverConfigurationService;
-    @Getter @Setter private TagAssociationRepository tagAssociationRepository;
+    @Setter private FunctionManager functionManager;
+    @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private TagAssociationRepository tagAssociationRepository;
 
     @Setter private TagRepository tagRepository;
     @Setter private TagCollectionRepository tagCollectionRepository;
@@ -86,16 +85,12 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public void destroy() {
-    }
-
-    @Override
     @Transactional
     public void saveTagAssociation(String itemId, String tagId) {
         TagAssociation tagAssociation = new TagAssociation();
         tagAssociation.setItemId(itemId);
         tagAssociation.setTagId(tagId);
-        tagAssociationRepository.newTagAssociation(tagAssociation);
+        tagAssociationRepository.save(tagAssociation);
     }
 
     @Override
@@ -110,17 +105,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getAssociatedTagsForItem(String collectionId, String itemId) {
-        List<String> tagIds = getTagAssociationIds(collectionId, itemId);
-        List<Tag> associatedTags = new ArrayList<>();
-        for (String tagId : tagIds) {
-            Tag t = getTag(tagId).orElse(null);
-            if (t != null) {
-                associatedTags.add(t);
-            } else {
-                log.warn("Associated tag with id {} does not exist anymore", tagId);
-            }
-        }
-        return associatedTags;
+        return tagCopies(tagRepository.findAssociatedTags(collectionId, itemId));
     }
 
     @Override
@@ -128,17 +113,7 @@ public class TagServiceImpl implements TagService {
     public List<Tag> duplicateTags(String targetCollectionId, boolean isSite, Collection<String> tagIds, String targetItemId) {
         List<Tag> duplicatedTags = new ArrayList<>();
 
-        // create collection if it doesn't exist
-        TagCollection col = getTagCollection(targetCollectionId).orElse(null);
-        if (col == null) {
-            I18n i18n = getI18n(this.getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
-            String description = i18n.t("user_collection");
-            if (isSite) {
-                description = i18n.tFormatted("site_collection", targetCollectionId);
-            }
-            col = new TagCollection(targetCollectionId, targetCollectionId, description, null, 0L, null, null, null, 0L, Boolean.FALSE, Boolean.FALSE, 0L, 0L);
-            createTagCollection(col);
-        }
+        ensureCollectionExists(targetCollectionId, isSite);
 
         for (String tagId : tagIds) {
             Tag tag = getTag(tagId).orElse(null);
@@ -147,9 +122,11 @@ public class TagServiceImpl implements TagService {
                 continue;
             }
 
-            Tag duplicatedTag = new Tag(null, targetCollectionId, tag.getTagLabel(), tag.getDescription(), null,
-                    0L, null, 0L, null, null, Boolean.FALSE, 0L,
-                    Boolean.FALSE, 0L, null, null, null, null, null, null);
+            Tag duplicatedTag = Tag.builder()
+                .tagCollectionId(targetCollectionId)
+                .tagLabel(tag.getTagLabel())
+                .description(tag.getDescription())
+                .build();
             String id = createTag(duplicatedTag);
             duplicatedTag.setTagId(id);
 
@@ -166,17 +143,7 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public void updateTagAssociations(String collectionId, String itemId, Collection<String> tagIds, boolean isSite) {
-        // create collection if it doesn't exist
-        TagCollection col = getTagCollection(collectionId).orElse(null);
-        if (col == null) {
-            I18n i18n = getI18n(this.getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
-            String description = i18n.t("user_collection");
-            if (isSite) {
-                description = i18n.tFormatted("site_collection", collectionId);
-            }
-            col = new TagCollection(collectionId, collectionId, description, null, 0L, null, null, null, 0L, Boolean.FALSE, Boolean.FALSE, 0L, 0L);
-            createTagCollection(col);
-        }
+        ensureCollectionExists(collectionId, isSite);
 
         // obtain previous asociations
         List<String> oldAssociationIds = getTagAssociationIds(collectionId, itemId);
@@ -193,9 +160,10 @@ public class TagServiceImpl implements TagService {
             Tag t = getTag(tagId).orElse(null);
             if (t == null) {
                 
-                t = new Tag(null, collectionId, tagId, null, null,
-                        0L, null, 0L, null, null, Boolean.FALSE, 0L,
-                        Boolean.FALSE, 0L, null, null, null, null, null, null);
+                t = Tag.builder()
+                    .tagCollectionId(collectionId)
+                    .tagLabel(tagId)
+                    .build();
                 String id = createTag(t);
                 t.setTagId(id);
             }
@@ -208,9 +176,22 @@ public class TagServiceImpl implements TagService {
         oldAssociationIds.removeAll(tagIds);
         for (String oldId : oldAssociationIds) {
             TagAssociation ta = tagAssociationRepository.findTagAssociationByItemIdAndTagId(itemId, oldId);
-            tagAssociationRepository.deleteTagAssociation(ta.getId());
+            tagAssociationRepository.delete(ta);
         }
     
+    }
+
+    private void ensureCollectionExists(String collectionId, boolean isSite) {
+        if (tagCollectionRepository.existsById(collectionId)) {
+            return;
+        }
+        I18n i18n = getI18n(getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
+        String description = isSite ? i18n.tFormatted("site_collection", collectionId) : i18n.t("user_collection");
+        createTagCollection(TagCollection.builder()
+            .tagCollectionId(collectionId)
+            .name(collectionId)
+            .description(description)
+            .build());
     }
 
     @Override
