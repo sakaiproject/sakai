@@ -149,7 +149,7 @@ public class TagServiceImpl implements TagService {
 
             Tag duplicatedTag = new Tag(null, targetCollectionId, tag.getTagLabel(), tag.getDescription(), null,
                     0L, null, 0L, null, null, Boolean.FALSE, 0L,
-                    Boolean.FALSE, 0L, null, null, null, null, null);
+                    Boolean.FALSE, 0L, null, null, null, null, null, null);
             String id = createTag(duplicatedTag);
             duplicatedTag.setTagId(id);
 
@@ -195,7 +195,7 @@ public class TagServiceImpl implements TagService {
                 
                 t = new Tag(null, collectionId, tagId, null, null,
                         0L, null, 0L, null, null, Boolean.FALSE, 0L,
-                        Boolean.FALSE, 0L, null, null, null, null, null);
+                        Boolean.FALSE, 0L, null, null, null, null, null, null);
                 String id = createTag(t);
                 t.setTagId(id);
             }
@@ -471,7 +471,7 @@ public class TagServiceImpl implements TagService {
             tag.getExternalHierarchyCode(),
             tag.getExternalType(),
             tag.getData(),
-            tag.getCollectionName());
+            tag.getCollectionName(), null);
     }
 
     private TagCollection copy(TagCollection collection) {

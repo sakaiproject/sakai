@@ -84,7 +84,7 @@ public class TagServiceTest {
     private Tag tag(TagCollection collection, String label) {
         Tag proposed = new Tag("ignored", collection.getTagCollectionId(), label, "Description", "ignored", 1L,
             "ignored", 1L, label + "-external", "Alternative", true, 5L, false, 6L,
-            "parent", "hierarchy", "type", "data", null);
+            "parent", "hierarchy", "type", "data", null, null);
         return service.getTag(service.createTag(proposed)).get();
     }
 

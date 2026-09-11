@@ -213,6 +213,6 @@ public class TagForm extends BaseForm {
                 creationDate, lastModifiedBy, lastModificationDate, externalId,
                 alternativeLabels, externalCreation, externalCreationDate,
                 externalUpdate, lastUpdateDateInExternalSystem , parentId,
-                externalHierarchyCode, externalType, data, collectionName);
+                externalHierarchyCode, externalType, data, collectionName, null);
     }
 }

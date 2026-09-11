@@ -31,6 +31,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -40,6 +41,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  * The interface for the tag service.
  */
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "TagServiceCollection")
 @Table(name = "tagservice_collection")
@@ -76,22 +78,6 @@ public class TagCollection implements PersistableEntity<String> {
     @Column(name = "lastupdatedateinexternalsystem")
     private Long lastUpdateDateInExternalSystem;
 
-
-    public TagCollection(String tagCollectionId, String name, String description, String createdBy, long creationDate, String externalSourceName, String externalSourceDescription, String lastModifiedBy, long lastModificationDate, Boolean externalUpdate, Boolean externalCreation, long lastSynchronizationDate, long lastUpdateDateInExternalSystem) {
-        this.tagCollectionId = tagCollectionId;
-        this.name = name;
-        this.description = description;
-        this.createdBy = createdBy;
-        this.creationDate = creationDate;
-        this.externalSourceName = externalSourceName;
-        this.externalSourceDescription = externalSourceDescription;
-        this.lastModifiedBy = lastModifiedBy;
-        this.lastModificationDate = lastModificationDate;
-        this.externalUpdate = externalUpdate;
-        this.externalCreation = externalCreation;
-        this.lastSynchronizationDate = lastSynchronizationDate;
-        this.lastUpdateDateInExternalSystem = lastUpdateDateInExternalSystem;
-    }
 
     public long getCreationDate() {
         return creationDate == null ? 0L : creationDate;
