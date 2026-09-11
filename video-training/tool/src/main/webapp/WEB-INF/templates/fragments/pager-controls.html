@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="sakai-table-toolBar">
+    <div class="vt-pager-container" th:fragment="pagerControls" th:if="${allMsgNumber != null and allMsgNumber > 0}">
+
+        <div class="vt-pager-label" th:text="#{video.training.pagination.status(${page},${totalPages},${allMsgNumber})}">Page 1 of 10 (10 items)</div>
+
+        <form class="vt-pager-controls" method="get" th:action="@{${currentPath}}">
+            <span class="skip" th:text="#{video.training.pagination.first}">First</span>
+            <button type="button" value="1" class="vt-pager-btn"
+                th:onclick="|this.form.page.value='1'; this.form.submit();|"
+                th:disabled="${!goFPButton}"
+                th:title="#{video.training.pagination.first}">|&lt;</button>
+
+            <span class="skip" th:text="#{video.training.pagination.prev}">Previous page</span>
+            <button type="button" th:value="${page - 1}" class="vt-pager-btn"
+                th:onclick="|this.form.page.value='${page - 1}'; this.form.submit();|"
+                th:disabled="${!goPPButton}"
+                th:title="#{video.training.pagination.prev}">&lt;</button>
+
+            <div class="vt-pager-page-size">
+                <span class="skip" th:text="#{video.training.pagination.pageSize}">Page size</span>
+                <select aria-label="Select page size" id="selectPageSize_vt" name="size"
+                    th:disabled="${allMsgNumber == 0}"
+                    onchange="this.form.page.value = 1; this.form.submit();">
+                    <option th:each="pageSizeOption : ${pagesizes}"
+                        th:value="${pageSizeOption}"
+                        th:selected="${pagesize == pageSizeOption}"
+                        th:text="#{video.training.pagination.showPerPage(${pageSizeOption})}">Show 10 items per page</option>
+                </select>
+            </div>
+
+            <span class="skip" th:text="#{video.training.pagination.next}">Next page</span>
+            <button type="button" th:value="${page + 1}" class="vt-pager-btn"
+                th:onclick="|this.form.page.value='${page + 1}'; this.form.submit();|"
+                th:disabled="${!goNPButton}"
+                th:title="#{video.training.pagination.next}">&gt;</button>
+
+            <span class="skip" th:text="#{video.training.pagination.last}">Last</span>
+            <button type="button" th:value="${totalPages}" class="vt-pager-btn"
+                th:onclick="|this.form.page.value='${totalPages}'; this.form.submit();|"
+                th:disabled="${!goLPButton}"
+                th:title="#{video.training.pagination.last}">&gt;|</button>
+
+            <input type="hidden" name="q" th:value="${q}">
+            <input type="hidden" name="categoryId" th:value="${categoryId}">
+            <input type="hidden" name="viewMode" th:value="${viewMode}">
+            <input type="hidden" name="accessMode" th:value="${accessMode}">
+            <input type="hidden" name="sortBy" th:value="${sortBy}">
+            <input type="hidden" name="sortDir" th:value="${sortDir}">
+            <input type="hidden" name="page" th:value="${page}">
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -59,6 +59,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
     public static final int PEEREVAL = 13;
     public static final int BREAK = 14;
     public static final int CHECKLIST = 15;
+    public static final int VIDEO_TRAINING = 22;
 
     // must agree with definition in hbm file
 	public static final int MAXNAME = 255;

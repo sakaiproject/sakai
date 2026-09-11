@@ -90,6 +90,7 @@
                 <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
+                <module>video-training</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
@@ -179,6 +180,7 @@
                 <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
+                <module>video-training</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
@@ -277,6 +279,7 @@
                 <module>microsoft-integration/api</module>
                 <module>pasystem/pasystem-api/api</module>
                 <module>polls/api</module>
+                <module>video-training/api</module>
                 <module>profile2/api</module>
                 <module>rubrics/api</module>
                 <module>site/term-manager/api</module>

@@ -35,6 +35,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
@@ -103,6 +104,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	private LessonEntity scormEntity = null;
 	public void setScormEntity(Object e) {
 		scormEntity = (LessonEntity)e;
+	}
+
+	private VideoTrainingEntity videoTrainingEntity = null;
+	public void setVideoTrainingEntity(Object e) {
+		videoTrainingEntity = (VideoTrainingEntity)e;
 	}
 
 	static final String ICONSTYLE = "\n.portletTitle .action .help img {\n        background: url({}/help.gif) center right no-repeat !important;\n}\n.portletTitle .action .help img:hover, .portletTitle .action .help img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
@@ -373,6 +379,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		case SimplePageItem.SCORM:
 		case SimplePageItem.FORUM:
 		case SimplePageItem.BLTI:
+		case SimplePageItem.VIDEO_TRAINING:
 		    LessonEntity lessonEntity = null;
 		    switch (item.getType()) {
 		    case SimplePageItem.ASSIGNMENT:
@@ -390,6 +397,10 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    case SimplePageItem.BLTI:
 			if (bltiEntity != null)
 			    lessonEntity = bltiEntity.getEntity(item.getSakaiId()); break;
+		    case SimplePageItem.VIDEO_TRAINING:
+			if (videoTrainingEntity != null)
+			    lessonEntity = videoTrainingEntity.getEntity(item.getSakaiId(), simplePageBean);
+			    break;
 		    }
 		    if ("EDIT".equals(source))
 			source = (lessonEntity==null)?"dummy":lessonEntity.editItemUrl(simplePageBean);
