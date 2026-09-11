@@ -115,30 +115,6 @@ public class Tag implements PersistableEntity<String> {
     @EqualsAndHashCode.Exclude
     private TagCollection collection;
 
-    public long getCreationDate() {
-        return creationDate == null ? 0L : creationDate;
-    }
-
-    public long getLastModificationDate() {
-        return lastModificationDate == null ? 0L : lastModificationDate;
-    }
-
-    public Boolean getExternalCreation() {
-        return Boolean.TRUE.equals(externalCreation);
-    }
-
-    public long getExternalCreationDate() {
-        return externalCreationDate == null ? 0L : externalCreationDate;
-    }
-
-    public Boolean getExternalUpdate() {
-        return Boolean.TRUE.equals(externalUpdate);
-    }
-
-    public long getLastUpdateDateInExternalSystem() {
-        return lastUpdateDateInExternalSystem == null ? 0L : lastUpdateDateInExternalSystem;
-    }
-
     @Override
     @JsonIgnore
     public String getId() {

@@ -74,7 +74,7 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
         try {
             if  (tagService.getTagCollection(uuid).isPresent()) {
                 actualcollectionname = tagService.getTagCollection(uuid).get().getName();
-                isExternallyCreated = tagService.getTagCollection(uuid).get().getExternalCreation();
+                isExternallyCreated = Boolean.TRUE.equals(tagService.getTagCollection(uuid).get().getExternalCreation());
             }
         }catch(Exception e){
         }

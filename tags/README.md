@@ -17,6 +17,14 @@ existing transaction. Prepare edits with `tag.toBuilder()` or
 creation metadata, and records the current editor and modification time. Events
 are posted only after a successful commit.
 
+Legacy timestamp and Boolean metadata remain nullable in the entities and service
+API. JSON responses containing these entities may therefore contain null metadata
+instead of synthetic zero/false values. Form submissions preserve blank hidden
+metadata as null; UI permission checks treat a null external-creation flag as false.
+Updates preserve untouched nulls, while explicit zero/false values are stored as
+submitted. Creation and modification audit values are set by the service when the
+operation requires them.
+
 TAGS ADMINISTRATION 
 
 1. SAKAI PROPERTIES
