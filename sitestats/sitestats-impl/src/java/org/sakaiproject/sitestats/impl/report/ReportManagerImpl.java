@@ -61,11 +61,14 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.WorkbookUtil;
-import org.hibernate.query.Query;
+import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -116,7 +119,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Transactional
-public class ReportManagerImpl extends HibernateDaoSupport implements ReportManager, Observer {
+public class ReportManagerImpl implements ReportManager, Observer {
+
+	@Setter private SessionFactory sessionFactory;
 
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
 
@@ -508,11 +513,10 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		if(cached != null){
 			reportDef = (ReportDef) cached;
 		}else{
-				HibernateCallback<ReportDef> hcb = session -> session.get(ReportDef.class, Long.valueOf(id));
 			Object o;
 			try{
-				o = getHibernateTemplate().execute(hcb);
-			}catch(DataAccessException e){
+				o = sessionFactory.getCurrentSession().get(ReportDef.class, id);
+			}catch(DataAccessException | HibernateException e){
 				o = null;
 			}
 			if(o != null) {
@@ -581,7 +585,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		}
 
 		try {
-			getHibernateTemplate().saveOrUpdate(reportDef);
+			sessionFactory.getCurrentSession().merge(reportDef);
 			cacheReportDef.clear();
 			String siteId = reportDef.getSiteId();
 			if (siteId == null) {
@@ -589,7 +593,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			}
 			statsManager.logEvent(reportDef, isNew ? StatsManager.LOG_ACTION_NEW : StatsManager.LOG_ACTION_EDIT, siteId, false);
 			return true;
-		} catch (DataAccessException dae) {
+		} catch (DataAccessException | HibernateException dae) {
 			log.error("Could not save report definition: {}", dae.getMessage(), dae);
 		}
 		return false;
@@ -600,9 +604,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	 */
 	public boolean removeReportDefinition(final ReportDef reportDef) {
 		try {
-			ReportDef persistedReportDef = getHibernateTemplate().get(ReportDef.class, reportDef.getId());
+			ReportDef persistedReportDef = sessionFactory.getCurrentSession().get(ReportDef.class, reportDef.getId());
 			if (persistedReportDef != null) {
-				getHibernateTemplate().delete(persistedReportDef);
+				sessionFactory.getCurrentSession().remove(persistedReportDef);
 				cacheReportDef.clear();
 				String siteId = persistedReportDef.getSiteId();
 				if (siteId == null) {
@@ -611,7 +615,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				statsManager.logEvent(persistedReportDef, StatsManager.LOG_ACTION_DELETE, siteId, false);
 				return true;
 			}
-		} catch (DataAccessException e) {
+		} catch (DataAccessException | HibernateException e) {
 			log.error("Could not delete report definition {} for site {}",
 					reportDef.getId(), reportDef.getSiteId(), e);
 		}
@@ -629,28 +633,21 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			reportDefs = (List<ReportDef>) cached;
 			log.debug("Getting report list from cache for site "+siteId);
 		}else{
-			HibernateCallback<List<ReportDef>> hcb = session -> {
-				StringBuilder hql = new StringBuilder("FROM ReportDef WHERE 1=1");
-				if(siteId != null) {
-					if(includedPredefined) {
-						hql.append(" AND (siteId = :siteId OR siteId IS NULL)");
-					}else{
-						hql.append(" AND siteId = :siteId");
-					}
-				}else{
-					hql.append(" AND siteId IS NULL");
+			CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+			CriteriaQuery<ReportDef> cq = cb.createQuery(ReportDef.class);
+			Root<ReportDef> root = cq.from(ReportDef.class);
+			Predicate sitePredicate;
+			if (siteId != null) {
+				sitePredicate = cb.equal(root.get("siteId"), siteId);
+				if (includedPredefined) {
+					sitePredicate = cb.or(sitePredicate, root.get("siteId").isNull());
 				}
-				if(!includeHidden) {
-					hql.append(" AND hidden = false");
-				}
-
-				Query<ReportDef> query = session.createQuery(hql.toString(), ReportDef.class);
-				if (siteId != null) {
-					query.setParameter("siteId", siteId);
-				}
-				return query.list();
-			};
-			reportDefs = getHibernateTemplate().execute(hcb);
+			} else {
+				sitePredicate = root.get("siteId").isNull();
+			}
+			cq.select(root).where(includeHidden ? sitePredicate
+				: cb.and(sitePredicate, cb.isFalse(root.get("hidden"))));
+			reportDefs = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 			if(reportDefs != null) {
 				for(ReportDef reportDef : reportDefs) {
 					try{
@@ -728,7 +725,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
                     Site site = siteService.getSite(se.getSiteId());
                     row.createCell(ix++).setCellValue(site.getTitle());
                 } catch (IdUnusedException e) {
-                    logger.debug("can't find site with id: " + se.getSiteId());
+                    log.debug("can't find site with id: " + se.getSiteId());
                     row.createCell(ix++).setCellValue(se.getSiteId().toString());
                 }
             }
@@ -934,7 +931,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
                     Site site = siteService.getSite(se.getSiteId());
                     appendQuoted(sb, site.getTitle());
                 } catch (IdUnusedException e) {
-                    logger.debug("can't find site with id: " +se.getSiteId());
+                    log.debug("can't find site with id: " +se.getSiteId());
                     appendQuoted(sb, se.getSiteId());
                 }
                 isFirst=false;
