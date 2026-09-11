@@ -256,6 +256,27 @@ public class TagServiceTest {
     }
 
     @Test
+    public void builderUpdatesWithinSharedTransactionPublishEventsAfterCommit() {
+        TagCollection collection = collection("Before collection");
+        Tag tag = tag(collection, "Before tag");
+        clearInvocations(events);
+        new TransactionTemplate(transactionManager).execute(status -> {
+            Tag managedTag = service.getTag(tag.getTagId()).get();
+            TagCollection managedCollection = service.getTagCollection(collection.getTagCollectionId()).get();
+            service.updateTag(managedTag.toBuilder().tagLabel("After tag").build());
+            service.updateTagCollection(managedCollection.toBuilder().name("After collection").build());
+            assertEquals("After tag", managedTag.getTagLabel());
+            assertEquals("After collection", managedCollection.getName());
+            verify(events, never()).post(any());
+            return null;
+        });
+        assertEquals("After tag", service.getTag(tag.getTagId()).get().getTagLabel());
+        assertEquals("After collection", service.getTagCollection(collection.getTagCollectionId()).get().getName());
+        verify(events).post(argThat(event -> event.getEvent().equals("tags.update.tag")));
+        verify(events).post(argThat(event -> event.getEvent().equals("tags.update.collection")));
+    }
+
+    @Test
     public void unchangedTagStillRefreshesImportTimestampWithoutEvent() {
         Tag original = tag(collection("Unchanged"), "Same");
         jdbc.update("UPDATE tagservice_tag SET lastmodificationdate=1 WHERE tagid=?", original.getTagId());
