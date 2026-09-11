@@ -92,6 +92,19 @@
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 	</bean>
 
+	<!-- SAK-46387 keeps role-based group membership in sync with site membership changes -->
+	<bean id="org.sakaiproject.sitemanage.impl.RoleGroupEventWatcher"
+		class="org.sakaiproject.sitemanage.impl.RoleGroupEventWatcher"
+		init-method="init"
+		destroy-method="destroy">
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+	</bean>
+
 	<bean id="org.sakaiproject.sitemanage.api.JoinableSetReminderScheduleService"
 		class="org.sakaiproject.sitemanage.impl.JoinableSetReminderScheduleServiceImpl">
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
