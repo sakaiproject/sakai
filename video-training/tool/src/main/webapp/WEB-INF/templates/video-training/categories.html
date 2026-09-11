@@ -80,6 +80,16 @@
                 </div>
                 <div class="vt-category-actions btn-group-sm">
                     <button type="button"
+                            class="btn btn-sm btn-outline-secondary vt-btn-move-up"
+                            th:attr="aria-label=#{video.training.categories.reorder.up}">
+                        <span class="bi bi-chevron-up" aria-hidden="true"></span>
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary vt-btn-move-down me-1"
+                            th:attr="aria-label=#{video.training.categories.reorder.down}">
+                        <span class="bi bi-chevron-down" aria-hidden="true"></span>
+                    </button>
+                    <button type="button"
                         class="btn btn-sm btn-outline-secondary vt-category-edit-trigger"
                         data-bs-toggle="modal"
                         data-bs-target="#vtCategoryModal"
@@ -108,6 +118,16 @@
                             </div>
                         </div>
                         <div class="vt-category-actions btn-group-sm">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary vt-btn-move-up"
+                                    th:attr="aria-label=#{video.training.categories.reorder.up}">
+                                <span class="bi bi-chevron-up" aria-hidden="true"></span>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary vt-btn-move-down me-1"
+                                    th:attr="aria-label=#{video.training.categories.reorder.down}">
+                                <span class="bi bi-chevron-down" aria-hidden="true"></span>
+                            </button>
                             <button type="button"
                                 class="btn btn-sm btn-outline-secondary vt-category-edit-trigger"
                                 data-bs-toggle="modal"
@@ -172,7 +192,7 @@
     </div>
 </div>
 <div th:replace="~{fragments/common :: jQuery}"></div>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>includeWebjarLibrary('sortablejs');</script>
 <script th:src="@{/js/video-training-categories.js}"></script>
 </body>
 </html>
