@@ -212,6 +212,12 @@ public class SiteStatsToolService {
         return SiteStatsReportForm.from(report, userTimeService.getLocalTimeZone().toZoneId());
     }
 
+    public SiteStatsReportForm previewReportForm(String requestedSiteId, String previewId) {
+        String siteId = reportSite(requestedSiteId);
+        ReportDef report = reportAccessService.previewReportDefinition(siteId, previewId);
+        return SiteStatsReportForm.from(report, userTimeService.getLocalTimeZone().toZoneId());
+    }
+
     public CopiedReport copyReport(String requestedSiteId, long reportId) {
         ReportDef report = reportDefinition(requestedSiteId, reportId);
         SiteStatsReportForm form = SiteStatsReportForm.from(report, userTimeService.getLocalTimeZone().toZoneId());

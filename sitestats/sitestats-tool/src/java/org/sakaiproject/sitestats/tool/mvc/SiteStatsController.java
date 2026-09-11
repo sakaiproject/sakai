@@ -150,6 +150,14 @@ public class SiteStatsController {
         return "reports/view";
     }
 
+    @GetMapping("/reports/preview/{previewId}/edit")
+    public String editPreview(@PathVariable String previewId, @RequestParam(required = false) String siteId,
+            Model model) {
+        String authorizedSiteId = toolService.reportSite(siteId);
+        commonReportForm(model, authorizedSiteId, toolService.previewReportForm(authorizedSiteId, previewId));
+        return "reports/edit";
+    }
+
     @GetMapping("/reports/preview/{previewId}")
     public String preview(@PathVariable String previewId, @RequestParam(required = false) String siteId, Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);

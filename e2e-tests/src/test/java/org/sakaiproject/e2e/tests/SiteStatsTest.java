@@ -199,6 +199,17 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.waitForFunction(siteStatsCanvasHasPixelsScript());
         assertTrue(Boolean.TRUE.equals(page.evaluate(siteStatsCanvasHasPixelsScript())));
         assertNoLegacyReportChartImages();
+
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.locator("#report-editor")).isVisible();
+        assertThat(page.getByLabel("Title")).hasValue(REPORT_TITLE);
+        assertThat(page.getByLabel("Description")).hasValue(REPORT_DESC);
+        assertThat(page.getByLabel("Period:")).hasValue("when-last7days");
+        assertThat(page.getByLabel(Pattern.compile("Presentation", Pattern.CASE_INSENSITIVE)))
+            .hasValue("how-presentation-both");
+        page.reload();
+        assertThat(page.getByLabel("Title")).hasValue(REPORT_TITLE);
     }
 
     @Test
