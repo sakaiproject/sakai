@@ -22,6 +22,7 @@
 
 package org.sakaiproject.tags.impl;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -512,6 +513,29 @@ public class TagServiceTest {
         assertEquals("Renamed", saved.getName());
         assertEquals("Original", saved.getDescription());
         assertNotNull(saved.getLastSynchronizationDate());
+    }
+
+    @Test
+    public void externalSourceImportParsesUtcDatesAndSkipsInvalidDates() throws Exception {
+        TagCollection collection = collection("Dates");
+        when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
+        when(configuration.getString("tags.tagcollectionsfile", "tags/tagcollections.xml")).thenReturn("collections.xml");
+        when(configuration.getString("tags.tagsfile", "tags/tags.xml")).thenReturn("tags.xml");
+        Files.writeString(files.getRoot().toPath().resolve("collections.xml"), "<TagCollections/>");
+        String row = "<Tag><TagLabel>%s</TagLabel><ExternalId>%s</ExternalId>"
+            + "<ExternalSourceName>Dates-source</ExternalSourceName>%s</Tag>";
+        String date = "<DateCreated><Year>2024</Year><Month>02</Month><Day>%s</Day></DateCreated>";
+        Files.writeString(files.getRoot().toPath().resolve("tags.xml"), "<Tags>"
+            + String.format(row, "Invalid", "invalid", String.format(date, "30"))
+            + String.format(row, "Missing", "missing", "")
+            + String.format(row, "Leap day", "valid", String.format(date, "29")) + "</Tags>");
+
+        genericImport.execute(null);
+
+        assertEquals(Long.valueOf(0L), service.getTagForExternalIdAndCollection("invalid", collection.getTagCollectionId()).get().getExternalCreationDate());
+        assertEquals(Long.valueOf(0L), service.getTagForExternalIdAndCollection("missing", collection.getTagCollectionId()).get().getExternalCreationDate());
+        assertEquals(Long.valueOf(Instant.parse("2024-02-29T00:00:00Z").toEpochMilli()),
+            service.getTagForExternalIdAndCollection("valid", collection.getTagCollectionId()).get().getExternalCreationDate());
     }
 
     @Test
