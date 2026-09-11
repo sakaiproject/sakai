@@ -60,18 +60,18 @@ public class Tag implements PersistableEntity<String> {
     @Id
     @Column(name = "tagid", length = 36)
     private String tagId;
-    @Column(name = "tagcollectionid", length = 36, nullable = false)
+    @Column(name = "tagcollectionid", length = 99, nullable = false)
     private String tagCollectionId;
     @Column(name = "taglabel", length = 255)
     private String tagLabel;
     @Lob
     @Column(name = "description", length = 65535)
     private String description;
-    @Column(name = "createdby", length = 255)
+    @Column(name = "createdby", length = 99)
     private String createdBy;
     @Column(name = "creationdate")
     private Long creationDate;
-    @Column(name = "lastmodifiedby", length = 255)
+    @Column(name = "lastmodifiedby", length = 99)
     private String lastModifiedBy;
     @Column(name = "lastmodificationdate")
     private Long lastModificationDate;

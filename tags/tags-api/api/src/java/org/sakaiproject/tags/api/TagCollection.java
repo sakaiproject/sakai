@@ -47,14 +47,14 @@ public class TagCollection implements PersistableEntity<String> {
 
 
     @Id
-    @Column(name = "tagcollectionid", length = 36)
+    @Column(name = "tagcollectionid", length = 99)
     private String tagCollectionId;
     @Column(name = "name", length = 255, unique = true)
     private String name;
     @Lob
     @Column(name = "description", length = 65535)
     private String description;
-    @Column(name = "createdby", length = 255)
+    @Column(name = "createdby", length = 99)
     private String createdBy;
     @Column(name = "creationdate")
     private Long creationDate;
@@ -63,7 +63,7 @@ public class TagCollection implements PersistableEntity<String> {
     @Lob
     @Column(name = "externalsourcedescription", length = 65535)
     private String externalSourceDescription;
-    @Column(name = "lastmodifiedby", length = 255)
+    @Column(name = "lastmodifiedby", length = 99)
     private String lastModifiedBy;
     @Column(name = "lastmodificationdate")
     private Long lastModificationDate;
