@@ -515,6 +515,29 @@ public class TagServiceTest {
     }
 
     @Test
+    public void externalSourceImportSkipsUnknownSourceAndContinues() throws Exception {
+        TagCollection collection = collection("Valid");
+        when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
+        when(configuration.getString("tags.tagcollectionsfile", "tags/tagcollections.xml")).thenReturn("collections.xml");
+        when(configuration.getString("tags.tagsfile", "tags/tags.xml")).thenReturn("tags.xml");
+        Files.writeString(files.getRoot().toPath().resolve("collections.xml"), "<TagCollections/>");
+        String row = "<Tag><TagLabel>%s</TagLabel><ExternalId>%s</ExternalId>"
+            + "<ExternalSourceName>%s</ExternalSourceName>"
+            + "<DateCreated><Year>2020</Year><Month>01</Month><Day>01</Day></DateCreated>"
+            + "<DateRevised><Year>2021</Year><Month>01</Month><Day>01</Day></DateRevised></Tag>";
+        Files.writeString(files.getRoot().toPath().resolve("tags.xml"), "<Tags>"
+            + String.format(row, "Invalid", "invalid", "Unknown-source")
+            + String.format(row, "Valid", "valid", collection.getExternalSourceName()) + "</Tags>");
+
+        genericImport.execute(null);
+
+        assertFalse(service.getTagCollectionForExternalSourceName("Unknown-source").isPresent());
+        assertEquals(1, service.getTags().size());
+        assertEquals("Valid", service.getTagForExternalIdAndCollection("valid", collection.getTagCollectionId()).get().getTagLabel());
+        assertNotNull(service.getTagCollection(collection.getTagCollectionId()).get().getLastSynchronizationDate());
+    }
+
+    @Test
     public void fullImportUpdatesByIdThenFallsBackToExternalIdAndCreatesMissingTags() throws Exception {
         TagCollection collection = collection("Full import");
         Tag byId = tag(collection, "By ID");
