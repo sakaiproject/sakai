@@ -1433,6 +1433,23 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
+    public void batchTagCreationRejectsInvalidLabelsBeforeWriting() throws Exception {
+        switchToInstructor(site1Ref);
+        when(securityService.unlock(Permissions.TAG_CREATE.label, site1Ref)).thenReturn(true);
+        TagTransferBean valid = new TagTransferBean();
+        valid.setSiteId(site1Id);
+        valid.setLabel("Valid");
+        for (String label : Arrays.asList(null, " ", "x".repeat(256))) {
+            TagTransferBean invalid = new TagTransferBean();
+            invalid.setSiteId(site1Id);
+            invalid.setLabel(label);
+            assertThrows(IllegalArgumentException.class,
+                () -> conversationsService.createTags(Arrays.asList(valid, invalid)));
+            assertTrue(tagService.getTags().getAllInCollection(site1Id).isEmpty());
+        }
+    }
+
+    @Test
     public void siteCopyPreservesTagsWithoutDuplicatingSharedLabelsPerTopic() throws Exception {
         switchToInstructor(site1Ref);
         when(securityService.unlock(Permissions.TAG_CREATE.label, site1Ref)).thenReturn(true);
@@ -1458,6 +1475,15 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         List<ConversationsTopic> topics = topicRepository.findBySiteId(site2Id);
         assertEquals(2, topics.size());
         for (ConversationsTopic topic : topics) {
+            assertEquals(Collections.singletonList(targetTags.get(0).getTagId()),
+                tagService.getTagAssociationIds(site2Id, topic.getId()));
+        }
+        Map<String, String> repeated = ((org.sakaiproject.entity.api.EntityTransferrer) conversationsService)
+            .transferCopyEntities(site1Id, site2Id, Arrays.asList(first.id, second.id), Collections.emptyList());
+        assertEquals(2, repeated.size());
+        assertEquals(1, tagService.getTags().getAllInCollection(site2Id).size());
+        assertEquals(4, topicRepository.findBySiteId(site2Id).size());
+        for (ConversationsTopic topic : topicRepository.findBySiteId(site2Id)) {
             assertEquals(Collections.singletonList(targetTags.get(0).getTagId()),
                 tagService.getTagAssociationIds(site2Id, topic.getId()));
         }
