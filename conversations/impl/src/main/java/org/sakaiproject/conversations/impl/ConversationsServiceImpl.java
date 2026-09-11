@@ -2164,14 +2164,18 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             .map(this::toConversationTag).collect(Collectors.toList());
     }
 
+    private void validateTagLabel(TagTransferBean tag) {
+        if (StringUtils.isBlank(tag.getLabel()) || tag.getLabel().length() > 255) {
+            throw new IllegalArgumentException("Tag label must contain between 1 and 255 characters");
+        }
+    }
+
     public TagTransferBean saveTag(TagTransferBean tag) throws ConversationsPermissionsException {
         getCheckedCurrentUserId();
         if (!securityService.unlock(Permissions.TAG_CREATE.label, siteService.siteReference(tag.getSiteId()))) {
             throw new ConversationsPermissionsException("Current user cannot create tags");
         }
-        if (StringUtils.isBlank(tag.getLabel()) || tag.getLabel().length() > 255) {
-            throw new IllegalArgumentException("Tag label must contain between 1 and 255 characters");
-        }
+        validateTagLabel(tag);
         Tag sharedTag;
         if (StringUtils.isBlank(tag.getId())) {
             // The shared service creates the site's collection when necessary.
@@ -2196,6 +2200,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             if (!securityService.unlock(Permissions.TAG_CREATE.label, siteService.siteReference(tag.getSiteId()))) {
                 throw new ConversationsPermissionsException("Current user cannot create tags");
             }
+            validateTagLabel(tag);
             if (StringUtils.isNotBlank(tag.getId())) {
                 throw new IllegalArgumentException("New tags must not have an id");
             }
@@ -2674,8 +2679,11 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     for (TagTransferBean sourceTag : source.tags) {
                         String targetTagId = copiedTags.get(sourceTag.getId());
                         if (targetTagId == null) {
-                            List<Tag> duplicates = tagService.duplicateTags(toContext, true,
-                                Collections.singletonList(sourceTag.getId()), null);
+                            List<Tag> duplicates = tagService.getTagsByExactLabel(sourceTag.getLabel(), toContext);
+                            if (duplicates.isEmpty()) {
+                                duplicates = tagService.duplicateTags(toContext, true,
+                                    Collections.singletonList(sourceTag.getId()), null);
+                            }
                             if (duplicates.isEmpty()) {
                                 continue;
                             }
