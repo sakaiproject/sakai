@@ -15,97 +15,89 @@
  */
 package org.sakaiproject.scorm.dao.hibernate;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 import org.adl.datamodels.IDataManager;
 import org.adl.datamodels.SCODataManager;
 
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Transactional
-public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManagerDao
+public class DataManagerDaoImpl implements DataManagerDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	@Override
 	public List<IDataManager> find(long contentPackageId, String learnerId, long attemptNumber)
 	{
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(SCODataManager.class.getName()).append(" where contentPackageId=:cpid and userId=:lid and attemptNumber=:number ");
-		return (List<IDataManager>) getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery(buffer.toString())
-				.setParameter("cpid", contentPackageId)
-				.setParameter("lid", learnerId)
-				.setParameter("number", attemptNumber)
-				.getResultList();
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<IDataManager> query = cb.createQuery(IDataManager.class);
+		Root<SCODataManager> root = query.from(SCODataManager.class);
+		query.select(root).where(
+				cb.equal(root.get("contentPackageId"), contentPackageId),
+				cb.equal(root.get("userId"), learnerId),
+				cb.equal(root.get("attemptNumber"), attemptNumber));
+		return session.createQuery(query).getResultList();
 	}
 
 	@Override
 	public IDataManager find(long contentPackageId, String learnerId, long attemptNumber, String scoId)
 	{
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(SCODataManager.class.getName()).append(" where contentPackageId=:cpid and userId=:lid and attemptNumber=:number and scoId=:scoid");
-		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery(buffer.toString())
-				.setParameter("cpid", contentPackageId)
-				.setParameter("lid", learnerId)
-				.setParameter("number", attemptNumber)
-				.setParameter("scoid", scoId)
-				.getResultList();
-
-		if (r.isEmpty())
-		{
-			return null;
-		}
-
-		SCODataManager dm = (SCODataManager) r.get(0);
-		return dm;
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SCODataManager> query = cb.createQuery(SCODataManager.class);
+		Root<SCODataManager> root = query.from(SCODataManager.class);
+		query.select(root).where(
+				cb.equal(root.get("contentPackageId"), contentPackageId),
+				cb.equal(root.get("userId"), learnerId),
+				cb.equal(root.get("attemptNumber"), attemptNumber),
+				cb.equal(root.get("scoId"), scoId));
+		List<SCODataManager> result = session.createQuery(query).getResultList();
+		return result.isEmpty() ? null : result.get(0);
 	}
 
 	public List<IDataManager> find(String courseId)
 	{
-		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery("from " + SCODataManager.class.getName() + " where courseId=:cid ")
-				.setParameter("cid", courseId)
-				.getResultList();
-		return r;
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<IDataManager> query = cb.createQuery(IDataManager.class);
+		Root<SCODataManager> root = query.from(SCODataManager.class);
+		query.select(root).where(cb.equal(root.get("courseId"), courseId));
+		return session.createQuery(query).getResultList();
 	}
 
 	@Override
 	public IDataManager find(String courseId, String scoId, String userId, boolean fetchAll, long attemptNumber)
 	{
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(SCODataManager.class.getName());
-
-		if (fetchAll)
-		{
-			buffer.append(" fetch all properties ");
-		}
-
-		buffer.append(" where courseId=:cid and scoId=:scoid and userId=:uid and attemptNumber=:number ");
-		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery(buffer.toString())
-				.setParameter("cid", courseId)
-				.setParameter("scoid", scoId)
-				.setParameter("uid", userId)
-				.setParameter("number", attemptNumber)
-				.getResultList();
-
-
-		log.debug("DataManagerDaoImpl::find: records: {}", r.size());
-
-		if (r.isEmpty())
-		{
-			return null;
-		}
-
-		SCODataManager dm = (SCODataManager) r.get(r.size() - 1);
-		return dm;
+		// All basic properties are eager in SCODataManager.hbm.xml, including when fetchAll is requested.
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SCODataManager> query = cb.createQuery(SCODataManager.class);
+		Root<SCODataManager> root = query.from(SCODataManager.class);
+		query.select(root).where(
+				cb.equal(root.get("courseId"), courseId),
+				cb.equal(root.get("scoId"), scoId),
+				cb.equal(root.get("userId"), userId),
+				cb.equal(root.get("attemptNumber"), attemptNumber));
+		List<SCODataManager> result = session.createQuery(query).getResultList();
+		log.debug("Data managers found: {}", result.size());
+		return result.isEmpty() ? null : result.get(result.size() - 1);
 	}
 
 	@Override
@@ -117,54 +109,46 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	@Override
 	public IDataManager findByActivityId(long contentPackageId, String activityId, String userId, long attemptNumber)
 	{
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(SCODataManager.class.getName());
-		buffer.append(" where contentPackageId=:cpid and activityId=:aid and userId=:uid and attemptNumber=:number ");
-		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery(buffer.toString())
-				.setParameter("cpid", contentPackageId)
-				.setParameter("aid", activityId)
-				.setParameter("uid", userId)
-				.setParameter("number", attemptNumber)
-				.getResultList();
-
-		log.debug("DataManagerDaoImpl::findByActivityId: records: {}", r.size());
-
-		if (r.isEmpty())
-		{
-			return null;
-		}
-
-		SCODataManager dm = (SCODataManager) r.get(r.size() - 1);
-		return dm;
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SCODataManager> query = cb.createQuery(SCODataManager.class);
+		Root<SCODataManager> root = query.from(SCODataManager.class);
+		query.select(root).where(
+				cb.equal(root.get("contentPackageId"), contentPackageId),
+				cb.equal(root.get("activityId"), activityId),
+				cb.equal(root.get("userId"), userId),
+				cb.equal(root.get("attemptNumber"), attemptNumber));
+		List<SCODataManager> result = session.createQuery(query).getResultList();
+		log.debug("Data managers found: {}", result.size());
+		return result.isEmpty() ? null : result.get(result.size() - 1);
 	}
 
 	@Override
 	public IDataManager load(long id)
 	{
-		return (IDataManager) getHibernateTemplate().load(SCODataManager.class, id);
+		return sessionFactory.getCurrentSession().getReference(SCODataManager.class, id);
 	}
 
 	@Override
 	public void save(IDataManager dataManager)
 	{
-		saveOrUpdate(dataManager, true);
+		merge(dataManager, true);
 	}
 
-	private void saveOrUpdate(boolean isFirstTime, Object object)
+	private void merge(boolean isFirstTime, Object object)
 	{
-		getHibernateTemplate().saveOrUpdate(object);
+		sessionFactory.getCurrentSession().merge(object);
 	}
 
-	private void saveOrUpdate(IDataManager dataManager, boolean isFirstTime)
+	private void merge(IDataManager dataManager, boolean isFirstTime)
 	{
-		dataManager.setLastModifiedDate(new Date());
-		saveOrUpdate(isFirstTime, dataManager);
+		dataManager.setLastModifiedDate(Date.from(Instant.now()));
+		merge(isFirstTime, dataManager);
 	}
 
 	@Override
 	public void update(IDataManager dataManager)
 	{
-		saveOrUpdate(dataManager, false);
+		merge(dataManager, false);
 	}
 }

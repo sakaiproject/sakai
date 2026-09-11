@@ -17,36 +17,40 @@ package org.sakaiproject.scorm.dao.hibernate;
 
 import java.util.List;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
+import lombok.Setter;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
 import org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao;
 import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ActivityTreeHolderDaoImpl extends HibernateDaoSupport implements ActivityTreeHolderDao
+public class ActivityTreeHolderDaoImpl implements ActivityTreeHolderDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	@Override
 	public ActivityTreeHolder find(long contentPackageId, String learnerId)
 	{
-
-		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery("from " + ActivityTreeHolder.class.getName() + " where contentPackageId=:cpid and learnerId=:lid")
-				.setParameter("cpid", contentPackageId)
-				.setParameter("lid", learnerId)
-				.getResultList();
-		if (r.isEmpty())
-		{
-			return null;
-		}
-
-		ActivityTreeHolder holder = (ActivityTreeHolder) r.get(0);
-		return holder;
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<ActivityTreeHolder> query = cb.createQuery(ActivityTreeHolder.class);
+		Root<ActivityTreeHolder> root = query.from(ActivityTreeHolder.class);
+		query.select(root).where(cb.equal(root.get("contentPackageId"), contentPackageId), cb.equal(root.get("learnerId"), learnerId));
+		List<ActivityTreeHolder> result = session.createQuery(query).getResultList();
+		return result.isEmpty() ? null : result.get(0);
 	}
 
 	@Override
 	public void save(ActivityTreeHolder holder)
 	{
-		getHibernateTemplate().saveOrUpdate(holder);
+		sessionFactory.getCurrentSession().merge(holder);
 	}
 }
