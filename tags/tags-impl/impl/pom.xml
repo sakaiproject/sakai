@@ -22,6 +22,20 @@
 
 
   <build>
+    <plugins>
+      <!-- Expose the real service and storage to integration tests in consuming tools. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals><goal>jar</goal></goals>
+            <configuration><classifier>classes</classifier></configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
     <resources>
       <resource>
         <directory>${basedir}/src/resources</directory>

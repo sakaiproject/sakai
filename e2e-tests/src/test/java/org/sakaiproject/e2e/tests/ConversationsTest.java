@@ -108,6 +108,37 @@ class ConversationsTest extends SakaiUiTestBase {
         }
     }
 
+    @Test
+    @Order(3)
+    void createsEditsAndDeletesSharedTag() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Conversation");
+        page.locator(".conv-settings-link button:visible").click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Manage Tags").setExact(true)).click();
+
+        Locator manager = page.locator("sakai-conversations-tag-manager");
+        String label = "Playwright shared tag " + System.currentTimeMillis();
+        manager.locator("#tag-creation-field").fill(label);
+        manager.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add New Tags").setExact(true)).click();
+        Locator row = manager.locator(".tag-row").filter(new Locator.FilterOptions().setHasText(label));
+        assertThat(row).hasCount(1);
+        row.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Edit").setExact(true)).click();
+        Locator editor = manager.locator(".tag-editor");
+        editor.locator("input[type=text]").fill(label + " edited");
+        editor.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Save").setExact(true)).click();
+        assertThat(manager.locator(".tag-label").filter(new Locator.FilterOptions().setHasText(label + " edited"))).hasCount(1);
+
+        // Reload to verify persistence, rather than only the component's local state.
+        page.reload();
+        page.locator(".conv-settings-link button:visible").click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Manage Tags").setExact(true)).click();
+        row = manager.locator(".tag-row").filter(new Locator.FilterOptions().setHasText(label + " edited"));
+        assertThat(row).hasCount(1);
+        row.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Delete").setExact(true)).click();
+        assertThat(row).hasCount(0);
+    }
+
     private boolean isVisible(Locator locator, double timeoutMs) {
         try {
             locator.waitFor(new Locator.WaitForOptions().setTimeout(timeoutMs));

@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.conversations.api.repository;
+package org.sakaiproject.conversations.api.beans;
 
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-import org.sakaiproject.conversations.api.model.Tag;
-import org.sakaiproject.springframework.data.SpringCrudRepository;
-
-public interface TagRepository extends SpringCrudRepository<Tag, Long> {
-
-    List<Tag> findBySiteId(String siteId);
+/** A Conversations representation of a shared site tag. */
+@Getter
+@Setter
+public class TagTransferBean {
+    private String id;
+    private String siteId;
+    private String description;
+    private String label;
 }
