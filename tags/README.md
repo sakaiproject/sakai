@@ -17,6 +17,13 @@ existing transaction. Prepare edits with `tag.toBuilder()` or
 creation metadata, and records the current editor and modification time. Events
 are posted only after a successful commit.
 
+Use `associateExistingTag(itemId, tagId)` for IDs and
+`createAndAssociateTag(collectionId, itemId, label, isSite)` for literal labels.
+The latter creates a new tag, retaining the existing duplicate-label behavior.
+`updateTagAssociations` remains the adapter for mixed UI selections: existing IDs
+are associated, and unrecognized values become new labels. The former
+`saveTagAssociation` method is now named `associateExistingTag` and rejects missing IDs.
+
 Legacy timestamp and Boolean metadata remain nullable in the entities and service
 API. JSON responses containing these entities may therefore contain null metadata
 instead of synthetic zero/false values. Form submissions preserve blank hidden

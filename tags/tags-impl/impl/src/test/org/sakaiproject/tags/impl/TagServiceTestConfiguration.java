@@ -23,6 +23,8 @@
 package org.sakaiproject.tags.impl;
 
 import javax.sql.DataSource;
+import org.sakaiproject.email.api.EmailService;
+import static org.mockito.Mockito.mock;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,11 @@ public class TagServiceTestConfiguration extends SakaiTestConfiguration {
     @Autowired
     @Qualifier("org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.tagservice")
     private AdditionalHibernateMappings mappings;
+
+    @Bean(name = "org.sakaiproject.email.api.EmailService")
+    public EmailService emailService() {
+        return mock(EmailService.class);
+    }
 
     @Override
     protected AdditionalHibernateMappings getAdditionalHibernateMappings() {

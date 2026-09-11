@@ -86,7 +86,10 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @Transactional
-    public void saveTagAssociation(String itemId, String tagId) {
+    public void associateExistingTag(String itemId, String tagId) {
+        if (!tagRepository.existsById(tagId)) {
+            throw new TagServiceException("No tag with id " + tagId);
+        }
         TagAssociation tagAssociation = new TagAssociation();
         tagAssociation.setItemId(itemId);
         tagAssociation.setTagId(tagId);
@@ -133,7 +136,7 @@ public class TagServiceImpl implements TagService {
             duplicatedTags.add(duplicatedTag);
 
             if (targetItemId != null) {
-                saveTagAssociation(targetItemId, duplicatedTag.getTagId());
+                associateExistingTag(targetItemId, duplicatedTag.getTagId());
             }
         }
 
@@ -142,43 +145,40 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @Transactional
-    public void updateTagAssociations(String collectionId, String itemId, Collection<String> tagIds, boolean isSite) {
+    public String createAndAssociateTag(String collectionId, String itemId, String label, boolean isSite) {
+        if (StringUtils.isEmpty(label)) {
+            throw new IllegalArgumentException("Tag label must not be empty");
+        }
         ensureCollectionExists(collectionId, isSite);
+        Tag tag = Tag.builder().tagCollectionId(collectionId)
+            .tagLabel(StringUtils.left(label, TAG_MAX_LABEL)).build();
+        String tagId = createTag(tag);
+        associateExistingTag(itemId, tagId);
+        return tagId;
+    }
 
-        // obtain previous asociations
+    @Override
+    @Transactional
+    public void updateTagAssociations(String collectionId, String itemId, Collection<String> selections, boolean isSite) {
+        ensureCollectionExists(collectionId, isSite);
         List<String> oldAssociationIds = getTagAssociationIds(collectionId, itemId);
-        for (String tagId : tagIds) {
-            // skip if already associated or empty
-            if (StringUtils.isEmpty(tagId) || oldAssociationIds.contains(tagId)) {
+        for (String selection : selections) {
+            if (StringUtils.isEmpty(selection) || oldAssociationIds.contains(selection)) {
                 continue;
             }
-            // we cut the tag
-            if (tagId.length() > TAG_MAX_LABEL) {
-                tagId = tagId.substring(0, TAG_MAX_LABEL);
+            String value = StringUtils.left(selection, TAG_MAX_LABEL);
+            // Interpret mixed UI input here; the explicit operations never guess its meaning.
+            if (tagRepository.existsById(value)) {
+                associateExistingTag(itemId, value);
+            } else {
+                createAndAssociateTag(collectionId, itemId, value, isSite);
             }
-            // new association, check tag exists
-            Tag t = getTag(tagId).orElse(null);
-            if (t == null) {
-                
-                t = Tag.builder()
-                    .tagCollectionId(collectionId)
-                    .tagLabel(tagId)
-                    .build();
-                String id = createTag(t);
-                t.setTagId(id);
-            }
-
-            // save tag association
-            saveTagAssociation(itemId, t.getTagId());
         }
-
-        // remove deselected
-        oldAssociationIds.removeAll(tagIds);
+        oldAssociationIds.removeAll(selections);
         for (String oldId : oldAssociationIds) {
-            TagAssociation ta = tagAssociationRepository.findTagAssociationByItemIdAndTagId(itemId, oldId);
-            tagAssociationRepository.delete(ta);
+            TagAssociation association = tagAssociationRepository.findTagAssociationByItemIdAndTagId(itemId, oldId);
+            tagAssociationRepository.delete(association);
         }
-    
     }
 
     private void ensureCollectionExists(String collectionId, boolean isSite) {
