@@ -291,12 +291,12 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public String createTag(Tag tag) {
-        tag.setTagId(UUID.randomUUID().toString());
+        tag.setTagId(null);
         tag.setCreatedBy(sessionManager.getCurrentSessionUserId());
         tag.setCreationDate(Instant.now().toEpochMilli());
         tag.setLastModifiedBy(tag.getCreatedBy());
         tag.setLastModificationDate(tag.getCreationDate());
-        tagRepository.create(tag);
+        tag = tagRepository.save(tag);
         postAfterCommit("tags.new.tag", "/tags/" + tag.getTagId());
         return tag.getTagId();
     }

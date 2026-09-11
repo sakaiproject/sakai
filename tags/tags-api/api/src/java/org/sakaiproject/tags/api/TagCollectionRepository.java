@@ -27,6 +27,7 @@ import java.util.Optional;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface TagCollectionRepository extends SpringCrudRepository<TagCollection, String> {
+    /** Insert a collection with an assigned ID; reject duplicates instead of merging existing data. */
     TagCollection create(TagCollection collection);
     List<TagCollection> findAllOrdered(int offset, int limit);
     Optional<TagCollection> findByName(String name);

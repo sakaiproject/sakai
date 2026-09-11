@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface TagRepository extends SpringCrudRepository<Tag, String> {
-    Tag create(Tag tag);
     List<Tag> findAssociatedTags(String collectionId, String itemId);
     List<Tag> findByCollection(String collectionId, int offset, int limit);
     List<Tag> findByLabel(String label, String collectionId);

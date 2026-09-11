@@ -75,16 +75,45 @@ public class TagServiceTest {
     }
 
     private TagCollection collection(String name) {
-        TagCollection collection = new TagCollection(null, name, "Description", "ignored", 1L,
-            name + "-source", "External description", "ignored", 1L, false, false, 3L, 4L);
+        TagCollection collection = TagCollection.builder()
+            .name(name)
+            .description("Description")
+            .createdBy("ignored")
+            .creationDate(1L)
+            .externalSourceName(name + "-source")
+            .externalSourceDescription("External description")
+            .lastModifiedBy("ignored")
+            .lastModificationDate(1L)
+            .externalUpdate(false)
+            .externalCreation(false)
+            .lastSynchronizationDate(3L)
+            .lastUpdateDateInExternalSystem(4L)
+            .build();
         String id = service.createTagCollection(collection);
         return service.getTagCollection(id).get();
     }
 
     private Tag tag(TagCollection collection, String label) {
-        Tag proposed = new Tag("ignored", collection.getTagCollectionId(), label, "Description", "ignored", 1L,
-            "ignored", 1L, label + "-external", "Alternative", true, 5L, false, 6L,
-            "parent", "hierarchy", "type", "data", null, null);
+        Tag proposed = Tag.builder()
+            .tagId("ignored")
+            .tagCollectionId(collection.getTagCollectionId())
+            .tagLabel(label)
+            .description("Description")
+            .createdBy("ignored")
+            .creationDate(1L)
+            .lastModifiedBy("ignored")
+            .lastModificationDate(1L)
+            .externalId(label + "-external")
+            .alternativeLabels("Alternative")
+            .externalCreation(true)
+            .externalCreationDate(5L)
+            .externalUpdate(false)
+            .lastUpdateDateInExternalSystem(6L)
+            .parentId("parent")
+            .externalHierarchyCode("hierarchy")
+            .externalType("type")
+            .data("data")
+            .build();
         return service.getTag(service.createTag(proposed)).get();
     }
 
@@ -108,7 +137,7 @@ public class TagServiceTest {
     @Test
     public void preservesAssignedCollectionIdsAndRejectsDuplicates() {
         String id = UUID.randomUUID().toString();
-        TagCollection collection = new TagCollection(id, "Assigned", null, null, 0L, null, null, null, 0L, false, false, 0L, 0L);
+        TagCollection collection = TagCollection.builder().tagCollectionId(id).name("Assigned").build();
         assertEquals(id, service.createTagCollection(collection));
         collection.setName("Must not replace");
         assertThrows(RuntimeException.class, () -> service.createTagCollection(collection));
@@ -485,9 +514,7 @@ public class TagServiceTest {
 
     @Test
     public void rejectsTagsInMissingCollectionsWithoutEvent() {
-        Tag proposed = new Tag();
-        proposed.setTagCollectionId(UUID.randomUUID().toString());
-        proposed.setTagLabel("Orphan");
+        Tag proposed = Tag.builder().tagCollectionId(UUID.randomUUID().toString()).tagLabel("Orphan").build();
         assertThrows(RuntimeException.class, () -> service.createTag(proposed));
         assertTrue(service.getTags().isEmpty());
         verify(events, never()).post(any());
