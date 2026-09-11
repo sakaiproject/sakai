@@ -585,9 +585,9 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     }
 
     public boolean objectExists() {
-	if (assessment == null)
-	    assessment = getPublishedAssessment(id);
-	return assessment != null;
+	// The cached assessment may predate deletion in Tests & Quizzes.
+	return !PublishedAssessmentFacade.DEAD_STATUS.equals(
+	    publishedAssessmentFacadeQueries.getPublishedAssessmentStatus(id));
     }
 
     public boolean notPublished(String ref) {

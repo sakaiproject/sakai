@@ -30,9 +30,11 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.assertions.LocatorAssertions;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -50,7 +52,7 @@ class SamigoTest extends SakaiUiTestBase {
         }
 
         sakai.login("instructor1");
-        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.rubrics", "sakai\\.samigo"));
+        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.rubrics", "sakai\\.samigo", "sakai\\.lessonbuildertool"));
         return sakaiUrl;
     }
 
@@ -389,6 +391,60 @@ class SamigoTest extends SakaiUiTestBase {
 
             assertThat(previewIframe).isVisible();
         }
+    }
+
+    @Test
+    @Order(10)
+    void deletedQuizIsUnavailableInLessons() {
+        String courseUrl = ensureCourseUrl();
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Lessons");
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Add Content")).first().click();
+        page.locator("#addContentDiv").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Link to a Test or Quiz").setExact(true)).click();
+        page.getByRole(AriaRole.RADIO,
+            new Page.GetByRoleOptions().setName(SAMIGO_TITLE).setExact(true)).check();
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Use selected item").setExact(true)).click();
+        assertThat(page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(SAMIGO_TITLE).setExact(true))).isVisible();
+
+        // Visit before deletion to populate Lessons' assessment cache for both roles.
+        sakai.login("student0011");
+        page.navigate(courseUrl);
+        sakai.toolClick("Lessons");
+        assertThat(page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(SAMIGO_TITLE).setExact(true))).isVisible();
+
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Tests");
+        Locator quizRows = page.locator("#authorIndexForm\\:coreAssessments > tbody > tr")
+            .filter(new Locator.FilterOptions().setHasText(SAMIGO_TITLE));
+        assertThat(quizRows).hasCount(2);
+        for (Locator checkbox : quizRows.locator("input.select-checkbox").all()) {
+            checkbox.check();
+        }
+        page.onceDialog(dialog -> dialog.accept());
+        page.locator("#authorIndexForm\\:remove-selected").click();
+        assertThat(quizRows).hasCount(0);
+
+        sakai.toolClick("Lessons");
+        assertThat(page.locator("#content")).containsText("*Deleted*");
+        assertThat(page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(SAMIGO_TITLE).setExact(true))).hasCount(0);
+
+        sakai.login("student0011");
+        page.navigate(courseUrl);
+        sakai.toolClick("Lessons");
+        Locator unavailableQuiz = page.locator(".fake-disabled")
+            .filter(new Locator.FilterOptions().setHasText(SAMIGO_TITLE));
+        assertThat(unavailableQuiz).isVisible();
+        assertThat(unavailableQuiz).hasAttribute("title", "Item is not yet available");
+        assertThat(page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(SAMIGO_TITLE).setExact(true))).hasCount(0);
     }
 
     private void addMultipleChoiceQuestion(String points, String questionText, List<String> choices, int correctIndex) {
