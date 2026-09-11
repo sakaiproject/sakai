@@ -37,6 +37,7 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -48,6 +49,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  * A data object representing a tag.
  */
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "TagServiceTag")
 @Table(name = "tagservice_tag", indexes = {
@@ -110,28 +112,6 @@ public class Tag implements PersistableEntity<String> {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private TagCollection collection;
-
-    public Tag(String tagId, String tagCollectionId, String tagLabel, String description, String createdBy, long creationDate, String lastModifiedBy, long lastModificationDate, String externalId, String alternativeLabels, Boolean externalCreation, long externalCreationDate, Boolean externalUpdate, long lastUpdateDateInExternalSystem, String parentId, String externalHierarchyCode, String externalType, String data, String collectionName) {
-        this.tagId = tagId;
-        this.tagCollectionId = tagCollectionId;
-        this.tagLabel = tagLabel;
-        this.description = description;
-        this.createdBy = createdBy;
-        this.creationDate = creationDate;
-        this.lastModifiedBy = lastModifiedBy;
-        this.lastModificationDate = lastModificationDate;
-        this.externalId = externalId;
-        this.alternativeLabels = alternativeLabels;
-        this.externalCreation = externalCreation;
-        this.externalCreationDate = externalCreationDate;
-        this.externalUpdate = externalUpdate;
-        this.lastUpdateDateInExternalSystem = lastUpdateDateInExternalSystem;
-        this.parentId = parentId;
-        this.externalHierarchyCode = externalHierarchyCode;
-        this.externalType = externalType;
-        this.data = data;
-        this.collectionName = collectionName;
-    }
 
     public long getCreationDate() {
         return creationDate == null ? 0L : creationDate;

@@ -179,7 +179,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                     externalHierarchyCode,
                     externalType,
                     data,
-                    null);
+                    null, null);
 
 
             Errors errors = tag.validate();

@@ -108,7 +108,7 @@ public abstract class TagSynchronizer {
 						0L, null, 0L, externalId,
 						alternativeLabels, Boolean.TRUE, externalCreationDate,
 						Boolean.TRUE, lastUpdateDateInExternalSystem, parentId,
-						externalHierarchyCode, externalType, data,null);
+						externalHierarchyCode, externalType, data,null, null);
 				tagService().createTag(tag);
 			}
 		}
@@ -137,7 +137,7 @@ public abstract class TagSynchronizer {
 						0L, null, 0L, externalId,
 						alternativeLabels, Boolean.TRUE, externalCreationDate,
 						Boolean.TRUE, lastUpdateDateInExternalSystem, parentId,
-						externalHierarchyCode, externalType, data,null);
+						externalHierarchyCode, externalType, data,null, null);
 				tagService().createTag(tag);
 			}
 		}
