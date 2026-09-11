@@ -30,7 +30,7 @@ import org.sakaiproject.conversations.api.model.ConversationsPost;
 import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
 import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
-import org.sakaiproject.conversations.api.repository.TagRepository;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -51,7 +51,7 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
     @Autowired private ConversationsCommentRepository commentRepository;
     @Autowired private ConversationsService conversationsService;
     @Autowired private ConversationsPostRepository postRepository;
-    @Autowired private TagRepository tagRepository;
+    @Autowired private TagService tagService;
     @Autowired private ConversationsTopicRepository topicRepository;
     @Autowired private UserDirectoryService userDirectoryService;
 
@@ -256,9 +256,8 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
                     .orElseThrow(() -> new IllegalArgumentException("Invalid topic reference: " + reference));
                 if (!topic.getDraft() && !topic.getHidden()) {
                     sb.append(topic.getMessage());
-                    topic.getTagIds().forEach(tagId -> {
-                        tagRepository.findById(tagId).ifPresent(t -> sb.append(" ").append(t.getLabel()));
-                    });
+                    tagService.getAssociatedTagsForItem(topic.getSiteId(), topic.getId())
+                        .forEach(tag -> sb.append(" ").append(tag.getTagLabel()));
                 }
                 break;
             case "p":

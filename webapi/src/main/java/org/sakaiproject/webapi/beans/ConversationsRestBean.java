@@ -19,7 +19,7 @@ import org.springframework.hateoas.EntityModel;
 
 import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.conversations.api.model.Settings;
-import org.sakaiproject.conversations.api.model.Tag;
+import org.sakaiproject.conversations.api.beans.TagTransferBean;
 
 public class ConversationsRestBean {
 
@@ -39,7 +39,7 @@ public class ConversationsRestBean {
     public boolean canGrade;
     public Settings settings;
     public boolean showGuidelines;
-    public List<Tag> tags;
+    public List<TagTransferBean> tags;
     public int maxThreadDepth;
     public boolean disableDiscussions;
     public boolean searchEnabled;

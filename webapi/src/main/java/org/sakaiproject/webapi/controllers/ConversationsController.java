@@ -27,7 +27,7 @@ import org.sakaiproject.conversations.api.beans.PostTransferBean;
 import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.conversations.api.model.ConvStatus;
 import org.sakaiproject.conversations.api.model.Settings;
-import org.sakaiproject.conversations.api.model.Tag;
+import org.sakaiproject.conversations.api.beans.TagTransferBean;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.GradingAuthz;
@@ -408,34 +408,36 @@ public class ConversationsController extends AbstractSakaiApiController {
     }
 
 	@PostMapping(value = "/sites/{siteId}/conversations/tags", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Tag> createTags(@PathVariable String siteId, @RequestBody List<Tag> tags) throws ConversationsPermissionsException {
+    public List<TagTransferBean> createTags(@PathVariable String siteId, @RequestBody List<TagTransferBean> tags) throws ConversationsPermissionsException {
 
 		checkSakaiSession();
+        tags.forEach(tag -> tag.setSiteId(siteId));
         return conversationsService.createTags(tags);
     }
 
 	@GetMapping(value = "/sites/{siteId}/conversations/tags", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Tag> getTagsForSite(@PathVariable String siteId) throws ConversationsPermissionsException {
+    public List<TagTransferBean> getTagsForSite(@PathVariable String siteId) throws ConversationsPermissionsException {
 
 		checkSakaiSession();
         return conversationsService.getTagsForSite(siteId);
     }
 
 	@PutMapping(value = "/sites/{siteId}/conversations/tags/{tagId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tag> updateTag(@PathVariable String siteId, @PathVariable Long tagId, @RequestBody Tag tag) throws ConversationsPermissionsException {
+    public ResponseEntity<TagTransferBean> updateTag(@PathVariable String siteId, @PathVariable String tagId, @RequestBody TagTransferBean tag) throws ConversationsPermissionsException {
 
 		checkSakaiSession();
 
+        tag.setSiteId(siteId);
         tag.setId(tagId);
         return ResponseEntity.ok(conversationsService.saveTag(tag));
     }
 
 	@DeleteMapping(value = "/sites/{siteId}/conversations/tags/{tagId}")
-    public ResponseEntity deleteTag(@PathVariable Long tagId) throws ConversationsPermissionsException  {
+    public ResponseEntity deleteTag(@PathVariable String siteId, @PathVariable String tagId) throws ConversationsPermissionsException  {
 
 		checkSakaiSession();
 
-        conversationsService.deleteTag(tagId);
+        conversationsService.deleteTag(siteId, tagId);
         return new ResponseEntity(HttpStatus.OK);
     }
 

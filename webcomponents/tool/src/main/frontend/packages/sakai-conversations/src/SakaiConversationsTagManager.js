@@ -88,7 +88,7 @@ export class SakaiConversationsTagManager extends SakaiElement {
 
   _editTag(e) {
 
-    this._tagsBeingEdited.push(parseInt(e.target.dataset.tagId));
+    this._tagsBeingEdited.push(e.target.dataset.tagId);
     this.requestUpdate();
   }
 

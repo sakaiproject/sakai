@@ -56,8 +56,8 @@ describe("sakai-conversations-tag-manager tests", () => {
       { label: "newTag2", siteId: data.siteId }
     ];
     const newTagsResponse = [
-      { label: "newTag1", siteId: data.siteId, id: 3 },
-      { label: "newTag2", siteId: data.siteId, id: 4 }
+      { label: "newTag1", siteId: data.siteId, id: "conv-3" },
+      { label: "newTag2", siteId: data.siteId, id: "conv-4" }
     ];
 
     fetchMock.post(createTagsUrl, newTagsResponse);
@@ -141,7 +141,7 @@ describe("sakai-conversations-tag-manager tests", () => {
     expect(detail.tag).to.deep.equal(updatedTag);
 
     // Verify editor is no longer displayed
-    expect(el._tagsBeingEdited.includes(parseInt(tagId))).to.be.false;
+    expect(el._tagsBeingEdited.includes(tagId)).to.be.false;
   });
 
   it("cancels tag editing", async () => {
@@ -165,7 +165,7 @@ describe("sakai-conversations-tag-manager tests", () => {
     await elementUpdated(el);
 
     // Verify tag editor is displayed
-    expect(el._tagsBeingEdited.includes(parseInt(tagId))).to.be.true;
+    expect(el._tagsBeingEdited.includes(tagId)).to.be.true;
     expect(el.querySelector(`#tag-${tagId}-editor`)).to.exist;
 
     // Click cancel button
@@ -173,7 +173,7 @@ describe("sakai-conversations-tag-manager tests", () => {
     await elementUpdated(el);
 
     // Verify editor is no longer displayed
-    expect(el._tagsBeingEdited.includes(parseInt(tagId))).to.be.false;
+    expect(el._tagsBeingEdited.includes(tagId)).to.be.false;
     expect(el.querySelector(`#tag-${tagId}-editor`)).to.not.exist;
   });
 
