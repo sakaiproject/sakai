@@ -3,7 +3,9 @@ Persistence
 
 Tags, collections, and associations use Sakai's shared Hibernate session factory and
 `SpringCrudRepository`. Existing `tagservice_*` tables and IDs are retained; this
-change does not require a data conversion. Schema creation uses Sakai's global
+change does not move data between tables. Collection IDs and audit user IDs are
+mapped to 99 characters; schema conversion is handled by the companion tags
+consolidation PR. Schema creation uses Sakai's global
 `auto.ddl` setting; the former `tagservice.auto.ddl` override is no longer used.
 
 Java callers use `TagService` directly, for example `getTag(id)` and
