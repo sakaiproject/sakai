@@ -41,7 +41,7 @@ public class LtiToolSite implements PersistableEntity<Long>, Serializable {
     @EqualsAndHashCode.Include
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "lti_tool_site_sequence")
-    @SequenceGenerator(name = "lti_tool_site_sequence", sequenceName = "lti_tool_site_S")
+    @SequenceGenerator(name = "lti_tool_site_sequence", sequenceName = "lti_tool_site_id_sequence")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

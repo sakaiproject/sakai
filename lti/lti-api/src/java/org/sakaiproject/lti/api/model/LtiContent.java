@@ -42,7 +42,7 @@ public class LtiContent implements PersistableEntity<Long>, Serializable {
     @EqualsAndHashCode.Include
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "lti_content_sequence")
-    @SequenceGenerator(name = "lti_content_sequence", sequenceName = "lti_content_S")
+    @SequenceGenerator(name = "lti_content_sequence", sequenceName = "lti_content_id_sequence")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
