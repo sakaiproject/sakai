@@ -23,39 +23,68 @@
 package org.sakaiproject.tags.api;
 
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
+
+import org.sakaiproject.springframework.data.PersistableEntity;
 
 /**
  * The interface for the tag service.
  */
 @Data
-@NoArgsConstructor
+@Builder(toBuilder = true)
 @AllArgsConstructor
-public class TagCollection {
+@NoArgsConstructor
+@Entity(name = "TagServiceCollection")
+@Table(name = "tagservice_collection")
+public class TagCollection implements PersistableEntity<String> {
 
 
+    @Id
+    @Column(name = "tagcollectionid", length = 99)
     private String tagCollectionId;
+    @Column(name = "name", length = 255, unique = true)
     private String name;
+    @Lob
+    @Column(name = "description", length = 65535)
     private String description;
+    @Column(name = "createdby", length = 99)
     private String createdBy;
-    private long creationDate;
+    @Column(name = "creationdate")
+    private Long creationDate;
+    @Column(name = "externalsourcename", length = 255, unique = true)
     private String externalSourceName;
+    @Lob
+    @Column(name = "externalsourcedescription", length = 65535)
     private String externalSourceDescription;
+    @Column(name = "lastmodifiedby", length = 99)
     private String lastModifiedBy;
-    private long lastModificationDate;
+    @Column(name = "lastmodificationdate")
+    private Long lastModificationDate;
+    @Column(name = "externalupdate")
     private Boolean externalUpdate;
+    @Column(name = "externalcreation")
     private Boolean externalCreation;
-    private long lastSynchronizationDate;
-    private long lastUpdateDateInExternalSystem;
+    @Column(name = "lastsynchronizationdate")
+    private Long lastSynchronizationDate;
+    @Column(name = "lastupdatedateinexternalsystem")
+    private Long lastUpdateDateInExternalSystem;
 
 
-    public Errors validate() {
-        Errors errors = new Errors();
-        //At this moment there is not extra validation. This can be the place to do this in the future
-        return errors;
+    @Override
+    @JsonIgnore
+    public String getId() {
+        return tagCollectionId;
     }
 }
     

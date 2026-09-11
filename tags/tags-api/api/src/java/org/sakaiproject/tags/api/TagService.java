@@ -24,9 +24,12 @@ package org.sakaiproject.tags.api;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The interface for the tags service.
+ * Reads follow the normal JPA lifecycle: entities remain managed while their
+ * persistence context is open.
  */
 public interface TagService {
 
@@ -39,17 +42,58 @@ public interface TagService {
 
     public void init();
 
-    public void destroy();
+    public String createTag(Tag tag);
 
-    /**
-        * Return the tags sub-service.
-    */
-    public Tags getTags();
+    /** Apply submitted values to the tag within a transaction, preserving creation metadata.
+     * Build edits separately (for example with {@code tag.toBuilder()}); do not mutate
+     * a queried entity before calling this method in an enclosing transaction.
+     */
+    public void updateTag(Tag tag);
 
-    /**
-        * Return the collections sub-service
-    */
-    public TagCollections getTagCollections();
+    public void deleteTag(String tagId);
+
+    public List<Tag> getTags();
+
+    public Optional<Tag> getTag(String tagId);
+
+    public List<Tag> getTagsPaginatedInCollection(int pageNum, int pageSize, String tagCollectionId);
+
+    public int getTotalTagsInCollection(final String tagCollectionId);
+
+    public int getTotalTagsByPrefixInLabel(final String label);
+
+    public Optional<Tag> getTagForExternalIdAndCollection(String tagExternalId, String tagCollectionId);
+
+    public List<Tag> getTagsInCollection(String tagCollectionId);
+
+    public List<Tag> getTagsByPartialLabel(String label);
+
+    public List<Tag> getTagsByPrefixInLabel(String label);
+
+    public List<Tag> getTagsPaginatedByPrefixInLabel(int pageNum, int pageSize, String label);
+
+    public List<String> deleteTagsOlderThanDateFromCollection(String tagCollectionId, long lastModificationDate);
+
+    public List<String> deleteTagFromExternalCollection(String externalId, String tagCollectionId);
+
+    public String createTagCollection(TagCollection tagCollection);
+
+    /** Apply separately constructed edits within a transaction, preserving creation metadata. */
+    public void updateTagCollection(TagCollection tagCollection);
+
+    public void deleteTagCollection(String tagCollectionId);
+
+    public List<TagCollection> getTagCollections();
+
+    public Optional<TagCollection> getTagCollection(String tagCollectionId);
+
+    public Optional<TagCollection> getTagCollectionForName(String name);
+
+    public Optional<TagCollection> getTagCollectionForExternalSourceName(String externalSourceName);
+
+    public List<TagCollection> getTagCollectionsPaginated(int pageNum, int pageSize);
+
+    public int getTotalTagCollections();
 
     /**
         * Return an I18N translator for a given file and locale.
@@ -67,13 +111,16 @@ public interface TagService {
     public int getMaxPageSize();
 
     /**
-        * Save a new association between an item and a specific tag.
+        * Associate an existing tag ID; a missing ID is an error, never a label.
         * @param itemId
         * The ID of the item to be associated.
         * @param tagId
         * The ID of the tag to associate with the item.
     */
-    public void saveTagAssociation(String itemId, String tagId);
+    public void associateExistingTag(String itemId, String tagId);
+
+    /** Create a new tag from a literal label and associate it with the item. */
+    public String createAndAssociateTag(String collectionId, String itemId, String label, boolean isSite);
     /**
         * Retrieve a list of tags that match an exact label within a specific collection.
         * @param label
@@ -115,16 +162,8 @@ public interface TagService {
 	    * @return A list containing the newly duplicated tags.
     */
     public List<Tag> duplicateTags(String targetCollectionId, boolean isSite, Collection<String> tagIds, String targetItemId);
-    /**
-        * Update the tag associations for an item by adding new ones and removing those deselected.
-        * @param collectionId
-        * The ID of the collection context.
-        * @param itemId
-        * The ID of the item to update associations for.
-        * @param tagIds
-        * The current collection of tag IDs that should be associated with the item.
-        * @param isSite
-        * Whether the collection belongs to a site context or a user context.
-	*/
-    public void updateTagAssociations(String collectionId, String itemId, Collection<String> tagIds, boolean isSite);
+    /** Replace the UI selection. Existing IDs are associated; other values are literal labels.
+     * Prefer the explicit association methods when the input kind is already known.
+     */
+    public void updateTagAssociations(String collectionId, String itemId, Collection<String> selections, boolean isSite);
 }

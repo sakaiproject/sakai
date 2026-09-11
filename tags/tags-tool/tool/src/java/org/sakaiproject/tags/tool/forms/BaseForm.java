@@ -24,8 +24,6 @@
 
 package org.sakaiproject.tags.tool.forms;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -37,16 +35,15 @@ class BaseForm {
 
     protected String uuid;
 
-    protected static long parseTime(String timeString) {
-        if (StringUtils.isBlank(timeString)) {
-            return 0;
+    protected static Long parseNullableLong(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
         }
-
         try {
-            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX").parse(timeString).getTime();
-        } catch (ParseException e) {
-            return -1;
+            return Long.valueOf(value);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
-}
 
+}

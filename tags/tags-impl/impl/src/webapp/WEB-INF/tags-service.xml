@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx https://www.springframework.org/schema/tx/spring-tx.xsd">
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+    <bean id="org.sakaiproject.tags.api.TagService"
+          class="org.sakaiproject.tags.impl.TagServiceImpl" init-method="init">
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="tagRepository" ref="org.sakaiproject.tags.api.TagRepository"/>
+        <property name="tagCollectionRepository" ref="org.sakaiproject.tags.api.TagCollectionRepository"/>
+        <property name="tagAssociationRepository" ref="org.sakaiproject.tags.api.TagAssociationRepository"/>
+    </bean>
+
+    <bean id="org.sakaiproject.tags.api.TagRepository" class="org.sakaiproject.tags.impl.TagRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+    <bean id="org.sakaiproject.tags.api.TagCollectionRepository" class="org.sakaiproject.tags.impl.TagCollectionRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+    <bean id="org.sakaiproject.tags.api.TagAssociationRepository" class="org.sakaiproject.tags.impl.TagAssociationRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.tagservice"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.tags.api.Tag</value>
+                <value>org.sakaiproject.tags.api.TagCollection</value>
+                <value>org.sakaiproject.tags.api.TagAssociation</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.tags.impl.job.meshTagsSyncJob"
+          class="org.sakaiproject.tags.impl.job.MeshTagsSyncJob">
+        <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.tags.impl.job.tagsSyncJob"
+          class="org.sakaiproject.tags.impl.job.TagsSyncJob">
+        <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.tags.impl.job.tagsExportedXMLSyncJob"
+          class="org.sakaiproject.tags.impl.job.TagsExportedXMLSyncJob">
+        <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+    </bean>
+</beans>

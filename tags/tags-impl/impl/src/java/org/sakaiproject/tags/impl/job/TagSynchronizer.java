@@ -21,16 +21,19 @@
 package org.sakaiproject.tags.impl.job;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ComponentManager;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.DateTimeException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 
 import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.sakaiproject.tags.api.*;
@@ -41,214 +44,141 @@ import org.sakaiproject.tags.api.*;
  *
  *
  */
+@Slf4j
 public abstract class TagSynchronizer {
-	private static final Log log = LogFactory.getLog(TagSynchronizer.class);
-
-	private TagService tagService() {
-		return (TagService) ComponentManager.get(TagService.class);
-	}
-	Tags tags = tagService().getTags();
-	TagCollections tagCollections = tagService().getTagCollections();
+	@Setter private TagService tagService;
 	
 	protected abstract InputStream getTagsXmlInputStream();
 
-	/*protected Set getChildValues(Element element) {
-		Set childValues = new HashSet();
-		List<Element> childElements = element.getChildren();
-		for(Element childElement : childElements) {
-			childValues.add(childElement.getText());
-		}
-		return childValues;
-	}*/
-
-	protected Date getDate(String str) {
-		if(StringUtils.isBlank(str)) {
+	protected String getTagCollectionIdFromExternalSourceName(String name) {
+		if (StringUtils.isBlank(name)) {
 			return null;
 		}
-		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-		try {
-			return df.parse(str);
-		} catch (ParseException pe) {
-			log.warn("Invalid date: " + str);
-			return null;
+		Optional<TagCollection> collection = tagService.getTagCollectionForExternalSourceName(name);
+		if (collection.isPresent()) {
+			return collection.get().getTagCollectionId();
 		}
-	}
-
-	protected String getTagCollectionIdFromExternalSourceName(String str) {
-		if(StringUtils.isBlank(str)) {
-			return null;
-		}
-		TagCollection tagCollection = tagCollections.getForExternalSourceName(str).get();
-		try {
-			return tagCollection.getTagCollectionId();
-		} catch (Exception e) {
-			log.warn("Invalid External Source Name: " + str);
-			return null;
-		}
+		log.warn("No collection for external source {}", name);
+		return null;
 	}
 
 	protected void updateOrCreateTagWithExternalSourceName(String externalId, String externalSourceName, String tagLabel, String description,
 			String alternativeLabels, long externalCreationDate, long lastUpdateDateInExternalSystem, String parentId,
 			String externalHierarchyCode, String externalType, String data) {
-		String collectionID = getTagCollectionIdFromExternalSourceName(externalSourceName);
-		if (externalSourceName!=null){
-			if (tags.getForExternalIdAndCollection(externalId,collectionID).isPresent()){
-				Tag tag = tags.getForExternalIdAndCollection(externalId,collectionID).get();
-				tag.setTagLabel(tagLabel);
-				tag.setDescription(description);
-				tag.setAlternativeLabels(alternativeLabels);
-				tag.setExternalUpdate(Boolean.TRUE);
-				tag.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
-				tag.setParentId(parentId);
-				tag.setExternalHierarchyCode(externalHierarchyCode);
-				tag.setExternalType(externalType);
-				tag.setData(data);
-				tags.updateTag(tag);
+		updateOrCreateTagWithCollectionId(externalId, getTagCollectionIdFromExternalSourceName(externalSourceName),
+				tagLabel, description, alternativeLabels, externalCreationDate, lastUpdateDateInExternalSystem,
+				parentId, externalHierarchyCode, externalType, data);
+	}
 
-			}else {
-				Tag tag = new Tag(null, collectionID, tagLabel, description, null,
-						0L, null, 0L, externalId,
-						alternativeLabels, Boolean.TRUE, externalCreationDate,
-						Boolean.TRUE, lastUpdateDateInExternalSystem, parentId,
-						externalHierarchyCode, externalType, data,null);
-				tags.createTag(tag);
-			}
+	protected void updateOrCreateTagWithCollectionId(String externalId, String collectionId, String tagLabel, String description,
+			String alternativeLabels, long externalCreationDate, long lastUpdateDateInExternalSystem, String parentId,
+			String externalHierarchyCode, String externalType, String data) {
+		if (collectionId == null) {
+			return;
+		}
+		Optional<Tag> existing = tagService.getTagForExternalIdAndCollection(externalId, collectionId);
+		Tag.TagBuilder tag = existing.map(Tag::toBuilder).orElseGet(() -> Tag.builder()
+				.tagCollectionId(collectionId).externalId(externalId)
+				.externalCreation(true).externalCreationDate(externalCreationDate));
+		tag.tagLabel(tagLabel).description(description).alternativeLabels(alternativeLabels)
+				.externalUpdate(true).lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem)
+				.parentId(parentId).externalHierarchyCode(externalHierarchyCode).externalType(externalType).data(data);
+		if (existing.isPresent()) {
+			tagService.updateTag(tag.build());
+		} else {
+			tagService.createTag(tag.build());
 		}
 	}
 
-	protected void updateOrCreateTagWithCollectionId(String externalId, String tagCollectionId, String tagLabel, String description,
-									 String alternativeLabels, long externalCreationDate, long lastUpdateDateInExternalSystem, String parentId,
-									 String externalHierarchyCode, String externalType, String data) {
+	protected boolean updateLabelWithId(String tagId, String externalId, String collectionId, String tagLabel, String description,
+			String alternativeLabels, long externalCreationDate, long lastUpdateDateInExternalSystem, String parentId,
+			String externalHierarchyCode, String externalType, String data) {
+		Optional<Tag> existing = tagService.getTag(tagId);
+		if (!existing.isPresent()) {
+			return false;
+		}
+		tagService.updateTag(existing.get().toBuilder()
+				.tagCollectionId(collectionId).externalId(externalId).tagLabel(tagLabel).description(description)
+				.alternativeLabels(alternativeLabels).externalCreationDate(externalCreationDate)
+				.externalUpdate(true).lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem)
+				.parentId(parentId).externalHierarchyCode(externalHierarchyCode).externalType(externalType).data(data)
+				.build());
+		return true;
+	}
 
-		if (tagCollectionId!=null){
-			if (tags.getForExternalIdAndCollection(externalId,tagCollectionId).isPresent()){
-				Tag tag = tags.getForExternalIdAndCollection(externalId,tagCollectionId).get();
-				tag.setTagLabel(tagLabel);
-				tag.setDescription(description);
-				tag.setAlternativeLabels(alternativeLabels);
-				tag.setExternalUpdate(Boolean.TRUE);
-				tag.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
-				tag.setParentId(parentId);
-				tag.setExternalHierarchyCode(externalHierarchyCode);
-				tag.setExternalType(externalType);
-				tag.setData(data);
-				tags.updateTag(tag);
-
-			}else {
-				Tag tag = new Tag(null, tagCollectionId, tagLabel, description, null,
-						0L, null, 0L, externalId,
-						alternativeLabels, Boolean.TRUE, externalCreationDate,
-						Boolean.TRUE, lastUpdateDateInExternalSystem, parentId,
-						externalHierarchyCode, externalType, data,null);
-				tags.createTag(tag);
-			}
+	protected void updateOrCreateTagCollection(String name, String description, String externalSourceName,
+			String externalSourceDescription, long lastUpdateDateInExternalSystem) {
+		if (externalSourceName == null) {
+			return;
+		}
+		Optional<TagCollection> existing = tagService.getTagCollectionForExternalSourceName(externalSourceName);
+		TagCollection.TagCollectionBuilder collection = existing.map(TagCollection::toBuilder)
+				.orElseGet(() -> TagCollection.builder().description(description)
+						.externalSourceName(externalSourceName).externalUpdate(true).externalCreation(true));
+		collection.name(name).externalSourceDescription(externalSourceDescription)
+				.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
+		if (existing.isPresent()) {
+			tagService.updateTagCollection(collection.build());
+		} else {
+			tagService.createTagCollection(collection.build());
 		}
 	}
-
-	protected void updateLabelWithId(String tagId,String externalId, String tagCollectionId, String tagLabel, String description,
-													 String alternativeLabels, long externalCreationDate, long lastUpdateDateInExternalSystem, String parentId,
-													 String externalHierarchyCode, String externalType, String data) {
-
-			if (tagWithIdIsPresent(tagId)){
-				Tag tag = tags.getForId(tagId).get();
-				tag.setTagCollectionId(tagCollectionId);
-				tag.setTagLabel(tagLabel);
-				tag.setDescription(description);
-				tag.setAlternativeLabels(alternativeLabels);
-				tag.setExternalCreationDate(externalCreationDate);
-				tag.setExternalUpdate(Boolean.TRUE);
-				tag.setExternalId(externalId);
-				tag.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
-				tag.setParentId(parentId);
-				tag.setExternalHierarchyCode(externalHierarchyCode);
-				tag.setExternalType(externalType);
-				tag.setData(data);
-				tags.updateTag(tag);
-
-			}else {
-				log.warn("Not found tag with TagId: " + tagId);
-			}
-
-	}
-
-	protected boolean tagWithIdIsPresent(String tagId){
-		return tags.getForId(tagId).isPresent();
-	}
-
-
-	protected void updateOrCreateTagCollection(String name, String description,
-											   String externalSourceName, String externalSourceDescription,
-											   long lastUpdateDateInExternalSystem){
-		if (externalSourceName!=null){
-			if (tagCollections.getForExternalSourceName(externalSourceName).isPresent()){
-				TagCollection tagCollection = tagCollections.getForExternalSourceName(externalSourceName).get();
-				tagCollection.setName(name);
-				tagCollection.setExternalSourceDescription(externalSourceDescription);
-				tagCollection.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
-				tagCollection.setExternalUpdate(tagCollection.getExternalUpdate());
-				tagCollections.updateTagCollection(tagCollection);
-			}else {
-				TagCollection tagCollection = new TagCollection(null, name,
-						description, null, 0L,
-				externalSourceName, externalSourceDescription,
-						null, 0L, Boolean.TRUE,Boolean.TRUE,
-				0L,lastUpdateDateInExternalSystem);
-				tagCollections.createTagCollection(tagCollection);
-			}
-		}
-	}
-
-
 
 	protected void updateTagCollectionSynchronization(String externalSourceName, long lastUpdateDateInExternalSystem) {
-		if((StringUtils.isNotBlank(externalSourceName))) {
-
-			TagCollection tagCollection = tagCollections.getForExternalSourceName(externalSourceName).get();
-			tagCollection.setExternalUpdate(Boolean.TRUE);
-			tagCollection.setLastSynchronizationDate(System.currentTimeMillis());
-			tagCollection.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
-			try {
-				tagCollections.updateTagCollection(tagCollection);
-			} catch (Exception e) {
-				log.warn("Invalid External Source Name: " + externalSourceName);
-			}
-		}else{
-			log.warn("Invalid External Source Name: " + externalSourceName);
+		if (StringUtils.isBlank(externalSourceName)) {
+			log.warn("Missing external source name for collection synchronization");
+			return;
+		}
+		Optional<TagCollection> collection = tagService.getTagCollectionForExternalSourceName(externalSourceName);
+		if (collection.isPresent()) {
+			updateSynchronization(collection.get(), lastUpdateDateInExternalSystem);
+		} else {
+			log.warn("No collection for external source {} for synchronization", externalSourceName);
 		}
 	}
 
-	protected void updateTagCollectionSynchronizationWithCollectionId(String tagCollectionId, long lastUpdateDateInExternalSystem) {
-		if(tagCollections.getForId(tagCollectionId).isPresent()) {
-			TagCollection tagCollection = tagCollections.getForId(tagCollectionId).get();
-			tagCollection.setExternalUpdate(Boolean.TRUE);
-			tagCollection.setLastSynchronizationDate(System.currentTimeMillis());
-			tagCollection.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
-			try {
-				tagCollections.updateTagCollection(tagCollection);
-			} catch (Exception e) {
-				log.warn("Invalid CollectionId: " + tagCollectionId);
-			}
-		}else{
-			log.warn("Invalid CollectionId: " + tagCollectionId);
+	protected void updateTagCollectionSynchronizationWithCollectionId(String collectionId, long lastUpdateDateInExternalSystem) {
+		Optional<TagCollection> collection = tagService.getTagCollection(collectionId);
+		if (collection.isPresent()) {
+			updateSynchronization(collection.get(), lastUpdateDateInExternalSystem);
+		} else {
+			log.warn("No collection with id {} for synchronization", collectionId);
 		}
+	}
+
+	private void updateSynchronization(TagCollection collection, long lastUpdateDateInExternalSystem) {
+		try {
+			tagService.updateTagCollection(collection.toBuilder().externalUpdate(true)
+					.lastSynchronizationDate(Instant.now().toEpochMilli())
+					.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem).build());
+		} catch (Exception e) {
+			log.warn("Could not update synchronization metadata for collection {}", collection.getTagCollectionId(), e);
+		}
+	}
+
+	/** A subtree transformation may leave the reader at whitespace or at the next element. */
+	protected boolean hasImportElement(XMLStreamReader reader) throws XMLStreamException {
+		while (!reader.isStartElement() && !reader.isEndElement() && reader.hasNext()) {
+			reader.next();
+		}
+		return reader.isStartElement();
 	}
 
 	protected long xmlDateToMs(Node nNode, String element) {
-
+		if (nNode == null) {
+			return 0L;
+		}
+		Element node = (Element) nNode;
 		try {
-			Element node = (Element) nNode;
-			String dateText = getString("Day", node) + "/" + getString("Month", node) + "/" + getString("Year", node);
-			Date d = getDate(dateText);
-			try {
-				long timestamp = d.getTime();
-				return timestamp;
-			} catch (Exception e) {
-				log.debug("The date format is not the expected at: " + element, e);
-				log.debug("DateText is:" + dateText);
-				return 0L;
-			}
-		}catch (Exception e){
-			log.debug("The date format is not the expected when importing a tag or collection at: " + element, e);
+			LocalDate date = LocalDate.of(
+					Integer.parseInt(getString("Year", node)),
+					Integer.parseInt(getString("Month", node)),
+					Integer.parseInt(getString("Day", node)));
+			// Source dates have no time or zone; use midnight UTC consistently across servers.
+			return date.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli();
+		} catch (DateTimeException | NumberFormatException e) {
+			log.warn("Invalid XML date for {}: year={}, month={}, day={}", element,
+					getString("Year", node), getString("Month", node), getString("Day", node));
 			return 0L;
 		}
 	}
@@ -276,15 +206,15 @@ public abstract class TagSynchronizer {
 	}
 
 	protected void deleteTagsOlderThanDateFromCollection(String externalSourceName, long lastmodificationdate ){
-		tags.deleteTagsOlderThanDateFromCollection(getTagCollectionIdFromExternalSourceName(externalSourceName),lastmodificationdate);
+		tagService.deleteTagsOlderThanDateFromCollection(getTagCollectionIdFromExternalSourceName(externalSourceName),lastmodificationdate);
 	}
 
 	protected void deleteTagsOlderThanDateFromCollectionWithCollectionId(String tagCollectionId, long lastmodificationdate ){
-		tags.deleteTagsOlderThanDateFromCollection(tagCollectionId,lastmodificationdate);
+		tagService.deleteTagsOlderThanDateFromCollection(tagCollectionId,lastmodificationdate);
 	}
 
 	protected void deleteTagFromExternalCollection(String externalId, String externalSourceName){
-		tags.deleteTagFromExternalCollection(externalId, getTagCollectionIdFromExternalSourceName(externalSourceName) );
+		tagService.deleteTagFromExternalCollection(externalId, getTagCollectionIdFromExternalSourceName(externalSourceName) );
 	}
 
 

@@ -536,8 +536,8 @@ public class ItemService
         Iterator itemsNewTagsIterator = itemTagIfcSet.iterator();
         while (itemsNewTagsIterator.hasNext()) {
           ItemTagIfc tagToAdd = (ItemTagIfc) itemsNewTagsIterator.next();
-          if (tagService.getTags().getForId(tagToAdd.getTagId()).isPresent()) {
-            Tag tag = tagService.getTags().getForId(tagToAdd.getTagId()).get();
+          if (tagService.getTag(tagToAdd.getTagId()).isPresent()) {
+            Tag tag = tagService.getTag(tagToAdd.getTagId()).get();
             itemHashed.addItemTag(tagToAdd.getTagId(), tag.getTagLabel(), tag.getTagCollectionId(), tag.getCollectionName());
           }
         }
