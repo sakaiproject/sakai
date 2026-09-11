@@ -291,6 +291,9 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public String createTag(Tag tag) {
+        if (StringUtils.isBlank(tag.getTagLabel())) {
+            throw new IllegalArgumentException("Tag label must not be blank");
+        }
         tag.setTagId(null);
         tag.setCreatedBy(sessionManager.getCurrentSessionUserId());
         tag.setCreationDate(Instant.now().toEpochMilli());
@@ -304,6 +307,9 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public String createTagCollection(TagCollection collection) {
+        if (StringUtils.isBlank(collection.getName())) {
+            throw new IllegalArgumentException("Collection name must not be blank");
+        }
         if (collection.getTagCollectionId() == null) {
             collection.setTagCollectionId(UUID.randomUUID().toString());
         }
@@ -319,6 +325,9 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public void updateTag(Tag tag) {
+        if (StringUtils.isBlank(tag.getTagLabel())) {
+            throw new IllegalArgumentException("Tag label must not be blank");
+        }
         Tag original = tagRepository.findById(tag.getTagId())
             .orElseThrow(() -> new TagServiceException("No tag with id " + tag.getTagId()));
         boolean generateEvent = hasContentChanges(tag, original);
@@ -346,6 +355,9 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public void updateTagCollection(TagCollection collection) {
+        if (StringUtils.isBlank(collection.getName())) {
+            throw new IllegalArgumentException("Collection name must not be blank");
+        }
         TagCollection original = tagCollectionRepository.findById(collection.getTagCollectionId())
             .orElseThrow(() -> new TagServiceException("No collection with id " + collection.getTagCollectionId()));
         boolean generateEvent = hasContentChanges(collection, original);

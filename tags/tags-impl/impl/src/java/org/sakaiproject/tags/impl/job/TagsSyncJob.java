@@ -25,7 +25,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Objects;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -74,7 +73,7 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 				try {
 					targetStream=new FileInputStream(xmlFile);
 				} catch (Exception e){
-					log.warn("The Tags file can't be found in the specified route: " + tagsPathToXml);
+					log.warn("The Tags file can't be found in the specified route: {}", tagsPathToXml);
 				}
 		return targetStream;
 	}
@@ -87,7 +86,7 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 		try {
 			targetStream=new FileInputStream(xmlFile);
 		} catch (Exception e){
-			log.warn("The Tags file can't be found in the specified route: " + tagCollectionsPathToXml);
+			log.warn("The Tags file can't be found in the specified route: {}", tagCollectionsPathToXml);
 		}
 		return targetStream;
 	}
@@ -108,8 +107,7 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 		}
 
 		try (InputStream input = getTagCollectionssXmlInputStream()) {
-			XMLInputFactory factory = XMLInputFactory.newInstance();
-			XMLStreamReader xsr = factory.createXMLStreamReader(input);
+			XMLStreamReader xsr = createXmlStreamReader(input);
 			try {
 				xsr.nextTag();
 				xsr.nextTag();
@@ -124,15 +122,15 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 					Element element = ((Document)nNode).getDocumentElement();
 
 					String name = getString("Name",element);
-					log.debug("Found name: " + name);
+					log.debug("Found name: {}", name);
 					String description = getString("Description",element);
-					log.debug("Found description : " + description);
+					log.debug("Found description : {}", description);
 					String externalSourceName =  getString("ExternalSourceName",element);
-					log.debug("externalSourceName: " + externalSourceName);
+					log.debug("externalSourceName: {}", externalSourceName);
 					String externalSourceDescription = getString("ExternalSourceDescription",element);
-					log.debug("externalSourceDescription: " + externalSourceDescription);
+					log.debug("externalSourceDescription: {}", externalSourceDescription);
 					long lastUpdateDateInExternalSystem = xmlDateToMs(element.getElementsByTagName("DateRevised").item(0),name);
-					log.debug("lastUpdateDateInExternalSystem: " + lastUpdateDateInExternalSystem);
+					log.debug("lastUpdateDateInExternalSystem: {}", lastUpdateDateInExternalSystem);
 
 					updateOrCreateTagCollection(name, description,
 							externalSourceName, externalSourceDescription, lastUpdateDateInExternalSystem);
@@ -147,8 +145,7 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 		}
 
 		try (InputStream input = getTagsXmlInputStream()) {
-			XMLInputFactory factory = XMLInputFactory.newInstance();
-			XMLStreamReader xsr = factory.createXMLStreamReader(input);
+			XMLStreamReader xsr = createXmlStreamReader(input);
 			try {
 				xsr.nextTag();
 				xsr.nextTag();
@@ -163,27 +160,27 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 					Element element = ((Document)nNode).getDocumentElement();
 					String action = element.getAttribute("Action");
 					String tagLabel =	getString("TagLabel",element);
-					log.debug("Found tagLabel: " + tagLabel);
+					log.debug("Found tagLabel: {}", tagLabel);
 					String externalId = getString("ExternalId",element);
-					log.debug("Found externalId: " + externalId);
+					log.debug("Found externalId: {}", externalId);
 					String description = getString("Description",element);
-					log.debug("Found description : " + description);
+					log.debug("Found description : {}", description);
 					long externalCreationDate = xmlDateToMs(element.getElementsByTagName("DateCreated").item(0),tagLabel);
-					log.debug("externalCreationDate: " + externalCreationDate);
+					log.debug("externalCreationDate: {}", externalCreationDate);
 					long lastUpdateDateInExternalSystem = xmlDateToMs(element.getElementsByTagName("DateRevised").item(0),tagLabel);
-					log.debug("lastUpdateDateInExternalSystem: " + lastUpdateDateInExternalSystem);
+					log.debug("lastUpdateDateInExternalSystem: {}", lastUpdateDateInExternalSystem);
 					String externalHierarchyCode =getString("HierarchyCode",element);
-					log.debug("externalHierarchyCode: " + externalHierarchyCode);
+					log.debug("externalHierarchyCode: {}", externalHierarchyCode);
 					String externalType = getString("Type",element);
-					log.debug("externalType: " + externalType);
+					log.debug("externalType: {}", externalType);
 					String alternativeLabels = getString("AlternativeLabels",element);
-					log.debug("alternativeLabels: " + alternativeLabels);
+					log.debug("alternativeLabels: {}", alternativeLabels);
 					String externalSourceName =  getString("ExternalSourceName",element);
-					log.debug("externalSourceName: " + externalSourceName);
+					log.debug("externalSourceName: {}", externalSourceName);
 					String data =  getString("Data",element);
-					log.debug("data: " + data);
+					log.debug("data: {}", data);
 					String parentId = getString("ParentId",element);
-					log.debug("parentId: " + parentId);
+					log.debug("parentId: {}", parentId);
 
 					if (Objects.equals(action,"delete")){
 						deleteTagFromExternalCollection(externalId,externalSourceName);
@@ -204,7 +201,7 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 			sendStatusMail(2,e.getMessage());
 		}
 		if(log.isInfoEnabled()) {
-			log.info("Finished Tags synchronization in " + (System.currentTimeMillis()-start) + " ms");
+			log.info("Finished Tags synchronization in {} ms", System.currentTimeMillis() - start);
 		}
 
 	}

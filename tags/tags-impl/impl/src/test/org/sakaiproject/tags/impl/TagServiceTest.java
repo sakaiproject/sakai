@@ -239,6 +239,35 @@ public class TagServiceTest {
     }
 
     @Test
+    public void rejectsBlankTagLabelsBeforeCreatingOrUpdating() {
+        Tag original = tag(collection("Validation"), "Original");
+        clearInvocations(events);
+        for (String label : new String[] { null, "", " \t\n" }) {
+            Tag proposed = original.toBuilder().tagLabel(label).build();
+            assertThrows(IllegalArgumentException.class, () -> service.createTag(proposed));
+            assertEquals(original.getTagId(), proposed.getTagId());
+            assertThrows(IllegalArgumentException.class, () -> service.updateTag(proposed));
+        }
+        assertEquals(1, service.getTags().size());
+        assertEquals("Original", service.getTag(original.getTagId()).get().getTagLabel());
+        verify(events, never()).post(any());
+    }
+
+    @Test
+    public void rejectsBlankCollectionNamesBeforeCreatingOrUpdating() {
+        TagCollection original = collection("Original");
+        clearInvocations(events);
+        for (String name : new String[] { null, "", " \t\n" }) {
+            TagCollection proposed = original.toBuilder().name(name).build();
+            assertThrows(IllegalArgumentException.class, () -> service.createTagCollection(proposed));
+            assertThrows(IllegalArgumentException.class, () -> service.updateTagCollection(proposed));
+        }
+        assertEquals(1, service.getTagCollections().size());
+        assertEquals("Original", service.getTagCollection(original.getTagCollectionId()).get().getName());
+        verify(events, never()).post(any());
+    }
+
+    @Test
     public void updatesTagFromBuilderAndPreservesCreationMetadata() {
         Tag original = tag(collection("Update"), "Before");
         Tag edited = service.getTag(original.getTagId()).get().toBuilder()
@@ -555,6 +584,25 @@ public class TagServiceTest {
         assertEquals(Long.valueOf(0L), service.getTagForExternalIdAndCollection("missing", collection.getTagCollectionId()).get().getExternalCreationDate());
         assertEquals(Long.valueOf(Instant.parse("2024-02-29T00:00:00Z").toEpochMilli()),
             service.getTagForExternalIdAndCollection("valid", collection.getTagCollectionId()).get().getExternalCreationDate());
+    }
+
+    @Test
+    public void externalSourceImportDoesNotExpandDtdEntities() throws Exception {
+        collection("Secure");
+        when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
+        when(configuration.getString("tags.tagcollectionsfile", "tags/tagcollections.xml")).thenReturn("collections.xml");
+        when(configuration.getString("tags.tagsfile", "tags/tags.xml")).thenReturn("tags.xml");
+        Files.writeString(files.getRoot().toPath().resolve("collections.xml"), "<TagCollections/>");
+        Path external = files.getRoot().toPath().resolve("external.txt");
+        Files.writeString(external, "External entity label");
+        for (String declaration : new String[] { "'Internal entity label'", "SYSTEM '" + external.toUri() + "'" }) {
+            Files.writeString(files.getRoot().toPath().resolve("tags.xml"),
+                "<!DOCTYPE Tags [<!ENTITY label " + declaration + ">]><Tags><Tag>"
+                + "<TagLabel>&label;</TagLabel><ExternalId>entity</ExternalId>"
+                + "<ExternalSourceName>Secure-source</ExternalSourceName></Tag></Tags>");
+            genericImport.execute(null);
+            assertTrue(service.getTags().isEmpty());
+        }
     }
 
     @Test
