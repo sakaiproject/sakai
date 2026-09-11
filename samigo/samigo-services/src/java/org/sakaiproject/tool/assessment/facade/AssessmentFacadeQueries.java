@@ -40,7 +40,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -110,7 +109,6 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -397,10 +395,12 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		Session session = sessionFactory.getCurrentSession();
 		try {
 			AssessmentData assessment = session.get(AssessmentData.class, assessmentId);
-			if (assessment != null) {
-				assessment.setSectionSet(getSectionSetForAssessment(assessment));
-				return new AssessmentFacade(assessment);
+			if (assessment == null) {
+				log.warn("Could not retrieve assessment: {} because it does not exist", assessmentId);
+				return null;
 			}
+			assessment.setSectionSet(getSectionSetForAssessment(assessment));
+			return new AssessmentFacade(assessment);
 		} catch (DataAccessException dae) {
 			log.warn("Could not retrieve assessment: {}", assessmentId, dae);
 		}

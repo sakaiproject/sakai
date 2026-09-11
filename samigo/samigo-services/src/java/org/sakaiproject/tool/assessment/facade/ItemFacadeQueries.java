@@ -129,8 +129,8 @@ public class ItemFacadeQueries implements ItemFacadeQueriesAPI {
         CriteriaQuery<ItemMetaDataIfc> cq = cb.createQuery(ItemMetaDataIfc.class);
         Root<ItemMetaData> root = cq.from(ItemMetaData.class);
         cq.where(
-                cb.equal(root.get("item").get("itemId"), itemId),
-                cb.equal(root.get("label"), label));
+           cb.equal(root.get("item").get("itemId"), itemId),
+           cb.equal(root.get("label"), label));
 
         List<ItemMetaDataIfc> itemmetadatalist = (List<ItemMetaDataIfc>) session.createQuery(cq).list();
 
@@ -217,6 +217,10 @@ public class ItemFacadeQueries implements ItemFacadeQueriesAPI {
 	  Session session = sessionFactory.getCurrentSession();
 	  try {
 		  item = session.get(ItemData.class, itemId);
+		  if (item == null) {
+			  log.warn("unable to retrieve item [{}] because it does not exist", itemId);
+			  return null;
+		  }
 	  } catch (DataAccessException e) {
 		  log.warn("unable to retrieve item [{}] due to:", itemId, e);
 		  return null;

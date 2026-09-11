@@ -17,12 +17,10 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
-import org.hibernate.SessionFactory;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
@@ -30,13 +28,9 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 public class AssesmentFacadeTest  extends AbstractJUnit4SpringContextTests{
 
 	//our object
-	AssessmentFacadeQueries queries = null;
-
-	@Before
-	public void onSetUpInTransaction() throws Exception {
-		queries = new AssessmentFacadeQueries();
-		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
-	}
+	@Autowired
+	@Qualifier("assessmentFacadeQueries")
+	private AssessmentFacadeQueries queries;
 
 	@Test
 	public void testGetAssesment() {

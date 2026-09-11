@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.assignment.impl;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import java.time.Instant;
 import java.time.format.FormatStyle;

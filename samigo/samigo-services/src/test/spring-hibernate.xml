@@ -33,6 +33,11 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
+    <bean id="assessmentFacadeQueries"
+          class="org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
     <bean id="sessionFactory"
           class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
