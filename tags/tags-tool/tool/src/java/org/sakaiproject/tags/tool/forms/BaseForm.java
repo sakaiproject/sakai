@@ -38,7 +38,14 @@ class BaseForm {
     protected String uuid;
 
     protected static Long parseNullableLong(String value) {
-        return StringUtils.isBlank(value) ? null : Long.valueOf(value);
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        try {
+            return Long.valueOf(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     protected static long parseTime(String timeString) {
@@ -53,4 +60,3 @@ class BaseForm {
         }
     }
 }
-
