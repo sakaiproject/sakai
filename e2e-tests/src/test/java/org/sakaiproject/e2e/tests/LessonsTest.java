@@ -115,6 +115,51 @@ class LessonsTest extends SakaiUiTestBase {
             new Locator.GetByRoleOptions().setName("Add More Pages").setExact(true))).isVisible();
     }
 
+    @Test
+    @Order(4)
+    void resizingEmbeddedImagePreservesItsMediaType() {
+        if (sakaiUrl == null) {
+            canCreateNewCourse();
+        }
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Lessons");
+
+        // The query string prevents extension fallback from masking a lost MIME type.
+        String imageUrl = "https://www.google.com/images/branding/googlelogo/2x/"
+            + "googlelogo_color_272x92dp.png?regression=SAK-52825";
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+        page.locator("#addContentDiv .add-multimedia").click();
+        Locator addDialog = page.locator("#add-multimedia-dialog");
+        assertThat(addDialog).isVisible();
+        addDialog.locator("#new-url-section-collapse").click();
+        addDialog.locator("#mm-url").fill(imageUrl);
+        addDialog.locator("#mm-add-item").click();
+
+        Locator embeddedImage = page.locator("img.multimedia");
+        assertThat(embeddedImage).hasAttribute("src", imageUrl);
+        assertThat(embeddedImage).isVisible();
+        embeddedImage.hover();
+        page.locator(".image-col .multimedia-edit").click();
+        Locator editDialog = page.locator("#edit-multimedia-dialog");
+        assertThat(editDialog).isVisible();
+        editDialog.locator("#width").fill("120");
+        editDialog.locator("#height").fill("80");
+        editDialog.locator("#alt").fill("Resized logo");
+        editDialog.locator("#edit-multimedia-item").click();
+
+        assertThat(embeddedImage).isVisible();
+        assertThat(embeddedImage).hasAttribute("width", "120");
+        assertThat(embeddedImage).hasAttribute("height", "80");
+        assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
+        page.reload();
+        assertThat(embeddedImage).isVisible();
+        assertThat(embeddedImage).hasAttribute("width", "120");
+        assertThat(embeddedImage).hasAttribute("height", "80");
+        assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
+        assertThat(page.locator(".image-col .mm-type")).hasText("image/png");
+    }
+
     private void addSubpage(String title) {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
 
