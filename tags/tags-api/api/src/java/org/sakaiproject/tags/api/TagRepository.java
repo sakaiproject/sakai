@@ -1,10 +1,6 @@
 /**********************************************************************************
  *
- * Copyright (c) 2016 The Sakai Foundation
- *
- * Original developers:
- *
- *   Unicon
+ * Copyright (c) 2026 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
