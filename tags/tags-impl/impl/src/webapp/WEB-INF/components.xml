@@ -21,11 +21,7 @@
 
     <!--  Import Tags Job  -->
 
-    <bean id="org.sakaiproject.tags.impl.job.meshTagsSyncJob"
-          class="org.sakaiproject.tags.impl.job.MeshTagsSyncJob">
-        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
-    </bean>
+
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.meshTagsSyncJob"
           class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
@@ -36,11 +32,7 @@
 
     </bean>
 
-    <bean id="org.sakaiproject.tags.impl.job.tagsSyncJob"
-          class="org.sakaiproject.tags.impl.job.TagsSyncJob">
-        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
-    </bean>
+
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.tagsSyncJob"
           class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
@@ -52,11 +44,7 @@
     </bean>
 
 
-    <bean id="org.sakaiproject.tags.impl.job.tagsExportedXMLSyncJob"
-          class="org.sakaiproject.tags.impl.job.TagsExportedXMLSyncJob">
-        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
-    </bean>
+
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.tagsExportedXMLSyncJob"
           class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"

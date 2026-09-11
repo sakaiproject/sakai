@@ -111,13 +111,16 @@ public interface TagService {
     public int getMaxPageSize();
 
     /**
-        * Save a new association between an item and a specific tag.
+        * Associate an existing tag ID; a missing ID is an error, never a label.
         * @param itemId
         * The ID of the item to be associated.
         * @param tagId
         * The ID of the tag to associate with the item.
     */
-    public void saveTagAssociation(String itemId, String tagId);
+    public void associateExistingTag(String itemId, String tagId);
+
+    /** Create a new tag from a literal label and associate it with the item. */
+    public String createAndAssociateTag(String collectionId, String itemId, String label, boolean isSite);
     /**
         * Retrieve a list of tags that match an exact label within a specific collection.
         * @param label
@@ -159,16 +162,8 @@ public interface TagService {
 	    * @return A list containing the newly duplicated tags.
     */
     public List<Tag> duplicateTags(String targetCollectionId, boolean isSite, Collection<String> tagIds, String targetItemId);
-    /**
-        * Update the tag associations for an item by adding new ones and removing those deselected.
-        * @param collectionId
-        * The ID of the collection context.
-        * @param itemId
-        * The ID of the item to update associations for.
-        * @param tagIds
-        * The current collection of tag IDs that should be associated with the item.
-        * @param isSite
-        * Whether the collection belongs to a site context or a user context.
-	*/
-    public void updateTagAssociations(String collectionId, String itemId, Collection<String> tagIds, boolean isSite);
+    /** Replace the UI selection. Existing IDs are associated; other values are literal labels.
+     * Prefer the explicit association methods when the input kind is already known.
+     */
+    public void updateTagAssociations(String collectionId, String itemId, Collection<String> selections, boolean isSite);
 }

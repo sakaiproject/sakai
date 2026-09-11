@@ -36,4 +36,25 @@
             </list>
         </property>
     </bean>
+
+    <bean id="org.sakaiproject.tags.impl.job.meshTagsSyncJob"
+          class="org.sakaiproject.tags.impl.job.MeshTagsSyncJob">
+        <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.tags.impl.job.tagsSyncJob"
+          class="org.sakaiproject.tags.impl.job.TagsSyncJob">
+        <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.tags.impl.job.tagsExportedXMLSyncJob"
+          class="org.sakaiproject.tags.impl.job.TagsExportedXMLSyncJob">
+        <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+    </bean>
 </beans>

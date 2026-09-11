@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.util.Objects;
 
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -111,11 +110,12 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 		try{
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			XMLStreamReader xsr = factory.createXMLStreamReader(getTagCollectionssXmlInputStream());
-			xsr.next();
+			xsr.nextTag();
+			xsr.nextTag();
 			TransformerFactory tf = TransformerFactory.newInstance();
 			Transformer t = tf.newTransformer();
 
-			while (xsr.nextTag() == XMLStreamConstants.START_ELEMENT) {
+			while (hasImportElement(xsr)) {
 				DOMResult result = new DOMResult();
 				t.transform(new StAXSource(xsr), result);
 
@@ -146,11 +146,12 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 		try{
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			XMLStreamReader xsr = factory.createXMLStreamReader(getTagsXmlInputStream());
-			xsr.next();
+			xsr.nextTag();
+			xsr.nextTag();
 			TransformerFactory tf = TransformerFactory.newInstance();
 			Transformer t = tf.newTransformer();
 
-			while (xsr.nextTag() == XMLStreamConstants.START_ELEMENT) {
+			while (hasImportElement(xsr)) {
 				DOMResult result = new DOMResult();
 				t.transform(new StAXSource(xsr), result);
 

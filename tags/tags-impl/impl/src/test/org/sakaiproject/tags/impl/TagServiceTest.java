@@ -26,16 +26,23 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import javax.sql.DataSource;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.tags.impl.job.TagsSyncJob;
+import org.sakaiproject.tags.impl.job.TagsExportedXMLSyncJob;
 import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -51,6 +58,10 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TagServiceTestConfiguration.class)
 public class TagServiceTest {
+    @Rule public TemporaryFolder files = new TemporaryFolder();
+    @Autowired private ServerConfigurationService configuration;
+    @Autowired private TagsSyncJob genericImport;
+    @Autowired private TagsExportedXMLSyncJob fullImport;
     @Autowired private TagService service;
     @Autowired private SessionManager sessionManager;
     @Autowired private EventTrackingService events;
@@ -352,7 +363,7 @@ public class TagServiceTest {
     public void deletesTagAndAssociationsTogether() {
         TagCollection collection = collection("Delete tag");
         Tag tag = tag(collection, "Tag");
-        service.saveTagAssociation("item", tag.getTagId());
+        service.associateExistingTag("item", tag.getTagId());
         clearInvocations(events);
         service.deleteTag(tag.getTagId());
         assertFalse(service.getTag(tag.getTagId()).isPresent());
@@ -364,7 +375,7 @@ public class TagServiceTest {
     public void deletesCollectionTagsAndAssociationsTogether() {
         TagCollection collection = collection("Delete collection");
         Tag tag = tag(collection, "Tag");
-        service.saveTagAssociation("item", tag.getTagId());
+        service.associateExistingTag("item", tag.getTagId());
         clearInvocations(events);
         service.deleteTagCollection(collection.getTagCollectionId());
         assertFalse(service.getTagCollection(collection.getTagCollectionId()).isPresent());
@@ -412,9 +423,9 @@ public class TagServiceTest {
         Tag selected = tag(collection, "Selected tag");
         Tag other = tag(collection("Other"), "Other tag");
         Tag otherItem = tag(collection, "Other item");
-        service.saveTagAssociation("item", selected.getTagId());
-        service.saveTagAssociation("item", other.getTagId());
-        service.saveTagAssociation("other-item", otherItem.getTagId());
+        service.associateExistingTag("item", selected.getTagId());
+        service.associateExistingTag("item", other.getTagId());
+        service.associateExistingTag("other-item", otherItem.getTagId());
         new TransactionTemplate(transactionManager).execute(status -> {
             List<Tag> tags = service.getAssociatedTagsForItem(collection.getTagCollectionId(), "item");
             assertEquals(1, tags.size());
@@ -434,6 +445,83 @@ public class TagServiceTest {
         assertEquals(2, service.getAssociatedTagsForItem(collection.getTagCollectionId(), "item").size());
         service.updateTagAssociations(collection.getTagCollectionId(), "item", Collections.singletonList(tag.getTagId()), true);
         assertEquals(Collections.singletonList(tag.getTagId()), service.getTagAssociationIds(collection.getTagCollectionId(), "item"));
+    }
+
+    @Test
+    public void explicitAssociationRejectsMissingIdsWithoutCreatingLabels() {
+        assertThrows(org.sakaiproject.tags.api.TagServiceException.class,
+            () -> service.associateExistingTag("item", "This is not a tag ID"));
+        assertTrue(service.getTags().isEmpty());
+        verify(events, never()).post(any());
+    }
+
+    @Test
+    public void literalLabelsAreNeverInterpretedAsIds() {
+        TagCollection collection = collection("Explicit inputs");
+        Tag existing = tag(collection, "Existing");
+        service.associateExistingTag("existing-item", existing.getTagId());
+        String created = service.createAndAssociateTag(collection.getTagCollectionId(), "label-item", existing.getTagId(), true);
+        assertNotEquals(existing.getTagId(), created);
+        assertEquals(existing.getTagId(), service.getTag(created).get().getTagLabel());
+        assertEquals(Collections.singletonList(created), service.getTagAssociationIds(collection.getTagCollectionId(), "label-item"));
+    }
+
+    @Test
+    public void externalSourceImportCreatesAndUpdatesWithoutReplacingCreationMetadata() throws Exception {
+        when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
+        when(configuration.getString("tags.tagcollectionsfile", "tags/tagcollections.xml")).thenReturn("collections.xml");
+        when(configuration.getString("tags.tagsfile", "tags/tags.xml")).thenReturn("tags.xml");
+        Path collectionsFile = files.getRoot().toPath().resolve("collections.xml");
+        Path tagsFile = files.getRoot().toPath().resolve("tags.xml");
+        String collectionsXml = "<TagCollections><TagCollection><Name>Imported</Name><Description>Original</Description>"
+            + "<ExternalSourceName>Source</ExternalSourceName><ExternalSourceDescription>Source description</ExternalSourceDescription>"
+            + "<DateRevised><Year>2020</Year><Month>01</Month><Day>01</Day></DateRevised></TagCollection></TagCollections>";
+        String tagsXml = "<Tags><Tag><TagLabel>First</TagLabel><ExternalId>external</ExternalId>"
+            + "<ExternalSourceName>Source</ExternalSourceName><Description>Tag description</Description>"
+            + "<DateCreated><Year>2020</Year><Month>01</Month><Day>01</Day></DateCreated>"
+            + "<DateRevised><Year>2021</Year><Month>01</Month><Day>01</Day></DateRevised></Tag></Tags>";
+        Files.writeString(collectionsFile, collectionsXml);
+        Files.writeString(tagsFile, tagsXml);
+        genericImport.execute(null);
+        TagCollection collection = service.getTagCollectionForExternalSourceName("Source").get();
+        Tag original = service.getTagForExternalIdAndCollection("external", collection.getTagCollectionId()).get();
+        Files.writeString(collectionsFile, collectionsXml.replace("Imported", "Renamed").replace("Original", "Ignored on update"));
+        Files.writeString(tagsFile, tagsXml.replace("First", "Updated").replace("2020", "2022").replace("><", ">\n<"));
+        genericImport.execute(null);
+        Tag updated = service.getTag(original.getTagId()).get();
+        assertEquals("Updated", updated.getTagLabel());
+        assertEquals(original.getExternalCreationDate(), updated.getExternalCreationDate());
+        assertEquals(original.getCreationDate(), updated.getCreationDate());
+        assertEquals(1, service.getTagsInCollection(collection.getTagCollectionId()).size());
+        TagCollection saved = service.getTagCollection(collection.getTagCollectionId()).get();
+        assertEquals("Renamed", saved.getName());
+        assertEquals("Original", saved.getDescription());
+        assertNotNull(saved.getLastSynchronizationDate());
+    }
+
+    @Test
+    public void fullImportUpdatesByIdThenFallsBackToExternalIdAndCreatesMissingTags() throws Exception {
+        TagCollection collection = collection("Full import");
+        Tag byId = tag(collection, "By ID");
+        Tag byExternalId = tag(collection, "By external ID");
+        Tag expired = tag(collection, "Expired");
+        jdbc.update("UPDATE tagservice_tag SET lastmodificationdate=1 WHERE tagid=?", expired.getTagId());
+        when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
+        when(configuration.getString("tags.fullxmltagsfile", "tags/fullxmltags.xml")).thenReturn("full.xml");
+        String row = "<Tag><tagId>%s</tagId><externalId>%s</externalId><tagCollectionId>%s</tagCollectionId>"
+            + "<tagLabel>%s</tagLabel><externalCreationDate>99</externalCreationDate></Tag>";
+        Files.writeString(files.getRoot().toPath().resolve("full.xml"), "<Tags>"
+            + String.format(row, byId.getTagId(), byId.getExternalId(), collection.getTagCollectionId(), "Updated by ID")
+            + String.format(row, UUID.randomUUID(), byExternalId.getExternalId(), collection.getTagCollectionId(), "Updated by external ID")
+            + String.format(row, "", "new-external", collection.getTagCollectionId(), "New tag") + "</Tags>");
+        fullImport.execute(null);
+        assertEquals("Updated by ID", service.getTag(byId.getTagId()).get().getTagLabel());
+        assertEquals(Long.valueOf(99L), service.getTag(byId.getTagId()).get().getExternalCreationDate());
+        assertEquals("Updated by external ID", service.getTag(byExternalId.getTagId()).get().getTagLabel());
+        assertEquals(byExternalId.getExternalCreationDate(), service.getTag(byExternalId.getTagId()).get().getExternalCreationDate());
+        assertEquals("New tag", service.getTagForExternalIdAndCollection("new-external", collection.getTagCollectionId()).get().getTagLabel());
+        assertFalse(service.getTag(expired.getTagId()).isPresent());
+        assertEquals(3, service.getTagsInCollection(collection.getTagCollectionId()).size());
     }
 
     @Test
@@ -547,7 +635,7 @@ public class TagServiceTest {
     public void rollingBackCollectionDeletionRestoresTagsAndAssociations() {
         TagCollection collection = collection("Rollback delete");
         Tag tag = tag(collection, "Keep");
-        service.saveTagAssociation("item", tag.getTagId());
+        service.associateExistingTag("item", tag.getTagId());
         clearInvocations(events);
         new TransactionTemplate(transactionManager).execute(status -> {
             service.deleteTagCollection(collection.getTagCollectionId());
