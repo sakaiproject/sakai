@@ -301,7 +301,6 @@
         site-id="$assignment.context"
         tool-id="sakai.assignment.grades"
         entity-id="$assignment.Id"
-        instructor="true"
         is-peer-or-self="true"
         #if($!assignment.IsGroup)
             evaluated-item-id="$submission.GroupId"
