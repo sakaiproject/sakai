@@ -420,7 +420,7 @@ function printView(url) {
 					#if ($assignment.IsGroup)
 						#set($siteUser = $userSubmission.Group)
 						#set($submitterName=$!siteUser.title)
-						#set($gusers = $submission.getSubmitters())
+						#set($gusers = $service.getSubmissionSubmittersAsUsers($submission))
 					#else
 						#set($siteUser = $userSubmission.User)
 						#set($submitterSortName=$!siteUser.sortName) 
@@ -478,6 +478,26 @@ function printView(url) {
 											#else
 												$formattedText.escapeHtml($submitterName)
 											#end
+										#end
+
+										#if ($assignment.IsGroup && !$value_CheckAnonymousGrading && $gusers)
+											<div class="badge bg-primary fs-6">
+											#foreach ($user in $gusers)
+												#if($velocityCount > 1), #end
+												#set($is_user_duplicate=false)
+												#if($usersinmultiplegroups)
+													#foreach ($userin in $usersinmultiplegroups)
+														#if ($userin.indexOf($user.getDisplayName()) > -1)#set($is_user_duplicate=true)#end
+													#end
+												#end
+												#if($is_user_duplicate)<em class="error alertMessage"><abbr title="$tlang.getString("group.user.duplicate.error")">#end$formattedText.escapeHtml($user.getDisplayName())#if($is_user_duplicate)</abbr></em>#end
+													#set ($group_value_grade = "")
+													#set ($group_value_grade = $value_grades.get($user.getId()))
+													#if ($!group_value_grade.length() > 0)
+														<abbr title="$tlang.getFormattedMessage("group.user.grade.override", $formattedText.escapeHtml($user.getDisplayName()))">($!group_value_grade)</abbr>
+													#end
+											#end
+											</div>
 										#end
 
 									</div>
