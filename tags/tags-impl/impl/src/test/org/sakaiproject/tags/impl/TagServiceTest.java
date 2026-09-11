@@ -308,7 +308,7 @@ public class TagServiceTest {
     }
 
     @Test
-    public void associatedTagsAreScopedAndReturnedAsEditableCopies() {
+    public void associatedTagsAreScopedAndShareThePersistenceContext() {
         TagCollection collection = collection("Selected");
         Tag selected = tag(collection, "Selected tag");
         Tag other = tag(collection("Other"), "Other tag");
@@ -321,7 +321,7 @@ public class TagServiceTest {
             assertEquals(1, tags.size());
             assertEquals(selected.getTagId(), tags.get(0).getTagId());
             assertEquals("Selected", tags.get(0).getCollectionName());
-            tags.get(0).setTagLabel("Unsaved");
+            assertSame(service.getTag(selected.getTagId()).get(), tags.get(0));
             return null;
         });
         assertEquals("Selected tag", service.getTag(selected.getTagId()).get().getTagLabel());
@@ -371,17 +371,45 @@ public class TagServiceTest {
     }
 
     @Test
-    public void editingReturnedObjectsDoesNotPersistWithoutUpdate() {
-        TagCollection collection = collection("Detached");
+    public void serviceAppliesSubmittedEditsToManagedEntitiesAndPostsAfterCommit() {
+        TagCollection collection = collection("Original collection");
         Tag tag = tag(collection, "Original");
         clearInvocations(events);
         new TransactionTemplate(transactionManager).execute(status -> {
-            service.getTag(tag.getTagId()).get().setTagLabel("Unsaved");
-            service.getTagCollection(collection.getTagCollectionId()).get().setName("Unsaved");
+            Tag managed = service.getTag(tag.getTagId()).get();
+            TagCollection managedCollection = service.getTagCollection(collection.getTagCollectionId()).get();
+            Tag edits = managed.toBuilder().tagLabel("Updated").createdBy("forged").build();
+            TagCollection collectionEdits = managedCollection.toBuilder().name("Updated collection").build();
+            assertEquals("Original", managed.getTagLabel());
+            service.updateTag(edits);
+            service.updateTagCollection(collectionEdits);
+            assertEquals("Updated", managed.getTagLabel());
+            assertEquals("Updated collection", managedCollection.getName());
+            assertEquals("creator", managed.getCreatedBy());
+            verify(events, never()).post(any());
+            return null;
+        });
+        assertEquals("Updated", service.getTag(tag.getTagId()).get().getTagLabel());
+        assertEquals("Updated collection", service.getTagCollection(collection.getTagCollectionId()).get().getName());
+        verify(events).post(argThat(event -> event.getEvent().equals("tags.update.tag")));
+        verify(events).post(argThat(event -> event.getEvent().equals("tags.update.collection")));
+    }
+
+    @Test
+    public void managedUpdatesRollBackWithTheEnclosingTransaction() {
+        TagCollection collection = collection("Rollback update");
+        Tag tag = tag(collection, "Original");
+        clearInvocations(events);
+        new TransactionTemplate(transactionManager).execute(status -> {
+            service.updateTag(service.getTag(tag.getTagId()).get().toBuilder().tagLabel("Rolled back").build());
+            service.updateTagCollection(service.getTagCollection(collection.getTagCollectionId()).get()
+                .toBuilder().name("Rolled back").build());
+            status.setRollbackOnly();
             return null;
         });
         assertEquals("Original", service.getTag(tag.getTagId()).get().getTagLabel());
-        assertEquals("Detached", service.getTagCollection(collection.getTagCollectionId()).get().getName());
+        assertEquals("Rollback update", service.getTagCollection(collection.getTagCollectionId()).get().getName());
+        assertEquals(tag.getLastModificationDate(), service.getTag(tag.getTagId()).get().getLastModificationDate());
         verify(events, never()).post(any());
     }
 

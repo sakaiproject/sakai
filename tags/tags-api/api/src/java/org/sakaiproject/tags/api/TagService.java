@@ -28,6 +28,8 @@ import java.util.Optional;
 
 /**
  * The interface for the tags service.
+ * Reads follow the normal JPA lifecycle: entities remain managed while their
+ * persistence context is open.
  */
 public interface TagService {
 
@@ -42,6 +44,10 @@ public interface TagService {
 
     public String createTag(Tag tag);
 
+    /** Apply submitted values to the tag within a transaction, preserving creation metadata.
+     * Build edits separately (for example with {@code tag.toBuilder()}); do not mutate
+     * a queried entity before calling this method in an enclosing transaction.
+     */
     public void updateTag(Tag tag);
 
     public void deleteTag(String tagId);
@@ -72,6 +78,7 @@ public interface TagService {
 
     public String createTagCollection(TagCollection tagCollection);
 
+    /** Apply separately constructed edits within a transaction, preserving creation metadata. */
     public void updateTagCollection(TagCollection tagCollection);
 
     public void deleteTagCollection(String tagCollectionId);

@@ -50,7 +50,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  * A data object representing a tag.
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "TagServiceTag")

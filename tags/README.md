@@ -10,9 +10,12 @@ consolidation PR. Schema creation uses Sakai's global
 
 Java callers use `TagService` directly, for example `getTag(id)` and
 `createTag(tag)`, instead of the former `Tags` and `TagCollections` sub-services.
-Reads return editable copies; call `updateTag` or `updateTagCollection` to save
-changes. Each write operation is transactional, and its events are posted only
-after a successful commit.
+Reads follow the normal JPA lifecycle and may return managed entities inside an
+existing transaction. Prepare edits with `tag.toBuilder()` or
+`collection.toBuilder()`, then submit the built values to `updateTag` or
+`updateTagCollection`. The service loads and updates the managed entity, preserves
+creation metadata, and records the current editor and modification time. Events
+are posted only after a successful commit.
 
 TAGS ADMINISTRATION 
 
