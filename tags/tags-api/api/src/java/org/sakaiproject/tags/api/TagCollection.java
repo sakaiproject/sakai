@@ -42,7 +42,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  * The interface for the tag service.
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "TagServiceCollection")

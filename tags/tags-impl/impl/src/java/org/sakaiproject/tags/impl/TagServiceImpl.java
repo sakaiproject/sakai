@@ -95,7 +95,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getTagsByExactLabel(String label, String collectionId) {
-        return tagCopies(tagRepository.findByLabel(label, collectionId));
+        return withCollectionNames(tagRepository.findByLabel(label, collectionId));
     }
 
     @Override
@@ -105,7 +105,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getAssociatedTagsForItem(String collectionId, String itemId) {
-        return tagCopies(tagRepository.findAssociatedTags(collectionId, itemId));
+        return withCollectionNames(tagRepository.findAssociatedTags(collectionId, itemId));
     }
 
     @Override
@@ -210,12 +210,12 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getTags() {
-        return tagCopies(tagRepository.findAllOrdered());
+        return withCollectionNames(tagRepository.findAllOrdered());
     }
 
     @Override
     public Optional<Tag> getTag(String id) {
-        return tagRepository.findById(id).map(tag -> tagCopies(Collections.singletonList(tag)).get(0));
+        return tagRepository.findById(id).map(tag -> withCollectionNames(Collections.singletonList(tag)).get(0));
     }
 
     @Override
@@ -225,12 +225,12 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getTagsPaginatedInCollection(int pageNum, int pageSize, String collectionId) {
-        return tagCopies(tagRepository.findByCollection(collectionId, offset(pageNum, pageSize), pageSize));
+        return withCollectionNames(tagRepository.findByCollection(collectionId, offset(pageNum, pageSize), pageSize));
     }
 
     @Override
     public List<Tag> getTagsByPartialLabel(String label) {
-        return tagCopies(tagRepository.findByPartialLabel(label));
+        return withCollectionNames(tagRepository.findByPartialLabel(label));
     }
 
     @Override
@@ -240,7 +240,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getTagsPaginatedByPrefixInLabel(int pageNum, int pageSize, String label) {
-        return tagCopies(tagRepository.findByPrefix(label, offset(pageNum, pageSize), pageSize));
+        return withCollectionNames(tagRepository.findByPrefix(label, offset(pageNum, pageSize), pageSize));
     }
 
     @Override
@@ -255,7 +255,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Optional<Tag> getTagForExternalIdAndCollection(String externalId, String collectionId) {
-        return tagRepository.findByExternalId(externalId, collectionId).map(tag -> tagCopies(Collections.singletonList(tag)).get(0));
+        return tagRepository.findByExternalId(externalId, collectionId).map(tag -> withCollectionNames(Collections.singletonList(tag)).get(0));
     }
 
     @Override
@@ -265,8 +265,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<TagCollection> getTagCollectionsPaginated(int pageNum, int pageSize) {
-        return tagCollectionRepository.findAllOrdered(offset(pageNum, pageSize), pageSize).stream()
-            .map(this::copy).collect(Collectors.toList());
+        return tagCollectionRepository.findAllOrdered(offset(pageNum, pageSize), pageSize);
     }
 
     @Override
@@ -276,47 +275,45 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Optional<TagCollection> getTagCollection(String id) {
-        return tagCollectionRepository.findById(id).map(this::copy);
+        return tagCollectionRepository.findById(id);
     }
 
     @Override
     public Optional<TagCollection> getTagCollectionForName(String name) {
-        return tagCollectionRepository.findByName(name).map(this::copy);
+        return tagCollectionRepository.findByName(name);
     }
 
     @Override
     public Optional<TagCollection> getTagCollectionForExternalSourceName(String name) {
-        return tagCollectionRepository.findByExternalSourceName(name).map(this::copy);
+        return tagCollectionRepository.findByExternalSourceName(name);
     }
 
     @Override
     @Transactional
     public String createTag(Tag tag) {
-        Tag created = copy(tag);
-        created.setTagId(UUID.randomUUID().toString());
-        created.setCreatedBy(sessionManager.getCurrentSessionUserId());
-        created.setCreationDate(Instant.now().toEpochMilli());
-        created.setLastModifiedBy(created.getCreatedBy());
-        created.setLastModificationDate(created.getCreationDate());
-        tagRepository.create(created);
-        postAfterCommit("tags.new.tag", "/tags/" + created.getTagId());
-        return created.getTagId();
+        tag.setTagId(UUID.randomUUID().toString());
+        tag.setCreatedBy(sessionManager.getCurrentSessionUserId());
+        tag.setCreationDate(Instant.now().toEpochMilli());
+        tag.setLastModifiedBy(tag.getCreatedBy());
+        tag.setLastModificationDate(tag.getCreationDate());
+        tagRepository.create(tag);
+        postAfterCommit("tags.new.tag", "/tags/" + tag.getTagId());
+        return tag.getTagId();
     }
 
     @Override
     @Transactional
     public String createTagCollection(TagCollection collection) {
-        TagCollection created = copy(collection);
-        if (created.getTagCollectionId() == null) {
-            created.setTagCollectionId(UUID.randomUUID().toString());
+        if (collection.getTagCollectionId() == null) {
+            collection.setTagCollectionId(UUID.randomUUID().toString());
         }
-        created.setCreatedBy(sessionManager.getCurrentSessionUserId());
-        created.setCreationDate(Instant.now().toEpochMilli());
-        created.setLastModifiedBy(created.getCreatedBy());
-        created.setLastModificationDate(created.getCreationDate());
-        tagCollectionRepository.create(created);
-        postAfterCommit("tags.new.collection", "/tagcollections/" + created.getTagCollectionId());
-        return created.getTagCollectionId();
+        collection.setCreatedBy(sessionManager.getCurrentSessionUserId());
+        collection.setCreationDate(Instant.now().toEpochMilli());
+        collection.setLastModifiedBy(collection.getCreatedBy());
+        collection.setLastModificationDate(collection.getCreationDate());
+        tagCollectionRepository.create(collection);
+        postAfterCommit("tags.new.collection", "/tagcollections/" + collection.getTagCollectionId());
+        return collection.getTagCollectionId();
     }
 
     @Override
@@ -325,13 +322,24 @@ public class TagServiceImpl implements TagService {
         Tag original = tagRepository.findById(tag.getTagId())
             .orElseThrow(() -> new TagServiceException("No tag with id " + tag.getTagId()));
         boolean generateEvent = isEventGeneratingUpdate(tag, original);
-        Tag updated = isDirtyingUpdate(tag, original) ? copy(tag) : copy(original);
-        updated.setCreatedBy(original.getCreatedBy());
-        updated.setCreationDate(original.getCreationDate());
+        if (isDirtyingUpdate(tag, original)) {
+            original.setTagCollectionId(tag.getTagCollectionId());
+            original.setTagLabel(tag.getTagLabel());
+            original.setDescription(tag.getDescription());
+            original.setExternalId(tag.getExternalId());
+            original.setAlternativeLabels(tag.getAlternativeLabels());
+            original.setExternalCreation(tag.getExternalCreation());
+            original.setExternalCreationDate(tag.getExternalCreationDate());
+            original.setExternalUpdate(tag.getExternalUpdate());
+            original.setLastUpdateDateInExternalSystem(tag.getLastUpdateDateInExternalSystem());
+            original.setParentId(tag.getParentId());
+            original.setExternalHierarchyCode(tag.getExternalHierarchyCode());
+            original.setExternalType(tag.getExternalType());
+            original.setData(tag.getData());
+        }
         // Importers use this timestamp even for otherwise unchanged tags.
-        updated.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
-        updated.setLastModificationDate(Instant.now().toEpochMilli());
-        tagRepository.save(updated);
+        original.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
+        original.setLastModificationDate(Instant.now().toEpochMilli());
         if (generateEvent) {
             postAfterCommit("tags.update.tag", "/tags/" + tag.getTagId());
         }
@@ -346,12 +354,16 @@ public class TagServiceImpl implements TagService {
             return;
         }
         boolean generateEvent = isEventGeneratingUpdate(collection, original);
-        TagCollection updated = copy(collection);
-        updated.setCreatedBy(original.getCreatedBy());
-        updated.setCreationDate(original.getCreationDate());
-        updated.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
-        updated.setLastModificationDate(Instant.now().toEpochMilli());
-        tagCollectionRepository.save(updated);
+        original.setName(collection.getName());
+        original.setDescription(collection.getDescription());
+        original.setExternalSourceName(collection.getExternalSourceName());
+        original.setExternalSourceDescription(collection.getExternalSourceDescription());
+        original.setExternalUpdate(collection.getExternalUpdate());
+        original.setExternalCreation(collection.getExternalCreation());
+        original.setLastSynchronizationDate(collection.getLastSynchronizationDate());
+        original.setLastUpdateDateInExternalSystem(collection.getLastUpdateDateInExternalSystem());
+        original.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
+        original.setLastModificationDate(Instant.now().toEpochMilli());
         if (generateEvent) {
             postAfterCommit("tags.update.collection", "/tagcollections/" + collection.getTagCollectionId());
         }
@@ -408,19 +420,16 @@ public class TagServiceImpl implements TagService {
         return Math.multiplyExact(pageNum - 1, pageSize);
     }
 
-    private List<Tag> tagCopies(List<Tag> tags) {
+    private List<Tag> withCollectionNames(List<Tag> tags) {
         Map<String, String> collectionNames = new HashMap<>();
         for (TagCollection collection : tagCollectionRepository.findAllByIds(tags.stream()
                 .map(Tag::getTagCollectionId).distinct().collect(Collectors.toList()))) {
             collectionNames.put(collection.getTagCollectionId(), collection.getName());
         }
-        List<Tag> copies = new ArrayList<>();
         for (Tag tag : tags) {
-            Tag detached = copy(tag);
-            detached.setCollectionName(collectionNames.get(tag.getTagCollectionId()));
-            copies.add(detached);
+            tag.setCollectionName(collectionNames.get(tag.getTagCollectionId()));
         }
-        return copies;
+        return tags;
     }
 
     private void postAfterCommit(String name, String reference) {
@@ -431,44 +440,6 @@ public class TagServiceImpl implements TagService {
                 eventTrackingService.post(event);
             }
         });
-    }
-
-    private Tag copy(Tag tag) {
-        return new Tag(tag.getTagId(),
-            tag.getTagCollectionId(),
-            tag.getTagLabel(),
-            tag.getDescription(),
-            tag.getCreatedBy(),
-            tag.getCreationDate(),
-            tag.getLastModifiedBy(),
-            tag.getLastModificationDate(),
-            tag.getExternalId(),
-            tag.getAlternativeLabels(),
-            tag.getExternalCreation(),
-            tag.getExternalCreationDate(),
-            tag.getExternalUpdate(),
-            tag.getLastUpdateDateInExternalSystem(),
-            tag.getParentId(),
-            tag.getExternalHierarchyCode(),
-            tag.getExternalType(),
-            tag.getData(),
-            tag.getCollectionName(), null);
-    }
-
-    private TagCollection copy(TagCollection collection) {
-        return new TagCollection(collection.getTagCollectionId(),
-            collection.getName(),
-            collection.getDescription(),
-            collection.getCreatedBy(),
-            collection.getCreationDate(),
-            collection.getExternalSourceName(),
-            collection.getExternalSourceDescription(),
-            collection.getLastModifiedBy(),
-            collection.getLastModificationDate(),
-            collection.getExternalUpdate(),
-            collection.getExternalCreation(),
-            collection.getLastSynchronizationDate(),
-            collection.getLastUpdateDateInExternalSystem());
     }
 
     private boolean isDirtyingUpdate(Tag proposed, Tag original) {

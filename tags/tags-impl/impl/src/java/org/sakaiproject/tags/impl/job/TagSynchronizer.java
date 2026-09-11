@@ -91,17 +91,17 @@ public abstract class TagSynchronizer {
 		String collectionID = getTagCollectionIdFromExternalSourceName(externalSourceName);
 		if (externalSourceName!=null){
 			if (tagService().getTagForExternalIdAndCollection(externalId,collectionID).isPresent()){
-				Tag tag = tagService().getTagForExternalIdAndCollection(externalId,collectionID).get();
-				tag.setTagLabel(tagLabel);
-				tag.setDescription(description);
-				tag.setAlternativeLabels(alternativeLabels);
-				tag.setExternalUpdate(Boolean.TRUE);
-				tag.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
-				tag.setParentId(parentId);
-				tag.setExternalHierarchyCode(externalHierarchyCode);
-				tag.setExternalType(externalType);
-				tag.setData(data);
-				tagService().updateTag(tag);
+				Tag.TagBuilder tag = tagService().getTagForExternalIdAndCollection(externalId,collectionID).get().toBuilder();
+				tag.tagLabel(tagLabel);
+				tag.description(description);
+				tag.alternativeLabels(alternativeLabels);
+				tag.externalUpdate(Boolean.TRUE);
+				tag.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
+				tag.parentId(parentId);
+				tag.externalHierarchyCode(externalHierarchyCode);
+				tag.externalType(externalType);
+				tag.data(data);
+				tagService().updateTag(tag.build());
 
 			}else {
 				Tag tag = Tag.builder()
@@ -130,17 +130,17 @@ public abstract class TagSynchronizer {
 
 		if (tagCollectionId!=null){
 			if (tagService().getTagForExternalIdAndCollection(externalId,tagCollectionId).isPresent()){
-				Tag tag = tagService().getTagForExternalIdAndCollection(externalId,tagCollectionId).get();
-				tag.setTagLabel(tagLabel);
-				tag.setDescription(description);
-				tag.setAlternativeLabels(alternativeLabels);
-				tag.setExternalUpdate(Boolean.TRUE);
-				tag.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
-				tag.setParentId(parentId);
-				tag.setExternalHierarchyCode(externalHierarchyCode);
-				tag.setExternalType(externalType);
-				tag.setData(data);
-				tagService().updateTag(tag);
+				Tag.TagBuilder tag = tagService().getTagForExternalIdAndCollection(externalId,tagCollectionId).get().toBuilder();
+				tag.tagLabel(tagLabel);
+				tag.description(description);
+				tag.alternativeLabels(alternativeLabels);
+				tag.externalUpdate(Boolean.TRUE);
+				tag.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
+				tag.parentId(parentId);
+				tag.externalHierarchyCode(externalHierarchyCode);
+				tag.externalType(externalType);
+				tag.data(data);
+				tagService().updateTag(tag.build());
 
 			}else {
 				Tag tag = Tag.builder()
@@ -168,20 +168,20 @@ public abstract class TagSynchronizer {
 													 String externalHierarchyCode, String externalType, String data) {
 
 			if (tagWithIdIsPresent(tagId)){
-				Tag tag = tagService().getTag(tagId).get();
-				tag.setTagCollectionId(tagCollectionId);
-				tag.setTagLabel(tagLabel);
-				tag.setDescription(description);
-				tag.setAlternativeLabels(alternativeLabels);
-				tag.setExternalCreationDate(externalCreationDate);
-				tag.setExternalUpdate(Boolean.TRUE);
-				tag.setExternalId(externalId);
-				tag.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
-				tag.setParentId(parentId);
-				tag.setExternalHierarchyCode(externalHierarchyCode);
-				tag.setExternalType(externalType);
-				tag.setData(data);
-				tagService().updateTag(tag);
+				Tag.TagBuilder tag = tagService().getTag(tagId).get().toBuilder();
+				tag.tagCollectionId(tagCollectionId);
+				tag.tagLabel(tagLabel);
+				tag.description(description);
+				tag.alternativeLabels(alternativeLabels);
+				tag.externalCreationDate(externalCreationDate);
+				tag.externalUpdate(Boolean.TRUE);
+				tag.externalId(externalId);
+				tag.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
+				tag.parentId(parentId);
+				tag.externalHierarchyCode(externalHierarchyCode);
+				tag.externalType(externalType);
+				tag.data(data);
+				tagService().updateTag(tag.build());
 
 			}else {
 				log.warn("Not found tag with TagId: " + tagId);
@@ -199,12 +199,12 @@ public abstract class TagSynchronizer {
 											   long lastUpdateDateInExternalSystem){
 		if (externalSourceName!=null){
 			if (tagService().getTagCollectionForExternalSourceName(externalSourceName).isPresent()){
-				TagCollection tagCollection = tagService().getTagCollectionForExternalSourceName(externalSourceName).get();
-				tagCollection.setName(name);
-				tagCollection.setExternalSourceDescription(externalSourceDescription);
-				tagCollection.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
-				tagCollection.setExternalUpdate(tagCollection.getExternalUpdate());
-				tagService().updateTagCollection(tagCollection);
+				TagCollection.TagCollectionBuilder tagCollection = tagService().getTagCollectionForExternalSourceName(externalSourceName).get().toBuilder();
+				tagCollection.name(name);
+				tagCollection.externalSourceDescription(externalSourceDescription);
+				tagCollection.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
+
+				tagService().updateTagCollection(tagCollection.build());
 			}else {
 				TagCollection tagCollection = TagCollection.builder()
 						.name(name)
@@ -225,12 +225,12 @@ public abstract class TagSynchronizer {
 	protected void updateTagCollectionSynchronization(String externalSourceName, long lastUpdateDateInExternalSystem) {
 		if((StringUtils.isNotBlank(externalSourceName))) {
 
-			TagCollection tagCollection = tagService().getTagCollectionForExternalSourceName(externalSourceName).get();
-			tagCollection.setExternalUpdate(Boolean.TRUE);
-			tagCollection.setLastSynchronizationDate(System.currentTimeMillis());
-			tagCollection.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
+			TagCollection.TagCollectionBuilder tagCollection = tagService().getTagCollectionForExternalSourceName(externalSourceName).get().toBuilder();
+			tagCollection.externalUpdate(Boolean.TRUE);
+			tagCollection.lastSynchronizationDate(System.currentTimeMillis());
+			tagCollection.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
 			try {
-				tagService().updateTagCollection(tagCollection);
+				tagService().updateTagCollection(tagCollection.build());
 			} catch (Exception e) {
 				log.warn("Invalid External Source Name: " + externalSourceName);
 			}
@@ -241,12 +241,12 @@ public abstract class TagSynchronizer {
 
 	protected void updateTagCollectionSynchronizationWithCollectionId(String tagCollectionId, long lastUpdateDateInExternalSystem) {
 		if(tagService().getTagCollection(tagCollectionId).isPresent()) {
-			TagCollection tagCollection = tagService().getTagCollection(tagCollectionId).get();
-			tagCollection.setExternalUpdate(Boolean.TRUE);
-			tagCollection.setLastSynchronizationDate(System.currentTimeMillis());
-			tagCollection.setLastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
+			TagCollection.TagCollectionBuilder tagCollection = tagService().getTagCollection(tagCollectionId).get().toBuilder();
+			tagCollection.externalUpdate(Boolean.TRUE);
+			tagCollection.lastSynchronizationDate(System.currentTimeMillis());
+			tagCollection.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem);
 			try {
-				tagService().updateTagCollection(tagCollection);
+				tagService().updateTagCollection(tagCollection.build());
 			} catch (Exception e) {
 				log.warn("Invalid CollectionId: " + tagCollectionId);
 			}

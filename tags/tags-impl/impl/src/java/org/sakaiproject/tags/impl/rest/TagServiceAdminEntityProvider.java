@@ -310,50 +310,50 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagid= wp.getString("tagid");
 
-            Tag tag = tagService().getTag(tagid).get();
+            Tag.TagBuilder tag = tagService().getTag(tagid).get().toBuilder();
 
             if (wp.containsKey("tagcollectionid")) {
-                tag.setTagCollectionId(wp.getString("tagcollectionid"));
+                tag.tagCollectionId(wp.getString("tagcollectionid"));
             }
             if (wp.containsKey("taglabel")){
-                tag.setTagLabel(wp.getString("taglabel"));
+                tag.tagLabel(wp.getString("taglabel"));
             }
             if (wp.containsKey("description")){
-                tag.setDescription(wp.getString("description"));
+                tag.description(wp.getString("description"));
             }
             if (wp.containsKey("externalid")){
-                tag.setExternalId(wp.getString("externalid"));
+                tag.externalId(wp.getString("externalid"));
             }
             if (wp.containsKey("alternativelabels")){
-                tag.setAlternativeLabels(wp.getString("alternativelabels"));
+                tag.alternativeLabels(wp.getString("alternativelabels"));
             }
             if (wp.containsKey("externalcreation")){
-                tag.setExternalCreation(wp.getBoolean("externalcreation"));
+                tag.externalCreation(wp.getBoolean("externalcreation"));
             }
             if (wp.containsKey("externalcreationdate")){
-                tag.setExternalCreationDate(wp.getEpochMS("externalcreationdate"));
+                tag.externalCreationDate(wp.getEpochMS("externalcreationdate"));
             }
             if (wp.containsKey("externalupdate")){
-                tag.setExternalUpdate(wp.getBoolean("externalupdate"));
+                tag.externalUpdate(wp.getBoolean("externalupdate"));
             }
             if (wp.containsKey("lastupdatedateinexternalsystem")){
-                tag.setLastUpdateDateInExternalSystem(wp.getEpochMS("lastupdatedateinexternalsystem"));
+                tag.lastUpdateDateInExternalSystem(wp.getEpochMS("lastupdatedateinexternalsystem"));
             }
             if (wp.containsKey("parentid")){
-                tag.setParentId(wp.getString("parentid"));
+                tag.parentId(wp.getString("parentid"));
             }
             if (wp.containsKey("externalhierarchycode")){
-                tag.setExternalHierarchyCode(wp.getString("externalhierarchycode"));
+                tag.externalHierarchyCode(wp.getString("externalhierarchycode"));
             }
             if (wp.containsKey("externaltype")){
-                tag.setExternalType(wp.getString("externaltype"));
+                tag.externalType(wp.getString("externaltype"));
             }
             if (wp.containsKey("data")) {
-                tag.setData(wp.getString("data"));
+                tag.data(wp.getString("data"));
             }
 
 
-            tagService().updateTag(tag);
+            tagService().updateTag(tag.build());
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -373,35 +373,35 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagcollectionid= wp.getString("tagcollectionid");
 
-            TagCollection tagCollection = tagService().getTagCollection(tagcollectionid).get();
+            TagCollection.TagCollectionBuilder tagCollection = tagService().getTagCollection(tagcollectionid).get().toBuilder();
 
             //We don't need to change the creation date or user
 
             if (wp.containsKey("name")){
-                tagCollection.setName(wp.getString("name"));
+                tagCollection.name(wp.getString("name"));
             }
             if (wp.containsKey("description")){
-            tagCollection.setDescription(wp.getString("description"));
+            tagCollection.description(wp.getString("description"));
             }
             if (wp.containsKey("externalsourcename")){
-                tagCollection.setExternalSourceName(wp.getString("externalsourcename"));
+                tagCollection.externalSourceName(wp.getString("externalsourcename"));
             }
             if (wp.containsKey("externalsourcedescription")){
-                tagCollection.setExternalSourceDescription(wp.getString("externalsourcedescription"));
+                tagCollection.externalSourceDescription(wp.getString("externalsourcedescription"));
             }
             if (wp.containsKey("externalupdate")){
-                tagCollection.setExternalUpdate(wp.getBoolean("externalupdate"));
+                tagCollection.externalUpdate(wp.getBoolean("externalupdate"));
             }
             if (wp.containsKey("externalcreation")){
-                tagCollection.setExternalCreation(wp.getBoolean("externalcreation"));
+                tagCollection.externalCreation(wp.getBoolean("externalcreation"));
             }
             if (wp.containsKey("lastsynchronizationdate")){
-                tagCollection.setLastSynchronizationDate(wp.getEpochMS("lastsynchronizationdate"));
+                tagCollection.lastSynchronizationDate(wp.getEpochMS("lastsynchronizationdate"));
             }
             if (wp.containsKey("lastupdatedateinexternalsystem")) {
-                tagCollection.setLastUpdateDateInExternalSystem(wp.getEpochMS("lastupdatedateinexternalsystem"));
+                tagCollection.lastUpdateDateInExternalSystem(wp.getEpochMS("lastupdatedateinexternalsystem"));
             }
-            tagService().updateTagCollection(tagCollection);
+            tagService().updateTagCollection(tagCollection.build());
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
