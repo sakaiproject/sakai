@@ -102,6 +102,44 @@ describe("sakai-rubric-student tests", () => {
     expect(fetchMock.callHistory.called(`${data.evaluationUrl}?isPeer=true`)).to.be.true;
   });
 
+  it ("renders completed self-assessment when student preview is hidden", async () => {
+
+    fetchMock.removeRoutes();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.rubric1Url, data.rubric1)
+      .get(data.associationUrl, {
+        ...data.association,
+        parameters: {
+          ...data.association.parameters,
+          hideStudentPreview: 1,
+          studentSelfReport: 1,
+        },
+      })
+      .get(data.evaluationUrl, data.evaluation)
+      .get(`${data.evaluationUrl}?isPeer=true`, data.evaluation)
+      .get("*", 500);
+
+    const el = await fixture(html`
+      <sakai-rubric-student site-id="${data.siteId}"
+          tool-id="${data.toolId}"
+          entity-id="${data.entityId}"
+          evaluated-item-id="${data.evaluatedItemId}"
+          evaluated-item-owner-id="${data.evaluatedItemOwnerId}"
+          is-peer-or-self>
+      </sakai-rubric-student>
+    `);
+
+    await waitUntil(() => el.querySelector(".rubric-details"), "No .rubric-details created");
+    await waitUntil(() => el.querySelector("sakai-rubric-criterion-student"), "No sakai-rubric-criterion-student created");
+
+    const criterionStudent = el.querySelector("sakai-rubric-criterion-student");
+    await waitUntil(() => criterionStudent.querySelector(".criterion-row"), "No criteria rendered");
+
+    expect(el.querySelector(`select[aria-label="${el._i18n.rubric_view_selection_title}"]`)).to.not.exist;
+    expect(fetchMock.callHistory.called(`${data.evaluationUrl}?isPeer=true`)).to.be.true;
+  });
+
   it ("showRubric sets is-peer-or-self and hides summary views", async () => {
 
     window.top.rubrics.utils.initLightbox({ preview_rubric: "Preview", close_dialog: "Close" }, data.siteId);
