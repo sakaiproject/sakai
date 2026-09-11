@@ -16,7 +16,16 @@
 package org.sakaiproject.scorm.dao.hibernate;
 
 import java.util.List;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.SeqActivityTree;
@@ -24,63 +33,54 @@ import org.adl.sequencer.SeqActivityTree;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.SeqActivityTreeSnapshot;
 
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqActivityTreeDao
+@Transactional
+public class SeqActivityTreeDaoImpl implements SeqActivityTreeDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	@Override
 	public ISeqActivityTree find(long contentPackageId, String userId)
 	{
-		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery("from " + SeqActivityTree.class.getName() + " where contentPackageId=:cpid and mLearnerID=:lid")
-				.setParameter("cpid", contentPackageId)
-				.setParameter("lid", userId)
-				.getResultList();
-
-		log.info("SeqActivityTreeDAO::find: records: {}", r.size());
-
-		if (r.isEmpty())
-		{
-			return null;
-		}
-
-		return (ISeqActivityTree) r.get(0);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SeqActivityTree> query = cb.createQuery(SeqActivityTree.class);
+		Root<SeqActivityTree> root = query.from(SeqActivityTree.class);
+		query.select(root).where(cb.equal(root.get("contentPackageId"), contentPackageId), cb.equal(root.get("mLearnerID"), userId));
+		List<SeqActivityTree> result = session.createQuery(query).getResultList();
+		log.debug("Activity trees found: {}", result.size());
+		return result.isEmpty() ? null : result.get(0);
 	}
 
 	public SeqActivityTreeSnapshot findSnapshot(String courseId, String userId)
 	{
-		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery("from " + SeqActivityTreeSnapshot.class.getName() + " where mCourseID=:cid and mLearnerID=:lid")
-				.setParameter("cid", courseId)
-				.setParameter("lid", userId)
-				.getResultList();
-
-		log.info("SeqActivityTreeDAO::findSnapshot: records: {}", r.size());
-
-		if (r.isEmpty())
-		{
-			return null;
-		}
-
-		return (SeqActivityTreeSnapshot) r.get(0);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SeqActivityTreeSnapshot> query = cb.createQuery(SeqActivityTreeSnapshot.class);
+		Root<SeqActivityTreeSnapshot> root = query.from(SeqActivityTreeSnapshot.class);
+		query.select(root).where(cb.equal(root.get("mCourseID"), courseId), cb.equal(root.get("mLearnerID"), userId));
+		List<SeqActivityTreeSnapshot> result = session.createQuery(query).getResultList();
+		log.debug("Activity trees found: {}", result.size());
+		return result.isEmpty() ? null : result.get(0);
 	}
 
 	public List<SeqActivityTreeSnapshot> findUserSnapshots(String userId)
 	{
-		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery("from " + SeqActivityTreeSnapshot.class.getName() + " where mLearnerID=:lid")
-				.setParameter("lid", userId)
-				.getResultList();
-
-		log.info("SeqActivityTreeDAO::findUserSnapshots: records: {}", r.size());
-
-		return r;
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SeqActivityTreeSnapshot> query = cb.createQuery(SeqActivityTreeSnapshot.class);
+		Root<SeqActivityTreeSnapshot> root = query.from(SeqActivityTreeSnapshot.class);
+		query.select(root).where(cb.equal(root.get("mLearnerID"), userId));
+		List<SeqActivityTreeSnapshot> result = session.createQuery(query).getResultList();
+		log.debug("Activity trees found: {}", result.size());
+		return result;
 	}
 
 	@Override
 	public void save(ISeqActivityTree tree)
 	{
-		getHibernateTemplate().saveOrUpdate(tree);
+		sessionFactory.getCurrentSession().merge(tree);
 	}
 }

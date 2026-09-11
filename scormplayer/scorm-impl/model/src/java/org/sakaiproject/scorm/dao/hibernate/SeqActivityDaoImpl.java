@@ -17,34 +17,41 @@ package org.sakaiproject.scorm.dao.hibernate;
 
 import java.util.List;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
+import lombok.Setter;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
 import org.sakaiproject.scorm.dao.api.SeqActivityDao;
 import org.sakaiproject.scorm.model.api.SeqActivitySnapshot;
 
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
-public class SeqActivityDaoImpl extends HibernateDaoSupport implements SeqActivityDao
+@Transactional
+public class SeqActivityDaoImpl implements SeqActivityDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	@Override
 	public SeqActivitySnapshot findSnapshot(String activityId)
 	{
-		List<SeqActivitySnapshot> r = (List<SeqActivitySnapshot>) getHibernateTemplate().getSessionFactory().getCurrentSession()
-				.createQuery("from " + SeqActivitySnapshot.class.getName() + " where activityId=:aid")
-				.setParameter("aid", activityId)
-				.getResultList();
-
-		if (r.isEmpty())
-		{
-			return null;
-		}
-
-		for (SeqActivitySnapshot snapshot : r)
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SeqActivitySnapshot> query = cb.createQuery(SeqActivitySnapshot.class);
+		Root<SeqActivitySnapshot> root = query.from(SeqActivitySnapshot.class);
+		query.select(root).where(cb.equal(root.get("activityId"), activityId));
+		List<SeqActivitySnapshot> result = session.createQuery(query).getResultList();
+		for (SeqActivitySnapshot snapshot : result)
 		{
 			if (snapshot.getScoId() != null)
 			{
 				return snapshot;
 			}
 		}
-
 		return null;
 	}
 }
