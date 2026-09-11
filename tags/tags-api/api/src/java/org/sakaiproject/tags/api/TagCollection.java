@@ -81,30 +81,6 @@ public class TagCollection implements PersistableEntity<String> {
     private Long lastUpdateDateInExternalSystem;
 
 
-    public long getCreationDate() {
-        return creationDate == null ? 0L : creationDate;
-    }
-
-    public long getLastModificationDate() {
-        return lastModificationDate == null ? 0L : lastModificationDate;
-    }
-
-    public Boolean getExternalUpdate() {
-        return Boolean.TRUE.equals(externalUpdate);
-    }
-
-    public Boolean getExternalCreation() {
-        return Boolean.TRUE.equals(externalCreation);
-    }
-
-    public long getLastSynchronizationDate() {
-        return lastSynchronizationDate == null ? 0L : lastSynchronizationDate;
-    }
-
-    public long getLastUpdateDateInExternalSystem() {
-        return lastUpdateDateInExternalSystem == null ? 0L : lastUpdateDateInExternalSystem;
-    }
-
     @Override
     @JsonIgnore
     public String getId() {

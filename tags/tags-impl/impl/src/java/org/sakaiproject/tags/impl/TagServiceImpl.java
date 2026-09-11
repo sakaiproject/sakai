@@ -463,6 +463,7 @@ public class TagServiceImpl implements TagService {
 
     private boolean isDirtyingUpdate(TagCollection proposed, TagCollection original) {
         return isEventGeneratingUpdate(proposed, original)
+                || !Objects.equals(proposed.getExternalCreation(), original.getExternalCreation())
                 || !(Objects.equals(proposed.getExternalUpdate(), original.getExternalUpdate()))
                 || !(Objects.equals(proposed.getLastSynchronizationDate(), original.getLastSynchronizationDate()))
                 || !(Objects.equals(proposed.getLastUpdateDateInExternalSystem(), original.getLastUpdateDateInExternalSystem()));

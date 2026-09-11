@@ -98,7 +98,7 @@ public class TagServiceTest {
         assertTrue(tag.getCreationDate() > 1L);
         assertEquals("Alternative", tag.getAlternativeLabels());
         assertEquals("hierarchy", tag.getExternalHierarchyCode());
-        assertEquals(5L, tag.getExternalCreationDate());
+        assertEquals(Long.valueOf(5L), tag.getExternalCreationDate());
         assertEquals("data", tag.getData());
         assertNotEquals("ignored", tag.getTagId());
         assertEquals("creator", collection.getCreatedBy());
@@ -116,15 +116,85 @@ public class TagServiceTest {
     }
 
     @Test
-    public void readsLegacyNullMetadataAsZeroAndFalse() {
+    public void readsLegacyNullMetadataWithoutCoercion() {
         TagCollection collection = collection("Null metadata");
         String id = UUID.randomUUID().toString();
         jdbc.update("INSERT INTO tagservice_tag(tagid,tagcollectionid,taglabel) VALUES(?,?,?)", id, collection.getTagCollectionId(), "Legacy");
         Tag tag = service.getTag(id).get();
-        assertEquals(0L, tag.getCreationDate());
-        assertEquals(0L, tag.getExternalCreationDate());
-        assertFalse(tag.getExternalCreation());
-        assertFalse(tag.getExternalUpdate());
+        assertNull(tag.getCreationDate());
+        assertNull(tag.getExternalCreationDate());
+        assertNull(tag.getExternalCreation());
+        assertNull(tag.getExternalUpdate());
+    }
+
+    private Tag legacyTagWithNullMetadata() {
+        String collectionId = UUID.randomUUID().toString();
+        String tagId = UUID.randomUUID().toString();
+        jdbc.update("INSERT INTO tagservice_collection(tagcollectionid,name) VALUES(?,?)", collectionId, "Legacy collection");
+        jdbc.update("INSERT INTO tagservice_tag(tagid,tagcollectionid,taglabel) VALUES(?,?,?)", tagId, collectionId, "Legacy tag");
+        return service.getTag(tagId).get();
+    }
+
+    private void assertUntouchedNullMetadata(Tag tag) {
+        jdbc.queryForMap("SELECT creationdate, externalcreationdate, externalcreation, externalupdate "
+            + "FROM tagservice_tag WHERE tagid=?", tag.getTagId()).forEach((column, value) -> assertNull(column, value));
+        jdbc.queryForMap("SELECT creationdate, externalcreation, externalupdate "
+            + "FROM tagservice_collection WHERE tagcollectionid=?", tag.getTagCollectionId())
+            .forEach((column, value) -> assertNull(column, value));
+    }
+
+    @Test
+    public void unchangedUpdatesPreserveDatabaseNulls() {
+        Tag tag = legacyTagWithNullMetadata();
+        service.updateTag(tag);
+        service.updateTagCollection(service.getTagCollection(tag.getTagCollectionId()).get());
+        assertUntouchedNullMetadata(tag);
+        assertNull(jdbc.queryForObject("SELECT lastupdatedateinexternalsystem FROM tagservice_tag WHERE tagid=?", Long.class, tag.getTagId()));
+        jdbc.queryForMap("SELECT lastmodificationdate, lastsynchronizationdate, lastupdatedateinexternalsystem "
+            + "FROM tagservice_collection WHERE tagcollectionid=?", tag.getTagCollectionId())
+            .forEach((column, value) -> assertNull(column, value));
+        assertNotNull(jdbc.queryForObject("SELECT lastmodificationdate FROM tagservice_tag WHERE tagid=?", Long.class, tag.getTagId()));
+        verify(events, never()).post(any());
+    }
+
+    @Test
+    public void contentUpdatesPreserveUnrelatedDatabaseNulls() {
+        Tag tag = legacyTagWithNullMetadata();
+        service.updateTag(tag.toBuilder().tagLabel("Edited").build());
+        service.updateTagCollection(service.getTagCollection(tag.getTagCollectionId()).get()
+            .toBuilder().name("Edited collection").build());
+        assertUntouchedNullMetadata(tag);
+        assertNull(jdbc.queryForObject("SELECT lastupdatedateinexternalsystem FROM tagservice_tag WHERE tagid=?", Long.class, tag.getTagId()));
+        jdbc.queryForMap("SELECT lastsynchronizationdate, lastupdatedateinexternalsystem "
+            + "FROM tagservice_collection WHERE tagcollectionid=?", tag.getTagCollectionId())
+            .forEach((column, value) -> assertNull(column, value));
+        assertEquals("Edited", service.getTag(tag.getTagId()).get().getTagLabel());
+    }
+
+    @Test
+    public void synchronizationUpdatesPreserveUnrelatedDatabaseNulls() {
+        Tag tag = legacyTagWithNullMetadata();
+        service.updateTag(tag.toBuilder().lastUpdateDateInExternalSystem(100L).build());
+        service.updateTagCollection(service.getTagCollection(tag.getTagCollectionId()).get()
+            .toBuilder().lastSynchronizationDate(200L).build());
+        assertUntouchedNullMetadata(tag);
+        assertEquals(Long.valueOf(100L), jdbc.queryForObject("SELECT lastupdatedateinexternalsystem FROM tagservice_tag WHERE tagid=?", Long.class, tag.getTagId()));
+        assertEquals(Long.valueOf(200L), jdbc.queryForObject("SELECT lastsynchronizationdate FROM tagservice_collection WHERE tagcollectionid=?", Long.class, tag.getTagCollectionId()));
+        assertNull(jdbc.queryForObject("SELECT lastupdatedateinexternalsystem FROM tagservice_collection WHERE tagcollectionid=?", Long.class, tag.getTagCollectionId()));
+        verify(events, never()).post(any());
+    }
+
+    @Test
+    public void explicitlySubmittedZeroAndFalseArePersisted() {
+        Tag tag = legacyTagWithNullMetadata();
+        service.updateTag(tag.toBuilder().externalCreationDate(0L).externalCreation(false).build());
+        service.updateTagCollection(service.getTagCollection(tag.getTagCollectionId()).get()
+            .toBuilder().externalCreation(false).build());
+        assertEquals(Long.valueOf(0L), jdbc.queryForObject("SELECT externalcreationdate FROM tagservice_tag WHERE tagid=?", Long.class, tag.getTagId()));
+        assertEquals(Boolean.FALSE, jdbc.queryForObject("SELECT externalcreation FROM tagservice_tag WHERE tagid=?", Boolean.class, tag.getTagId()));
+        assertEquals(Boolean.FALSE, jdbc.queryForObject("SELECT externalcreation FROM tagservice_collection WHERE tagcollectionid=?", Boolean.class, tag.getTagCollectionId()));
+        assertNull(service.getTag(tag.getTagId()).get().getExternalUpdate());
+        verify(events, never()).post(any());
     }
 
     @Test
@@ -165,8 +235,8 @@ public class TagServiceTest {
         service.updateTag(tag);
         collection.setLastSynchronizationDate(100L);
         service.updateTagCollection(collection);
-        assertEquals(100L, service.getTag(tag.getTagId()).get().getLastUpdateDateInExternalSystem());
-        assertEquals(100L, service.getTagCollection(collection.getTagCollectionId()).get().getLastSynchronizationDate());
+        assertEquals(Long.valueOf(100L), service.getTag(tag.getTagId()).get().getLastUpdateDateInExternalSystem());
+        assertEquals(Long.valueOf(100L), service.getTagCollection(collection.getTagCollectionId()).get().getLastSynchronizationDate());
         verify(events, never()).post(any());
     }
 

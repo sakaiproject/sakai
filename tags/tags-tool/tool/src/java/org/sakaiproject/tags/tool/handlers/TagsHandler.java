@@ -112,7 +112,7 @@ public class TagsHandler extends CrudHandler {
         Optional<Tag> tag = tagService.getTag(uuid);
         if (tag.isPresent()) {
             Optional<TagCollection> tagCollection = tagService.getTagCollection(tag.get().getTagCollectionId());
-            if (tagCollection.get().getExternalCreation()){
+            if (Boolean.TRUE.equals(tagCollection.get().getExternalCreation())){
                 context.put("externalcreation", " readonly ");
                 context.put("isExternallyUpdated","style=display:none");
             }
@@ -168,7 +168,7 @@ public class TagsHandler extends CrudHandler {
 
             Optional<TagCollection> tagCollection = tagService.getTagCollection(actualCollection);
             if (tagCollection.isPresent()){
-                if (tagCollection.get().getExternalCreation()) {
+                if (Boolean.TRUE.equals(tagCollection.get().getExternalCreation())) {
                     context.put("externalcreation", " readonly ");
                 }
             }
