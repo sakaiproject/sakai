@@ -17,8 +17,12 @@
 package org.sakaiproject.poll.tool.mvc;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +32,7 @@ import java.util.StringJoiner;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.poll.api.importformat.PollImportCsvFormat;
+import org.sakaiproject.poll.api.service.PollImportError;
 import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.site.api.Group;
@@ -58,6 +63,10 @@ import lombok.extern.slf4j.Slf4j;
 public class PollImportController {
 
     private static final long MAX_IMPORT_FILE_BYTES = 1024 * 1024;
+
+    // Excel on Windows defaults to saving "CSV (Comma delimited)" files as Windows-1252,
+    // not UTF-8. Used as a fallback when a file has no BOM and isn't valid UTF-8.
+    private static final Charset FALLBACK_UPLOAD_CHARSET = Charset.forName("windows-1252");
 
     private final MessageSource messageSource;
     private final ToolManager toolManager;
@@ -95,7 +104,9 @@ public class PollImportController {
             return "redirect:/votePolls";
         }
 
-        String csv = PollImportCsvFormat.buildSampleCsv(buildImportColumnHeaders(locale));
+        // Prepend a UTF-8 BOM so Excel recognizes the encoding and re-saves it as UTF-8
+        // instead of defaulting to Windows-1252 and corrupting accented characters.
+        String csv = "\uFEFF" + PollImportCsvFormat.buildSampleCsv(buildImportColumnHeaders(locale));
         String filename = messageSource.getMessage("poll_import_sample_filename", null, locale);
 
         ContentDisposition contentDisposition = ContentDisposition.attachment()
@@ -141,8 +152,18 @@ public class PollImportController {
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_import_success", null, locale));
             return "redirect:/votePolls";
         } catch (PollImportException e) {
-            return showImportError(model, messageSource.getMessage(e.getError().getMessageKey(), null, locale), pollUploadedText, locale);
+            // Intentionally logged without the stack trace: this is an expected user-input
+            // validation failure, not an application fault, so a single line is enough for an admin to correlate.
+            String cause = e.getCause() != null ? " (" + e.getCause() + ")" : "";
+            log.warn("Poll import rejected for site {} (row: {}, error: {}){}",
+                    currentSiteId, e.getRowNumber() > 0 ? e.getRowNumber() : "n/a", e.getError(), cause);
+            String message = messageSource.getMessage(e.getError().getMessageKey(), e.getMessageArgs(), locale);
+            if (e.getRowNumber() > 0) {
+                message = messageSource.getMessage("poll_import_error_row", new Object[] { e.getRowNumber(), message }, locale);
+            }
+            return showImportError(model, message, pollUploadedText, locale);
         } catch (IllegalArgumentException e) {
+            log.warn("Poll import rejected for site {}: {}", currentSiteId, e.getMessage());
             return showImportError(model, e.getMessage(), pollUploadedText, locale);
         }
     }
@@ -190,18 +211,43 @@ public class PollImportController {
             throw new IllegalArgumentException(messageSource.getMessage("poll_import_error_file", null, locale));
         }
 
-        try (Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)) {
-            StringBuilder builder = new StringBuilder();
-            char[] buffer = new char[4096];
-            int count;
-            while ((count = reader.read(buffer)) != -1) {
-                builder.append(buffer, 0, count);
-            }
-            return builder.toString();
+        try (InputStream inputStream = file.getInputStream()) {
+            return decodeUploadedFile(inputStream.readAllBytes());
         } catch (IOException e) {
             log.warn("Unable to read imported poll file {}", file.getOriginalFilename(), e);
             throw new IllegalArgumentException(messageSource.getMessage("poll_import_error_file", null, locale), e);
         }
+    }
+
+    /**
+     * Decodes an uploaded CSV as UTF-8, honoring a BOM if present. When there is no BOM and the
+     * bytes aren't valid UTF-8, falls back to Windows-1252 — the encoding Excel on Windows writes
+     * by default when saving as "CSV (Comma delimited)" instead of "CSV UTF-8". A BOM explicitly
+     * declares UTF-8, so a decode failure after a BOM means the file is corrupt rather than a
+     * legitimate Windows-1252 export (Excel never writes a BOM for that encoding) — reject it
+     * instead of silently importing garbled text.
+     */
+    static String decodeUploadedFile(byte[] bytes) {
+        boolean hasBom = hasUtf8Bom(bytes);
+        int offset = hasBom ? 3 : 0;
+        CharsetDecoder strictUtf8Decoder = StandardCharsets.UTF_8.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT);
+        try {
+            return strictUtf8Decoder.decode(ByteBuffer.wrap(bytes, offset, bytes.length - offset)).toString();
+        } catch (CharacterCodingException e) {
+            if (hasBom) {
+                throw new PollImportException(PollImportError.WRONG_FORMAT, e);
+            }
+            return new String(bytes, offset, bytes.length - offset, FALLBACK_UPLOAD_CHARSET);
+        }
+    }
+
+    private static boolean hasUtf8Bom(byte[] bytes) {
+        return bytes.length >= 3
+                && (bytes[0] & 0xFF) == 0xEF
+                && (bytes[1] & 0xFF) == 0xBB
+                && (bytes[2] & 0xFF) == 0xBF;
     }
 
     private record PollGroupInfo(String title, String members) { }

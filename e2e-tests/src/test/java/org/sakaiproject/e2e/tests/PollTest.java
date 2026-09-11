@@ -325,6 +325,35 @@ class PollTest extends SakaiUiTestBase {
         assertTrue(xlsxDownload.suggestedFilename().endsWith(".xlsx"));
     }
 
+    @Test
+    @Order(7)
+    void bulkImportShowsRowSpecificErrorForInvalidCsv() {
+        createsSiteWithPolls();
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Poll");
+
+        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Bulk Creation", Pattern.CASE_INSENSITIVE))).first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        LocalDateTime now = LocalDateTime.now();
+        String openDate = now.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String closeDate = now.plusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        // Row 2 is valid; row 3 has an invalid opening date, so the error must name row 3, not row 2.
+        String csv = String.join("\n",
+            "Question,Description,Access,Groups,Opening date,Opening time,Closing date,Closing time,Minimum options,Maximum options,Results visibility,Option 1,Option 2",
+            "Valid bulk import row,,site,," + openDate + ",09:00," + closeDate + ",17:00,1,1,1,Alpha,Beta",
+            "Invalid bulk import row,,site,,not-a-date,09:00," + closeDate + ",17:00,1,1,1,Yes,No"
+        );
+
+        page.locator("#poll-uploaded-text").fill(csv);
+        page.locator("form:visible input[type=\"submit\"], form:visible button[type=\"submit\"]").first()
+            .click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("[role=\"alert\"].sak-banner-error")).containsText("Row 3");
+    }
+
     private Locator addOptionControl() {
         return page.locator("input[type=\"button\"][value=\"Add option\"], input[type=\"button\"][value=\"Add Option\"], input[type=\"button\"][value*=\"Add option\"], input[type=\"button\"][value*=\"Add Option\"], button:has-text(\"Add option\"), button:has-text(\"Add Option\"), a:has-text(\"Add option\"), a:has-text(\"Add Option\")").first();
     }

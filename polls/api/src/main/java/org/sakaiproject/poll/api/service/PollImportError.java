@@ -19,7 +19,12 @@ package org.sakaiproject.poll.api.service;
 public enum PollImportError {
 
     WRONG_FORMAT("poll_import_error_wrongformat"),
+    INVALID_HEADER("poll_import_error_header"),
+    MISSING_QUESTION("poll_import_error_question"),
+    TOO_FEW_OPTIONS("poll_import_error_options"),
+    INVALID_ACCESS("poll_import_error_access"),
     INVALID_DATES("poll_import_error_dates"),
+    INVALID_DATE_ORDER("poll_import_error_date_order"),
     INVALID_NUMBER("poll_import_error_number"),
     INVALID_DISPLAY_RESULT("poll_import_error_display"),
     INVALID_LIMITS("poll_import_error_limits"),

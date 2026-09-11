@@ -755,7 +755,8 @@ public class PollsServiceTests {
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
-        Assert.assertEquals(PollImportError.WRONG_FORMAT, exception.getError());
+        Assert.assertEquals(PollImportError.TOO_FEW_OPTIONS, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
     }
 
     @Test
@@ -793,6 +794,84 @@ public class PollsServiceTests {
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
         Assert.assertEquals(PollImportError.INVALID_DATES, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+        Assert.assertArrayEquals(new Object[] { "06/01/2026" }, exception.getMessageArgs());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsClosingDateBeforeOpeningDate() {
+        String csv = importCsvHeader(2) + "\n"
+            + "Q?,,site,,2026-06-02,09:00,2026-06-01,17:00,1,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_DATE_ORDER, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+    }
+
+    @Test
+    public void testImportPollsFromCsvReportsRowNumberOfFailingRowInBatch() {
+        String csv = importCsvHeader(2) + "\n"
+            + "Valid question,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,A,B\n"
+            + "Q?,,site,,06/01/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_DATES, exception.getError());
+        Assert.assertEquals(3, exception.getRowNumber());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidAccessValue() {
+        String csv = importCsvHeader(2) + "\n"
+            + "Q?,,publico,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_ACCESS, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+        Assert.assertArrayEquals(new Object[] { "publico" }, exception.getMessageArgs());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsMissingQuestion() {
+        String csv = importCsvHeader(2) + "\n"
+            + ",,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.MISSING_QUESTION, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidNumber() {
+        String csv = importCsvHeader(2) + "\n"
+            + "Q?,,site,,2026-06-01,09:00,2026-06-02,17:00,uno,1,1,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_NUMBER, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+        Assert.assertArrayEquals(new Object[] { "uno" }, exception.getMessageArgs());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidDisplayResult() {
+        String csv = importCsvHeader(2) + "\n"
+            + "Q?,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,9,One,Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
+        );
+        Assert.assertEquals(PollImportError.INVALID_DISPLAY_RESULT, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+        Assert.assertArrayEquals(new Object[] { "9" }, exception.getMessageArgs());
     }
 
     @Test
@@ -804,6 +883,7 @@ public class PollsServiceTests {
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
         Assert.assertEquals(PollImportError.INVALID_LIMITS, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
     }
 
     @Test
@@ -848,7 +928,8 @@ public class PollsServiceTests {
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
-        Assert.assertEquals(PollImportError.WRONG_FORMAT, exception.getError());
+        Assert.assertEquals(PollImportError.INVALID_HEADER, exception.getError());
+        Assert.assertEquals(1, exception.getRowNumber());
     }
 
     @Test
@@ -897,6 +978,8 @@ public class PollsServiceTests {
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
         Assert.assertEquals(PollImportError.INVALID_GROUPS, exception.getError());
+        // "Group 1" resolves fine and must not be reported as missing alongside "Missing Group"
+        Assert.assertArrayEquals(new Object[] { "Missing Group" }, exception.getMessageArgs());
     }
 
     @Test
@@ -910,6 +993,7 @@ public class PollsServiceTests {
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
         Assert.assertEquals(PollImportError.INVALID_GROUPS, exception.getError());
+        Assert.assertArrayEquals(new Object[] { "missing group" }, exception.getMessageArgs());
     }
 
     // ========== Helper Methods ==========
