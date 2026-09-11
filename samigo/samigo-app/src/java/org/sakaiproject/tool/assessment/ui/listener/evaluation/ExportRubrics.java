@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,6 +50,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
 import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 
 @Slf4j
 public class ExportRubrics implements ActionListener {
@@ -95,7 +98,8 @@ public class ExportRubrics implements ActionListener {
         String fileName = tBean.getAssessmentName().replaceAll(" ", "_") + "_" + templateFilename;
 
         response.reset();
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "_" + rb.getString("rubrics") + ".zip\"");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+            .filename(fileName + "_" + rb.getString("rubrics") + ".zip", StandardCharsets.UTF_8).build().toString());
         response.setContentType("application/zip");
         response.setContentLength(baos.size());
 
