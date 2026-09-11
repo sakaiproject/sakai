@@ -60,3 +60,17 @@ Shared helpers live in `src/test/java/org/sakaiproject/e2e/support`:
 - Extend `SakaiUiTestBase`.
 - Use `sakai.login(...)`, `sakai.createCourse(...)`, `sakai.toolClick(...)` instead of duplicating flow code.
 - Prefer stable selectors; add `data-*` hooks in server templates when UI selectors are ambiguous.
+
+### Samigo pool-tag regression (SAK-52380)
+
+On a deployed server with `samigo.author.usetags=true`, give the instructor
+`tagservice.manage` in the test site's role. Run the opt-in regression with:
+
+```bash
+mvn -Pe2e -pl e2e-tests -Dsakai.test.samigoTags=true \
+  '-Dtest=SamigoTest#canLoadAndSavePoolTagsAndFilterFromFreshAssessmentSession' test
+```
+
+This verifies tag loading on pool creation/editing, tag persistence, and filtering
+when entering Question Pools directly from a new assessment in a fresh session.
+It checks the actual tag API URL and HTTP response without mocking requests.
