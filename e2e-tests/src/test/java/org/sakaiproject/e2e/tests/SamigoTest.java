@@ -22,15 +22,18 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Response;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.assertions.LocatorAssertions;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -335,6 +338,55 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#itemForm textarea").first().fill("Edited question text");
         saveQuestionAndWaitForPoolEditor();
         assertThat(page.locator("#editform\\:questionpool-questions a[title=\"Edit Question\"]")).hasCount(1);
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "sakai.test.samigoTags", matches = "true")
+    void canLoadAndSavePoolTagsAndFilterFromFreshAssessmentSession() {
+        String courseUrl = ensureCourseUrl();
+        String poolName = "Tagged Pool " + RUN_ID;
+        String tagLabel = "Pool Tag " + RUN_ID;
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Tests");
+        clickFirstVisible(page.locator("a:has-text(\"Question Pools\")"));
+        assertPoolTagRequest(() -> page.locator("#questionpool\\:add").click());
+        page.locator("#questionpool\\:namefield").fill(poolName);
+        Locator tagInput = page.locator("#tag-selector .multiselect__input");
+        tagInput.fill(tagLabel);
+        tagInput.press("Enter");
+        assertThat(page.locator("#tag-selector .multiselect__tag")).containsText(tagLabel);
+        page.locator("#questionpool\\:submit").click();
+        assertPoolTagRequest(() -> page.locator("#questionpool\\:TreeTable a")
+            .filter(new Locator.FilterOptions().setHasText(poolName)).first().click());
+        assertThat(page.locator("#tag-selector .multiselect__tag")).containsText(tagLabel);
+        String secondTag = tagLabel + " edited";
+        tagInput.fill(secondTag);
+        tagInput.press("Enter");
+        assertPoolTagRequest(() -> page.locator("#editform\\:Update").click());
+        assertThat(page.locator("#tag-selector")).containsText(secondTag);
+
+        // A fresh login ensures the Question Pools navigation listener has not set ownerId.
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Tests");
+        openNewAssessmentForm();
+        page.locator("#authorIndexForm\\:title").fill("Pool Tags Assessment " + RUN_ID);
+        page.locator("#authorIndexForm\\:createnew").click();
+        assertPoolTagRequest(() -> selectQuestionType(Pattern.compile("(select|copy|import).*pool", Pattern.CASE_INSENSITIVE)));
+        Locator filterInput = page.locator("#tag-search .multiselect__input");
+        filterInput.fill(tagLabel);
+        page.locator("#tag-search .multiselect__option").filter(new Locator.FilterOptions()
+            .setHasText(Pattern.compile("^" + Pattern.quote(tagLabel) + "$"))).click();
+        page.locator("#questionpool\\:searchByTags").click();
+        assertThat(page.locator("#questionpool\\:TreeTable")).containsText(poolName);
+    }
+
+    private void assertPoolTagRequest(Runnable navigation) {
+        Response response = page.waitForResponse(r -> r.url().contains("/api/sites/")
+            && r.url().contains("/tags/"), navigation);
+        assertTrue(response.url().matches(".*/tools/samigo/tags/[^/?]+$"), response.url());
+        assertEquals(200, response.status(), response.url());
     }
 
     @Test

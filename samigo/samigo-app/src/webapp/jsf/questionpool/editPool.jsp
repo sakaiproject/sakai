@@ -158,6 +158,7 @@ function textCounter(field, maxlimit) {
     </label>
     <div class="col-sm-6">
         <sakai-tag-selector
+            tool="samigo"
             id="tag-selector"
             class="b5 flex-grow-1"
             selected-temp="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
