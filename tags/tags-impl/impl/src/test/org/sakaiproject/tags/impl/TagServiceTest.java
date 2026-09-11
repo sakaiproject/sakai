@@ -239,12 +239,10 @@ public class TagServiceTest {
     }
 
     @Test
-    public void updatesDetachedTagAndPreservesCreationMetadata() {
+    public void updatesTagFromBuilderAndPreservesCreationMetadata() {
         Tag original = tag(collection("Update"), "Before");
-        Tag edited = service.getTag(original.getTagId()).get();
-        edited.setTagLabel("After");
-        edited.setCreatedBy("forged");
-        edited.setCreationDate(42L);
+        Tag edited = service.getTag(original.getTagId()).get().toBuilder()
+            .tagLabel("After").createdBy("forged").creationDate(42L).build();
         assertEquals("Before", service.getTag(original.getTagId()).get().getTagLabel());
         clearInvocations(events);
         when(sessionManager.getCurrentSessionUserId()).thenReturn("editor");
