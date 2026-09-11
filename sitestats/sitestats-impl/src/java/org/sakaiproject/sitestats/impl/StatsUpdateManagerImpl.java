@@ -729,7 +729,7 @@ public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Obs
 				// populate presence map with begin events
 				if (statsManager.getEnableSitePresences()) {
 					// get the saved begin date if there is an open session
-					Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+					Session session = sessionFactory.getCurrentSession();
 					Integer savedOpenSessions = doGetOpenSessions(session, siteId, userId);
 					Optional<Instant> savedBegin = doGetSavedBegin(session, siteId, userId);
 
@@ -940,8 +940,8 @@ public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Obs
                 if(presencesMap.size() > 0) {
                     Collection<SitePresenceRecord> tmp6 = null;
                     synchronized(presencesMap){
-                        tmp6 = presencesMap.values();
-                        presencesMap = Collections.synchronizedMap(new HashMap<SitePresenceKey, SitePresenceRecord>());
+                        tmp6 = presencesMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+                        presencesMap = Collections.synchronizedMap(new HashMap<SitePresenceKey, List<SitePresenceRecord>>());
                     }
                     doUpdateSitePresencesObjects(session, tmp6);
                 }

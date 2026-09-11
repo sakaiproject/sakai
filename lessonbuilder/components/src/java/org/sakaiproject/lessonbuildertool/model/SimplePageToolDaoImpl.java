@@ -64,7 +64,7 @@ import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalSubPageNavProvider;
 import org.sakaiproject.time.api.UserTimeService;
 import org.springframework.dao.DataAccessException;
-
+import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -2381,5 +2381,11 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 	@Override
 	public String getData(String siteId, String userId, Collection<String> pageIds) {
 		return getLessonSubPageJSON(userId, siteId, pageIds);
+	}
+
+	@Override
+	public HibernateTemplate getDaoHibernateTemplate() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
