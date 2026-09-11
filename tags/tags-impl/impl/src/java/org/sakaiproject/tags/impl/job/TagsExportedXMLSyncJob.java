@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -102,8 +101,7 @@ public class TagsExportedXMLSyncJob extends TagSynchronizer implements Job {
 			log.info("Starting Full XML Tag Collection synchronization");
 		}
 		try (InputStream input = getTagsXmlInputStream()) {
-			XMLInputFactory factory = XMLInputFactory.newInstance();
-			XMLStreamReader xsr = factory.createXMLStreamReader(input);
+			XMLStreamReader xsr = createXmlStreamReader(input);
 			try {
 				xsr.nextTag();
 				xsr.nextTag();

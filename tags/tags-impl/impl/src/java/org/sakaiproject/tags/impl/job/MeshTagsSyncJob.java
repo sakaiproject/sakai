@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
@@ -73,7 +72,7 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 				try {
 					targetStream=new FileInputStream(xmlFile);
 				} catch (Exception e){
-					log.warn("The Mesh file can't be found in the specified route: " + pathToXml);
+					log.warn("The Mesh file can't be found in the specified route: {}", pathToXml);
 				}
 		return targetStream;
 	}
@@ -93,8 +92,7 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 			log.info("Starting MESH Tag Collection synchronization");
 		}
 		try (InputStream input = getTagsXmlInputStream()) {
-			XMLInputFactory factory = XMLInputFactory.newInstance();
-			XMLStreamReader xsr = factory.createXMLStreamReader(input);
+			XMLStreamReader xsr = createXmlStreamReader(input);
 			try {
 				xsr.next();
 				xsr.nextTag();
@@ -126,11 +124,11 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 						counterSuccess++;
 						lastSuccessfulLabel=tagLabel;
 					} catch (Exception e) {
-						log.warn("Mesh XML can't be processed for this Label: " + tagLabel + ". If the value is undefined, then, the previous successful label was: " + lastSuccessfulLabel,e);
+						log.warn("Mesh XML can't be processed for this Label: {}. If the value is undefined, then, the previous successful label was: {}", tagLabel, lastSuccessfulLabel, e);
 						sendStatusMail(2,e.getMessage());
 					}
 					if(counterTotal%1000==0){
-						log.info(counterSuccess + "/" + counterTotal + " labels processed correctly... and still processing. " + (counterTotal - counterSuccess) + " errors by the moment");
+						log.info("{}/{} labels processed correctly... and still processing. {} errors by the moment", counterSuccess, counterTotal, counterTotal - counterSuccess);
 					}
 
 
@@ -149,7 +147,7 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 		}
 
 		if(log.isInfoEnabled()) {
-			log.info("Finished Mesh Tags synchronization in " + (System.currentTimeMillis()-start) + " ms");
+			log.info("Finished Mesh Tags synchronization in {} ms", System.currentTimeMillis() - start);
 		}
 		counterTotal=0;
 		counterSuccess=0;
@@ -173,7 +171,7 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 			}
 			return treeNumberList;
 		}catch (Exception e){
-			log.debug("Treenumber Mesh XML can't be processed in:" + externalId,e);
+			log.debug("Treenumber Mesh XML can't be processed in:{}", externalId, e);
 			return null;
 		}
 	}
@@ -211,7 +209,7 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 			}
 			return alternativeLabelsList;
 		}catch (Exception e){
-			log.warn("AlternativeLabels in Mesh XML can't be processed at" +  externalId,e);
+			log.warn("AlternativeLabels in Mesh XML can't be processed at{}", externalId, e);
 			return null;
 		}
 	}
