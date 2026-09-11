@@ -14,8 +14,9 @@ Reads follow the normal JPA lifecycle and may return managed entities inside an
 existing transaction. Prepare edits with `tag.toBuilder()` or
 `collection.toBuilder()`, then submit the built values to `updateTag` or
 `updateTagCollection`. The service loads and updates the managed entity, preserves
-creation metadata, and records the current editor and modification time. Events
-are posted only after a successful commit.
+creation metadata, and records the current editor and modification time on every
+explicit update, including unchanged submissions. Hibernate detects persistence
+changes; only content changes produce update events after a successful commit.
 
 Use `associateExistingTag(itemId, tagId)` for IDs and
 `createAndAssociateTag(collectionId, itemId, label, isSite)` for literal labels.
