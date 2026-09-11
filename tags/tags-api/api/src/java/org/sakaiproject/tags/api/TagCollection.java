@@ -23,34 +23,105 @@
 package org.sakaiproject.tags.api;
 
 
-import lombok.AllArgsConstructor;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
+
+import org.sakaiproject.springframework.data.PersistableEntity;
 
 /**
  * The interface for the tag service.
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class TagCollection {
+@Entity(name = "TagServiceCollection")
+@Table(name = "tagservice_collection")
+public class TagCollection implements PersistableEntity<String> {
 
 
+    @Id
+    @Column(name = "tagcollectionid", length = 36)
     private String tagCollectionId;
+    @Column(name = "name", length = 255, unique = true)
     private String name;
+    @Lob
+    @Column(name = "description", length = 65535)
     private String description;
+    @Column(name = "createdby", length = 255)
     private String createdBy;
-    private long creationDate;
+    @Column(name = "creationdate")
+    private Long creationDate;
+    @Column(name = "externalsourcename", length = 255, unique = true)
     private String externalSourceName;
+    @Lob
+    @Column(name = "externalsourcedescription", length = 65535)
     private String externalSourceDescription;
+    @Column(name = "lastmodifiedby", length = 255)
     private String lastModifiedBy;
-    private long lastModificationDate;
+    @Column(name = "lastmodificationdate")
+    private Long lastModificationDate;
+    @Column(name = "externalupdate")
     private Boolean externalUpdate;
+    @Column(name = "externalcreation")
     private Boolean externalCreation;
-    private long lastSynchronizationDate;
-    private long lastUpdateDateInExternalSystem;
+    @Column(name = "lastsynchronizationdate")
+    private Long lastSynchronizationDate;
+    @Column(name = "lastupdatedateinexternalsystem")
+    private Long lastUpdateDateInExternalSystem;
 
+
+    public TagCollection(String tagCollectionId, String name, String description, String createdBy, long creationDate, String externalSourceName, String externalSourceDescription, String lastModifiedBy, long lastModificationDate, Boolean externalUpdate, Boolean externalCreation, long lastSynchronizationDate, long lastUpdateDateInExternalSystem) {
+        this.tagCollectionId = tagCollectionId;
+        this.name = name;
+        this.description = description;
+        this.createdBy = createdBy;
+        this.creationDate = creationDate;
+        this.externalSourceName = externalSourceName;
+        this.externalSourceDescription = externalSourceDescription;
+        this.lastModifiedBy = lastModifiedBy;
+        this.lastModificationDate = lastModificationDate;
+        this.externalUpdate = externalUpdate;
+        this.externalCreation = externalCreation;
+        this.lastSynchronizationDate = lastSynchronizationDate;
+        this.lastUpdateDateInExternalSystem = lastUpdateDateInExternalSystem;
+    }
+
+    public long getCreationDate() {
+        return creationDate == null ? 0L : creationDate;
+    }
+
+    public long getLastModificationDate() {
+        return lastModificationDate == null ? 0L : lastModificationDate;
+    }
+
+    public Boolean getExternalUpdate() {
+        return Boolean.TRUE.equals(externalUpdate);
+    }
+
+    public Boolean getExternalCreation() {
+        return Boolean.TRUE.equals(externalCreation);
+    }
+
+    public long getLastSynchronizationDate() {
+        return lastSynchronizationDate == null ? 0L : lastSynchronizationDate;
+    }
+
+    public long getLastUpdateDateInExternalSystem() {
+        return lastUpdateDateInExternalSystem == null ? 0L : lastUpdateDateInExternalSystem;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getId() {
+        return tagCollectionId;
+    }
 
     public Errors validate() {
         Errors errors = new Errors();

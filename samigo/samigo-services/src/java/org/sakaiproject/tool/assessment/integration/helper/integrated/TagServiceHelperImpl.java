@@ -42,7 +42,7 @@ public class TagServiceHelperImpl implements TagServiceHelper {
 
     @Override
     public Optional<TagView> findTagById(String id) {
-        final Optional<Tag> results = tagService.getTags().getForId(id);
+        final Optional<Tag> results = tagService.getTag(id);
         if ( results.isPresent() ) {
             final Tag tag = results.get();
                 final TagView tagView = new TagView(tag.getTagId(), tag.getTagLabel(), tag.getTagCollectionId(), tag.getCollectionName());
@@ -55,7 +55,7 @@ public class TagServiceHelperImpl implements TagServiceHelper {
 
     @Override
     public Optional<TagCollectionView> findTagCollectionById(String id) {
-        final Optional<TagCollection> results = tagService.getTagCollections().getForId(id);
+        final Optional<TagCollection> results = tagService.getTagCollection(id);
         if ( results.isPresent() ) {
             final TagCollection tagCollection = results.get();
             final TagCollectionView tagView = new TagCollectionView(tagCollection.getTagCollectionId(), tagCollection.getName());

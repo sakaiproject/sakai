@@ -61,7 +61,7 @@ public class TagCollectionsHandler extends CrudHandler {
     @Override
     protected void handleDelete(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
-        tagService.getTagCollections().deleteTagCollection(uuid);
+        tagService.deleteTagCollection(uuid);
 
         flash("info", "tagcollection_deleted");
         sendRedirect("");
@@ -72,7 +72,7 @@ public class TagCollectionsHandler extends CrudHandler {
 
         context.put("layout", false);
         try {
-            Optional<TagCollection> tagCollection = tagService.getTagCollections().getForId(uuid);
+            Optional<TagCollection> tagCollection = tagService.getTagCollection(uuid);
 
             if (tagCollection.isPresent()) {
                 // Don't let the portal buffering hijack our response.
@@ -92,7 +92,7 @@ public class TagCollectionsHandler extends CrudHandler {
     protected void handleEdit(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
         context.put("subpage", "tagcollection_form");
-        Optional<TagCollection> tagCollection = tagService.getTagCollections().getForId(uuid);
+        Optional<TagCollection> tagCollection = tagService.getTagCollection(uuid);
 
         if (tagCollection.isPresent()) {
             showEditForm(TagCollectionForm.fromTagCollection(tagCollection.get()), context, CrudMode.UPDATE);
@@ -116,24 +116,24 @@ public class TagCollectionsHandler extends CrudHandler {
         this.addErrors(tagCollectionForm.validate());
 
         if (CrudMode.CREATE.equals(mode)) {
-            if (tagService.getTagCollections().getForExternalSourceName(tagCollectionForm.toTagCollection().getExternalSourceName()).isPresent()){
+            if (tagService.getTagCollectionForExternalSourceName(tagCollectionForm.toTagCollection().getExternalSourceName()).isPresent()){
                 this.addError("externalsourcename","error_unique_externalsource");
             }
-            if (tagService.getTagCollections().getForName(tagCollectionForm.toTagCollection().getName()).isPresent()){
+            if (tagService.getTagCollectionForName(tagCollectionForm.toTagCollection().getName()).isPresent()){
                 this.addError("name","error_unique_name");
             }
         }else{
-            String actualExternalSourceName = tagService.getTagCollections().getForId(uuid).get().getExternalSourceName();
+            String actualExternalSourceName = tagService.getTagCollection(uuid).get().getExternalSourceName();
             String futureExternalSourceName = tagCollectionForm.toTagCollection().getExternalSourceName();
-            String actualName = tagService.getTagCollections().getForId(uuid).get().getName();
+            String actualName = tagService.getTagCollection(uuid).get().getName();
             String futureName = tagCollectionForm.toTagCollection().getName();
             if (actualExternalSourceName != null && !(actualExternalSourceName.equals(futureExternalSourceName))) {
-                if (tagService.getTagCollections().getForExternalSourceName(futureExternalSourceName).isPresent()) {
+                if (tagService.getTagCollectionForExternalSourceName(futureExternalSourceName).isPresent()) {
                     this.addError("externalsourcename", "error_unique_externalsource");
                 }
             }
             if (!(actualName.equals(futureName))) {
-                if (tagService.getTagCollections().getForName(futureName).isPresent()) {
+                if (tagService.getTagCollectionForName(futureName).isPresent()) {
                     this.addError("name", "error_unique_name");
                 }
             }
@@ -145,10 +145,10 @@ public class TagCollectionsHandler extends CrudHandler {
         }
 
         if (CrudMode.CREATE.equals(mode)) {
-            tagService.getTagCollections().createTagCollection(tagCollectionForm.toTagCollection());
+            tagService.createTagCollection(tagCollectionForm.toTagCollection());
             flash("info", "tagcollection_created");
         } else {
-            tagService.getTagCollections().updateTagCollection(tagCollectionForm.toTagCollection());
+            tagService.updateTagCollection(tagCollectionForm.toTagCollection());
             flash("info", "tagcollection_updated");
         }
 

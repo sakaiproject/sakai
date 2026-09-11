@@ -70,18 +70,18 @@ public class IndexHandler extends BaseHandler {
         List<TagCollection> collections;
         
         if (securityService.isSuperUser()) {
-            totalTagCollections = tagService.getTagCollections().getTotalTagCollections();
-            collections = tagService.getTagCollections().getTagCollectionsPaginated(pageNum, pageSize);
+            totalTagCollections = tagService.getTotalTagCollections();
+            collections = tagService.getTagCollectionsPaginated(pageNum, pageSize);
         } else {
             collections = new ArrayList<>();
             String siteId = toolManager.getCurrentPlacement().getContext();
             // add site tag collection
-            TagCollection siteCollection = tagService.getTagCollections().getForId(siteId).orElse(null);
+            TagCollection siteCollection = tagService.getTagCollection(siteId).orElse(null);
             if (siteCollection != null) {
                 collections.add(siteCollection);
             }
             // add user tag collection
-            TagCollection userCollection = tagService.getTagCollections().getForId(sessionManager.getCurrentSessionUserId()).orElse(null);
+            TagCollection userCollection = tagService.getTagCollection(sessionManager.getCurrentSessionUserId()).orElse(null);
             if (userCollection != null) {
                 collections.add(userCollection);
             }

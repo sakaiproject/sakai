@@ -55,7 +55,7 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
         int pageNum = extractPageNum(request);
         int pageSize = extractPageSize(request);
 
-        int totalTags = tagService.getTags().getTotalTagsInCollection(uuid);
+        int totalTags = tagService.getTotalTagsInCollection(uuid);
         
         int totalPages = totalTags > 0 ? (int) Math.ceil((double) totalTags / (double) pageSize) : 0;
         
@@ -67,14 +67,14 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
         context.put("showPagination", totalTags > 0 && totalPages > 1);
 
         context.put("subpage", "tagsintagcollection");
-        context.put("tagsintagcollection", tagService.getTags().getTagsPaginatedInCollection(pageNum, pageSize, uuid));
+        context.put("tagsintagcollection", tagService.getTagsPaginatedInCollection(pageNum, pageSize, uuid));
         context.put("tagserviceactive", tagService.getServiceActive());
         String actualcollectionname="";
         Boolean isExternallyCreated=false;
         try {
-            if  (tagService.getTagCollections().getForId(uuid).isPresent()) {
-                actualcollectionname = tagService.getTagCollections().getForId(uuid).get().getName();
-                isExternallyCreated = tagService.getTagCollections().getForId(uuid).get().getExternalCreation();
+            if  (tagService.getTagCollection(uuid).isPresent()) {
+                actualcollectionname = tagService.getTagCollection(uuid).get().getName();
+                isExternallyCreated = tagService.getTagCollection(uuid).get().getExternalCreation();
             }
         }catch(Exception e){
         }
