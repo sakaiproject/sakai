@@ -117,7 +117,7 @@ class ConversationsTest extends SakaiUiTestBase {
         page.locator(".conv-settings-link button:visible").click();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Manage Tags").setExact(true)).click();
 
-        Locator manager = page.locator("sakai-conversations-tag-manager");
+        Locator manager = page.locator("sakai-conversations-tag-manager:visible");
         String label = "Playwright shared tag " + System.currentTimeMillis();
         manager.locator("#tag-creation-field").fill(label);
         manager.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add New Tags").setExact(true)).click();
