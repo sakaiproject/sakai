@@ -44,6 +44,7 @@ import org.w3c.dom.Node;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.serialization.MapperFactory;
 
 /**
  * A quartz job to synchronize the TAGS with an
@@ -107,7 +108,8 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 		}
 
 		try (InputStream input = getTagCollectionssXmlInputStream()) {
-			XMLStreamReader xsr = createXmlStreamReader(input);
+			XMLStreamReader xsr = MapperFactory.xmlBuilder().build().getFactory()
+					.getXMLInputFactory().createXMLStreamReader(input);
 			try {
 				xsr.nextTag();
 				xsr.nextTag();
@@ -145,7 +147,8 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 		}
 
 		try (InputStream input = getTagsXmlInputStream()) {
-			XMLStreamReader xsr = createXmlStreamReader(input);
+			XMLStreamReader xsr = MapperFactory.xmlBuilder().build().getFactory()
+					.getXMLInputFactory().createXMLStreamReader(input);
 			try {
 				xsr.nextTag();
 				xsr.nextTag();

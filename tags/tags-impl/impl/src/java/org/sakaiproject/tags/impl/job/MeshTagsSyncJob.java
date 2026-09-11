@@ -44,6 +44,7 @@ import org.w3c.dom.NodeList;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.serialization.MapperFactory;
 
 /**
  * A quartz job to synchronize the TAGS with an
@@ -92,7 +93,8 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 			log.info("Starting MESH Tag Collection synchronization");
 		}
 		try (InputStream input = getTagsXmlInputStream()) {
-			XMLStreamReader xsr = createXmlStreamReader(input);
+			XMLStreamReader xsr = MapperFactory.xmlBuilder().build().getFactory()
+					.getXMLInputFactory().createXMLStreamReader(input);
 			try {
 				xsr.next();
 				xsr.nextTag();

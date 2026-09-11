@@ -27,7 +27,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.DateTimeException;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamException;
 import org.w3c.dom.Node;
@@ -50,13 +49,6 @@ public abstract class TagSynchronizer {
 	@Setter private TagService tagService;
 	
 	protected abstract InputStream getTagsXmlInputStream();
-
-	protected XMLStreamReader createXmlStreamReader(InputStream input) throws XMLStreamException {
-		XMLInputFactory factory = XMLInputFactory.newInstance();
-		factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-		factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-		return factory.createXMLStreamReader(input);
-	}
 
 	protected String getTagCollectionIdFromExternalSourceName(String name) {
 		if (StringUtils.isBlank(name)) {
