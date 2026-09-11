@@ -147,7 +147,7 @@ method runJob() instead.
 
 IV. Example
 
-An example implmentation of the above configurable job framework is available under the jobscheduler module and is
+An example implementation of the above configurable job framework is available under the jobscheduler module and is
 implemented in two sub-modules:
 
    scheduler-configurable-job-test-component
