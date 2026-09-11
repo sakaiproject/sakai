@@ -15,13 +15,11 @@ package org.sakaiproject.tags.api;
 
 import java.util.List;
 
-import org.sakaiproject.tags.api.TagAssociation;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface TagAssociationRepository extends SpringCrudRepository<TagAssociation, String> {
 
-	void newTagAssociation(TagAssociation tagAssociation);
-	void deleteTagAssociation(String associationId);
+
 	List<TagAssociation> findTagAssociationByCollectionAndItem(String collectionId, String itemId);
 	TagAssociation findTagAssociationByItemIdAndTagId(String itemId, String tagId);
     void deleteByTagId(String tagId);

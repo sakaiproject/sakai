@@ -104,11 +104,21 @@ public abstract class TagSynchronizer {
 				tagService().updateTag(tag);
 
 			}else {
-				Tag tag = new Tag(null, collectionID, tagLabel, description, null,
-						0L, null, 0L, externalId,
-						alternativeLabels, Boolean.TRUE, externalCreationDate,
-						Boolean.TRUE, lastUpdateDateInExternalSystem, parentId,
-						externalHierarchyCode, externalType, data,null, null);
+				Tag tag = Tag.builder()
+						.tagCollectionId(collectionID)
+						.tagLabel(tagLabel)
+						.description(description)
+						.externalId(externalId)
+						.alternativeLabels(alternativeLabels)
+						.externalCreation(Boolean.TRUE)
+						.externalCreationDate(externalCreationDate)
+						.externalUpdate(Boolean.TRUE)
+						.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem)
+						.parentId(parentId)
+						.externalHierarchyCode(externalHierarchyCode)
+						.externalType(externalType)
+						.data(data)
+						.build();
 				tagService().createTag(tag);
 			}
 		}
@@ -133,11 +143,21 @@ public abstract class TagSynchronizer {
 				tagService().updateTag(tag);
 
 			}else {
-				Tag tag = new Tag(null, tagCollectionId, tagLabel, description, null,
-						0L, null, 0L, externalId,
-						alternativeLabels, Boolean.TRUE, externalCreationDate,
-						Boolean.TRUE, lastUpdateDateInExternalSystem, parentId,
-						externalHierarchyCode, externalType, data,null, null);
+				Tag tag = Tag.builder()
+						.tagCollectionId(tagCollectionId)
+						.tagLabel(tagLabel)
+						.description(description)
+						.externalId(externalId)
+						.alternativeLabels(alternativeLabels)
+						.externalCreation(Boolean.TRUE)
+						.externalCreationDate(externalCreationDate)
+						.externalUpdate(Boolean.TRUE)
+						.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem)
+						.parentId(parentId)
+						.externalHierarchyCode(externalHierarchyCode)
+						.externalType(externalType)
+						.data(data)
+						.build();
 				tagService().createTag(tag);
 			}
 		}
@@ -186,11 +206,15 @@ public abstract class TagSynchronizer {
 				tagCollection.setExternalUpdate(tagCollection.getExternalUpdate());
 				tagService().updateTagCollection(tagCollection);
 			}else {
-				TagCollection tagCollection = new TagCollection(null, name,
-						description, null, 0L,
-				externalSourceName, externalSourceDescription,
-						null, 0L, Boolean.TRUE,Boolean.TRUE,
-				0L,lastUpdateDateInExternalSystem);
+				TagCollection tagCollection = TagCollection.builder()
+						.name(name)
+						.description(description)
+						.externalSourceName(externalSourceName)
+						.externalSourceDescription(externalSourceDescription)
+						.externalUpdate(Boolean.TRUE)
+						.externalCreation(Boolean.TRUE)
+						.lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem)
+						.build();
 				tagService().createTagCollection(tagCollection);
 			}
 		}

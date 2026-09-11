@@ -308,6 +308,26 @@ public class TagServiceTest {
     }
 
     @Test
+    public void associatedTagsAreScopedAndReturnedAsEditableCopies() {
+        TagCollection collection = collection("Selected");
+        Tag selected = tag(collection, "Selected tag");
+        Tag other = tag(collection("Other"), "Other tag");
+        Tag otherItem = tag(collection, "Other item");
+        service.saveTagAssociation("item", selected.getTagId());
+        service.saveTagAssociation("item", other.getTagId());
+        service.saveTagAssociation("other-item", otherItem.getTagId());
+        new TransactionTemplate(transactionManager).execute(status -> {
+            List<Tag> tags = service.getAssociatedTagsForItem(collection.getTagCollectionId(), "item");
+            assertEquals(1, tags.size());
+            assertEquals(selected.getTagId(), tags.get(0).getTagId());
+            assertEquals("Selected", tags.get(0).getCollectionName());
+            tags.get(0).setTagLabel("Unsaved");
+            return null;
+        });
+        assertEquals("Selected tag", service.getTag(selected.getTagId()).get().getTagLabel());
+    }
+
+    @Test
     public void updatesSelectedAssociationsAndCreatesNewLabels() {
         TagCollection collection = collection("Associations");
         Tag tag = tag(collection, "Existing");

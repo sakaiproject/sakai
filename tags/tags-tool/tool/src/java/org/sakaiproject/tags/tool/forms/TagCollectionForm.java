@@ -30,7 +30,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tags.api.TagCollection;
-import org.sakaiproject.tags.api.Errors;
 
 /**
  * Maps to and from the collection HTML form and a collection data object.
@@ -142,15 +141,6 @@ public class TagCollectionForm extends BaseForm {
                  externalSourceName, externalSourceDescription,
                  lastModifiedBy, lastModificationDate, externalUpdate, externalCreation,
                  lastSynchronizationDate, lastUpdateDateInExternalSystem);
-    }
-
-    public Errors validate() {
-        //TODO Validate Tags
-        Errors errors = new Errors();
-
-        Errors modelErrors = toTagCollection().validate();
-
-        return errors.merge(modelErrors);
     }
 
     public TagCollection toTagCollection() {

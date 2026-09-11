@@ -40,6 +40,13 @@ public class TagRepositoryImpl extends SpringCrudRepositoryImpl<Tag, String> imp
     }
 
     @Override
+    public List<Tag> findAssociatedTags(String collectionId, String itemId) {
+        return query("select t from TagServiceTag t, TagAssociation a "
+            + "where t.tagId = a.tagId and t.tagCollectionId = :collection and a.itemId = :item")
+            .setParameter("collection", collectionId).setParameter("item", itemId).getResultList();
+    }
+
+    @Override
     public List<Tag> findAllOrdered() {
         return query("from TagServiceTag t order by t.tagLabel, t.tagCollectionId").getResultList();
     }

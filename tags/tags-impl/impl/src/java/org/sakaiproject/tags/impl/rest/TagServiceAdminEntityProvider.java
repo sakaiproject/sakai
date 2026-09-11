@@ -45,7 +45,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEnt
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.tags.api.Errors;
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
@@ -161,32 +160,23 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
 
 
-            Tag tag = new Tag(tagId,
-                    tagCollectionId,
-                    tagLabel,
-                    description,
-                    null,
-                    0L,
-                    null,
-                    0L,
-                    externalId,
-                    alternativeLabels,
-                    externalCreation,
-                    externalCreationDate,
-                    externalUpdate,
-                    lastUpdateDateInExternalSystem,
-                    parentId,
-                    externalHierarchyCode,
-                    externalType,
-                    data,
-                    null, null);
+            Tag tag = Tag.builder()
+                .tagId(tagId)
+                .tagCollectionId(tagCollectionId)
+                .tagLabel(tagLabel)
+                .description(description)
+                .externalId(externalId)
+                .alternativeLabels(alternativeLabels)
+                .externalCreation(externalCreation)
+                .externalCreationDate(externalCreationDate)
+                .externalUpdate(externalUpdate)
+                .lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem)
+                .parentId(parentId)
+                .externalHierarchyCode(externalHierarchyCode)
+                .externalType(externalType)
+                .data(data)
+                .build();
 
-
-            Errors errors = tag.validate();
-
-            if (errors.hasErrors()) {
-                return respondWithError(errors);
-            }
 
             String uuid = tagService().createTag(tag);
 
@@ -246,26 +236,18 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
 
 
-            TagCollection tagCollection = new TagCollection(tagCollectionId,
-                    name,
-                    description,
-                    null,
-                    0L,
-                    externalsourcename,
-                    externalsourcedescription,
-                    null,
-                    0L,
-                    externalupdate,
-                    externalcreation,
-                    lastsynchronizationdate,
-                    lastupdatedateinexternalsystem);
+            TagCollection tagCollection = TagCollection.builder()
+                .tagCollectionId(tagCollectionId)
+                .name(name)
+                .description(description)
+                .externalSourceName(externalsourcename)
+                .externalSourceDescription(externalsourcedescription)
+                .externalUpdate(externalupdate)
+                .externalCreation(externalcreation)
+                .lastSynchronizationDate(lastsynchronizationdate)
+                .lastUpdateDateInExternalSystem(lastupdatedateinexternalsystem)
+                .build();
 
-
-            Errors errors = tagCollection.validate();
-
-            if (errors.hasErrors()) {
-                return respondWithError(errors);
-            }
 
             String uuid = tagService().createTagCollection(tagCollection);
 
@@ -371,12 +353,6 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             }
 
 
-            Errors errors = tag.validate();
-
-            if (errors.hasErrors()) {
-                return respondWithError(errors);
-            }
-
             tagService().updateTag(tag);
 
             JSONObject result = new JSONObject();
@@ -425,12 +401,6 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             if (wp.containsKey("lastupdatedateinexternalsystem")) {
                 tagCollection.setLastUpdateDateInExternalSystem(wp.getEpochMS("lastupdatedateinexternalsystem"));
             }
-            Errors errors = tagCollection.validate();
-
-            if (errors.hasErrors()) {
-                return respondWithError(errors);
-            }
-
             tagService().updateTagCollection(tagCollection);
 
             JSONObject result = new JSONObject();
@@ -466,14 +436,6 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
         result.put("message", e.getMessage());
 
         log.error("Caught an error while handling a request", e);
-
-        return result.toJSONString();
-    }
-
-    private String respondWithError(Errors e) {
-        JSONObject result = new JSONObject();
-        result.put("status", "ERROR");
-        result.put("message", e.toMap());
 
         return result.toJSONString();
     }

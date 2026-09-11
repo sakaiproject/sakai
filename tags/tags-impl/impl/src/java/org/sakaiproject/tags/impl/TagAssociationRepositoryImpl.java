@@ -31,18 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class TagAssociationRepositoryImpl extends SpringCrudRepositoryImpl<TagAssociation, String> implements TagAssociationRepository {
     @Override
-    @Transactional
-    public void newTagAssociation(TagAssociation association) {
-        save(association);
-    }
-
-    @Override
-    @Transactional
-    public void deleteTagAssociation(String id) {
-        findById(id).ifPresent(this::delete);
-    }
-
-    @Override
     public List<TagAssociation> findTagAssociationByCollectionAndItem(String collectionId, String itemId) {
         return sessionFactory.getCurrentSession().createQuery(
             "select a from TagAssociation a, TagServiceTag t where a.tagId = t.tagId and a.itemId = :item and t.tagCollectionId = :collection", TagAssociation.class)
