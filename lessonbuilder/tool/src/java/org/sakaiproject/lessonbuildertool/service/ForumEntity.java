@@ -31,9 +31,14 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -51,8 +56,8 @@ import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.api.app.messageforums.MembershipItem;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -63,8 +68,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.api.FormattedText;
-import org.springframework.orm.hibernate5.HibernateTemplate;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -86,20 +89,20 @@ import uk.org.ponder.messageutil.MessageLocator;
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
 
-// this monstrosity has to do hibernate directly to avoid the dreaded 
-// multiple objects with the same ID error. I do merge rather than save.
-// unfortunately the normal API does saveOrUpdate.
-//  This is complicated by the fact that we sessionFactory is set only
-// when the main bean is set up. But setGroups is only called from 
-// instances of this class that aren't the bean. Hence in the bean
-// we save a copy of the session factory and then set it in the
-// instance when we need it.
-
 @Slf4j
-public class ForumEntity extends HibernateDaoSupport implements LessonEntity, ForumInterface {
+public class ForumEntity implements LessonEntity, ForumInterface {
 
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
-    private static SessionFactory sessionFactory = null;
+
+    @Setter private SessionFactory sessionFactory;
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    public void init() {
+        Objects.requireNonNull(sessionFactory, "sessionFactory must be configured");
+    }
 
     static MessageForumsForumManager forumManager = (MessageForumsForumManager)
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsForumManager");
@@ -116,7 +119,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	static ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 	static SiteService siteService = ComponentManager.get(SiteService.class);
 	static ToolManager toolManager = ComponentManager.get(ToolManager.class);
-	static SqlService sqlService = ComponentManager.get(SqlService.class);
 
     private LessonEntity nextEntity = null;
     private SimplePageBean simplePageBean;
@@ -144,18 +146,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	simplePageToolDao = (SimplePageToolDao) dao;
     }
 
-    private static HibernateTemplate hibernateTemplate = null;
-
-    public void init () {	
-	sessionFactory = getSessionFactory();
-    }
-
-    protected void initDao() throws Exception {
-	super.initDao();
-	log.info("initDao template " + getHibernateTemplate());
-	hibernateTemplate = getHibernateTemplate();
-    }
-
     public void destroy()
     {
 	log.info("destroy()");
@@ -167,10 +157,11 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     protected ForumEntity() {
     }
 
-    protected ForumEntity(int type, Long id, int level) {
+    protected ForumEntity(int type, Long id, int level, SessionFactory sessionFactory) {
 	this.type = type;
 	this.id = id;
 	this.level = level;
+        this.sessionFactory = sessionFactory;
     }
 
     public String getToolId() {
@@ -267,13 +258,13 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	// security. assume this is only used in places where it's OK, so skip security checks
 	for (DiscussionForum forum: forums) {
 	    if (!forum.getDraft()) {
-		ForumEntity entity = new ForumEntity(TYPE_FORUM_FORUM, forum.getId(), 1);
+		ForumEntity entity = new ForumEntity(TYPE_FORUM_FORUM, forum.getId(), 1, sessionFactory);
 		entity.forum = forum;
 		ret.add(entity);
 		for (Object o: forum.getTopicsSet()) {
 		    DiscussionTopic topic = (DiscussionTopic)o;
 		    if (topic.getDraft().equals(Boolean.FALSE)) {
-			entity = new ForumEntity(TYPE_FORUM_TOPIC, topic.getId(), 2);
+			entity = new ForumEntity(TYPE_FORUM_TOPIC, topic.getId(), 2, sessionFactory);
 			entity.topic = topic;
 			ret.add(entity);
 		    }
@@ -309,9 +300,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	// note: I'm returning the minimal structures, not those with
 	// topics and postings attached
 	if (typeString.equals(FORUM_TOPIC)) {
-	    return new ForumEntity(TYPE_FORUM_TOPIC, id, 2);
+	    return new ForumEntity(TYPE_FORUM_TOPIC, id, 2, sessionFactory);
 	} else if (typeString.equals(FORUM_FORUM)) {
-	    return new ForumEntity(TYPE_FORUM_FORUM, id, 1);
+	    return new ForumEntity(TYPE_FORUM_FORUM, id, 1, sessionFactory);
 	} else if (nextEntity != null) {
 	    return nextEntity.getEntity(ref);
 	} else
@@ -760,21 +751,16 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     }
 
     public String getSiteId() {
-	// should be this:
-	// return topic.getBaseForum().getArea().getContextId();
-	// but requires a hibernate session, which doesn't exit.
-	String sql = "select c.context_id from MFR_TOPIC_T a,MFR_OPEN_FORUM_T b,MFR_AREA_T c where a.id=? and a.of_surrogateKey=b.id and b.surrogatekey=c.id";
-
-	Object fields[] = new Object[1];
-	fields[0] = id;
-
-	List<String> siteIds = sqlService.dbRead(sql, fields, null);
-
-	if (siteIds != null && siteIds.size() > 0)
-	    return siteIds.get(0);
-	
-	return null;
-
+        // Entity instances are created outside Spring, so manage the read transaction explicitly.
+        return sessionFactory.fromTransaction(session -> {
+            session.setDefaultReadOnly(true);
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<String> query = cb.createQuery(String.class);
+            Root<TopicImpl> topic = query.from(TopicImpl.class);
+            query.select(topic.join("openForum").join("area").get("contextId"));
+            query.where(cb.equal(topic.get("id"), id));
+            return session.createQuery(query).uniqueResult();
+        });
     }
 	@Override
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
