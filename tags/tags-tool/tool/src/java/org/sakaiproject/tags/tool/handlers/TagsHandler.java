@@ -61,7 +61,7 @@ public class TagsHandler extends CrudHandler {
         try {
             context.put("actualtagcollection", referer.substring(referer.indexOf("tagsintagcollection/") + TAGSERVICE_URL_TAGSINTAGCOLLECTION_PREFIX_LENGTH, referer.indexOf("/manage")));
             context.put("tagcollectionidreadonly", "readonly hidden");
-            context.put("actualtagcollectionname", tagService.getTagCollections().getForId(context.get("actualtagcollection").toString()).get().getName());
+            context.put("actualtagcollectionname", tagService.getTagCollection(context.get("actualtagcollection").toString()).get().getName());
         }catch (Exception e){
             context.put("actualtagcollection", "");
             context.put("tagcollectionidreadonly", "");
@@ -77,7 +77,7 @@ public class TagsHandler extends CrudHandler {
     @Override
     protected void handleDelete(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
-        tagService.getTags().deleteTag(uuid);
+        tagService.deleteTag(uuid);
 
         flash("info", "tag_deleted");
         sendRedirect("tagsintagcollection/" + context.get("actualtagcollection") + "/manage");
@@ -89,7 +89,7 @@ public class TagsHandler extends CrudHandler {
 
         context.put("layout", false);
         try {
-            Optional<Tag> tag = tagService.getTags().getForId(uuid);
+            Optional<Tag> tag = tagService.getTag(uuid);
 
             if (tag.isPresent()) {
                 // Don't let the portal buffering hijack our response.
@@ -109,9 +109,9 @@ public class TagsHandler extends CrudHandler {
     protected void handleEdit(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
         context.put("subpage", "tag_form");
-        Optional<Tag> tag = tagService.getTags().getForId(uuid);
+        Optional<Tag> tag = tagService.getTag(uuid);
         if (tag.isPresent()) {
-            Optional<TagCollection> tagCollection = tagService.getTagCollections().getForId(tag.get().getTagCollectionId());
+            Optional<TagCollection> tagCollection = tagService.getTagCollection(tag.get().getTagCollectionId());
             if (tagCollection.get().getExternalCreation()){
                 context.put("externalcreation", " readonly ");
                 context.put("isExternallyUpdated","style=display:none");
@@ -149,10 +149,10 @@ public class TagsHandler extends CrudHandler {
         }
 
         if (CrudMode.CREATE.equals(mode)) {
-            tagService.getTags().createTag(tagForm.toTag());
+            tagService.createTag(tagForm.toTag());
             flash("info", "tag_created");
         } else {
-            tagService.getTags().updateTag(tagForm.toTag());
+            tagService.updateTag(tagForm.toTag());
             flash("info", "tag_updated");
         }
         sendRedirect("tagsintagcollection/" + tagForm.toTag().getTagCollectionId() + "/manage");
@@ -166,7 +166,7 @@ public class TagsHandler extends CrudHandler {
         String actualCollection = context.getOrDefault("actualtagcollection","none").toString();
         if (!actualCollection.equals("none")){
 
-            Optional<TagCollection> tagCollection = tagService.getTagCollections().getForId(actualCollection);
+            Optional<TagCollection> tagCollection = tagService.getTagCollection(actualCollection);
             if (tagCollection.isPresent()){
                 if (tagCollection.get().getExternalCreation()) {
                     context.put("externalcreation", " readonly ");

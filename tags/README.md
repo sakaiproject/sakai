@@ -1,3 +1,17 @@
+Persistence
+===========
+
+Tags, collections, and associations use Sakai's shared Hibernate session factory and
+`SpringCrudRepository`. Existing `tagservice_*` tables and IDs are retained; this
+change does not require a data conversion. Schema creation uses Sakai's global
+`auto.ddl` setting; the former `tagservice.auto.ddl` override is no longer used.
+
+Java callers use `TagService` directly, for example `getTag(id)` and
+`createTag(tag)`, instead of the former `Tags` and `TagCollections` sub-services.
+Reads return editable copies; call `updateTag` or `updateTagCollection` to save
+changes. Each write operation is transactional, and its events are posted only
+after a successful commit.
+
 TAGS ADMINISTRATION 
 
 1. SAKAI PROPERTIES

@@ -91,7 +91,7 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
 
             String tagid= wp.getString("tagid");
 
-            Optional<Tag> tag = tagService().getTags().getForId(tagid);
+            Optional<Tag> tag = tagService().getTag(tagid);
 
             return tag.get();
         } catch (Exception e) {
@@ -113,8 +113,8 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
                 pageLimit = maxPageSize;
             }
 
-            List<TagCollection> tagCollections = tagService().getTagCollections().getTagCollectionsPaginated(page,pageLimit);
-            int tagCollectionsCount = tagService().getTagCollections().getTotalTagCollections();
+            List<TagCollection> tagCollections = tagService().getTagCollectionsPaginated(page,pageLimit);
+            int tagCollectionsCount = tagService().getTotalTagCollections();
 
             JSONObject responseDetailsJson = new JSONObject();
             JSONArray jsonArray = new JSONArray();
@@ -154,8 +154,8 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
                 pageLimit = maxPageSize;
             }
 
-            List<Tag> tags = tagService().getTags().getTagsPaginatedInCollection(page, pageLimit, tagcollectionid);
-            int tagCount = tagService().getTags().getTotalTagsInCollection(tagcollectionid);
+            List<Tag> tags = tagService().getTagsPaginatedInCollection(page, pageLimit, tagcollectionid);
+            int tagCount = tagService().getTotalTagsInCollection(tagcollectionid);
 
             JSONObject responseDetailsJson = new JSONObject();
             JSONArray jsonArray = new JSONArray();
@@ -191,8 +191,8 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
 
             if (pageLimit > maxPageSize) pageLimit = maxPageSize;
 
-            List<Tag> tags = tagService().getTags().getTagsPaginatedByPrefixInLabel(page, pageLimit, prefix);
-            int tagCount = tagService().getTags().getTotalTagsByPrefixInLabel(prefix);
+            List<Tag> tags = tagService().getTagsPaginatedByPrefixInLabel(page, pageLimit, prefix);
+            int tagCount = tagService().getTotalTagsByPrefixInLabel(prefix);
 
             JSONObject responseDetailsJson = new JSONObject();
             JSONArray jsonArray = new JSONArray();

@@ -24,28 +24,11 @@ package org.sakaiproject.tags.api;
 
 import java.util.List;
 import java.util.Optional;
+import org.sakaiproject.springframework.data.SpringCrudRepository;
 
-/**
- * The interface for the tag Collections sub-service.
- */
-public interface TagCollections {
-
-    public String createTagCollection(TagCollection tagCollection);
-
-    public void updateTagCollection(TagCollection tagCollection);
-
-    public void deleteTagCollection(String tagCollectionId);
-
-    public List<TagCollection> getAll();
-
-    public Optional<TagCollection> getForId(String tagCollectionId);
-
-    public Optional<TagCollection> getForName(String tagCollectionId);
-
-    public Optional<TagCollection> getForExternalSourceName(String externalSourceName);
-
-    public List<TagCollection> getTagCollectionsPaginated(int pageNum, int pageSize);
-
-    public int getTotalTagCollections();
-
+public interface TagCollectionRepository extends SpringCrudRepository<TagCollection, String> {
+    TagCollection create(TagCollection collection);
+    List<TagCollection> findAllOrdered(int offset, int limit);
+    Optional<TagCollection> findByName(String name);
+    Optional<TagCollection> findByExternalSourceName(String externalSourceName);
 }

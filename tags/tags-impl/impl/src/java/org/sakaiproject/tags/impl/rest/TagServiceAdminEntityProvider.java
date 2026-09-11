@@ -188,7 +188,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                 return respondWithError(errors);
             }
 
-            String uuid = tagService().getTags().createTag(tag);
+            String uuid = tagService().createTag(tag);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -267,7 +267,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                 return respondWithError(errors);
             }
 
-            String uuid = tagService().getTagCollections().createTagCollection(tagCollection);
+            String uuid = tagService().createTagCollection(tagCollection);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -287,7 +287,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             WrappedParams wp = new WrappedParams(params);
 
             String uuid = wp.getString("id");
-            tagService().getTags().deleteTag(uuid);
+            tagService().deleteTag(uuid);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -306,7 +306,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             WrappedParams wp = new WrappedParams(params);
 
             String uuid = wp.getString("id");
-            tagService().getTagCollections().deleteTagCollection(uuid);
+            tagService().deleteTagCollection(uuid);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -328,7 +328,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagid= wp.getString("tagid");
 
-            Tag tag = tagService().getTags().getForId(tagid).get();
+            Tag tag = tagService().getTag(tagid).get();
 
             if (wp.containsKey("tagcollectionid")) {
                 tag.setTagCollectionId(wp.getString("tagcollectionid"));
@@ -377,7 +377,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                 return respondWithError(errors);
             }
 
-            tagService().getTags().updateTag(tag);
+            tagService().updateTag(tag);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -397,7 +397,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagcollectionid= wp.getString("tagcollectionid");
 
-            TagCollection tagCollection = tagService().getTagCollections().getForId(tagcollectionid).get();
+            TagCollection tagCollection = tagService().getTagCollection(tagcollectionid).get();
 
             //We don't need to change the creation date or user
 
@@ -431,7 +431,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                 return respondWithError(errors);
             }
 
-            tagService().getTagCollections().updateTagCollection(tagCollection);
+            tagService().updateTagCollection(tagCollection);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -451,7 +451,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagcollectionid= wp.getString("tagcollectionid");
 
-            List<Tag> tags = tagService().getTags().getAllInCollection(tagcollectionid);
+            List<Tag> tags = tagService().getTagsInCollection(tagcollectionid);
 
             return tags;
         } catch (Exception e) {
