@@ -114,7 +114,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 @Transactional
 public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNavProvider {
 
-	private SessionFactory sessionFactory;
+	@Setter private SessionFactory sessionFactory;
 	private AuthzGroupService authzGroupService;
 	private EventTrackingService eventTrackingService;
 	private PortalService portalService;
