@@ -16,6 +16,11 @@
 
 package org.sakaiproject.lti.impl;
 
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -52,5 +57,22 @@ public class FoormMapRowMapper extends ColumnMapRowMapper {
 		}
 		// Probably something ancilarry like RNUM
 		return columnName;
+	}
+
+	/**
+	 * Override to intercept DATETIME and TIMESTAMP columns. We use ResultSet.getTimestamp()
+	 * to delegate timezone resolution to the JDBC driver. This correctly applies the
+	 * connection/session timezone (or JVM timezone if not explicitly set) and prevents
+	 * MySQL 8 from returning timezone-less LocalDateTime objects. This preserves the
+	 * behavior of older JDBC drivers that returned java.sql.Timestamp directly.
+	 */
+	@Override
+	protected Object getColumnValue(ResultSet rs, int index) throws SQLException {
+		ResultSetMetaData metaData = rs.getMetaData();
+		int columnType = metaData.getColumnType(index);
+		if (columnType == Types.TIMESTAMP || columnType == Types.DATE) {
+			return rs.getTimestamp(index);
+		}
+		return super.getColumnValue(rs, index);
 	}
 }
