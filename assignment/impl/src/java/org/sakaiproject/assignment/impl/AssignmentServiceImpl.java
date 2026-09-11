@@ -103,7 +103,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
-import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.assignment.api.sort.AnonymousSubmissionComparator;
 import org.sakaiproject.assignment.api.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -172,8 +171,6 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.taggable.api.TaggingManager;
-import org.sakaiproject.taggable.api.TaggingProvider;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.Priorities;
@@ -229,7 +226,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private AnnouncementService announcementService;
     @Setter private CalendarService additionalCalendarService;
     @Setter private ApplicationContext applicationContext;
-    @Setter private AssignmentActivityProducer assignmentActivityProducer;
     @Setter private AssignmentDueReminderService assignmentDueReminderService;
     @Setter private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Setter private ObjectFactory<AssignmentEntity> assignmentEntityFactory;
@@ -258,7 +254,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private SearchService searchService;
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SiteService siteService;
-    @Setter private TaggingManager taggingManager;
     @Setter private TaskService taskService;
     @Setter private TimeService timeService;
     @Setter private ToolManager toolManager;
@@ -363,7 +358,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 Node assignmentNode = doc.importNode(assignmentElement, true);
                 element.appendChild(assignmentNode);
 
-
                 // Model answer with optional attachments
                 AssignmentModelAnswerItem modelAnswer = assignmentSupplementItemService.getModelAnswer(assignment.getId());
                 if (modelAnswer != null) {
@@ -465,7 +459,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     @Transactional
     public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
-
 
         final StringBuilder results = new StringBuilder();
         results.append("begin merging ").append(getLabel()).append(" context ").append(siteId).append(LINE_SEPARATOR);
@@ -1411,7 +1404,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         removeAssociatedGradebookItem(assignment);
 
         // 4. remove tags as necessary
-        removeAssociatedTaggingItem(assignment);
 
         // 5. remove assignment submissions
 //            List submissions = getSubmissions(assignment);
@@ -4090,17 +4082,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     // respective tools service and not be chained here
     // only if a rollback were needed would we want to include here
     // /////////////////////////////////////////////////////////////
-    private void removeAssociatedTaggingItem(Assignment assignment) {
-        try {
-            if (taggingManager.isTaggable()) {
-                for (TaggingProvider provider : taggingManager.getProviders()) {
-                    provider.removeTags(assignmentActivityProducer.getActivity(assignment));
-                }
-            }
-        } catch (PermissionException pe) {
-            log.warn("removeAssociatedTaggingItem: User does not have permission to remove tags for assignment: " + assignment.getId() + " via transferCopyEntities");
-        }
-    }
 
     // for regular task deletion this has no effect as it has already been done on doDelete_assignment, it only works when it comes from import content + replace
     private void removeAssociatedGradebookItem(Assignment assignment) {
@@ -4164,7 +4145,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         }
     }
-
 
     private AnnouncementChannel getAnnouncementChannel(String contextId) {
         AnnouncementChannel channel = null;
@@ -4633,7 +4613,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         //Adding the row
                         sheet.addRow(groupTitle, s.getGroupId(), submitters2String.toString(),
                         		gradeDisplay, s.getDateSubmitted() != null ? s.getDateSubmitted().toString(): StringUtils.EMPTY, latenessStatus);
-
 
                         if (includePerSubmissionEntries && StringUtils.trimToNull(groupTitle) != null) {
                             submittersName.append(StringUtils.trimToNull(groupTitle)).append(" (").append(s.getGroupId()).append(")");
@@ -5379,15 +5358,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         }
                     }
 
-                    try {
-                        if (taggingManager.isTaggable()) {
-                            for (TaggingProvider provider : taggingManager.getProviders()) {
-                                provider.transferCopyTags(assignmentActivityProducer.getActivity(oAssignment), assignmentActivityProducer.getActivity(nAssignment));
-                            }
-                        }
-                    } catch (PermissionException pe) {
-                        log.error("{} oAssignmentId={} nAssignmentId={}", pe.toString(), oAssignmentId, nAssignmentId);
-                    }
 
                     // Import supplementary items if they are present in the assignment to be imported
                     // Model Answer
@@ -6403,7 +6373,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Iterator<Assignment> it =  assignments.iterator();
         while (it.hasNext()) {
             Assignment a = (org.sakaiproject.assignment.api.model.Assignment) it.next();
-            removeAssociatedTaggingItem(a);
 
             try {
                 deleteAssignment(a);

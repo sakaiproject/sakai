@@ -23,7 +23,6 @@
         <value>org.sakaiproject.conversations.api.model.PostReactionTotal</value>
         <value>org.sakaiproject.conversations.api.model.PostStatus</value>
         <value>org.sakaiproject.conversations.api.model.Settings</value>
-        <value>org.sakaiproject.conversations.api.model.Tag</value>
         <value>org.sakaiproject.conversations.api.model.TopicReaction</value>
         <value>org.sakaiproject.conversations.api.model.TopicReactionTotal</value>
         <value>org.sakaiproject.conversations.api.model.TopicStatus</value>
@@ -56,10 +55,6 @@
     <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
   </bean>
 
-  <bean id="org.sakaiproject.conversations.api.repository.TagRepository"
-      class="org.sakaiproject.conversations.impl.repository.TagRepositoryImpl">
-    <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-  </bean>
 
   <bean id="org.sakaiproject.conversations.api.repository.ConversationsTopicRepository"
       class="org.sakaiproject.conversations.impl.repository.ConversationsTopicRepositoryImpl">
@@ -136,7 +131,7 @@
     <property name="settingsRepository" ref="org.sakaiproject.conversations.api.repository.SettingsRepository" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
-    <property name="tagRepository" ref="org.sakaiproject.conversations.api.repository.TagRepository" />
+    <property name="tagService" ref="org.sakaiproject.tags.api.TagService" />
     <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
     <property name="topicRepository" ref="org.sakaiproject.conversations.api.repository.ConversationsTopicRepository" />
     <property name="topicReactionRepository" ref="org.sakaiproject.conversations.api.repository.TopicReactionRepository" />

@@ -112,7 +112,6 @@
                 <module>site-manage</module>
                 <module>sitestats</module>
                 <module>syllabus</module>
-                <module>taggable</module>
                 <module>textarea</module>
                 <module>user</module>
                 <module>userauditservice</module>
@@ -201,7 +200,6 @@
                 <module>site-manage</module>
                 <module>sitestats</module>
                 <module>syllabus</module>
-                <module>taggable</module>
                 <module>textarea</module>
                 <module>user</module>
                 <module>userauditservice</module>
@@ -321,8 +319,6 @@
                 <module>site-manage/site-manage-api/api</module>
                 <module>site-manage/site-manage-hbm</module>
                 <module>syllabus/syllabus-api</module>
-                <module>taggable/taggable-api/api</module>
-                <module>taggable/taggable-hbm/hbm</module>
                 <module>usermembership/api</module>
                 <module>velocity/tool-api</module>
                 <module>web/web-api/api</module>

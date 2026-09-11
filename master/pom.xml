@@ -1832,12 +1832,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject.taggable</groupId>
-        <artifactId>sakai-taggable-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.sakaiproject.calendar</groupId>
         <artifactId>sakai-calendar-api</artifactId>
         <version>${sakai.version}</version>

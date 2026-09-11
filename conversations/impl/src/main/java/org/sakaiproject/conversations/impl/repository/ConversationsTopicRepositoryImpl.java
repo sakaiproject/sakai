@@ -48,18 +48,6 @@ public class ConversationsTopicRepositoryImpl extends SpringCrudRepositoryImpl<C
         return session.createQuery(query).list();
     }
 
-    @Transactional(readOnly = true)
-    public List<ConversationsTopic> findByTags_Id(Long tagId) {
-
-        Session session = sessionFactory.getCurrentSession();
-
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<ConversationsTopic> query = cb.createQuery(ConversationsTopic.class);
-        Root<ConversationsTopic> topic = query.from(ConversationsTopic.class);
-        query.where(cb.isMember(tagId, topic.get("tagIds")));
-
-        return session.createQuery(query).list();
-    }
 
     @Transactional(readOnly = true)
     public Long countBySiteIdAndMetadata_Creator_Id(String siteId, String creatorId) {
