@@ -493,8 +493,12 @@ public class LTI13Util {
             }
 
             String substituteValue = substitutes.getProperty(value);
-            if (StringUtils.isNotBlank(substituteValue)) {
-                setProperty(custom, key, substituteValue);
+            if (substituteValue != null) {
+                if (substituteValue.isEmpty()) {
+                    custom.setProperty(key, substituteValue);
+                } else {
+                    setProperty(custom, key, substituteValue);
+                }
             }
         });
     }

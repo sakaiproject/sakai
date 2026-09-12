@@ -274,7 +274,7 @@ public class OIDCServlet extends HttpServlet {
 		// For an LTI 1.1 response, check the signature and if it passes, re-sign and forward
 		// to the new URL
 		ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		Map<String, Object> tool = ltiService.getToolDao(toolKey, null, true);
+		Map<String, Object> tool = ltiService.getTool(toolKey, null, true);
 
 		if ( tool == null ) {
 			LTI13Util.return400(response, "Invalid tool_id");

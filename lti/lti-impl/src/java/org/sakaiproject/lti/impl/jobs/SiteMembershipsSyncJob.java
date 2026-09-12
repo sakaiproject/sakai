@@ -28,18 +28,16 @@ import org.sakaiproject.lti.util.SakaiLTIProviderUtil;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Slf4j
 public class SiteMembershipsSyncJob implements StatefulJob {
 	
+    @Autowired
     private LTIService ltiService = null;
-    public void setLtiService(LTIService ltiService) {
-        this.ltiService = ltiService;
-    }
 
+    @Autowired
     private SiteMembershipsSynchroniser siteMembershipsSynchroniser = null;
-    public void setSiteMembershipsSynchroniser(SiteMembershipsSynchroniser siteMembershipsSynchroniser) {
-        this.siteMembershipsSynchroniser = siteMembershipsSynchroniser;
-    }
 
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		

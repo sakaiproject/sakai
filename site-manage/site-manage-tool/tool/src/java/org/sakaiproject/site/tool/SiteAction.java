@@ -4247,7 +4247,7 @@ public class SiteAction extends PagedResourceActionII {
 			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<>();
 			// Find the tools that exist in the site, this should only be done if we already have a site.
 			if (site != null) {
-				List<Map<String, Object>> contents = ltiService.getContentsDao(null, null, 0, 0, site.getId(), ltiService.isAdmin(site.getId()));
+				List<Map<String, Object>> contents = ltiService.getContents(null, null, 0, 0, site.getId(), ltiService.isAdmin(site.getId()));
 				for (Map<String, Object> content : contents) {
 					String ltiToolId = content.get(LTIService.LTI_TOOL_ID).toString();
 					String ltiSiteId = StringUtils.trimToNull((String) content.get(LTIService.LTI_SITE_ID));

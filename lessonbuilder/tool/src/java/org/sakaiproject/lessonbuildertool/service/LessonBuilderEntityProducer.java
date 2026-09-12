@@ -1142,7 +1142,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 				if ( isSameServer ) {
 					try {
-						Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+						Map<String, Object> ltiContent = ltiService.getContent(ltiContentId, oldSiteId, securityService.isSuperUser());
 						String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
 						if ( newSakaiId != null ) sakaiId = newSakaiId;
 					} catch (Exception e) {
@@ -1210,7 +1210,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					log.debug("Updating reference: {}", matcher.group(0));
 					foundLtiLink = true;
 					try {
-						Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+						Map<String, Object> ltiContent = ltiService.getContent(ltiContentId, oldSiteId, securityService.isSuperUser());
 						String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
 						if ( newSakaiId != null ) sakaiId = newSakaiId;
 						String[] bltiId = sakaiId.split("/");

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.lti13;
+package org.sakaiproject.lti13.util;
 
 import java.util.Collection;
 
@@ -25,13 +25,13 @@ import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-final class LTI13TokenRequestValidator {
+public final class LTI13TokenRequestValidator {
 
-	static final long CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS = 60_000L;
+	public static final long CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS = 60_000L;
 
 	private static final String CACHE_CLIENT_ASSERTION_JTI = "client_assertion_jti::";
 
-	enum ClientAssertionReplayResult {
+	public enum ClientAssertionReplayResult {
 		OK,
 		REPLAYED("Replayed client_assertion"),
 		CACHE_UNAVAILABLE;
@@ -46,15 +46,15 @@ final class LTI13TokenRequestValidator {
 			this.clientMessage = clientMessage;
 		}
 
-		String getClientMessage() {
+		public String getClientMessage() {
 			return clientMessage;
 		}
 	}
 
-	private LTI13TokenRequestValidator() {
+	public LTI13TokenRequestValidator() {
 	}
 
-	static String validateTokenRequest(String grantType, String clientAssertionType) {
+	public static String validateTokenRequest(String grantType, String clientAssertionType) {
 		if (!ClientAssertion.GRANT_TYPE_CLIENT_CREDENTIALS.equals(grantType)) {
 			return "Invalid grant_type";
 		}
@@ -64,13 +64,14 @@ final class LTI13TokenRequestValidator {
 		return null;
 	}
 
-	static String validateClientAssertionClaims(Claims claims, String clientId, String tokenAudience) {
+	public static String validateClientAssertionClaims(Claims claims, String clientId, String tokenAudience) {
 		if (claims == null) {
 			return "Missing client_assertion claims";
 		}
 		if (StringUtils.isBlank(clientId)) {
 			return "Tool is missing client_id";
 		}
+		// TODO: why do we check issuer and subject against clientId?
 		if (!clientId.equals(claims.getIssuer())) {
 			return "Invalid issuer";
 		}
@@ -122,7 +123,7 @@ final class LTI13TokenRequestValidator {
 		return false;
 	}
 
-	static ClientAssertionReplayResult validateClientAssertionReplay(Cache cache, Claims claims, String clientId) {
+	public static ClientAssertionReplayResult validateClientAssertionReplay(Cache cache, Claims claims, String clientId) {
 		if (cache == null) {
 			log.warn("Client assertion replay cache unavailable for client {}", clientId);
 			return ClientAssertionReplayResult.CACHE_UNAVAILABLE;
@@ -131,15 +132,26 @@ final class LTI13TokenRequestValidator {
 		try {
 			String cacheKey = CACHE_CLIENT_ASSERTION_JTI + clientId + "::" + claims.getId();
 			Long expires = Long.valueOf(claims.getExpiration().getTime() + CLIENT_ASSERTION_CLOCK_SKEW_MILLISECONDS);
-			long now = System.currentTimeMillis();
-			Cache.ValueWrapper existing = cache.get(cacheKey);
+			Cache.ValueWrapper existing = cache.putIfAbsent(cacheKey, expires);
 			if (existing != null) {
 				Object existingExpires = existing.get();
-				if (!(existingExpires instanceof Long) || ((Long) existingExpires).longValue() > now) {
+				if (!(existingExpires instanceof Long) || ((Long) existingExpires).longValue() > System.currentTimeMillis()) {
+					// This existing claim has not expired yet, so it's a replay.
 					return ClientAssertionReplayResult.REPLAYED;
 				}
+				// The existing entry has expired. Claim the right to replace it with a second
+				// putIfAbsent keyed on this assertion's expiry, so that only one of several
+				// concurrent requests can take over the stale entry - the losers are replays.
+				// The claim also rejects any later re-use of this exact (clientId, jti, exp),
+				// which can only ever be a replay of the same signed assertion.
+				if (cache.putIfAbsent(cacheKey + "::" + expires, expires) != null) {
+					return ClientAssertionReplayResult.REPLAYED;
+				}
+				// Refresh the entry with the new expiry so that subsequent uses of the same
+				// (clientId, jti) are rejected for the duration of the new validity window
+				// rather than repeatedly matching the stale entry.
+				cache.put(cacheKey, expires);
 			}
-			cache.putIfAbsent(cacheKey, expires);
 		} catch (RuntimeException e) {
 			log.warn("Client assertion replay cache operation failed for client {} jti {}", clientId, claims.getId(), e);
 			return ClientAssertionReplayResult.CACHE_UNAVAILABLE;

@@ -46,7 +46,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import java.security.Key;
-import java.security.KeyPairGenerator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,14 +61,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.lti.util.LegacyShaUtil;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.lti.util.SakaiKeySetUtil;
+import org.sakaiproject.lti13.util.LTI13TokenRequestValidator;
 import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI13_PATH;
 import static org.sakaiproject.lti.util.SakaiLTIUtil.getOurServerUrl;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -79,8 +82,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti13.LineItemUtil;
 
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+import org.sakaiproject.lti.api.SakaiAccessTokenException;
+import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.tsugi.lti.LTIUtil;
 import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.LTICustomVars;
@@ -117,9 +120,6 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 
 import org.tsugi.lti.LTIUtil;
 
-/**
- *
- */
 @SuppressWarnings("deprecation")
 @Slf4j
 public class LTI13Servlet extends HttpServlet {
@@ -128,79 +128,17 @@ public class LTI13Servlet extends HttpServlet {
 	private static final String APPLICATION_JSON = "application/json; charset=utf-8";
 	private static final String APPLICATION_JWT = "application/jwt";
 	private static final String ERROR_DETAIL = "X-Sakai-LTI13-Error-Detail";
-	protected static LTIService ltiService = null;
-
-	// Used for signing and checking tokens
-	// TODO: Rotate these after a while
-	private KeyPair tokenKeyPair = null;
-
-    private CacheManager cacheManager;
-    private Cache cache;
-    private Cache clientAssertionReplayCache;
-
 	private static final String CACHE_NAME = LTI13Servlet.class.getName() + "_cache";
 	private static final String CLIENT_ASSERTION_REPLAY_CACHE_NAME = "org.sakaiproject.lti13.ClientAssertionReplay_cache";
 	private static final String CACHE_PUBLIC = "key::public";
 	private static final String CACHE_PRIVATE = "key::private";
-
 	private static final String PLUS_NRPS_PAGING = "plus:nrps_paging";
 
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		if (ltiService == null) {
-			ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		}
+	@Setter
+	private static LTIService ltiService;
 
-        cacheManager = (CacheManager) ComponentManager.get("org.sakaiproject.ignite.SakaiCacheManager");
-        cache = cacheManager.getCache(CACHE_NAME);
-        clientAssertionReplayCache = cacheManager.getCache(CLIENT_ASSERTION_REPLAY_CACHE_NAME);
-
-		// Lets try to load from properties
-		if (tokenKeyPair == null) {
-			// lti.advantage.lti13servlet.public=MIIBIjANBgkqhkiG9w [snip] Yfu3RbCda/nq4lipjRQIDAQAB
-			String publicB64 = ServerConfigurationService.getString("lti.advantage.lti13servlet.public", null);
-			String privateB64 = ServerConfigurationService.getString("lti.advantage.lti13servlet.private", null);
-			if ( publicB64 != null && privateB64 != null) {
-				tokenKeyPair = LTI13Util.strings2KeyPair(publicB64, privateB64);
-				if ( tokenKeyPair == null ) {
-					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Could not load tokenKeyPair from sakai.properties");
-				} else {
-					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Loaded tokenKeyPair from sakai.properties");
-				}
-			}
-		}
-
-		// Get it from the cluster cache
-		if (tokenKeyPair == null) {
-			Cache.ValueWrapper publicB64 = cache.get(CACHE_PUBLIC);
-			Cache.ValueWrapper privateB64 = cache.get(CACHE_PRIVATE);
-			if ( publicB64 != null && privateB64 != null) {
-				tokenKeyPair = LTI13Util.strings2KeyPair((String) publicB64.get(), (String) privateB64.get());
-				if ( tokenKeyPair == null ) {
-					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Could not parse tokenKeyPair from Ignite Cache");
-				} else {
-					Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Loaded tokenKeyPair from Ignite Cache");
-				}
-			}
-        }
-
-		// Lets make a new key
-		if (tokenKeyPair == null) {
-			try {
-				KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-				keyGen.initialize(2048);
-				tokenKeyPair = keyGen.genKeyPair();
-				String publicB64 = LTI13Util.getPublicB64(tokenKeyPair);
-				String privateB64 = LTI13Util.getPrivateB64(tokenKeyPair);
-				cache.put(CACHE_PUBLIC, publicB64);
-				cache.put(CACHE_PRIVATE, privateB64);
-				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.INFO, "Generated tokenKeyPair and stored in Ignite Cache");
-			} catch (NoSuchAlgorithmException ex) {
-				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Unable to generate tokenKeyPair", ex);
-			}
-		}
-	}
+	@Setter
+	private static SakaiAccessTokenService sakaiAccessTokenService;
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String uri = request.getRequestURI(); // /imsblis/lti13/keys
@@ -365,7 +303,6 @@ public class LTI13Servlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String uri = request.getRequestURI(); // /imsblis/lti13/keys
-		// String launch_url = request.getParameter("launch_url");
 
 		String[] parts = uri.split("/");
 
@@ -492,7 +429,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
+		LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 		if (content == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
@@ -511,7 +448,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, site.getId(), true);
+		LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, site.getId(), true);
 		if (tool == null) {
 			log.error("Could not load tool={}", toolKey);
 			LTI13Util.return400(response, "Missing tool");
@@ -596,7 +533,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// TODO: A little moar checking on the session.
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(tool_key, null, true);
+		LtiToolBean tool = ltiService.getToolDaoAsBean(tool_key, null, true);
 		if (tool == null) {
 			LTI13Util.return400(response, "Could not load tool");
 			log.error("Could not load tool {}", tool_key);
@@ -750,6 +687,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		lpc.variables.add(LTICustomVars.USER_ID);
 		lpc.variables.add(LTICustomVars.PERSON_EMAIL_PRIMARY);
+		lpc.variables.add(SakaiLTIUtil.SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE);
 
 		OpenIDProviderConfiguration pc = new OpenIDProviderConfiguration();
 		pc.issuer = issuerURL;
@@ -815,7 +753,7 @@ public class LTI13Servlet extends HttpServlet {
 		Parameter Name - scope, Value - http://imsglobal.org/ags/lineitem http://imsglobal.org/ags/result/read
 		 */
 
-		if (tokenKeyPair == null) {
+		if (sakaiAccessTokenService == null || !sakaiAccessTokenService.isSigningKeyAvailable()) {
 			LTI13Util.return400(response, "No token key available to sign tokens");
 			log.error("No token key available to sign tokens");
 			return;
@@ -866,147 +804,24 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Long toolKey = LTIUtil.toLongKey(tool_id);
-		if (toolKey < 1) {
-			LTI13Util.return400(response, "Invalid tool key");
-			log.error("Invalid tool key {}", tool_id);
+		if (toolKey < 0L) {
+			LTI13Util.return400(response, "invalid_request", "Bad value for tool_id " + tool_id);
+			log.error("Bad value for tool_id {}", tool_id);
 			return;
 		}
 
-		// Load the tool
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, null, true);
-		if (tool == null) {
-			LTI13Util.return400(response, "Could not load tool");
-			log.error("Could not load tool {}", tool_id);
-			return;
-		}
-
-		// Get the correct public key.
-		Key publicKey = null;
+		AccessToken at;
 		try {
-			publicKey = SakaiLTIUtil.getPublicKey(tool, client_assertion);
-		} catch (Exception e) {
-			log.error("Error getting public key", e);
-			LTI13Util.return400(response, "Public key retrieval failed");
+			at = sakaiAccessTokenService.issueAccessToken(toolKey.longValue(), client_assertion, scope);
+		} catch (SakaiAccessTokenException e) {
+			if ("invalid_scope".equals(e.getErrorKey())) {
+				LTI13Util.return400(response, "invalid_scope", e.getMessage());
+			} else {
+				LTI13Util.return400(response, e.getMessage());
+			}
+			log.error("Token issue failed for tool {}: {}", tool_id, e.getMessage());
 			return;
 		}
-
-		Jws<Claims> claims = null;
-		try {
-			claims = Jwts.parser().setAllowedClockSkewSeconds(60).setSigningKey(publicKey).parseClaimsJws(client_assertion);
-		} catch (JwtException | IllegalArgumentException e) {
-			log.error("Could not verify client_assertion for tool {}", tool_id, e);
-			LTI13Util.return400(response, "invalid_client", "Could not verify client_assertion");
-			return;
-		}
-
-		if (claims == null) {
-			LTI13Util.return400(response, "Could not verify signature");
-			log.error("Could not verify signature {}", tool_id);
-			return;
-		}
-
-		String tokenAudience = getOurServerUrl() + LTI13_PATH + "token/" + toolKey;
-		String claimError = LTI13TokenRequestValidator.validateClientAssertionClaims(claims.getBody(), tool.lti13ClientId, tokenAudience);
-		if (claimError != null) {
-			LTI13Util.return400(response, "invalid_client", claimError);
-			log.error("Invalid client_assertion for tool {}: {}", tool_id, claimError);
-			return;
-		}
-
-		LTI13TokenRequestValidator.ClientAssertionReplayResult replayResult =
-				LTI13TokenRequestValidator.validateClientAssertionReplay(clientAssertionReplayCache, claims.getBody(), tool.lti13ClientId);
-		if (replayResult == LTI13TokenRequestValidator.ClientAssertionReplayResult.CACHE_UNAVAILABLE) {
-			log.warn("Client assertion replay cache unavailable for tool {} client {}; continuing without replay cache", tool_id, tool.lti13ClientId);
-		} else if (replayResult == LTI13TokenRequestValidator.ClientAssertionReplayResult.REPLAYED) {
-			LTI13Util.return400(response, "invalid_client", replayResult.getClientMessage());
-			log.error("Invalid client_assertion replay state for tool {}: {}", tool_id, replayResult.getClientMessage());
-			return;
-		}
-
-		scope = scope.toLowerCase();
-
-
-		SakaiAccessToken sat = new SakaiAccessToken();
-		sat.tool_id = toolKey;
-		Long issued = Long.valueOf(System.currentTimeMillis() / 1000L);
-		sat.expires = issued + 3600L;
-
-		// https://datatracker.ietf.org/doc/html/rfc6749#section-5.1
-		HashSet<String> returnScopeSet = new HashSet<String> ();
-
-		// Work through requested scopes
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY)) {
-			if (!Boolean.TRUE.equals(tool.allowlineitems)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
-				log.error("Scope lineitem readonly not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
-			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
-		}
-
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM)) {
-			if (!Boolean.TRUE.equals(tool.allowlineitems)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM);
-				log.error("Scope lineitem not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_LINEITEM);
-
-			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS);
-			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
-		}
-
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_SCORE)) {
-			if (!Boolean.TRUE.equals(tool.allowoutcomes) || !Boolean.TRUE.equals(tool.allowlineitems)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_SCORE);
-				log.error("Scope score not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_SCORE);
-
-			sat.addScope(SakaiAccessToken.SCOPE_SCORE);
-		}
-
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY)) {
-			if (!Boolean.TRUE.equals(tool.allowoutcomes) || !Boolean.TRUE.equals(tool.allowlineitems)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
-				log.error("Scope result readonly not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
-
-			sat.addScope(SakaiAccessToken.SCOPE_RESULT_READONLY);
-		}
-
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES)) {
-			if (!Boolean.TRUE.equals(tool.allowroster)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
-				log.error("Scope names and roles not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
-
-			sat.addScope(SakaiAccessToken.SCOPE_ROSTER);
-		}
-
-		if (scope.contains(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY)) {
-			if (!Boolean.TRUE.equals(tool.allowroster)) {
-				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY);
-				log.error("Scope context group not allowed {}", tool_id);
-				return;
-			}
-			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY);
-
-			sat.addScope(SakaiAccessToken.SCOPE_CONTEXTGROUP_READONLY);
-		}
-
-		String payload = JacksonUtil.toString(sat);
-		String jws = Jwts.builder().setPayload(payload).signWith(tokenKeyPair.getPrivate()).compact();
-
-		AccessToken at = new AccessToken();
-		at.access_token = jws;
-		at.scope = String.join(" ", new ArrayList<String>(returnScopeSet));
 
 		String atsp = JacksonUtil.prettyPrintLog(at);
 
@@ -1038,7 +853,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		log.debug("sat={}", sat);
 
 		if (sat == null) {
@@ -1078,8 +893,8 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
-		org.sakaiproject.lti.beans.LtiContentBean content = null;
+		LtiToolBean tool = null;
+		LtiContentBean content = null;
 		String assignment_name = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
@@ -1253,7 +1068,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(tool_key, null, true);
+		LtiToolBean tool = ltiService.getToolDaoAsBean(tool_key, null, true);
 		if (tool == null) {
 			log.error("Could not load tool={}", tool_key);
 			LTI13Util.return400(response, "Missing tool");
@@ -1305,7 +1120,7 @@ public class LTI13Servlet extends HttpServlet {
 		tool.lti13AutoToken = "Used";
 		tool.lti13AutoState = Integer.valueOf(2);
 		String siteId = null;
-		Object retval = ltiService.updateToolDao(tool_key, tool, siteId);
+		Object retval = ltiService.updateToolAsAdmin(tool_key, tool, siteId);
 
 		if ( retval instanceof String) {
 			log.error("Could not update tool={} retval={}", tool_key, retval);
@@ -1387,7 +1202,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		if (sat == null) {
 			return; // Error already set
 		}
@@ -1399,11 +1214,11 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
+			LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
@@ -1674,7 +1489,7 @@ public class LTI13Servlet extends HttpServlet {
 		int limit = NumberUtils.toInt(request.getParameter("limit"), -1);
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		if (sat == null) {
 			return; // Error already set
 		}
@@ -1686,7 +1501,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		LtiToolBean tool = null;
 
 		try {
 			site = SiteService.getSite(site_id);
@@ -1792,60 +1607,20 @@ public class LTI13Servlet extends HttpServlet {
 
 	}
 
-	protected SakaiAccessToken getSakaiAccessToken(Key publicKey, HttpServletRequest request, HttpServletResponse response) {
-	        log.debug("publicKey={}", publicKey);
-
-	        String authorization = request.getHeader("authorization");
-
-		if (authorization == null || !authorization.startsWith("Bearer")) {
-			log.error("Invalid authorization {}", authorization);
-			LTI13Util.return403(response, "invalid_authorization");
+	protected SakaiAccessToken getSakaiAccessToken(HttpServletRequest request, HttpServletResponse response) {
+		if (sakaiAccessTokenService == null) {
+			log.error("SakaiAccessTokenService not available");
+			LTI13Util.return403(response, "token_service_unavailable");
 			return null;
 		}
-
-		// https://stackoverflow.com/questions/7899525/how-to-split-a-string-by-space/7899558
-		String[] parts = authorization.split("\\s+");
-		if (parts.length != 2 || parts[1].length() < 1) {
-			log.error("Bad authorization {}", authorization);
-			LTI13Util.return403(response, "invalid_authorization");
-			return null;
-		}
-
-		String jws = parts[1];
-		Claims claims;
 		try {
-			claims = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(jws).getBody();
-		} catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException
-				| io.jsonwebtoken.security.SignatureException | IllegalArgumentException e) {
-			log.error("{} Signature error {}\n{}", e.getClass().getName(), e.getMessage(), jws, e);
-			LTI13Util.return403(response, "signature_error");
+			String jws = sakaiAccessTokenService.extractBearerToken(request.getHeader("authorization"));
+			return sakaiAccessTokenService.validateToken(jws);
+		} catch (SakaiAccessTokenException e) {
+			log.error("SAT validation failed: {}", e.getMessage());
+			LTI13Util.return403(response, e.getErrorKey(), e.getMessage());
 			return null;
 		}
-
-		// Reconstruct the SakaiAccessToken
-		// https://www.baeldung.com/jackson-deserialization
-		SakaiAccessToken sat;
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
-			// System.out.println("jsonResult=" + jsonResult);
-			sat = new ObjectMapper().readValue(jsonResult, SakaiAccessToken.class);
-		} catch (IOException ex) {
-			log.error("PARSE ERROR {}\n{}", ex.getMessage(), claims.toString());
-			LTI13Util.return403(response, "token_parse_failure", ex.getMessage());
-			return null;
-		}
-
-		// Validity check the access token
-		if (sat.tool_id != null && sat.scope != null && sat.expires != null) {
-			// All good
-		} else {
-			log.error("SakaiAccessToken missing required data {}", sat);
-			LTI13Util.return403(response, "Missing required data in access_token");
-			return null;
-		}
-
-		return sat;
 	}
 
 	// Sanity check signed_placement
@@ -1891,7 +1666,7 @@ public class LTI13Servlet extends HttpServlet {
 		return parts.length == 3 ? parts[1] : null;
 	}
 
-	protected static org.sakaiproject.lti.beans.LtiContentBean loadContentCheckSignature(String signed_placement, HttpServletResponse response) {
+	protected static LtiContentBean loadContentCheckSignature(String signed_placement, HttpServletResponse response) {
 
 		String[] parts = splitSignedPlacement(signed_placement, response);
 		if (parts == null) {
@@ -1913,7 +1688,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Note that all of the above checking requires no database access :)
 		// Now we have a valid access token and valid JSON, proceed with validating the signed_placement
-		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsBean(contentKey, context_id);
+		LtiContentBean content = ltiService.getContentAsBean(contentKey, context_id);
 		if (content == null) {
 			log.error("Could not load Content Item {}", contentKey);
 			LTI13Util.return400(response, "Could not load Content Item");
@@ -1940,7 +1715,7 @@ public class LTI13Servlet extends HttpServlet {
 		return content;
 	}
 
-	protected Site loadSiteFromContent(org.sakaiproject.lti.beans.LtiContentBean content, String signed_placement, HttpServletResponse response) {
+	protected Site loadSiteFromContent(LtiContentBean content, String signed_placement, HttpServletResponse response) {
 		String[] parts = splitSignedPlacement(signed_placement, response);
 		if (parts == null) {
 			return null;
@@ -1989,21 +1764,20 @@ public class LTI13Servlet extends HttpServlet {
 		return userExistsInSite;
 	}
 
-	protected static boolean checkToolHasPlacements(Long toolKey, String siteId, HttpServletResponse response)
+	protected static boolean checkToolHasPlacements(Long toolId, String siteId, HttpServletResponse response)
 	{
-		String search = "lti_content.tool_id = " + toolKey;
-		List<org.sakaiproject.lti.beans.LtiContentBean> contents =
-			ltiService.getContentsAsBeans(search, null, 0, 1, siteId);
+		List<LtiContentBean> contents =
+			ltiService.getContentsForToolAndSite(toolId, siteId);
 
 		if (contents.isEmpty()) {
-			log.warn("Tool id={} has no placements in site={}", toolKey, siteId);
+			log.warn("Tool id={} has no placements in site={}", toolId, siteId);
 			LTI13Util.return403(response, "Tool not placed in site");
 			return false;
 		}
 		return true;
 	}
 
-	private static boolean isGradebookReadonlyView(org.sakaiproject.lti.beans.LtiToolBean tool) {
+	private static boolean isGradebookReadonlyView(LtiToolBean tool) {
 		return LineItemUtil.isGradebookReadonlyView(
 				tool != null ? tool.allowgradebookreadonly : null,
 				tool != null ? tool.allowlineitems : null);
@@ -2012,7 +1786,7 @@ public class LTI13Servlet extends HttpServlet {
 	/**
 	 * @return true if the response was written (caller should return)
 	 */
-	private static boolean rejectIfLineItemReadOnly(org.sakaiproject.lti.beans.LtiToolBean tool, String contextId,
+	private static boolean rejectIfLineItemReadOnly(LtiToolBean tool, String contextId,
 			Long toolId, Long lineitemKey, HttpServletResponse response) {
 		if (!isGradebookReadonlyView(tool) || lineitemKey == null) {
 			return false;
@@ -2030,7 +1804,7 @@ public class LTI13Servlet extends HttpServlet {
 		return false;
 	}
 
-	protected org.sakaiproject.lti.beans.LtiToolBean loadToolForContent(org.sakaiproject.lti.beans.LtiContentBean content, Site site, Long expected_tool_id, HttpServletResponse response) {
+	protected LtiToolBean loadToolForContent(LtiContentBean content, Site site, Long expected_tool_id, HttpServletResponse response) {
 		Long toolKey = LTIUtil.toLongKey(content.toolId);
 		if (toolKey < 0 || !toolKey.equals(expected_tool_id)) {
 			log.error("Content / Tool invalid content={} tool={}", content.id, toolKey);
@@ -2038,7 +1812,7 @@ public class LTI13Servlet extends HttpServlet {
 			return null;
 		}
 
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, site.getId(), true);
+		LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, site.getId(), true);
 		if (tool == null) {
 			log.error("Could not load tool={}", toolKey);
 			LTI13Util.return400(response, "Missing tool");
@@ -2126,7 +1900,7 @@ public class LTI13Servlet extends HttpServlet {
 	private void handleLineItemsPost(String signed_placement, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		log.debug("sat={}", sat);
 
 		if (sat == null) {
@@ -2145,11 +1919,11 @@ public class LTI13Servlet extends HttpServlet {
 		log.debug("item={}; resourceLinkId={}", item, item.resourceLinkId);
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
+			LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
@@ -2237,7 +2011,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		log.debug("sat={}", sat);
 
 		if (sat == null) {
@@ -2253,11 +2027,11 @@ public class LTI13Servlet extends HttpServlet {
 		if ( item == null ) return; // Error alredy handled
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
+			LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
@@ -2362,7 +2136,7 @@ public class LTI13Servlet extends HttpServlet {
 		log.debug("signed_placement={}; all={}", signed_placement, all);
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		if (sat == null) {
 			return;
 		}
@@ -2374,8 +2148,8 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
-		org.sakaiproject.lti.beans.LtiContentBean content = null;
+		LtiToolBean tool = null;
+		LtiContentBean content = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
@@ -2489,7 +2263,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		if (sat == null) {
 			return;
 		}
@@ -2501,8 +2275,8 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
-		org.sakaiproject.lti.beans.LtiContentBean content = null;
+		LtiToolBean tool = null;
+		LtiContentBean content = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
@@ -2737,7 +2511,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the access token, checking the the secret
-		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
 		if (sat == null) {
 			return;
 		}
@@ -2749,11 +2523,11 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
+			LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);

@@ -33,26 +33,19 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
 @Slf4j
 public class SiteMembershipUpdaterImpl implements SiteMembershipUpdater {
-    /**
-     *  Injected from Spring, see components.xml
-     */
-    private LTIRoleMapper roleMapper = null;
-    public void setRoleMapper(LTIRoleMapper roleMapper) {
-        this.roleMapper = roleMapper;
-    }
 
-    /**
-     *  Injected from Spring, see components.xml
-     */
-    private SiteService siteService = null;
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
+    @Autowired
+    private LTIRoleMapper roleMapper;
+
+    @Autowired
+    private SiteService siteService;
 
     private void pushAdvisor() {
 

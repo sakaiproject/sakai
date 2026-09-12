@@ -55,6 +55,9 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.lti.api.LtiBearerSessionConstants;
+import org.sakaiproject.lti.api.LtiBearerSessions;
+import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.time.api.TimeService;
@@ -791,6 +794,24 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	}
 
 	/**
+	 * Check that the current session is the validated LTI Bearer token session for this tool principal.
+	 * The <code>lti-tool-</code> prefix on an id proves nothing on its own - only the SakaiAccessToken
+	 * that the Bearer token interceptors put on the session does.
+	 *
+	 * @param id
+	 *        A cleaned user id starting with {@link LtiBearerSessionConstants#LTI_TOOL_USER_ID_PREFIX}.
+	 * @return true if the current session was established for this exact tool, false otherwise.
+	 */
+	private boolean isCurrentLtiToolPrincipal(String id)
+	{
+		SakaiAccessToken sat = LtiBearerSessions.getSakaiAccessToken(sessionManager.getCurrentSession());
+
+		if (sat == null || sat.tool_id == null) return false;
+
+		return id.equals(LtiBearerSessionConstants.LTI_TOOL_USER_ID_PREFIX + sat.tool_id);
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public User getUser(String id) throws UserNotDefinedException
@@ -799,6 +820,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		id = cleanId(id);
 
 		if (id == null) throw new UserNotDefinedException("null");
+
+		// There is no stored or provided user behind an LTI tool principal, so it can only be
+		// synthesized while the validated Bearer token session that minted it is in effect.
+		if (id.startsWith(LtiBearerSessionConstants.LTI_TOOL_USER_ID_PREFIX))
+		{
+			if (!isCurrentLtiToolPrincipal(id)) throw new UserNotDefinedException(id);
+
+			return new BaseUserEdit(id, id);
+		}
 
 		// see if we've done this already in this thread
 		String ref = userReference(id);
@@ -991,6 +1021,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		User rv = null;
 
+		// An LTI tool principal is synthesized by getUser() - and only for a validated Bearer session.
 		try
 		{
 			rv = getUser(id);

@@ -22,6 +22,7 @@ package org.sakaiproject.lti.tool;
 
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -72,10 +73,13 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.lti.api.LTIExportService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.api.SakaiAccessTokenService;
+import org.sakaiproject.lti.api.model.LtiTool;
 import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.lti.beans.LtiContentBean;
 import org.sakaiproject.lti.beans.LtiToolSiteBean;
@@ -90,7 +94,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.sakaiproject.util.foorm.SakaiFoorm;
+import org.sakaiproject.util.foorm.Foorm;
 import org.sakaiproject.time.api.UserTimeService;
 
 // We need to interact with the RequestFilter
@@ -170,7 +174,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	protected static ServerConfigurationService serverConfigurationService = null;
 	protected static UserTimeService userTimeService = null;
 
-	protected static SakaiFoorm foorm = new SakaiFoorm();
+	protected static Foorm foorm = new Foorm();
 
 	// Should be RequestFilter.SAKAI_SERVERID
 	public final static String SAKAI_SERVERID = "sakai.serverId";
@@ -611,6 +615,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
 		context.put("isAdmin", Boolean.valueOf(ltiService.isAdmin(getSiteId(state))));
+		context.put("isApiEnabled", ltiService.isApiEnabled());
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		if (ltiService.isAdmin(getSiteId(state))
 				&& serverConfigurationService.getString(SakaiLTIUtil.LTI_ENCRYPTION_KEY, null) == null) {
@@ -618,7 +623,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
-		context.put("isAdmin", Boolean.valueOf(ltiService.isAdmin(getSiteId(state))));
 		context.put("allowMaintainerAddSystemTool", Boolean.valueOf(serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_SYSTEM_TOOL, true)));
 		context.put("getContext", contextString);
 
@@ -972,7 +976,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		toolBean.lti13AutoToken = registration_token;
 
 		// Update the tool
-		Object retval = ltiService.updateTool(toolKey, toolBean, getSiteId(state));
+		Object retval = ltiService.updateToolAsAdmin(toolKey, toolBean, getSiteId(state));
 		if (retval instanceof String) {
 			addAlert(state, (String) retval);
 			switchPanel(state, "Error");
@@ -1000,6 +1004,105 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		state.setAttribute(STATE_REDIRECT_URL, forwardUrl);
 		switchPanel(state, "Forward");
+	}
+
+	public String buildToolApiConfigPanelContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.api.access"));
+			return "lti_error";
+		}
+
+		String idString = data.getParameters().getString(LTIService.LTI_ID);
+		if (idString == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			return "lti_error";
+		}
+
+		Long id;
+		try {
+			id = Long.valueOf(idString);
+		} catch (NumberFormatException nfe) {
+			addAlert(state, rb.getString("error.id.not.number"));
+			return "lti_error";
+		}
+
+		LtiToolBean toolBean = ltiService.getToolAsBean(id, getSiteId(state));
+		if (toolBean == null) {
+			addAlert(state, rb.getString("error.tool.not.found"));
+			return "lti_error";
+		}
+
+		FunctionManager functionManager = ComponentManager.get(FunctionManager.class);
+		List<String> permissions = new ArrayList<>(functionManager.getRegisteredFunctions());
+		permissions.sort(String.CASE_INSENSITIVE_ORDER);
+
+		Set<String> granted = ltiService.getToolPermissions(id, getSiteId(state));
+
+		context.put("tool", toolBean);
+		context.put("permissions", permissions);
+		context.put("granted", granted);
+		context.put("doToolAction", BUTTON + "doToolApiConfig");
+		context.put("doClearAll", BUTTON + "doToolApiConfigClear");
+		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
+
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_api_config";
+	}
+
+	public void doToolApiConfig(RunData data, Context context) {
+		saveToolApiAccess(data, context, false);
+	}
+
+	public void doToolApiConfigClear(RunData data, Context context) {
+		saveToolApiAccess(data, context, true);
+	}
+
+	private void saveToolApiAccess(RunData data, Context context, boolean clearAll) {
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.api.access"));
+			switchPanel(state, "Error");
+			return;
+		}
+
+		String idString = data.getParameters().getString(LTIService.LTI_ID);
+		if (idString == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			switchPanel(state, "ToolSystem");
+			return;
+		}
+
+		Long id;
+		try {
+			id = Long.valueOf(idString);
+		} catch (NumberFormatException nfe) {
+			addAlert(state, rb.getString("error.id.not.number"));
+			return;
+		}
+
+		Set<String> permissions = new HashSet<>();
+		if (!clearAll) {
+			String[] selected = data.getParameters().getStrings("permission");
+			if (selected != null) {
+				permissions.addAll(Arrays.asList(selected));
+			}
+		}
+
+        try {
+		    ltiService.setToolPermissions(id, permissions, getSiteId(state));
+        } catch (Exception ex) {
+			addAlert(state, (String) "Permissions not set successfully");
+			switchPanel(state, "ToolApiConfig&id=" + id);
+			return;
+		}
+
+		state.setAttribute(STATE_SUCCESS, rb.getString("tool.api.access.success"));
+		switchPanel(state, "ToolSystem");
 	}
 
 	public String buildToolDeletePanelContext(VelocityPortlet portlet, Context context,
@@ -1059,23 +1162,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			switchPanel(state, "ToolSystem");
 			return;
 		}
+
 		Long key = Long.valueOf(id);
+		String siteId = getSiteId(state);
 
-		// Delete the tool and all dependencies
-		List<String> errors = ltiService.deleteToolAndDependencies(key, getSiteId(state));
-
-		String errorNote = "";
-		for (String errstr : errors) {
-			log.error(errstr);
-			errorNote += "<br/>" + errstr;
+		try {
+			ltiService.deleteTool(key, siteId);
+			state.setAttribute(STATE_SUCCESS, rb.getString("success.deleted"));
+		} catch (Exception e) {
+			log.error("Unable to delete tool key={} siteId={}", key, siteId, e);
+			addAlert(state, rb.getString("error.delete.fail"));
 		}
 
-		if (errors.size() < 1) {
-			switchPanel(state, "ToolSystem");
-		} else {
-			addAlert(state, rb.getString("error.delete.fail") + errorNote);
-			switchPanel(state, "ToolSystem");
-		}
+		switchPanel(state, "ToolSystem");
 	}
 
 	public String buildToolSiteDeployPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
@@ -1599,18 +1698,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		Object retval = ltiService.insertTool(tool, getSiteId(state));
 		if (retval instanceof String) {
-			addAlert(state, rb.getString("tool.new.insert.start.fail") + " retval=" + retval);
+			addAlert(state, rb.getString("tool.new.insert.start.fail") + " " + retval);
 			switchPanel(state, "Error");
 			return;
 		}
 
-		long key = Long.parseLong(retval.toString());
-		switchPanel(state, "ToolEdit&id=" + key);
+		switchPanel(state, "ToolEdit&id=" + (Long) retval);
 	}
 
 	public String buildToolEditPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
 
 		context.put("tlang", rb);
+
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if (!ltiService.isMaintain(getSiteId(state))) {
 			addAlert(state, rb.getString("error.maintain.edit"));
@@ -1776,7 +1875,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// only list the tools available in the system
-		List<Map<String, Object>> systemTools = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> systemTools = new ArrayList<>();
 		for (LtiToolBean toolBean : toolBeans) {
 			Map<String, Object> tool = toolBean.asMap();
 			String siteId = StringUtils.trimToNull(toolBean.getSiteId());

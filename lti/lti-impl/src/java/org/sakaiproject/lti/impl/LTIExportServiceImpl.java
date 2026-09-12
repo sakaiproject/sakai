@@ -36,10 +36,17 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.ResourceLoader;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 public class LTIExportServiceImpl implements LTIExportService {
-	protected LTIService ltiService;
-	protected ServerConfigurationService serverConfigurationService;
-	protected SiteService siteService;
+	@Autowired
+	private LTIService ltiService;
+
+	@Autowired
+	private ServerConfigurationService serverConfigurationService;
+
+	@Autowired
+	private SiteService siteService;
 	
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
@@ -79,7 +86,7 @@ public class LTIExportServiceImpl implements LTIExportService {
 		if(StringUtils.isNotEmpty(filterId)) {
 			search = "tool_id:"+filterId;
 		}
-		List<Map<String,Object>> contents = ltiService.getContentsDao(search, null, 0, 0, siteId, isAdmin(siteId));
+		List<Map<String,Object>> contents = ltiService.getContents(search, null, 0, 0, siteId);
 		LTIExporter exporter = null;
 		switch(exportType) {
 			case CSV : exporter = new ExporterCSV(); break;
@@ -124,7 +131,7 @@ public class LTIExportServiceImpl implements LTIExportService {
 				String url = (String)content.get("launch");
 				if(StringUtils.isEmpty(url)) {
 					try {
-						url = (String)(ltiService.getToolDao(new Long(content.get(LTIService.LTI_TOOL_ID).toString()), siteId).get("launch"));
+						url = (String)(ltiService.getTool(new Long(content.get(LTIService.LTI_TOOL_ID).toString()), siteId).get("launch"));
 					} catch(Exception e) {
 						url = "-";
 					}
