@@ -584,7 +584,7 @@
       </dependency>
       <dependency>
         <groupId>org.thymeleaf</groupId>
-        <artifactId>thymeleaf-spring5</artifactId>
+        <artifactId>thymeleaf-spring6</artifactId>
         <version>${sakai.thymeleaf.version}</version>
         <scope>compile</scope>
       </dependency>
