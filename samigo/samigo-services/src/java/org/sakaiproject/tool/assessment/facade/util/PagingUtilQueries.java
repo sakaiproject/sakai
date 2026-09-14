@@ -24,18 +24,22 @@ package org.sakaiproject.tool.assessment.facade.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.criteria.CriteriaQuery;
+
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
 import org.hibernate.query.Query;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Transactional
-public class PagingUtilQueries extends HibernateDaoSupport implements PagingUtilQueriesAPI {
+public class PagingUtilQueries implements PagingUtilQueriesAPI {
+
+  @Setter private SessionFactory sessionFactory;
 
   public PagingUtilQueries () {
   }
@@ -43,29 +47,27 @@ public class PagingUtilQueries extends HibernateDaoSupport implements PagingUtil
   public List getAll(final int pageSize, final int pageNumber,
                                 final String queryString, final Integer value) {
 
-    HibernateCallback callback = new HibernateCallback(){
-       public Object doInHibernate(Session session) throws HibernateException{
-         List page = new ArrayList<>();
-         Query q = session.createQuery(queryString);
-         if (value != null) {
-        	 q.setParameter(0, value.intValue());
-         }
-         ScrollableResults assessmentList = q.scroll();
-         if (assessmentList.first()){ // check that result set is not empty
-           int first = pageSize * (pageNumber - 1);
-           int i = 0;
-           assessmentList.setRowNumber(first);
-           assessmentList.beforeFirst();
-           while ( (pageSize > i++) && assessmentList.next()){
-             log.debug("**** add "+i);
-             page.add(assessmentList.get());
-           }
-         }
-         return page;
-       }
-    };
-    List pageList = (List) getHibernateTemplate().execute(callback);
-    return pageList;
+    Session session = sessionFactory.getCurrentSession();
+    HibernateCriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<Object> criteria = cb.createQuery(queryString, Object.class);
+    Query<Object> q = session.createQuery(criteria);
+    List page = new ArrayList<>();
+    if (value != null) {
+      q.setParameter(0, value.intValue());
+    }
+    try (ScrollableResults<Object> assessmentList = q.scroll()) {
+      if (assessmentList.first()){ // check that result set is not empty
+        int first = pageSize * (pageNumber - 1);
+        int i = 0;
+        assessmentList.setRowNumber(first);
+        assessmentList.beforeFirst();
+        while ( (pageSize > i++) && assessmentList.next()){
+          log.debug("**** add "+i);
+          page.add(assessmentList.get());
+        }
+      }
+    }
+    return page;
   }
   
   public List getAll(final int pageSize, final int pageNumber,
