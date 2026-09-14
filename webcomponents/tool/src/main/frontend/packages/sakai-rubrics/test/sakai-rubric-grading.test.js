@@ -57,6 +57,7 @@ describe("sakai-rubric-grading tests", () => {
     // We need to wait until the evaluation data has been fetched, then count the rows.
     await waitUntil(() => el.querySelector(".criterion-row"), "No criterion rows rendered");
     expect(el.querySelectorAll(".criterion-row").length).to.equal(3);
+    expect(el.querySelector(`select[aria-label="${el._i18n.rubric_view_selection_title}"]`)).to.exist;
 
     // Initially, with our test evaluation load, we have selected ratings worth 2 points for criterion1 and 3 points for criterion2
     const totalPoints = el.querySelector(`#rbcs-${data.evaluatedItemId}-${data.entityId}-totalpoints`);
@@ -234,5 +235,26 @@ describe("sakai-rubric-grading tests", () => {
     const criterion2Points = el.querySelector("#points-display-10");
     expect(criterion1Points.textContent.trim()).to.equal("1.2");
     expect(criterion2Points.textContent.trim()).to.equal("0.8");
+  });
+
+  it ("hides summary views for peer or self evaluation", async () => {
+
+    fetchMock.get(data.rubric1Url, data.rubric1)
+      .get(data.associationUrl, data.association)
+      .get(`${data.evaluationUrl}?isPeer=true`, data.evaluation);
+
+    const el = await fixture(html`
+      <sakai-rubric-grading
+          site-id="${data.siteId}"
+          tool-id="${data.toolId}"
+          entity-id="${data.entityId}"
+          evaluated-item-id="${data.evaluatedItemId}"
+          evaluated-item-owner-id="${data.evaluatedItemOwnerId}"
+          is-peer-or-self>
+      </sakai-rubric-grading>
+    `);
+
+    await waitUntil(() => el.querySelector(".criterion-row"), "No criterion rows rendered");
+    expect(el.querySelector(`select[aria-label="${el._i18n.rubric_view_selection_title}"]`)).to.not.exist;
   });
 });

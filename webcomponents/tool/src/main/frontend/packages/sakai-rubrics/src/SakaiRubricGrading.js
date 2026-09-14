@@ -111,6 +111,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           ` : nothing }
         </h3>
 
+        ${!this.isPeerOrSelf ? html`
         <select @change=${this._viewSelected}
             aria-label="${this._i18n.rubric_view_selection_title}"
             title="${this._i18n.rubric_view_selection_title}" .value=${this._currentView}>
@@ -118,6 +119,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           <option value="${STUDENT_SUMMARY}">${this._i18n.student_summary}</option>
           <option value="${CRITERIA_SUMMARY}">${this._i18n.criteria_summary}</option>
         </select>
+        ` : nothing}
 
         <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-1">
           ${this._evaluation && this._evaluation.status === "DRAFT" && !this.isPeerOrSelf ? html`
