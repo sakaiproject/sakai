@@ -155,12 +155,12 @@ describe("sakai-topic-list tests", () => {
     await expect(el).to.be.accessible();
 
     // Verify filter dropdown exists
-    const filterSelect = el.querySelector("#topic-list-filters select:nth-child(1)");
+    const filterSelect = el.querySelectorAll("#topic-list-filters select")[1];
     expect(filterSelect).to.exist;
 
     // Filter by questions
-    el._currentFilter = el.BY_QUESTION;
-    el._filter();
+    filterSelect.value = "by_question";
+    filterSelect.dispatchEvent(new Event("change"));
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();

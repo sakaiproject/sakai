@@ -10,6 +10,7 @@ export class SakaiTopicList extends SakaiElement {
     aboutRef: { attribute: "about-ref", type: String },
     siteId: { attribute: "site-id", type: String },
     data: { type: Object },
+    filters: { attribute: false },
 
     _filteredPinnedTopics: { state: true },
     _filteredDraftTopics: { state: true },
@@ -17,7 +18,6 @@ export class SakaiTopicList extends SakaiElement {
     _expandDraft: { state: true },
     _expandTheRest: { state: true },
     _tagsInUse: { state: true },
-    _selectedTag: { state: true },
     _hasBookmarked: { state: true },
     _hasAnsweredQuestions: { state: true },
     _hasQuestions: { state: true },
@@ -42,7 +42,7 @@ export class SakaiTopicList extends SakaiElement {
     this.BY_MODERATED = "by_moderated";
     this.BY_UNVIEWED = "by_unviewed";
 
-    this._currentFilter = this.ANY;
+    this.filters = { filter: this.ANY, tag: this.ANY };
 
     this.loadTranslations("conversations");
   }
@@ -92,6 +92,18 @@ export class SakaiTopicList extends SakaiElement {
 
   get aboutRef() { return this._aboutRef; }
 
+  willUpdate(changedProperties) {
+    if (changedProperties.has("filters") && this.data) this._filter();
+  }
+
+  get topicIds() {
+    return [
+      ...this._filteredPinnedTopics,
+      ...(this._expandDraft ? this._filteredDraftTopics : []),
+      ...(this._expandTheRest ? this._filteredUnpinnedTopics : []),
+    ].map(topic => topic.id);
+  }
+
   _initialFilter() {
 
     this.pinnedTopics = this.data.topics.filter(t => t.pinned);
@@ -109,7 +121,7 @@ export class SakaiTopicList extends SakaiElement {
     this._filteredPinnedTopics = this.pinnedTopics;
     this._filteredUnpinnedTopics = this.unpinnedTopics;
 
-    switch (this._currentFilter) {
+    switch (this.filters.filter) {
 
       case undefined:
         break;
@@ -143,25 +155,22 @@ export class SakaiTopicList extends SakaiElement {
         this._filteredUnpinnedTopics = this.unpinnedTopics;
     }
 
-    if (this._selectedTag) {
-      this._filteredUnpinnedTopics = this._filteredUnpinnedTopics.filter(t => t.tags.find(tag => tag.id == this._selectedTag));
+    if (this.filters.tag !== this.ANY) {
+      this._filteredUnpinnedTopics = this._filteredUnpinnedTopics.filter(t => t.tags?.some(tag => String(tag.id) === this.filters.tag));
     }
   }
 
   _filterSelected(e) {
-
-    this._currentFilter = e.target.value;
-    this._filter();
+    this._setFilters({ ...this.filters, filter: e.target.value });
   }
 
   _tagSelected(e) {
+    this._setFilters({ ...this.filters, tag: e.target.value });
+  }
 
-    if (e.target.value === this.ANY) {
-      this._selectedTag = undefined;
-    } else {
-      this._selectedTag = e.target.value;
-    }
-    this._filter();
+  _setFilters(filters) {
+    this.filters = filters;
+    this.dispatchEvent(new CustomEvent("filters-changed", { detail: { filters }, bubbles: true }));
   }
 
   _toggleExpandDraft() { this._expandDraft = !this._expandDraft; }
@@ -183,36 +192,36 @@ export class SakaiTopicList extends SakaiElement {
               ${!this._tagsInUse?.length ? html`
                 <option value="none">No tags in use</option>
                 ` : html`
-                <option value="${this.ANY}">${this._i18n.tag_any}</option>
+                <option value="${this.ANY}" ?selected=${this.filters.tag === this.ANY}>${this._i18n.tag_any}</option>
                 ${this._tagsInUse.map(tag => html`
-                  <option value="${tag.id}">${this._i18n.tag} ${tag.label}</option>
+                  <option value="${tag.id}" ?selected=${this.filters.tag === String(tag.id)}>${this._i18n.tag} ${tag.label}</option>
                 `)}
               `}
             </select>
           </div>
           <div>
             <select @change=${this._filterSelected} aria-label="${this._i18n.filter_by_various_tooltip}">
-              <option value="${this.ANY}">${this._i18n.filter_any}</option>
-              ${this._hasQuestions ? html`
-              <option value="${this.BY_QUESTION}">${this._i18n.filter_questions}</option>
+              <option value="${this.ANY}" ?selected=${this.filters.filter === this.ANY}>${this._i18n.filter_any}</option>
+              ${this._hasQuestions || this.filters.filter === this.BY_QUESTION ? html`
+              <option value="${this.BY_QUESTION}" ?selected=${this.filters.filter === this.BY_QUESTION}>${this._i18n.filter_questions}</option>
               ` : nothing }
-              ${this._hasDiscussions ? html`
-              <option value="${this.BY_DISCUSSION}">${this._i18n.filter_discussions}</option>
+              ${this._hasDiscussions || this.filters.filter === this.BY_DISCUSSION ? html`
+              <option value="${this.BY_DISCUSSION}" ?selected=${this.filters.filter === this.BY_DISCUSSION}>${this._i18n.filter_discussions}</option>
               ` : nothing }
-              ${this._hasAnsweredQuestions ? html`
-              <option value="${this.BY_RESOLVED_QUESTION}">${this._i18n.filter_answered}</option>
+              ${this._hasAnsweredQuestions || this.filters.filter === this.BY_RESOLVED_QUESTION ? html`
+              <option value="${this.BY_RESOLVED_QUESTION}" ?selected=${this.filters.filter === this.BY_RESOLVED_QUESTION}>${this._i18n.filter_answered}</option>
               ` : nothing }
-              ${this._hasDiscussionsWithPosts ? html`
-              <option value="${this.BY_DISCUSSION_WITH_POSTS}">${this._i18n.filter_discussions_with_posts}</option>
+              ${this._hasDiscussionsWithPosts || this.filters.filter === this.BY_DISCUSSION_WITH_POSTS ? html`
+              <option value="${this.BY_DISCUSSION_WITH_POSTS}" ?selected=${this.filters.filter === this.BY_DISCUSSION_WITH_POSTS}>${this._i18n.filter_discussions_with_posts}</option>
               ` : nothing }
-              ${this._hasBookmarked ? html`
-              <option value="${this.BY_BOOKMARKED}">${this._i18n.filter_bookmarked}</option>
+              ${this._hasBookmarked || this.filters.filter === this.BY_BOOKMARKED ? html`
+              <option value="${this.BY_BOOKMARKED}" ?selected=${this.filters.filter === this.BY_BOOKMARKED}>${this._i18n.filter_bookmarked}</option>
               ` : nothing }
-              ${this._hasModerated ? html`
-              <option value="${this.BY_MODERATED}">${this._i18n.filter_moderated}</option>
+              ${this._hasModerated || this.filters.filter === this.BY_MODERATED ? html`
+              <option value="${this.BY_MODERATED}" ?selected=${this.filters.filter === this.BY_MODERATED}>${this._i18n.filter_moderated}</option>
               ` : nothing }
-              ${this._hasUnviewed ? html`
-              <option value="${this.BY_UNVIEWED}">${this._i18n.filter_unviewed}</option>
+              ${this._hasUnviewed || this.filters.filter === this.BY_UNVIEWED ? html`
+              <option value="${this.BY_UNVIEWED}" ?selected=${this.filters.filter === this.BY_UNVIEWED}>${this._i18n.filter_unviewed}</option>
               ` : nothing }
             </select>
           </div>

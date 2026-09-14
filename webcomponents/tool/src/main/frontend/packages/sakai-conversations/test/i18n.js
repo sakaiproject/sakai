@@ -1,6 +1,7 @@
 export const i18nUrl = /getI18nProperties.*conversations$/;
 
 export const i18n = `
+next_topic=Next topic
 GOOD_IDEA=Clicking this indicates that you think this is a good idea
 KEY=Clicking this indicates that you think this idea is key to the topic
 LOVE_IT=Clicking this indicates that you love this post or answer

@@ -36,6 +36,8 @@ export class SakaiConversations extends SakaiElement {
 
     super();
 
+    this._topicListFilters = { filter: "any", tag: "any" };
+    this._topicSequence = [];
     this._state = STATE_NOTHING_SELECTED;
 
     /*
@@ -157,8 +159,10 @@ export class SakaiConversations extends SakaiElement {
 
   _topicDeleted(e) {
 
-    const index = this._data.topics.findIndex(t => t.id === e.detail.topic.id);
-    this._data.topics.splice(index, 1);
+    this._data = {
+      ...this._data,
+      topics: this._data.topics.filter(t => t.id !== e.detail.topic.id),
+    };
     this._currentTopic = null;
     this._state = STATE_NOTHING_SELECTED;
   }
@@ -228,17 +232,21 @@ export class SakaiConversations extends SakaiElement {
 
     const topic = e.detail.topic;
 
-    const index = this._data.topics.findIndex(t => t.id === topic.id);
-    this._data.topics[index] = topic;
+    this._data = {
+      ...this._data,
+      topics: this._data.topics.map(t => t.id === topic.id ? topic : t),
+    };
 
     if (!e.detail.dontUpdateCurrent) {
-      this._currentTopic = this._data.topics[index];
+      this._currentTopic = topic;
     }
   }
 
   _topicSelected(e) {
 
     const topicId = e.detail.topic.id;
+    // Preserve the displayed order even when reading changes an unviewed filter.
+    this._topicSequence = e.currentTarget.topicIds;
 
     this.postId = undefined;
 
@@ -252,6 +260,25 @@ export class SakaiConversations extends SakaiElement {
     // Reset the current url to the base url, for now. Later we will want to actually push the
     // topic url so we can use the back button
     history.pushState({}, "", this.baseUrl);
+  }
+
+  _filtersChanged(e) {
+    this._topicListFilters = e.detail.filters;
+  }
+
+  get _nextTopicId() {
+    const index = this._topicSequence.indexOf(this._currentTopic?.id);
+    if (index === -1) return undefined;
+    return this._topicSequence.slice(index + 1)
+      .find(id => this._data.topics.some(topic => topic.id === id));
+  }
+
+  _nextTopic() {
+    const topicId = this._nextTopicId;
+    if (topicId) {
+      this.postId = undefined;
+      this._selectTopic(topicId);
+    }
   }
 
   async _selectTopic(topicId, onlySelectInList) {
@@ -412,9 +439,9 @@ export class SakaiConversations extends SakaiElement {
   _renderTopbar() {
 
     return html`
-      <div class="conv-topbar d-flex align-items-center">
+      <div class="conv-topbar d-flex flex-wrap align-items-center">
 
-        <div id="conv-back-button-block">
+        <div id="conv-back-button-block" class="gap-2">
           <div>
             <button type="button"
                 @click=${this._setStateNothingSelected}
@@ -422,6 +449,15 @@ export class SakaiConversations extends SakaiElement {
               ${this._i18n.topics_header}
             </button>
           </div>
+          ${this._state === STATE_DISPLAYING_TOPIC ? html`
+          <button type="button"
+              id="conv-next-topic"
+              class="btn btn-secondary"
+              ?disabled=${!this._nextTopicId}
+              @click=${this._nextTopic}>
+            ${this._i18n.next_topic}
+          </button>
+          ` : nothing }
         </div>
 
         <div class="conv-settings-and-create d-flex align-items-center">
@@ -569,6 +605,8 @@ export class SakaiConversations extends SakaiElement {
             id="conv-topic-list"
             site-id="${this._data.siteId}"
             .data="${this._data}"
+            .filters=${this._topicListFilters}
+            @filters-changed=${this._filtersChanged}
             @edit-topic=${this._editTopic}
             @topic-deleted=${this._topicDeleted}
             @topic-updated=${this._topicUpdated}

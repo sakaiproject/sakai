@@ -34,8 +34,8 @@ export const TopicMenuMixin = Base => class extends Base {
     .then(r => {
 
       if (r.ok) {
-        this.topic.hidden = !this.topic.hidden;
-        this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
+        const topic = { ...this.topic, hidden: !this.topic.hidden };
+        this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic }, bubbles: true }));
       } else {
         throw new Error("Network error while hiding/showing topic");
       }
