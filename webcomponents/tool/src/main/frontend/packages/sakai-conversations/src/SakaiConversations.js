@@ -497,9 +497,10 @@ export class SakaiConversations extends SakaiElement {
           ` : nothing }
 
           ${this._data.canCreateTopic ? html`
-          <button id="conv-add-topic" type="button" class="btn btn-primary ms-3" @click=${this._addTopic}>
-            <span>${this._i18n.create_new}</span>
-            <i class="si si-add"></i>
+          <button id="conv-add-topic" type="button" class="btn btn-primary ms-3"
+              aria-label="${this._i18n.create_new}" @click=${this._addTopic}>
+            <span class="conv-add-topic-label">${this._i18n.create_new}</span>
+            <i class="si si-add conv-add-topic-icon" aria-hidden="true"></i>
           </button>
           ` : nothing }
         </div>

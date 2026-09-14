@@ -35,13 +35,8 @@
     }
   }
 
-  #conv-add-topic {
-    i {
-      display: none;
-    }
-    span {
-      display: inline;
-    }
+  .conv-add-topic-icon {
+    display: none;
   }
 
   #conv-back-button-block {
@@ -148,14 +143,13 @@
 
   @media (max-width: 800px) {
 
-    #conv-add-topic {
-      i {
-        display: inline;
-        font-size: 24px;
-      }
-      span {
-        display: none;
-      }
+    .conv-add-topic-icon {
+      display: inline;
+      font-size: 24px;
+    }
+
+    .conv-add-topic-label {
+      display: none;
     }
 
     #conv-topic-list-wrapper {

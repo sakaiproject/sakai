@@ -34,6 +34,10 @@ describe("sakai-conversations tests", () => {
 
     expect(el.querySelector("#conv-add-topic")).to.exist;
 
+    // The mobile layout hides the text; the button must still have a name.
+    el.querySelector(".conv-add-topic-label").style.display = "none";
+    await expect(el.querySelector("#conv-add-topic")).to.be.accessible();
+
     data.data.canCreateTopic = false;
     el._data = data.data;
     await el.updateComplete;
