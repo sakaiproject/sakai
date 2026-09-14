@@ -276,9 +276,9 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.adl.datamodels.nav.SCORM_2004_NAV_DM.mElements"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                <!--<bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="java.net.URL"/>
-                </bean>
+                </bean>-->
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.adl.datamodels.DMDelimiter"/>
                 </bean>
