@@ -28,7 +28,9 @@ On Windows (cmd), run `set TZ=UTC && node --test`, or use Git Bash / WSL.
 
 - **Covered:** `parseInputDateValue`, `parseDatePickerInputValue`, `snapToSourceWeekday`,
   `computeFittedDate`, `computeRowFittedDates`, `computeDayDiff`,
-  `getDatePickerInputValue` / `getHiddenDateValue`.
+  `getDatePickerInputValue` / `getHiddenDateValue`, and the picker-facing write path
+  (`setDatePickerValue`, `isJqueryUiDatePicker`, `toLocalDate`) against stubs for both the native
+  `datetime-local` picker and the jQuery UI based picker still shipped by Sakai 23.
 - **Not covered:** DOM/jQuery glue (fill, apply, collapse, attach, init/validate). Those
   need a jsdom or Playwright harness and are out of scope for this suite.
 

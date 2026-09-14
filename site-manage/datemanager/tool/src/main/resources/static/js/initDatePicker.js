@@ -310,7 +310,8 @@ DTMN.initDateDiff = function() {
         iso8601: hidden.id,
       }
     });
-    hidden.addEventListener("change", () => DTMN.applyDateDiff(), false);
+    // Bound with jQuery: the jQuery UI picker fires jQuery-only change events on its hidden field
+    $(hidden).on("change", () => DTMN.applyDateDiff());
   });
 };
 
@@ -392,7 +393,7 @@ DTMN.initFitter = function(updates, notModified) {
         iso8601: hidden.id,
       }
     });
-    hidden.addEventListener("change", () => DTMN.validateFitInputs(), false);
+    $(hidden).on("change", () => DTMN.validateFitInputs());
   });
 
   DTMN.fitApplyBtn.addEventListener("click", function() {
@@ -611,16 +612,16 @@ DTMN.fitDates = function(anchors, sections, updates, notModified) {
     DTMN.attachDatePicker(rootElement + " .datepicker:not(.hasDatepicker)", updates, notModified);
 
     document.querySelectorAll(rootElement + " .datepicker.hasDatepicker").forEach(function(datepicker) {
-      if (datepicker.disabled || !datepicker.value) {
+      if (datepicker.disabled) {
         return;
       }
       const td = datepicker.closest("td");
       const hiddenField = td ? td.querySelector("input[type=hidden]") : null;
-      if (!hiddenField) {
+      if (!hiddenField || !hiddenField.value) {
         return;
       }
       const useTime = hiddenField.dataset.tool !== "gradebookItems";
-      const current = DTMN.parseDatePickerInputValue(datepicker.value, useTime);
+      const current = DTMN.parseInputDateValue(hiddenField.value, useTime);
       if (!current.isValid()) {
         return;
       }
@@ -743,9 +744,9 @@ DTMN.initColumnBulkSetters = function(updates, notModified) {
     });
 
     button.disabled = true;
-    hidden.addEventListener("change", function() {
+    $(hidden).on("change", function() {
       button.disabled = hidden.value === "";
-    }, false);
+    });
 
     button.addEventListener("click", function() {
       DTMN.applyColumnBulkDates(button, updates, notModified);
@@ -826,7 +827,7 @@ DTMN.initTermDates = function(updates, notModified) {
       return;
     }
 
-    hidden.addEventListener("change", () => DTMN.validateTermInputs(), false);
+    $(hidden).on("change", () => DTMN.validateTermInputs());
 
     localDatePicker({
       input,
@@ -972,14 +973,43 @@ DTMN.hasTime = function(date)
   return date.hours() !== 0 || date.minutes() !== 0 || date.seconds() !== 0;
 };
 
+// Two generations of localDatePicker are in service. The native datetime-local picker exposes an ISO
+// wall-clock string in the visible input, whereas the older jQuery UI based picker shows a locale
+// formatted string (e.g. 03/30/2026 00:00) and keeps the parsed Date inside the widget. Reads therefore
+// always go through the "ashidden" iso8601 field, which both pickers maintain, and writes go through the
+// widget whenever one is attached, so this script behaves the same against either picker.
+DTMN.isJqueryUiDatePicker = function(datepicker)
+{
+  return typeof $ === "function" && $.fn && typeof $.fn.datepicker === "function" && !!$(datepicker).data("datepicker");
+};
+
+// Browser-local Date carrying the wall-clock components of a moment, for handing to the jQuery UI widget.
+DTMN.toLocalDate = function(date)
+{
+  return new Date(date.year(), date.month(), date.date(), date.hours(), date.minutes(), date.seconds());
+};
+
 DTMN.setDatePickerValue = function(datepicker, date, useTime)
 {
-  datepicker.value = DTMN.getDatePickerInputValue(date, useTime);
-
   const td = datepicker.closest("td");
   const hiddenField = td ? td.querySelector("input[type=hidden]") : null;
+
+  if (DTMN.isJqueryUiDatePicker(datepicker)) {
+    // Let the widget render the date in the user's locale format and store the same ISO8601-with-offset
+    // string the widget itself writes; the backend keeps only the wall-clock part of it.
+    $(datepicker).datepicker("setDate", DTMN.toLocalDate(date));
+    if (hiddenField) {
+      // read back what the widget settled on (it may round the time) so the two stay consistent
+      hiddenField.value = moment($(datepicker).datepicker("getDate")).format();
+    }
+  } else {
+    datepicker.value = DTMN.getDatePickerInputValue(date, useTime);
+    if (hiddenField) {
+      hiddenField.value = DTMN.getHiddenDateValue(date, useTime);
+    }
+  }
+
   if (hiddenField) {
-    hiddenField.value = DTMN.getHiddenDateValue(date, useTime);
     hiddenField.dispatchEvent(new Event("change", {bubbles: true}));
   } else {
     datepicker.dispatchEvent(new Event("change", {bubbles: true}));
@@ -1226,18 +1256,19 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
   let changed = 0;
 
   datepickers.forEach(function (datepicker) {
-    const dateValue = datepicker.value;
-
-    if (!dateValue) {
-      return;
-    }
-
     // Find the associated hidden field using modern DOM traversal
     const td = datepicker.closest('td');
     const hiddenField = td ? td.querySelector('input[type=hidden]') : null;
 
     if (!hiddenField) {
       console.warn('No hidden field found for datepicker', datepicker);
+      return;
+    }
+
+    // The hidden iso8601 field is the one representation both picker generations share
+    const dateValue = hiddenField.value;
+
+    if (!dateValue) {
       return;
     }
 
@@ -1248,7 +1279,7 @@ DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableB
 
     try {
       // Parse the date string and add days
-      const currentDate = DTMN.parseDatePickerInputValue(dateValue, useTime);
+      const currentDate = DTMN.parseInputDateValue(dateValue, useTime);
 
       if (!currentDate.isValid()) {
         console.warn('Invalid date format:', dateValue);
