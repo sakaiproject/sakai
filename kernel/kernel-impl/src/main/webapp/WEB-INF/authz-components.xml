@@ -59,7 +59,7 @@
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-  		<property name="cacheMinutes"><value>5</value></property>
+		<property name="cacheMinutes"><value>5</value></property>
 	</bean>
 
 	<bean id="org.sakaiproject.authz.api.FunctionManager"

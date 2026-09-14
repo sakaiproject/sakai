@@ -40,17 +40,19 @@ import org.sakaiproject.exception.IdUnusedException;
 
 import lombok.Setter;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
 @Slf4j
 public class LTIRoleMapperImpl implements LTIRoleMapper {
-	/**
-	 *  Injected from Spring, see components.xml
-	 */
-	@Setter private SiteService siteService;
 
-	@Setter private ServerConfigurationService serverConfigurationService;
+	@Autowired
+	private SiteService siteService;
+
+	@Autowired
+	private ServerConfigurationService serverConfigurationService;
 
 	public Map.Entry<String, String> mapLTIRole(Map payload, User user, Site site, boolean trustedConsumer, String inboundMapStr) throws LTIException {
 

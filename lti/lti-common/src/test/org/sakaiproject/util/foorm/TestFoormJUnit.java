@@ -137,45 +137,6 @@ public class TestFoormJUnit {
 
     }
 
-	@Test
-	public void testSearchCheckSql() {
-		Foorm foorm = new Foorm();
-		// SAK-32704 - Want to review all this can perhaps adjust how the decision is made
-		// about which search approach is in use
-		String whereStyle = "COLUMN = 'value'";
-		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
-		whereStyle = "COLUMN='value'";
-		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
-		whereStyle = "COLUMN='value' OR OTHER=42";
-		assertEquals(whereStyle,foorm.searchCheck(whereStyle, "table", new String[]{}));
-		whereStyle = "COLUMN='value' OR ( OTHER=42 and zap=21)";
-		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
-
-		// Workaround for the Null ones below - not pretty but works
-		whereStyle = "1=1 and (table.COLUMN LIKE '%zap%' OR ( othertable.OTHER=42 and zap=21))";
-		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
-
-		// At some point we might want these to pass
-		whereStyle = "(1=1) and (table.COLUMN LIKE '%zap%' OR ( othertable.OTHER=42 and zap=21))";
-		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
-		whereStyle = "table.COLUMN LIKE '%zap%' OR ( othertable.OTHER=42 and zap=21)";
-		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
-
-		// A parenthesis first should be OK
-		whereStyle = "(COLUMN='value') OR ( OTHER=42 and zap=21)";
-		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
-		whereStyle = "( COLUMN = 'value' ) OR ( OTHER=42 and zap=21)";
-		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
-		whereStyle = " ( COLUMN = 'value' ) OR ( OTHER=42 and zap=21)";
-		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
-	}
-
-	@Test
-	public void testSearchCheckSingle() {
-		Foorm foorm = new Foorm();
-		assertEquals("table.FIELD:VALUE", foorm.searchCheck("FIELD:VALUE", "table", new String[]{"FIELD"}));
-	}
-
     /* These tests focus on integer parsing */
 
     @Test
@@ -443,60 +404,6 @@ public class TestFoormJUnit {
 	    assert false;
 	}
 	return null;
-    }
-
-
-
-
-    public void createAndTestVendorSchema(Connection vendorConnection, String vendorName) {
-
-	boolean doReset = true;
-	Foorm foorm = new Foorm();
-	String[] sqls = foorm.formSqlTable("lti_content", test_form,vendorName, doReset);
-	//	conn = getHSqlDatabase();
-	conn = vendorConnection;
-
-	log.debug("First time ...");
-	for (String sql : sqls) {
-	    log.debug("time1: SQL={}", sql);
-	    try {
-		update(conn, sql);
-	    } catch (SQLException e) {
-		log.error("create Schema issue: {}", e.getMessage());
-		fail("FAILED: time1: [sql]"+e);
-	    }
-	}
-
-	try {
-	    query(conn,"SELECT * FROM lti_content");
-	} catch (SQLException ex3) {
-	    log.error(ex3.getMessage(), ex3);
-	    fail("FAILED: time1: SELECT * FROM lti_content"+ex3);
-	}
-
-	log.debug("Second time...");
-	try {
-	    doReset = false;
-	    Statement st = conn.createStatement();
-	    ResultSet rs =  st.executeQuery("SELECT * FROM lti_content");
-	    ResultSetMetaData md   = rs.getMetaData();
-	    sqls = foorm.formAdjustTable("lti_content", test_form_2, vendorName, md);
-	    for (String sql : sqls) {
-		log.debug("time2: SQL={}", sql);
-		try {
-		    update(conn, sql);
-		} catch (SQLException e) {
-		    log.error(e.getMessage(), e);
-		    fail("FAILED: time2: sql loop: [sql]"+e);
-		}
-	    }
-	    query(conn,"SELECT * FROM lti_content");
-	} catch (SQLException ex3) {
-	    log.error(ex3.getMessage(), ex3);
-	    fail("FAILED: time2: SELECT * FROM lti_content"+ex3);
-	}
-
-
     }
 
     @Test

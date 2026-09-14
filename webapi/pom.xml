@@ -128,6 +128,18 @@
       <artifactId>sakai-grading-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.samigo</groupId>
       <artifactId>samigo-services</artifactId>
     </dependency>

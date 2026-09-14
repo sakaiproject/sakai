@@ -64,6 +64,18 @@
             <artifactId>jakarta.mail</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
         </dependency>

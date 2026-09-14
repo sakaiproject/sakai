@@ -29,6 +29,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import net.sf.ehcache.Ehcache;
@@ -138,6 +139,7 @@ public class SakaiSecurity implements SecurityService, Observer {
     boolean cacheDebug = false; // Enable cache debugging output in the logs [memory.SecurityService.debug=true]
     boolean cacheDebugDetailed = false; // Show extra details in the debugging including hits and misses, adds, ref conversions, all current entries data [memory.SecurityService.debugDetails=true]
     private Set<String> svRoles;
+    private List<SecurityAdvisor> registeredSecurityAdvisors = new CopyOnWriteArrayList<>();
 
     public void init() {
         // <= 0 minutes indicates no caching desired
@@ -574,11 +576,9 @@ public class SakaiSecurity implements SecurityService, Observer {
 
         // let the advisors have a crack at it, if we have any
         // Note: this cannot be cached without taking into consideration the exact advisor configuration -ggolden
-        if (hasAdvisors()) {
-            SecurityAdvisor.SecurityAdvice advice = adviseIsAllowed(userId, function, entityRef);
-            if (advice != SecurityAdvisor.SecurityAdvice.PASS) {
-                return advice == SecurityAdvisor.SecurityAdvice.ALLOWED;
-            }
+        SecurityAdvisor.SecurityAdvice advice = adviseIsAllowed(userId, function, entityRef);
+        if (advice != SecurityAdvisor.SecurityAdvice.PASS) {
+            return advice == SecurityAdvisor.SecurityAdvice.ALLOWED;
         }
 
         // check with the AuthzGroups appropriate for this entity
@@ -694,19 +694,38 @@ public class SakaiSecurity implements SecurityService, Observer {
      */
     protected SecurityAdvisor.SecurityAdvice adviseIsAllowed(String userId, String function, String reference) {
         Stack<SecurityAdvisor> advisors = getAdvisorStack(false);
-        if ((advisors == null) || (advisors.isEmpty())) return SecurityAdvisor.SecurityAdvice.PASS;
+        if (((advisors == null) || (advisors.isEmpty())) && registeredSecurityAdvisors.isEmpty()) return SecurityAdvisor.SecurityAdvice.PASS;
 
-        // a Stack grows to the right - process from top to bottom
-        for (int i = advisors.size() - 1; i >= 0; i--) {
-            SecurityAdvisor advisor = advisors.elementAt(i);
+        if (advisors != null) {
+            // a Stack grows to the right - process from top to bottom
+            for (int i = advisors.size() - 1; i >= 0; i--) {
+                SecurityAdvisor advisor = advisors.elementAt(i);
 
-            SecurityAdvisor.SecurityAdvice advice = advisor.isAllowed(userId, function, reference);
+                SecurityAdvisor.SecurityAdvice advice = advisor.isAllowed(userId, function, reference);
+                if (advice != SecurityAdvisor.SecurityAdvice.PASS) {
+                    return advice;
+                }
+            }
+        }
+
+        for (SecurityAdvisor registeredAdvisor : registeredSecurityAdvisors) {
+            SecurityAdvisor.SecurityAdvice advice = registeredAdvisor.isAllowed(userId, function, reference);
             if (advice != SecurityAdvisor.SecurityAdvice.PASS) {
                 return advice;
             }
         }
 
         return SecurityAdvisor.SecurityAdvice.PASS;
+    }
+
+    @Override
+    public void registerAdvisor(SecurityAdvisor advisor) {
+        registeredSecurityAdvisors.add(advisor);
+    }
+
+    @Override
+    public void unregisterAdvisor(SecurityAdvisor advisor) {
+        registeredSecurityAdvisors.remove(advisor);
     }
 
     @Override
@@ -750,10 +769,12 @@ public class SakaiSecurity implements SecurityService, Observer {
 
     @Override
     public boolean hasAdvisors() {
-        Stack<SecurityAdvisor> advisors = getAdvisorStack(false);
-        if (advisors == null) return false;
 
-        return !advisors.isEmpty();
+        Stack<SecurityAdvisor> advisors = getAdvisorStack(false);
+
+        if (advisors != null && !advisors.isEmpty()) return true;
+
+        return false;
     }
 
     @Override

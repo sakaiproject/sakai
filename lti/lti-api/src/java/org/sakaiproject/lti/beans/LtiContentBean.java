@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.api.model.LtiContent;
 
 /**
  * Transfer object for LTI Content items.
@@ -125,6 +126,41 @@ public class LtiContentBean extends LTIBaseBean {
         
         return content;
     }
+
+    public static LtiContentBean of(LtiContent ltiContent) {
+        if (ltiContent == null) {
+            return null;
+        }
+
+        LtiContentBean content = new LtiContentBean();
+
+        // Core fields
+        content.setId(ltiContent.getId());
+        content.setToolId(ltiContent.getTool().getId());
+        content.setSiteId(ltiContent.getSiteId());
+        content.setTitle(ltiContent.getTitle());
+        content.setDescription(ltiContent.getDescription());
+        content.setFrameheight(ltiContent.getFrameheight());
+        content.setNewpage(ltiContent.getNewpage() == 1);
+        content.setProtect(ltiContent.getProtect() == 1);
+        content.setDebug(ltiContent.getDebug() == 1);
+
+        // LTI fields
+        content.setCustom(ltiContent.getCustom());
+        content.setLaunch(ltiContent.getLaunch());
+        content.setXmlimport(ltiContent.getXmlimport());
+        content.setSettings(ltiContent.getSettings());
+        content.setContentitem(ltiContent.getContentitem());
+        content.setPlacement(ltiContent.getPlacement());
+        content.setPlacementsecret(ltiContent.getPlacementsecret());
+        content.setOldplacementsecret(ltiContent.getOldplacementsecret());
+
+        // Timestamps
+        content.setCreatedAt(Date.from(ltiContent.getCreatedAt()));
+        content.setUpdatedAt(Date.from(ltiContent.getUpdatedAt()));
+
+		return content;
+	}
 
     /**
      * Converts this LtiContentBean instance to a Map<String, Object>.
