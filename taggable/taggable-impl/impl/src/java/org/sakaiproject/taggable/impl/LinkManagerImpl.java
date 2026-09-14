@@ -20,35 +20,35 @@
  **********************************************************************************/
 package org.sakaiproject.taggable.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.query.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.taggable.api.Link;
 import org.sakaiproject.taggable.api.LinkManager;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.Setter;
+
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 @Transactional
-public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
+public class LinkManagerImpl implements LinkManager
 {
 	
 	private static final String NULL_ARG = "Null Argument";
-	protected static final String CONTEXT = "context",
-			ACTIVITY_REF = "activityRef",
+	protected static final String ACTIVITY_REF = "activityRef",
 			TAG_CRITERIA_REF = "tagCriteriaRef",
-			VISIBLE = "visible",
-			QUERY_LINKS_BY_ACTIVITY_CONTEXT = "findLinksByActivityRefContext",
-			QUERY_LINKS_BY_ACTIVITY_CONTEXT_VISIBLE = "findLinksByActivityRefContextVisible",
-			QUERY_LINKS_BY_CRITERIA = "findLinksByCriteriaRef",
-			QUERY_LINKS_BY_CRITERIA_VISIBLE = "findLinksByCriteriaRefVisible", 
-			QUERY_DELETE_LINKS_BY_ACTIVITY_REF = "deleteLinksByActivityRef";
+			VISIBLE = "visible";
+
+	@Setter private SessionFactory sessionFactory;
 
 	public Link persistLink(String activityRef, String tagCriteriaRef, String rationale,
 			String rubric, boolean visible, boolean locked) {
@@ -58,7 +58,7 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
 
 		LinkImpl link = new LinkImpl(activityRef, tagCriteriaRef, rationale, rubric,
 				visible, locked);
-		getHibernateTemplate().save(link);
+		sessionFactory.getCurrentSession().persist(link);
 		return link;
 	}
 	
@@ -83,16 +83,15 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
 			throw new IllegalArgumentException(NULL_ARG);
 		}
 
-		return getHibernateTemplate().execute(session -> {
-			CriteriaBuilder cb = session.getCriteriaBuilder();
-			CriteriaQuery<LinkImpl> cq = cb.createQuery(LinkImpl.class);
-			Root<LinkImpl> root = cq.from(LinkImpl.class);
-			cq.where(
-				cb.equal(root.get(ACTIVITY_REF), activityRef),
-				cb.equal(root.get(TAG_CRITERIA_REF), tagCriteriaRef)
-			);
-			return session.createQuery(cq).uniqueResult();
-		});
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<LinkImpl> cq = cb.createQuery(LinkImpl.class);
+		Root<LinkImpl> root = cq.from(LinkImpl.class);
+		cq.where(
+			cb.equal(root.get(ACTIVITY_REF), activityRef),
+			cb.equal(root.get(TAG_CRITERIA_REF), tagCriteriaRef)
+		);
+		return session.createQuery(cq).uniqueResult();
 	}
 
 	public List<Link> getLinks(final String activityRef, final boolean any,
@@ -101,20 +100,18 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
 			throw new IllegalArgumentException(NULL_ARG);
 		}
 
-		return getHibernateTemplate().execute((HibernateCallback<List<Link>>) session -> {
-            String likeContext = "%/"+context+"/%";
-
-            Query q = session.getNamedQuery(QUERY_LINKS_BY_ACTIVITY_CONTEXT);
-            if (!any) {
-                q = session.getNamedQuery(QUERY_LINKS_BY_ACTIVITY_CONTEXT_VISIBLE);
-                q.setParameter(VISIBLE, true);
-            }
-
-            q.setParameter(ACTIVITY_REF, activityRef);
-            q.setParameter(CONTEXT, likeContext);
-
-            return q.list();
-        });
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<LinkImpl> cq = cb.createQuery(LinkImpl.class);
+		Root<LinkImpl> root = cq.from(LinkImpl.class);
+		List<Predicate> predicates = new ArrayList<>();
+		predicates.add(cb.equal(root.get(ACTIVITY_REF), activityRef));
+		predicates.add(cb.like(root.get(TAG_CRITERIA_REF), "%/" + context + "/%"));
+		if (!any) {
+			predicates.add(cb.equal(root.get(VISIBLE), true));
+		}
+		cq.select(root).where(predicates.toArray(new Predicate[0]));
+		return new ArrayList<>(session.createQuery(cq).getResultList());
 	}
 	
 	public List<Link> getLinks(final String criteriaRef, final boolean any) {
@@ -122,18 +119,17 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
 			throw new IllegalArgumentException(NULL_ARG);
 		}
 
-		return getHibernateTemplate().execute((HibernateCallback<List<Link>>) session -> {
-
-            Query q = session.getNamedQuery(QUERY_LINKS_BY_CRITERIA);
-            if (!any) {
-                q = session.getNamedQuery(QUERY_LINKS_BY_CRITERIA_VISIBLE);
-                q.setParameter(VISIBLE, true);
-            }
-
-            q.setParameter(TAG_CRITERIA_REF, criteriaRef);
-
-            return q.list();
-        });
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<LinkImpl> cq = cb.createQuery(LinkImpl.class);
+		Root<LinkImpl> root = cq.from(LinkImpl.class);
+		List<Predicate> predicates = new ArrayList<>();
+		predicates.add(cb.equal(root.get(TAG_CRITERIA_REF), criteriaRef));
+		if (!any) {
+			predicates.add(cb.equal(root.get(VISIBLE), true));
+		}
+		cq.select(root).where(predicates.toArray(new Predicate[0]));
+		return new ArrayList<>(session.createQuery(cq).getResultList());
 	}
 	
 	public void removeLink(Link link) {
@@ -141,7 +137,7 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
 			throw new IllegalArgumentException(NULL_ARG);
 		}
 
-		getHibernateTemplate().delete(link);
+		sessionFactory.getCurrentSession().delete(link);
 	}
 	
 	public void removeLinks(final String activityRef) {
@@ -149,12 +145,12 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
 			throw new IllegalArgumentException(NULL_ARG);
 		}
 
-		getHibernateTemplate().execute((HibernateCallback) session -> {
-            Query q = session.getNamedQuery(QUERY_DELETE_LINKS_BY_ACTIVITY_REF);
-            q.setParameter(ACTIVITY_REF, activityRef);
-            q.executeUpdate();
-            return null;
-        });
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaDelete<LinkImpl> cd = cb.createCriteriaDelete(LinkImpl.class);
+		Root<LinkImpl> root = cd.from(LinkImpl.class);
+		cd.where(cb.equal(root.get(ACTIVITY_REF), activityRef));
+		session.createMutationQuery(cd).executeUpdate();
 	}
 	
 }
