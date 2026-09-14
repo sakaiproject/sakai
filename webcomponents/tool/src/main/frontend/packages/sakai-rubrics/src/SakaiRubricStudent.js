@@ -83,12 +83,12 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
   }
 
   shouldUpdate() {
-    // Render when loaded and either instructor is viewing, or student preview is allowed
-    // and the association is not dynamic (rbcs-associate != 2).
+    // Render when loaded and instructor is viewing, peer/self evaluation is shown,
+    // or student preview is allowed and the association is not dynamic (rbcs-associate != 2).
     return this.siteId
       && this._i18nLoaded
       && this._rubric
-      && (this.instructor || (!this.options.hideStudentPreview && Number(this.options?.["rbcs-associate"]) !== 2));
+      && (this.instructor || this.isPeerOrSelf || (!this.options.hideStudentPreview && Number(this.options?.["rbcs-associate"]) !== 2));
   }
 
   render() {
@@ -111,7 +111,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
           </h3>
         ` : nothing }
 
-        ${this.instructor ? html`
+        ${this.instructor && !this.isPeerOrSelf ? html`
           <select @change=${this._viewSelected} class="mb-3"
               aria-label="${this._i18n.rubric_view_selection_title}"
               title="${this._i18n.rubric_view_selection_title}" .value=${this._currentView}>
