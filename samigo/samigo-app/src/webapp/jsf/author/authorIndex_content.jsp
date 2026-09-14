@@ -63,6 +63,7 @@
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="`#{authorFrontDoorMessages.assessment_view_all}`" />]],
                     "pageLength": getPageLength(),
                     "order": [[parseInt(assessmentSortingColumn), "desc"]],
+                    "columnDefs": [{ "targets": "_all", "orderSequence": ["asc", "desc"] }],
                     "columns": [
                         {"orderable": true, "searchable": true, "type": "assessment-title", "orderDataType": "dom-assessment-title"},
                         {"orderable": false, "searchable": false},

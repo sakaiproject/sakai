@@ -515,23 +515,16 @@ class SamigoTest extends SakaiUiTestBase {
         assertThat(rows).hasCount(2);
 
         Locator titleHeader = table.locator("thead th").first();
-        // Exercise ascending, descending, and the third (unsorted) state.
+        // Repeated clicks must never bypass published-before-draft ordering.
         Set<String> directions = new HashSet<>();
-        for (int click = 0; click < 3; click++) {
+        for (int click = 0; click < 4; click++) {
             String previousDirection = titleHeader.getAttribute("aria-sort");
+            String expectedDirection = "ascending".equals(previousDirection) ? "descending" : "ascending";
             titleHeader.click();
-            if ("descending".equals(previousDirection)) {
-                assertThat(titleHeader).not().hasAttribute("aria-sort", Pattern.compile("ascending|descending"));
-            } else {
-                assertThat(titleHeader).hasAttribute("aria-sort",
-                    "ascending".equals(previousDirection) ? "descending" : "ascending");
-            }
-            String direction = titleHeader.getAttribute("aria-sort");
-            if ("ascending".equals(direction) || "descending".equals(direction)) {
-                directions.add(direction);
-                assertThat(rows.first().locator(".status_draft")).hasCount(0);
-                assertThat(rows.last().locator(".status_draft")).hasCount(1);
-            }
+            assertThat(titleHeader).hasAttribute("aria-sort", expectedDirection);
+            directions.add(expectedDirection);
+            assertThat(rows.first().locator(".status_draft")).hasCount(0);
+            assertThat(rows.last().locator(".status_draft")).hasCount(1);
         }
         assertEquals(Set.of("ascending", "descending"), directions);
         search.fill("");
