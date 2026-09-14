@@ -378,6 +378,12 @@
         <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
     </bean>
 
+    <bean id="org.sakaiproject.samigo.api.pdf.AssessmentPdfService"
+          class="org.sakaiproject.samigo.impl.AssessmentPdfServiceImpl"
+          init-method="init">
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+    </bean>
+
     <!-- Adds User Preference for Notifications -->
     <bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.samigo"
           parent="org.sakaiproject.user.api.UserNotificationPreferencesRegistration"

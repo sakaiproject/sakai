@@ -11,7 +11,6 @@
                 <xs:element maxOccurs="1" minOccurs="0" ref="managementRESTService"/>
                 <xs:element maxOccurs="unbounded" minOccurs="0" ref="cacheManagerPeerProviderFactory"/>
                 <xs:element maxOccurs="unbounded" minOccurs="0" ref="cacheManagerPeerListenerFactory"/>
-                <xs:element maxOccurs="1" minOccurs="0" ref="terracottaConfig"/>
                 <xs:element maxOccurs= "1" minOccurs="0" ref="defaultCache"/>
                 <xs:element maxOccurs="unbounded" minOccurs="0" ref="cache"/>
             </xs:sequence>
@@ -71,22 +70,6 @@
             <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
-    <xs:element name="terracottaConfig">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element maxOccurs="1" minOccurs="0" name="tc-config">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:any maxOccurs="unbounded" minOccurs="0" processContents="skip"/>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
-            <xs:attribute default="localhost:9510" name="url" use="optional"/>
-            <xs:attribute name="rejoin" type="xs:boolean" use="optional" default="false"/>
-            <xs:attribute name="wanEnabledTSA" type="xs:boolean" use="optional" default="false"/>
-        </xs:complexType>
-    </xs:element>
     <!-- add clone support for addition of cacheExceptionHandler. Important! -->
     <xs:element name="defaultCache">
         <xs:complexType>
@@ -98,7 +81,6 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="pinning"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="copyStrategy"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="elementValueComparator"/>
@@ -138,7 +120,6 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="pinning"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="terracotta"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="copyStrategy"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="searchable"/>
@@ -245,58 +226,6 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="terracotta">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="1" ref="nonstop"/>
-            </xs:sequence>
-            <xs:attribute name="clustered" use="optional" type="xs:boolean" default="true"/>
-            <xs:attribute name="coherentReads" use="optional" type="xs:boolean" default="true"/>
-            <xs:attribute name="localKeyCache" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="localKeyCacheSize" use="optional" type="xs:positiveInteger" default="300000"/>
-            <xs:attribute name="orphanEviction" use="optional" type="xs:boolean" default="true"/>
-            <xs:attribute name="orphanEvictionPeriod" use="optional" type="xs:positiveInteger" default="4"/>
-            <xs:attribute name="copyOnRead" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="coherent" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="consistency" use="optional" type="consistencyType" default="eventual"/>
-            <xs:attribute name="synchronousWrites" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="concurrency" use="optional" type="xs:nonNegativeInteger" default="0"/>
-            <xs:attribute name="localCacheEnabled" use="optional" type="xs:boolean" default="true"/>
-            <xs:attribute name="compressionEnabled" use="optional" type="xs:boolean" default="false"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:simpleType name="consistencyType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="strong" />
-            <xs:enumeration value="eventual" />
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:element name="nonstop">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="1" ref="timeoutBehavior"/>
-            </xs:sequence>
-            <xs:attribute name="enabled" use="optional" type="xs:boolean" default="true"/>
-            <xs:attribute name="immediateTimeout" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="timeoutMillis" use="optional" type="xs:positiveInteger" default="30000"/>
-            <xs:attribute name="searchTimeoutMillis" use="optional" type="xs:positiveInteger" default="30000"/>
-        </xs:complexType>
-    </xs:element>
-    <xs:element name="timeoutBehavior">
-        <xs:complexType>
-            <xs:attribute name="type" use="optional" type="timeoutBehaviorType" default="exception"/>
-            <xs:attribute name="properties" use="optional" default=""/>
-            <xs:attribute name="propertySeparator" use="optional" default=","/>
-        </xs:complexType>
-    </xs:element>
-    <xs:simpleType name="timeoutBehaviorType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="noop" />
-            <xs:enumeration value="exception" />
-            <xs:enumeration value="localReads" />
-            <xs:enumeration value="localReadsAndExceptionOnWrite" />
-        </xs:restriction>
-    </xs:simpleType>
     <xs:simpleType name="monitoringType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="autodetect"/>
@@ -308,12 +237,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="localMemory" />
             <xs:enumeration value="inCache" />
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="terracottaCacheValueType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="serialization" />
-            <xs:enumeration value="identity" />
         </xs:restriction>
     </xs:simpleType>
 
@@ -388,9 +311,7 @@
     <xs:simpleType name="persistenceStrategy">
         <xs:restriction base="xs:string">
             <xs:enumeration value="localTempSwap"/>
-            <xs:enumeration value="localRestartable"/>
             <xs:enumeration value="none"/>
-            <xs:enumeration value="distributed"/>
         </xs:restriction>
     </xs:simpleType>
 

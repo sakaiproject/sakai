@@ -16,8 +16,10 @@ import java.util.Map;
 
 import lombok.Setter;
 
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetricSnapshot;
@@ -32,7 +34,7 @@ public class SiteStatsWidgetCatalog {
 	private Map<String, WidgetTabSpec> tabSpecs;
 	private Map<String, WidgetMetricSpec> metricSpecs;
 
-	public SiteStatsOverview getOverview(String siteId, boolean allAllowed, boolean ownAllowed, boolean adminAllowed) {
+	public SiteStatsOverview getOverview(String siteId, boolean allAllowed, boolean ownAllowed, boolean adminAllowed, String userId) {
 		SiteStatsOverview overview = new SiteStatsOverview();
 		overview.setSiteId(siteId);
 		overview.setViewAllowed(true);
@@ -44,7 +46,7 @@ public class SiteStatsWidgetCatalog {
 			if (!spec.isAvailable() || !isAudienceAllowed(spec.getAudience(), allAllowed, ownAllowed)) {
 				continue;
 			}
-			overview.getWidgets().add(toWidget(siteId, spec));
+			overview.getWidgets().add(toWidget(siteId, spec, userId));
 		}
 		return overview;
 	}
@@ -93,6 +95,15 @@ public class SiteStatsWidgetCatalog {
 		return spec.getReportFactory().build(siteId, SiteStatsReportRequest.normalized(request), userId);
 	}
 
+	public SiteStatsReportView getWidgetReportView(String siteId, String widgetId, String tabId,
+			SiteStatsReportRequest request, String userId) {
+		WidgetTabSpec spec = tabSpecs.get(key(widgetId, tabId));
+		if (spec == null || spec.getViewFactory() == null || !widgetAvailable(widgetId)) {
+			return null;
+		}
+		return spec.getViewFactory().build(siteId, SiteStatsReportRequest.normalized(request), userId);
+	}
+
 	public void init() {
 		buildRegistry();
 	}
@@ -132,7 +143,8 @@ public class SiteStatsWidgetCatalog {
 	}
 
 	private boolean isAudienceAllowed(String audience, boolean allAllowed, boolean ownAllowed) {
-		return (AUDIENCE_ALL.equals(audience) && allAllowed) || (AUDIENCE_OWN.equals(audience) && ownAllowed);
+		return (AUDIENCE_ALL.equals(audience) && allAllowed)
+				|| (AUDIENCE_OWN.equals(audience) && ownAllowed && !allAllowed);
 	}
 
 	private boolean widgetAvailable(String widgetId) {
@@ -140,7 +152,7 @@ public class SiteStatsWidgetCatalog {
 		return spec != null && spec.isAvailable();
 	}
 
-	private SiteStatsWidget toWidget(String siteId, WidgetSpec spec) {
+	private SiteStatsWidget toWidget(String siteId, WidgetSpec spec, String userId) {
 		SiteStatsWidget widget = new SiteStatsWidget();
 		widget.setId(spec.getId());
 		widget.setTitle(support.message(spec.getTitleKey()));
@@ -151,7 +163,8 @@ public class SiteStatsWidgetCatalog {
 			tabs.add(toTab(siteId, tab));
 		}
 		widget.setTabs(tabs);
-		widget.setMetrics(toMetrics(siteId, spec, null, false));
+		widget.setMetrics(toMetrics(siteId, spec, userId, true));
+		widget.setHighlights(toHighlights(siteId, spec, userId));
 		return widget;
 	}
 
@@ -175,6 +188,23 @@ public class SiteStatsWidgetCatalog {
 			}
 		}
 		return metrics;
+	}
+
+	private List<SiteStatsChart> toHighlights(String siteId, WidgetSpec spec, String userId) {
+		List<SiteStatsChart> charts = new ArrayList<SiteStatsChart>();
+		if (spec.getHighlights() == null) {
+			return charts;
+		}
+		for (WidgetHighlightSpec highlight : spec.getHighlights()) {
+			if (!highlight.isAvailable() || highlight.getFactory() == null) {
+				continue;
+			}
+			SiteStatsChart chart = highlight.getFactory().build(siteId, userId);
+			if (chart != null) {
+				charts.add(chart);
+			}
+		}
+		return charts;
 	}
 
 	private SiteStatsWidgetMetric toMetric(String siteId, WidgetSpec spec, WidgetMetricSpec metric, String userId, boolean includeValues) {

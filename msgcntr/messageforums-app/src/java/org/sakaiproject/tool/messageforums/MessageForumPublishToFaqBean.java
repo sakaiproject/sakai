@@ -115,6 +115,11 @@ public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport im
         Objects.requireNonNull(siteService);
         Objects.requireNonNull(userDirectoryService);
 
+        if (!forumManager.isPublishToFaqEnabled()) {
+            canPost = canReply = Boolean.FALSE;
+            return;
+        }
+
         siteId = toolManager.getCurrentPlacement().getContext();
         userId = userDirectoryService.getCurrentUser().getId();
         discussionArea = areaManager.getDiscussionArea(siteId);
@@ -150,15 +155,20 @@ public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport im
     }
 
     public void publishToFaq() {
-        DiscussionForum faqForum = forumManager.getOrCreateFaqForumForArea(discussionArea);
-        DiscussionTopic faqTopic = forumManager.getOrCreateFaqTopicForForum(faqForum);
-
-        log.debug("Creating question message for Forum [{}] and Topic [{}]", faqForum, faqTopic);
+        if (!forumManager.isPublishToFaqEnabled()) {
+            log.warn("Attempted to publish a private message to FAQ while the feature is disabled");
+            return;
+        }
 
         if (!Boolean.TRUE.equals(canPost)) {
             log.warn("User with id [{}] does not have permissions to create a new forum post", userId);
             return;
         }
+
+        DiscussionForum faqForum = forumManager.getOrCreateFaqForumForArea(discussionArea);
+        DiscussionTopic faqTopic = forumManager.getOrCreateFaqTopicForForum(faqForum);
+
+        log.debug("Creating question message for Forum [{}] and Topic [{}]", faqForum, faqTopic);
 
         String questionTitlePrefix = resourceBundle.getString("pvt_question_title_prefix");
         String answerTitlePrefix = resourceBundle.getString("pvt_answer_title_prefix");

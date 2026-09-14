@@ -16,12 +16,16 @@ public final class SiteStatsWidgetIds {
 
 	public static final String WIDGET_VISITS = "visits";
 	public static final String WIDGET_STUDENT_VISITS = "student-visits";
+	public static final String WIDGET_PRESENCE_ACCESS = "presence-access";
+	public static final String WIDGET_STUDENT_PRESENCE_ACCESS = "student-presence-access";
+	public static final String WIDGET_MEMBER_ADOPTION = "member-adoption";
 	public static final String WIDGET_ACTIVITY = "activity";
 	public static final String WIDGET_RESOURCES = "resources";
 	public static final String WIDGET_LESSONS = "lessons";
 
 	public static final String TAB_BY_DATE = "bydate";
 	public static final String TAB_BY_USER = "byuser";
+	public static final String TAB_BY_ROLE = "byrole";
 	public static final String TAB_BY_TOOL = "bytool";
 	public static final String TAB_BY_RESOURCE = "byresource";
 	public static final String TAB_BY_PAGE = "bypage";
@@ -38,9 +42,26 @@ public final class SiteStatsWidgetIds {
 	public static final String METRIC_VISITS_USERS_WITH_VISITS = "visits-users-with-visits";
 	public static final String METRIC_VISITS_USERS_WITHOUT_VISITS = "visits-users-without-visits";
 	public static final String METRIC_VISITS_AVERAGE_PRESENCE = "visits-average-presence";
+	public static final String METRIC_VISITS_TRAFFIC_TREND = "visits-traffic-trend";
 	public static final String METRIC_STUDENT_VISITS_TOTAL = "student-visits-total";
+	public static final String METRIC_STUDENT_VISITS_TRAFFIC_TREND = "student-visits-traffic-trend";
 	public static final String METRIC_STUDENT_VISITS_AVERAGE_PRESENCE = "student-visits-average-presence";
 	public static final String METRIC_STUDENT_VISITS_PRESENCE = "student-visits-presence";
+	public static final String METRIC_PRESENCE_LAST_VISIT = "presence-last-visit";
+	public static final String METRIC_PRESENCE_NEVER_VISITED = "presence-never-visited";
+	public static final String METRIC_PRESENCE_AVERAGE = "presence-average";
+	public static final String METRIC_PRESENCE_BOUNCE_RATE = "presence-bounce-rate";
+	public static final String METRIC_PRESENCE_TOTAL_7D = "presence-total-7d";
+	public static final String METRIC_PRESENCE_TOTAL_30D = "presence-total-30d";
+	public static final String METRIC_PRESENCE_TOTAL_365D = "presence-total-365d";
+	public static final String METRIC_STUDENT_PRESENCE_LAST_VISIT = "student-presence-last-visit";
+	public static final String METRIC_STUDENT_PRESENCE_AVERAGE = "student-presence-average";
+	public static final String METRIC_STUDENT_PRESENCE_BOUNCE_RATE = "student-presence-bounce-rate";
+	public static final String METRIC_STUDENT_PRESENCE_TOTAL = "student-presence-total";
+	public static final String METRIC_STUDENT_PRESENCE_TOTAL_7D = "student-presence-total-7d";
+	public static final String METRIC_STUDENT_PRESENCE_TOTAL_30D = "student-presence-total-30d";
+	public static final String METRIC_STUDENT_PRESENCE_TOTAL_365D = "student-presence-total-365d";
+	public static final String METRIC_ADOPTION_ACTIVE = "adoption-active";
 	public static final String METRIC_ACTIVITY_EVENTS = "activity-events";
 	public static final String METRIC_ACTIVITY_MOST_ACTIVE_TOOL = "activity-most-active-tool";
 	public static final String METRIC_ACTIVITY_MOST_ACTIVE_USER = "activity-most-active-user";
@@ -52,4 +73,7 @@ public final class SiteStatsWidgetIds {
 	public static final String METRIC_LESSONS_READ_PAGES = "lessons-read-pages";
 	public static final String METRIC_LESSONS_MOST_READ_PAGE = "lessons-most-read-page";
 	public static final String METRIC_LESSONS_USER_READ_MORE_PAGES = "lessons-user-read-more-pages";
+
+	public static final String HIGHLIGHT_VISITS_LAST_30_DAYS = "visits-last-30-days";
+	public static final String HIGHLIGHT_PRESENCE_LAST_30_DAYS = "presence-last-30-days";
 }

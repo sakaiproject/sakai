@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lti</artifactId>
         <groupId>org.sakaiproject.lti</groupId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
     </parent>
 
     <name>Tsugi LTI Utilities (lti-util variant)</name>

@@ -182,6 +182,13 @@ public final class SamigoConstants {
      */
     public static final     String      SERVLET_MAPPING_EXPORT_EVENT_LOG                    = "/samigo-app/servlet/ExportEventLog";
     public static final     String      SERVLET_MAPPING_EXPORT_REPORT                       = "/samigo-app/servlet/ExportReport";
+    public static final     String      SERVLET_MAPPING_PRINT_ASSESSMENT_PDF                = "/samigo-app/servlet/PrintAssessmentPdf";
+
+    /**
+     * Untitled Samigo part title
+     */
+    public static final     String      DEFAULT_SECTION_TITLE                             = "Default";
+
 
     /*
      * Author Outcomes

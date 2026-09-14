@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lti</artifactId>
         <groupId>org.sakaiproject.lti</groupId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
     </parent>
 
     <name>LTI Portlet (imsblti)</name>
@@ -55,7 +55,6 @@
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>

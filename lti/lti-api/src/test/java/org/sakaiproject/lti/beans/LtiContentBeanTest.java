@@ -81,11 +81,6 @@ public class LtiContentBeanTest {
     }
 
     @Test
-    public void testFromMapNullInput() {
-        assertNull(LtiContentBean.of(null));
-    }
-
-    @Test
     public void testFromMapEmptyMap() {
         Map<String, Object> emptyMap = new HashMap<>();
         LtiContentBean content = LtiContentBean.of(emptyMap);

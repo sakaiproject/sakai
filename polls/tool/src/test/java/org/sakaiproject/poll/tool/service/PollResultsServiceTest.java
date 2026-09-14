@@ -147,7 +147,7 @@ public class PollResultsServiceTest {
     private PollResultsService.PollResults buildResults(Poll poll, List<Vote> votes, int distinctVoters, int potentialVoters) {
         when(pollsService.getAllVotesForPoll(poll.getId())).thenReturn(votes);
         when(pollsService.getDistinctVotersForPoll(poll)).thenReturn(distinctVoters);
-        when(pollsService.getNumberUsersCanVote("site-1")).thenReturn(potentialVoters);
+        when(pollsService.getNumberUsersCanVote(poll)).thenReturn(potentialVoters);
         return pollResultsService.buildResults(poll, "site-1", Locale.US);
     }
 

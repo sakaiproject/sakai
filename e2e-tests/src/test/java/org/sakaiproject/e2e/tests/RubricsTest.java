@@ -109,4 +109,16 @@ class RubricsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("Copy Criterion", Pattern.CASE_INSENSITIVE))).first().click(new Locator.ClickOptions().setForce(true));
         assertThat(page.locator("body")).containsText(Pattern.compile("Criterion", Pattern.CASE_INSENSITIVE));
     }
+
+    @Test
+    @Order(7)
+    void pdfExportUsesDownloadLink() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Rubrics");
+
+        Locator pdfExport = page.locator("sakai-rubric-pdf a").first();
+        assertThat(pdfExport).isVisible();
+        assertThat(pdfExport).hasAttribute("download", "");
+    }
 }

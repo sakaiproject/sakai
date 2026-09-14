@@ -98,6 +98,11 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public List<Tag> getTagsByExactLabel(String label, String collectionId) {
+        return tags.getTagsByExactLabel(label, collectionId);
+    }
+
+    @Override
     public List<String> getTagAssociationIds(String collectionId, String itemId) {
         return tagAssociationRepository.findTagAssociationByCollectionAndItem(collectionId, itemId).stream().map(TagAssociation::getTagId).collect(Collectors.toList());
     }
@@ -115,6 +120,45 @@ public class TagServiceImpl implements TagService {
             }
         }
         return associatedTags;
+    }
+
+    @Override
+    public List<Tag> duplicateTags(String targetCollectionId, boolean isSite, Collection<String> tagIds, String targetItemId) {
+        List<Tag> duplicatedTags = new ArrayList<>();
+
+        // create collection if it doesn't exist
+        TagCollection col = tagCollections.getForId(targetCollectionId).orElse(null);
+        if (col == null) {
+            I18n i18n = getI18n(this.getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
+            String description = i18n.t("user_collection");
+            if (isSite) {
+                description = i18n.tFormatted("site_collection", targetCollectionId);
+            }
+            col = new TagCollection(targetCollectionId, targetCollectionId, description, null, 0L, null, null, null, 0L, Boolean.FALSE, Boolean.FALSE, 0L, 0L);
+            tagCollections.createTagCollection(col);
+        }
+
+        for (String tagId : tagIds) {
+            Tag tag = tags.getForId(tagId).orElse(null);
+            if (tag == null) {
+                log.warn("Tag with id {} does not exist anymore", tagId);
+                continue;
+            }
+
+            Tag duplicatedTag = new Tag(null, targetCollectionId, tag.getTagLabel(), tag.getDescription(), null,
+                    0L, null, 0L, null, null, Boolean.FALSE, 0L,
+                    Boolean.FALSE, 0L, null, null, null, null, null);
+            String id = tags.createTag(duplicatedTag);
+            duplicatedTag.setTagId(id);
+
+            duplicatedTags.add(duplicatedTag);
+
+            if (targetItemId != null) {
+                saveTagAssociation(targetItemId, duplicatedTag.getTagId());
+            }
+        }
+
+        return duplicatedTags;
     }
 
     @Override

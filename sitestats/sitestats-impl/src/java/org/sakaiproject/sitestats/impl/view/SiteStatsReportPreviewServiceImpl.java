@@ -5,35 +5,41 @@
  */
 package org.sakaiproject.sitestats.impl.view;
 
-import java.util.Iterator;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 
 public class SiteStatsReportPreviewServiceImpl implements SiteStatsReportPreviewService {
 
-	private static final long PREVIEW_TTL_MILLIS = 30L * 60L * 1000L;
+	private static final String PREVIEW_CACHE = SiteStatsReportPreviewServiceImpl.class.getName();
+	private static final int MAX_PREVIEWS = 1_000;
+	private static final int PREVIEW_TTL_SECONDS = 30 * 60;
 
-	private final Map<PreviewKey, PreviewReport> previews = new ConcurrentHashMap<PreviewKey, PreviewReport>();
+	@Setter private MemoryService memoryService;
+
+	private Cache<String, ReportDef> previews;
+
+	public void init() {
+		previews = memoryService.createCache(PREVIEW_CACHE,
+				new SimpleConfiguration<String, ReportDef>(MAX_PREVIEWS, PREVIEW_TTL_SECONDS, 0));
+	}
 
 	@Override
 	public String register(String siteId, String userId, ReportDef reportDef) {
 		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(userId) || reportDef == null) {
 			throw new IllegalArgumentException("A site id, user id, and report definition are required");
 		}
-		cleanupExpired();
 		String previewId = UUID.randomUUID().toString();
-		PreviewKey key = new PreviewKey(siteId, userId, previewId);
-		previews.put(key, new PreviewReport(new ReportDef(reportDef, siteId), System.currentTimeMillis() + PREVIEW_TTL_MILLIS));
+		previews.put(cacheKey(siteId, userId, previewId), new ReportDef(reportDef, siteId));
 		return previewId;
 	}
 
@@ -42,45 +48,16 @@ public class SiteStatsReportPreviewServiceImpl implements SiteStatsReportPreview
 		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(userId) || StringUtils.isBlank(previewId)) {
 			return null;
 		}
-		cleanupExpired();
-		PreviewKey key = new PreviewKey(siteId, userId, previewId);
-		PreviewReport preview = previews.get(key);
-		if (preview == null) {
-			return null;
-		}
-		if (preview.isExpired()) {
-			previews.remove(key);
-			return null;
-		}
-		return new ReportDef(preview.getReportDef(), siteId);
+		ReportDef preview = previews.get(cacheKey(siteId, userId, previewId));
+		return preview == null ? null : new ReportDef(preview, siteId);
 	}
 
-	private void cleanupExpired() {
-		Iterator<Map.Entry<PreviewKey, PreviewReport>> iterator = previews.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Map.Entry<PreviewKey, PreviewReport> entry = iterator.next();
-			if (entry.getValue().isExpired()) {
-				iterator.remove();
-			}
-		}
+	private String cacheKey(String siteId, String userId, String previewId) {
+		return encode(siteId) + ':' + encode(userId) + ':' + encode(previewId);
 	}
 
-	@AllArgsConstructor(access = AccessLevel.PRIVATE)
-	@EqualsAndHashCode
-	private static class PreviewKey {
-		private final String siteId;
-		private final String ownerId;
-		private final String previewId;
+	private String encode(String value) {
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(value.getBytes(StandardCharsets.UTF_8));
 	}
 
-	@AllArgsConstructor(access = AccessLevel.PRIVATE)
-	@Getter
-	private static class PreviewReport {
-		private final ReportDef reportDef;
-		private final long expiresAt;
-
-		private boolean isExpired() {
-			return System.currentTimeMillis() > expiresAt;
-		}
-	}
 }

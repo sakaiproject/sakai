@@ -174,8 +174,11 @@
         <script type="text/javascript">includeWebjarLibrary('datatables');</script>
         <script type="text/javascript">includeWebjarLibrary('datatables-rowgroup')</script>
         <script type="text/javascript">
-            $(document).ready(function () {
-                $('#editSectionForm\\:editStudentSectionsTable').DataTable({
+            document.addEventListener('DOMContentLoaded', function () {
+                const table = document.getElementById('editSectionForm:editStudentSectionsTable');
+                if (!table) return;
+
+                new DataTable(table, {
                     order: [[0, 'asc']],
                     ordering: false,
                     paging: false,

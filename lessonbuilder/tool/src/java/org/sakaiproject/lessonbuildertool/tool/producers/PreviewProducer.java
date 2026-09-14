@@ -48,6 +48,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 
 /**
@@ -62,6 +64,8 @@ public class PreviewProducer implements ViewComponentProducer, NavigationCaseRep
 	private SimplePageToolDao simplePageToolDao;
 	private ShowPageProducer showPageProducer;
 	private ToolManager toolManager;
+	private SiteService siteService;
+	private SecurityService securityService;
 
 	public MessageLocator messageLocator;
 	public LocaleGetter localeGetter;                                                                                             
@@ -78,36 +82,46 @@ public class PreviewProducer implements ViewComponentProducer, NavigationCaseRep
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
 		SimplePage currentPage = simplePageBean.getCurrentPage();
+		GeneralViewParameters viewParameters = (GeneralViewParameters) params;
 
 		// we specifically can't update the current page, because we
 		// want to be able to preview stuff without affecting current state.
 		// so we have to do permission check
 		Long currentPageId = currentPage.getPageId();
-		if (((GeneralViewParameters) params).getSendingPage() != -1) {
-		    currentPageId = ((GeneralViewParameters) params).getSendingPage();
+		if (viewParameters.getSendingPage() != -1) {
+		    currentPageId = viewParameters.getSendingPage();
 		}
 
 		SimplePage page = simplePageToolDao.getPage(currentPageId);
-		String siteId = toolManager.getCurrentPlacement().getContext();
+		if (page == null) {
+			log.warn("Unable to preview missing Lessons page {}", currentPageId);
+			return;
+		}
 
-		// page should always be in this site, or someone is gaming us                                                   
-		if (!page.getSiteId().equals(siteId)) {
-		    log.info("attempt to preview page not in the site");
+		String currentSiteId = toolManager.getCurrentPlacement().getContext();
+		String siteId = viewParameters.getSiteId();
+		if (siteId == null || siteId.isBlank()) {
+			siteId = currentSiteId;
+		}
+
+		boolean canUpdateSite = securityService.unlock(
+				SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteService.siteReference(siteId));
+		if (!page.getSiteId().equals(siteId) || !canUpdateSite) {
+		    log.warn("User cannot preview Lessons page {} in site {}", currentPageId, siteId);
 		    return;
 		}
 
 		UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.preview").replace("{}", page.getTitle()));
 		UIOutput.make(tofill, "title2", messageLocator.getMessage("simplepage.preview").replace("{}", page.getTitle()));
 
-		if (simplePageBean.canEditPage()) {
-			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(currentPageId);
+		List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(currentPageId);
 
-			if (items.size() == 0) {
-			    UIOutput.make(tofill, "message", messageLocator.getMessage("simplepage.noitems_error_user"));
-			} else {
+		if (items.size() == 0) {
+		    UIOutput.make(tofill, "message", messageLocator.getMessage("simplepage.noitems_error_user"));
+		} else {
 
-			    UIOutput.make(tofill, "itemTable");
-			    for (SimplePageItem i : items) {
+		    UIOutput.make(tofill, "itemTable");
+		    for (SimplePageItem i : items) {
 				if (i.getType() == 7) {
 					i.setType(1); // Temporarily change multimedia to standard resource
 					// so that links work properly.
@@ -125,9 +139,7 @@ public class PreviewProducer implements ViewComponentProducer, NavigationCaseRep
 				} else {
 					UIOutput.make(row, "text", i.getName());
 				}
-			    }
 			}
-
 		}
 	}
 
@@ -145,6 +157,14 @@ public class PreviewProducer implements ViewComponentProducer, NavigationCaseRep
 
 	public void setToolManager(ToolManager t) {
 	    this.toolManager = t;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
 	}
 
 	public ViewParameters getViewParameters() {

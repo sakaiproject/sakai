@@ -104,6 +104,7 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.foorm.Foorm;
+import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.util.SakaiDeepLink;
 import org.sakaiproject.lti13.util.SakaiLaunchJWT;
@@ -196,6 +197,8 @@ public class SakaiLTIUtil {
 	public static final String SESSION_LAUNCH_CODE = "launch_code:";
 
 	public static final String FOR_USER = "for_user";
+	private static final Set<String> DEEP_LINK_CONTROL_PARAMETERS = Set.of(
+			"state", "nonce", "redirect_uri", "flow", "lti_storage_target");
 
 	// Message type
 	public static final String MESSAGE_TYPE_PARAMETER = "message_type";
@@ -209,6 +212,9 @@ public class SakaiLTIUtil {
 	public static final String SAKAI_LTI_SUBSTITUTION_CLOSE_DATE = "Sakai.assignment.closeDate";
 	public static final String SAKAI_LTI_SUBSTITUTION_RESUBMISSION_ACCEPT_UNTIL = "Sakai.assignment.resubmissionAcceptUntil";
 	public static final String SAKAI_LTI_SUBSTITUTION_AVAILABLE_START_DATETIME = "Sakai.assignment.availableStartDateTime";
+
+	/** LTI 1.3 substitution: space-separated OAuth scopes granted to the tool (e.g. {@code sakai.lti.api.content.read}). */
+	public static final String SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE = "Sakai.scopes.available";
 
 	// Default Outbound Role Mapping - Sakai role to a comma-separated list of LTI Roles
 	// https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies
@@ -1081,6 +1087,58 @@ public class SakaiLTIUtil {
 		return locale == null ? null : locale.toLanguageTag();
 	}
 
+	/**
+	 * Base URL for Entity Broker ({@code /direct}) LTI bearer API access.
+	 */
+	private static String getDirectApiBaseUrl() {
+		return getOurServerUrl() + "/direct";
+	}
+
+	/**
+	 * Base URL for the Sakai webapi WAR ({@code {serverUrl}/api}).
+	 */
+	private static String getWebApiBaseUrl() {
+		return getOurServerUrl() + "/api";
+	}
+
+	/**
+	 * OAuth scope string (space-separated) for functions granted to a tool in {@code lti_tool_functions}.
+	 */
+	public static String formatLtiApiAvailableScopes(Collection<String> grantedFunctions) {
+		if (grantedFunctions == null || grantedFunctions.isEmpty()) {
+			return "";
+		}
+		StringBuilder scopes = new StringBuilder();
+		for (String functionName : grantedFunctions) {
+			if (StringUtils.isBlank(functionName)) {
+				continue;
+			}
+			if (scopes.length() > 0) {
+				scopes.append(' ');
+			}
+			scopes.append(SakaiAccessToken.permissionToLtiApiScope(functionName.trim()));
+		}
+		return scopes.toString();
+	}
+
+	/**
+	 * LTI 1.3 custom substitution values for Sakai bearer API access.
+	 */
+	public static void addLtiApiLaunchSubstitutions(Properties lti13subst, Map<String, Object> tool, LTIService ltiService) {
+		if (lti13subst == null || !ltiService.isApiEnabled()) {
+			return;
+		}
+
+		String availableScopes = "";
+		if (tool != null) {
+			Long toolId = LTIUtil.toLongKey(tool.get(LTIService.LTI_ID));
+			if (toolId != null && toolId.longValue() > 0) {
+				availableScopes = formatLtiApiAvailableScopes(ltiService.getToolPermissions(toolId));
+			}
+		}
+		lti13subst.put(SAKAI_LTI_SUBSTITUTION_SCOPES_AVAILABLE, availableScopes);
+	}
+
 		// This must return an HTML message as the [0] in the array
 		// If things are successful - the launch URL is in [1]
 		public static String[] postLaunchHTML(Map<String, Object> content, Map<String, Object> tool,
@@ -1272,6 +1330,16 @@ public class SakaiLTIUtil {
 			toolCustom = adjustCustom(toolCustom);
 			mergeLTI1Custom(custom, toolCustom);
 
+			if (ltiService.isWebApiEnabled()) {
+				custom.setProperty(LTIService.PROPERTY_CUSTOM_WEBAPI_ENDPOINT, getWebApiBaseUrl());
+			}
+
+			if (ltiService.isDirectApiEnabled()) {
+				custom.setProperty(LTIService.PROPERTY_CUSTOM_DIRECTAPI_ENDPOINT, getDirectApiBaseUrl());
+			}
+
+			addLtiApiLaunchSubstitutions(lti13subst, tool, ltiService);
+
 			// See if there are any locally deployed substitutions
 			ltiService.filterCustomSubstitutions(lti13subst, tool, site);
 
@@ -1430,6 +1498,10 @@ public class SakaiLTIUtil {
 			return dlr;
 		}
 
+		static boolean isDeepLinkControlParameter(String key) {
+			return DEEP_LINK_CONTROL_PARAMETERS.contains(key);
+		}
+
 		/**
 		 * An LTI ContentItemSelectionRequest launch
 		 *
@@ -1514,10 +1586,14 @@ public class SakaiLTIUtil {
 					continue;
 				}
 
-				// Pass in data for use to get back.
-				dataJSON.put(key, value);
+				// Pass opaque integration data through to the Deep Linking response.
+				if (!isDeepLinkControlParameter(key)) {
+					dataJSON.put(key, value);
+				}
 			}
-			setProperty(ltiProps, LTIConstants.DATA, dataJSON.toString());
+			if (!dataJSON.isEmpty()) {
+				setProperty(ltiProps, LTIConstants.DATA, dataJSON.toString());
+			}
 
 			setProperty(ltiProps, LTIConstants.CONTENT_ITEM_RETURN_URL, contentReturn);
 
@@ -1565,6 +1641,7 @@ public class SakaiLTIUtil {
 
 			// See if there are any locally deployed substitutions
 			LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+			addLtiApiLaunchSubstitutions(lti13subst, tool, ltiService);
 			ltiService.filterCustomSubstitutions(lti13subst, tool, site);
 
 			log.debug("lti13subst={}", lti13subst);
@@ -1903,7 +1980,7 @@ public class SakaiLTIUtil {
 	ext_ims_lis_memberships_url: http://localhost:8080/imsblis/service/
 	ext_ims_lti_tool_setting_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3
 	ext_ims_lti_tool_setting_url: http://localhost:8080/imsblis/service/
-	ext_lms: sakai-26-SNAPSHOT
+	ext_lms: sakai-27-SNAPSHOT
 	ext_sakai_academic_session: OTHER
 	ext_sakai_launch_presentation_css_url_list: http://localhost:8080/library/skin/tool_base.css,http://localhost:8080/library/skin/default-skin/tool.css?version=49b21ca5
 	ext_sakai_role: maintain
@@ -2203,7 +2280,7 @@ public class SakaiLTIUtil {
 				ci.auto_create = "true".equals(ltiProps.getProperty("auto_create"));
 				// can_confirm is not there
 				ci.deep_link_return_url = ltiProps.getProperty(LTIConstants.CONTENT_ITEM_RETURN_URL);
-				ci.data = ltiProps.getProperty("data");
+				ci.data = ltiProps.getProperty(LTIConstants.DATA);
 				lj.deep_link = ci;
 			}
 
@@ -3373,7 +3450,7 @@ public class SakaiLTIUtil {
 
 			// Leave off the siteId - bypass all checking - because we need to
 			// finde the siteId from the content item
-			content = ltiService.getContentDao(contentKey);
+			content = ltiService.getContent(contentKey);
 			if (content == null) {
 				return null;
 			}
@@ -3389,7 +3466,7 @@ public class SakaiLTIUtil {
 			if (toolKey < 0) {
 				return null;
 			}
-			tool = ltiService.getToolDao(toolKey, siteId);
+			tool = ltiService.getTool(toolKey, siteId);
 			if (tool == null) {
 				return null;
 			}

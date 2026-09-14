@@ -21,7 +21,6 @@
 package org.sakaiproject.calendar.impl.writers;
 
 import java.net.URI;
-import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -150,12 +149,17 @@ public class CalendarIcalExporter
 	private VEvent buildVEvent(CalendarEvent event, RecurrenceRule rule)
 	{
 		DateTime icalStartDate = new DateTime(event.getRange().firstTime().getTime());
-		long seconds = event.getRange().duration() / 1000;
-		VEvent icalEvent = new VEvent(icalStartDate, Duration.ofSeconds(seconds), event.getDisplayName());
+		// Export an explicit DTEND rather than a DURATION: IcalendarReader (used when one Sakai
+		// instance subscribes to another) only understands DTEND, so a DURATION-only VEVENT
+		// silently fails to import.
+		DateTime icalEndDate = new DateTime(event.getRange().lastTime().getTime());
+		VEvent icalEvent = new VEvent(icalStartDate, icalEndDate, event.getDisplayName());
 
 		TzId tzId = new TzId(timeService.getLocalTimeZone().getID());
 		icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);
 		icalEvent.getProperty(Property.DTSTART).getParameters().add(Value.DATE_TIME);
+		icalEvent.getProperty(Property.DTEND).getParameters().add(new TzId(timeService.getLocalTimeZone().getID()));
+		icalEvent.getProperty(Property.DTEND).getParameters().add(Value.DATE_TIME);
 		icalEvent.getProperties().add(new Uid(event.getId()));
 
 		// Build the description, appending attachment URLs if present.

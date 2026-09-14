@@ -82,6 +82,7 @@ import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentConstants.SubmissionStatus;
 import org.sakaiproject.assignment.api.AssignmentEntity;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentService.OpenDateNotification;
@@ -173,6 +174,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
@@ -229,6 +231,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private ApplicationContext applicationContext;
     @Setter private AssignmentActivityProducer assignmentActivityProducer;
     @Setter private AssignmentDueReminderService assignmentDueReminderService;
+    @Setter private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Setter private ObjectFactory<AssignmentEntity> assignmentEntityFactory;
     @Setter private AssignmentRepository assignmentRepository;
     @Setter private AssignmentSupplementItemService assignmentSupplementItemService;
@@ -1706,10 +1709,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         boolean wasDraft = BooleanUtils.toBoolean(assignment.getDraft());
         assignment.setDraft(Boolean.FALSE);
         updateAssignmentInTransaction(assignment);
+        assignmentPeerAssessmentService.schedulePeerReview(assignment.getId());
 
         if (wasDraft) {
             integrateOnFirstPublish(assignment);
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void unpublishAssignment(Assignment assignment) throws PermissionException {
+        Assert.notNull(assignment, "Assignment cannot be null");
+
+        assignment.setDraft(Boolean.TRUE);
+        updateAssignmentInTransaction(assignment);
+        assignmentPeerAssessmentService.removeScheduledPeerReview(assignment.getId());
     }
 
     private void updateAssignmentInTransaction(Assignment assignment) throws PermissionException {
@@ -2121,6 +2135,45 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             log.warn("siteHasTool {} {}", e.getMessage(), siteId);
         }
         return false;
+    }
+
+    @Override
+    public void archiveSubmissionHistory(AssignmentSubmission submission) {
+        String attachmentHistory = submission.getSubmitted() ? getSubmissionAttachmentHistory(submission) : "";
+        if (StringUtils.isBlank(submission.getFeedbackText()) && StringUtils.isBlank(attachmentHistory)) {
+            return;
+        }
+
+        Map<String, String> properties = submission.getProperties();
+        Instant previousSubmissionDate = submission.getDateSubmitted();
+        String historyDate;
+        if (previousSubmissionDate != null) {
+            historyDate = userTimeService.dateTimeFormat(previousSubmissionDate, FormatStyle.LONG, FormatStyle.LONG);
+        } else {
+            historyDate = properties.get(AssignmentConstants.PROP_LAST_GRADED_DATE);
+            if (StringUtils.isBlank(historyDate) && submission.getDateModified() != null) {
+                historyDate = userTimeService.dateTimeFormat(submission.getDateModified(), FormatStyle.LONG, FormatStyle.LONG);
+            }
+        }
+        String history = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
+        history = "<h4>" + historyDate + "</h4><div>"
+                + StringUtils.trimToEmpty(submission.getFeedbackText()) + attachmentHistory + "</div>" + history;
+        properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, history);
+    }
+
+    private String getSubmissionAttachmentHistory(AssignmentSubmission submission) {
+        String attachmentLinks = submission.getAttachments().stream()
+                .map(entityManager::newReference)
+                .filter(reference -> reference.getProperties() != null
+                        && !"true".equals(reference.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION)))
+                .map(reference -> {
+                    String displayName = reference.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+                    return "<li><a href=\"" + formattedText.escapeHtml(reference.getUrl(), false) + "\">"
+                            + formattedText.escapeHtml(displayName) + "</a></li>";
+                })
+                .collect(Collectors.joining());
+
+        return StringUtils.isBlank(attachmentLinks) ? "" : "<ul>" + attachmentLinks + "</ul>";
     }
 
     @Override
@@ -3891,6 +3944,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 userId = sessionManager.getCurrentSessionUserId();
             }
 
+            if (StringUtils.isBlank(userId)) {
+                return rv;
+            }
+
             Collection<Group> groups = site.getGroups();
             // if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
             if (securityService.unlock(userId, SECURE_ALL_GROUPS, siteService.siteReference(context))
@@ -5301,6 +5358,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     transversalMap.put("assignment/" + oAssignmentId, "assignment/" + nAssignmentId);
                     log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);
+
+                    // duplicate tags
+                    if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
+                        List<Tag> associatedTags = tagService.getAssociatedTagsForItem(oAssignment.getContext(), oAssignmentId);
+
+                        List<String> newTagIds = new ArrayList<>();
+
+                        for (Tag tag : associatedTags) {
+                            List<Tag> tags = tagService.getTagsByExactLabel(tag.getTagLabel(), nAssignment.getContext());
+                            if (tags == null || tags.isEmpty()) {
+                               newTagIds.add(tag.getTagId());
+                            } else {
+                                tagService.saveTagAssociation(nAssignmentId, tags.get(0).getTagId());
+                            }
+                        }
+
+                        if (!newTagIds.isEmpty()) {
+                            tagService.duplicateTags(nAssignment.getContext(), true, newTagIds, nAssignmentId);
+                        }
+                    }
 
                     try {
                         if (taggingManager.isTaggable()) {

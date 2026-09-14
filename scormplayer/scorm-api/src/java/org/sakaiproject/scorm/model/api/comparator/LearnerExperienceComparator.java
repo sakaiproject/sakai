@@ -18,6 +18,7 @@ package org.sakaiproject.scorm.model.api.comparator;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -39,12 +40,31 @@ public class LearnerExperienceComparator implements Comparator<LearnerExperience
     }
 
     public static final CompType DEFAULT_COMP = CompType.Learner;
+    private static final long serialVersionUID = 1L;
+
     private CompType compType = DEFAULT_COMP;
-    private final UserSortNameComparator userSortNameComparator;
+    private final Locale locale;
+
+    /*
+     * UserSortNameComparator is not serializable (it holds a java.text.Collator), so it must be kept
+     * out of the byte stream and rebuilt from the locale on demand. This comparator is reachable from
+     * the Wicket page tree in the results UI, which Wicket serializes into the session (SAK-52780).
+     */
+    private transient UserSortNameComparator userSortNameComparator;
 
     public LearnerExperienceComparator(Locale locale)
     {
-        userSortNameComparator = new UserSortNameComparator(locale);
+        this.locale = Objects.requireNonNull(locale);
+    }
+
+    private UserSortNameComparator getUserSortNameComparator()
+    {
+        if (userSortNameComparator == null)
+        {
+            userSortNameComparator = new UserSortNameComparator(locale);
+        }
+
+        return userSortNameComparator;
     }
 
     /**
@@ -69,7 +89,7 @@ public class LearnerExperienceComparator implements Comparator<LearnerExperience
             {
                 String sortName1 = le1.getSortName() != null ? le1.getSortName() : le1.getLearnerName();
                 String sortName2 = le2.getSortName() != null ? le2.getSortName() : le2.getLearnerName();
-                return userSortNameComparator.compareSortNames(sortName1, le1.getDisplayId(), sortName2, le2.getDisplayId());
+                return getUserSortNameComparator().compareSortNames(sortName1, le1.getDisplayId(), sortName2, le2.getDisplayId());
             }
             case AttemptDate:
             {

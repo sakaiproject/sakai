@@ -36,13 +36,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.opencsv.CSVReader;
@@ -269,39 +267,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return toolTitle;
 	}
 
-	@Override
-	public List<String> getBulkDateFieldsForCurrentSite() {
-		Set<String> fields = new LinkedHashSet<>();
-
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_ASSIGNMENTS, columnsNames[0]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_ASSESSMENTS, columnsNames[1]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_GRADEBOOK, columnsNames[2]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_SIGNUP, columnsNames[3]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_RESOURCES, columnsNames[5]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_CALENDAR, columnsNames[4]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_FORUMS, columnsNames[5]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_ANNOUNCEMENTS, columnsNames[4]);
-		addBulkDateFieldsForTool(fields, DateManagerConstants.COMMON_ID_LESSONS, columnsNames[6]);
-
-		return new ArrayList<>(fields);
-	}
-
-	private void addBulkDateFieldsForTool(Set<String> fields, String commonId, String[] toolColumnsNames) {
-		if (!currentSiteContainsTool(commonId)) {
-			return;
-		}
-
-		Arrays.stream(toolColumnsNames)
-			.filter(this::isBulkDateField)
-			.forEach(fields::add);
-	}
-
-	private boolean isBulkDateField(String fieldName) {
-		return !DateManagerConstants.JSON_ID_PARAM_NAME.equals(fieldName)
-				&& !DateManagerConstants.JSON_TITLE_PARAM_NAME.equals(fieldName)
-				&& !DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME.equals(fieldName);
-	}
-
 	private String getUrlForTool(String tool) {
 		try {
 			Site site = siteService.getSite(getCurrentSiteId());
@@ -322,6 +287,16 @@ public class DateManagerServiceImpl implements DateManagerService {
 		if (instant == null) return "";
 		ZonedDateTime userDate = ZonedDateTime.ofInstant(instant, userTimeService.getLocalTimeZone().toZoneId());
         return userDate.format(outputDatePickerFormat);
+	}
+
+	private ZoneId getGradebookZoneId() {
+		// Gradebook treats due dates as date-only values in the server timezone.
+		return ZoneId.systemDefault();
+	}
+
+	private String formatToGradebookDateFormat(Date date) {
+		if (date == null) return "";
+		return date.toInstant().atZone(getGradebookZoneId()).format(outputDatePickerFormat);
 	}
 
 	@Override
@@ -807,7 +782,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					JSONObject gobj = new JSONObject();
 					gobj.put(DateManagerConstants.JSON_ID_PARAM_NAME, gbitem.getId());
 					gobj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, gbitem.getName());
-					gobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, formatToUserDateFormat(gbitem.getDueDate()));
+					gobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, formatToGradebookDateFormat(gbitem.getDueDate()));
 					gobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 					gobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 					gobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, "false");
@@ -857,7 +832,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 						} else {
 							date = LocalDate.parse(dueDateRaw, inputDateFormatter);
 						}
-						ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+						ZoneId zone = getGradebookZoneId();
 						dueDate = date.atStartOfDay(zone).toInstant();
 					} catch (DateTimeParseException e) {
 						log.warn("Could not parse due date [{}], {}", dueDateRaw, e);
@@ -2117,7 +2092,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 						date = LocalDate.parse(columns[2], inputDateFormatter);
 					}
 					columns[2] = date.format(outputDateFormatter);
-					ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+					ZoneId zone = getGradebookZoneId();
 					if (gbitem.getDueDate() != null) {
 						changed = !gbitem.getDueDate().toInstant().atZone(zone).toLocalDate().equals(date);
 					} else {

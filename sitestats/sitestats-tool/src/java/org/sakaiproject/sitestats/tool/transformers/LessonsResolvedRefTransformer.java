@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.detailed.EventDetail;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.CommentData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.CommentsSectionItemData;
@@ -30,9 +31,7 @@ import org.sakaiproject.sitestats.api.event.detailed.lessons.GenericItemData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.LessonsData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.PageData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.TextItemData;
-import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
@@ -47,10 +46,11 @@ public class LessonsResolvedRefTransformer
 	/**
 	 * Transforms LessonsData for presentation to the user
 	 * @param resolved the data
-	 * @param rl resource loader for i18n
+	 * @param rl localized messages
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(LessonsData resolved, ResourceLoader rl)
+	public static List<EventDetail> transform(LessonsData resolved, LocalizedMessages rl,
+			UserTimeService userTimeService, StatsManager statsManager, String siteId)
 	{
 		List<EventDetail> eventDetails = new ArrayList<>(3);
 		if (resolved instanceof TextItemData)
@@ -105,14 +105,13 @@ public class LessonsResolvedRefTransformer
 		{
 			CommentData comment = (CommentData) resolved;
 
-			UserTimeService timeServ = Locator.getFacade().getUserTimeService();
 			String commentTrunc = StringUtils.trimToEmpty(StringUtils.abbreviate( comment.comment, TRUNCATE_LENGTH));
 			if( commentTrunc.isEmpty() )
 			{
 				commentTrunc = rl.getString("de_lessons_comment_deleted");
 			}
-			String timePosted = timeServ.shortLocalizedTimestamp(comment.timePosted, rl.getLocale());
-			String author = formatAuthor(comment.author);
+			String timePosted = userTimeService.shortLocalizedTimestamp(comment.timePosted, rl.getLocale());
+			String author = formatAuthor(comment.author, statsManager, siteId);
 			String message = rl.getFormattedMessage("de_lessons_comment_template", commentTrunc, author, timePosted);
 			addEventDetailsText(eventDetails, rl.getString("de_lessons_comment"), message);
 			addEventDetailsText(eventDetails, rl.getString("de_lessons_page"), getPageDisplay(comment.parent, rl));
@@ -154,7 +153,7 @@ public class LessonsResolvedRefTransformer
 	 * @param page
 	 * @return the page title, or full page hierarchy for sub-pages
 	 */
-	private static String getPageDisplay(PageData page, ResourceLoader rl)
+	private static String getPageDisplay(PageData page, LocalizedMessages rl)
 	{
 		return page.pageHierarchy.stream()
 				.map(pg -> PageData.DELETED_HIERARCHY_PAGE.equals(pg) ? rl.getString("de_lessons_deleted_page") : pg)
@@ -166,9 +165,8 @@ public class LessonsResolvedRefTransformer
 		return StringUtils.abbreviate(text, TRUNCATE_LENGTH);
 	}
 
-	private static String formatAuthor(String uuid)
+	private static String formatAuthor(String uuid, StatsManager statsManager, String siteId)
 	{
-		String siteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
-		return Locator.getFacade().getStatsManager().getUserInfoForDisplay(uuid, siteId);
+		return statsManager.getUserInfoForDisplay(uuid, siteId);
 	}
 }

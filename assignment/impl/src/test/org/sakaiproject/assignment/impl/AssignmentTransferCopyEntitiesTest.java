@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -35,6 +36,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -69,6 +72,9 @@ import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.taggable.api.TaggingManager;
+import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -94,6 +100,7 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private GradingService gradingService;
+    @Autowired private TagService tagService;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
     @Autowired private UserDirectoryService userDirectoryService;
@@ -402,6 +409,62 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
         when(gradingService.getGradebookInformation(toContext, toContext)).thenReturn(destinationGradebookInformation);
         when(gradingService.getCategoryDefinitions(fromContext, fromContext)).thenReturn(List.of(sourceCategory));
         when(gradingService.getCategoryDefinitions(toContext, toContext)).thenReturn(List.of(destinationCategory));
+    }
+
+    @Test
+    public void testTransferCopyEntitiesWithTagIntegration() throws Exception {
+        when(serverConfigurationService.getBoolean("tagservice.enable.integrations", true)).thenReturn(true);
+
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+
+        stubContextPermissions(toContext);
+        stubContextPermissions(fromContext);
+
+        Assignment sourceAssignment = createPublishedAssignment(fromContext);
+        String oAssignmentId = sourceAssignment.getId();
+
+        sourceAssignment.getProperties().put(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
+            AssignmentConstants.GRADEBOOK_INTEGRATION_NO);
+        updateAssignment(sourceAssignment);
+
+        Tag existingTagSource = mock(Tag.class);
+        when(existingTagSource.getTagId()).thenReturn("tag_existing_id");
+        when(existingTagSource.getTagLabel()).thenReturn("Math");
+
+        Tag missingTagSource = mock(Tag.class);
+        when(missingTagSource.getTagId()).thenReturn("tag_missing_id");
+        when(missingTagSource.getTagLabel()).thenReturn("Science");
+
+        List<Tag> sourceTags = Arrays.asList(existingTagSource, missingTagSource);
+
+        when(tagService.getAssociatedTagsForItem(fromContext, oAssignmentId)).thenReturn(sourceTags);
+
+        Tag targetExistingTag = mock(Tag.class);
+        when(targetExistingTag.getTagId()).thenReturn("tag_existing_target_id");
+        when(tagService.getTagsByExactLabel("Math", toContext)).thenReturn(Collections.singletonList(targetExistingTag));
+
+        when(tagService.getTagsByExactLabel("Science", toContext)).thenReturn(Collections.emptyList());
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("test_admin_user");
+        User mockUser = mock(User.class);
+        when(mockUser.getId()).thenReturn("test_admin_user");
+        when(userDirectoryService.getCurrentUser()).thenReturn(mockUser);
+
+        List<String> ids = Collections.singletonList(oAssignmentId);
+        getAssignmentServiceImpl().transferCopyEntities(fromContext, toContext, ids, new ArrayList<>());
+
+        Collection<Assignment> importedAssignments = assignmentService.getAssignmentsForContext(toContext);
+        assertEquals(1, importedAssignments.size());
+        String nAssignmentId = importedAssignments.iterator().next().getId();
+
+        verify(tagService).getAssociatedTagsForItem(fromContext, oAssignmentId);
+        verify(tagService).getTagsByExactLabel("Math", toContext);
+        verify(tagService).saveTagAssociation(nAssignmentId, "tag_existing_target_id");
+        verify(tagService).getTagsByExactLabel("Science", toContext);
+
+        List<String> expectedNewTagIds = Collections.singletonList("tag_missing_id");
+        verify(tagService).duplicateTags(toContext, true, expectedNewTagIds, nAssignmentId);
     }
 
     private AssignmentServiceImpl getAssignmentServiceImpl() {

@@ -373,12 +373,20 @@ public interface AssignmentService extends EntityProducer {
     public void updateAssignment(Assignment assignment) throws PermissionException;
 
     /**
-     * Publishes a draft assignment and performs first-publish integrations.
+     * Publishes an assignment, synchronizes its peer review schedule, and performs first-publish integrations.
      *
      * @param assignment the Assignment to publish.
      * @throws PermissionException if current User does not have permission to update the assignment.
      */
     public void publishAssignment(Assignment assignment) throws PermissionException;
+
+    /**
+     * Returns an assignment to draft and removes its scheduled peer review.
+     *
+     * @param assignment the Assignment to unpublish.
+     * @throws PermissionException if the current user cannot update the assignment.
+     */
+    public void unpublishAssignment(Assignment assignment) throws PermissionException;
 
     /**
      * Integrates assignment availability and due dates with Announcement and Calendar tools.
@@ -404,6 +412,17 @@ public interface AssignmentService extends EntityProducer {
      * @throws PermissionException
      */
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException;
+
+    /**
+     * Archives the current feedback text and visible submitted attachments in the existing HTML history.
+     * Call before changing the submission's submitted flag, date, feedback, or attachments, including
+     * when saving the first draft of a resubmission. Draft attachments are not archived.
+     * This only changes the supplied submission; the caller remains responsible for saving it through
+     * {@link #updateSubmission(AssignmentSubmission)} and its permission checks.
+     *
+     * @param submission the existing submission before the resubmission changes
+     */
+    void archiveSubmissionHistory(AssignmentSubmission submission);
 
     /**
      * @param reference

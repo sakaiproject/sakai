@@ -7,14 +7,14 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>26-SNAPSHOT</version>
+    <version>27-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
   <name>SakaiPlus LTI Advantage Provider</name>
   <groupId>org.sakaiproject.plus</groupId>
   <artifactId>sakai-plus-base</artifactId>
-  <version>26-SNAPSHOT</version>
+  <version>27-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>

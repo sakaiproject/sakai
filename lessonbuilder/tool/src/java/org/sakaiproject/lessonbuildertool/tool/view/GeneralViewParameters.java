@@ -45,6 +45,7 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	private String returnView = "";
 	private String recheck = "";
 	private String backPath = "";
+	private String siteId = "";
 	public boolean newTopLevel = false; // For page picker, whether this should be a new top level or subpage
 	
 	public int addTool = -1;
@@ -126,6 +127,14 @@ public class GeneralViewParameters extends SimpleViewParameters {
 
 	public String getBackPath() {
 		return backPath;
+	}
+
+	public void setSiteId(String siteId) {
+		this.siteId = siteId;
+	}
+
+	public String getSiteId() {
+		return siteId;
 	}
 
 

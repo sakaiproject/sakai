@@ -149,8 +149,16 @@ public class SakaiHelper {
     }
 
     public String createCourse(String username, List<String> toolIds) {
+        return createSite(username, toolIds, "course");
+    }
+
+    public String createProject(String username, List<String> toolIds) {
+        return createSite(username, toolIds, "project");
+    }
+
+    private String createSite(String username, List<String> toolIds, String siteType) {
         String resolvedUsername = resolveUser(username);
-        String courseCacheKey = courseCacheKey(resolvedUsername, toolIds);
+        String courseCacheKey = siteCacheKey(resolvedUsername, toolIds, siteType);
         String cachedCourseUrl = COURSE_URL_CACHE.get(courseCacheKey);
         if (cachedCourseUrl != null && !cachedCourseUrl.isBlank()) {
             return cachedCourseUrl;
@@ -179,17 +187,19 @@ public class SakaiHelper {
         }
 
         if (!waitForVisible(addCourseForm, 2000)) {
-            Locator courseRadio = page.locator("input#course").first();
-            assertThat(courseRadio).isVisible();
-            courseRadio.click(new Locator.ClickOptions().setForce(true));
+            Locator siteTypeRadio = page.locator("input#" + cssEscape(siteType)).first();
+            assertThat(siteTypeRadio).isVisible();
+            siteTypeRadio.click(new Locator.ClickOptions().setForce(true));
 
-            Locator termSelect = page.locator("select#selectTerm").first();
-            if (termSelect.count() > 0 && termSelect.isVisible()) {
-                List<ElementHandle> options = termSelect.locator("option").elementHandles();
-                if (options.size() > 1) {
-                    String value = options.get(1).getAttribute("value");
-                    if (value != null && !value.isBlank()) {
-                        termSelect.selectOption(value);
+            if ("course".equals(siteType)) {
+                Locator termSelect = page.locator("select#selectTerm").first();
+                if (termSelect.count() > 0 && termSelect.isVisible()) {
+                    List<ElementHandle> options = termSelect.locator("option").elementHandles();
+                    if (options.size() > 1) {
+                        String value = options.get(1).getAttribute("value");
+                        if (value != null && !value.isBlank()) {
+                            termSelect.selectOption(value);
+                        }
                     }
                 }
             }
@@ -199,29 +209,36 @@ public class SakaiHelper {
             page.waitForLoadState();
         }
 
-        assertThat(addCourseForm).isVisible();
+        if ("project".equals(siteType)) {
+            Locator siteTitle = page.locator("#title").first();
+            assertThat(siteTitle).isVisible();
+            siteTitle.fill("Playwright Java Testing " + randomId());
+            clickContinue(null);
+        } else {
+            assertThat(addCourseForm).isVisible();
 
-        String addCourseText = text(addCourseForm);
-        if (addCourseText.contains("select anyway")) {
-            Locator selectAnyway = page.getByRole(AriaRole.LINK,
-                new Page.GetByRoleOptions().setName(Pattern.compile("select anyway", Pattern.CASE_INSENSITIVE))).first();
-            if (selectAnyway.count() > 0 && selectAnyway.isVisible()) {
-                selectAnyway.click(new Locator.ClickOptions().setForce(true));
+            String addCourseText = text(addCourseForm);
+            if (addCourseText.contains("select anyway")) {
+                Locator selectAnyway = page.getByRole(AriaRole.LINK,
+                    new Page.GetByRoleOptions().setName(Pattern.compile("select anyway", Pattern.CASE_INSENSITIVE))).first();
+                if (selectAnyway.count() > 0 && selectAnyway.isVisible()) {
+                    selectAnyway.click(new Locator.ClickOptions().setForce(true));
+                }
             }
+
+            ensureAnyVisibleCheckboxChecked(addCourseForm.locator("input[type=\"checkbox\"]"));
+
+            Locator courseDesc = page.locator("form input#courseDesc1");
+            if (courseDesc.count() > 0 && courseDesc.first().isVisible()) {
+                courseDesc.first().click(new Locator.ClickOptions().setForce(true));
+            }
+
+            clickContinue(addCourseForm);
+            Locator siteTitle = page.locator("textarea").last();
+            assertThat(siteTitle).isVisible();
+            siteTitle.fill("Playwright Java Testing " + randomId());
+            clickContinue(null);
         }
-
-        ensureAnyVisibleCheckboxChecked(addCourseForm.locator("input[type=\"checkbox\"]"));
-
-        Locator courseDesc = page.locator("form input#courseDesc1");
-        if (courseDesc.count() > 0 && courseDesc.first().isVisible()) {
-            courseDesc.first().click(new Locator.ClickOptions().setForce(true));
-        }
-
-        clickContinue(addCourseForm);
-        Locator siteTitle = page.locator("textarea").last();
-        assertThat(siteTitle).isVisible();
-        siteTitle.fill("Playwright Java Testing " + randomId());
-        clickContinue(null);
 
         Locator manageTools = page.getByRole(AriaRole.HEADING,
             new Page.GetByRoleOptions().setName(Pattern.compile("Manage Tools", Pattern.CASE_INSENSITIVE))).first();
@@ -675,11 +692,11 @@ public class SakaiHelper {
         return SakaiEnvironment.resolveUser(username);
     }
 
-    private String courseCacheKey(String username, List<String> toolIds) {
+    private String siteCacheKey(String username, List<String> toolIds, String siteType) {
         List<String> normalizedToolIds = normalizedToolIds(toolIds);
         Collections.sort(normalizedToolIds);
         String toolKey = String.join(",", normalizedToolIds);
-        return username + "|" + toolKey;
+        return username + "|" + toolKey + "|" + siteType;
     }
 
     private List<String> normalizedToolIds(List<String> toolIds) {

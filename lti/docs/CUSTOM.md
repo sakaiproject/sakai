@@ -23,9 +23,9 @@ as well as some sample values:
     ResourceLink.title=Peer Graded: Installation Screen Shots
     Sakai.ext.role=maintain
     ToolConsumerInfo.productFamilyCode=sakai
-    ToolConsumerInfo.version=26-SNAPSHOT
+    ToolConsumerInfo.version=27-SNAPSHOT
     ToolPlatform.productFamilyCode=sakai
-    ToolPlatform.version=26-SNAPSHOT
+    ToolPlatform.version=27-SNAPSHOT
     ToolPlatformInstance.description=localhost.sakailms
     ToolPlatformInstance.guid=roguelms.edu
     ToolPlatformInstance.name=localhost.sakailms

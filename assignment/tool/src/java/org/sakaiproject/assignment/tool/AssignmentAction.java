@@ -2126,10 +2126,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     updates.put(LTIService.LTI_SETTINGS, content_settings);
 
-                    // This uses the Dao access since 99% of the time we are launching as a student
-                    // after the instructor updates the assignment, and the student is
-                    // the first to launch after the change.:
-                    ltiService.updateContentDao(contentKey, updates);
+                    ltiService.updateContent(contentKey, updates);
                     log.debug("Content Item id={} updated.", contentKey);
                 }
 
@@ -7482,6 +7479,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         setResubmissionProperties(a, submission);
                     }
 
+                    assignmentService.archiveSubmissionHistory(submission);
+
                     // update submission info after resubmission which prevents updating resubmission count for the first submission
                     submission.setUserSubmission(true);
                     submission.setSubmittedText(text);
@@ -7548,14 +7547,6 @@ public class AssignmentAction extends PagedResourceActionII {
                         submission.setGrade(null);
                         submission.setGradeReleased(false);
 
-                    }
-
-                    // following involves content, not grading, so always do on resubmit, not just if graded
-                    if (StringUtils.isNotBlank(submission.getFeedbackText())) {
-                        // keep the history of assignment feed back text
-                        String feedbackTextHistory = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
-                        feedbackTextHistory = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + submission.getFeedbackText() + "</div>" + feedbackTextHistory;
-                        properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, feedbackTextHistory);
                     }
 
                     if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
@@ -11412,8 +11403,7 @@ public class AssignmentAction extends PagedResourceActionII {
             try {
                 String id = AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getId();
                 Assignment assignment = assignmentService.getAssignment(id);
-                assignment.setDraft(Boolean.TRUE);
-                assignmentService.updateAssignment(assignment);
+                assignmentService.unpublishAssignment(assignment);
             } catch (IdUnusedException e) {
                 log.warn("Cannot find assignment with ref: {}", ref);
                 addAlert(state, rb.getFormattedMessage("options_cannotFindAssignment", ref));
@@ -13283,7 +13273,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // set extension date to default to close date
         state.setAttribute(ALLOW_EXTENSION_CLOSE_MONTH, month);
         state.setAttribute(ALLOW_EXTENSION_CLOSE_DAY, day);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, year);
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_YEAR, year);
         state.setAttribute(ALLOW_EXTENSION_CLOSE_HOUR, hour);
         state.setAttribute(ALLOW_EXTENSION_CLOSE_MIN, minute);
 
@@ -14202,6 +14192,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // we are changing the view, so start with first page again.
             resetPaging(state);
 
+            String tagSelector = (String) state.getAttribute(TAG_SELECTOR);
             String sortedBy = (String) state.getAttribute(SORTED_BY);
             String sortedAsc = (String) state.getAttribute(SORTED_ASC);
             Map<String, String> listSortBackup = new HashMap<>();
@@ -14223,8 +14214,12 @@ public class AssignmentAction extends PagedResourceActionII {
             for (Map.Entry<String, String> entry : listSortBackup.entrySet()) {
                 state.setAttribute(entry.getKey(), entry.getValue());
             }
-            
-            state.removeAttribute(TAG_SELECTOR);
+
+            if (StringUtils.isNotBlank(tagSelector)) {
+                state.setAttribute(TAG_SELECTOR, tagSelector);
+            } else {
+                state.removeAttribute(TAG_SELECTOR);
+            }
 
             String viewMode = data.getParameters().getString("view");
             state.setAttribute(STATE_SELECTED_VIEW, viewMode);
@@ -15882,14 +15877,16 @@ public class AssignmentAction extends PagedResourceActionII {
 
     private void assignment_extension_option_into_state(Assignment a, AssignmentSubmission s, SessionState state){
         String allowExtensionTimeString = null;
-        if (s != null) {    // if submission is present, get the resubmission values from submission object first
+        if (s != null) {    // if submission is present, get the extension values from submission object first
             Map<String, String> sProperties = s.getProperties();
             allowExtensionTimeString = sProperties.get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
         }
         Instant allowExtensionTime = null;
-        if (allowExtensionTimeString != null) {
+        if (allowExtensionTimeString != null && !allowExtensionTimeString.trim().isEmpty()) {
             state.setAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, allowExtensionTimeString);
             allowExtensionTime = Instant.ofEpochMilli(Long.parseLong(allowExtensionTimeString));
+        } else if (a != null) { // if no student specific extension granted, use the asn's Accept Until date as a default; don't set ALLOW_EXTENSION_CLOSETIME in state
+            allowExtensionTime = a.getCloseDate();
         } else {
             state.removeAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
         }

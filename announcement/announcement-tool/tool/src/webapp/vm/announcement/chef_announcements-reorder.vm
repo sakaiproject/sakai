@@ -38,7 +38,7 @@
 		<span id="messageHolder" class="sak-banner-error" style="display:none">$tlang.getString('reorder.fail.valid.message')</span>
 		<span id="lastMoveArray" style="display:none"></span >
 		<span id="lastMoveArrayInit" style="display:none"></span>
-		<span id="lastItemMoved"  style="display:none"></span>
+		<span id="lastItemMoved" class="visually-hidden" aria-live="polite" aria-atomic="true" data-moved-message="$tlang.getString('reorder.moved')"></span>
 		<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
 			<div id="reorder-list-sortingToolBar" class="row itemAction">
 				<div class="col-md-4 col-sm-4 col-xs-12">
@@ -97,17 +97,17 @@
 					#end
 				</div>
 			</div>
+				<sakai-reorderer id="announcements-reorderer" style="display:block" apply-dom>
 				<ul id="reorder-list" class="styled-reorder-list">
 
 				#set($count = 1)
 				#foreach ($ann_item in $showMessagesList)
 					#set($ann_item_props=$ann_item.getProperties())
-					<li class="row reorder-element grab_cursor" id="listitem.orderable$count" tabindex="0" onmouseup="grab(this)" onmousedown="grabbing(this);">
+					<li class="row reorder-element" id="listitem.orderable$count" data-reorderable-id="listitem.orderable$count">
 						<span class="title col-md-4 col-sm-4 col-xs-12">
-							<span class="grabHandle">
-								<input type="text" size="3" value="$count" id="index$count" style="z-index:5"/>
-								<input type="hidden" size="3" id="holder$count"  value="$count"/>
-							</span>	
+							<span class="drag-handle grabHandle" tabindex="0" title="$tlang.getString('reorder.drag.handle')" aria-label="$tlang.getString('reorder.drag.handle')"><span class="si si-drag-handle"></span></span>
+							<input type="text" size="3" value="$count" id="index$count" style="z-index:5"/>
+							<input type="hidden" size="3" id="holder$count"  value="$count"/>
 							<span>$formattedText.escapeHtml($validator.limit($ann_item.Header.subject, 45))</span>
 						</span>
 						<span class="author col-md-2 col-sm-2 col-xs-12">
@@ -135,7 +135,8 @@
 					</li>
 					#set($count = $count + 1)
 				#end
-		</ul>
+				</ul>
+				</sakai-reorderer>
 	<p class="act">
 		<input type="submit" class="active" name="eventSubmit_doReorderUpdate" value="$tlang.getString("gen.update")"  accesskey="s" />
 		<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")" />
@@ -157,18 +158,5 @@
 #end	##end of for each loop
 </div>
 
-<script>
-
-	function grabbing(selectedItem) {
-		li = $(selectedItem);
-		$(li).removeClass("grab_cursor");
-		$(li).addClass("grabbing_cursor");
-	}
-
-	function grab(selectedItem) {
-		li = $(selectedItem);
-		$(li).removeClass("grabbing_cursor");
-		$(li).addClass("grab_cursor");
-	}
-
-</script>
+#module("/webcomponents/bundles/sakai-reorderer.js")
+#module("/sakai-announcement-tool/js/announcements-reorder.js")

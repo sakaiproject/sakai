@@ -14,9 +14,12 @@
 package org.sakaiproject.webapi;
 
 import org.sakaiproject.webapi.formatter.EpochMillisFormatter;
+import org.sakaiproject.webapi.lti.LtiBearerTokenInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -25,6 +28,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 @ComponentScan("org.sakaiproject.webapi")
 public class WebMvcConfiguration implements WebMvcConfigurer {
+
+    @Autowired
+    private LtiBearerTokenInterceptor ltiBearerTokenInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(ltiBearerTokenInterceptor)
+            .excludePathPatterns("/login", "/docs/**", "/webjars/**");
+    }
 
     @Override
     public void addFormatters(FormatterRegistry registry) {

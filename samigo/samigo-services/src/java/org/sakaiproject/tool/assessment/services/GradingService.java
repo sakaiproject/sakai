@@ -62,6 +62,7 @@ import org.jsoup.Jsoup;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -84,7 +85,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.CellValue;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
+import org.sakaiproject.tool.assessment.facade.ExportSection;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -94,6 +97,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
+import org.sakaiproject.tool.assessment.util.ImageMapCoordinates;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.util.comparator.ImageMapGradingItemComparator;
@@ -163,16 +167,6 @@ public class GradingService
   
   private static final String NBSP = "&#160;";
 
-  @Getter @Setter
-  private List<String> texts;
-  @Getter @Setter
-  private HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
-  @Getter @Setter
-  private LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
-  @Getter @Setter
-  private LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<String, String>();
-  @Getter @Setter
-  private LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<String, String>();
   private static final int MAX_ERROR_TRIES = 100;
 	  
   /**
@@ -958,6 +952,7 @@ public class GradingService
       Long itemId = (long)0;
       Long previousItemId = (long)0;
       int calcQuestionAnswerSequence = 1; // sequence of answers for CALCULATED_QUESTION
+      Map<Integer, String> calculatedAnswersMap = new HashMap<>();
       boolean imageMapAlreadyOk = true;
       boolean neededAllOk = false;
       for(ItemGradingData itemGrading: tempItemGradinglist){
@@ -1018,11 +1013,19 @@ public class GradingService
         		}
         	}
         }
+
+        if (TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId()) && calcQuestionAnswerSequence == 1) {
+        	calculatedAnswersMap = new HashMap<>();
+        	LinkedHashMap<String, String> calculatedAnswersMapValues = new LinkedHashMap<>();
+        	LinkedHashMap<String, String> calculatedGlobalAnswersMapValues = new LinkedHashMap<>();
+        	LinkedHashMap<String, String> calculatedMainVariablesWithValues = new LinkedHashMap<>();
+        	extractCalcQAnswersArray(calculatedAnswersMap, calculatedAnswersMapValues, calculatedGlobalAnswersMapValues, calculatedMainVariablesWithValues, item, data.getAssessmentGradingId(), agent);
+        }
         
         // note that totalItems & fibAnswersMap would be modified by the following method
         try {
         	autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
-                               totalItems, fibEmiAnswersMap, emiScoresMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence);
+                               totalItems, fibEmiAnswersMap, emiScoresMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence, calculatedAnswersMap);
         }
         catch (FinFormatException e) {
         	log.warn("Fin Format Exception while processing response. ", e);
@@ -1385,7 +1388,7 @@ public class GradingService
                                        Long itemType, Map publishedItemTextHash, 
                                        Map totalItems, Map fibAnswersMap, Map<Long, Map<Long,Set<EMIScore>>> emiScoresMap,
                                        Map publishedAnswerHash, boolean regrade,
-                                       int calcQuestionAnswerSequence) throws FinFormatException {
+                                       int calcQuestionAnswerSequence, Map<Integer, String> calculatedAnswersMap) throws FinFormatException {
     //double score = (double) 0;
     double initScore;
     double autoScore = (double) 0;
@@ -1490,7 +1493,6 @@ public class GradingService
       case 11: // FIN
     	  try {
     	      if (type == 15) {  // CALCULATED_QUESTION
-	              Map<Integer, String> calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item, calcQuestionAnswerSequence);
 	              int numAnswers = calculatedAnswersMap.size();
 	              autoScore = getCalcQScore(itemGrading, item, calculatedAnswersMap, calcQuestionAnswerSequence ) / (double) numAnswers;
 	          } else {
@@ -2132,36 +2134,25 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	 }
 	 
 	 ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(data.getPublishedItemTextId());
-	 
-	 List answerArray = (List) itemTextIfc.getAnswerArray();
-	 AnswerIfc answerIfc= (AnswerIfc) answerArray.get(0); 
-	 
-	 try{
-		 String area = answerIfc.getText();
-		 Integer areax1=Integer.valueOf(area.substring(area.indexOf("\"x1\":")+5,area.indexOf(",", area.indexOf("\"x1\":"))));
-		 Integer areay1=Integer.valueOf(area.substring(area.indexOf("\"y1\":")+5,area.indexOf(",", area.indexOf("\"y1\":"))));
-		 Integer areax2=Integer.valueOf(area.substring(area.indexOf("\"x2\":")+5,area.indexOf(",", area.indexOf("\"x2\":"))));
-		 Integer areay2=Integer.valueOf(area.substring(area.indexOf("\"y2\":")+5,area.indexOf("}", area.indexOf("\"y2\":"))));
-		 
-		 String point = data.getAnswerText();
-		 Integer pointx=Integer.valueOf(point.substring(point.indexOf("\"x\":")+4,point.indexOf(",", point.indexOf("\"x\":"))));
-		 Integer pointy=Integer.valueOf(point.substring(point.indexOf("\"y\":")+4,point.indexOf("}", point.indexOf("\"y\":"))));
-		
-				 
-		 if (((pointx>=areax1)&&(pointx<=areax2))&&((pointy>=areay1)&&(pointy<=areay2))) {
-			 totalScore=answerScore;
-			 data.setIsCorrect(Boolean.TRUE);
-		 }else{
-			 totalScore=0;
-		 }
-	}catch(Exception ex){
-		 totalScore=0;
+	 if (itemTextIfc == null || itemTextIfc.getAnswerArray() == null || itemTextIfc.getAnswerArray().isEmpty()) {
+		 return 0;
 	 }
-	 	  
-    
+	 AnswerIfc answerIfc = (AnswerIfc) itemTextIfc.getAnswerArray().get(0);
+	 if (answerIfc == null) {
+		 return 0;
+	 }
+
+	 Optional<ImageMapCoordinates.Region> region = ImageMapCoordinates.parseRegion(answerIfc.getText());
+	 Optional<ImageMapCoordinates.Point> point = ImageMapCoordinates.parseStudentPoint(data.getAnswerText());
+	 if (region.isPresent() && point.isPresent() && region.get().contains(point.get().getClickX(), point.get().getClickY())) {
+		 totalScore = answerScore;
+		 data.setIsCorrect(Boolean.TRUE);
+	 } else {
+		 totalScore = 0;
+	 }
+
     return totalScore;
   }
-  
 
   /**
    * Validate a students numeric answer 
@@ -2761,20 +2752,24 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param useridMap
    * @param responseCommentString
    * @param isOneSelectionType
-   * @return a list of responses or null if there are none
+   * @return a Map keyed by {@link ExportSection}, never null and always containing both HEADER and ROWS
+   *         keys; an empty single-row HEADER and empty ROWS if the data could not be retrieved
    */
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString, boolean isOneSelectionType) {
-	  List list = null;
+  public Map<ExportSection, List<List<CellValue<?>>>> getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map<String, EnrollmentRecord> useridMap, String responseCommentString, boolean isOneSelectionType) {
 	    try {
-	    	list = PersistenceService.getInstance().
+	    	Map<ExportSection, List<List<CellValue<?>>>> result = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous,audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString, isOneSelectionType);
+	    	if (result != null) {
+	    		return result;
+	    	}
+	    	log.warn("No export responses data for published assessment [{}], exporting headers only", publishedAssessmentId);
 	    } catch (Exception e) {
 	      log.error(e.getMessage(), e);
 	    }
-	    return list;
+	    return Map.of(ExportSection.HEADER, List.of(List.of()), ExportSection.ROWS, List.of());
   }
 
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
+  public Map<ExportSection, List<List<CellValue<?>>>> getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map<String, EnrollmentRecord> useridMap, String responseCommentString) {
     return this.getExportResponsesData(publishedAssessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString, false);
   }
   
@@ -2804,21 +2799,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	      log.error(e.getMessage(), e);
 	    }
 	    return hasGradingData;
-  }
-
-
-  /**
-   * CALCULATED_QUESTION
-   * @param itemGrading
-   * @param item
-   * @return map of calc answers
-   */
-  private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item, int calcQuestionAnswerSequence ) {
-      // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
-      if (calcQuestionAnswerSequence == 1) {
-          extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
-      }
-      return answersMap;
   }
 
   /**
@@ -3215,11 +3195,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       List<String> instructionSegments = new ArrayList<>(0);
       List<String> correctFeedbackSegments = new ArrayList<>(0);
       List<String> incorrectFeedbackSegments = new ArrayList<>(0);
-
-      answerList.clear();
-      answerListValues.clear();
-      globalanswersMapValues.clear();
-      mainvariablesWithValues.clear();
 
       int attemptCount = 1;
       while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {

@@ -1517,14 +1517,6 @@ $(document).ready(function () {
       }
     });
 
-    $("#subpage-choose-button").tooltip();
-    $("#subpage-choose-button").attr("title", $('#subpage-choose').html());
-    $("#subpage-choose-button").click(function (e) {
-
-      e.preventDefault();
-      window.location = $('#subpage-choose').attr('href');
-    });
-
     $("#item-button").click(function () {
 
       if ($(this).is(":checked")){

@@ -264,6 +264,38 @@ public class PublishedAssessmentService extends AssessmentService{
 	    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
 	        removeAssessment(new Long(assessmentId), action);
   }
+
+  /**
+   * Move a published assessment to Trash and remove its externally maintained Gradebook item.
+   * Gradebook cleanup is best effort so an unavailable Gradebook does not prevent the assessment
+   * from being removed.
+   *
+   * @param assessmentId the published assessment id
+   * @param gradebookUid the root Gradebook uid for the assessment's site
+   */
+  public void removeAssessmentAndExternalGradebookItem(String assessmentId, String gradebookUid) {
+    removeAssessment(assessmentId, "remove");
+
+    try {
+      IntegrationContextFactory integrationContext = IntegrationContextFactory.getInstance();
+      if (integrationContext == null || !integrationContext.isIntegrated()) {
+        return;
+      }
+
+      org.sakaiproject.grading.api.GradingService gradingService
+          = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
+              "org.sakaiproject.grading.api.GradingService");
+      GradebookServiceHelper gradebookServiceHelper = integrationContext.getGradebookServiceHelper();
+
+      if (!gradebookServiceHelper.removeExternalAssessment(gradebookUid, assessmentId, gradingService)) {
+        log.debug("Published assessment {} was not linked to gradebook {}, nothing to remove",
+            assessmentId, gradebookUid);
+      }
+    } catch (Exception e) {
+      log.warn("Failed to remove gradebook item for published assessment {} from gradebook {}",
+          assessmentId, gradebookUid, e);
+    }
+  }
   
   public List<PublishedAssessmentFacade> getBasicInfoOfAllActivePublishedAssessments(String orderBy,boolean ascending) {
     String siteAgentId = AgentFacade.getCurrentSiteId();
@@ -466,7 +498,7 @@ public class PublishedAssessmentService extends AssessmentService{
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
      SectionDataIfc section = sectionArray.get(i);
-      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
+      List<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
         ItemDataIfc item = itemArray.get(j);
         List<ItemTextIfc> itemTextArray = item.getItemTextArray();
@@ -497,7 +529,7 @@ public class PublishedAssessmentService extends AssessmentService{
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
       SectionDataIfc section = sectionArray.get(i);
-      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
+      List<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
         ItemDataIfc item = itemArray.get(j);
         if (item.getTypeId().equals( Long.valueOf(8))) // FIB question
@@ -512,7 +544,7 @@ public class PublishedAssessmentService extends AssessmentService{
 	    ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
 	    for (int i=0;i<sectionArray.size(); i++){
 	      SectionDataIfc section = sectionArray.get(i);
-	      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
+	      List<ItemDataIfc> itemArray = section.getItemArray();
 	      for (int j=0;j<itemArray.size(); j++){
 	        ItemDataIfc item = itemArray.get(j);
 	        if (item.getTypeId().equals( Long.valueOf(11))) // FIN question
@@ -572,7 +604,7 @@ public class PublishedAssessmentService extends AssessmentService{
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
       SectionDataIfc section = sectionArray.get(i);
-      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
+      List<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
         ItemDataIfc item = itemArray.get(j);
         if (item.getTypeId().equals( Long.valueOf(2))) // MCMR question
@@ -778,8 +810,7 @@ public class PublishedAssessmentService extends AssessmentService{
         try {
           gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingService);
         } catch (Exception e1) {
-          // Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
-          log.info("Exception thrown in updateGB():" + e1.getMessage());
+          log.warn("Failed to remove gradebook item for published assessment {}", assessment.getPublishedAssessmentId(), e1);
         }
 
         gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);
@@ -883,7 +914,7 @@ public class PublishedAssessmentService extends AssessmentService{
       try {
         gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingService);
       } catch(Exception e) {
-        log.warn("Something happened while removing the external assessment {}", e.getMessage());
+        log.warn("Failed to remove gradebook item for published assessment {}", assessment.getPublishedAssessmentId(), e);
       }
     }
 }

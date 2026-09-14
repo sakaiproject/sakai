@@ -111,6 +111,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           ` : nothing }
         </h3>
 
+        ${!this.isPeerOrSelf ? html`
         <select @change=${this._viewSelected}
             aria-label="${this._i18n.rubric_view_selection_title}"
             title="${this._i18n.rubric_view_selection_title}" .value=${this._currentView}>
@@ -118,6 +119,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           <option value="${STUDENT_SUMMARY}">${this._i18n.student_summary}</option>
           <option value="${CRITERIA_SUMMARY}">${this._i18n.criteria_summary}</option>
         </select>
+        ` : nothing}
 
         <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-1">
           ${this._evaluation && this._evaluation.status === "DRAFT" && !this.isPeerOrSelf ? html`
@@ -340,11 +342,14 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
     const crit = criteria.map(c => {
 
+      const hasPointOverride = c.pointoverride !== "" && c.pointoverride !== null && c.pointoverride !== undefined;
+      const points = hasPointOverride ? parseFloat(c.pointoverride) : c.selectedvalue;
+
       return {
         criterionId: c.id,
-        points: (c.pointoverride !== "" && c.pointoverride !== null && c.pointoverride !== undefined) ? parseFloat(c.pointoverride) : c.selectedvalue,
+        points,
         comments: c.comments,
-        pointsAdjusted: c.pointoverride !== c.selectedvalue,
+        pointsAdjusted: hasPointOverride && points !== parseFloat(c.selectedvalue),
         selectedRatingId: c.selectedRatingId
       };
     });

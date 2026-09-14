@@ -155,6 +155,7 @@ public class PresenceConsolidation {
     public Duration getDuration() {
         return records.stream()
                 .map(Presence::getDuration)
+                .filter(duration -> !duration.isNegative())
                 .reduce(Duration.ZERO, (subtotalDuration, duration) -> subtotalDuration.plus(duration));
     }
 

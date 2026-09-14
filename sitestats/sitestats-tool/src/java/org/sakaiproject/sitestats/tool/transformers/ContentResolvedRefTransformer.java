@@ -22,7 +22,6 @@ import org.sakaiproject.sitestats.api.event.detailed.EventDetail;
 import org.sakaiproject.sitestats.api.event.detailed.content.ContentData;
 import org.sakaiproject.sitestats.api.event.detailed.content.FileData;
 import org.sakaiproject.sitestats.api.event.detailed.content.FolderData;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * View-layer logic for presenting the data contained in the ResolvedEventData object,
@@ -37,10 +36,10 @@ public class ContentResolvedRefTransformer
 	/**
 	 * Transforms ContentData for presentation to the user
 	 * @param data the data
-	 * @param rl resource loader for i18n
+	 * @param rl localized messages
 	 * @return EventDetails for presentation
 	 */
-	public static List<EventDetail> transform(ContentData data, ResourceLoader rl)
+	public static List<EventDetail> transform(ContentData data, LocalizedMessages rl)
 	{
 		if (data instanceof ContentData.Deleted)
 		{

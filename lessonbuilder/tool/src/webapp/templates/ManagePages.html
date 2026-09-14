@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="CACHE-CONTROL" content="NO-CACHE" />
+<script rsf:id="scr=portal-matter" src="/library/js/headscripts.js"></script>
+<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
+<title rsf:id="msg=simplepage.page.index"></title>
+</head>
+<body rsf:id="scr=sakai-body">
+  <div class="portletBody ManagePages" role="main">
+    <div rsf:id="error-div" class="sak-banner-error below-link-help" role="alert">
+      <div rsf:id="errors:"><p rsf:id="error-message"></p></div>
+    </div>
+    <div rsf:id="success-div" class="sak-banner-success below-link-help" role="status">
+      <div rsf:id="successes:"><p rsf:id="success-message"></p></div>
+    </div>
+
+    <div class="navIntraTool" rsf:id="return-div">
+      <a href="#" rsf:id="return"></a>
+    </div>
+    <h2 rsf:id="title"></h2>
+    <p rsf:id="onlyseen" class="instructionPanel"><span rsf:id="msg=simplepage.page.onlyseen"></span></p>
+    <p rsf:id="sharedpageexplanation" class="instructionPanel">
+      <span rsf:id="msg=simplepage.sharedpage" class="page-picker-note"></span>
+      <span rsf:id="msg=simplepage.sharedpageexplanation"></span>
+    </p>
+
+    <section rsf:id="in-lessons-section" class="manage-pages-section" aria-labelledby="in-lessons-heading">
+      <div class="manage-pages-section-header">
+        <h3 id="in-lessons-heading" rsf:id="msg=simplepage.chooser.in-use"></h3>
+        <div class="manage-pages-item-actions">
+          <button type="button" id="show-items" class="btn btn-transparent link-color text-decoration-underline"><span rsf:id="msg=simplepage.page.showallitems"></span></button>
+          <button type="button" id="hide-items" class="btn btn-transparent link-color text-decoration-underline" hidden="hidden"><span rsf:id="msg=simplepage.page.hideallitems"></span></button>
+        </div>
+      </div>
+      <ul id="active-pages" class="pageList mb-0">
+        <li rsf:id="active-page:">
+          <span rsf:id="status-image" class="bi page-picker-status" aria-hidden="true"></span>
+          <a href="#" rsf:id="link" class="page-picker-link">
+            <span rsf:id="link-note" class="lb-offscreen"></span>
+            <span rsf:id="link-text"></span>
+          </a>
+          <span rsf:id="shared" class="page-picker-note small"></span>
+          <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span>
+          <span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+          <span rsf:id="item-list-toggle">
+            <button type="button" class="btn btn-transparent link-color p-1 itemListToggle" aria-expanded="false">
+              <span class="bi bi-caret-down-fill" aria-hidden="true"></span>
+              <span class="item-list-toggle-label-show lb-offscreen" rsf:id="msg=simplepage.page.showitems"></span>
+              <span class="item-list-toggle-label-hide lb-offscreen" rsf:id="msg=simplepage.page.hideitems" hidden="hidden"></span>
+            </button>
+          </span>
+          <div rsf:id="item-list-container" class="itemListContainer">
+            <ul rsf:id="item-list" class="itemList" hidden="hidden">
+              <li rsf:id="item:">
+                <div class="contentCol">
+                  <span rsf:id="required-image" class="page-item-requirement">
+                    <span class="bi bi-asterisk small" aria-hidden="true"></span>
+                    <span class="lb-offscreen" rsf:id="msg=simplepage.status.required"></span>
+                  </span>
+                  <span rsf:id="not-required-image" class="bi invisible page-item-requirement"></span>
+                  <span rsf:id="item-icon" aria-hidden="true" class="bi page-item-icon"></span>
+                  <span rsf:id="name"></span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section rsf:id="removed-pages-section" class="manage-pages-section removed-pages-section border-top mt-3 pt-3" aria-labelledby="removed-pages-heading">
+      <h3 id="removed-pages-heading" rsf:id="msg=simplepage.chooser.unused"></h3>
+      <p rsf:id="removed-pages-description" id="removed-pages-description" class="instructionPanel rounded py-2 px-3 mb-2"></p>
+
+      <form action="#" rsf:id="removed-pages-form" id="removed-pages-form">
+        <input type="hidden" rsf:id="csrf" />
+        <span rsf:id="page-selection"></span>
+        <p rsf:id="chooseall" class="removed-pages-select-all d-flex align-items-center gap-2 mb-2">
+          <input type="checkbox" id="chooseall" />
+          <label for="chooseall"><span rsf:id="msg=simplepage.page.chooseall"></span></label>
+        </p>
+
+        <ul id="removed-pages" class="pageList mb-0">
+          <li rsf:id="removed-page:" class="removed-page">
+            <span class="removed-page-delete-control">
+              <input type="checkbox" rsf:id="select-for-deletion" class="deletebox" aria-describedby="removed-pages-description" />
+              <label rsf:id="select-for-deletion-label" class="lb-offscreen"></label>
+            </span>
+            <a href="#" rsf:id="link" class="page-picker-link">
+              <span rsf:id="link-note" class="lb-offscreen"></span>
+              <span rsf:id="link-text"></span>
+            </a>
+          </li>
+        </ul>
+
+        <p class="removed-pages-actions border-top mt-2 pt-2 mb-0">
+          <button type="button" rsf:id="delete-button" id="delete-button" class="btn btn-danger" disabled="disabled"></button>
+        </p>
+
+        <dialog id="delete-pages-dialog" aria-labelledby="delete-pages-dialog-title">
+          <div class="delete-pages-dialog-header py-3 px-4">
+            <h2 id="delete-pages-dialog-title" rsf:id="msg=simplepage.delete-confirm-title"></h2>
+            <button type="button" rsf:id="delete-dialog-close" class="btn-close delete-pages-dialog-close"></button>
+          </div>
+          <div class="delete-pages-dialog-body p-4">
+            <p id="delete-pages-confirm-message"></p>
+            <p class="fw-bold mb-1" rsf:id="msg=simplepage.delete-confirm-list"></p>
+            <ul id="delete-pages-confirm-list"></ul>
+            <span id="delete-confirm-one-template" hidden="hidden" rsf:id="msg=simplepage.delete-confirm-one"></span>
+            <span id="delete-confirm-many-template" hidden="hidden" rsf:id="msg=simplepage.delete-confirm-many"></span>
+          </div>
+          <div class="delete-pages-dialog-footer py-3 px-4">
+            <button type="button" class="btn btn-secondary delete-pages-dialog-close"><span rsf:id="msg=simplepage.cancel"></span></button>
+            <button type="submit" rsf:id="delete-confirm-submit" id="delete-confirm-submit" class="btn btn-danger"></button>
+          </div>
+        </dialog>
+      </form>
+    </section>
+  </div>
+  <script src="/lessonbuilder-tool/js/manage-pages.js"></script>
+</body>
+</html>

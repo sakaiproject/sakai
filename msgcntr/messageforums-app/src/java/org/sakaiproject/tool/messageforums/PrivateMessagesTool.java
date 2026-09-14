@@ -4015,6 +4015,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
   
   public String processPvtMsgPublishToFaq() {
     log.debug("processPvtMsgPublishToFaq()");
+    if (!forumManager.isPublishToFaqEnabled()) {
+      log.warn("Attempted to publish a private message to FAQ while the feature is disabled");
+      return SELECTED_MESSAGE_PG;
+    }
+
     MessageForumPublishToFaqBean publishToFaqBean =
         (MessageForumPublishToFaqBean) lookupBean(MessageForumPublishToFaqBean.NAME);
 
@@ -4036,6 +4041,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processPvtMsgPublishToFaqEdit() {
     log.debug("processPvtMsgPublishToFaqEdit()");
     multiDeleteSuccess = false;
+
+    if (!forumManager.isPublishToFaqEnabled()) {
+      log.warn("Attempted to open private message FAQ publishing while the feature is disabled");
+      return SELECTED_MESSAGE_PG;
+    }
 
     MessageForumPublishToFaqBean publishToFaqBean =
         (MessageForumPublishToFaqBean) lookupBean(MessageForumPublishToFaqBean.NAME);
@@ -4627,6 +4637,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
     }
 
     public boolean isDetailMessagePublishableToFaq() {
+        if (!forumManager.isPublishToFaqEnabled()) {
+          return false;
+        }
+
         String siteId = getSiteId();
 
         if (!StringUtils.equalsAny(getMsgNavMode(),

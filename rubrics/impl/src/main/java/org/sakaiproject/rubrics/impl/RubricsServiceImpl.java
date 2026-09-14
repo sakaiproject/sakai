@@ -1503,13 +1503,11 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                     .filter(outcome -> cri.getId().equals(outcome.getCriterionId())).findAny();
 
                 if (evaluatedPoints.isPresent()) {
-                    if (optCriterionOutcome.isPresent() && optCriterionOutcome.get().getPointsAdjusted()) {
+                    if (adjustedScoreCell.isPresent()) {
 
                         //Get points of the selected rating (not altered) by maching selected rating id's and getting points from matched rating
                         Double selectedRatingOriginalPoints = optCriterionOutcome
-                                .flatMap(outcome -> cri.getRatings().stream()
-                                        .filter(rating -> rating.getId().equals(outcome.getSelectedRatingId())).findAny())
-                                .map(Rating::getPoints)
+                                .flatMap(outcome -> getSelectedRatingPoints(cri, outcome))
                                 .orElse(0D);
 
                         //Instrucor adjusted the rating point value on evaluation
@@ -1617,11 +1615,29 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             return Optional.empty();
         }
         for(CriterionOutcome outcome: evaluation.getCriterionOutcomes()){
-            if(outcome.getPointsAdjusted() && outcome.getCriterionId().equals(criterion.getId())){
+            if(Boolean.TRUE.equals(outcome.getPointsAdjusted()) && outcome.getCriterionId().equals(criterion.getId())
+                    && getSelectedRatingPoints(criterion, outcome)
+                            .map(points -> Double.compare(points, outcome.getPoints()) != 0)
+                            .orElse(true)) {
                 return Optional.of(outcome.getPoints());
             }
         }
         return Optional.empty();
+    }
+
+    private Optional<Double> getSelectedRatingPoints(Criterion criterion, CriterionOutcome outcome) {
+        if (criterion == null || outcome == null || outcome.getSelectedRatingId() == null) {
+            return Optional.empty();
+        }
+
+        return criterion.getRatings().stream()
+                .filter(rating -> rating.getId().equals(outcome.getSelectedRatingId()))
+                .map(Rating::getPoints)
+                .map(points -> criterion.getRubric().getWeighted()
+                        ? BigDecimal.valueOf(points * (criterion.getWeight() / 100.0D))
+                                .setScale(2, RoundingMode.HALF_UP).doubleValue()
+                        : points)
+                .findAny();
     }
 
     private Optional<String> getCriterionComment(Criterion criterion, Evaluation evaluation){

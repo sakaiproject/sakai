@@ -239,7 +239,6 @@ GradebookGradeSummary.prototype.setupPopovers = function() {
 
 GradebookGradeSummary.prototype.setupModalPrint = function() {
     var self = this;
-    self.setupTableSorting();
 
     var $button = this.$content.find(".gb-summary-print");
     $button.off("click").on("click", function() {
@@ -308,56 +307,84 @@ GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML) {
 };
 
 GradebookGradeSummary.prototype.setupTableSorting = function() {
-  var $table = this.$content.find(".gb-summary-grade-panel table");
+  const table = this.$content[0]?.querySelector(".gb-summary-grade-panel table");
 
-  var stickyHeaderContainer = null;
-  if ($(".tab-pane.active .gb-summary-grade-panel").length == 1) {
-    stickyHeaderContainer = $(".tab-pane.active .gb-summary-grade-panel");
+  if (!table || table.dataset.groupedSorting || !table.querySelector("tbody td:not(:empty)") || DataTable.isDataTable(table)) return;
+
+  table.querySelectorAll("td, th").forEach(node => {
+    let sortValue = node.textContent.trim();
+
+    if (node.classList.contains("gb-summary-grade-duedate")) {
+      const time = node.dataset.sortKey;
+      sortValue = time == 0 ? Number.MAX_SAFE_INTEGER : time;
+    } else if (node.classList.contains("gb-summary-grade-score")) {
+      sortValue = node.querySelector(".gb-summary-grade-score-raw")?.textContent.trim() || "-1";
+    }
+
+    node.setAttribute("data-order", sortValue);
+  });
+
+  if (table.tBodies.length > 1) {
+    this.setupGroupedTableSorting(table);
+    return;
   }
 
-  $table.tablesorter({
-    theme : "bootstrap",
-    widthFixed: false,
-    headerTemplate : '{content} {icon}',
-    widgets : [ "uitheme", "zebra", "stickyHeaders" ],
-    widgetOptions : {
-      zebra : ["even", "odd"],
-      //filter_reset : ".reset",
-      filter_hideFilters : true,
-      stickyHeaders_offset : 0,
-      stickyHeaders_cloneId : '-sticky',
-      stickyHeaders_addResizeEvent : true,
-      stickyHeaders_zIndex : 2,
-      stickyHeaders_attachTo : stickyHeaderContainer,
-      stickyHeaders_xScroll : null,
-      stickyHeaders_yScroll : null,
-      stickyHeaders_filteredToTop: true
-    },
-    sortReset   : true,
-    textExtraction: function(node) {
-      var $node = $(node);
-      // sort dates by data-sort-key
-      if ($node.is(".gb-summary-grade-duedate")) {
-        var time = $node.data("sort-key");
-        if (time == 0) {
-          // max integer value so assignments with no due date
-          // appear after those with due dates (to match GB1)
-          return Math.pow(2, 53)-1;
-        }
-        return time;
-      // sort grades by their raw grade
-      } else if ($node.is(".gb-summary-grade-score")) {
-        var grade = $node.find(".gb-summary-grade-score-raw").text().trim();
-        if (grade == "") {
-          return -1;
-        } else {
-          return grade;
-        }
+  new DataTable(table, {
+    paging: false,
+    info: false,
+    searching: false,
+    order: []
+  });
+};
+
+
+GradebookGradeSummary.prototype.setupGroupedTableSorting = function(table) {
+  // Category headings and assignment bodies must stay in place for category toggles.
+  const groups = Array.from(table.tBodies)
+    .filter(body => body.classList.contains("gb-summary-assignments-tbody"))
+    .map(body => ({ body, rows: Array.from(body.rows) }));
+  const collator = new Intl.Collator(sakai.locale.userLanguage, { numeric: true, sensitivity: "base" });
+  const headers = Array.from(table.tHead.rows[0].cells);
+  table.dataset.groupedSorting = "true";
+
+  headers.forEach((header, columnIndex) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "btn btn-link p-0 text-reset text-start fw-bold";
+    button.append(...header.childNodes);
+    const icon = document.createElement("span");
+    icon.className = "bi bi-arrow-down-up ms-1";
+    icon.setAttribute("aria-hidden", "true");
+    button.append(icon);
+    header.append(button);
+
+    button.addEventListener("click", () => {
+      const previous = header.getAttribute("aria-sort");
+      const direction = previous === "ascending" ? "descending" : previous === "descending" ? null : "ascending";
+      headers.forEach(other => {
+        other.removeAttribute("aria-sort");
+        other.querySelector("button > .bi").className = "bi bi-arrow-down-up ms-1";
+      });
+      if (direction) {
+        header.setAttribute("aria-sort", direction);
+        icon.className = `bi bi-caret-${direction === "ascending" ? "up" : "down"}-fill ms-1`;
       }
 
-      return $(node).text().trim();
-    },
-    cssInfoBlock: "gb-summary-category-tbody"
+      groups.forEach(({ body, rows }) => {
+        const sorted = rows.slice();
+        if (direction) {
+          sorted.sort((left, right) => {
+            const a = left.cells[columnIndex].dataset.order;
+            const b = right.cells[columnIndex].dataset.order;
+            const comparison = a !== "" && b !== "" && Number.isFinite(Number(a)) && Number.isFinite(Number(b))
+              ? Number(a) - Number(b)
+              : collator.compare(a, b);
+            return direction === "ascending" ? comparison : -comparison;
+          });
+        }
+        sorted.forEach(row => body.append(row));
+      });
+    });
   });
 };
 

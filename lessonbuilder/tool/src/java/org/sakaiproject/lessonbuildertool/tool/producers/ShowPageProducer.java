@@ -614,6 +614,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    }
 		}
 
+		List<String> successMessages = simplePageBean.successMessages();
+		if (successMessages != null) {
+			UIOutput.make(tofill, "success-div");
+			for (String message : successMessages) {
+				UIBranchContainer success = UIBranchContainer.make(tofill, "successes:");
+				UIOutput.make(success, "success-message", message);
+			}
+		}
+
 
 		if (canEditPage) {
 		    // special instructor-only javascript setup.
@@ -690,8 +699,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 		
 		// put out link to index of pages
-		GeneralViewParameters showAll = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
-		showAll.setSource("summary");
+		GeneralViewParameters showAll = new GeneralViewParameters(ManagePagesProducer.VIEW_ID);
 		UIInternalLink.make(tofill, "print-view", showAll)
 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.print_view")));
 
@@ -2319,7 +2327,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 									.decorate(new UIFreeAttributeDecorator("src", itemUrl))
 									.decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
 						    if (!IframeUrlUtil.isLocalToSakai(itemUrl, ServerConfigurationService.getServerUrl())) {
-								item.decorate(new UIFreeAttributeDecorator("class", "sakai-iframe-force-light"));
+								item.decorate(new UIStyleDecorator("sakai-iframe-force-light"));
 						    }
 						    // if user specifies auto, use Javascript to resize the
 						    // iframe when the
@@ -3865,7 +3873,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    simplePageBean.checkItemPermissions(i, true);
 			}
 			LessonEntity lessonEntity = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
-			if (usable && lessonEntity != null && (canEditPage || !quizEntity.notPublished(i.getSakaiId()))) {
+			if (usable && lessonEntity != null && lessonEntity.objectExists() && (canEditPage || !quizEntity.notPublished(i.getSakaiId()))) {
 				// we've hacked Samigo to look at a special lesson builder
 				// session
 				// attribute. otherwise at the end of the test, Samigo replaces
@@ -4444,8 +4452,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		view.setSendingPage(currentPage.getPageId());
 
 		if(!simplePageBean.isStudentPage(currentPage)) {
-			UIInternalLink.make(form, "subpage-choose", messageLocator.getMessage("simplepage.choose_existing_page"), view);
-			UIOutput.make(form, "subpage-choose-button", messageLocator.getMessage("simplepage.page.chooser"));
+			UIInternalLink.make(form, "subpage-choose", messageLocator.getMessage("simplepage.page.chooser"), view);
 		}
 		
 		UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
@@ -4913,8 +4920,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIOutput.make(form, "alt-label", messageLocator.getMessage("simplepage.alt_label"));
 		UIInput.make(form, "alt", "#{simplePageBean.alt}");
-
-		UIInput.make(form, "mimetype", "#{simplePageBean.mimetype}");
 
 		UICommand.make(form, "edit-multimedia-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.editMultimedia}");
 

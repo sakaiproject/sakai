@@ -17,8 +17,18 @@ package org.sakaiproject.gradebookng.business.util;
 
 import static org.mockito.Mockito.when;
 
+import com.opencsv.CSVWriter;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,15 +39,22 @@ import java.util.regex.Matcher;
 import org.apache.commons.lang3.StringUtils;
 
 import org.junit.Assert;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import org.mockito.MockitoAnnotations;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.GradebookNgTestConfiguration;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -52,14 +69,39 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Tests for the ImportGradesHelper class.
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = GradebookNgTestConfiguration.class)
 public class TestImportGradesHelper {
 
-	@Mock private GradebookNgBusinessService service;
+	private static final Charset WINDOWS_1252 = Charset.forName("windows-1252");
+	private static final byte[] UTF_8_BOM = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
+
+	@Autowired private GradebookNgBusinessService service;
+	@Autowired private LocaleService localeService;
 	@Mock private ResourceLoader resourceLoader;
+
+	@Rule
+	public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	@BeforeClass
+	public static void enableTestComponentManager() {
+		ComponentManager.testingMode = true;
+	}
+
+	@AfterClass
+	public static void shutdownTestComponentManager() {
+		ComponentManager.shutdown();
+		ComponentManager.testingMode = false;
+	}
 
 	@Before
 	public void openMocks() throws NoSuchFieldException, IllegalAccessException {
@@ -68,9 +110,7 @@ public class TestImportGradesHelper {
 		setMockResourceLoader(ImportGradesHelper.class, "RL");
 
 
-		when(resourceLoader.getLocale()).thenReturn(Locale.getDefault());
-		Map<String, GbUser> mockStudents = mockUserMap();
-		when(service.getUserEidMap(Mockito.anyObject())).thenReturn(mockStudents);
+		useLocaleForDecimalSeparator(".");
 	}
 
 	private void setMockResourceLoader(Class clazz, String fieldName) throws NoSuchFieldException, IllegalAccessException {
@@ -151,11 +191,125 @@ public class TestImportGradesHelper {
 
 	@Test
 	public void when_textcsv_i18n_thenCsvImportSucceeds() throws Exception {
+		useLocaleForDecimalSeparator(",");
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_i18n.csv")) {
 			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import_i18n.csv", service, ",", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
+	}
+
+	@Test
+	public void when_utf8ExportIsReimported_thenTextIsPreservedWithoutDuplicateColumns() throws Exception {
+		assertUtf8ExportRoundTrip(".", ',', "gradebook-point.csv");
+		assertUtf8ExportRoundTrip(",", ';', "gradebook-comma.csv");
+		assertUtf8ExportRoundTrip("", ',', "gradebook-default.csv");
+	}
+
+	private void assertUtf8ExportRoundTrip(final String decimalSeparator, final char fieldSeparator, final String fileName)
+			throws Exception {
+		useLocaleForDecimalSeparator(decimalSeparator);
+		final File exportFile = temporaryFolder.newFile(fileName);
+		try (CSVWriter writer = GradebookCsvIO.openWriter(exportFile, decimalSeparator)) {
+			writer.writeNext(new String[] {"Student ID", "Student Name", "Rédaction [100]", "* Rédaction"});
+			writer.writeNext(new String[] {"student1", "Joséphine Élève", "95", "Très bien"});
+		}
+
+		final byte[] exportedBytes = Files.readAllBytes(exportFile.toPath());
+		Assert.assertArrayEquals("UTF-8 BOM is missing", UTF_8_BOM,
+				new byte[] {exportedBytes[0], exportedBytes[1], exportedBytes[2]});
+		Assert.assertEquals("Unexpected CSV field delimiter", "\uFEFF" + utf8CsvText(fieldSeparator),
+				new String(exportedBytes, StandardCharsets.UTF_8));
+
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream inputStream = new FileInputStream(exportFile)) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(
+					inputStream, "text/csv", exportFile.getName(), service, decimalSeparator, "gUid", "siteId");
+		}
+
+		assertUtf8ImportPreservesAccents(importedSpreadsheetWrapper);
+	}
+
+	@Test
+	public void when_utf8BomCsvIsImported_thenTextIsPreservedWithoutDuplicateColumns() throws Exception {
+		assertUtf8Import(".", ',');
+		assertUtf8Import(",", ';');
+	}
+
+	@Test
+	public void when_windows1252CsvIsImported_thenTextIsPreservedWithoutDuplicateColumns() throws Exception {
+		assertWindows1252Import(".", ',');
+		assertWindows1252Import(",", ';');
+	}
+
+	@Test
+	public void when_utf8BomPrefixesInvalidUtf8_thenImportFails() throws Exception {
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		outputStream.writeBytes(UTF_8_BOM);
+		outputStream.writeBytes(utf8CsvText(',').getBytes(WINDOWS_1252));
+
+		try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+			ImportGradesHelper.parseImportedGradeFile(
+					inputStream, "text/csv", "gradebook.csv", service, ".", "gUid", "siteId");
+			Assert.fail("A UTF-8 BOM must not silently fall back to Windows-1252");
+		} catch (final MalformedInputException expected) {
+			// The BOM is authoritative, so malformed UTF-8 is rejected instead of decoded with a fallback charset.
+		}
+	}
+
+	private void assertUtf8Import(final String decimalSeparator, final char fieldSeparator) throws Exception {
+		useLocaleForDecimalSeparator(decimalSeparator);
+		final byte[] csvBytes = utf8CsvBytes(fieldSeparator);
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream inputStream = new ByteArrayInputStream(csvBytes)) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(
+					inputStream, "text/csv", "gradebook.csv", service, decimalSeparator, "gUid", "siteId");
+		}
+		assertUtf8ImportPreservesAccents(importedSpreadsheetWrapper);
+	}
+
+	private void assertWindows1252Import(final String decimalSeparator, final char fieldSeparator) throws Exception {
+		useLocaleForDecimalSeparator(decimalSeparator);
+		final byte[] csvBytes = utf8CsvText(fieldSeparator).getBytes(WINDOWS_1252);
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream inputStream = new ByteArrayInputStream(csvBytes)) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(
+					inputStream, "text/csv", "gradebook.csv", service, decimalSeparator, "gUid", "siteId");
+		}
+		assertUtf8ImportPreservesAccents(importedSpreadsheetWrapper);
+	}
+
+	private void useLocaleForDecimalSeparator(final String decimalSeparator) {
+		final Locale locale = ",".equals(decimalSeparator) ? Locale.GERMANY : Locale.US;
+		when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(locale);
+		when(resourceLoader.getLocale()).thenReturn(locale);
+	}
+
+	private static byte[] utf8CsvBytes(final char fieldSeparator) {
+		final byte[] csvBytes = utf8CsvText(fieldSeparator).getBytes(StandardCharsets.UTF_8);
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		outputStream.writeBytes(UTF_8_BOM);
+		outputStream.writeBytes(csvBytes);
+		return outputStream.toByteArray();
+	}
+
+	private static String utf8CsvText(final char fieldSeparator) {
+		final String separator = String.valueOf(fieldSeparator);
+		return String.join(separator, "\"Student ID\"", "\"Student Name\"", "\"Rédaction [100]\"", "\"* Rédaction\"")
+				+ "\r\n"
+				+ String.join(separator, "\"student1\"", "\"Joséphine Élève\"", "\"95\"", "\"Très bien\"")
+				+ "\r\n";
+	}
+
+	private static void assertUtf8ImportPreservesAccents(final ImportedSpreadsheetWrapper importedSpreadsheetWrapper) {
+		Assert.assertTrue("UTF-8 import reported duplicate columns",
+				importedSpreadsheetWrapper.getHeadingReport().getDuplicateHeadings().isEmpty());
+		Assert.assertEquals("Rédaction", importedSpreadsheetWrapper.getColumns().get(2).getColumnTitle());
+		Assert.assertEquals("Rédaction", importedSpreadsheetWrapper.getColumns().get(3).getColumnTitle());
+		Assert.assertEquals("Joséphine Élève", importedSpreadsheetWrapper.getRows().get(0).getStudentName());
+		final ImportedCell importedCell = importedSpreadsheetWrapper.getRows().get(0).getCellMap().get("Rédaction");
+		Assert.assertEquals("95", importedCell.getScore());
+		Assert.assertEquals("Très bien", importedCell.getComment());
 	}
 
 	@Test
@@ -450,7 +604,8 @@ public class TestImportGradesHelper {
 		row3.setCellMap(cellMap3);
 		rows.add(row3);
 
-		importedSpreadsheetWrapper.setRows(rows, service.getUserEidMap(Mockito.anyObject()));
+		importedSpreadsheetWrapper.setRows(rows,
+				service.getUserEidMap(new ArrayList<>(mockUserMap().values())));
 
 		return importedSpreadsheetWrapper;
 	}

@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>26-SNAPSHOT</version>
+    <version>27-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
@@ -126,6 +126,18 @@
     <dependency>
       <groupId>org.sakaiproject.grading</groupId>
       <artifactId>sakai-grading-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.samigo</groupId>

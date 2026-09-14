@@ -24,6 +24,8 @@ import java.util.List;
 
 
 public interface MessageForumsForumManager {
+
+    String PUBLISH_TO_FAQ_ENABLED_PROPERTY = "msgcntr.messages.publishToFaq.enabled";
  
 	public List getReceivedUuidByContextId(final List siteList);
 	
@@ -74,6 +76,11 @@ public interface MessageForumsForumManager {
      */
     public BaseForum getForumById(boolean open, Long forumId);
     public BaseForum getForumByUuid(String forumId);
+
+    /**
+     * Determine whether private messages can be published to an FAQ forum.
+     */
+    public boolean isPublishToFaqEnabled();
 
     /**
      * Retrieve FAQ Forum from a given area

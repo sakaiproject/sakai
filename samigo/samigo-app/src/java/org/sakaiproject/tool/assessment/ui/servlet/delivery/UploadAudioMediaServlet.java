@@ -21,9 +21,9 @@
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -31,30 +31,31 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.nio.file.Files;
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Title: Samigo</p>
@@ -66,15 +67,15 @@ import org.sakaiproject.tool.assessment.services.GradingService;
  * @version $Id$
  */
 @Slf4j
-public class UploadAudioMediaServlet extends HttpServlet
-{
-  /**
-	 * 
-	 */
-	private static final long serialVersionUID = 8389831837152012411L;
+public class UploadAudioMediaServlet extends HttpServlet {
 
-  public UploadAudioMediaServlet()
-  {
+	@Serial
+    private static final long serialVersionUID = 8389831837152012411L;
+
+	private final ObjectMapper jsonMapper;
+
+  public UploadAudioMediaServlet() {
+    jsonMapper = MapperFactory.createDefaultJsonMapper();
   }
 
   public void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -103,7 +104,7 @@ public class UploadAudioMediaServlet extends HttpServlet
     }
 
     // Check that there is a session, check the session user and agent matches, check the session userEid and media folder matches.
-    if (sessionManager.getCurrentSessionUserId() == null || 
+    if (sessionManager.getCurrentSessionUserId() == null ||
         !sessionManager.getCurrentSessionUserId().equals(agentId) ||
         !sessionManager.getCurrentSession().getUserEid().equals(mediaUser) ) {
         res.sendError(HttpServletResponse.SC_FORBIDDEN, "The assessment agent and the session user does not match.");
@@ -120,7 +121,7 @@ public class UploadAudioMediaServlet extends HttpServlet
       suffix = "au";
     String mediaLocation = mediaParameter + "." + suffix;
     log.debug("****media location="+mediaLocation);
-    JsonObject json = null;
+    ObjectNode json = null;
 
     // test for nonemptiness first
     if (mediaLocation != null && !(mediaLocation.trim()).equals(""))
@@ -132,13 +133,13 @@ public class UploadAudioMediaServlet extends HttpServlet
       }
       mediaLocation = repositoryPathDir.getCanonicalPath() + File.separator + mediaLocation;
       File mediaFile = new File(mediaLocation);
-      
+
       if (mediaFile.getCanonicalPath().equals (mediaLocation)){
-    	  File mediaDir = mediaFile.getParentFile(); 
+    	  File mediaDir = mediaFile.getParentFile();
           if (!mediaDir.exists())
             mediaDir.mkdirs();
 
-          mediaIsValid=writeToFile(req, mediaLocation);  
+          mediaIsValid=writeToFile(req, mediaLocation);
       }else{
     	  log.error ("****Error in file paths " + mediaFile.getCanonicalPath() + " is not equal to " + mediaLocation);
     	  mediaIsValid=false;
@@ -160,7 +161,13 @@ public class UploadAudioMediaServlet extends HttpServlet
         log.info(ex.getMessage());
       }
     }
-    String response = new Gson().toJson(json);
+    String response;
+    try {
+      response = jsonMapper.writeValueAsString(json);
+    } catch (JsonProcessingException e) {
+      log.warn("Could not serialize audio upload response to json", e);
+      response = "null";
+    }
     res.setContentType("application/json");
     res.setCharacterEncoding("UTF-8");
     try (PrintWriter out = res.getWriter()) {
@@ -176,7 +183,7 @@ public class UploadAudioMediaServlet extends HttpServlet
     ServletInputStream inputStream = null;
     FileOutputStream fileOutputStream = null;
     BufferedInputStream bufInputStream = null;
-    BufferedOutputStream bufOutputStream = null; 
+    BufferedOutputStream bufOutputStream = null;
     int count = 0;
 
     try{
@@ -209,7 +216,7 @@ public class UploadAudioMediaServlet extends HttpServlet
       fileOutputStream.close();
       */
       status = "Acknowleged: " +mediaLocation+"-> "+count+" bytes.";
-      if (count > 0) 
+      if (count > 0)
         mediaIsValid = true;
     }
     catch (Exception ex){
@@ -314,7 +321,7 @@ public class UploadAudioMediaServlet extends HttpServlet
     return zip_mediaLocation;
   }
   */
-  
+
   private FileOutputStream getFileOutputStream(String mediaLocation){
     FileOutputStream outputStream=null;
     try{
@@ -327,13 +334,13 @@ public class UploadAudioMediaServlet extends HttpServlet
     return outputStream;
   }
 
-  private JsonObject submitMediaAsAnswer(HttpServletRequest req, String mediaLocation)
+  private ObjectNode submitMediaAsAnswer(HttpServletRequest req, String mediaLocation)
     throws Exception{
     // read parameters passed in
     String mimeType = req.getContentType();
     String duration  = req.getParameter("lastDuration");
     String agentId  = req.getParameter("agent");
-    
+
     int attemptsRemaining = Integer.parseInt(req.getParameter("attempts"));
     GradingService gradingService = new GradingService();
     PublishedAssessmentService pubService = new PublishedAssessmentService();
@@ -355,19 +362,19 @@ public class UploadAudioMediaServlet extends HttpServlet
     AssessmentGradingData adata = gradingService.getLastSavedAssessmentGradingByAgentId(
                                   pubAssessmentId, agentId);
 
-    if (adata == null){ 
+    if (adata == null){
       // adata should already be created by BeginAssessment
       // lets throws exception
       throw new Exception("This page must have been reached by mistake.");
     }
 
     // 2. get itemGrading from DB, remove any attached media
-    //    also work out no. of attempts remaining 
+    //    also work out no. of attempts remaining
     ItemGradingData itemGrading = gradingService.getItemGradingData(
                                   adata.getAssessmentGradingId().toString(), questionId);
     List<MediaData> mediaList = new ArrayList<>();
     if (itemGrading != null){
-      // just need update itemGrading, and media.media 
+      // just need update itemGrading, and media.media
       GradingService service = new GradingService();
       if (itemGrading.getItemGradingId() != null)
 	  mediaList = service.getMediaArray(itemGrading.getItemGradingId().toString());
@@ -380,7 +387,7 @@ public class UploadAudioMediaServlet extends HttpServlet
         // this is not possible unless the question is submitted without the
         // attempt set correctly
         if ((item.getTriesAllowed()).intValue() >= 9999)
-          attemptsRemaining = 9999;  
+          attemptsRemaining = 9999;
       }
       else{
         if ((item.getTriesAllowed()).intValue() >= 9999 )
@@ -396,7 +403,7 @@ public class UploadAudioMediaServlet extends HttpServlet
       // create an itemGrading
       if ((item.getTriesAllowed()).intValue() >= 9999 )
         attemptsRemaining = 9999;
-      else; 
+      else;
 //        attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
       itemGrading = new ItemGradingData();
       itemGrading.setAssessmentGradingId(adata.getAssessmentGradingId());
@@ -416,7 +423,7 @@ public class UploadAudioMediaServlet extends HttpServlet
     return saveMedia(attemptsRemaining, mimeType, agentId, mediaLocation, itemGrading, duration);
   }
 
-  private JsonObject saveMedia(int attemptsRemaining, String mimeType, String agent, String mediaLocation, ItemGradingData itemGrading, String duration) {
+  private ObjectNode saveMedia(int attemptsRemaining, String mimeType, String agent, String mediaLocation, ItemGradingData itemGrading, String duration) {
 
     log.debug("****5. saveMedia, mediaLocation: {}", mediaLocation);
 
@@ -447,24 +454,23 @@ public class UploadAudioMediaServlet extends HttpServlet
     // 3. if saveToDB, remove file from file system
     try{
       boolean success = media.delete();
-      if (!success)
-      log.error ("Delete Failed for media. mediaid = " + mediaId);
+      if (!success) log.error ("Delete Failed for media. mediaid = {}", mediaId);
     }
     catch(Exception e){
       log.warn(e.getMessage());
     }
-    JsonObject json = new JsonObject();
-    json.addProperty("mediaId", mediaId);
-    json.addProperty("duration", mediaData.getDuration());
-    json.addProperty("createdDate", mediaData.getCreatedDate().toString());
-    json.addProperty("attemptsRemaining", attemptsRemaining);
+    ObjectNode json = jsonMapper.createObjectNode();
+    json.put("mediaId", mediaId);
+    json.put("duration", mediaData.getDuration());
+    json.put("createdDate", mediaData.getCreatedDate().toString());
+    json.put("attemptsRemaining", attemptsRemaining);
     return json;
   }
 
   private byte[] getMediaStream(String mediaLocation)
   {
     byte[] mediaByte = new byte[0];
-    
+
     try
     {
       mediaByte = Files.readAllBytes(new File(mediaLocation).toPath());
@@ -477,7 +483,7 @@ public class UploadAudioMediaServlet extends HttpServlet
     {
       log.error("IO Exception in UploadAudioMediaServlet.getMediaStream(): " + ex.getMessage());
     }
-    
+
     return mediaByte;
   }
 

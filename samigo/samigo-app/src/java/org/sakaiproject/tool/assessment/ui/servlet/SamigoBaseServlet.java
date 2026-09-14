@@ -27,15 +27,13 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
+import org.sakaiproject.tool.assessment.util.FilenameUtil;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.http.MediaType;
 
 public abstract class SamigoBaseServlet extends HttpServlet {
 
-
-    private static char[] ILLEGAL_FILENAME_CHARS =
-            new char[] { '#', '%', '&', '{', '}', '\\', '<', '>', '*', '?', '/', '$', '!', '\"', '\'', ':', '@', '+', '`', '|', '=' };
 
     private SecurityService securityService = ComponentManager.get(SecurityService.class);
     private SiteService siteService = ComponentManager.get(SiteService.class);
@@ -83,13 +81,6 @@ public abstract class SamigoBaseServlet extends HttpServlet {
     }
 
     protected String cleanFilename(String dirtyFilename) {
-        String fileName = dirtyFilename;
-        fileName = StringUtils.replace(fileName, " ", "-");
-
-        for (char illegalChar : ILLEGAL_FILENAME_CHARS) {
-            fileName = StringUtils.remove(fileName, illegalChar);
-        }
-
-        return fileName;
+        return FilenameUtil.cleanFilename(dirtyFilename);
     }
 }

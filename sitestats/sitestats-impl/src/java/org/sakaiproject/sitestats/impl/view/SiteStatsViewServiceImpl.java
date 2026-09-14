@@ -43,7 +43,8 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 		boolean allAllowed = siteStatsReportAccess.isViewAllAllowed(siteId);
 		boolean ownAllowed = siteStatsReportAccess.isViewOwnAllowed(siteId);
 		boolean adminAllowed = siteStatsReportAccess.isViewAdminAllowed(siteId);
-		return siteStatsWidgetCatalog.getOverview(siteId, allAllowed, ownAllowed, adminAllowed);
+		String userId = ownAllowed ? siteStatsReportAccess.currentUserId() : null;
+		return siteStatsWidgetCatalog.getOverview(siteId, allAllowed, ownAllowed, adminAllowed, userId);
 	}
 
 	@Override
@@ -86,9 +87,7 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 	@Override
 	public SiteStatsReportView getReport(String siteId, long reportId, SiteStatsReportRequest request) {
-		siteStatsReportAccess.assertCanViewAll(siteId);
-
-		ReportDef reportDef = siteStatsReportAccess.persistedReportDefinition(reportId);
+		ReportDef reportDef = siteStatsReportAccess.persistedReportDefinition(siteId, reportId);
 		ReportDef safeReportDef = new ReportDef(reportDef, siteId);
 		PrefsData prefsData = statsManager.getPreferences(siteId, false);
 		Report report = reportManager.getReport(safeReportDef, prefsData.isListToolEventsOnlyAvailableInSite(), null, true);
@@ -102,8 +101,6 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 	@Override
 	public SiteStatsReportView getPreviewReport(String siteId, String previewId, SiteStatsReportRequest request) {
-		siteStatsReportAccess.assertCanViewAll(siteId);
-
 		ReportDef reportDef = siteStatsReportAccess.previewReportDefinition(siteId, previewId);
 		ReportDef safeReportDef = new ReportDef(reportDef, siteId);
 		PrefsData prefsData = statsManager.getPreferences(siteId, false);
@@ -121,6 +118,12 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
 		String userId = siteStatsWidgetCatalog.isOwnOnlyWidget(widgetId) ? siteStatsReportAccess.currentUserId() : null;
+		SiteStatsReportView customView = siteStatsWidgetCatalog.getWidgetReportView(siteId, widgetId, tabId, safeRequest, userId);
+		if (customView != null) {
+			customView.setWidgetId(widgetId);
+			customView.setTabId(tabId);
+			return customView;
+		}
 		WidgetReportDefinition definition = siteStatsWidgetCatalog.getWidgetReportDefinition(siteId, widgetId, tabId, safeRequest, userId);
 		return buildWidgetReportView(siteId, definition, safeRequest, widgetId, tabId, null,
 				"Unknown SiteStats widget report: " + widgetId + "/" + tabId);
@@ -175,10 +178,11 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 		}
 		view.setTitle(definition.getTitle());
 		if (chartReport != null) {
-			view.setChart(siteStatsReportViewMapper.mapChart(chartReport, prefsData));
+			view.setChart(siteStatsReportViewMapper.mapChart(chartReport, prefsData, definition.getTitle(),
+					definition.getChartDatasetLabel()));
 		}
 		if (tableReport != null) {
-			view.setTable(siteStatsReportViewMapper.mapTable(tableReport, safeRequest));
+			view.setTable(siteStatsReportViewMapper.mapTable(tableReport, safeRequest, definition.getTitle()));
 		}
 		return view;
 	}

@@ -160,7 +160,7 @@ implements ActionListener
 		for (SelectItem item : existingGradebook) {
 			if (!item.getLabel().contains(assessmentSettings.getTitle()) &&
 				item.getLabel().split("\\(").length > 1 &&
-				assessmentSettings.getGradebookName().equals(item.getValue()) &&
+				Objects.equals(assessmentSettings.getGradebookName(), item.getValue()) &&
 				currentToolSession.getAttribute("NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED") == null) {
 					error = true;
 					String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "addtogradebook.previouslyAssoc");
@@ -588,6 +588,13 @@ implements ActionListener
 		String siteId = assessmentSettings.getCurrentSiteId();
 		String defaultToGradebook = assessmentSettings.getToDefaultGradebook();
 
+		if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(defaultToGradebook)
+				&& StringUtils.isBlank(assessmentSettings.getGradebookName())) {
+			error = true;
+			String gradebookItemRequired = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "gradebook_item_required");
+			context.addMessage(null, new FacesMessage(gradebookItemRequired));
+		}
+
 		if (defaultToGradebook != null && isGradebookGroupEnabled) {
 			if (defaultToGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 				String categorySelected = assessmentSettings.getCategorySelected();
@@ -607,6 +614,10 @@ implements ActionListener
 				}
 			} else if (defaultToGradebook.equals(EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
 				String gradebookName = assessmentSettings.getGradebookName();
+				if (StringUtils.isBlank(gradebookName)) {
+					return error;
+				}
+
 				List<String> gradebookList = Arrays.asList(gradebookName.split(","));
 
 				boolean areItemsInGroups =
@@ -960,39 +971,24 @@ implements ActionListener
 
         if (toGradebook != null &&
                 !toGradebook.equals(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString())) {
-            boolean existingItemHasBeenRemoved = false;
-
 			if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(toGradebook)) {
+				String gradebookItemString = assessment.getAssessmentToGradebookNameMetaData();
+				List<String> gradebookItemList = Arrays.asList(gradebookItemString.split(","));
+
+				if (gradebookItemList.contains(assessment.getPublishedAssessmentId().toString())) {
+					String gbNotExistsError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "gbNotExistsError");
+					context.addMessage(null, new FacesMessage(gbNotExistsError));
+					return false;
+				}
+
 				/* SINCE THIS IS CASE 3, THE ITEMS ASSOCIATED WITH THIS EXAM ARE GENERATED IN THE GRADEBOOK
 					SO WE MUST ALWAYS DELETE ANY ITEM THAT IS ASSOCIATED WITH THE PUBLISHED EXAM ID
 					THIS IS BECAUSE ITEMS CAN BE CREATED IN EXAMS, BUT ONLY IF WE ARE IN CASE 2, SO
 					THESE ITEMS FROM CASE 2 WILL BE DELETED */
 				try {
 					gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingServiceApi);
-					// This variable is only true then the assessment has been removed!
-					existingItemHasBeenRemoved = true;
 				} catch (Exception e1) {
-					// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
-					log.info("Exception thrown in updateGB():" + e1.getMessage());
-				}
-
-				if (existingItemHasBeenRemoved) {
-					String gradebookItemString = assessment.getAssessmentToGradebookNameMetaData();
-					List<String> gradebookItemList = new ArrayList<>();
-
-					if (gradebookItemString != null && !gradebookItemString.isBlank()) {
-						gradebookItemList = Arrays.asList(gradebookItemString.split(","));
-					} else {
-						String gbNotExistsError = "No se pueden crear exámenes sin ningún item asociado";
-						context.addMessage(null, new FacesMessage(gbNotExistsError));
-						return false;
-					}
-
-					if (gradebookItemList.contains(assessment.getPublishedAssessmentId().toString())) {
-						String gbNotExistsError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "gbNotExistsError");
-						context.addMessage(null, new FacesMessage(gbNotExistsError));
-						return false;
-					}
+					log.warn("Failed to remove gradebook item for published assessment {}", assessment.getPublishedAssessmentId(), e1);
 				}
 
 				gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingServiceApi, assessment, evaluation);
@@ -1101,7 +1097,7 @@ implements ActionListener
             try {
                 gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingServiceApi);
             } catch(Exception e){
-                log.warn("No external assessment to remove: {}", e.getMessage());
+                log.warn("Failed to remove gradebook item for published assessment {}", assessment.getPublishedAssessmentId(), e);
             }
         }
 

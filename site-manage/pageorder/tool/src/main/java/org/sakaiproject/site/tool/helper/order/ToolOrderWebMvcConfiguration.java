@@ -17,6 +17,7 @@ package org.sakaiproject.site.tool.helper.order;
 
 import java.nio.charset.StandardCharsets;
 
+import org.sakaiproject.site.util.SecFetchSiteCsrfInterceptor;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.context.ApplicationContext;
@@ -72,7 +73,7 @@ public class ToolOrderWebMvcConfiguration implements WebMvcConfigurer, Applicati
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new SecFetchSiteCsrfInterceptor());
+        registry.addInterceptor(new SecFetchSiteCsrfInterceptor(true));
     }
 
     private ISpringTemplateEngine templateEngine() {

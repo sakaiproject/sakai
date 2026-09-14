@@ -52,6 +52,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.jsf2.model.PhaseAware;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.CellValue;
+import org.sakaiproject.tool.assessment.facade.ExportSection;
 import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -141,12 +143,12 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
        	faces.responseComplete();
     }
 	
-    private List<List<Object>> getSpreadsheetData() {
+    private List<Object> getSpreadsheetData() {
     	TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     	Map<String, EnrollmentRecord> useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_EXPORT_LISTENER, AgentFacade.getCurrentSiteId());
-    	
+
         HistogramListener histogramListener = new HistogramListener();
-  	  	Iterator detailedStats = histogramListener.getDetailedStatisticsSpreadsheetData(assessmentId).iterator(); 
+  	  	Iterator detailedStats = histogramListener.getDetailedStatisticsSpreadsheetData(assessmentId).iterator();
   	  	detailedStats.next();
   	  	boolean showPartAndTotalScoreSpreadsheetColumns = true;
   	  	boolean isOneSelectionType = totalScores.getIsOneSelectionType();
@@ -167,75 +169,66 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
         String responseCommentsString = ContextUtil.getLocalizedString(MSG_BUNDLE,"student_comments");
         String startTimeString = ContextUtil.getLocalizedString(MSG_BUNDLE,"start_time");
         String submitTimeString = ContextUtil.getLocalizedString(MSG_BUNDLE,"submit_time");
-        
-        List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, 
-			showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, 
+
+        Map<ExportSection, List<List<CellValue<?>>>> exportResponsesData = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage,
+			showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString,
 			itemGradingCommentsString, useridMap, responseCommentsString, isOneSelectionType);
 
-        //SAM-1693 the returned list could be null -DH
-        List<List<Object>> list = new ArrayList<List<Object>>();
-        if (exportResponsesDataList != null) {
-        	list = (List<List<Object>>) exportResponsesDataList.get(0);
-        }
-         
-
-        // Now insert the header line
-        ArrayList<Object> headerList = new ArrayList<Object>();
-        headerList.add(HEADER_MARKER);
+        // Now build the header line
+        List<CellValue<?>> headerCells = new ArrayList<>();
         if (anonymous) {
-  		  headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"sub_id"));
+  		  headerCells.add(CellValue.STRING(ContextUtil.getLocalizedString(MSG_BUNDLE,"sub_id")));
   	  	}
   	  	else {
-  		  headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"last_name"));
-  		  headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"first_name"));
-  		  headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"user_name"));
-  		  headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"num_submission"));
+  		  headerCells.add(CellValue.STRING(ContextUtil.getLocalizedString(MSG_BUNDLE,"last_name")));
+  		  headerCells.add(CellValue.STRING(ContextUtil.getLocalizedString(MSG_BUNDLE,"first_name")));
+  		  headerCells.add(CellValue.STRING(ContextUtil.getLocalizedString(MSG_BUNDLE,"user_name")));
+  		  headerCells.add(CellValue.STRING(ContextUtil.getLocalizedString(MSG_BUNDLE,"num_submission")));
   	  	}
 
-        headerList.add(startTimeString);
-        headerList.add(submitTimeString);
+        headerCells.add(CellValue.STRING(startTimeString));
+        headerCells.add(CellValue.STRING(submitTimeString));
 
         PublishedAssessmentService pubService = new PublishedAssessmentService();
         int numberOfSections = pubService.getPublishedSectionCount(Long.valueOf(assessmentId));
         if (numberOfSections > 1) {
             for (int i = 1; i <= numberOfSections; i++) {
-                headerList.add(partString + " " + i + " " + ContextUtil.getLocalizedString(MSG_BUNDLE,"score"));
+                headerCells.add(CellValue.STRING(partString + " " + i + " " + ContextUtil.getLocalizedString(MSG_BUNDLE,"score")));
         	}
         }
 
-        headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"tot"));
+        headerCells.add(CellValue.STRING(ContextUtil.getLocalizedString(MSG_BUNDLE,"tot")));
 
         if (isOneSelectionType) {
-              headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "correct_answers_title"));
-              headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "incorrect_answers_title"));
-              headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "empty_answers_title"));
+              headerCells.add(CellValue.STRING(ContextUtil.getLocalizedString(MSG_BUNDLE, "correct_answers_title")));
+              headerCells.add(CellValue.STRING(ContextUtil.getLocalizedString(MSG_BUNDLE, "incorrect_answers_title")));
+              headerCells.add(CellValue.STRING(ContextUtil.getLocalizedString(MSG_BUNDLE, "empty_answers_title")));
         }
-        headerList.add(itemGradingCommentsString);
-        //SAM-1693 the returned list could be null -DH
-        if (exportResponsesDataList != null) {
-        	headerList.addAll((ArrayList) exportResponsesDataList.get(1));
+        headerCells.add(CellValue.STRING(itemGradingCommentsString));
+        List<List<CellValue<?>>> exportHeaderRows = exportResponsesData.getOrDefault(ExportSection.HEADER, List.of());
+        if (!exportHeaderRows.isEmpty()) {
+        	headerCells.addAll(exportHeaderRows.get(0));
         }
-  	  	
-  	    list.add(0,headerList);
-  	  	
-  		ArrayList<Object> newSheetList;
-  	  	newSheetList = new ArrayList<Object>();
-  	  	newSheetList.add(NEW_SHEET_MARKER);
-  	  	newSheetList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"responses"));
-  	  	list.add(0, newSheetList);
+
+        List<Object> rows = new ArrayList<>();
+        rows.add(SpreadsheetRow.sheetBreak(ContextUtil.getLocalizedString(MSG_BUNDLE,"responses")));
+        rows.add(SpreadsheetRow.header(headerCells));
+
+        for (List<CellValue<?>> row : exportResponsesData.getOrDefault(ExportSection.ROWS, List.of())) {
+        	rows.add(SpreadsheetRow.data(row));
+        }
 
   	  	if (showDetailedStatisticsSheet) {
-  	  		newSheetList = new ArrayList<Object>();
-  	  		newSheetList.add(NEW_SHEET_MARKER);
-  	  		newSheetList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"item_analysis"));
-  	  		list.add(newSheetList);
+  	  		rows.add(SpreadsheetRow.sheetBreak(ContextUtil.getLocalizedString(MSG_BUNDLE,"item_analysis")));
 
+        	// Legacy rows from HistogramListener predate the CellValue/SpreadsheetRow model and
+        	// still use marker-string conventions; getAsWorkbook renders them via a compatibility path.
         	while (detailedStats.hasNext()) {
-        		list.add((List)detailedStats.next());
+        		rows.add(detailedStats.next());
         	}
         }
-  	  	
-        return list;
+
+        return rows;
     }
     
     /**
@@ -257,13 +250,13 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 	}
     
     
-	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
+	public void writeDataToResponse(List<Object> spreadsheetData, String fileName, HttpServletResponse response) {
 		String mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 		String extension = ".xlsx";
 		int columns = findColumnSize(spreadsheetData);
 		log.info("Samigo export ({} columns): Using xlsx mimetype: {}", columns, mimetype);
 		response.setContentType(mimetype);
-		
+
 		String escapedFilename = org.sakaiproject.util.Validator.escapeUrl(fileName);
 		response.setHeader("Content-disposition", "attachment; filename=" + escapedFilename + extension	+ "; filename*=UTF-8''" + escapedFilename + extension);
 
@@ -281,8 +274,14 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 		}
 	}
 
-	public Workbook getAsWorkbook(List<List<Object>> spreadsheetData) {
-		// outer list is rows, inner list is columns (cells in the row)
+	/**
+	 * @param spreadsheetData each element is either a {@link SpreadsheetRow} (the typed,
+	 *                        CellValue-based rows this bean builds itself) or, for backward
+	 *                        compatibility, a raw {@code List<Object>} row using the legacy
+	 *                        marker-string convention (sourced from HistogramListener's
+	 *                        detailed statistics sheet, which predates this typed model).
+	 */
+	public Workbook getAsWorkbook(List<Object> spreadsheetData) {
 		int columns = findColumnSize(spreadsheetData);
 		log.info("Samigo export ({} columns): Using xlsx format", columns);
 		Workbook wb = new XSSFWorkbook();
@@ -294,36 +293,67 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 		boldFont.setFontName(fontName);
 		boldStyle.setFont(boldFont);
 
-		// Double-precision format
-		CellStyle doubleFormat = wb.createCellStyle();
-		doubleFormat.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("##.##"));
-
 		// Excel date format
 		CellStyle dateFormat = wb.createCellStyle();
 		dateFormat.setDataFormat((short) 15);
-		
+
 		Sheet sheet = null;
-
-		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
-		
 		short rowPos = 0;
-		while (dataIter.hasNext()) {
-			List<Object> rowData = dataIter.next();
 
-			if (rowData.get(0).toString().equals(NEW_SHEET_MARKER)) {
-				 sheet = wb.createSheet(rowData.get(1).toString());
+		for (Object rowData : spreadsheetData) {
+			if (rowData instanceof SpreadsheetRow row) {
+				switch (row.section()) {
+					case SHEET_BREAK -> {
+						sheet = wb.createSheet(row.cells().get(0).value().toString());
+						rowPos = 0;
+					}
+					case HEADER -> {
+						if (sheet == null) {
+							sheet = wb.createSheet("responses"); // avoid NPE
+						}
+						Row headerRow = sheet.createRow(rowPos++);
+						short colPos = 0;
+						for (CellValue<?> cellValue : row.cells()) {
+							Cell cell = headerRow.createCell(colPos++);
+							cell.setCellValue(cellValue.value().toString());
+							cell.setCellStyle(boldStyle);
+						}
+					}
+					case ROWS -> {
+						if (sheet == null) {
+							sheet = wb.createSheet("responses"); // avoid NPE
+						}
+						Row poiRow = sheet.createRow(rowPos++);
+						short colPos = 0;
+						for (CellValue<?> cellValue : row.cells()) {
+							Object data = cellValue.value();
+							if (data != null) {
+								writeCell(poiRow.createCell(colPos++), data, dateFormat);
+							}
+						}
+					}
+				}
+				continue;
+			}
+
+			// Legacy path: rows from HistogramListener's detailed statistics sheet, which
+			// predates the CellValue/SpreadsheetRow model and still uses marker-string
+			// conventions (row markers NEW_SHEET_MARKER/HEADER_MARKER, and an inline
+			// FORMAT_BOLD marker preceding a cell that should be rendered bold).
+			List<?> legacyRow = (List<?>) rowData;
+
+			if (legacyRow.get(0).toString().equals(NEW_SHEET_MARKER)) {
+				 sheet = wb.createSheet(legacyRow.get(1).toString());
 				 rowPos = 0;
 			}
-			// By convention, the first list in the list contains column headers.
-			// This should only happen once and usually only in a single-sheet workbook
-			else if (rowData.get(0).toString().equals(HEADER_MARKER)) {
+			else if (legacyRow.get(0).toString().equals(HEADER_MARKER)) {
 			    if (sheet == null) {
 		              sheet = wb.createSheet("responses"); // avoid NPE
 			    }
 				Row headerRow = sheet.createRow(rowPos++);
-				for (short i = 0; i < rowData.size()-1; i++) {
+				for (short i = 0; i < legacyRow.size()-1; i++) {
 					Cell cell = headerRow.createCell(i);
-					cell.setCellValue(rowData.get(i+1).toString());
+					cell.setCellValue(legacyRow.get(i+1).toString());
 					cell.setCellStyle(boldStyle);
 				}
 			}
@@ -331,14 +361,14 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 				if (sheet == null) {
 					sheet = wb.createSheet("responses"); // avoid NPE
 				}
-				Row row = sheet.createRow(rowPos++);
+				Row poiRow = sheet.createRow(rowPos++);
 				short colPos = 0;
-				Iterator<Object> colIter = rowData.iterator();
+				Iterator<?> colIter = legacyRow.iterator();
 
 				while (colIter.hasNext()) {
 					Object data = colIter.next();
 					if (data != null) {
-						Cell cell = row.createCell(colPos++);
+						Cell cell = poiRow.createCell(colPos++);
 
 						if (data.toString().startsWith(FORMAT)) {
 							if (data.equals(FORMAT_BOLD)) {
@@ -347,36 +377,41 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 							data = colIter.next();
 						}
 
-						if (data instanceof Integer) {
-							cell.setCellValue((Integer) data);
-						} else if (data instanceof Double) {
-							// Round the Double to two decimal places
-							BigDecimal bd = BigDecimal.valueOf((Double) data);
-							bd = bd.setScale(2, RoundingMode.HALF_UP);
-							cell.setCellValue(bd.doubleValue());
-						} else if (data instanceof Date) {
-							cell.setCellValue((Date) data);
-							cell.setCellStyle(dateFormat);
-						} else {
-							AnswerSurveyConverter converter = new AnswerSurveyConverter();
-							String datac = converter.getAsString(null, null, data.toString());
-							// stripping html for export, SAK-17021
-							cell.setCellValue(formattedText.convertFormattedTextToPlaintext(datac));
-						}
+						writeCell(cell, data, dateFormat);
 					}
 				}
 			}
-			
 		}
-		
+
 		return wb;
 	}
 
-	private int findColumnSize(List<List<Object>> spreadsheetData) {
+	private void writeCell(Cell cell, Object data, CellStyle dateFormat) {
+		if (data instanceof Integer integerValue) {
+			cell.setCellValue(integerValue);
+		} else if (data instanceof Long longValue) {
+			cell.setCellValue(longValue);
+		} else if (data instanceof Double doubleValue) {
+			// Round the Double to two decimal places
+			BigDecimal bd = BigDecimal.valueOf(doubleValue);
+			bd = bd.setScale(2, RoundingMode.HALF_UP);
+			cell.setCellValue(bd.doubleValue());
+		} else if (data instanceof Date dateValue) {
+			cell.setCellValue(dateValue);
+			cell.setCellStyle(dateFormat);
+		} else {
+			AnswerSurveyConverter converter = new AnswerSurveyConverter();
+			String datac = converter.getAsString(null, null, data.toString());
+			cell.setCellValue(formattedText.convertFormattedTextToPlaintext(datac));
+		}
+	}
+
+	private int findColumnSize(List<Object> spreadsheetData) {
 		int columns = 0; // the largest number of columns required for a row
-		for (List<Object> list : spreadsheetData) {
-			if (list != null && list.size() > columns) {
-				columns = list.size();
+		for (Object rowData : spreadsheetData) {
+			int size = (rowData instanceof SpreadsheetRow row) ? row.cells().size() : ((List<?>) rowData).size();
+			if (size > columns) {
+				columns = size;
 			}
 		}
 		return columns;

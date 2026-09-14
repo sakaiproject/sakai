@@ -29,10 +29,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
+import org.sakaiproject.site.util.SecFetchSiteCsrfInterceptor;
 
 public class SecFetchSiteCsrfInterceptorTest {
 
-    private final SecFetchSiteCsrfInterceptor interceptor = new SecFetchSiteCsrfInterceptor();
+    private final SecFetchSiteCsrfInterceptor interceptor = new SecFetchSiteCsrfInterceptor(true);
 
     @Test
     public void postWithCrossSiteFetchMetadataIsBlocked() throws Exception {
@@ -113,7 +114,7 @@ public class SecFetchSiteCsrfInterceptorTest {
     @Test
     public void postWithoutFetchMetadataWithSameOriginHeaderIsAllowed() throws Exception {
         HttpServletRequest request = request("POST", null, "/api/order", "application/json");
-        when(request.getHeader(SecFetchSiteCsrfInterceptor.ORIGIN)).thenReturn("https://sakai.example.edu");
+        when(request.getHeader(org.sakaiproject.util.SecFetchSiteCsrf.ORIGIN)).thenReturn("https://sakai.example.edu");
         HttpServletResponse response = mock(HttpServletResponse.class);
 
         assertTrue(interceptor.preHandle(request, response, new Object()));
@@ -124,7 +125,7 @@ public class SecFetchSiteCsrfInterceptorTest {
     @Test
     public void postWithoutFetchMetadataWithSameOriginRefererIsAllowed() throws Exception {
         HttpServletRequest request = request("POST", null, "/api/order", "application/json");
-        when(request.getHeader(SecFetchSiteCsrfInterceptor.REFERER))
+        when(request.getHeader(org.sakaiproject.util.SecFetchSiteCsrf.REFERER))
                 .thenReturn("https://sakai.example.edu/portal/site/site1");
         HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -136,7 +137,7 @@ public class SecFetchSiteCsrfInterceptorTest {
     @Test
     public void postWithoutFetchMetadataWithCrossOriginHeaderIsBlocked() throws Exception {
         HttpServletRequest request = request("POST", null, "/api/order", "application/json");
-        when(request.getHeader(SecFetchSiteCsrfInterceptor.ORIGIN)).thenReturn("https://evil.example.net");
+        when(request.getHeader(org.sakaiproject.util.SecFetchSiteCsrf.ORIGIN)).thenReturn("https://evil.example.net");
         HttpServletResponse response = mock(HttpServletResponse.class);
         StringWriter body = new StringWriter();
         when(response.getWriter()).thenReturn(new PrintWriter(body));
@@ -161,7 +162,7 @@ public class SecFetchSiteCsrfInterceptorTest {
     private HttpServletRequest request(String method, String fetchSite, String requestUri, String accept) {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn(method);
-        when(request.getHeader(SecFetchSiteCsrfInterceptor.SEC_FETCH_SITE)).thenReturn(fetchSite);
+        when(request.getHeader(org.sakaiproject.util.SecFetchSiteCsrf.SEC_FETCH_SITE)).thenReturn(fetchSite);
         when(request.getHeader("Accept")).thenReturn(accept);
         when(request.getRequestURI()).thenReturn(requestUri);
         when(request.getScheme()).thenReturn("https");

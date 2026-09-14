@@ -55,7 +55,7 @@ public class TagStorage implements Tags {
 
     private static final String QUERY_GET_ALL = "SELECT * from tagservice_tag ORDER by tagLabel,tagcollectionid";
     private static final String QUERY_GET_ALL_IN_COLLECTION = "SELECT * from tagservice_tag WHERE tagcollectionid = ? ORDER by tagLabel";
-    private static final String QUERY_GET_TAGS_BY_EXACT_LABEL = "SELECT * from tagservice_tag WHERE taglabel = ? ORDER by tagcollectionid";
+    private static final String QUERY_GET_TAGS_BY_EXACT_LABEL = "SELECT * from tagservice_tag " + "WHERE taglabel = ? AND tagcollectionid = ? " + "ORDER by tagcollectionid";
     private static final String QUERY_GET_TAGS_BY_PARTIAL_LABEL = "SELECT * from tagservice_tag WHERE taglabel LIKE ? ORDER by tagcollectionid";
     private static final String QUERY_GET_TAGS_BY_PREFIX_IN_LABEL = "SELECT * from tagservice_tag WHERE LOWER(taglabel) LIKE LOWER(?) ORDER by taglabel,tagcollectionid";
     private static final String QUERY_GET_TOTAL_TAGS_BY_PREFIX_IN_LABEL = "SELECT COUNT(*) as total_tags from tagservice_tag WHERE LOWER(taglabel) LIKE LOWER(?) ORDER by taglabel,tagcollectionid";
@@ -197,15 +197,16 @@ public class TagStorage implements Tags {
 
 
     @Override
-    public List<Tag> getTagsByExactLabel(final String label) {
+    public List<Tag> getTagsByExactLabel(final String label, final String collectionId) {
         return db.transaction
-                ("Find all tags in a collection",
+                ("Find tags by exact label within a collection",
                         new DBAction<List<Tag>>() {
                             @Override
                             public List<Tag> call(DBConnection db) throws SQLException {
                                 List<Tag> tags = new ArrayList<>();
                                 try (DBResults results = db.run(QUERY_GET_TAGS_BY_EXACT_LABEL)
                                         .param(label)
+                                        .param(collectionId)
                                         .executeQuery()) {
                                     HashMap<String,String> collectionNames = new HashMap<>();
                                     for (ResultSet result : results) {

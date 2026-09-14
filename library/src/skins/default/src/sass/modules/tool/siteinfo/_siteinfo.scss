@@ -30,7 +30,22 @@
 		min-width: 100%;
 		padding-right: 0.5em;
 	}
+	// Export/Import use the standard .navIntraTool menu chips; keep the list itself flush
+	// so it sits cleanly on the right edge of the flex page header.
+	.date-manager-actions {
+		li:last-child {
+			margin-right: 0;
+		}
+	}
+
 	#date-manager-form {
+		// Tab colors, borders, and the active highlight come from the shared tab rule in
+		// base/_extendables.scss, which covers these Bootstrap button-backed .nav-link tabs;
+		// only DateManager's tab spacing is local.
+		.nav-tabs > li {
+			margin: 0 0.4em 0 0;
+		}
+
 		.card-header {
 			padding: 0;
 
@@ -72,6 +87,70 @@
 			}
 		}
 
+		// Three action weights: Save Changes keeps the primary style, the bulk-method apply
+		// buttons and Visual Preview take the standard secondary treatment (they act on the
+		// page but never save), and Cancel drops to a text button as the lowest-commitment
+		// action, so all three bottom buttons read differently.
+		.dm-bulk-apply,
+		#datemanager-preview,
+		#datemanager-cancel {
+			@include sakai_secondary_button();
+		}
+
+		#datemanager-cancel {
+			background: transparent;
+			border-color: transparent;
+			color: var(--sakai-text-color-1);
+			text-decoration: underline;
+
+			&:hover,
+			&:focus {
+				background: var(--sakai-background-color-2);
+				border-color: transparent;
+				color: var(--sakai-text-color-1);
+			}
+		}
+
+		// The calendar preview: point FullCalendar's own theming variables at the theme
+		// tokens so its sticky day-name header and neutral surfaces follow light/dark.
+		#datemanager-calendar {
+			--fc-page-bg-color: var(--sakai-background-color-1);
+			--fc-neutral-bg-color: var(--sakai-background-color-2);
+			--fc-border-color: var(--sakai-border-color);
+		}
+
+		// Term-milestone matrix: tint each tool's column block with its own subtle colour and
+		// open each tool boundary with a heavier rule, so the tools' checkbox columns don't
+		// merge into one continuous grid. The tints come from the theme palettes; the dark
+		// theme swaps them for their dark-end shades below.
+		.table-datemanager-term {
+			--dm-mx-assignments-bg: var(--sakai-color-blue--lighter-7);
+			--dm-mx-assessments-bg: var(--sakai-color-teal--lighter-7);
+			--dm-mx-signup-bg: var(--sakai-color-purple--lighter-7);
+			--dm-mx-gradebook-bg: var(--sakai-color-green--lighter-7);
+			--dm-mx-resources-bg: var(--sakai-color-gold--lighter-7);
+			--dm-mx-calendar-bg: var(--sakai-color-orange--lighter-7);
+			--dm-mx-forums-bg: var(--sakai-color-red--lighter-7);
+			--dm-mx-announcements-bg: var(--sakai-color-gray--lighter-7);
+			--dm-mx-lessons-bg: var(--sakai-lessons-navy--lighter-7);
+
+			th, td {
+				&.dm-mx-assignments { background-color: var(--dm-mx-assignments-bg); }
+				&.dm-mx-assessments { background-color: var(--dm-mx-assessments-bg); }
+				&.dm-mx-signup { background-color: var(--dm-mx-signup-bg); }
+				&.dm-mx-gradebook { background-color: var(--dm-mx-gradebook-bg); }
+				&.dm-mx-resources { background-color: var(--dm-mx-resources-bg); }
+				&.dm-mx-calendar { background-color: var(--dm-mx-calendar-bg); }
+				&.dm-mx-forums { background-color: var(--dm-mx-forums-bg); }
+				&.dm-mx-announcements { background-color: var(--dm-mx-announcements-bg); }
+				&.dm-mx-lessons { background-color: var(--dm-mx-lessons-bg); }
+
+				&.dm-mx-first {
+					border-left: 3px solid var(--sakai-border-color);
+				}
+			}
+		}
+
 		.table-datemanager {
 			margin-bottom: 0;
 			table-layout: fixed;
@@ -83,6 +162,15 @@
 					position: relative;
 					top: 3px;
 					left: 3px;
+				}
+			}
+
+			th {
+				// The datepicker stamps an inline min-width on its input, which is wider
+				// than a header cell in tools with many date columns and would cover the
+				// neighboring header; let the column setter's input shrink to its cell.
+				.bulk-col-input {
+					min-width: 0 !important;
 				}
 			}
 
@@ -219,6 +307,21 @@
    }
   /*End of Site Group Manager*/
 
+}
+
+// Dark ends of the same tool palettes for the milestone matrix tints.
+:root.sakaiUserTheme-dark {
+	.#{$namespace}sakai-siteinfo #date-manager-form .table-datemanager-term {
+		--dm-mx-assignments-bg: var(--sakai-color-blue--darker-6);
+		--dm-mx-assessments-bg: var(--sakai-color-teal--darker-6);
+		--dm-mx-signup-bg: var(--sakai-color-purple--darker-6);
+		--dm-mx-gradebook-bg: var(--sakai-color-green--darker-6);
+		--dm-mx-resources-bg: var(--sakai-color-gold--darker-6);
+		--dm-mx-calendar-bg: var(--sakai-color-orange--darker-6);
+		--dm-mx-forums-bg: var(--sakai-color-red--darker-6);
+		--dm-mx-announcements-bg: var(--sakai-color-gray--darker-6);
+		--dm-mx-lessons-bg: var(--sakai-lessons-navy--lighter-1);
+	}
 }
 
 #toolSelectionList{

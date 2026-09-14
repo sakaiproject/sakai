@@ -5,7 +5,6 @@
  */
 package org.sakaiproject.sitestats.test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -31,7 +30,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportExportService;
@@ -100,14 +98,12 @@ public class SiteStatsReportExportServiceTest extends AbstractTransactionalJUnit
 	}
 
 	@Test
-	public void getPersistedReportUsesUrlSiteAsAuthoritativeSite() {
+	public void getPersistedReportRejectsReportOwnedByAnotherSite() {
 		ReportDef storedReport = visitReport("stored-site", USER_ID);
 		assertTrue(reportManager.saveReportDefinition(storedReport));
 
-		Report report = service.getPersistedReport(SITE_ID, storedReport.getId());
-
-		assertEquals(SITE_ID, report.getReportDefinition().getSiteId());
-		assertEquals(SITE_ID, report.getReportDefinition().getReportParams().getSiteId());
+		assertFalse(service.canExportPersistedReport(SITE_ID, storedReport.getId()));
+		assertThrows(IllegalArgumentException.class, () -> service.getPersistedReport(SITE_ID, storedReport.getId()));
 	}
 
 	@Test

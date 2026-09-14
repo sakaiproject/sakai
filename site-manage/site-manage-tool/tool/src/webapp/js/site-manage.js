@@ -28,7 +28,7 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold) {
     if (_siteInfoCache[siteId]) { showModal(); return; }
 
     $.getJSON(`/direct/site/${siteId}/info.json`, function(data) {
-      const desc = data.description ? data.description.escapeHTML() : nold;
+      const desc = data.description ? data.description : nold;
       const shortdesc = data.shortDescription ? data.shortDescription.escapeHTML() : nosd;
 
       const content = (

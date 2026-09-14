@@ -32,9 +32,10 @@
 		The preferred way to change these values is on sakai.properties. Please refer to
 		http://bugs.sakaiproject.org/confluence/display/STAT to detailed caonfiguration
 		information.
+		The target bean IDs are retained so existing sakai.properties overrides remain valid.
 	 -->
 	<!-- StatsManager ______________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.StatsManager"
+	<bean id="org.sakaiproject.sitestats.api.StatsManager.target"
 		  class="org.sakaiproject.sitestats.impl.StatsManagerImpl"
 		  depends-on="org.sakaiproject.sitestats.api.DBHelper"
 		  init-method="init"
@@ -97,6 +98,8 @@
 		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService"/>
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
+	<alias name="org.sakaiproject.sitestats.api.StatsManager.target"
+		   alias="org.sakaiproject.sitestats.api.StatsManager"/>
 
 	<!-- DetailedEventsManager ______________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager"
@@ -222,7 +225,10 @@
 
 	<!-- SiteStatsReportPreviewService _____________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService"
-		  class="org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl"/>
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl"
+		  init-method="init">
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+	</bean>
 
 	<!-- SiteStatsChartMapper ______________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsChartMapper"
@@ -254,6 +260,7 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.sitestats.impl.view.WidgetFilterCatalog"
@@ -284,8 +291,12 @@
 
 	<bean id="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.PresenceAccessWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.PresenceAccessWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.StudentPresenceAccessWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.StudentPresenceAccessWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"
@@ -300,7 +311,9 @@
 		<property name="widgetDefinitions">
 			<list>
 				<ref bean="org.sakaiproject.sitestats.impl.view.VisitsWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.PresenceAccessWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.StudentPresenceAccessWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"/>
@@ -314,7 +327,7 @@
 		  factory-method="create"/>
 
 	<!-- SiteStatsReportAccess _____________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"
+	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService"
 		  class="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess">
 		<property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz"/>
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
@@ -332,7 +345,7 @@
 		<property name="serverWideReportCatalog" ref="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"/>
 		<property name="serverWideReportViewMapper" ref="org.sakaiproject.sitestats.impl.view.ServerWideReportViewMapper"/>
 		<property name="siteStatsWidgetCatalog" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"/>
-		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"/>
+		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService"/>
 		<property name="siteStatsReportViewMapper" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper"/>
 	</bean>
 
@@ -342,12 +355,12 @@
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
 		<property name="siteStatsWidgetCatalog" ref="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalog"/>
-		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.impl.view.SiteStatsReportAccess"/>
+		<property name="siteStatsReportAccess" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService"/>
 	</bean>
 
 
 	<!-- StatsUpdateManager ____________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"
+	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager.target"
 		  class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"
 		  lazy-init="true"
 		  init-method="init"
@@ -377,6 +390,8 @@
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
 	</bean>
+	<alias name="org.sakaiproject.sitestats.api.StatsUpdateManager.target"
+		   alias="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
 
 	<!-- ServerWideReportManager ____________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.ServerWideReportManager"

@@ -78,7 +78,7 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
     public void testGetAsWorkbook() {
         ExportResponsesBean bean = new ExportResponsesBean();
         byte[] xlsData;
-        List<List<Object>> spreadsheetData;
+        List<Object> spreadsheetData;
         Workbook wb;
 
         // small test (10 columns x 10 rows)
@@ -117,11 +117,11 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
     public void testGetAsWorkbookWide() {
         ExportResponsesBean bean = new ExportResponsesBean();
         byte[] xlsData;
-        List<List<Object>> spreadsheetData;
+        List<Object> spreadsheetData;
         Workbook wb;
 
         // huge test (300 columns x 5 rows)
-        spreadsheetData = new ArrayList<List<Object>>();
+        spreadsheetData = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             List<Object> row = new ArrayList<Object>();
             for (int j = 0; j < 300; j++) {
@@ -139,7 +139,7 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
         Assert.assertEquals(wb.getClass().getName(), "org.apache.poi.xssf.usermodel.XSSFWorkbook");
     }
 
-    private void addSheetHeader(List<List<Object>> spreadsheetData) {
+    private void addSheetHeader(List<Object> spreadsheetData) {
         ArrayList<Object> header = new ArrayList<>();
         header.add(ExportResponsesBean.NEW_SHEET_MARKER);
         header.add("responses");

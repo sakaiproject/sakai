@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.toLanguageTag()}">
+<head th:fragment="head(title)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${title}">Add Participants</title>
+  <link href="/library/skin/tool_base.css" rel="stylesheet" media="all">
+  <link href="/library/skin/default-skin/tool.css" rel="stylesheet" media="all">
+  <script src="/library/js/headscripts.js"></script>
+  <script th:src="@{/content/js/participant-helper.js}" defer></script>
+</head>
+<body>
+  <div th:fragment="header">
+    <h1 th:text="#{java.addp}">Add Participants</h1>
+  </div>
+
+  <nav th:fragment="steps(current)" aria-label="Add participants progress">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item" th:classappend="${current == 1} ? ' active'" th:text="#{java.addp}">Add participants</li>
+      <li class="breadcrumb-item" th:classappend="${current == 2} ? ' active'" th:text="#{adddif.choose}">Choose roles</li>
+      <li class="breadcrumb-item" th:classappend="${current == 3} ? ' active'" th:text="#{gen.finish}">Finish</li>
+    </ol>
+  </nav>
+
+  <div th:fragment="messages" aria-live="polite">
+    <div th:each="message : ${messages}"
+         th:class="${message.bannerClass}"
+         th:text="${message.text}">Message</div>
+  </div>
+
+  <button th:fragment="cancel" type="submit" class="btn btn-link" th:formaction="@{/cancel}" formmethod="post" th:text="#{gen.cancel}">Cancel</button>
+</body>
+</html>

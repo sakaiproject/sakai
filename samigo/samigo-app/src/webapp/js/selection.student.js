@@ -22,8 +22,8 @@ function selectionStudent(id_, className, anchor){
 	img.mousedown(function(e) {
 		if(isActive) 
 		{
-			x = parseInt(e.pageX + anchorJObj.scrollLeft() - anchorJObj.offset().left - (divJObj.width()/2));
-			y = parseInt(e.pageY + anchorJObj.scrollTop() - anchorJObj.offset().top - (divJObj.height()/2));
+			x = parseInt(e.pageX + anchorJObj.scrollLeft() - anchorJObj.offset().left);
+			y = parseInt(e.pageY + anchorJObj.scrollTop() - anchorJObj.offset().top);
 
 			move();
 		}
@@ -45,7 +45,7 @@ function selectionStudent(id_, className, anchor){
 	}
 	
 	this.getCoords = function(){
-		return {x: x, y: y};
+		return {x: x, y: y, click: true};
 	}
 	
 	this.setCoords = function(coords){
@@ -53,7 +53,11 @@ function selectionStudent(id_, className, anchor){
 		{	
 			x = coords.x;		
 			y = coords.y;
-			
+			if (coords.click !== true) {
+				var half = markerHalfSize();
+				x = x + half.x;
+				y = y + half.y;
+			}
 			move();
 		}
 	}
@@ -65,13 +69,27 @@ function selectionStudent(id_, className, anchor){
 		y = null;
 	}
 	
+	function markerHalfSize()
+	{
+		var hidden = divJObj.css('display') === 'none';
+		if (hidden) {
+			divJObj.css({ visibility: 'hidden', display: 'block' });
+		}
+		var half = { x: divJObj.width() / 2, y: divJObj.height() / 2 };
+		if (hidden) {
+			divJObj.css({ visibility: '', display: 'none' });
+		}
+		return half;
+	}
+	
 	function move()
 	{
+		var half = markerHalfSize();
 		divJObj.css({
 			position: 'absolute',
 			zIndex: 5000,
-			left: x,
-			top: y
+			left: x - half.x,
+			top: y - half.y
 		});
 		divJObj.show();		
 	}

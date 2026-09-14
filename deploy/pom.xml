@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>26-SNAPSHOT</version>
+        <version>27-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -984,28 +984,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-client</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.terracotta</groupId>
-            <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-terracotta</artifactId>
             <scope>compile</scope>
         </dependency>
 

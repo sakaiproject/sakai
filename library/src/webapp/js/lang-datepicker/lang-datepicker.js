@@ -164,8 +164,9 @@ const defaults = {
       const minutes = DateHelper.pad(date.getMinutes());
       const seconds = DateHelper.pad(date.getSeconds());
       
-      // Always use local timezone offset
-      const offset = -new Date().getTimezoneOffset();
+      // Use the offset in effect at the selected date and time, since it may
+      // differ from today's offset across daylight saving time transitions.
+      const offset = -date.getTimezoneOffset();
       const offsetSign = offset >= 0 ? '+' : '-';
       const offsetHours = DateHelper.pad(Math.floor(Math.abs(offset) / 60));
       const offsetMinutes = DateHelper.pad(Math.abs(offset) % 60);

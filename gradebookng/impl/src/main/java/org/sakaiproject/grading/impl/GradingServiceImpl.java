@@ -2293,8 +2293,8 @@ public class GradingServiceImpl implements GradingService {
                     eventsToAdd.add(event);
                 }
             } else {
-                // if the grade is something other than null, add a new AGR
-                if (StringUtils.isNotBlank(newGrade) && (StringUtils.isNotBlank(gradeDef.getGrade()) || excuse != currentExcuse)) {
+                // A score or an excused status requires a grade record.
+                if (StringUtils.isNotBlank(newGrade) || excuse) {
                     gradeRec = new AssignmentGradeRecord(assignment, studentId, convertedGrade);
                     gradeRec.setGraderId(graderUid);
                     gradeRec.setDateRecorded(gradedDate);
@@ -2762,7 +2762,7 @@ public class GradingServiceImpl implements GradingService {
      * @param doubleAsString
      * @return a locale-aware Double value representation of the given String
      */
-    public Double convertStringToDouble(final String doubleAsString) {
+    private Double convertStringToDouble(final String doubleAsString) {
 
         final Double scoreAsDouble = StringUtils.isBlank(doubleAsString)
                 ? null
@@ -2775,6 +2775,7 @@ public class GradingServiceImpl implements GradingService {
 
         return scoreAsDouble;
     }
+
     /**
      * Get a list of assignments in the gradebook attached to the given category. Note that each assignment only knows the category by name.
      *
@@ -4171,7 +4172,7 @@ public class GradingServiceImpl implements GradingService {
             // TODO: for ungraded items, needs to set ungraded-grades later...
             final Double oldPointsEarned = agr.getPointsEarned();
             final String newPointsEarnedString = studentUidsToScores.get(studentUid);
-            final Double newPointsEarned = (newPointsEarnedString == null) ? null : convertStringToDouble(newPointsEarnedString);
+            final Double newPointsEarned = StringUtils.isBlank(newPointsEarnedString) ? null : convertStringToDouble(newPointsEarnedString);
             if (alwaysUpdate || (newPointsEarned != null && !newPointsEarned.equals(oldPointsEarned))
                     || (newPointsEarned == null && oldPointsEarned != null)) {
                 agr.setDateRecorded(now);
@@ -4493,7 +4494,7 @@ public class GradingServiceImpl implements GradingService {
 
         // TODO: for ungraded items, needs to set ungraded-grades later...
         final Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
-        final Double newPointsEarned = (points == null) ? null : convertStringToDouble(points);
+        final Double newPointsEarned = StringUtils.isBlank(points) ? null : convertStringToDouble(points);
         if (alwaysUpdate || (newPointsEarned != null && !newPointsEarned.equals(oldPointsEarned)) ||
                 (newPointsEarned == null && oldPointsEarned != null)) {
             if (agr == null) {

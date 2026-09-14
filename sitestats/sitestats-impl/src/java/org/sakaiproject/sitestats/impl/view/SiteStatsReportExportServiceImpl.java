@@ -24,8 +24,7 @@ public class SiteStatsReportExportServiceImpl implements SiteStatsReportExportSe
 	@Override
 	public boolean canExportPersistedReport(String siteId, long reportId) {
 		try {
-			siteStatsReportAccess.assertCanViewAll(siteId);
-			siteStatsReportAccess.persistedReportDefinition(reportId);
+			siteStatsReportAccess.persistedReportDefinition(siteId, reportId);
 			return true;
 		} catch (SecurityException | IllegalArgumentException e) {
 			return false;
@@ -35,7 +34,6 @@ public class SiteStatsReportExportServiceImpl implements SiteStatsReportExportSe
 	@Override
 	public boolean canExportPreviewReport(String siteId, String previewId) {
 		try {
-			siteStatsReportAccess.assertCanViewAll(siteId);
 			siteStatsReportAccess.previewReportDefinition(siteId, previewId);
 			return true;
 		} catch (SecurityException | IllegalArgumentException e) {
@@ -57,14 +55,12 @@ public class SiteStatsReportExportServiceImpl implements SiteStatsReportExportSe
 
 	@Override
 	public Report getPersistedReport(String siteId, long reportId) {
-		siteStatsReportAccess.assertCanViewAll(siteId);
-		ReportDef safeReportDef = new ReportDef(siteStatsReportAccess.persistedReportDefinition(reportId), siteId);
+		ReportDef safeReportDef = new ReportDef(siteStatsReportAccess.persistedReportDefinition(siteId, reportId), siteId);
 		return getReport(siteId, safeReportDef);
 	}
 
 	@Override
 	public Report getPreviewReport(String siteId, String previewId) {
-		siteStatsReportAccess.assertCanViewAll(siteId);
 		ReportDef reportDef = siteStatsReportAccess.previewReportDefinition(siteId, previewId);
 		return getReport(siteId, new ReportDef(reportDef, siteId));
 	}

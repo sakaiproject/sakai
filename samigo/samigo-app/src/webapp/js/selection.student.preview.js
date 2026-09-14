@@ -24,7 +24,7 @@ function selectionStudent(className, anchor){
 	}
 	
 	this.getCoords = function(){
-		return {x: x, y: y};
+		return {x: x, y: y, click: true};
 	}
 	
 	this.setCoords = function(coords){
@@ -32,7 +32,11 @@ function selectionStudent(className, anchor){
 		{
 			x = coords.x;		
 			y = coords.y;
-			
+			if (coords.click !== true) {
+				var half = markerHalfSize();
+				x = x + half.x;
+				y = y + half.y;
+			}
 			move();
 		}
 	}
@@ -42,13 +46,27 @@ function selectionStudent(className, anchor){
 		divJObj.remove();
 	}
 	
+	function markerHalfSize()
+	{
+		var hidden = divJObj.css('display') === 'none';
+		if (hidden) {
+			divJObj.css({ visibility: 'hidden', display: 'block' });
+		}
+		var half = { x: divJObj.width() / 2, y: divJObj.height() / 2 };
+		if (hidden) {
+			divJObj.css({ visibility: '', display: 'none' });
+		}
+		return half;
+	}
+	
 	function move()
 	{
+		var half = markerHalfSize();
 		divJObj.css({
 			position: 'absolute',
 			zIndex: 5000,
-			left: x,
-			top: y
+			left: x - half.x,
+			top: y - half.y
 		});
 		divJObj.show();		
 	}

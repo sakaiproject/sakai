@@ -22,7 +22,9 @@ import com.deque.html.axecore.playwright.AxeBuilder;
 import com.deque.html.axecore.results.AxeResults;
 import com.deque.html.axecore.results.CheckedNode;
 import com.deque.html.axecore.results.Rule;
+import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -51,20 +53,25 @@ class GradebookTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Gradebook");
 
-        page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Settings")).first().click(new Locator.ClickOptions().setForce(true));
-        page.locator(".accordion button").filter(new Locator.FilterOptions().setHasText("Categories")).first().click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Settings")).first().click();
+        ElementHandle categoriesPanel = page.locator("#settingsCategories").elementHandle();
+        page.locator(".accordion button").filter(new Locator.FilterOptions().setHasText("Categories")).first().click();
+        // Bootstrap reveals the old panel before Wicket replaces it via AJAX.
+        page.waitForFunction("panel => !panel.isConnected", categoriesPanel);
+        categoriesPanel.dispose();
 
         assertThat(page.locator("#settingsCategories input[type=\"radio\"]:visible")).hasCount(3);
 
-        Locator weightedCategoryOption = page.locator("#settingsCategories input[name=\"categoryPanel:settingsCategoriesPanel:categoryType\"][value=\"radio4\"]").first();
+        Locator weightedCategoryOption = page.getByLabel("Categories & weighting", new Page.GetByLabelOptions().setExact(true));
         assertThat(weightedCategoryOption).isVisible();
-        weightedCategoryOption.check(new Locator.CheckOptions().setForce(true));
+        weightedCategoryOption.check();
         assertThat(weightedCategoryOption).isChecked();
 
         page.locator(".gb-category-row input[name$=\"name\"]").first().fill("A");
         page.locator(".gb-category-weight input[name$=\"weight\"]").first().fill("100");
 
-        page.locator(".act button.active").first().click(new Locator.ClickOptions().setForce(true));
+        page.locator(".act button.active").first().click();
+        assertThat(page.getByText("The settings were successfully updated", new Page.GetByTextOptions().setExact(true))).isVisible();
     }
 
     @Test

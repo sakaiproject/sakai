@@ -39,6 +39,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachment
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
@@ -691,7 +692,7 @@ public class PublishedAssessmentData
     Iterator iter = this.sectionSet.iterator();
     while (iter.hasNext()){
       PublishedSectionData s = (PublishedSectionData) iter.next();
-      ArrayList list = s.getItemArray();
+      List<ItemDataIfc> list = s.getItemArray();
       Iterator iter2 = null;
       if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
             || (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))

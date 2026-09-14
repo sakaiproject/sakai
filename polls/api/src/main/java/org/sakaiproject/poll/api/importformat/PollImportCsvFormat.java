@@ -32,20 +32,24 @@ public final class PollImportCsvFormat {
 
     public static final int COL_QUESTION = 0;
     public static final int COL_DESCRIPTION = 1;
-    public static final int COL_OPEN_DATE = 2;
-    public static final int COL_OPEN_TIME = 3;
-    public static final int COL_CLOSE_DATE = 4;
-    public static final int COL_CLOSE_TIME = 5;
-    public static final int COL_MIN_OPTIONS = 6;
-    public static final int COL_MAX_OPTIONS = 7;
-    public static final int COL_DISPLAY_RESULT = 8;
-    public static final int COL_FIRST_OPTION = 9;
+    public static final int COL_ACCESS = 2;
+    public static final int COL_GROUPS = 3;
+    public static final int COL_OPEN_DATE = 4;
+    public static final int COL_OPEN_TIME = 5;
+    public static final int COL_CLOSE_DATE = 6;
+    public static final int COL_CLOSE_TIME = 7;
+    public static final int COL_MIN_OPTIONS = 8;
+    public static final int COL_MAX_OPTIONS = 9;
+    public static final int COL_DISPLAY_RESULT = 10;
+    public static final int COL_FIRST_OPTION = 11;
 
     public static final int FIXED_COLUMN_COUNT = COL_FIRST_OPTION;
     public static final int SAMPLE_OPTION_COUNT = 3;
 
     public static final String HEADER_QUESTION_KEY = "poll_import_header_question";
     public static final String HEADER_DESCRIPTION_KEY = "poll_import_header_description";
+    public static final String HEADER_ACCESS_KEY = "poll_import_header_access";
+    public static final String HEADER_GROUPS_KEY = "poll_import_header_groups";
     public static final String HEADER_OPEN_DATE_KEY = "poll_import_header_open_date";
     public static final String HEADER_OPEN_TIME_KEY = "poll_import_header_open_time";
     public static final String HEADER_CLOSE_DATE_KEY = "poll_import_header_close_date";
@@ -58,6 +62,8 @@ public final class PollImportCsvFormat {
     public static final String[] FIXED_HEADER_MESSAGE_KEYS = {
         HEADER_QUESTION_KEY,
         HEADER_DESCRIPTION_KEY,
+        HEADER_ACCESS_KEY,
+        HEADER_GROUPS_KEY,
         HEADER_OPEN_DATE_KEY,
         HEADER_OPEN_TIME_KEY,
         HEADER_CLOSE_DATE_KEY,
@@ -77,6 +83,8 @@ public final class PollImportCsvFormat {
         return switch (messageKey) {
             case HEADER_QUESTION_KEY -> "Question";
             case HEADER_DESCRIPTION_KEY -> "Description";
+            case HEADER_ACCESS_KEY -> "Access";
+            case HEADER_GROUPS_KEY -> "Groups";
             case HEADER_OPEN_DATE_KEY -> "Opening date";
             case HEADER_OPEN_TIME_KEY -> "Opening time";
             case HEADER_CLOSE_DATE_KEY -> "Closing date";
@@ -126,6 +134,8 @@ public final class PollImportCsvFormat {
     public static String[] sampleDataRow() {
         return new String[] {
             "What is your favorite color?",
+            "",
+            "site",
             "",
             "2026-05-29",
             "09:00",
@@ -248,16 +258,6 @@ public final class PollImportCsvFormat {
                 csv.append(',');
             }
             csv.append(escapeCsvCell(cells.get(i)));
-        }
-        csv.append('\n');
-    }
-
-    private static void appendCsvRow(StringBuilder csv, String[] cells) {
-        for (int i = 0; i < cells.length; i++) {
-            if (i > 0) {
-                csv.append(',');
-            }
-            csv.append(escapeCsvCell(cells[i]));
         }
         csv.append('\n');
     }

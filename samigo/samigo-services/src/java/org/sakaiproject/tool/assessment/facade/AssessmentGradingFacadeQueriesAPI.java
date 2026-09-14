@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
@@ -77,17 +78,21 @@ public interface AssessmentGradingFacadeQueriesAPI
   public Map<Long, List<ItemGradingData>> getLastItemGradingData(Long publishedId, String agentId);
 
   /**
-   * This returns a hashmap of all the submitted items, keyed by
-   * item id for easy retrieval.
+   * Retrieves all item grading data for a specific assessment submission.
+   * <p>
+   * This method returns a mapping of published item IDs to their corresponding grading data,
+   * allowing efficient lookup of grading information for individual items within an assessment.
+   * </p>
+   *
+   * @param assessmentGradingId the unique identifier of the assessment grading record as a String
+   * @return a Map where each key is a published item ID (Long) and each value is a List of
+   *         ItemGradingData objects associated with that item. Returns an empty map if no
+   *         grading data exists for the specified assessment.
    */
-  public HashMap getStudentGradingData(String assessmentGradingId);
+  Map<Long, List<ItemGradingData>> getStudentGradingData(String assessmentGradingId);
 
   public Map<Long, List<ItemGradingData>> getSubmitData(Long publishedId, String agentId, Integer scoringoption, Long assessmentGradingId);
   
-  // public void saveTotalScores(ArrayList data);
-
-    //public void saveItemScores(ArrayList data, HashMap map);
-
   /**
    * Assume this is a new item.
    */
@@ -242,10 +247,75 @@ public interface AssessmentGradingFacadeQueriesAPI
   public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData);
 
   public int getLateSubmissionsNumberByAgentId(Long publishedAssessmentId, String agentIdString, Date dueDate);
-  
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString);
-  
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString, boolean isOneSelectionType);
+
+  /**
+   * Exports assessment response data for a published assessment in a structured format suitable for spreadsheet export.
+   * <p>
+   * This method retrieves detailed response information for all submissions of a published assessment,
+   * including student responses, scores, rationales, and comments. The data is formatted using the provided
+   * string parameters for column headers and includes support for anonymous grading.
+   * </p>
+   *
+   * @param publishedAssessmentId the unique identifier of the published assessment as a String
+   * @param anonymous if true, student identifying information is excluded from the export
+   * @param audioMessage the localized label for audio response columns
+   * @param fileUploadMessage the localized label for file upload response columns
+   * @param noSubmissionMessage the localized label displayed when no response was submitted
+   * @param showPartAndTotalScoreSpreadsheetColumns if true, includes part-level and total score columns in the export
+   * @param poolString the localized column header for question pool information
+   * @param partString the localized column header for assessment part/section information
+   * @param questionString the localized column header for question text
+   * @param textString the localized column header for text-based responses
+   * @param responseString the localized column header for student responses
+   * @param pointsString the localized column header for points/scores
+   * @param rationaleString the localized column header for student rationales
+   * @param itemGradingCommentsString the localized column header for instructor comments on individual items
+   * @param useridMap a mapping of user IDs to EnrollmentRecord objects for retrieving student enrollment information
+   * @param responseCommentString the localized column header for comments on responses
+   * @return a Map keyed by {@link ExportSection}, never {@code null} and containing exactly the
+   *         {@code HEADER} and {@code ROWS} keys; {@code SHEET_BREAK} is never present, as sheet
+   *         boundaries are decided by the caller rather than here. {@code HEADER} maps to a
+   *         single-row list containing exactly one row of column header cells, and {@code ROWS}
+   *         maps to zero or more data rows, each row being a list of cells.
+   */
+  Map<ExportSection, List<List<CellValue<?>>>> getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map<String, EnrollmentRecord> useridMap, String responseCommentString);
+
+  /**
+   * Exports assessment response data for a published assessment, with support for per-item
+   * correct/incorrect/empty answer tallies for single-selection questions.
+   * <p>
+   * This overloaded method extends the basic export functionality by adding, for each row, three
+   * counter cells tracking how many single-selection answers were correct, incorrect, or left empty.
+   * Only the data cells are added here; the callers supply the matching column headers. All question
+   * types are still included in the export.
+   * </p>
+   *
+   * @param publishedAssessmentId the unique identifier of the published assessment as a String
+   * @param anonymous if true, student identifying information is excluded from the export
+   * @param audioMessage the localized label for audio response columns
+   * @param fileUploadMessage the localized label for file upload response columns
+   * @param noSubmissionMessage the localized label displayed when no response was submitted
+   * @param showPartAndTotalScoreSpreadsheetColumns if true, includes part-level and total score columns in the export
+   * @param poolString the localized column header for question pool information
+   * @param partString the localized column header for assessment part/section information
+   * @param questionString the localized column header for question text
+   * @param textString the localized column header for text-based responses
+   * @param responseString the localized column header for student responses
+   * @param pointsString the localized column header for points/scores
+   * @param rationaleString the localized column header for student rationales
+   * @param itemGradingCommentsString the localized column header for instructor comments on individual items
+   * @param useridMap a mapping of user IDs to EnrollmentRecord objects for retrieving student enrollment information
+   * @param responseCommentString the localized column header for comments on responses
+   * @param isOneSelectionType if true, adds correct/incorrect/empty answer counter cells for
+   *                           single-selection questions to each row; does not filter which question
+   *                           types are included, and does not add the matching column headers
+   * @return a Map keyed by {@link ExportSection}, never {@code null} and containing exactly the
+   *         {@code HEADER} and {@code ROWS} keys; {@code SHEET_BREAK} is never present, as sheet
+   *         boundaries are decided by the caller rather than here. {@code HEADER} maps to a
+   *         single-row list containing exactly one row of column header cells, and {@code ROWS}
+   *         maps to zero or more data rows, each row being a list of cells.
+   */
+  Map<ExportSection, List<List<CellValue<?>>>> getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map<String, EnrollmentRecord> useridMap, String responseCommentString, boolean isOneSelectionType);
   
   public boolean getHasGradingData(Long publishedAssessmentId);
 

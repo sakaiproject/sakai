@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.toLanguageTag()}">
+<head th:replace="~{fragments/common :: head(#{addconf.confirming(${siteTitle})})}"></head>
+<body>
+  <main class="portletBody col-12 col-lg-9 col-xl-8" id="participant-helper">
+    <div th:replace="~{fragments/common :: header}"></div>
+    <div th:replace="~{fragments/common :: steps(3)}"></div>
+    <div th:replace="~{fragments/common :: messages}"></div>
+    <form th:action="@{/confirm}" th:object="${confirmForm}" method="post">
+      <input type="hidden" th:field="*{csrfToken}">
+      <fieldset class="mb-4">
+        <legend class="h5" th:text="#{addnoti.anemail}">Send a notification email</legend>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" th:field="*{emailNotiChoice}" id="send-email" value="true">
+          <label class="form-check-label" for="send-email" th:text="#{addnoti.sendnow}">Send now</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" th:field="*{emailNotiChoice}" id="dont-send-email" value="false">
+          <label class="form-check-label" for="dont-send-email" th:text="#{addnoti.dontsend}">Don't send</label>
+        </div>
+      </fieldset>
+      <h2 class="h4 mt-4" th:text="#{addconf.confirming(${siteTitle})}">Confirm participants</h2>
+      <p th:text="#{addconf.finish}">The following people will be added.</p>
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead><tr><th scope="col" th:text="#{addconf.username}">Username</th><th scope="col" th:text="#{addconf.role}">Role</th><th scope="col" th:text="#{participant.status}">Status</th></tr></thead>
+          <tbody>
+            <tr th:each="participant : ${participants}">
+              <td th:text="${participant.eid}">Username</td>
+              <td th:text="${participant.role}">Role</td>
+              <td th:text="${active} ? #{sitegen.siteinfolist.active} : #{sitegen.siteinfolist.inactive}">Active</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="d-grid d-sm-flex flex-sm-wrap gap-2 align-items-sm-center">
+        <button type="submit" class="btn btn-primary" th:text="#{gen.finish}">Finish</button>
+        <button type="submit" class="btn btn-link" th:formaction="@{/confirm/back}" formmethod="post" th:text="#{gen.back}">Back</button>
+        <div th:replace="~{fragments/common :: cancel}"></div>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

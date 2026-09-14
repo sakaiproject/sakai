@@ -28,13 +28,15 @@ import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.user.api.User;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
 @Slf4j
 public class UserPictureSetterImpl implements UserPictureSetter {
 
-    @Setter
+    @Autowired
     private ProfileService profileService;
 
     /**
