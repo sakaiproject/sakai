@@ -433,3 +433,121 @@ test("every preview tool color meets WCAG AA (4.5:1) with its chosen text color"
     assert.ok(contrast(fill, text) >= 4.5, `${tool} ${fill} with ${text} text is below 4.5:1`);
   }
 });
+
+// ---------------------------------------------------------------------------
+// Picker generations: the native datetime-local picker vs the jQuery UI based picker (Sakai 23).
+// The widget plumbing is stubbed here; a real-DOM run against both pickers lives outside this suite.
+// ---------------------------------------------------------------------------
+
+// Minimal stand-ins for the pieces of the page setDatePickerValue touches: an <input>, its <td> and
+// the hidden iso8601 field beside it.
+function fakeCell(hiddenValue) {
+  const events = [];
+  const hidden = { value: hiddenValue == null ? "" : hiddenValue, dispatchEvent: (e) => events.push(e.type) };
+  const td = { querySelector: () => hidden };
+  const classes = new Set();
+  const datepicker = {
+    value: "",
+    closest: () => td,
+    classList: { add: (c) => classes.add(c), contains: (c) => classes.has(c) },
+    dispatchEvent: (e) => events.push("picker:" + e.type),
+  };
+  return { datepicker, hidden, events, classes };
+}
+
+// A stub jQuery whose datepicker plugin reports a widget on `attached` elements and records setDate calls.
+function fakeJquery(attached) {
+  const setDateCalls = [];
+  const $ = function(el) {
+    return {
+      data: (key) => (key === "datepicker" && attached.has(el) ? {} : undefined),
+      datepicker: (method, arg) => {
+        if (method === "setDate") { setDateCalls.push({ el, date: arg }); }
+        if (method === "getDate") { const last = setDateCalls.filter((c) => c.el === el).pop(); return last ? last.date : null; }
+      },
+    };
+  };
+  $.fn = { datepicker: function() {} };
+  return { $, setDateCalls };
+}
+
+class FakeEvent { constructor(type) { this.type = type; } }
+
+test("isJqueryUiDatePicker is false when jQuery or the datepicker plugin is absent", () => {
+  const { DTMN } = loadDtmn();
+  assert.equal(DTMN.isJqueryUiDatePicker({}), false);
+  const noPlugin = function() { return { data: () => ({}) }; };
+  noPlugin.fn = {};
+  const { DTMN: dtmnNoPlugin } = loadDtmn({ $: noPlugin });
+  assert.equal(dtmnNoPlugin.isJqueryUiDatePicker({}), false);
+});
+
+test("isJqueryUiDatePicker only reports inputs that actually carry a jQuery UI widget", () => {
+  const widgetInput = {};
+  const nativeInput = {};
+  const { $ } = fakeJquery(new Set([widgetInput]));
+  const { DTMN } = loadDtmn({ $ });
+  assert.equal(DTMN.isJqueryUiDatePicker(widgetInput), true);
+  assert.equal(DTMN.isJqueryUiDatePicker(nativeInput), false);
+});
+
+test("toLocalDate keeps the wall-clock components of a moment, whether local or utc", () => {
+  // (a JS Date is browser-local, so a time inside a spring-forward gap is the one case it cannot hold;
+  // that is the jQuery UI picker's own limitation and is deliberately not exercised here)
+  const { DTMN, moment } = loadDtmn();
+  for (const m of [moment("2026-03-29T14:30:00"), moment.utc("2026-03-29T14:30:00")]) {
+    const d = DTMN.toLocalDate(m);
+    assert.deepEqual(
+      [d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds()],
+      [2026, 2, 29, 14, 30, 0]);
+  }
+});
+
+test("setDatePickerValue on the native picker writes ISO wall-clock strings and fires change on the hidden field", () => {
+  const { DTMN, moment } = loadDtmn({ Event: FakeEvent });
+  const cell = fakeCell("2026-03-30T00:00:00");
+  DTMN.setDatePickerValue(cell.datepicker, moment("2026-04-06T00:00:00"), true);
+  assert.equal(cell.datepicker.value, "2026-04-06T00:00");
+  assert.equal(cell.hidden.value, "2026-04-06T00:00:00");
+  assert.deepEqual(cell.events, ["change"]);
+  assert.equal(cell.classes.has("border-warning"), true);
+});
+
+test("setDatePickerValue on the native picker writes date-only values for date-only fields", () => {
+  const { DTMN, moment } = loadDtmn({ Event: FakeEvent });
+  const cell = fakeCell("2026-04-05");
+  DTMN.setDatePickerValue(cell.datepicker, moment("2026-04-12T00:00:00"), false);
+  assert.equal(cell.datepicker.value, "2026-04-12");
+  assert.equal(cell.hidden.value, "2026-04-12");
+});
+
+test("setDatePickerValue on the jQuery UI picker goes through the widget and stores the widget's ISO8601 form", () => {
+  const cell = fakeCell("2026-03-30T00:00:00-07:00");
+  const { $, setDateCalls } = fakeJquery(new Set([cell.datepicker]));
+  const { DTMN, moment } = loadDtmn({ $, Event: FakeEvent });
+
+  DTMN.setDatePickerValue(cell.datepicker, moment("2026-04-06T00:00:00"), true);
+
+  assert.equal(setDateCalls.length, 1);
+  assert.equal(setDateCalls[0].el, cell.datepicker);
+  const d = setDateCalls[0].date;
+  assert.deepEqual([d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes()], [2026, 3, 6, 0, 0]);
+  // the visible input is the widget's business: never overwritten with an ISO string it cannot parse
+  assert.equal(cell.datepicker.value, "");
+  assert.equal(cell.hidden.value, moment(d).format());
+  assert.match(cell.hidden.value, /^2026-04-06T00:00:00[+-]\d\d:\d\d$/);
+  assert.deepEqual(cell.events, ["change"]);
+  assert.equal(cell.classes.has("border-warning"), true);
+});
+
+test("a shifted cell round-trips through the hidden field for both picker generations", () => {
+  // What shiftDates does per cell: parse the hidden iso8601 value, add days, write back. The jQuery UI
+  // picker stores an offset, the native one does not; both must yield the same wall-clock result.
+  const { DTMN, moment } = loadDtmn({ Event: FakeEvent });
+  for (const stored of ["2026-03-30T00:00:00", "2026-03-30T00:00:00-07:00", "2026-03-30T00:00:00+02:00"]) {
+    const current = DTMN.parseInputDateValue(stored, true);
+    assert.equal(current.isValid(), true, stored);
+    const shifted = current.clone().add(7, "days");
+    assert.equal(DTMN.getHiddenDateValue(shifted, true), "2026-04-06T00:00:00", stored);
+  }
+});

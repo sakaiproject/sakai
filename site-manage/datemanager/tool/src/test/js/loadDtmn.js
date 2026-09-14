@@ -34,13 +34,16 @@ const SCRIPT_PATH = path.resolve(
 /**
  * Load a fresh DTMN object.
  *
+ * @param {object} [extraGlobals] additional globals to expose to the script (e.g. a stub `$` standing in
+ *        for jQuery with the jQuery UI datepicker plugin, or `Event`), so the picker-facing glue can be
+ *        exercised without a DOM.
  * @returns {{DTMN: object, moment: import("moment")}} the populated DTMN plus the same moment instance
  *          the script uses, so tests build inputs from the identical library.
  */
-function loadDtmn() {
+function loadDtmn(extraGlobals) {
   const source = fs.readFileSync(SCRIPT_PATH, "utf8");
 
-  const sandbox = { moment, console };
+  const sandbox = { moment, console, ...(extraGlobals || {}) };
   // In a vm context globalThis is the sandbox itself; provide a minimal sakai stub so any incidental
   // sakai.locale lookups elsewhere in the script can't throw.
   sandbox.globalThis = sandbox;
