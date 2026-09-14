@@ -137,6 +137,8 @@ class ConversationsTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName("Next topic").setExact(true));
         for (int index = 0; index < originalOrder.size(); index++) {
             assertThat(page.locator(".conversations-topic__title")).hasText(originalOrder.get(index));
+            assertThat(page.locator(".conversations-topic__title")).isFocused();
+            assertThat(page.locator(".conversations-topic__title")).isInViewport();
             if (index + 1 < originalOrder.size()) {
                 assertThat(next).isEnabled();
                 next.click();
@@ -147,6 +149,8 @@ class ConversationsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Topics").setExact(true)).click();
         assertThat(filter).hasValue("by_question");
         assertThat(titles).hasText(originalOrder.toArray(String[]::new));
+        assertThat(page.locator(".topic-summary-link").filter(new Locator.FilterOptions()
+            .setHasText(originalOrder.get(originalOrder.size() - 1)))).isFocused();
     }
 
     @Test

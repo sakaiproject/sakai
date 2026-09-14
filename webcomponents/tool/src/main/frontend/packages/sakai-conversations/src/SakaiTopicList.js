@@ -55,8 +55,6 @@ export class SakaiTopicList extends SakaiElement {
 
     this._initialFilter();
 
-    this._filter();
-
     this._tagsInUse = [];
 
     value.topics.forEach(topic => {
@@ -93,7 +91,22 @@ export class SakaiTopicList extends SakaiElement {
   get aboutRef() { return this._aboutRef; }
 
   willUpdate(changedProperties) {
-    if (changedProperties.has("filters") && this.data) this._filter();
+    if ((changedProperties.has("filters") || changedProperties.has("data")) && this.data) {
+      if (this.filters.tag !== this.ANY && !this._tagsInUse.some(tag => String(tag.id) === this.filters.tag)) {
+        this._setFilters({ ...this.filters, tag: this.ANY });
+      }
+      this._filter();
+    }
+  }
+
+  async focusTopic(topicId) {
+    await this.updateComplete;
+    const summary = [ ...this.querySelectorAll("sakai-topic-summary") ].find(el => el.topic.id === topicId);
+    await summary?.updateComplete;
+    if (!this.isConnected) return;
+    const target = summary?.querySelector(".topic-summary-link")
+      || this.querySelector("#topic-list-filters select:not([disabled])");
+    target?.focus();
   }
 
   get topicIds() {

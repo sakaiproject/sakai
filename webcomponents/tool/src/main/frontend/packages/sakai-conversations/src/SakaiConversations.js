@@ -411,8 +411,10 @@ export class SakaiConversations extends SakaiElement {
     this._state = STATE_STATISTICS;
   }
 
-  _setStateNothingSelected() {
+  async _setStateNothingSelected() {
     this._state = STATE_NOTHING_SELECTED;
+    await this.updateComplete;
+    await this.querySelector("sakai-topic-list")?.focusTopic(this._currentTopic?.id);
   }
 
   _handleSearch() {

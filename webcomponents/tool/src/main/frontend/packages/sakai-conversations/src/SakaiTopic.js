@@ -454,6 +454,16 @@ export class SakaiTopic extends TopicMenuMixin(ReactionsMixin(SakaiElement)) {
 
   updated() {
 
+    if (this._displayedTopicId !== this.topic.id) {
+      this._displayedTopicId = this.topic.id;
+      // Topic updates must not steal focus, and post links retain their own scroll target.
+      if (!this.postId) {
+        const heading = this.querySelector(".conversations-topic__title");
+        heading.focus({ preventScroll: true });
+        heading.scrollIntoView({ block: "start" });
+      }
+    }
+
     if (typeof MathJax !== "undefined") {
       MathJax.Hub.Queue([ "Typeset", MathJax.Hub ]);
     }
@@ -509,7 +519,7 @@ export class SakaiTopic extends TopicMenuMixin(ReactionsMixin(SakaiElement)) {
           ${this._renderMenu()}
         </div>
         <div class="topic-title-and-status">
-          <div class="conversations-topic__title fs-1 me-1 fw-light">${this.topic.title}</div>
+          <h1 class="conversations-topic__title fs-1 me-1 mb-0 fw-light" tabindex="-1">${this.topic.title}</h1>
           ${this.topic.type === QUESTION ? html`
           <div class="topic-status-icon-and-text">
             <div class="topic-status-icon">
