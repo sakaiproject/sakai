@@ -1575,6 +1575,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String contextString = toolManager.getCurrentPlacement().getContext();
 		List<LtiToolBean> systemToolBeans = getAvailableToolsAsBeans(getSiteId(state), contextString);
+		// Admin transfers affect links across all sites, so the destination must be system-wide.
+		if (ltiService.isAdmin(getSiteId(state))) {
+			systemToolBeans.removeIf(t -> StringUtils.trimToNull(t.getSiteId()) != null);
+		}
 		context.put("tools", systemToolBeans);
 
 		state.removeAttribute(STATE_SUCCESS);
@@ -1590,7 +1594,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			switchPanel(state, "Error");
 			return;
 		}
-		Properties reqProps = data.getParameters().getProperties();
 		String new_tool_id = StringUtils.trimToNull(data.getParameters().getString("new_tool_id"));
 		if (new_tool_id == null) {
 			addAlert(state, rb.getString("error.transfer.missing"));
