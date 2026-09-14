@@ -43,7 +43,7 @@
     <sakai.woodstox.version>7.1.1</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>4.5.1</sakai.java.jwt.version>
-    <sakai.jaxb.version>3.0.2</sakai.jaxb.version>
+    <sakai.jaxb.version>4.0.9</sakai.jaxb.version>
     <sakai.jstl.version>3.0.1</sakai.jstl.version>
     <sakai.lombok.version>1.18.48</sakai.lombok.version>
     <sakai.lucene.version>9.12.3</sakai.lucene.version>
@@ -336,6 +336,11 @@
         <artifactId>jaxb-runtime</artifactId>
         <version>${sakai.jaxb.version}</version>
         <scope>provided</scope>
+      </dependency><dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-core</artifactId>
+        <version>${sakai.jaxb.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.glassfish.jaxb</groupId>
@@ -346,7 +351,7 @@
       <dependency>
         <groupId>com.sun.istack</groupId>
         <artifactId>istack-commons-runtime</artifactId>
-        <version>3.0.11</version>
+        <version>4.1.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1012,9 +1017,21 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>jakarta.transaction</groupId>
+        <artifactId>jakarta.transaction-api</artifactId>
+        <version>2.0.1</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>jakarta.persistence</groupId>
         <artifactId>jakarta.persistence-api</artifactId>
         <version>3.2.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-runtime</artifactId>
+        <version>4.13.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1045,12 +1062,6 @@
         <groupId>org.jdom</groupId>
         <artifactId>jdom2</artifactId>
         <version>2.0.6.1</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.transaction</groupId>
-        <artifactId>jta</artifactId>
-        <version>1.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
