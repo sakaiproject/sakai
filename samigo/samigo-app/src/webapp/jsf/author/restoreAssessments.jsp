@@ -49,6 +49,11 @@
                                 document.querySelectorAll(".select-checkbox").forEach(checkbox => checkbox.checked = false);
                                 updateRestoreButton();
                             },
+                            // Match the entered phrase, including spaces, as before the migration.
+                            "search": { "smart": false },
+                            "stateLoadParams": function(settings, data) {
+                                data.search.smart = false;
+                            },
                             "stateSave": true,
                             "stateDuration": -1
                         });

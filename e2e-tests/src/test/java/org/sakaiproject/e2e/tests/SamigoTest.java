@@ -17,8 +17,10 @@ package org.sakaiproject.e2e.tests;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -166,6 +168,7 @@ class SamigoTest extends SakaiUiTestBase {
         );
 
         ensureAssessmentsTable(testsToolUrl);
+        assertAssessmentTableFilteringAndSorting();
 
         editWorkingCopyFromAssessmentsTable();
         page.locator("#assessmentForm\\:parts\\:0\\:parts\\:0\\:modify").click(new Locator.ClickOptions().setForce(true));
@@ -431,6 +434,20 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#authorIndexForm\\:remove-selected").click();
         assertThat(quizRows).hasCount(0);
 
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Trash").setExact(true)).click();
+        Locator deletedRows = page.locator("[id='restoreAssessmentsForm:deletedAssessmentsTable'] tbody > tr")
+            .filter(new Locator.FilterOptions().setHasText(SAMIGO_TITLE));
+        Locator trashSearch = page.locator("[id='restoreAssessmentsForm:deletedAssessmentsTable_wrapper'] input[type='search']");
+        trashSearch.fill("Quiz " + RUN_ID);
+        assertThat(deletedRows).hasCount(2);
+        trashSearch.fill(RUN_ID + " Quiz");
+        assertThat(deletedRows).hasCount(0);
+        page.reload();
+        assertThat(trashSearch).hasValue(RUN_ID + " Quiz");
+        assertThat(deletedRows).hasCount(0);
+        trashSearch.fill("");
+        assertThat(deletedRows).hasCount(2);
+
         sakai.toolClick("Lessons");
         assertThat(page.locator("#content")).containsText("*Deleted*");
         assertThat(page.getByRole(AriaRole.LINK,
@@ -445,6 +462,79 @@ class SamigoTest extends SakaiUiTestBase {
         assertThat(unavailableQuiz).hasAttribute("title", "Item is not yet available");
         assertThat(page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(SAMIGO_TITLE).setExact(true))).hasCount(0);
+    }
+
+    @Test
+    @Order(11)
+    void eventLogSortingAlwaysAlternatesDirection() {
+        String courseUrl = ensureCourseUrl();
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Tests");
+        page.locator("[id='authorIndexForm:evnetLogLink']").click();
+
+        Locator table = page.locator("[id='eventLogId:eventLogTable']");
+        assertThat(table).isVisible();
+        Locator headers = table.locator("thead th");
+        for (int column = 0; column < headers.count(); column++) {
+            Locator header = headers.nth(column);
+            // Three clicks include the former unsorted state, regardless of initial direction.
+            String previousDirection = header.getAttribute("aria-sort");
+            for (int click = 0; click < 3; click++) {
+                String expectedDirection = "ascending".equals(previousDirection) ? "descending" : "ascending";
+                header.click();
+                assertThat(header).hasAttribute("aria-sort", expectedDirection);
+                previousDirection = expectedDirection;
+            }
+        }
+    }
+
+    private void assertAssessmentTableFilteringAndSorting() {
+        Locator table = page.locator("[id='authorIndexForm:coreAssessments']");
+        Locator rows = table.locator("tbody > tr").filter(new Locator.FilterOptions().setHasText(SAMIGO_TITLE));
+        Locator search = page.locator("[id='authorIndexForm:coreAssessments_wrapper'] input[type='search']");
+        search.fill("Quiz " + RUN_ID);
+        assertThat(rows).hasCount(2);
+        // The same words in reverse order must not match a title phrase.
+        search.fill(RUN_ID + " Quiz");
+        assertThat(rows).hasCount(0);
+        search.fill("Quiz " + RUN_ID);
+        assertThat(rows).hasCount(2);
+        page.reload();
+        assertThat(search).hasValue("Quiz " + RUN_ID);
+        assertThat(rows).hasCount(2);
+
+        Locator filter = page.locator("[id='authorIndexForm:filter-type']");
+        filter.selectOption("status_draft");
+        assertThat(rows).hasCount(1);
+        assertThat(rows.first().locator(".status_draft")).hasCount(1);
+        filter.selectOption("status_published_2");
+        assertThat(rows).hasCount(1);
+        assertThat(rows.first().locator(".status_published_2")).hasCount(1);
+        filter.selectOption("");
+        assertThat(rows).hasCount(2);
+
+        Locator titleHeader = table.locator("thead th").first();
+        // Exercise ascending, descending, and the third (unsorted) state.
+        Set<String> directions = new HashSet<>();
+        for (int click = 0; click < 3; click++) {
+            String previousDirection = titleHeader.getAttribute("aria-sort");
+            titleHeader.click();
+            if ("descending".equals(previousDirection)) {
+                assertThat(titleHeader).not().hasAttribute("aria-sort", Pattern.compile("ascending|descending"));
+            } else {
+                assertThat(titleHeader).hasAttribute("aria-sort",
+                    "ascending".equals(previousDirection) ? "descending" : "ascending");
+            }
+            String direction = titleHeader.getAttribute("aria-sort");
+            if ("ascending".equals(direction) || "descending".equals(direction)) {
+                directions.add(direction);
+                assertThat(rows.first().locator(".status_draft")).hasCount(0);
+                assertThat(rows.last().locator(".status_draft")).hasCount(1);
+            }
+        }
+        assertEquals(Set.of("ascending", "descending"), directions);
+        search.fill("");
     }
 
     private void addMultipleChoiceQuestion(String points, String questionText, List<String> choices, int correctIndex) {
