@@ -261,6 +261,7 @@ describe("sakai-conversations tests", () => {
     // Check if topic was added to the list and selected
     await waitUntil(() => el._state === constants.STATE_DISPLAYING_TOPIC);
     expect(el._data.topics[0].id).to.equal(mockTopic.id);
+    expect(el._currentTopic).to.equal(mockTopic);
   });
 
   it("handles topic editing correctly", async () => {
