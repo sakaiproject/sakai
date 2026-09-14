@@ -15,6 +15,23 @@
  */
 package org.sakaiproject.conversations.impl;
 
+import javax.sql.DataSource;
+import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
+import org.sakaiproject.tags.api.TagAssociation;
+import org.sakaiproject.tags.api.TagAssociationRepository;
+import org.sakaiproject.tags.api.Tags;
+import org.sakaiproject.tags.api.TagCollections;
+import org.sakaiproject.tags.impl.TagServiceImpl;
+import org.sakaiproject.tags.impl.TagAssociationRepositoryImpl;
+import org.sakaiproject.tags.impl.common.DB;
+import org.sakaiproject.tags.impl.storage.TagStorage;
+import org.sakaiproject.tags.impl.storage.TagCollectionStorage;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.core.io.ClassPathResource;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -40,8 +57,6 @@ import org.sakaiproject.conversations.api.repository.PostStatusRepository;
 import org.sakaiproject.conversations.impl.repository.PostStatusRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.SettingsRepository;
 import org.sakaiproject.conversations.impl.repository.SettingsRepositoryImpl;
-import org.sakaiproject.conversations.api.repository.TagRepository;
-import org.sakaiproject.conversations.impl.repository.TagRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
 import org.sakaiproject.conversations.impl.repository.ConversationsTopicRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
@@ -66,7 +81,6 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import lombok.Getter;
 
 @Configuration
 @EnableTransactionManagement
@@ -75,8 +89,18 @@ import lombok.Getter;
 public class ConversationsTestConfiguration extends SakaiTestConfiguration {
 
     @Resource(name = "conversationsHibernateMappings")
-    @Getter
     protected AdditionalHibernateMappings additionalHibernateMappings;
+
+    @Override
+    protected AdditionalHibernateMappings getAdditionalHibernateMappings() {
+        return new AdditionalHibernateMappingsImpl() {
+            @Override
+            public void processAdditionalMappings(LocalSessionFactoryBuilder configuration) throws IOException {
+                additionalHibernateMappings.processAdditionalMappings(configuration);
+                configuration.addAnnotatedClass(TagAssociation.class);
+            }
+        };
+    }
 
     @Bean(name="org.sakaiproject.conversations.api.repository.ConversationsPostRepository")
     public ConversationsPostRepository postRepository(SessionFactory sessionFactory) {
@@ -126,12 +150,57 @@ public class ConversationsTestConfiguration extends SakaiTestConfiguration {
         return settingsRepository;
     }
 
-    @Bean(name="org.sakaiproject.conversations.api.repository.TagRepository")
-    public TagRepository tagRepository(SessionFactory sessionFactory) {
+    @Bean(name = "org.sakaiproject.tags.impl.common.DB")
+    public DB tagsDatabase(DataSource dataSource) {
+        new ResourceDatabasePopulator(
+            new ClassPathResource("db/migration/hsqldb.sql")).execute(dataSource);
+        DB db = new DB();
+        db.setDataSource(dataSource);
+        db.setVendor("hsqldb");
+        return db;
+    }
 
-        TagRepositoryImpl tagRepository = new TagRepositoryImpl();
-        tagRepository.setSessionFactory(sessionFactory);
-        return tagRepository;
+    @Bean(name = "org.sakaiproject.tags.api.Tags")
+    public TagStorage tags(
+            DB db,
+            SessionManager sessionManager,
+            EventTrackingService eventTrackingService) {
+        TagStorage tags = new TagStorage();
+        tags.setDb(db);
+        tags.setSessionManager(sessionManager);
+        tags.setEventTrackingService(eventTrackingService);
+        return tags;
+    }
+
+    @Bean(name = "org.sakaiproject.tags.api.TagCollections")
+    public TagCollectionStorage tagCollections(
+            DB db,
+            SessionManager sessionManager,
+            EventTrackingService eventTrackingService) {
+        TagCollectionStorage collections = new TagCollectionStorage();
+        collections.setDb(db);
+        collections.setSessionManager(sessionManager);
+        collections.setEventTrackingService(eventTrackingService);
+        return collections;
+    }
+
+    @Bean(name = "org.sakaiproject.tags.api.TagAssociationRepository")
+    public TagAssociationRepositoryImpl tagAssociations(SessionFactory sessionFactory) {
+        TagAssociationRepositoryImpl repository = new TagAssociationRepositoryImpl();
+        repository.setSessionFactory(sessionFactory);
+        return repository;
+    }
+
+    @Bean(name = "org.sakaiproject.tags.api.TagService")
+    public TagServiceImpl tagService(
+            Tags tags,
+            TagCollections collections,
+            TagAssociationRepository associations) {
+        TagServiceImpl service = new TagServiceImpl();
+        service.setTags(tags);
+        service.setTagCollections(collections);
+        service.setTagAssociationRepository(associations);
+        return service;
     }
 
     @Bean(name = "org.sakaiproject.calendar.api.CalendarService")

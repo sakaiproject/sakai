@@ -35,7 +35,6 @@ import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
-import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.assignment.impl.reminder.prefs.AssignmentUserNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -61,7 +60,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.TaskService;
-import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.timesheet.api.TimeSheetService;
@@ -169,10 +167,7 @@ public class AssignmentTestConfiguration {
         return mock(AnnouncementService.class);
     }
 
-    @Bean(name = "org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer")
-    public AssignmentActivityProducer assignmentActivityProducer() {
-        return mock(AssignmentActivityProducer.class);
-    }
+
 
     @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")
     public AuthzGroupService authzGroupService() {
@@ -234,10 +229,7 @@ public class AssignmentTestConfiguration {
         return scs;
     }
 
-    @Bean(name = "org.sakaiproject.taggable.api.TaggingManager")
-    public TaggingManager taggingManager() {
-        return mock(TaggingManager.class);
-    }
+
 
     @Bean(name = "org.sakaiproject.time.api.TimeService")
     public TimeService timeService() {

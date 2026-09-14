@@ -1,5 +1,5 @@
 CREATE TABLE tagservice_collection (
-  tagcollectionid VARCHAR2(36) PRIMARY KEY,
+  tagcollectionid VARCHAR2(99) PRIMARY KEY,
   description CLOB,
   externalsourcename VARCHAR2(255),
   externalsourcedescription CLOB,
@@ -18,7 +18,7 @@ CREATE TABLE tagservice_collection (
 
 CREATE TABLE tagservice_tag (
   tagid VARCHAR2(36) PRIMARY KEY,
-  tagcollectionid VARCHAR2(36) NOT NULL,
+  tagcollectionid VARCHAR2(99) NOT NULL,
   externalid VARCHAR2(255),
   taglabel VARCHAR2(255),
   description CLOB,

@@ -18,7 +18,6 @@ package org.sakaiproject.assignment.tool;
 import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -121,10 +120,6 @@ import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.sort.AssignmentComparator;
-import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
-import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
-import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
-import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
 import org.sakaiproject.assignment.tool.AssignmentAction.SubmitterSubmission;
 import org.sakaiproject.assignment.tool.AssignmentAction.UploadGradeWrapper;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -197,9 +192,6 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.taggable.api.TaggingHelperInfo;
-import org.sakaiproject.taggable.api.TaggingManager;
-import org.sakaiproject.taggable.api.TaggingProvider;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.time.api.TimeService;
@@ -971,24 +963,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String PEER_ASSESSMENT_ITEMS = "peer_assessment_items";
     private static final String PEER_ASSESSMENT_ASSESSOR_ID = "peer_assessment_assesor_id";
     private static final String PEER_ASSESSMENT_REMOVED_STATUS = "peer_assessment_removed_status";
-    /**
-     * identifier of tagging provider that will provide the appropriate helper
-     */
-    private static final String PROVIDER_ID = "providerId";
-
-    /* ************************* Taggable constants ************************** */
-    /**
-     * Reference to an activity
-     */
-    private static final String ACTIVITY_REF = "activityRef";
-    /**
-     * Reference to an item
-     */
-    private static final String ITEM_REF = "itemRef";
-    /**
-     * session attribute for list of decorated tagging providers
-     */
-    private static final String PROVIDER_LIST = "providerList";
     // whether the choice of emails instructor submission notification is available in the installation
     private static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS = "assignment.instructor.notifications";
     // default for whether or how the instructor receive submission notification emails, none(default)|each|digest
@@ -1141,7 +1115,6 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     private AnnouncementService announcementService;
-    private AssignmentActivityProducer assignmentActivityProducer;
     private AssignmentDueReminderService assignmentDueReminderService;
     private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     private AssignmentService assignmentService;
@@ -1167,7 +1140,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private ServerConfigurationService serverConfigurationService;
     private SessionManager sessionManager;
     private SiteService siteService;
-    private TaggingManager taggingManager;
     private TimeService timeService;
     private ToolManager toolManager;
     private UserDirectoryService userDirectoryService;
@@ -1189,7 +1161,6 @@ public class AssignmentAction extends PagedResourceActionII {
         super();
 
         announcementService = ComponentManager.get(AnnouncementService.class);
-        assignmentActivityProducer = ComponentManager.get(AssignmentActivityProducer.class);
         assignmentDueReminderService = ComponentManager.get(AssignmentDueReminderService.class);
         assignmentPeerAssessmentService = ComponentManager.get(AssignmentPeerAssessmentService.class);
         assignmentService = ComponentManager.get(AssignmentService.class);
@@ -1213,7 +1184,6 @@ public class AssignmentAction extends PagedResourceActionII {
         serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
         sessionManager = ComponentManager.get(SessionManager.class);
         siteService = ComponentManager.get(SiteService.class);
-        taggingManager = ComponentManager.get(TaggingManager.class);
         timeService = ComponentManager.get(TimeService.class);
         toolManager = ComponentManager.get(ToolManager.class);
         userDirectoryService = ComponentManager.get(UserDirectoryService.class);
@@ -1923,12 +1893,6 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        if (taggingManager.isTaggable() && assignment != null) {
-            addProviders(context, state);
-            addActivity(context, assignment);
-            context.put("taggable", Boolean.TRUE);
-        }
-
         // name value pairs for the vm
         context.put("name_submission_text", VIEW_SUBMISSION_TEXT);
         context.put("value_submission_text", state.getAttribute(VIEW_SUBMISSION_TEXT));
@@ -2303,11 +2267,6 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignment", assignment);
         }
 
-        if (taggingManager.isTaggable() && assignment != null) {
-            addProviders(context, state);
-            addActivity(context, assignment);
-            context.put("taggable", Boolean.TRUE);
-        }
         context.put("userDirectoryService", userDirectoryService);
         context.put("currentTime", Instant.now());
 
@@ -2333,7 +2292,6 @@ public class AssignmentAction extends PagedResourceActionII {
         } else {
             context.put("linkInvoked", Boolean.valueOf(false));
         }
-
 
         context.put("view", MODE_LIST_ASSIGNMENTS);
         // get user information
@@ -2482,12 +2440,6 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
             assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
             context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
-        }
-
-        if (taggingManager.isTaggable() && assignment != null) {
-            addProviders(context, state);
-            addActivity(context, assignment);
-            context.put("taggable", Boolean.TRUE);
         }
 
         context.put("contentTypeImageService", contentTypeImageService);
@@ -2887,24 +2839,6 @@ public class AssignmentAction extends PagedResourceActionII {
             putSubmissionLogMessagesInContext(context, submission);
         }
 
-        if (taggingManager.isTaggable() && submission != null) {
-            List<DecoratedTaggingProvider> providers = addProviders(context, state);
-            List<TaggingHelperInfo> itemHelpers = new ArrayList<TaggingHelperInfo>();
-            for (DecoratedTaggingProvider provider : providers) {
-                TaggingHelperInfo helper = provider.getProvider().getItemHelperInfo(
-                        assignmentActivityProducer.getItem(
-                                submission,
-                                userDirectoryService.getCurrentUser().getId()).getReference());
-                if (helper != null) {
-                    itemHelpers.add(helper);
-                }
-            }
-            addItem(context, submission, userDirectoryService.getCurrentUser().getId());
-            addActivity(context, submission.getAssignment());
-            context.put("itemHelpers", itemHelpers);
-            context.put("taggable", Boolean.valueOf(true));
-        }
-        
         try {
             // Get site ID
             String siteId = toolManager.getCurrentPlacement().getContext();
@@ -2947,11 +2881,6 @@ public class AssignmentAction extends PagedResourceActionII {
      * build the view of assignments list
      */
     private String build_list_assignments_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
-        if (taggingManager.isTaggable()) {
-            context.put("producer", assignmentActivityProducer);
-            context.put("providers", taggingManager.getProviders());
-            context.put("taggable", Boolean.TRUE);
-        }
 
         Map<String, String> assignmentAlertMap = new HashMap<>();
 
@@ -5232,7 +5161,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
             context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
 
-
             // access point url for zip file download
             String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
             String accessPointUrl = serverConfigurationService.getAccessUrl().concat((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
@@ -5370,13 +5298,6 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment_extension_option_into_context(context, state);
         }
 
-        if (taggingManager.isTaggable() && assignment != null) {
-            context.put("producer", assignmentActivityProducer);
-            addProviders(context, state);
-            addActivity(context, assignment);
-            context.put("taggable", Boolean.TRUE);
-        }
-
         try {
             Optional<AssociationTransferBean> optAssociation
                 = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignment.getId(), assignment.getContext());
@@ -5501,7 +5422,6 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("isAdditionalNotesEnabled", false);
         }
 
-
     } // build_show_students_additional_information_context
 
     /**
@@ -5613,23 +5533,6 @@ public class AssignmentAction extends PagedResourceActionII {
             catch (IdUnusedException e) {
                 // ignore
             }
-        }
-
-        if (taggingManager.isTaggable() && assignment != null) {
-            Session session = sessionManager.getCurrentSession();
-            List<DecoratedTaggingProvider> providers = addProviders(context, state);
-            List<TaggingHelperInfo> activityHelpers = new ArrayList<TaggingHelperInfo>();
-            for (DecoratedTaggingProvider provider : providers) {
-                TaggingHelperInfo helper = provider.getProvider().getActivityHelperInfo(assignmentActivityProducer.getActivity(assignment).getReference());
-                if (helper != null) {
-                    activityHelpers.add(helper);
-                }
-            }
-            addActivity(context, assignment);
-            context.put("activityHelpers", activityHelpers);
-            context.put("taggable", Boolean.TRUE);
-
-            addDecoUrlMapToContext(session, context, false);
         }
 
         context.put("currentTime", Instant.now());
@@ -6132,7 +6035,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null ? (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY) : Boolean.FALSE);
         Collection<Group> groups = getCurrentUserGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
-
 
         context.put("studentAssignmentsTable", showStudentAssignments);
         context.put("currentTime", Instant.now());
@@ -6669,7 +6571,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
     } // doView_submission_list_option
 
-
     /**
      * Action is to view the content of one specific assignment submission
      */
@@ -6893,7 +6794,6 @@ public class AssignmentAction extends PagedResourceActionII {
             // back to the student list view of assignments
             state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
         }
-
 
     } // doCancel_show_submission
 
@@ -7404,7 +7304,6 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
             }
-
 
             if (state.getAttribute(STATE_MESSAGE) == null) {
                 if (StringUtils.isNotEmpty(params.getString(AssignmentConstants.SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT))) {
@@ -8770,7 +8669,6 @@ public class AssignmentAction extends PagedResourceActionII {
             state.removeAttribute(NOTE);
         }
 
-
         /****************** ALL PURPOSE ITEM **********************/
         String allPurpose_to_delete = StringUtils.trimToNull(params.getString("allPurpose_to_delete"));
         if (allPurpose_to_delete != null) {
@@ -8919,7 +8817,6 @@ public class AssignmentAction extends PagedResourceActionII {
             return;
         }
 
-
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
         // save user input
@@ -9022,77 +8919,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
     } // doPost_assignment
 
-    /**
-     * Action is to tag items via an items tagging helper
-     */
-    public void doHelp_items(RunData data) {
-        SessionState state = ((JetspeedRunData) data)
-                .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        ParameterParser params = data.getParameters();
+ // doHelp_items
 
-        TaggingProvider provider = taggingManager.findProviderById(params.getString(PROVIDER_ID));
+ // doHelp_item
 
-        String activityRef = params.getString(ACTIVITY_REF);
-
-        TaggingHelperInfo helperInfo = provider.getItemsHelperInfo(activityRef);
-
-        // get into helper mode with this helper tool
-        startHelper(data.getRequest(), helperInfo.getHelperId());
-
-        Map<String, ?> helperParms = helperInfo.getParameterMap();
-
-        for (Map.Entry<String, ?> entry : helperParms.entrySet()) {
-            state.setAttribute(entry.getKey(), entry.getValue());
-        }
-    } // doHelp_items
-
-    /**
-     * Action is to tag an individual item via an item tagging helper
-     */
-    public void doHelp_item(RunData data) {
-        SessionState state = ((JetspeedRunData) data)
-                .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        ParameterParser params = data.getParameters();
-
-        TaggingProvider provider = taggingManager.findProviderById(params.getString(PROVIDER_ID));
-
-        String itemRef = params.getString(ITEM_REF);
-
-        TaggingHelperInfo helperInfo = provider.getItemHelperInfo(itemRef);
-
-        // get into helper mode with this helper tool
-        startHelper(data.getRequest(), helperInfo.getHelperId());
-
-        Map<String, ? extends Object> helperParms = helperInfo.getParameterMap();
-
-        for (Map.Entry<String, ? extends Object> entry : helperParms.entrySet()) {
-            state.setAttribute(entry.getKey(), entry.getValue());
-        }
-    } // doHelp_item
-
-    /**
-     * Action is to tag an activity via an activity tagging helper
-     */
-    public void doHelp_activity(RunData data) {
-        SessionState state = ((JetspeedRunData) data)
-                .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        ParameterParser params = data.getParameters();
-
-        TaggingProvider provider = taggingManager.findProviderById(params.getString(PROVIDER_ID));
-
-        String activityRef = params.getString(ACTIVITY_REF);
-
-        TaggingHelperInfo helperInfo = provider.getActivityHelperInfo(activityRef);
-
-        // get into helper mode with this helper tool
-        startHelper(data.getRequest(), helperInfo.getHelperId());
-
-        Map<String, ?> helperParms = helperInfo.getParameterMap();
-
-        for (Map.Entry<String, ?> entry : helperParms.entrySet()) {
-            state.setAttribute(entry.getKey(), entry.getValue());
-        }
-    } // doHelp_activity
+ // doHelp_activity
 
     /**
      * post or save assignment
@@ -9590,7 +9421,6 @@ public class AssignmentAction extends PagedResourceActionII {
                                 }
                             }
                         }
-
 
                         if (oldOpenTime != null && !oldOpenTime.equals(a.getOpenDate())) {
                             //cancel not fired event
@@ -10913,7 +10743,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
     } // doEdit_Assignment
 
-    
 	private String getGradeName(final Assignment a, final String assignmentReference) {
         final Map<String, String> properties = a.getProperties();
         final String gradebookChoice = StringUtils.defaultIfBlank(properties.get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK), GRADEBOOK_INTEGRATION_NO);
@@ -11426,7 +11255,6 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-
     /**
      * Action is to delete the assignment and also the related AssignmentSubmission
      */
@@ -11447,11 +11275,6 @@ public class AssignmentAction extends PagedResourceActionII {
                     a = assignmentService.getAssignment(id);
 
                     if (a != null) {
-                        if (taggingManager.isTaggable()) {
-                            for (TaggingProvider provider : taggingManager.getProviders()) {
-                                provider.removeTags(assignmentActivityProducer.getActivity(a));
-                            }
-                        }
 
                         // remove rubric association if there is one
                         // TODO: this should be in the service and in a transaction!!
@@ -13796,75 +13619,6 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     } // doSort_grade_submission
 
-    public void doSort_tags(RunData data) {
-        SessionState state = ((JetspeedRunData) data)
-                .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-        ParameterParser params = data.getParameters();
-
-        String criteria = params.getString("criteria");
-        String providerId = params.getString(PROVIDER_ID);
-
-        String savedText = params.getString("savedText");
-        state.setAttribute(VIEW_SUBMISSION_TEXT, savedText);
-
-        String mode = (String) state.getAttribute(STATE_MODE);
-
-        List<DecoratedTaggingProvider> providers = (List<DecoratedTaggingProvider>) state.getAttribute(mode + PROVIDER_LIST);
-
-        for (DecoratedTaggingProvider dtp : providers) {
-            if (dtp.getProvider().getId().equals(providerId)) {
-                Sort sort = dtp.getSort();
-                if (sort.getSort().equals(criteria)) {
-                    sort.setAscending(!sort.isAscending());
-                } else {
-                    sort.setSort(criteria);
-                    sort.setAscending(true);
-                }
-                break;
-            }
-        }
-    }
-
-    public void doPage_tags(RunData data) {
-        SessionState state = ((JetspeedRunData) data)
-                .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-        ParameterParser params = data.getParameters();
-
-        String page = params.getString("page");
-        String pageSize = params.getString("pageSize");
-        String providerId = params.getString(PROVIDER_ID);
-
-        String savedText = params.getString("savedText");
-        state.setAttribute(VIEW_SUBMISSION_TEXT, savedText);
-
-        String mode = (String) state.getAttribute(STATE_MODE);
-
-        List<DecoratedTaggingProvider> providers = (List<DecoratedTaggingProvider>) state.getAttribute(mode + PROVIDER_LIST);
-
-        for (DecoratedTaggingProvider dtp : providers) {
-            if (dtp.getProvider().getId().equals(providerId)) {
-                Pager pager = dtp.getPager();
-                pager.setPageSize(Integer.valueOf(pageSize));
-                if (Pager.FIRST.equals(page)) {
-                    pager.setFirstItem(0);
-                } else if (Pager.PREVIOUS.equals(page)) {
-                    pager.setFirstItem(pager.getFirstItem()
-                            - pager.getPageSize());
-                } else if (Pager.NEXT.equals(page)) {
-                    pager.setFirstItem(pager.getFirstItem()
-                            + pager.getPageSize());
-                } else if (Pager.LAST.equals(page)) {
-                    pager.setFirstItem((pager.getTotalItems() / pager
-                            .getPageSize())
-                            * pager.getPageSize());
-                }
-                break;
-            }
-        }
-    }
-
     public void doPermissions(RunData runData, Context context) {
         SessionState state = ((JetspeedRunData) runData).getPortletSessionState(((JetspeedRunData) runData).getJs_peid());
         state.setAttribute(STATE_MODE, "permissions");
@@ -14623,7 +14377,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
 
-
             if (grade != null && state.getAttribute(STATE_MESSAGE) == null) {
                 if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
                     grade = scalePointGrade(state, grade, a.getScaleFactor());
@@ -14708,7 +14461,6 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
             }
-
 
             if (grade != null && state.getAttribute(STATE_MESSAGE) == null) {
                 if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
@@ -15810,36 +15562,6 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_UPLOAD_ALL);
 
     } // doPrep_upload_all
-
-    private List<DecoratedTaggingProvider> initDecoratedProviders() {
-        List<DecoratedTaggingProvider> providers = new ArrayList<DecoratedTaggingProvider>();
-        for (TaggingProvider provider : taggingManager.getProviders()) {
-            providers.add(new DecoratedTaggingProvider(provider));
-        }
-        return providers;
-    }
-
-    private List<DecoratedTaggingProvider> addProviders(Context context, SessionState state) {
-        String mode = (String) state.getAttribute(STATE_MODE);
-        List<DecoratedTaggingProvider> providers = (List) state.getAttribute(mode + PROVIDER_LIST);
-        if (providers == null) {
-            providers = initDecoratedProviders();
-            state.setAttribute(mode + PROVIDER_LIST, providers);
-        }
-        context.put("providers", providers);
-        return providers;
-    }
-
-    private void addActivity(Context context, Assignment assignment) {
-        context.put("activity", assignmentActivityProducer.getActivity(assignment));
-
-        String placement = toolManager.getCurrentPlacement().getId();
-        context.put("iframeId", formattedText.escapeJavascript("Main" + placement));
-    }
-
-    private void addItem(Context context, AssignmentSubmission submission, String userId) {
-        context.put("item", assignmentActivityProducer.getItem(submission, userId));
-    }
 
     /**
      * add model answer input into state variables

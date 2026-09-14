@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -49,7 +49,6 @@ import org.sakaiproject.tags.api.Errors;
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
-import org.sakaiproject.tags.api.TagServiceException;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
@@ -64,8 +63,9 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
     protected DeveloperHelperService developerHelperService;
     private EntityProviderManager entityProviderManager;
-    private  SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
-    private  SecurityService securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
+    @Setter private SessionManager sessionManager;
+    @Setter private SecurityService securityService;
+    @Setter private TagService tagService;
 
     @Override
     public String[] getHandledOutputFormats() {
@@ -188,7 +188,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                 return respondWithError(errors);
             }
 
-            String uuid = tagService().getTags().createTag(tag);
+            String uuid = tagService.getTags().createTag(tag);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -267,7 +267,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                 return respondWithError(errors);
             }
 
-            String uuid = tagService().getTagCollections().createTagCollection(tagCollection);
+            String uuid = tagService.getTagCollections().createTagCollection(tagCollection);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -287,7 +287,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             WrappedParams wp = new WrappedParams(params);
 
             String uuid = wp.getString("id");
-            tagService().getTags().deleteTag(uuid);
+            tagService.getTags().deleteTag(uuid);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -306,7 +306,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             WrappedParams wp = new WrappedParams(params);
 
             String uuid = wp.getString("id");
-            tagService().getTagCollections().deleteTagCollection(uuid);
+            tagService.getTagCollections().deleteTagCollection(uuid);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -328,7 +328,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagid= wp.getString("tagid");
 
-            Tag tag = tagService().getTags().getForId(tagid).get();
+            Tag tag = tagService.getTags().getForId(tagid).get();
 
             if (wp.containsKey("tagcollectionid")) {
                 tag.setTagCollectionId(wp.getString("tagcollectionid"));
@@ -377,7 +377,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                 return respondWithError(errors);
             }
 
-            tagService().getTags().updateTag(tag);
+            tagService.getTags().updateTag(tag);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -397,7 +397,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagcollectionid= wp.getString("tagcollectionid");
 
-            TagCollection tagCollection = tagService().getTagCollections().getForId(tagcollectionid).get();
+            TagCollection tagCollection = tagService.getTagCollections().getForId(tagcollectionid).get();
 
             //We don't need to change the creation date or user
 
@@ -431,7 +431,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                 return respondWithError(errors);
             }
 
-            tagService().getTagCollections().updateTagCollection(tagCollection);
+            tagService.getTagCollections().updateTagCollection(tagCollection);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -444,14 +444,13 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
     @EntityCustomAction(action = "downloadCollection", viewKey = EntityView.VIEW_LIST)
     public List<Tag> downloadCollection(EntityView view, Map<String, Object> params) {
+        assertSession(params);
         try {
-            assertSession(params);
-
             WrappedParams wp = new WrappedParams(params);
 
             String tagcollectionid= wp.getString("tagcollectionid");
 
-            List<Tag> tags = tagService().getTags().getAllInCollection(tagcollectionid);
+            List<Tag> tags = tagService.getTags().getAllInCollection(tagcollectionid);
 
             return tags;
         } catch (Exception e) {
@@ -461,6 +460,10 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
     }
 
     private String respondWithError(Exception e) {
+        if (e instanceof SecurityException) {
+            throw (SecurityException) e;
+        }
+
         JSONObject result = new JSONObject();
         result.put("status", "ERROR");
         result.put("message", e.getMessage());
@@ -485,20 +488,17 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
         String tokenFromSession = (String)sessionManager.getCurrentSession().getAttribute(SAKAI_SESSION_TOKEN_PROPERTY);
 
         if (tokenFromSession == null || tokenFromUser == null || !tokenFromSession.equals(tokenFromUser)) {
-            log.error("assertSession failed for user " + sessionManager.getCurrentSessionUserId());
-            throw new TagServiceException("Access denied");
+            log.debug("Invalid tag administration token for user {}", sessionManager.getCurrentSessionUserId());
+            throw new SecurityException("Access denied");
         }
     }
 
     private void assertPermission() {
-        if (!securityService.unlock("tagservice.manage", ADMIN_SITE_REALM)) {
-            log.error("assertPermission denied access to user " + sessionManager.getCurrentSessionUserId());
-            throw new TagServiceException("Access denied");
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (userId == null || !securityService.unlock("tagservice.manage", ADMIN_SITE_REALM)) {
+            log.debug("Tag administration access denied for user {}", userId);
+            throw new SecurityException("Access denied");
         }
-    }
-
-    private TagService tagService() {
-        return (TagService) ComponentManager.get(TagService.class);
     }
 
     private String mintSessionId() {

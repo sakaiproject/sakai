@@ -16,7 +16,6 @@
           class="org.sakaiproject.assignment.impl.AssignmentServiceImpl"
           init-method="init">
         <property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService"/>
-        <property name="assignmentActivityProducer" ref="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/>
         <property name="assignmentDueReminderService" ref="org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService"/>
         <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/>
         <property name="assignmentEntityFactory" ref="org.sakaiproject.assignment.api.AssignmentEntity.factory"/>
@@ -56,7 +55,6 @@
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
         <property name="taskService" ref="org.sakaiproject.tasks.api.TaskService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
@@ -120,17 +118,7 @@
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     </bean>
 
-    <bean id="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"
-          class="org.sakaiproject.assignment.impl.taggable.AssignmentActivityProducerImpl"
-          init-method="init">
-        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
-        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-        <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-    </bean>
+
 
     <!--  Hibernate persistence -->
 

@@ -84,7 +84,7 @@
 					#if ($assignmentInstructions && $assignmentInstructions.length() > 0)
 						$formattedText.escapeHtmlFormattedText($assignmentInstructions)
 				#end
-				
+
 				## assignment attachment
 				#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
 			</div>
@@ -92,9 +92,7 @@
 
 		#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
-		#if ($taggable)
-			#parse ("/vm/assignment/chef_assignments_tags_list.vm")
-		#end
+
 	#else
 		<div class="d-flex align-items-center mb-3">
 			<button class="btn btn-link p-0" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">

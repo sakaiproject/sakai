@@ -30,7 +30,6 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
-import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -49,7 +48,6 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -77,7 +75,6 @@ public class AssignmentActionTest {
     private MockedStatic<WebApplicationContextUtils> webAppContextUtilsMock;
 
     @Mock private AnnouncementService announcementService;
-    @Mock private AssignmentActivityProducer assignmentActivityProducer;
     @Mock private AssignmentDueReminderService assignmentDueReminderService;
     @Mock private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Mock private AssignmentService assignmentService;
@@ -104,7 +101,6 @@ public class AssignmentActionTest {
     @Mock private ServletContext servletContext;
     @Mock private SessionManager sessionManager;
     @Mock private SiteService siteService;
-    @Mock private TaggingManager taggingManager;
     @Mock private TagService tagService;
     @Mock private TimeService timeService;
     @Mock private ToolManager toolManager;
@@ -120,7 +116,6 @@ public class AssignmentActionTest {
         componentManagerMock = Mockito.mockStatic(ComponentManager.class);
 
         componentManagerMock.when(() -> ComponentManager.get(AnnouncementService.class)).thenReturn(announcementService);
-        componentManagerMock.when(() -> ComponentManager.get(AssignmentActivityProducer.class)).thenReturn(assignmentActivityProducer);
         componentManagerMock.when(() -> ComponentManager.get(AssignmentDueReminderService.class)).thenReturn(assignmentDueReminderService);
         componentManagerMock.when(() -> ComponentManager.get(AssignmentPeerAssessmentService.class)).thenReturn(assignmentPeerAssessmentService);
         componentManagerMock.when(() -> ComponentManager.get(AssignmentService.class)).thenReturn(assignmentService);
@@ -143,7 +138,6 @@ public class AssignmentActionTest {
         componentManagerMock.when(() -> ComponentManager.get(ServerConfigurationService.class)).thenReturn(serverConfigurationService);
         componentManagerMock.when(() -> ComponentManager.get(SessionManager.class)).thenReturn(sessionManager);
         componentManagerMock.when(() -> ComponentManager.get(SiteService.class)).thenReturn(siteService);
-        componentManagerMock.when(() -> ComponentManager.get(TaggingManager.class)).thenReturn(taggingManager);
         componentManagerMock.when(() -> ComponentManager.get(TimeService.class)).thenReturn(timeService);
         componentManagerMock.when(() -> ComponentManager.get(ToolManager.class)).thenReturn(toolManager);
         componentManagerMock.when(() -> ComponentManager.get(UserDirectoryService.class)).thenReturn(userDirectoryService);
