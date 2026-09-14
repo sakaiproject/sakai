@@ -26,17 +26,21 @@ import java.net.URL;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.query.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.shortenedurl.model.RandomisedUrl;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -52,11 +56,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Transactional
-public class RandomisedUrlService extends HibernateDaoSupport implements ShortenedUrlService {
+public class RandomisedUrlService implements ShortenedUrlService {
 
-	//Hibernate stored queries
-	private static final String QUERY_GET_URL = "getUrl";
-	private static final String QUERY_GET_KEY = "getKey";
+	@Setter private SessionFactory sessionFactory;
 	
 	//Hibernate object fields
 	private static final String KEY = "key";
@@ -176,17 +178,14 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		}
 		
 		//then check db
-		RandomisedUrl randomisedUrl = null;
-		
-		HibernateCallback<RandomisedUrl> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_GET_URL);
-            q.setParameter(KEY, key);
-            q.setMaxResults(1);
-            return (RandomisedUrl) q.uniqueResult();
-      };
-	
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RandomisedUrl> cq = cb.createQuery(RandomisedUrl.class);
+		Root<RandomisedUrl> root = cq.from(RandomisedUrl.class);
+		cq.select(root).where(cb.equal(root.get(KEY), key));
+
 		//will be either a RandomisedUrl or null
-		randomisedUrl = getHibernateTemplate().execute(hcb);
+		RandomisedUrl randomisedUrl = session.createQuery(cq).setMaxResults(1).uniqueResult();
 		if(randomisedUrl == null) {
 			//log
 			log.warn("Request for invalid record: " + key);
@@ -239,17 +238,14 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		}
 		
 		//then check db
-		RandomisedUrl randomisedUrl = null;
-		
-		HibernateCallback<RandomisedUrl> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_GET_KEY);
-            q.setParameter(URL, url);
-            q.setMaxResults(1);
-            return (RandomisedUrl) q.uniqueResult();
-      };
-	
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RandomisedUrl> cq = cb.createQuery(RandomisedUrl.class);
+		Root<RandomisedUrl> root = cq.from(RandomisedUrl.class);
+		cq.select(root).where(cb.equal(root.get(URL), url));
+
 		//will be either a RandomisedUrl or null
-		randomisedUrl = getHibernateTemplate().execute(hcb);
+		RandomisedUrl randomisedUrl = session.createQuery(cq).setMaxResults(1).uniqueResult();
 		if(randomisedUrl == null) {
 			return null;
 		}
@@ -277,17 +273,14 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	 */
 	private boolean isKeyUnique(final String key) {
 		
-		RandomisedUrl randomisedUrl = null;
-		
-		HibernateCallback<RandomisedUrl> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_GET_URL);
-            q.setParameter(KEY, key);
-            q.setMaxResults(1);
-            return (RandomisedUrl) q.uniqueResult();
-      };
-	
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RandomisedUrl> cq = cb.createQuery(RandomisedUrl.class);
+		Root<RandomisedUrl> root = cq.from(RandomisedUrl.class);
+		cq.select(root).where(cb.equal(root.get(KEY), key));
+
 		//if null then it doesn't exist
-		randomisedUrl = getHibernateTemplate().execute(hcb);
+		RandomisedUrl randomisedUrl = session.createQuery(cq).setMaxResults(1).uniqueResult();
 		if(randomisedUrl == null) {
 			return true;
 		}
@@ -352,7 +345,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		try {
 			//add to db
 			RandomisedUrl randomisedUrl = new RandomisedUrl(key, url);
-			getHibernateTemplate().save(randomisedUrl);
+			sessionFactory.getCurrentSession().persist(randomisedUrl);
 			log.debug("RandomisedUrl saved as: " + key);
 			
 			//and put it in the cache, both ways
