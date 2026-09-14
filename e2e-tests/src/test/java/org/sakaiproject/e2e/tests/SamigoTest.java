@@ -397,7 +397,7 @@ class SamigoTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     void deletedQuizIsUnavailableInLessons() {
         String courseUrl = ensureCourseUrl();
         sakai.login("instructor1");
@@ -465,9 +465,25 @@ class SamigoTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(11)
+    @Order(10)
     void eventLogSortingAlwaysAlternatesDirection() {
         String courseUrl = ensureCourseUrl();
+        sakai.login("student0011");
+        // Opening the introduction does not create an event; begin real attempts.
+        for (String title : List.of(SAMIGO_TITLE, ESSAY_TITLE)) {
+            page.navigate(courseUrl);
+            sakai.toolClick("Tests");
+            page.locator("[id='selectIndexForm:selectTable'] a[id$=':takeAssessment']")
+                .filter(new Locator.FilterOptions().setHasText(title)).click();
+            Locator honorPledge = page.locator("[id='takeAssessmentForm:honor_pledge']");
+            if (honorPledge.isVisible()) {
+                honorPledge.check();
+            }
+            page.getByRole(AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Begin Assessment").setExact(true)).click();
+            assertThat(page.locator(".samigo-question-callout").first()).isVisible();
+        }
+
         sakai.login("instructor1");
         page.navigate(courseUrl);
         sakai.toolClick("Tests");
@@ -475,6 +491,7 @@ class SamigoTest extends SakaiUiTestBase {
 
         Locator table = page.locator("[id='eventLogId:eventLogTable']");
         assertThat(table).isVisible();
+        assertThat(table.locator("tbody > tr")).hasCount(2);
         Locator headers = table.locator("thead th");
         for (int column = 0; column < headers.count(); column++) {
             Locator header = headers.nth(column);
