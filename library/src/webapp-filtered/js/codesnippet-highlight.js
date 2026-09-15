@@ -34,12 +34,42 @@
         return !!(element.closest && element.closest('.cke, .cke_inner, .cke_editable, .cke_wysiwyg_frame'));
     }
 
+    function isHighlightableSnippet(element) {
+        return !!(element && element.classList && !isInsideEditor(element) && !element.classList.contains('hljs'));
+    }
+
+    function snippetFromAddedNode(node) {
+        if (!node) {
+            return null;
+        }
+        if (node.nodeType === Node.TEXT_NODE) {
+            node = node.parentElement;
+        }
+        if (!node || !node.closest) {
+            return null;
+        }
+        var match = node.closest(SNIPPET_SELECTOR);
+        return isHighlightableSnippet(match) ? match : null;
+    }
+
     function snippetBlocks(root) {
-        var scope = root && root.querySelectorAll ? root : document;
-        var nodes = scope.querySelectorAll(SNIPPET_SELECTOR);
         var blocks = [];
+        if (!root) {
+            return blocks;
+        }
+        if (!root.querySelectorAll) {
+            var containing = snippetFromAddedNode(root);
+            if (containing) {
+                blocks.push(containing);
+            }
+            return blocks;
+        }
+        if (root.matches && root.matches(SNIPPET_SELECTOR) && isHighlightableSnippet(root)) {
+            blocks.push(root);
+        }
+        var nodes = root.querySelectorAll(SNIPPET_SELECTOR);
         for (var i = 0; i < nodes.length; i++) {
-            if (!isInsideEditor(nodes[i]) && !nodes[i].classList.contains('hljs')) {
+            if (isHighlightableSnippet(nodes[i])) {
                 blocks.push(nodes[i]);
             }
         }
@@ -124,14 +154,34 @@
             return;
         }
         var scheduled = false;
-        var observer = new MutationObserver(function () {
+        var pendingNodes = [];
+        var observer = new MutationObserver(function (mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                var added = mutations[i].addedNodes;
+                for (var j = 0; j < added.length; j++) {
+                    pendingNodes.push(added[j]);
+                }
+            }
             if (scheduled) {
                 return;
             }
             scheduled = true;
             window.requestAnimationFrame(function () {
                 scheduled = false;
-                highlightNow(document);
+                var roots = pendingNodes;
+                pendingNodes = [];
+                var seen = [];
+                for (var r = 0; r < roots.length; r++) {
+                    var blocks = snippetBlocks(roots[r]);
+                    for (var b = 0; b < blocks.length; b++) {
+                        if (seen.indexOf(blocks[b]) === -1) {
+                            seen.push(blocks[b]);
+                        }
+                    }
+                }
+                for (var s = 0; s < seen.length; s++) {
+                    highlightNow(seen[s]);
+                }
             });
         });
         observer.observe(document.body, { childList: true, subtree: true });
