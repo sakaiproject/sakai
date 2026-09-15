@@ -605,6 +605,32 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 	}
 
 	@Test
+	public void studentWidgetConvertsLetterGradesWithoutGradebookInformation() {
+		Assignment essay = countedItem(11L, "Essay", 10d, "2026-06-15T23:59:59Z");
+		when(gradingService.getViewableAssignmentsForCurrentUser(eq(SITE_ID), eq(SITE_ID), any(SortType.class)))
+				.thenReturn(Collections.singletonList(essay));
+		when(gradingService.getGradebookInformation(anyString(), anyString()))
+				.thenThrow(GradingSecurityException.class);
+		when(gradingService.getAssignmentScoreString(eq(SITE_ID), eq(SITE_ID), eq(Long.valueOf(11)), eq(USER_A_ID)))
+				.thenReturn("8");
+
+		GradeDefinition grade = new GradeDefinition();
+		grade.setStudentUid(USER_A_ID);
+		grade.setGrade("B");
+		grade.setGradeEntryType(GradingConstants.GRADE_TYPE_LETTER);
+		grade.setGradeReleased(true);
+		Map<Long, List<GradeDefinition>> grades = new HashMap<Long, List<GradeDefinition>>();
+		grades.put(Long.valueOf(11), Collections.singletonList(grade));
+		when(gradingService.getGradesWithoutCommentsForStudentsForItems(eq(SITE_ID), eq(SITE_ID), anyList(), anyList()))
+				.thenReturn(grades);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
+
+		assertEquals("1 / 1", snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_GRADED).getPrimary());
+		assertEquals("8 / 10", snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_COMPLETE).getPrimary());
+		assertEquals(Integer.valueOf(80), snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_COMPLETE).getPercentage());
+	}
+
+	@Test
 	public void usersWithoutStudentRoleAreExcludedFromByUserReport() throws Exception {
 		stubEssayWithOneGrade();
 		Site site = siteService.getSite(SITE_ID);

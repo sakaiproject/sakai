@@ -426,17 +426,20 @@ public class SiteStatsGradesAnalytics {
 			Map<String, Map<String, Double>> letterScales, boolean studentView) {
 		boolean hiddenFromStudent = studentView && grade != null && !grade.isGradeReleased();
 		boolean excused = !hiddenFromStudent && grade != null && grade.isExcused();
-		Double score = excused || hiddenFromStudent ? null : parseScore(siteId, item, grade, letterScales);
+		Double score = excused || hiddenFromStudent ? null : parseScore(siteId, item, grade, letterScales, studentView);
 		boolean graded = !excused && score != null;
 		return new GradeCell(userId, itemKey(item), item.getName(), itemType(item), score, item.getPoints(), graded, excused);
 	}
 
 	private Double parseScore(String siteId, Assignment item, GradeDefinition grade,
-			Map<String, Map<String, Double>> letterScales) {
+			Map<String, Map<String, Double>> letterScales, boolean studentView) {
 		if (grade == null || StringUtils.isBlank(grade.getGrade()) || item.getPoints() == null) {
 			return null;
 		}
 		if (GradingConstants.GRADE_TYPE_LETTER.equals(grade.getGradeEntryType())) {
+			if (studentView) {
+				return ownReleasedPoints(siteId, item, grade);
+			}
 			Double percent = letterPercent(siteId, gradebookUid(siteId, item), grade.getGrade(), letterScales);
 			return percent == null ? null : Double.valueOf(percent.doubleValue() / 100d * item.getPoints().doubleValue());
 		}
@@ -479,6 +482,18 @@ public class SiteStatsGradesAnalytics {
 		} catch (RuntimeException e) {
 			log.warn("Unable to load letter-grade scale for site {} gradebook {}", siteId, gradebookUid, e);
 			return Collections.emptyMap();
+		}
+	}
+
+	private Double ownReleasedPoints(String siteId, Assignment item, GradeDefinition grade) {
+		try {
+			String score = gradingService.getAssignmentScoreString(gradebookUid(siteId, item), siteId, item.getId(),
+					grade.getStudentUid());
+			return metricSupport.parseNumber(score);
+		} catch (RuntimeException e) {
+			log.warn("Unable to load released letter-grade points for site {} item {} student {}", siteId, item.getId(),
+					grade.getStudentUid(), e);
+			return null;
 		}
 	}
 
