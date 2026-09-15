@@ -19,6 +19,8 @@ public class SiteStatsWidgetDefinitionSupport {
 	@Setter private WidgetFilterCatalog filterCatalog;
 	@Setter private WidgetReportDefFactory reportFactory;
 	@Setter private WidgetMetricSupport metricSupport;
+	@Setter private SiteStatsSubmissionsAnalytics submissionsAnalytics;
+	@Setter private SiteStatsGradesAnalytics gradesAnalytics;
 
 	public StatsManager getStatsManager() {
 		return context.getStatsManager();
@@ -56,11 +58,23 @@ public class SiteStatsWidgetDefinitionSupport {
 		return context;
 	}
 
+	public SiteStatsSubmissionsAnalytics getSubmissionsAnalytics() {
+		return submissionsAnalytics;
+	}
+
+	public SiteStatsGradesAnalytics getGradesAnalytics() {
+		return gradesAnalytics;
+	}
+
 	public String message(String key) {
 		return context.message(key);
 	}
 
 	public String message(String key, String defaultValue) {
 		return context.message(key, defaultValue);
+	}
+
+	public String formattedMessage(String key, Object... args) {
+		return context.formattedMessage(key, args);
 	}
 }

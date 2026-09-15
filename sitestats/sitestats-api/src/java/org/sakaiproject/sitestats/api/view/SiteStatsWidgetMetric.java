@@ -20,6 +20,7 @@ public class SiteStatsWidgetMetric implements Serializable {
 
 	private String id;
 	private String label;
+	private String help;
 	private String widgetTitle;
 	private String audience;
 	private SiteStatsWidgetMetricSnapshot snapshot;

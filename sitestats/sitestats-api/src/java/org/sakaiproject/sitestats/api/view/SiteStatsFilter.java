@@ -18,8 +18,13 @@ public class SiteStatsFilter implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	public static final String TYPE_SELECT = "select";
+	public static final String TYPE_NUMBER = "number";
+	public static final String TYPE_DATE = "date";
+
 	private String id;
 	private String label;
-	private String type;
+	private String type = TYPE_SELECT;
+	private String value;
 	private List<SiteStatsFilterOption> options = new ArrayList<SiteStatsFilterOption>();
 }

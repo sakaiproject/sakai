@@ -39,6 +39,7 @@ public class PrefsData implements Serializable {
 	private float					chartTransparency					= 1.0f;
 	private boolean					itemLabelsVisible					= true;
 	@Getter @Setter private boolean	showOwnStatisticsToStudents			= true;
+	@Getter @Setter private Double gradesThreshold;
 	
 	
 	public PrefsData(){
@@ -127,6 +128,9 @@ public class PrefsData implements Serializable {
 		buff.append(" chartTransparency=\""+ getChartTransparency() +"\" ");
 		buff.append(" itemLabelsVisible=\""+ isItemLabelsVisible() +"\" ");
 		buff.append(" useAllTools=\""+ isUseAllTools() +"\" ");
+		if (getGradesThreshold() != null) {
+			buff.append(" gradesThreshold=\""+ getGradesThreshold() +"\" ");
+		}
 		buff.append(">");		
 
 		buff.append("	<toolEventsDef>");

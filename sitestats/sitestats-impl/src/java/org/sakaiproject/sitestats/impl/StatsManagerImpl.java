@@ -35,6 +35,7 @@ import java.util.Observer;
 import java.util.Set;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Expression;
@@ -58,6 +59,7 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.LessonBuilderStat;
@@ -300,6 +302,64 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			log.warn("Exception while saving preferences: {}", dae.getMessage(), dae);
 		}
 		return false;
+	}
+
+	@Override
+	public double getGradesThreshold(String siteId) {
+		if (StringUtils.isNotBlank(siteId)) {
+			PrefsData prefsdata = getPreferences(siteId, false);
+			if (prefsdata != null && isValidThreshold(prefsdata.getGradesThreshold())) {
+				return prefsdata.getGradesThreshold().doubleValue();
+			}
+		}
+		return getDefaultGradesThreshold(siteId);
+	}
+
+	@Override
+	public double getDefaultGradesThreshold(String siteId) {
+		Double siteThreshold = sitePropertyThreshold(siteId);
+		if (isValidThreshold(siteThreshold)) {
+			return siteThreshold.doubleValue();
+		}
+		return serverConfigurationThreshold();
+	}
+
+	private Double sitePropertyThreshold(String siteId) {
+		if (StringUtils.isBlank(siteId)) {
+			return null;
+		}
+		try {
+			Site site = siteService.getSite(siteId);
+			if (site == null || site.getProperties() == null) {
+				return null;
+			}
+			return parseThreshold(site.getProperties().getProperty(GRADES_THRESHOLD_PROPERTY));
+		} catch (IdUnusedException e) {
+			log.warn("Site does not exist: {}", siteId);
+			return null;
+		}
+	}
+
+	private double serverConfigurationThreshold() {
+		Double parsed = parseThreshold(serverConfigurationService.getString(
+				GRADES_THRESHOLD_PROPERTY, String.valueOf(DEFAULT_GRADES_THRESHOLD)));
+		return isValidThreshold(parsed) ? parsed.doubleValue() : DEFAULT_GRADES_THRESHOLD;
+	}
+
+	private Double parseThreshold(String value) {
+		if (StringUtils.isBlank(value)) {
+			return null;
+		}
+		try {
+			return Double.valueOf(value.trim().replace(',', '.'));
+		} catch (NumberFormatException e) {
+			log.warn("Invalid {} value: {}", GRADES_THRESHOLD_PROPERTY, value);
+			return null;
+		}
+	}
+
+	private boolean isValidThreshold(Double value) {
+		return value != null && value.doubleValue() >= 0;
 	}
 
 	/* (non-Javadoc)

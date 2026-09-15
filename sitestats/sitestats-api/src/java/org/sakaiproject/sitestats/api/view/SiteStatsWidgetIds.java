@@ -19,6 +19,10 @@ public final class SiteStatsWidgetIds {
 	public static final String WIDGET_PRESENCE_ACCESS = "presence-access";
 	public static final String WIDGET_STUDENT_PRESENCE_ACCESS = "student-presence-access";
 	public static final String WIDGET_MEMBER_ADOPTION = "member-adoption";
+	public static final String WIDGET_SUBMISSIONS = "submissions";
+	public static final String WIDGET_STUDENT_SUBMISSIONS = "student-submissions";
+	public static final String WIDGET_GRADES = "grades";
+	public static final String WIDGET_STUDENT_GRADES = "student-grades";
 	public static final String WIDGET_ACTIVITY = "activity";
 	public static final String WIDGET_RESOURCES = "resources";
 	public static final String WIDGET_LESSONS = "lessons";
@@ -26,15 +30,26 @@ public final class SiteStatsWidgetIds {
 	public static final String TAB_BY_DATE = "bydate";
 	public static final String TAB_BY_USER = "byuser";
 	public static final String TAB_BY_ROLE = "byrole";
+	public static final String TAB_BY_ITEM = "byitem";
 	public static final String TAB_BY_TOOL = "bytool";
 	public static final String TAB_BY_RESOURCE = "byresource";
 	public static final String TAB_BY_PAGE = "bypage";
 
 	public static final String FILTER_DATE = "date";
+	public static final String FILTER_WHEN_FROM = "whenFrom";
+	public static final String FILTER_WHEN_TO = "whenTo";
 	public static final String FILTER_ROLE = "role";
 	public static final String FILTER_TOOL = "tool";
 	public static final String FILTER_RESOURCE_ACTION = "resourceAction";
 	public static final String FILTER_LESSON_ACTION = "lessonAction";
+	public static final String FILTER_THRESHOLD = "threshold";
+	public static final String FILTER_ITEM_TYPE = "itemType";
+	public static final String FILTER_GROUP = "group";
+	public static final String FILTER_ITEM = "item";
+
+	public static final String ITEM_TYPE_ALL = "all";
+	public static final String GROUP_ALL = "all";
+	public static final String ITEM_ALL = "all";
 
 	public static final String METRIC_VISITS_TOTAL = "visits-total";
 	public static final String METRIC_VISITS_UNIQUE = "visits-unique";
@@ -62,6 +77,23 @@ public final class SiteStatsWidgetIds {
 	public static final String METRIC_STUDENT_PRESENCE_TOTAL_30D = "student-presence-total-30d";
 	public static final String METRIC_STUDENT_PRESENCE_TOTAL_365D = "student-presence-total-365d";
 	public static final String METRIC_ADOPTION_ACTIVE = "adoption-active";
+	public static final String METRIC_SUBMISSIONS_ON_TIME = "submissions-on-time";
+	public static final String METRIC_SUBMISSIONS_LATE = "submissions-late";
+	public static final String METRIC_SUBMISSIONS_MISSED = "submissions-missed";
+	public static final String METRIC_SUBMISSIONS_NEEDS_GRADING = "submissions-needs-grading";
+	public static final String METRIC_SUBMISSIONS_AT_RISK = "submissions-at-risk";
+	public static final String METRIC_SUBMISSIONS_AVG_DELAY = "submissions-avg-delay";
+	public static final String METRIC_STUDENT_SUBMISSIONS_ON_TIME = "student-submissions-on-time";
+	public static final String METRIC_STUDENT_SUBMISSIONS_LATE = "student-submissions-late";
+	public static final String METRIC_STUDENT_SUBMISSIONS_MISSED = "student-submissions-missed";
+	public static final String METRIC_STUDENT_SUBMISSIONS_AVG_DELAY = "student-submissions-avg-delay";
+	public static final String METRIC_GRADES_GRADED = "grades-graded";
+	public static final String METRIC_GRADES_COMPLETE = "grades-complete";
+	public static final String METRIC_GRADES_AVERAGE = "grades-average";
+	public static final String METRIC_GRADES_BELOW_THRESHOLD = "grades-below-threshold";
+	public static final String METRIC_STUDENT_GRADES_GRADED = "student-grades-graded";
+	public static final String METRIC_STUDENT_GRADES_COMPLETE = "student-grades-complete";
+	public static final String METRIC_STUDENT_GRADES_BELOW_THRESHOLD = "student-grades-below-threshold";
 	public static final String METRIC_ACTIVITY_EVENTS = "activity-events";
 	public static final String METRIC_ACTIVITY_MOST_ACTIVE_TOOL = "activity-most-active-tool";
 	public static final String METRIC_ACTIVITY_MOST_ACTIVE_USER = "activity-most-active-user";
@@ -76,4 +108,10 @@ public final class SiteStatsWidgetIds {
 
 	public static final String HIGHLIGHT_VISITS_LAST_30_DAYS = "visits-last-30-days";
 	public static final String HIGHLIGHT_PRESENCE_LAST_30_DAYS = "presence-last-30-days";
+	public static final String HIGHLIGHT_SUBMISSIONS_STATUS_SHARE = "submissions-status-share";
+	public static final String HIGHLIGHT_GRADES_FUNNEL = "grades-funnel";
+
+	public static final String CHART_COLOR_SUCCESS = "success";
+	public static final String CHART_COLOR_WARNING = "warning";
+	public static final String CHART_COLOR_DANGER = "danger";
 }

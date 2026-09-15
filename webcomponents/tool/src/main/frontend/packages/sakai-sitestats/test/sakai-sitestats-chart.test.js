@@ -3,6 +3,7 @@ import * as i18n from "./i18n.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
 import {
+  compactTooltipLabel,
   siteStatsChartData,
   siteStatsChartOptions,
 } from "../src/site-stats-chart-adapter.js";
@@ -100,6 +101,159 @@ describe("sakai-sitestats-chart tests", () => {
     expect(options.scales.x.ticks.display).to.be.false;
     expect(options.scales.y.ticks.display).to.be.false;
     expect(el.shadowRoot.querySelector("sakai-sitestats-table.visually-hidden")).to.not.exist;
+    const figcaption = el.shadowRoot.querySelector("figcaption");
+    expect(figcaption.textContent).to.equal("Visits");
+    expect(figcaption.classList.contains("visually-hidden")).to.be.false;
+  });
+
+  it("renders a compact stacked status bar with semantic colors and no legend", async () => {
+
+    const stackedChart = {
+      title: "Submission status",
+      type: "bar",
+      compact: true,
+      stacked: true,
+      horizontal: true,
+      itemLabelsVisible: false,
+      datasets: [
+        { key: "onTime", label: "On time", color: "success", points: [{ x: "status", label: "Submission status", y: 2 }] },
+        { key: "late", label: "Late", color: "warning", points: [{ x: "status", label: "Submission status", y: 1 }] },
+        { key: "missed", label: "Missed", color: "danger", points: [{ x: "status", label: "Submission status", y: 1 }] },
+      ],
+    };
+    const el = await fixture(html`<sakai-sitestats-chart compact .chart=${stackedChart} .renderTableFallback=${false}></sakai-sitestats-chart>`);
+    await waitUntil(() => el._chartInstance);
+
+    const options = siteStatsChartOptions(stackedChart, siteStatsChartTheme(el), false, true);
+    const data = siteStatsChartData(stackedChart, siteStatsChartTheme(el));
+
+    expect(el.hasAttribute("stacked")).to.be.true;
+    expect(el.hasAttribute("horizontal")).to.be.true;
+    expect(el.hasAttribute("single-category")).to.be.true;
+    expect(options.indexAxis).to.equal("y");
+    expect(options.plugins.legend.display).to.be.false;
+    expect(options.plugins.tooltip.enabled).to.be.false;
+    expect(el._chartInstance.config.options.plugins.tooltip.external).to.be.a("function");
+    expect(options.scales.x.stacked).to.be.true;
+    expect(options.scales.x.max).to.equal(4);
+    expect(options.scales.x.grace).to.equal(0);
+    expect(options.scales.y.stacked).to.be.true;
+    expect(options.scales.y.ticks.display).to.be.false;
+    expect(data.datasets[0].borderWidth).to.equal(2);
+    expect(data.datasets[0].borderAlign).to.equal("inner");
+    expect(data.datasets[0].categoryPercentage).to.equal(1);
+    expect(data.datasets[0].barPercentage).to.equal(1);
+    expect(data.datasets[0].borderRadius).to.deep.equal({ topLeft: 4, bottomLeft: 4, topRight: 0, bottomRight: 0 });
+    expect(data.datasets[1].borderRadius).to.equal(0);
+    expect(data.datasets[2].borderRadius).to.deep.equal({ topLeft: 0, bottomLeft: 0, topRight: 4, bottomRight: 4 });
+    expect(data.datasets[0].backgroundColor).to.contain("rgba(46, 125, 50");
+    expect(data.datasets[1].backgroundColor).to.contain("rgba(239, 108, 0");
+    expect(data.datasets[2].backgroundColor).to.contain("rgba(198, 40, 40");
+    expect((el._chartInstance.config.plugins || []).some(plugin => plugin.id === "sakai-sitestats-value-labels")).to.be.false;
+    const figcaption = el.shadowRoot.querySelector("figcaption");
+    expect(figcaption.textContent).to.equal("Submission status");
+    expect(figcaption.classList.contains("visually-hidden")).to.be.false;
+  });
+
+  it("renders a compact funnel with category labels on the y axis", async () => {
+
+    const funnelChart = {
+      title: "Grading funnel",
+      type: "bar",
+      compact: true,
+      stacked: true,
+      horizontal: true,
+      itemLabelsVisible: false,
+      datasets: [
+        {
+          key: "complete",
+          label: "Fully graded",
+          points: [
+            { x: "Enrolled", label: "Enrolled", y: 20 },
+            { x: "With grades", label: "With grades", y: 12 },
+            { x: "Meeting threshold", label: "Meeting threshold", y: 12, color: "success" },
+          ],
+        },
+        {
+          key: "partial",
+          label: "Not fully graded",
+          color: "warning",
+          points: [
+            { x: "Enrolled", label: "Enrolled", y: 0 },
+            { x: "With grades", label: "With grades", y: 4 },
+            { x: "Meeting threshold", label: "Meeting threshold", y: 0 },
+          ],
+        },
+      ],
+    };
+    const el = await fixture(html`<sakai-sitestats-chart compact .chart=${funnelChart} .renderTableFallback=${false}></sakai-sitestats-chart>`);
+    await waitUntil(() => el._chartInstance);
+
+    const options = siteStatsChartOptions(funnelChart, siteStatsChartTheme(el), true, true);
+
+    expect(el.hasAttribute("horizontal")).to.be.true;
+    expect(el.hasAttribute("stacked")).to.be.true;
+    expect(el.hasAttribute("single-category")).to.be.false;
+    expect(options.indexAxis).to.equal("y");
+    expect(options.plugins.legend.display).to.be.false;
+    expect(options.scales.y.ticks.display).to.be.true;
+    expect(options.scales.x.ticks.display).to.be.false;
+    expect((el._chartInstance.config.plugins || []).some(plugin => plugin.id === "sakai-sitestats-value-labels")).to.be.false;
+    const data = siteStatsChartData(funnelChart, siteStatsChartTheme(el));
+    expect(data.labels).to.deep.equal([ "Enrolled", "With grades", "Meeting threshold" ]);
+    expect(data.datasets[0].backgroundColor[2]).to.contain("rgba(46, 125, 50");
+    expect(data.datasets[0].borderColor[2]).to.contain("rgba(46, 125, 50");
+    expect(data.datasets[1].backgroundColor).to.contain("rgba(239, 108, 0");
+    expect(data.datasets[0].categoryPercentage).to.be.undefined;
+    expect(options.layout.autoPadding).to.be.true;
+    expect(options.scales.y.ticks.autoSkip).to.be.false;
+    expect(options.scales.x.max).to.equal(20);
+    expect(options.scales.x.min).to.equal(0);
+    expect(options.scales.x.grace).to.equal(0);
+    expect(options.scales.x.bounds).to.equal("data");
+    expect(compactTooltipLabel({
+      parsed: { x: 12 },
+      datasetIndex: 0,
+      dataIndex: 1,
+      dataset: { key: "complete", label: "Fully graded" },
+      chart: { options: { indexAxis: "y" }, data: { datasets: data.datasets } },
+    })).to.equal("Fully graded: 12");
+    expect(compactTooltipLabel({
+      parsed: { x: 4 },
+      datasetIndex: 1,
+      dataIndex: 1,
+      dataset: { key: "partial", label: "Not fully graded" },
+      chart: { options: { indexAxis: "y" }, data: { datasets: data.datasets } },
+    })).to.equal("Not fully graded: 4");
+    const figcaption = el.shadowRoot.querySelector("figcaption");
+    expect(figcaption.textContent).to.equal("Grading funnel");
+    expect(figcaption.classList.contains("visually-hidden")).to.be.false;
+  });
+
+  it("uses success warning and danger colors for a submissions status pie", () => {
+
+    const pieChart = {
+      title: "Status",
+      type: "pie",
+      datasets: [
+        {
+          key: "status",
+          label: "Status",
+          points: [
+            { x: "On time", label: "On time", y: 2, color: "success" },
+            { x: "Late", label: "Late", y: 1, color: "warning" },
+            { x: "Missed", label: "Missed", y: 1, color: "danger" },
+          ],
+        },
+      ],
+    };
+    const data = siteStatsChartData(pieChart);
+
+    expect(data.datasets[0].backgroundColor[0]).to.contain("rgba(46, 125, 50");
+    expect(data.datasets[0].backgroundColor[1]).to.contain("rgba(239, 108, 0");
+    expect(data.datasets[0].backgroundColor[2]).to.contain("rgba(198, 40, 40");
+    expect(data.datasets[0].borderColor[0]).to.contain("rgba(46, 125, 50");
+    expect(data.datasets[0].borderWidth).to.equal(1);
   });
 
   it("resolves chart theme aliases through browser CSS", async () => {

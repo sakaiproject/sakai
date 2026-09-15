@@ -19,4 +19,5 @@ public class SiteStatsChartPoint implements Serializable {
 	private Object x;
 	private Number y;
 	private String label;
+	private String color;
 }
