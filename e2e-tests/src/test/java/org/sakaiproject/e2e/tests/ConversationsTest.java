@@ -87,26 +87,52 @@ class ConversationsTest extends SakaiUiTestBase {
 
         titleInput.fill(TOPIC_TITLE);
 
-        if (!sakai.typeFirstCkEditorIfPresent("<p>" + TOPIC_BODY + "</p>")) {
-            Locator editorTextbox = page.getByRole(AriaRole.TEXTBOX,
-                new Page.GetByRoleOptions().setName(Pattern.compile("Editor", Pattern.CASE_INSENSITIVE))).first();
-            if (editorTextbox.count() > 0) {
-                editorTextbox.fill(TOPIC_BODY);
-            } else {
-                page.locator("textarea:visible, [contenteditable=\"true\"]:visible, div[role=\"textbox\"]:visible").last().fill(TOPIC_BODY);
-            }
-        }
+        Locator editor = page.locator("sakai-conversations iframe.cke_wysiwyg_frame:visible")
+            .contentFrame().locator("body");
+        editor.click();
+        editor.pressSequentially(TOPIC_BODY);
+        editor.press("Tab");
 
-        page.getByRole(AriaRole.BUTTON,
-            new Page.GetByRoleOptions().setName(Pattern.compile("Publish|Post|Create", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator("sakai-add-topic:visible input[value='Publish']").click();
+        assertThat(page.locator("sakai-topic-summary").filter(new Locator.FilterOptions().setHasText(TOPIC_TITLE)).first())
+            .isVisible();
+    }
 
-        Locator postedTopic = page.getByText(TOPIC_TITLE).first();
-        if (postedTopic.count() > 0) {
-            assertThat(postedTopic).isVisible();
-        } else {
-            assertThat(page.locator("body")).containsText(Pattern.compile("Conversations|Add a New Topic|No topics yet", Pattern.CASE_INSENSITIVE));
-        }
+    @Test
+    @Order(3)
+    void studentViewingAndReplyingSurvivesRefresh() {
+        sakai.login("student0011");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Conversation");
+
+        Locator topic = page.locator("sakai-topic-summary:visible")
+            .filter(new Locator.FilterOptions().setHasText(TOPIC_TITLE));
+        assertThat(topic).isVisible();
+        page.locator("sakai-topic-list:visible select:has(option[value='by_unviewed'])").selectOption("by_unviewed");
+        page.waitForResponse(response -> response.url().endsWith("/markpostsviewed") && response.ok(), topic::click);
+        assertThat(page.locator("sakai-topic:visible .topic-message")).containsText(TOPIC_BODY);
+        assertThat(page.locator("sakai-topic-list:visible option[value='by_unviewed']")).hasCount(0);
+
+        page.reload();
+        assertThat(topic).isVisible();
+        assertThat(page.locator("sakai-topic-list:visible option[value='by_unviewed']")).hasCount(0);
+        topic.click();
+        assertThat(page.locator("sakai-topic:visible .topic-message")).containsText(TOPIC_BODY);
+
+        page.locator("sakai-topic:visible .editor-placeholder").click();
+        Locator editor = page.locator("sakai-topic:visible .topic-reply-block iframe.cke_wysiwyg_frame")
+            .contentFrame().locator("body");
+        editor.click();
+        editor.pressSequentially("My already-read reply");
+        editor.press("Tab");
+        page.locator("sakai-topic:visible .topic-reply-block input[value='Publish']").click();
+        assertThat(page.locator("sakai-topic:visible .topic-posts-block")).containsText("My already-read reply");
+
+        page.reload();
+        assertThat(topic).isVisible();
+        assertThat(page.locator("sakai-topic-list:visible option[value='by_unviewed']")).hasCount(0);
+        topic.click();
+        assertThat(page.locator("sakai-topic:visible .topic-posts-block")).containsText("My already-read reply");
     }
 
     @Test
