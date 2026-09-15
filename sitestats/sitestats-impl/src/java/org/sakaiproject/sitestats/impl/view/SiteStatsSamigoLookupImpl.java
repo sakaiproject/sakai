@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +32,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentD
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -79,6 +81,8 @@ public class SiteStatsSamigoLookupImpl implements SiteStatsSamigoLookup {
 		}
 		try {
 			Long publishedId = Long.valueOf(publishedAssessmentId);
+			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+			Set<Long> manualItemIds = manualGradingItemIds(publishedAssessmentService, publishedId);
 			GradingService gradingService = new GradingService();
 			List<?> attempts = gradingService.getLastSubmittedAssessmentGradingList(publishedId);
 			if (attempts == null || attempts.isEmpty()) {
@@ -92,7 +96,8 @@ public class SiteStatsSamigoLookupImpl implements SiteStatsSamigoLookup {
 				AssessmentGradingData grading = (AssessmentGradingData) attempt;
 				boolean forGrade = Boolean.TRUE.equals(grading.getForGrade());
 				submitted.add(new SiteStatsSamigoAttempt(grading.getAgentId(), toInstant(grading.getSubmittedDate()),
-						forGrade, Boolean.TRUE.equals(grading.getIsLate()), grading.getGradedDate() != null));
+						forGrade, Boolean.TRUE.equals(grading.getIsLate()),
+						isAttemptGraded(grading, manualItemIds, gradingService)));
 			}
 			return submitted;
 		} catch (RuntimeException e) {
@@ -102,10 +107,15 @@ public class SiteStatsSamigoLookupImpl implements SiteStatsSamigoLookup {
 	}
 
 	private boolean requiresManualGrading(PublishedAssessmentService publishedAssessmentService, Long publishedAssessmentId) {
+		return !manualGradingItemIds(publishedAssessmentService, publishedAssessmentId).isEmpty();
+	}
+
+	private Set<Long> manualGradingItemIds(PublishedAssessmentService publishedAssessmentService, Long publishedAssessmentId) {
+		Set<Long> itemIds = new HashSet<Long>();
 		try {
 			Set<PublishedSectionData> sections = publishedAssessmentService.getSectionSetForAssessment(publishedAssessmentId);
 			if (sections == null || sections.isEmpty()) {
-				return false;
+				return itemIds;
 			}
 			for (PublishedSectionData section : sections) {
 				if (section == null || section.getItemSet() == null) {
@@ -115,17 +125,62 @@ public class SiteStatsSamigoLookupImpl implements SiteStatsSamigoLookup {
 					if (!(itemObj instanceof PublishedItemData)) {
 						continue;
 					}
-					Long typeId = ((PublishedItemData) itemObj).getTypeId();
-					if (TypeIfc.ESSAY_QUESTION.equals(typeId) || TypeIfc.AUDIO_RECORDING.equals(typeId)
-							|| TypeIfc.FILE_UPLOAD.equals(typeId)) {
-						return true;
+					PublishedItemData item = (PublishedItemData) itemObj;
+					if (item.getItemId() != null && isManualGradingType(item.getTypeId())) {
+						itemIds.add(item.getItemId());
 					}
 				}
 			}
 		} catch (RuntimeException e) {
 			log.warn("Unable to inspect quiz question types for publishedAssessmentId={}", publishedAssessmentId, e);
 		}
-		return false;
+		return itemIds;
+	}
+
+	private boolean isAttemptGraded(AssessmentGradingData grading, Set<Long> manualItemIds,
+			GradingService gradingService) {
+		Set<?> itemGradingSet = null;
+		if (grading.getGradedDate() == null && !manualItemIds.isEmpty() && grading.getAssessmentGradingId() != null) {
+			itemGradingSet = gradingService.getItemGradingSet(String.valueOf(grading.getAssessmentGradingId()));
+		}
+		return attemptGraded(grading.getGradedDate(), itemGradingSet, manualItemIds);
+	}
+
+	/**
+	 * Completes when the total/student score screen set the assessment graded date, or when every
+	 * manual-grading item on the attempt has an item graded date (question-scoring / {@code updateItemScore}).
+	 */
+	static boolean attemptGraded(Date assessmentGradedDate, Set<?> itemGradingSet, Set<Long> manualItemIds) {
+		if (assessmentGradedDate != null) {
+			return true;
+		}
+		if (manualItemIds == null || manualItemIds.isEmpty()) {
+			return false;
+		}
+		Set<Long> presentManualItems = new HashSet<Long>();
+		Set<Long> ungradedManualItems = new HashSet<Long>();
+		if (itemGradingSet != null) {
+			for (Object itemObj : itemGradingSet) {
+				if (!(itemObj instanceof ItemGradingData)) {
+					continue;
+				}
+				ItemGradingData item = (ItemGradingData) itemObj;
+				Long publishedItemId = item.getPublishedItemId();
+				if (publishedItemId == null || !manualItemIds.contains(publishedItemId)) {
+					continue;
+				}
+				presentManualItems.add(publishedItemId);
+				if (item.getGradedDate() == null) {
+					ungradedManualItems.add(publishedItemId);
+				}
+			}
+		}
+		return !presentManualItems.isEmpty() && ungradedManualItems.isEmpty();
+	}
+
+	static boolean isManualGradingType(Long typeId) {
+		return TypeIfc.ESSAY_QUESTION.equals(typeId) || TypeIfc.AUDIO_RECORDING.equals(typeId)
+				|| TypeIfc.FILE_UPLOAD.equals(typeId);
 	}
 
 	private List<String> releaseGroupIds(PublishedAssessmentData assessment) {
