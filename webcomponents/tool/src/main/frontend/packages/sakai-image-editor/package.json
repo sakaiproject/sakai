@@ -29,6 +29,7 @@
   },
   "exports": {
     ".": "./index.js",
+    "./test-utils": "./test-utils.js",
     "./sakai-image-editor.js": "./sakai-image-editor.js",
     "./image-editor-launcher.js": "./image-editor-launcher.js"
   },
