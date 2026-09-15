@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +89,8 @@ public class SiteStatsSamigoLookupImpl implements SiteStatsSamigoLookup {
 			if (attempts == null || attempts.isEmpty()) {
 				return Collections.emptyList();
 			}
+			Map<Long, Set<ItemGradingData>> itemGradingByAttempt = itemGradingByAttempt(attempts, manualItemIds,
+					gradingService);
 			List<SiteStatsSamigoAttempt> submitted = new ArrayList<SiteStatsSamigoAttempt>();
 			for (Object attempt : attempts) {
 				if (!(attempt instanceof AssessmentGradingData)) {
@@ -97,7 +100,7 @@ public class SiteStatsSamigoLookupImpl implements SiteStatsSamigoLookup {
 				boolean forGrade = Boolean.TRUE.equals(grading.getForGrade());
 				submitted.add(new SiteStatsSamigoAttempt(grading.getAgentId(), toInstant(grading.getSubmittedDate()),
 						forGrade, Boolean.TRUE.equals(grading.getIsLate()),
-						isAttemptGraded(grading, manualItemIds, gradingService)));
+						isAttemptGraded(grading, manualItemIds, itemGradingByAttempt)));
 			}
 			return submitted;
 		} catch (RuntimeException e) {
@@ -137,11 +140,33 @@ public class SiteStatsSamigoLookupImpl implements SiteStatsSamigoLookup {
 		return itemIds;
 	}
 
-	private boolean isAttemptGraded(AssessmentGradingData grading, Set<Long> manualItemIds,
+	private Map<Long, Set<ItemGradingData>> itemGradingByAttempt(List<?> attempts, Set<Long> manualItemIds,
 			GradingService gradingService) {
-		Set<?> itemGradingSet = null;
-		if (grading.getGradedDate() == null && !manualItemIds.isEmpty() && grading.getAssessmentGradingId() != null) {
-			itemGradingSet = gradingService.getItemGradingSet(String.valueOf(grading.getAssessmentGradingId()));
+		if (manualItemIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		Set<Long> ids = new HashSet<Long>();
+		for (Object attempt : attempts) {
+			if (!(attempt instanceof AssessmentGradingData)) {
+				continue;
+			}
+			AssessmentGradingData grading = (AssessmentGradingData) attempt;
+			if (grading.getGradedDate() == null && grading.getAssessmentGradingId() != null) {
+				ids.add(grading.getAssessmentGradingId());
+			}
+		}
+		if (ids.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		Map<Long, Set<ItemGradingData>> loaded = gradingService.getItemGradingSets(ids);
+		return loaded == null ? Collections.emptyMap() : loaded;
+	}
+
+	private boolean isAttemptGraded(AssessmentGradingData grading, Set<Long> manualItemIds,
+			Map<Long, Set<ItemGradingData>> itemGradingByAttempt) {
+		Set<ItemGradingData> itemGradingSet = null;
+		if (grading.getGradedDate() == null && grading.getAssessmentGradingId() != null) {
+			itemGradingSet = itemGradingByAttempt.get(grading.getAssessmentGradingId());
 		}
 		return attemptGraded(grading.getGradedDate(), itemGradingSet, manualItemIds);
 	}

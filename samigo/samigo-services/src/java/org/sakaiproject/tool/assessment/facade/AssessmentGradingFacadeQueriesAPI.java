@@ -204,6 +204,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public Set getItemGradingSet(Long assessmentGradingId);
 
+  public Map<Long, Set<ItemGradingData>> getItemGradingSets(Collection<Long> assessmentGradingIds);
+
   public Map<Long, AssessmentGradingData> getAssessmentGradingByItemGradingId(Long publishedAssessmentId);
 
   public void deleteAll(Collection c);

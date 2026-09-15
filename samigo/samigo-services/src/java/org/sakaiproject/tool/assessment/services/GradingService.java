@@ -802,6 +802,16 @@ public class GradingService
     }
   }
 
+  public Map<Long, Set<ItemGradingData>> getItemGradingSets(Collection<Long> assessmentGradingIds) {
+    try {
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
+          .getItemGradingSets(assessmentGradingIds);
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
+    }
+  }
+
   public Map<Long, AssessmentGradingData> getAssessmentGradingByItemGradingId(String publishedAssessmentId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
