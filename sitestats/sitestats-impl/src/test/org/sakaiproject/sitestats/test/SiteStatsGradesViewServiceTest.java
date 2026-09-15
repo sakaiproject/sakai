@@ -493,6 +493,62 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 	}
 
 	@Test
+	public void studentWidgetHidesScoreWhenGradebookDisplayIsDisabled() {
+		Assignment essay = countedItem(11L, "Essay", 10d, "2026-06-15T23:59:59Z");
+		when(gradingService.getViewableAssignmentsForCurrentUser(eq(SITE_ID), eq(SITE_ID), any(SortType.class)))
+				.thenReturn(Collections.singletonList(essay));
+
+		GradeDefinition grade = new GradeDefinition();
+		grade.setStudentUid(USER_A_ID);
+		grade.setGrade("8");
+		grade.setGradeEntryType(GradingConstants.GRADE_TYPE_POINTS);
+		grade.setGradeReleased(false);
+		Map<Long, List<GradeDefinition>> grades = new HashMap<Long, List<GradeDefinition>>();
+		grades.put(Long.valueOf(11), Collections.singletonList(grade));
+		when(gradingService.getGradesWithoutCommentsForStudentsForItems(eq(SITE_ID), eq(SITE_ID), anyList(), anyList()))
+				.thenReturn(grades);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
+
+		assertEquals("0 / 1", snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_GRADED).getPrimary());
+		assertEquals("0 / 0", snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_COMPLETE).getPrimary());
+		assertEquals("-", snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_BELOW_THRESHOLD).getPrimary());
+
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_ALL);
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_STUDENT_GRADES, TAB_BY_ITEM, request);
+
+		assertEquals(1, view.getTable().getTotalRows());
+		assertEquals("Essay", cellDisplay(view.getTable().getRows().get(0), "item"));
+		assertEquals("-", cellDisplay(view.getTable().getRows().get(0), "score"));
+	}
+
+	@Test
+	public void instructorWidgetShowsScoreWhenGradebookDisplayIsDisabled() {
+		Assignment essay = countedItem(11L, "Essay", 10d, "2026-06-15T23:59:59Z");
+		when(gradingService.getAssignments(eq(SITE_ID), eq(SITE_ID), any(SortType.class)))
+				.thenReturn(Collections.singletonList(essay));
+
+		GradeDefinition grade = new GradeDefinition();
+		grade.setStudentUid(USER_A_ID);
+		grade.setGrade("8");
+		grade.setGradeEntryType(GradingConstants.GRADE_TYPE_POINTS);
+		grade.setGradeReleased(false);
+		Map<Long, List<GradeDefinition>> grades = new HashMap<Long, List<GradeDefinition>>();
+		grades.put(Long.valueOf(11), Collections.singletonList(grade));
+		when(gradingService.getGradesWithoutCommentsForStudentsForItems(eq(SITE_ID), eq(SITE_ID), anyList(), anyList()))
+				.thenReturn(grades);
+
+		assertEquals("1 / 2", snapshot(WIDGET_GRADES, METRIC_GRADES_GRADED).getPrimary());
+		assertEquals("80%", snapshot(WIDGET_GRADES, METRIC_GRADES_AVERAGE).getPrimary());
+
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_ALL);
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_GRADES, TAB_BY_USER, request);
+
+		assertEquals("8", cellDisplay(view.getTable().getRows().get(0), "score"));
+	}
+
+	@Test
 	public void studentWidgetLoadsReleasedGradesWhenGetAssignmentsIsForbidden() {
 		Assignment essay = countedItem(11L, "Essay", 10d, "2026-06-15T23:59:59Z");
 		when(gradingService.getAssignments(anyString(), anyString(), any(SortType.class)))
