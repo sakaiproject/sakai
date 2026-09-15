@@ -296,6 +296,7 @@ public class SiteStatsGradesAnalytics {
 		}
 		Map<Long, Map<String, GradeDefinition>> grades = gradesByItem(siteId, items, new ArrayList<String>(users));
 		Map<String, Map<String, Double>> letterScales = new HashMap<String, Map<String, Double>>();
+		boolean studentView = StringUtils.isNotBlank(userId);
 		for (Assignment item : items) {
 			Set<String> expectedUsers = expectedUsersForItem(siteId, item, users);
 			if (expectedUsers.isEmpty()) {
@@ -304,7 +305,7 @@ public class SiteStatsGradesAnalytics {
 			ItemTotals itemTotals = snapshot.item(itemKey(item), itemDisplayTitle(siteId, item), itemType(item));
 			for (String expectedUser : expectedUsers) {
 				GradeDefinition grade = gradeFor(grades, item.getId(), expectedUser);
-				GradeCell cell = cell(siteId, item, expectedUser, grade, letterScales);
+				GradeCell cell = cell(siteId, item, expectedUser, grade, letterScales, studentView);
 				snapshot.add(cell);
 				itemTotals.add(cell, snapshot.threshold);
 				snapshot.user(expectedUser).add(cell);
@@ -422,9 +423,10 @@ public class SiteStatsGradesAnalytics {
 	}
 
 	private GradeCell cell(String siteId, Assignment item, String userId, GradeDefinition grade,
-			Map<String, Map<String, Double>> letterScales) {
-		boolean excused = grade != null && grade.isExcused();
-		Double score = excused ? null : parseScore(siteId, item, grade, letterScales);
+			Map<String, Map<String, Double>> letterScales, boolean studentView) {
+		boolean hiddenFromStudent = studentView && grade != null && !grade.isGradeReleased();
+		boolean excused = !hiddenFromStudent && grade != null && grade.isExcused();
+		Double score = excused || hiddenFromStudent ? null : parseScore(siteId, item, grade, letterScales);
 		boolean graded = !excused && score != null;
 		return new GradeCell(userId, itemKey(item), item.getName(), itemType(item), score, item.getPoints(), graded, excused);
 	}
