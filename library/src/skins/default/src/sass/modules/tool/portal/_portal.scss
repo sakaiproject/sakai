@@ -539,6 +539,7 @@
   }
 
   .sakai-sitesAndToolsNav {
+    height: 100%;
     padding-bottom: 96px;
     overflow-y: scroll;
     position: sticky;
@@ -648,11 +649,25 @@
     margin: 0px;
   }
 
+  #portal-nav-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+
   #portal-nav-sidebar .sakai-sitesAndToolsNav {
+    // keep the scroll container between the offcanvas header and footer
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+    overflow-y: auto;
     padding-right: calc(var(--bs-offcanvas-padding-x) - 1rem);
     padding-left: calc(var(--bs-offcanvas-padding-x) - 1rem);
     padding-top: calc(var(--bs-offcanvas-padding-y) - 1rem);
     padding-bottom: calc(var(--bs-offcanvas-padding-y) - 1rem);
+  }
+
+  #portal-nav-sidebar .sticky-footer {
+    flex: 0 0 auto;
   }
 }
 
