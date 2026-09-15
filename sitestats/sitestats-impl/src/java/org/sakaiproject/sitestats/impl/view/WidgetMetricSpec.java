@@ -23,9 +23,21 @@ class WidgetMetricSpec {
 	private final WidgetReportFactory reportFactory;
 	private final WidgetReportViewFactory viewFactory;
 	private final WidgetMetricValueFactory valueFactory;
+	private String helpKey;
+	private WidgetMetricTextArgs textArgs;
 
 	boolean isAvailable() {
 		return available.getAsBoolean();
+	}
+
+	WidgetMetricSpec withHelp(String helpKey) {
+		this.helpKey = helpKey;
+		return this;
+	}
+
+	WidgetMetricSpec withTextArgs(WidgetMetricTextArgs textArgs) {
+		this.textArgs = textArgs;
+		return this;
 	}
 
 	boolean isReportable() {

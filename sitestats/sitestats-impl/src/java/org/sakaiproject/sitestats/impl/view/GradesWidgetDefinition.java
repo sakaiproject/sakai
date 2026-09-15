@@ -46,13 +46,18 @@ public class GradesWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 								FILTER_DATE, FILTER_ROLE, FILTER_GROUP, FILTER_ITEM)),
 				metrics(
 						viewMetricSpec(WIDGET_GRADES, METRIC_GRADES_GRADED, "overview_title_grades_graded",
-								AUDIENCE_ALL, this::gradedReport, this::gradedValue),
+								AUDIENCE_ALL, this::gradedReport, this::gradedValue)
+								.withHelp("overview_help_grades_graded"),
 						viewMetricSpec(WIDGET_GRADES, METRIC_GRADES_COMPLETE, "overview_title_grades_complete",
-								AUDIENCE_ALL, this::completeReport, this::completeValue),
+								AUDIENCE_ALL, this::completeReport, this::completeValue)
+								.withHelp("overview_help_grades_complete"),
 						viewMetricSpec(WIDGET_GRADES, METRIC_GRADES_AVERAGE, "overview_title_grades_average",
-								AUDIENCE_ALL, this::byStudent, this::averageValue),
+								AUDIENCE_ALL, this::byStudent, this::averageValue)
+								.withHelp("overview_help_grades_average"),
 						viewMetricSpec(WIDGET_GRADES, METRIC_GRADES_BELOW_THRESHOLD, "overview_title_grades_below_threshold",
-								AUDIENCE_ALL, this::belowReport, this::belowValue)),
+								AUDIENCE_ALL, this::belowReport, this::belowValue)
+								.withTextArgs(this::thresholdArgs)
+								.withHelp("overview_help_grades_below_threshold")),
 				highlights(highlightSpec(HIGHLIGHT_GRADES_FUNNEL, "overview_title_grades_funnel",
 						this::gradingFunnelChart)));
 	}

@@ -39,11 +39,15 @@ public class StudentGradesWidgetDefinition extends AbstractSiteStatsWidgetDefini
 						FILTER_DATE, FILTER_ITEM)),
 				metrics(
 						viewMetricSpec(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_GRADED,
-								"overview_title_grades_graded_own", AUDIENCE_OWN, this::gradedReport, this::gradedValue),
+								"overview_title_grades_graded_own", AUDIENCE_OWN, this::gradedReport, this::gradedValue)
+								.withHelp("overview_help_grades_graded_own"),
 						viewMetricSpec(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_COMPLETE,
-								"overview_title_grades_complete_own", AUDIENCE_OWN, this::completeReport, this::completeValue),
+								"overview_title_grades_complete_own", AUDIENCE_OWN, this::completeReport, this::completeValue)
+								.withHelp("overview_help_grades_complete_own"),
 						viewMetricSpec(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_BELOW_THRESHOLD,
-								"overview_title_grades_below_threshold_own", AUDIENCE_OWN, this::belowReport, this::belowValue)),
+								"overview_title_grades_below_threshold_own", AUDIENCE_OWN, this::belowReport, this::belowValue)
+								.withTextArgs(this::thresholdArgs)
+								.withHelp("overview_help_grades_below_threshold_own")),
 				highlights(highlightSpec(HIGHLIGHT_GRADES_FUNNEL, "overview_title_grades_funnel_own",
 						this::gradingFunnelChart)));
 	}

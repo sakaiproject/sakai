@@ -49,17 +49,23 @@ public class SubmissionsWidgetDefinition extends AbstractSiteStatsWidgetDefiniti
 								FILTER_DATE, FILTER_ROLE, FILTER_GROUP, FILTER_ITEM)),
 				metrics(
 						viewMetricSpec(WIDGET_SUBMISSIONS, METRIC_SUBMISSIONS_ON_TIME, "overview_title_submissions_on_time",
-								AUDIENCE_ALL, this::onTimeReport, this::onTimeValue),
+								AUDIENCE_ALL, this::onTimeReport, this::onTimeValue)
+								.withHelp("overview_help_submissions_on_time"),
 						viewMetricSpec(WIDGET_SUBMISSIONS, METRIC_SUBMISSIONS_LATE, "overview_title_submissions_late",
-								AUDIENCE_ALL, this::lateReport, this::lateValue),
+								AUDIENCE_ALL, this::lateReport, this::lateValue)
+								.withHelp("overview_help_submissions_late"),
 						viewMetricSpec(WIDGET_SUBMISSIONS, METRIC_SUBMISSIONS_MISSED, "overview_title_submissions_missed",
-								AUDIENCE_ALL, this::missedReport, this::missedValue),
+								AUDIENCE_ALL, this::missedReport, this::missedValue)
+								.withHelp("overview_help_submissions_missed"),
 						viewMetricSpec(WIDGET_SUBMISSIONS, METRIC_SUBMISSIONS_NEEDS_GRADING, "overview_title_submissions_needs_grading",
-								AUDIENCE_ALL, this::needsGradingReport, this::needsGradingValue),
+								AUDIENCE_ALL, this::needsGradingReport, this::needsGradingValue)
+								.withHelp("overview_help_submissions_needs_grading"),
 						viewMetricSpec(WIDGET_SUBMISSIONS, METRIC_SUBMISSIONS_AT_RISK, "overview_title_submissions_at_risk",
-								AUDIENCE_ALL, this::atRiskReport, this::atRiskValue),
+								AUDIENCE_ALL, this::atRiskReport, this::atRiskValue)
+								.withHelp("overview_help_submissions_at_risk"),
 						viewMetricSpec(WIDGET_SUBMISSIONS, METRIC_SUBMISSIONS_AVG_DELAY, "overview_title_submissions_avg_delay",
-								AUDIENCE_ALL, this::lateReport, this::avgDelayValue)),
+								AUDIENCE_ALL, this::lateReport, this::avgDelayValue)
+								.withHelp("overview_help_submissions_avg_delay")),
 				highlights(highlightSpec(HIGHLIGHT_SUBMISSIONS_STATUS_SHARE, "overview_title_submissions_status_share",
 						this::statusShareChart)),
 				toolFilterIds(AssignmentServiceConstants.ASSIGNMENT_TOOL_ID, SamigoConstants.TOOL_ID));

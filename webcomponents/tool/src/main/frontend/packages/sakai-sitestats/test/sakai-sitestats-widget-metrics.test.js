@@ -24,6 +24,7 @@ describe("sakai-sitestats-widget-metrics tests", () => {
       {
         id: "visits-total",
         label: "Visits",
+        help: "Total site visits, including repeat visits.",
         snapshot: { primary: "12", percentage: 50, detail: "12 of 24" },
       },
       {
@@ -46,6 +47,16 @@ describe("sakai-sitestats-widget-metrics tests", () => {
     expect(metrics[0].querySelector(".sitestats-metric-primary").textContent).to.equal("12");
     expect(metrics[0].querySelector(".sitestats-metric-percentage").textContent).to.contain("%");
     expect(metrics[1].querySelector(".sitestats-metric-primary").textContent).to.equal("4");
+    expect(metrics[0].classList.contains("has-help")).to.be.true;
+    expect(metrics[0].getAttribute("aria-describedby")).to.equal("sitestats-metric-help-visits-total");
+    expect(metrics[0].getAttribute("aria-expanded")).to.equal("false");
+    expect(metrics[0].querySelector(".sitestats-metric-help").textContent).to.equal("Total site visits, including repeat visits.");
+    expect(metrics[1].classList.contains("has-help")).to.be.false;
+
+    metrics[0].click();
+    await elementUpdated(el);
+    expect(el.querySelector(".sitestats-metric").classList.contains("is-open")).to.be.true;
+    expect(el.querySelector(".sitestats-metric").getAttribute("aria-expanded")).to.equal("true");
   });
 
   it("shows an error when the metrics endpoint fails", async () => {

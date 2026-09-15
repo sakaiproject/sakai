@@ -172,6 +172,23 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 	}
 
 	@Test
+	public void belowThresholdMetricLabelIncludesEffectiveThreshold() {
+		List<SiteStatsWidgetMetric> metrics = service.getWidgetMetrics(SITE_ID, WIDGET_GRADES);
+		SiteStatsWidgetMetric below = null;
+		for (SiteStatsWidgetMetric metric : metrics) {
+			if (METRIC_GRADES_BELOW_THRESHOLD.equals(metric.getId())) {
+				below = metric;
+				break;
+			}
+		}
+
+		assertNotNull(below);
+		assertEquals("Students below 50% on graded work", below.getLabel());
+		assertTrue(below.getHelp().contains("50%"));
+		assertTrue(below.getHelp().contains("all time"));
+	}
+
+	@Test
 	public void instructorOverviewIncludesCompactGradingFunnelWhenGradesExist() {
 		stubEssayWithOneGrade();
 

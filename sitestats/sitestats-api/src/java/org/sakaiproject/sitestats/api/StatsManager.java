@@ -174,7 +174,7 @@ public interface StatsManager {
 	/** Sets SiteStats preferences for a specific site. */
 	public boolean setPreferences(String siteId, PrefsData prefsdata);
 	/**
-	 * Grade completion threshold for a site: preferences, then the site property
+	 * Grade threshold for a site: preferences, then the site property
 	 * {@link #GRADES_THRESHOLD_PROPERTY}, then sakai.properties, then {@link #DEFAULT_GRADES_THRESHOLD}.
 	 */
 	public double getGradesThreshold(String siteId);

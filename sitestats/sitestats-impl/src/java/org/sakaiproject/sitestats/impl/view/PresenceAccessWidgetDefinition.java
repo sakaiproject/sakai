@@ -51,15 +51,20 @@ public class PresenceAccessWidgetDefinition extends AbstractSiteStatsWidgetDefin
 								FILTER_DATE, FILTER_ROLE)),
 				metrics(
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_AVERAGE, "overview_title_presence_time_avg", AUDIENCE_ALL,
-								this::presencesEnabled, this::medianPresenceMetricDefinition, this::medianPresenceValue),
+								this::presencesEnabled, this::medianPresenceMetricDefinition, this::medianPresenceValue)
+								.withHelp("overview_help_presence_median"),
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_BOUNCE_RATE, "overview_title_bounce_rate", AUDIENCE_ALL,
-								this::presencesEnabled, this::bounceRateMetricDefinition, this::bounceRateValue),
+								this::presencesEnabled, this::bounceRateMetricDefinition, this::bounceRateValue)
+								.withHelp("overview_help_presence_bounce"),
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_TOTAL_7D, "overview_title_presence_last7days", AUDIENCE_ALL,
-								this::presencesEnabled, this::presence7dMetricDefinition, this::presence7dValue),
+								this::presencesEnabled, this::presence7dMetricDefinition, this::presence7dValue)
+								.withHelp("overview_help_presence_last7days"),
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_TOTAL_30D, "overview_title_presence_last30days", AUDIENCE_ALL,
-								this::presencesEnabled, this::presence30dMetricDefinition, this::presence30dValue),
+								this::presencesEnabled, this::presence30dMetricDefinition, this::presence30dValue)
+								.withHelp("overview_help_presence_last30days"),
 						metricSpec(WIDGET_PRESENCE_ACCESS, METRIC_PRESENCE_TOTAL_365D, "overview_title_presence_last365days", AUDIENCE_ALL,
-								this::presencesEnabled, this::presence365dMetricDefinition, this::presence365dValue)),
+								this::presencesEnabled, this::presence365dMetricDefinition, this::presence365dValue)
+								.withHelp("overview_help_presence_last365days")),
 				highlights(highlightSpec(HIGHLIGHT_PRESENCE_LAST_30_DAYS, "overview_title_presence_last30days",
 						this::presencesEnabled, this::presenceLast30DaysChart)));
 	}

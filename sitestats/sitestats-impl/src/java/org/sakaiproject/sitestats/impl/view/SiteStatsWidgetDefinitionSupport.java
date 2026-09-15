@@ -73,4 +73,8 @@ public class SiteStatsWidgetDefinitionSupport {
 	public String message(String key, String defaultValue) {
 		return context.message(key, defaultValue);
 	}
+
+	public String formattedMessage(String key, Object... args) {
+		return context.formattedMessage(key, args);
+	}
 }
