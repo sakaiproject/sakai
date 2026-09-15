@@ -41,13 +41,17 @@ public class StudentSubmissionsWidgetDefinition extends AbstractSiteStatsWidgetD
 						FILTER_DATE, FILTER_ITEM)),
 				metrics(
 						viewMetricSpec(WIDGET_STUDENT_SUBMISSIONS, METRIC_STUDENT_SUBMISSIONS_ON_TIME,
-								"overview_title_submissions_on_time_own", AUDIENCE_OWN, this::onTimeReport, this::onTimeValue),
+								"overview_title_submissions_on_time_own", AUDIENCE_OWN, this::onTimeReport, this::onTimeValue)
+								.withHelp("overview_help_submissions_on_time_own"),
 						viewMetricSpec(WIDGET_STUDENT_SUBMISSIONS, METRIC_STUDENT_SUBMISSIONS_LATE,
-								"overview_title_submissions_late_own", AUDIENCE_OWN, this::lateReport, this::lateValue),
+								"overview_title_submissions_late_own", AUDIENCE_OWN, this::lateReport, this::lateValue)
+								.withHelp("overview_help_submissions_late_own"),
 						viewMetricSpec(WIDGET_STUDENT_SUBMISSIONS, METRIC_STUDENT_SUBMISSIONS_MISSED,
-								"overview_title_submissions_missed_own", AUDIENCE_OWN, this::missedReport, this::missedValue),
+								"overview_title_submissions_missed_own", AUDIENCE_OWN, this::missedReport, this::missedValue)
+								.withHelp("overview_help_submissions_missed_own"),
 						viewMetricSpec(WIDGET_STUDENT_SUBMISSIONS, METRIC_STUDENT_SUBMISSIONS_AVG_DELAY,
-								"overview_title_submissions_avg_delay_own", AUDIENCE_OWN, this::lateReport, this::avgDelayValue)),
+								"overview_title_submissions_avg_delay_own", AUDIENCE_OWN, this::lateReport, this::avgDelayValue)
+								.withHelp("overview_help_submissions_avg_delay_own")),
 				highlights(highlightSpec(HIGHLIGHT_SUBMISSIONS_STATUS_SHARE, "overview_title_submissions_status_share",
 						this::statusShareChart)),
 				toolFilterIds(AssignmentServiceConstants.ASSIGNMENT_TOOL_ID, SamigoConstants.TOOL_ID));

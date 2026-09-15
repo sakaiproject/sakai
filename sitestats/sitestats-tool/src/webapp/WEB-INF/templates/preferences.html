@@ -25,7 +25,7 @@
       </div>
       <div class="mt-3">
         <label class="form-label" for="grades-threshold" th:text="#{prefs_grades_threshold}">
-          Grade completion threshold (%)
+          Grade threshold (%)
         </label>
         <input id="grades-threshold" class="form-control w-auto" type="number" min="0" max="100" step="any"
                th:field="*{gradesThreshold}" th:placeholder="${#numbers.formatInteger(defaultGradesThreshold,1)}"/>

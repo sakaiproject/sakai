@@ -149,7 +149,8 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(submissionsTab.locator("[data-report-filter='item']")).isVisible();
         assertThat(submissionsWidget.locator(".sitestats-widget-title")).containsText("Submissions");
         assertWidgetHasMetricLabels(submissionsWidget, "On-time submissions", "Late submissions",
-            "Missed submissions", "Submissions to grade", "Students at risk", "Median late delay");
+            "Missed submissions", "Submissions to grade", "Students with missed submissions",
+            "Median time past due");
         assertTrue(submissionsWidget.locator("sakai-sitestats-highlights").count() <= 1);
         assertNoLegacyReportChartImages();
     }
@@ -182,7 +183,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(gradesTab.locator("[data-report-filter='group']")).isVisible();
         assertThat(gradesWidget.locator(".sitestats-widget-title")).containsText("Grades");
         assertWidgetHasMetricLabels(gradesWidget, "Items graded", "Students fully graded",
-            "Class average", "Students below threshold");
+            "Class average", "Students below 50% on graded work");
         assertTrue(gradesWidget.locator("sakai-sitestats-highlights").count() <= 1);
         assertNoLegacyReportChartImages();
     }

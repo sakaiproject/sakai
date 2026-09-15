@@ -25,6 +25,10 @@ abstract class AbstractSiteStatsWidgetDefinition implements SiteStatsWidgetDefin
 		return support.message(key);
 	}
 
+	protected Object[] thresholdArgs(String siteId) {
+		return new Object[] { metricSupport().formatNumber(statsManager().getGradesThreshold(siteId)) };
+	}
+
 	protected StatsManager statsManager() {
 		return support.getStatsManager();
 	}

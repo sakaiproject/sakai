@@ -251,8 +251,10 @@ public class SiteStatsWidgetCatalog {
 
 	private SiteStatsWidgetMetric toMetric(String siteId, WidgetSpec spec, WidgetMetricSpec metric, String userId,
 			boolean includeValues, SiteStatsReportRequest request) {
-		SiteStatsWidgetMetric viewMetric = new SiteStatsWidgetMetric(metric.getId(), support.message(metric.getLabelKey()),
-				metric.getAudience(), metric.isReportable());
+		Object[] args = metric.getTextArgs() == null ? null : metric.getTextArgs().args(siteId);
+		SiteStatsWidgetMetric viewMetric = new SiteStatsWidgetMetric(metric.getId(),
+				formatMetricText(metric.getLabelKey(), args), metric.getAudience(), metric.isReportable());
+		viewMetric.setHelp(formatMetricText(metric.getHelpKey(), args));
 		viewMetric.setWidgetTitle(support.message(spec.getTitleKey()));
 		if (includeValues && metric.getValueFactory() != null) {
 			WidgetMetricValue value = metric.getValueFactory().getValue(siteId, userId,
@@ -268,5 +270,12 @@ public class SiteStatsWidgetCatalog {
 
 	private String key(String widgetId, String id) {
 		return widgetId + "/" + id;
+	}
+
+	private String formatMetricText(String key, Object[] args) {
+		if (key == null || key.isEmpty()) {
+			return null;
+		}
+		return args == null || args.length == 0 ? support.message(key) : support.formattedMessage(key, args);
 	}
 }

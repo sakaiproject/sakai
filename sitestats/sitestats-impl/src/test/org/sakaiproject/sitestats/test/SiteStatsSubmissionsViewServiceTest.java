@@ -193,6 +193,27 @@ public class SiteStatsSubmissionsViewServiceTest extends AbstractTransactionalJU
 	}
 
 	@Test
+	public void submissionsMetricLabelsDescribeMissedWorkAndLateDelay() {
+		List<SiteStatsWidgetMetric> metrics = service.getWidgetMetrics(SITE_ID, WIDGET_SUBMISSIONS);
+		SiteStatsWidgetMetric atRisk = null;
+		SiteStatsWidgetMetric delay = null;
+		for (SiteStatsWidgetMetric metric : metrics) {
+			if (METRIC_SUBMISSIONS_AT_RISK.equals(metric.getId())) {
+				atRisk = metric;
+			} else if (METRIC_SUBMISSIONS_AVG_DELAY.equals(metric.getId())) {
+				delay = metric;
+			}
+		}
+
+		assertNotNull(atRisk);
+		assertEquals("overview_title_submissions_at_risk", atRisk.getLabel());
+		assertEquals("overview_help_submissions_at_risk", atRisk.getHelp());
+		assertNotNull(delay);
+		assertEquals("overview_title_submissions_avg_delay", delay.getLabel());
+		assertEquals("overview_help_submissions_avg_delay", delay.getHelp());
+	}
+
+	@Test
 	public void instructorOverviewIncludesCompactStackedStatusShareWhenSubmissionsExist() {
 		stubOnTimeAndMissedAssignment();
 

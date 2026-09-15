@@ -47,17 +47,23 @@ public class StudentPresenceAccessWidgetDefinition extends AbstractSiteStatsWidg
 						this::studentPresenceByDateDefinition, FILTER_DATE)),
 				metrics(
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_AVERAGE, "overview_title_presence_time_avg",
-								AUDIENCE_OWN, this::presencesEnabled, null, this::studentMedianPresenceValue),
+								AUDIENCE_OWN, this::presencesEnabled, null, this::studentMedianPresenceValue)
+								.withHelp("overview_help_presence_median_own"),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_BOUNCE_RATE, "overview_title_bounce_rate",
-								AUDIENCE_OWN, this::presencesEnabled, null, this::studentBounceRateValue),
+								AUDIENCE_OWN, this::presencesEnabled, null, this::studentBounceRateValue)
+								.withHelp("overview_help_presence_bounce_own"),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL, "overview_title_presence_time",
-								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresenceTotalValue),
+								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresenceTotalValue)
+								.withHelp("overview_help_presence_total_own"),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL_7D, "overview_title_presence_last7days",
-								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresence7dValue),
+								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresence7dValue)
+								.withHelp("overview_help_presence_last7days_own"),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL_30D, "overview_title_presence_last30days",
-								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresence30dValue),
+								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresence30dValue)
+								.withHelp("overview_help_presence_last30days_own"),
 						metricSpec(WIDGET_STUDENT_PRESENCE_ACCESS, METRIC_STUDENT_PRESENCE_TOTAL_365D, "overview_title_presence_last365days",
-								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresence365dValue)),
+								AUDIENCE_OWN, this::presencesEnabled, null, this::studentPresence365dValue)
+								.withHelp("overview_help_presence_last365days_own")),
 				highlights(highlightSpec(HIGHLIGHT_PRESENCE_LAST_30_DAYS, "overview_title_presence_last30days",
 						this::presencesEnabled, this::studentPresenceLast30DaysChart)));
 	}

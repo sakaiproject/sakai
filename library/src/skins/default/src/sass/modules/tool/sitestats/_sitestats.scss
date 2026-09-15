@@ -7,7 +7,7 @@
   .sitestats-widget {
     border: 1px solid var(--sakai-border-color);
     border-radius: $button-radius;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .sitestats-widget-title {
@@ -113,16 +113,54 @@
     margin: 0;
     background: var(--sakai-background-color-2);
     border-block: 1px solid var(--sakai-border-color);
+    overflow: visible;
   }
 
   .sitestats-metric {
     min-width: 0;
     padding: $standard-space-2x $standard-spacing;
+    position: relative;
 
     dt {
       font-size: 0.875rem;
       font-weight: 600;
     }
+
+    &.has-help {
+      cursor: help;
+    }
+
+    &.has-help:focus-visible {
+      outline: 2px solid var(--focus-outline-color);
+      outline-offset: -2px;
+    }
+  }
+
+  .sitestats-metric-help {
+    position: absolute;
+    inset-inline: $standard-space;
+    inset-block-start: calc(100% - $standard-space);
+    z-index: 4;
+    padding: $standard-space $standard-space-2x;
+    border: 1px solid var(--sakai-border-color);
+    border-radius: $button-radius;
+    background: var(--sakai-background-color-1);
+    color: var(--sakai-text-color-1);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.35;
+    max-width: 18rem;
+    box-shadow: var(--elevation-4dp);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .sitestats-metric.has-help:hover .sitestats-metric-help,
+  .sitestats-metric.has-help:focus-within .sitestats-metric-help,
+  .sitestats-metric.has-help.is-open .sitestats-metric-help {
+    opacity: 1;
+    visibility: visible;
   }
 
   .sitestats-metric-primary {

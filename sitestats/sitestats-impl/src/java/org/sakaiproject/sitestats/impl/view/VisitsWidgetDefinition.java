@@ -43,15 +43,20 @@ public class VisitsWidgetDefinition extends AbstractSiteStatsWidgetDefinition {
 								FILTER_DATE)),
 				metrics(
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_TOTAL, "overview_title_visits_sum", AUDIENCE_ALL,
-								this::visitsTotalMetricDefinition, this::visitsTotalValue),
+								this::visitsTotalMetricDefinition, this::visitsTotalValue)
+								.withHelp("overview_help_visits_total"),
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_UNIQUE, "overview_title_unique_visits_sum", AUDIENCE_ALL,
-								this::visitsUniqueMetricDefinition, this::visitsUniqueValue),
+								this::visitsUniqueMetricDefinition, this::visitsUniqueValue)
+								.withHelp("overview_help_visits_unique"),
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_USERS_WITH_VISITS, "overview_title_enrolled_users_with_visits_sum", AUDIENCE_ALL,
-								this::visitsUsersWithVisitsMetricDefinition, this::visitsUsersWithVisitsValue),
+								this::visitsUsersWithVisitsMetricDefinition, this::visitsUsersWithVisitsValue)
+								.withHelp("overview_help_visits_members"),
 						metricSpec(WIDGET_VISITS, METRIC_PRESENCE_LAST_VISIT, "overview_title_last_student_visit", AUDIENCE_ALL,
-								this::lastVisitMetricDefinition, this::lastVisitValue),
+								this::lastVisitMetricDefinition, this::lastVisitValue)
+								.withHelp("overview_help_visits_last_student"),
 						metricSpec(WIDGET_VISITS, METRIC_VISITS_TRAFFIC_TREND, "overview_title_traffic_trend", AUDIENCE_ALL,
-								this::visitsTotalMetricDefinition, this::visitsTrafficTrendValue)),
+								this::visitsTotalMetricDefinition, this::visitsTrafficTrendValue)
+								.withHelp("overview_help_visits_traffic_trend")),
 				highlights(highlightSpec(HIGHLIGHT_VISITS_LAST_30_DAYS, "overview_title_visits_last30days",
 						this::visitsLast30DaysChart)));
 	}

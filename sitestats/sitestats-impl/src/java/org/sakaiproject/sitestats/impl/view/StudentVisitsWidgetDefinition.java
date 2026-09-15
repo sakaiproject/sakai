@@ -32,11 +32,14 @@ public class StudentVisitsWidgetDefinition extends AbstractSiteStatsWidgetDefini
 						FILTER_DATE)),
 				metrics(
 						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TOTAL, "overview_title_visits_sum", AUDIENCE_OWN,
-								this::studentVisitsByDateDefinition, this::studentVisitsTotalValue),
+								this::studentVisitsByDateDefinition, this::studentVisitsTotalValue)
+								.withHelp("overview_help_visits_total_own"),
 						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_PRESENCE_LAST_VISIT, "overview_title_last_visit",
-								AUDIENCE_OWN, null, this::studentLastVisitValue),
+								AUDIENCE_OWN, null, this::studentLastVisitValue)
+								.withHelp("overview_help_visits_last_own"),
 						metricSpec(WIDGET_STUDENT_VISITS, METRIC_STUDENT_VISITS_TRAFFIC_TREND, "overview_title_traffic_trend",
-								AUDIENCE_OWN, this::studentVisitsByDateDefinition, this::studentTrafficTrendValue)),
+								AUDIENCE_OWN, this::studentVisitsByDateDefinition, this::studentTrafficTrendValue)
+								.withHelp("overview_help_visits_traffic_trend_own")),
 				highlights(highlightSpec(HIGHLIGHT_VISITS_LAST_30_DAYS, "overview_title_visits_last30days",
 						this::studentVisitsLast30DaysChart)));
 	}

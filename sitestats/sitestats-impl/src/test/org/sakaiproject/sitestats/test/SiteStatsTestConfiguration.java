@@ -19,6 +19,7 @@ import static org.hibernate.cfg.Environment.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import java.io.IOException;
@@ -266,6 +267,21 @@ public class SiteStatsTestConfiguration {
         ResourceLoader resourceLoader = mock(ResourceLoader.class);
         when(resourceLoader.getLocale()).thenReturn(java.util.Locale.US);
         when(resourceLoader.getString(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(resourceLoader.getFormattedMessage(anyString(), any())).thenAnswer(invocation -> {
+            String key = invocation.getArgument(0);
+            Object[] allArgs = invocation.getArguments();
+            Object[] formatArgs;
+            if (allArgs.length == 2 && allArgs[1] instanceof Object[]) {
+                formatArgs = (Object[]) allArgs[1];
+            } else {
+                formatArgs = java.util.Arrays.copyOfRange(allArgs, 1, allArgs.length);
+            }
+            return java.text.MessageFormat.format(resourceLoader.getString(key), formatArgs);
+        });
+        when(resourceLoader.getString("overview_title_grades_below_threshold"))
+                .thenReturn("Students below {0}% on graded work");
+        when(resourceLoader.getString("overview_help_grades_below_threshold"))
+                .thenReturn("Students whose earned/possible points on graded, non-excused Gradebook work are below {0}%. Students without grades are excluded. Covers all time.");
         when(resourceLoader.getString("report_content_attachments")).thenReturn("Attachments");
         when(resourceLoader.getString("report_what_visits")).thenReturn("Visits");
         when(resourceLoader.getString("report_when_all")).thenReturn("All");

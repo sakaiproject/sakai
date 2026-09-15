@@ -457,8 +457,11 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertNotNull(metrics.get(0).getWidgetTitle());
 		assertFalse(metrics.get(0).getWidgetTitle().isEmpty());
 		assertTrue(metrics.get(0).isReportable());
+		assertEquals("overview_title_visits_sum", metrics.get(0).getLabel());
+		assertEquals("overview_help_visits_total", metrics.get(0).getHelp());
 		assertEquals(METRIC_PRESENCE_LAST_VISIT, metrics.get(3).getId());
 		assertTrue(metrics.get(3).isReportable());
+		assertEquals("overview_help_visits_last_student", metrics.get(3).getHelp());
 	}
 
 

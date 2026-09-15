@@ -49,6 +49,17 @@ public class SiteStatsWidgetContext {
 		return key.equals(value) || StringUtils.startsWith(value, "[missing key") ? defaultValue : value;
 	}
 
+	public String formattedMessage(String key, Object... args) {
+		if (args == null || args.length == 0) {
+			return message(key);
+		}
+		try {
+			return messages.getFormattedMessage(key, args);
+		} catch (Exception e) {
+			return message(key);
+		}
+	}
+
 	public String currentUserId() {
 		if (sessionManager == null) {
 			return null;

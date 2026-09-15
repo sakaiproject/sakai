@@ -9,6 +9,7 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
     _loading: { state: true },
     _error: { state: true },
     _errorStatus: { state: true },
+    _openHelpId: { state: true },
   };
 
   createRenderRoot() {
@@ -66,10 +67,19 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
     const snapshot = metric.snapshot || {};
     const detail = snapshot.detail;
     const primary = snapshot.primary;
-    const title = detail && detail !== primary ? detail : null;
+    const help = metric.help;
+    const title = !help && detail && detail !== primary ? detail : null;
+    const helpId = help ? `sitestats-metric-help-${metric.id}` : nothing;
+    const open = this._openHelpId === metric.id;
 
     return html`
-      <div class="sitestats-metric" title=${title || nothing}>
+      <div class="sitestats-metric ${help ? "has-help" : ""} ${open ? "is-open" : ""}"
+           title=${title || nothing}
+           tabindex=${help ? "0" : nothing}
+           aria-describedby=${helpId || nothing}
+           aria-expanded=${help ? String(open) : nothing}
+           @click=${help ? () => this._toggleHelp(metric.id) : nothing}
+           @keydown=${help ? event => this._helpKeydown(event, metric.id) : nothing}>
         <dt>${metric.label}</dt>
         <dd class="mb-0">
           <span class="sitestats-metric-primary">${primary ?? ""}</span>
@@ -78,8 +88,29 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
           ` : nothing}
           ${title ? html`<span class="visually-hidden">${detail}</span>` : nothing}
         </dd>
+        ${help ? html`
+          <span id=${helpId} class="visually-hidden">${help}</span>
+          <span class="sitestats-metric-help" role="tooltip" aria-hidden="true">${help}</span>
+        ` : nothing}
       </div>
     `;
+  }
+
+  _toggleHelp(id) {
+
+    this._openHelpId = this._openHelpId === id ? undefined : id;
+  }
+
+  _helpKeydown(event, id) {
+
+    if (event.key === "Escape") {
+      this._openHelpId = undefined;
+      return;
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      this._toggleHelp(id);
+    }
   }
 
   _formatPercentage(percentage) {
