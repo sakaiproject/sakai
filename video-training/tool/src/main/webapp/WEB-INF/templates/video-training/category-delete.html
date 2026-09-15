@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head(${title})}"></head>
+<body class="Mrphs-toolBody sakai-video-training">
+<div class="Mrphs-sakai-video-training portletBody sakai-video-training vt-page-shell">
+    <div th:replace="~{fragments/common :: menu('categories', ${canManage}, ${canAnalytics}, ${canView})}"></div>
+    <div th:replace="~{fragments/common :: messages(${success}, ${error})}"></div>
+
+    <div class="vt-page-header">
+        <h1 class="h3" th:text="#{video.training.categories.delete.confirm.title}">Confirm category deletion</h1>
+        <p class="vt-page-subtitle" th:text="#{video.training.categories.delete.confirm.subtitle}">Deleting this category will also remove its subcategories and unlink the affected videos.</p>
+    </div>
+
+    <div class="sak-banner-warn" role="alert">
+        <strong th:text="#{video.training.categories.delete.warning}">Review the impact before continuing.</strong>
+    </div>
+
+    <div class="row g-4 vt-delete-summary">
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5" th:text="#{video.training.categories.delete.impact.categories}">Categories to delete</h2>
+                    <p class="text-muted" th:text="#{video.training.categories.delete.impact.categories.count(${deleteImpact.categoriesToDelete.size()})}">0 categories</p>
+                    <ul class="list-group list-group-flush" th:if="${!deleteImpact.categoriesToDelete.isEmpty()}">
+                        <li class="list-group-item" th:each="category : ${deleteImpact.categoriesToDelete}">
+                            <strong th:text="${category.name}">Category</strong>
+                            <span class="text-muted small d-block" th:if="${category.parentCategoryId != null}" th:text="#{video.training.categories.subcategory}">Subcategory</span>
+                        </li>
+                    </ul>
+                    <div class="text-muted" th:if="${deleteImpact.categoriesToDelete.isEmpty()}" th:text="#{video.training.categories.delete.none}">No categories.</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5" th:text="#{video.training.categories.delete.impact.videos}">Videos to unlink</h2>
+                    <p class="text-muted" th:text="#{video.training.categories.delete.impact.videos.count(${deleteImpact.affectedVideos.size()})}">0 videos</p>
+                    <ul class="list-group list-group-flush" th:if="${!deleteImpact.affectedVideos.isEmpty()}">
+                        <li class="list-group-item" th:each="video : ${deleteImpact.affectedVideos}">
+                            <strong th:text="${video.title}">Video</strong>
+                            <span class="text-muted small d-block" th:text="${video.sourceReference}">Source</span>
+                        </li>
+                    </ul>
+                    <div class="text-muted" th:if="${deleteImpact.affectedVideos.isEmpty()}" th:text="#{video.training.categories.delete.none}">No videos.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form class="vt-form-actions mt-4" method="post" th:action="@{/categories/{id}/delete(id=${deleteImpact.category.id})}">
+        <input type="hidden" name="q" th:value="${q}">
+        <input type="hidden" name="page" th:value="${page}">
+        <input type="hidden" name="size" th:value="${size}">
+        <button class="btn btn-primary" type="submit" th:text="#{video.training.categories.delete.confirm}">Delete category</button>
+        <a class="btn btn-outline-secondary" th:href="@{/categories(q=${q},page=${page},size=${size})}" th:text="#{video.training.categories.delete.cancel}">Cancel</a>
+    </form>
+</div>
+<div th:replace="~{fragments/common :: jQuery}"></div>
+</body>
+</html>
