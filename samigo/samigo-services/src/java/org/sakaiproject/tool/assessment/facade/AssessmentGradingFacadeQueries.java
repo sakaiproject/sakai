@@ -1411,6 +1411,34 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return new HashSet<>(itemGradings);
     }
 
+    public Map<Long, Set<ItemGradingData>> getItemGradingSets(final Collection<Long> assessmentGradingIds) {
+        if (assessmentGradingIds == null || assessmentGradingIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<Long> ids = new ArrayList<>(new LinkedHashSet<>(assessmentGradingIds));
+        Map<Long, Set<ItemGradingData>> byAssessment = new HashMap<>();
+        final int batchSize = 1000;
+        for (int from = 0; from < ids.size(); from += batchSize) {
+            List<Long> batch = ids.subList(from, Math.min(from + batchSize, ids.size()));
+            final HibernateCallback<List<ItemGradingData>> hcb = session -> {
+                Query q = session.createQuery("from ItemGradingData i where i.assessmentGradingId in (:ids)");
+                q.setParameterList("ids", batch);
+                return q.list();
+            };
+            List<ItemGradingData> itemGradings = getHibernateTemplate().execute(hcb);
+            if (itemGradings == null) {
+                continue;
+            }
+            for (ItemGradingData item : itemGradings) {
+                if (item == null || item.getAssessmentGradingId() == null) {
+                    continue;
+                }
+                byAssessment.computeIfAbsent(item.getAssessmentGradingId(), key -> new HashSet<>()).add(item);
+            }
+        }
+        return byAssessment;
+    }
+
     public Map<Long, ItemGradingData> getItemGradingMap(final Long assessmentGradingId) {
 
         final HibernateCallback<List<ItemGradingData>> hcb = session -> {
