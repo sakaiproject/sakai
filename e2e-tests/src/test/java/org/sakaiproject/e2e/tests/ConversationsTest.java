@@ -34,6 +34,7 @@ class ConversationsTest extends SakaiUiTestBase {
     private static String sakaiUrl;
     private static final String TOPIC_TITLE = "Playwright Conversation Topic " + System.currentTimeMillis();
     private static final String TOPIC_BODY = "This is a Playwright-created Conversations topic.";
+    private static final String NAVIGATION_DISCUSSION = TOPIC_TITLE + " navigation discussion";
 
     @Test
     @Order(1)
@@ -106,6 +107,98 @@ class ConversationsTest extends SakaiUiTestBase {
         } else {
             assertThat(page.locator("body")).containsText(Pattern.compile("Conversations|Add a New Topic|No topics yet", Pattern.CASE_INSENSITIVE));
         }
+    }
+
+    @Test
+    @Order(3)
+    void navigatesInFilteredOrderAndRetainsFilter() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Conversation");
+
+        publishTopic(TOPIC_TITLE + " first question", "QUESTION");
+        publishTopic(NAVIGATION_DISCUSSION, "DISCUSSION");
+        publishTopic(TOPIC_TITLE + " second question", "QUESTION");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Topics").setExact(true)).click();
+
+        Locator filter = page.getByRole(AriaRole.COMBOBOX,
+            new Page.GetByRoleOptions().setName("Filter by various").setExact(true));
+        filter.selectOption("by_question");
+        Locator titles = page.locator(".topic-summary-title");
+        assertThat(page.locator(".topic-summary-link").filter(
+            new Locator.FilterOptions().setHasText(NAVIGATION_DISCUSSION))).hasCount(0);
+        List<String> originalOrder = titles.allTextContents().stream().map(String::trim).toList();
+        if (originalOrder.size() < 2) {
+            throw new AssertionError("Expected at least two questions for next-topic navigation");
+        }
+
+        page.locator(".topic-summary-link").first().click();
+        Locator next = page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Next topic").setExact(true));
+        for (int index = 0; index < originalOrder.size(); index++) {
+            assertThat(page.locator(".conversations-topic__title")).hasText(originalOrder.get(index));
+            assertThat(page.locator(".conversations-topic__title")).isFocused();
+            assertThat(page.locator(".conversations-topic__title")).isInViewport();
+            if (index + 1 < originalOrder.size()) {
+                assertThat(next).isEnabled();
+                next.click();
+            }
+        }
+        assertThat(next).isDisabled();
+
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Topics").setExact(true)).click();
+        assertThat(filter).hasValue("by_question");
+        assertThat(titles).hasText(originalOrder.toArray(String[]::new));
+        assertThat(page.locator(".topic-summary-link").filter(new Locator.FilterOptions()
+            .setHasText(originalOrder.get(originalOrder.size() - 1)))).isFocused();
+    }
+
+    @Test
+    @Order(4)
+    void updatesTopicMenuActionsWithoutLeavingList() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Conversation");
+
+        String topicTitle = TOPIC_TITLE + " menu actions";
+        publishTopic(topicTitle, "DISCUSSION");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Topics").setExact(true)).click();
+
+        Locator topic = page.locator("sakai-topic-summary").filter(
+            new Locator.FilterOptions().setHasText(topicTitle));
+        topic.locator("[data-bs-toggle='dropdown']").click();
+        topic.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Hide this topic").setExact(true)).click();
+        assertThat(topic.locator(".topic-status sakai-icon[type='hidden']")).isVisible();
+
+        topic.locator("[data-bs-toggle='dropdown']").click();
+        topic.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Show this topic").setExact(true)).click();
+        assertThat(topic.locator(".topic-status sakai-icon[type='hidden']")).hasCount(0);
+
+        topic.locator("[data-bs-toggle='dropdown']").click();
+        topic.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Lock this topic").setExact(true)).click();
+        assertThat(topic.locator(".topic-status sakai-icon[type='lock']")).isVisible();
+
+        topic.locator("[data-bs-toggle='dropdown']").click();
+        topic.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Unlock this topic").setExact(true)).click();
+        assertThat(topic.locator(".topic-status sakai-icon[type='lock']")).hasCount(0);
+
+        topic.locator("[data-bs-toggle='dropdown']").click();
+        page.onceDialog(dialog -> dialog.accept());
+        topic.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Delete this topic").setExact(true)).click();
+        assertThat(topic).hasCount(0);
+    }
+
+    private void publishTopic(String title, String type) {
+        page.locator("#conv-add-topic").click();
+        page.locator(".topic-type-toggle[data-type='" + type + "']").click();
+        page.locator("#summary").fill(title);
+        Locator editor = page.locator("#topic-details-editor").frameLocator("iframe.cke_wysiwyg_frame")
+            .locator("body[contenteditable='true']");
+        editor.pressSequentially(TOPIC_BODY);
+        editor.press("Tab");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Publish").setExact(true)).click();
+        assertThat(page.locator(".conversations-topic__title")).hasText(title);
+        assertThat(page.locator(".topic-message")).containsText(TOPIC_BODY);
     }
 
     private boolean isVisible(Locator locator, double timeoutMs) {

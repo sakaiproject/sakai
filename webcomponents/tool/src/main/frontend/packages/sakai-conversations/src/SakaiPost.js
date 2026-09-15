@@ -1,7 +1,7 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { SakaiElement } from "@sakai-ui/sakai-element";
-import { reactionsAndUpvotingMixin } from "./reactions-and-upvoting-mixin.js";
+import { ReactionsMixin } from "./ReactionsMixin.js";
 import { QUESTION } from "./sakai-conversations-constants.js";
 import "@sakai-ui/sakai-user-photo";
 import "@sakai-ui/sakai-editor/sakai-editor.js";
@@ -9,7 +9,7 @@ import "../sakai-comment.js";
 import "../sakai-comment-editor.js";
 import "@sakai-ui/sakai-icon/sakai-icon.js";
 
-export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
+export class SakaiPost extends ReactionsMixin(SakaiElement) {
 
   static properties = {
 

@@ -1,7 +1,7 @@
 import { html, nothing } from "lit";
 import { REACTION_ICONS } from "./sakai-conversations-constants.js";
 
-export const reactionsAndUpvotingMixin = Base => class extends Base {
+export const ReactionsMixin = Base => class extends Base {
 
   renderMyReactions(myReactions) {
 
