@@ -150,7 +150,7 @@ public class SiteStatsGradesAnalytics {
 			if (totals == null || totals.graded == 0) {
 				return WidgetMetricValue.of("-");
 			}
-			boolean below = totals.percent() < snapshot.threshold;
+			boolean below = totals.belowThreshold(snapshot.threshold);
 			return WidgetMetricValue.of(below ? message("overview_status_below_threshold")
 					: message("overview_status_meeting_threshold"));
 		}
@@ -233,7 +233,7 @@ public class SiteStatsGradesAnalytics {
 		int meeting = 0;
 		for (GradeCell cell : snapshot.cells) {
 			if (userId.equals(cell.userId) && !cell.excused && cell.graded
-					&& cell.percent() >= snapshot.threshold) {
+					&& !cell.belowThreshold(snapshot.threshold)) {
 				meeting++;
 			}
 		}
@@ -691,7 +691,7 @@ public class SiteStatsGradesAnalytics {
 		for (UserTotals row : rows) {
 			SiteStatsTableRow tableRow = new SiteStatsTableRow();
 			boolean graded = row.graded > 0;
-			boolean below = graded && row.percent() < snapshot.threshold;
+			boolean below = graded && row.belowThreshold(snapshot.threshold);
 			tableRow.getCells().put(COL_USER, cell(displayUser(row.userId), row.userId));
 			tableRow.getCells().put(COL_SCORE, numberCell(row.earned));
 			tableRow.getCells().put(COL_POSSIBLE, numberCell(row.possible));
@@ -930,11 +930,19 @@ public class SiteStatsGradesAnalytics {
 		}
 
 		int percent() {
+			return (int) Math.round(percentExact());
+		}
+
+		double percentExact() {
 			if (possible == null || possible.doubleValue() <= 0) {
-				return 0;
+				return 0d;
 			}
 			double earned = score == null ? 0d : score.doubleValue();
-			return (int) Math.round(100d * earned / possible.doubleValue());
+			return 100d * earned / possible.doubleValue();
+		}
+
+		boolean belowThreshold(double threshold) {
+			return percentExact() < threshold;
 		}
 	}
 
@@ -964,11 +972,15 @@ public class SiteStatsGradesAnalytics {
 		}
 
 		int percent() {
-			return gradedPossible <= 0 ? 0 : (int) Math.round(100d * earned / gradedPossible);
+			return (int) Math.round(percentExact());
 		}
 
 		double percentExact() {
 			return gradedPossible <= 0 ? 0d : 100d * earned / gradedPossible;
+		}
+
+		boolean belowThreshold(double threshold) {
+			return percentExact() < threshold;
 		}
 	}
 
@@ -999,7 +1011,7 @@ public class SiteStatsGradesAnalytics {
 				graded++;
 				earned += cell.score.doubleValue();
 				gradedPossible += cell.possible.doubleValue();
-				if (cell.percent() < threshold) {
+				if (cell.belowThreshold(threshold)) {
 					below++;
 				}
 			}
@@ -1059,7 +1071,7 @@ public class SiteStatsGradesAnalytics {
 				if (totals.graded > 0) {
 					gradedUsers++;
 					percentSum += totals.percentExact();
-					if (totals.percent() < threshold) {
+					if (totals.belowThreshold(threshold)) {
 						belowUsers++;
 					} else {
 						meetingUsers++;

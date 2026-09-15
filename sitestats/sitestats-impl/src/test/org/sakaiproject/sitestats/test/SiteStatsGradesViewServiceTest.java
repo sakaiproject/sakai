@@ -428,6 +428,46 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 	}
 
 	@Test
+	public void scoreJustBelowThresholdCountsAsBelowEvenWhenRoundedPercentMatches() {
+		Assignment essay = countedItem(11L, "Essay", 10d, "2026-06-15T23:59:59Z");
+		when(gradingService.getAssignments(eq(SITE_ID), eq(SITE_ID), any(SortType.class)))
+				.thenReturn(Collections.singletonList(essay));
+		when(gradingService.getViewableAssignmentsForCurrentUser(eq(SITE_ID), eq(SITE_ID), any(SortType.class)))
+				.thenReturn(Collections.singletonList(essay));
+
+		GradeDefinition grade = new GradeDefinition();
+		grade.setStudentUid(USER_A_ID);
+		grade.setGrade("4.96");
+		grade.setGradeEntryType(GradingConstants.GRADE_TYPE_POINTS);
+		grade.setGradeReleased(true);
+		Map<Long, List<GradeDefinition>> grades = new HashMap<Long, List<GradeDefinition>>();
+		grades.put(Long.valueOf(11), Collections.singletonList(grade));
+		when(gradingService.getGradesWithoutCommentsForStudentsForItems(eq(SITE_ID), eq(SITE_ID), anyList(), anyList()))
+				.thenReturn(grades);
+
+		assertEquals(1, belowCount());
+		assertEquals("1 / 1", snapshot(WIDGET_GRADES, METRIC_GRADES_BELOW_THRESHOLD).getPrimary());
+
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_ALL);
+		SiteStatsReportView byUser = service.getWidgetReport(SITE_ID, WIDGET_GRADES, TAB_BY_USER, request);
+		assertEquals("overview_status_below_threshold", cellDisplay(byUser.getTable().getRows().get(0), "belowThreshold"));
+		assertEquals("50%", cellDisplay(byUser.getTable().getRows().get(0), "complete"));
+
+		SiteStatsReportView byItem = service.getWidgetReport(SITE_ID, WIDGET_GRADES, TAB_BY_ITEM, request);
+		assertEquals("1", cellDisplay(byItem.getTable().getRows().get(0), "belowThreshold"));
+
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
+		assertEquals("overview_status_below_threshold",
+				snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_BELOW_THRESHOLD).getPrimary());
+		assertEquals(Integer.valueOf(50), snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_COMPLETE).getPercentage());
+
+		SiteStatsOverview overview = service.getOverview(SITE_ID);
+		SiteStatsChart funnel = widget(overview, WIDGET_STUDENT_GRADES).getHighlights().get(0);
+		assertEquals(Integer.valueOf(0), funnel.getDatasets().get(0).getPoints().get(2).getY());
+	}
+
+	@Test
 	public void itemFilterUsesThresholdPieOnByUserChart() {
 		stubEssayWithOneGrade();
 
