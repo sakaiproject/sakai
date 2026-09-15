@@ -236,20 +236,8 @@ export class SakaiSiteStatsChart extends SakaiShadowElement {
     }
     tooltipEl = document.createElement("div");
     tooltipEl.id = "sakai-sitestats-chart-tooltip";
+    tooltipEl.className = "sakai-sitestats-chart-tooltip";
     tooltipEl.setAttribute("role", "tooltip");
-    Object.assign(tooltipEl.style, {
-      position: "fixed",
-      pointerEvents: "none",
-      opacity: "0",
-      zIndex: "10000",
-      padding: "0.35rem 0.55rem",
-      borderRadius: "0.25rem",
-      background: "rgba(15, 23, 42, 0.92)",
-      color: "#fff",
-      font: "0.75rem/1.3 sans-serif",
-      whiteSpace: "pre",
-      boxShadow: "0 0.25rem 0.5rem rgba(0, 0, 0, 0.2)",
-    });
     document.body.appendChild(tooltipEl);
     return tooltipEl;
   }
