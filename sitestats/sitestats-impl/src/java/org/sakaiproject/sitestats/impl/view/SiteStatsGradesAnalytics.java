@@ -42,7 +42,6 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
-import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.SortType;
@@ -295,7 +294,6 @@ public class SiteStatsGradesAnalytics {
 			return snapshot;
 		}
 		Map<Long, Map<String, GradeDefinition>> grades = gradesByItem(siteId, items, new ArrayList<String>(users));
-		Map<String, Map<String, Double>> letterScales = new HashMap<String, Map<String, Double>>();
 		boolean studentView = StringUtils.isNotBlank(userId);
 		for (Assignment item : items) {
 			Set<String> expectedUsers = expectedUsersForItem(siteId, item, users);
@@ -305,7 +303,7 @@ public class SiteStatsGradesAnalytics {
 			ItemTotals itemTotals = snapshot.item(itemKey(item), itemDisplayTitle(siteId, item), itemType(item));
 			for (String expectedUser : expectedUsers) {
 				GradeDefinition grade = gradeFor(grades, item.getId(), expectedUser);
-				GradeCell cell = cell(siteId, item, expectedUser, grade, letterScales, studentView);
+				GradeCell cell = cell(siteId, item, expectedUser, grade, studentView);
 				snapshot.add(cell);
 				itemTotals.add(cell, snapshot.threshold);
 				snapshot.user(expectedUser).add(cell);
@@ -422,26 +420,20 @@ public class SiteStatsGradesAnalytics {
 		return byUser == null ? null : byUser.get(userId);
 	}
 
-	private GradeCell cell(String siteId, Assignment item, String userId, GradeDefinition grade,
-			Map<String, Map<String, Double>> letterScales, boolean studentView) {
+	private GradeCell cell(String siteId, Assignment item, String userId, GradeDefinition grade, boolean studentView) {
 		boolean hiddenFromStudent = studentView && grade != null && !grade.isGradeReleased();
 		boolean excused = !hiddenFromStudent && grade != null && grade.isExcused();
-		Double score = excused || hiddenFromStudent ? null : parseScore(siteId, item, grade, letterScales, studentView);
+		Double score = excused || hiddenFromStudent ? null : parseScore(siteId, item, grade);
 		boolean graded = !excused && score != null;
 		return new GradeCell(userId, itemKey(item), item.getName(), itemType(item), score, item.getPoints(), graded, excused);
 	}
 
-	private Double parseScore(String siteId, Assignment item, GradeDefinition grade,
-			Map<String, Map<String, Double>> letterScales, boolean studentView) {
+	private Double parseScore(String siteId, Assignment item, GradeDefinition grade) {
 		if (grade == null || StringUtils.isBlank(grade.getGrade()) || item.getPoints() == null) {
 			return null;
 		}
 		if (GradingConstants.GRADE_TYPE_LETTER.equals(grade.getGradeEntryType())) {
-			if (studentView) {
-				return ownReleasedPoints(siteId, item, grade);
-			}
-			Double percent = letterPercent(siteId, gradebookUid(siteId, item), grade.getGrade(), letterScales);
-			return percent == null ? null : Double.valueOf(percent.doubleValue() / 100d * item.getPoints().doubleValue());
+			return letterGradePoints(siteId, item, grade);
 		}
 		Double parsed = metricSupport.parseNumber(grade.getGrade());
 		if (parsed == null) {
@@ -453,45 +445,13 @@ public class SiteStatsGradesAnalytics {
 		return parsed;
 	}
 
-	private Double letterPercent(String siteId, String gradebookUid, String letter,
-			Map<String, Map<String, Double>> letterScales) {
-		Map<String, Double> scale = letterScales.get(gradebookUid);
-		if (scale == null) {
-			scale = loadLetterScale(siteId, gradebookUid);
-			letterScales.put(gradebookUid, scale);
-		}
-		Double percent = scale.get(letter);
-		if (percent != null) {
-			return percent;
-		}
-		for (Map.Entry<String, Double> entry : scale.entrySet()) {
-			if (letter.equalsIgnoreCase(entry.getKey())) {
-				return entry.getValue();
-			}
-		}
-		return null;
-	}
-
-	private Map<String, Double> loadLetterScale(String siteId, String gradebookUid) {
-		try {
-			GradebookInformation information = gradingService.getGradebookInformation(gradebookUid, siteId);
-			if (information == null || information.getSelectedGradingScaleBottomPercents() == null) {
-				return Collections.emptyMap();
-			}
-			return information.getSelectedGradingScaleBottomPercents();
-		} catch (RuntimeException e) {
-			log.warn("Unable to load letter-grade scale for site {} gradebook {}", siteId, gradebookUid, e);
-			return Collections.emptyMap();
-		}
-	}
-
-	private Double ownReleasedPoints(String siteId, Assignment item, GradeDefinition grade) {
+	private Double letterGradePoints(String siteId, Assignment item, GradeDefinition grade) {
 		try {
 			String score = gradingService.getAssignmentScoreString(gradebookUid(siteId, item), siteId, item.getId(),
 					grade.getStudentUid());
 			return metricSupport.parseNumber(score);
 		} catch (RuntimeException e) {
-			log.warn("Unable to load released letter-grade points for site {} item {} student {}", siteId, item.getId(),
+			log.warn("Unable to load letter-grade points for site {} item {} student {}", siteId, item.getId(),
 					grade.getStudentUid(), e);
 			return null;
 		}

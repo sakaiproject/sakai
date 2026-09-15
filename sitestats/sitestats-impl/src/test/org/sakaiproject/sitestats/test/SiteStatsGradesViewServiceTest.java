@@ -577,7 +577,7 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 	}
 
 	@Test
-	public void letterGradesUseGradebookScale() {
+	public void letterGradesUseLetterEntryPointsNotCourseCutoffs() {
 		Assignment essay = countedItem(11L, "Essay", 10d, "2026-06-15T23:59:59Z");
 		when(gradingService.getAssignments(eq(SITE_ID), eq(SITE_ID), any(SortType.class)))
 				.thenReturn(Collections.singletonList(essay));
@@ -593,14 +593,16 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 				.thenReturn(grades);
 
 		GradebookInformation information = new GradebookInformation();
-		Map<String, Double> percents = new HashMap<String, Double>();
-		percents.put("A", Double.valueOf(90));
-		percents.put("B", Double.valueOf(80));
-		information.setSelectedGradingScaleBottomPercents(percents);
-		when(gradingService.getGradebookInformation(SITE_ID, SITE_ID)).thenReturn(information);
+		Map<String, Double> courseCutoffs = new HashMap<String, Double>();
+		courseCutoffs.put("A", Double.valueOf(90));
+		courseCutoffs.put("B", Double.valueOf(80));
+		information.setSelectedGradingScaleBottomPercents(courseCutoffs);
+		when(gradingService.getGradebookInformation(anyString(), anyString())).thenReturn(information);
+		when(gradingService.getAssignmentScoreString(eq(SITE_ID), eq(SITE_ID), eq(Long.valueOf(11)), eq(USER_A_ID)))
+				.thenReturn("8.5");
 
 		assertEquals("0 / 1", snapshot(WIDGET_GRADES, METRIC_GRADES_BELOW_THRESHOLD).getPrimary());
-		assertEquals("80%", snapshot(WIDGET_GRADES, METRIC_GRADES_AVERAGE).getPrimary());
+		assertEquals("85%", snapshot(WIDGET_GRADES, METRIC_GRADES_AVERAGE).getPrimary());
 		assertNull(snapshot(WIDGET_GRADES, METRIC_GRADES_AVERAGE).getPercentage());
 	}
 
