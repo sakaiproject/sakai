@@ -74,6 +74,7 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
 
     return html`
       <div class="sitestats-metric ${help ? "has-help" : ""} ${open ? "is-open" : ""}"
+           role=${help ? "button" : nothing}
            title=${title || nothing}
            tabindex=${help ? "0" : nothing}
            aria-describedby=${helpId || nothing}
