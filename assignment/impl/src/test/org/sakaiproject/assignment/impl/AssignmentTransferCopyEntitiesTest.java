@@ -460,7 +460,7 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
 
         verify(tagService).getAssociatedTagsForItem(fromContext, oAssignmentId);
         verify(tagService).getTagsByExactLabel("Math", toContext);
-        verify(tagService).saveTagAssociation(nAssignmentId, "tag_existing_target_id");
+        verify(tagService).associateExistingTag(nAssignmentId, "tag_existing_target_id");
         verify(tagService).getTagsByExactLabel("Science", toContext);
 
         List<String> expectedNewTagIds = Collections.singletonList("tag_missing_id");

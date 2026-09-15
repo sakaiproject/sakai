@@ -26,6 +26,8 @@ package org.sakaiproject.tags.tool.forms;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,15 +50,15 @@ public class TagForm extends BaseForm {
     private final String tagLabel;
     private final String description;
     private final String createdBy;
-    private final long creationDate;
+    private final Long creationDate;
     private final String lastModifiedBy;
-    private final long lastModificationDate;
+    private final Long lastModificationDate;
     private final String externalId;
     private final String alternativeLabels;
     private final Boolean externalCreation;
-    private final long externalCreationDate;
+    private final Long externalCreationDate;
     private final Boolean externalUpdate;
-    private final long lastUpdateDateInExternalSystem;
+    private final Long lastUpdateDateInExternalSystem;
     private final String parentId;
     private final String externalHierarchyCode;
     private final String externalType;
@@ -65,9 +67,9 @@ public class TagForm extends BaseForm {
 
 
     public TagForm(String uuid, String tagCollectionId, String tagLabel, String description, String createdBy,
-               long creationDate, String lastModifiedBy, long lastModificationDate, String externalId,
-               String alternativeLabels, Boolean externalCreation, long externalCreationDate,
-               Boolean externalUpdate, long lastUpdateDateInExternalSystem, String parentId,
+               Long creationDate, String lastModifiedBy, Long lastModificationDate, String externalId,
+               String alternativeLabels, Boolean externalCreation, Long externalCreationDate,
+               Boolean externalUpdate, Long lastUpdateDateInExternalSystem, String parentId,
                String externalHierarchyCode, String externalType, String data, String collectionName) {
         this.uuid = uuid;
         this.tagCollectionId = tagCollectionId;
@@ -125,35 +127,15 @@ public class TagForm extends BaseForm {
         String tagLabel = request.getParameter("tagLabel");
         String description = request.getParameter("description");
         String createdBy = request.getParameter("createdBy");
-        long creationDate;
-        try {
-            creationDate= Long.parseLong(request.getParameter("creationDate"));
-        }catch (Exception e){
-            creationDate=0L;
-        }
+        Long creationDate = parseNullableLong(request.getParameter("creationDate"));
         String lastModifiedBy = request.getParameter("lastModifiedBy");
-        long lastModificationDate;
-        try {
-            lastModificationDate= Long.parseLong(request.getParameter("lastModificationDate"));
-        }catch (Exception e){
-            lastModificationDate=0L;
-        }
+        Long lastModificationDate = parseNullableLong(request.getParameter("lastModificationDate"));
         String externalId = request.getParameter("externalId");
         String alternativeLabels = request.getParameter("alternativeLabels");
-        Boolean externalCreation = "true".equals(request.getParameter("externalCreation"));
-        long externalCreationDate;
-        try {
-            externalCreationDate= Long.parseLong(request.getParameter("externalCreationDate"));
-        }catch (Exception e){
-            externalCreationDate=0L;
-        }
-        Boolean externalUpdate= "true".equals(request.getParameter("externalUpdate"));
-        long lastUpdateDateInExternalSystem;
-        try {
-            lastUpdateDateInExternalSystem= Long.parseLong(request.getParameter("lastUpdateDateInExternalSystem"));
-        }catch (Exception e){
-            lastUpdateDateInExternalSystem=0L;
-        }
+        Boolean externalCreation = BooleanUtils.toBooleanObject(request.getParameter("externalCreation"));
+        Long externalCreationDate = parseNullableLong(request.getParameter("externalCreationDate"));
+        Boolean externalUpdate= BooleanUtils.toBooleanObject(request.getParameter("externalUpdate"));
+        Long lastUpdateDateInExternalSystem = parseNullableLong(request.getParameter("lastUpdateDateInExternalSystem"));
         String parentId = request.getParameter("parentId");
         String externalHierarchyCode = request.getParameter("externalHierarchyCode");
         String externalType = request.getParameter("externalType");
@@ -202,10 +184,7 @@ public class TagForm extends BaseForm {
             errors.addError("description", "contains_xss");
         }
 
-        // Merge with model-level validation errors
-        Errors modelErrors = toTag().validate();
-
-        return errors.merge(modelErrors);
+        return errors;
     }
 
     public Tag toTag() {
@@ -213,6 +192,6 @@ public class TagForm extends BaseForm {
                 creationDate, lastModifiedBy, lastModificationDate, externalId,
                 alternativeLabels, externalCreation, externalCreationDate,
                 externalUpdate, lastUpdateDateInExternalSystem , parentId,
-                externalHierarchyCode, externalType, data, collectionName);
+                externalHierarchyCode, externalType, data, collectionName, null);
     }
 }

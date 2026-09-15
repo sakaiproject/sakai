@@ -5370,7 +5370,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             if (tags == null || tags.isEmpty()) {
                                newTagIds.add(tag.getTagId());
                             } else {
-                                tagService.saveTagAssociation(nAssignmentId, tags.get(0).getTagId());
+                                tagService.associateExistingTag(nAssignmentId, tags.get(0).getTagId());
                             }
                         }
 
