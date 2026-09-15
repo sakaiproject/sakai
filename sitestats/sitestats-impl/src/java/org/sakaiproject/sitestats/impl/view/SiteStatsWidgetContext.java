@@ -7,6 +7,7 @@ package org.sakaiproject.sitestats.impl.view;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -22,6 +23,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
 @Getter
+@Slf4j
 public class SiteStatsWidgetContext {
 
 	@Setter private StatsManager statsManager;
@@ -56,6 +58,7 @@ public class SiteStatsWidgetContext {
 		try {
 			return messages.getFormattedMessage(key, args);
 		} catch (Exception e) {
+			log.warn("Unable to format widget message {}", key, e);
 			return message(key);
 		}
 	}
