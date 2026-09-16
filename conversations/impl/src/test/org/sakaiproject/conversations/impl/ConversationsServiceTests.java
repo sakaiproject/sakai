@@ -396,8 +396,11 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean2.setMessage("Here is my message");
             conversationsService.savePost(postBean2, true);
 
+            conversationsService.markPostsViewed(Set.of(), topicId);
             topics = conversationsService.getTopicsForSite(site1Id);
             assertTrue(topics.get(0).hasPosted);
+            assertFalse(topics.get(0).viewed);
+            assertEquals(1, topics.get(0).numberOfUnreadPosts);
 
             Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(site1Id, topicId, 0, null, null);
             assertEquals(2, posts.size());
@@ -1923,6 +1926,45 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             e.printStackTrace();
             fail("Unexpected exception when transferring entities");
         }
+    }
+
+    @Test
+    public void viewingEmptyTopicRemainsViewedAfterReplying() throws Exception {
+
+        switchToUser1();
+        TopicTransferBean topic = createTopic(true);
+        switchToUser2();
+
+        conversationsService.markPostsViewed(Set.of(), topic.id);
+        assertTrue(conversationsService.getTopicsForSite(site1Id).get(0).viewed);
+
+        PostTransferBean reply = new PostTransferBean();
+        reply.siteId = site1Id;
+        reply.topic = topic.id;
+        reply.setMessage("My first reply");
+        conversationsService.savePost(reply, true);
+
+        TopicTransferBean reloaded = conversationsService.getTopicsForSite(site1Id).get(0);
+        assertTrue(reloaded.viewed);
+        assertEquals(0, reloaded.numberOfUnreadPosts);
+    }
+
+    @Test
+    public void reconcilingTopicDoesNotReadOtherUsersPosts() throws Exception {
+
+        switchToUser1();
+        TopicTransferBean topic = createTopic(true);
+        PostTransferBean reply = new PostTransferBean();
+        reply.siteId = site1Id;
+        reply.topic = topic.id;
+        reply.setMessage("An unread reply");
+        conversationsService.savePost(reply, true);
+        switchToUser2();
+
+        conversationsService.markPostsViewed(Set.of(), topic.id);
+        TopicTransferBean reloaded = conversationsService.getTopicsForSite(site1Id).get(0);
+        assertFalse(reloaded.viewed);
+        assertEquals(1, reloaded.numberOfUnreadPosts);
     }
 
     @Test
