@@ -48,15 +48,19 @@ describe("sakai-sitestats-widget-metrics tests", () => {
     expect(metrics[0].querySelector(".sitestats-metric-percentage").textContent).to.contain("%");
     expect(metrics[1].querySelector(".sitestats-metric-primary").textContent).to.equal("4");
     expect(metrics[0].classList.contains("has-help")).to.be.true;
-    expect(metrics[0].getAttribute("aria-describedby")).to.equal("sitestats-metric-help-visits-total");
-    expect(metrics[0].getAttribute("aria-expanded")).to.equal("false");
+    const helpTrigger = metrics[0].querySelector(".sitestats-metric-help-trigger");
+    expect(helpTrigger.tagName).to.equal("BUTTON");
+    expect(helpTrigger.getAttribute("aria-labelledby")).to.equal("sitestats-metric-label-visits-total");
+    expect(helpTrigger.getAttribute("aria-describedby")).to.equal("sitestats-metric-help-visits-total");
+    expect(helpTrigger.getAttribute("aria-expanded")).to.equal("false");
     expect(metrics[0].querySelector(".sitestats-metric-help").textContent).to.equal("Total site visits, including repeat visits.");
     expect(metrics[1].classList.contains("has-help")).to.be.false;
+    expect(metrics[1].querySelector(".sitestats-metric-help-trigger")).to.be.null;
 
-    metrics[0].click();
+    helpTrigger.click();
     await elementUpdated(el);
     expect(el.querySelector(".sitestats-metric").classList.contains("is-open")).to.be.true;
-    expect(el.querySelector(".sitestats-metric").getAttribute("aria-expanded")).to.equal("true");
+    expect(el.querySelector(".sitestats-metric-help-trigger").getAttribute("aria-expanded")).to.equal("true");
   });
 
   it("shows an error when the metrics endpoint fails", async () => {

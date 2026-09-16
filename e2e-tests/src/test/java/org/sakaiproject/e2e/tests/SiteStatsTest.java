@@ -437,10 +437,20 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     private void assertWidgetHasMetricLabels(Locator widget, String... labels) {
+        assertThat(widget.locator("sakai-sitestats-widget-metrics dt").first()).isVisible();
         for (String label : labels) {
-            assertThat(widget.getByRole(AriaRole.TERM,
-                new Locator.GetByRoleOptions().setName(label).setExact(true))).hasCount(1);
+            assertThat(widget.locator("xpath=.//dt[normalize-space()=" + xpathString(label) + "]")).hasCount(1);
         }
+    }
+
+    private static String xpathString(String value) {
+        if (!value.contains("'")) {
+            return "'" + value + "'";
+        }
+        if (!value.contains("\"")) {
+            return "\"" + value + "\"";
+        }
+        return "concat('" + value.replace("'", "',\"'\",'") + "')";
     }
 
     private void assertReportSummaryRendered() {

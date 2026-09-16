@@ -129,8 +129,18 @@
     &.has-help {
       cursor: help;
     }
+  }
 
-    &.has-help:focus-visible {
+  .sitestats-metric-help-trigger {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: help;
+
+    &:focus-visible {
       outline: 2px solid var(--focus-outline-color);
       outline-offset: -2px;
     }

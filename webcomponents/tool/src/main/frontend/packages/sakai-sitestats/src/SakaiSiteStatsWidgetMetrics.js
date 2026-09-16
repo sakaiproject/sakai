@@ -69,19 +69,23 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
     const primary = snapshot.primary;
     const help = metric.help;
     const title = !help && detail && detail !== primary ? detail : null;
-    const helpId = help ? `sitestats-metric-help-${metric.id}` : nothing;
+    const helpId = help ? `sitestats-metric-help-${metric.id}` : null;
+    const labelId = help ? `sitestats-metric-label-${metric.id}` : null;
     const open = this._openHelpId === metric.id;
 
     return html`
       <div class="sitestats-metric ${help ? "has-help" : ""} ${open ? "is-open" : ""}"
-           role=${help ? "button" : nothing}
-           title=${title || nothing}
-           tabindex=${help ? "0" : nothing}
-           aria-describedby=${helpId || nothing}
-           aria-expanded=${help ? String(open) : nothing}
-           @click=${help ? () => this._toggleHelp(metric.id) : nothing}
-           @keydown=${help ? event => this._helpKeydown(event, metric.id) : nothing}>
-        <dt>${metric.label}</dt>
+           title=${title || nothing}>
+        ${help ? html`
+          <button type="button"
+                  class="sitestats-metric-help-trigger"
+                  aria-labelledby=${labelId}
+                  aria-describedby=${helpId}
+                  aria-expanded=${String(open)}
+                  @click=${() => this._toggleHelp(metric.id)}
+                  @keydown=${event => this._helpKeydown(event)}></button>
+        ` : nothing}
+        <dt id=${labelId || nothing}>${metric.label}</dt>
         <dd class="mb-0">
           <span class="sitestats-metric-primary">${primary ?? ""}</span>
           ${snapshot.percentage != null ? html`
@@ -102,15 +106,10 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
     this._openHelpId = this._openHelpId === id ? undefined : id;
   }
 
-  _helpKeydown(event, id) {
+  _helpKeydown(event) {
 
     if (event.key === "Escape") {
       this._openHelpId = undefined;
-      return;
-    }
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      this._toggleHelp(id);
     }
   }
 
