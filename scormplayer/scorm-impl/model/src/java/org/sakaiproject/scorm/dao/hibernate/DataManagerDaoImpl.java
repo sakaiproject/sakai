@@ -132,18 +132,31 @@ public class DataManagerDaoImpl implements DataManagerDao
 	@Override
 	public void save(IDataManager dataManager)
 	{
-		merge(dataManager, true);
+		Session session = sessionFactory.getCurrentSession();
+		if (dataManager.getId() == null)
+		{
+			dataManager.setLastModifiedDate(Date.from(Instant.now()));
+			session.persist(dataManager);
+		}
+		else
+		{
+			merge(dataManager, true);
+		}
 	}
 
-	private void merge(boolean isFirstTime, Object object)
+	private IDataManager merge(IDataManager dataManager)
 	{
-		sessionFactory.getCurrentSession().merge(object);
+		return sessionFactory.getCurrentSession().merge(dataManager);
 	}
 
 	private void merge(IDataManager dataManager, boolean isFirstTime)
 	{
 		dataManager.setLastModifiedDate(Date.from(Instant.now()));
-		merge(isFirstTime, dataManager);
+		IDataManager mergedDataManager = merge(dataManager);
+		if (isFirstTime)
+		{
+			dataManager.setId(mergedDataManager.getId());
+		}
 	}
 
 	@Override
