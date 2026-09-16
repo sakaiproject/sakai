@@ -69,8 +69,8 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
     const primary = snapshot.primary;
     const help = metric.help;
     const title = !help && detail && detail !== primary ? detail : null;
-    const helpId = help ? `sitestats-metric-help-${metric.id}` : null;
-    const labelId = help ? `sitestats-metric-label-${metric.id}` : null;
+    const helpId = `sitestats-metric-help-${metric.id}`;
+    const labelId = `sitestats-metric-label-${metric.id}`;
     const open = this._openHelpId === metric.id;
 
     return html`
@@ -85,7 +85,7 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
                   @click=${() => this._toggleHelp(metric.id)}
                   @keydown=${event => this._helpKeydown(event)}></button>
         ` : nothing}
-        <dt id=${labelId || nothing}>${metric.label}</dt>
+        <dt id=${help ? labelId : nothing}>${metric.label}</dt>
         <dd class="mb-0">
           <span class="sitestats-metric-primary">${primary ?? ""}</span>
           ${snapshot.percentage != null ? html`
