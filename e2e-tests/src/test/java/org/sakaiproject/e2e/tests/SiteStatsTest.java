@@ -438,8 +438,8 @@ class SiteStatsTest extends SakaiUiTestBase {
 
     private void assertWidgetHasMetricLabels(Locator widget, String... labels) {
         for (String label : labels) {
-            assertThat(widget.locator("dt").filter(
-                new Locator.FilterOptions().setHasText(Pattern.compile("^" + Pattern.quote(label) + "$")))).hasCount(1);
+            assertThat(widget.getByRole(AriaRole.TERM,
+                new Locator.GetByRoleOptions().setName(label).setExact(true))).hasCount(1);
         }
     }
 
