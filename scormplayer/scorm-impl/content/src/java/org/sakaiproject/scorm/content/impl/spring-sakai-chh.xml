@@ -19,16 +19,12 @@
 		class="org.sakaiproject.scorm.dao.standalone.StandaloneActivityTreeDaoImpl">
 	</bean>
 
-	<!-- This is just an ehcache for the content hosting handler below -->
-	<bean id="org.sakaiproject.scorm.content.api.ZipCHH.cache" 
-		class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
-		<property name="cacheName"><value>org.sakaiproject.scorm.content.api.ZipCHH</value></property>
-		<property name="maxElementsInMemory" ><value>10000</value></property>
-		<property name="diskPersistent" ><value>false</value></property>
-		<property name="eternal" ><value>false</value></property>
-		<property name="timeToLive" ><value>300</value></property>
-		<property name="timeToIdle" ><value>600</value></property>
+	<!-- Distributed (Ignite-backed) cache of parsed SCORM/zip virtual file systems, keyed by
+	     the real content resource's id, for the content hosting handler below -->
+	<bean id="org.sakaiproject.scorm.content.api.ZipCHH.cache"
+		factory-bean="org.sakaiproject.ignite.SakaiCacheManager"
+		factory-method="getCache">
+		<constructor-arg value="org.sakaiproject.scorm.content.api.ZipCHH"/>
 	</bean>
 
 	<!-- This is the content hosting handler that the component uses to manage content in the
