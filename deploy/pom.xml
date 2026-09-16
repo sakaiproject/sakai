@@ -1027,6 +1027,16 @@
             <artifactId>jjwt-jackson</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <scope>compile</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <scope>compile</scope>
+         </dependency>
     </dependencies>
 
 </project>
