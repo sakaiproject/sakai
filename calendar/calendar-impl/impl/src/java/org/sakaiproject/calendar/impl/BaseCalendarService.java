@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,9 +77,6 @@ import org.sakaiproject.event.api.*;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Site;
@@ -145,7 +143,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	@Setter protected ServerConfigurationService serverConfigurationService;
 	@Setter protected AliasService aliasService;
 	@Setter protected SiteService siteService;
-	@Setter protected MemoryService memoryService;
 	@Setter protected IdManager idManager;
 	@Setter protected SecurityService securityService;
 	@Setter protected AuthzGroupService authzGroupService;
@@ -161,7 +158,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	
 	public static final String SAKAI = "Sakai";
 	
-	private Cache<String, Calendar> cache = null;
+	private Map<String, Calendar> cache = new ConcurrentHashMap<>();
 	
 	/**
 	 * Access this service from the inner classes.
@@ -283,10 +280,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			commitCalendar(cal);
 			
 			//Update the cache object if exists
-			if(cache != null) {
-				if(cache.containsKey(ref)) {
-					cache.put(ref,cal);
-				}
+			if(cache.containsKey(ref)) {
+				cache.put(ref,cal);
 			}
 		}
 		catch ( Exception e)
@@ -542,11 +537,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		functionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR, true);
 		functionManager.registerFunction(AUTH_OPTIONS_CALENDAR, true);
 		functionManager.registerFunction(AUTH_VIEW_AUDIENCE, true);
-		
-		// setup cache
-		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);
-		cacheConfig.setStatisticsEnabled(true);
-		cache = this.memoryService.createCache("org.sakaiproject.calendar.cache", cacheConfig);
+
 		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", MapTimeZoneCache.class.getName());
 
 		eventTrackingService.addObserver(this);
@@ -626,10 +617,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		Calendar calendar = null;
 			
 		//check cache
-		if(cache != null) {
-			if(cache.containsKey(ref)) {
-				calendar = (Calendar)cache.get(ref);
-			}
+		if(cache.containsKey(ref)) {
+			calendar = cache.get(ref);
 		}
 		
 		//if calendar is still null, it's not in the cache, get it from storage and cache it

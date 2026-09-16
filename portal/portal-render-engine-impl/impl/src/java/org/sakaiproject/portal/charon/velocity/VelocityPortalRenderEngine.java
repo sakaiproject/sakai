@@ -36,7 +36,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.sakaiproject.util.api.FormattedText;
-import org.sakaiproject.velocity.util.SLF4JLogChute;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -95,7 +94,6 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		vengine = new VelocityEngine();
 
 		vengine.setApplicationAttribute(ServletContext.class.getName(), context);
-		vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, new SLF4JLogChute());
 
 		Properties p = new Properties();
 		InputStream in = null;
@@ -215,7 +213,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		{
 			skin = defaultSkin;
 		}
-		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm",
+		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm", RuntimeConstants.ENCODING_DEFAULT,
 				((VelocityPortalRenderContext) rcontext).getVelocityContext(), out);
 
 	}

@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.messageforums.ui;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,13 +39,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.model.SelectItem;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -86,16 +88,17 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LocaleService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import org.sakaiproject.grading.api.model.Gradebook;
 
 @Slf4j
-@Named("mfStatisticsBean")
+@ManagedBean(name="mfStatisticsBean")
 @SessionScoped
-public class MessageForumStatisticsBean {
+public class MessageForumStatisticsBean implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 	
 	/**
 	 * Used to store Statistic information on message forum per 
@@ -259,8 +262,8 @@ public class MessageForumStatisticsBean {
 	}
 	
 	/** Decorated Bean to store stats for user **/
-	public DecoratedCompiledMessageStatistics userInfo = null;
-	public UserStatistics userAuthoredInfo = null;
+	private DecoratedCompiledMessageStatistics userInfo = null;
+	private UserStatistics userAuthoredInfo = null;
 	
 	private boolean discussionGeneric = true;
 	private String groupId = "";
@@ -318,22 +321,22 @@ public class MessageForumStatisticsBean {
 	private static final String FORUM_STATISTICS_ALL_AUTHORED_MSG = "dfStatisticsAllAuthoredMessageForOneUser";
 	private static final String FORUM_STATISTICS_MSG = "dfStatisticsFullTextForOne";
 
-	public String selectedSiteUserId = null;
-	public String selectedSiteUser = null;
-	public String selectedMsgId= null;
-	public String selectedMsgSubject= null;
-	public String selectedForumTitle= null;
-	public String selectedTopicTitle= null;
-	public String selectedTopicId= null;
-	public String selectedAllTopicsTopicId = null;
-	public String selectedAllTopicsForumId = null;
-	public String selectedAllTopicsTopicTitle = null;
-	public String selectedAllTopicsForumTitle = null;
+	private String selectedSiteUserId = null;
+	private String selectedSiteUser = null;
+	private String selectedMsgId= null;
+	private String selectedMsgSubject= null;
+	private String selectedForumTitle= null;
+	private String selectedTopicTitle= null;
+	private String selectedTopicId= null;
+	private String selectedAllTopicsTopicId = null;
+	private String selectedAllTopicsForumId = null;
+	private String selectedAllTopicsTopicTitle = null;
+	private String selectedAllTopicsForumTitle = null;
 
 	private String buttonUserName;
 	private boolean isFirstParticipant = false;
 	private boolean isLastParticipant = false;
-	public boolean selectMoreThanOneItem = false;
+	private boolean selectMoreThanOneItem = false;
 	
 	//Comparatibles
 	public static Comparator nameComparatorAsc;
@@ -401,34 +404,34 @@ public class MessageForumStatisticsBean {
 	private boolean m_displayAnonIds; // this will be true in a pure-anon scenario
 
 	/** Needed if within a site so we only need stats for this site */
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
 	private MessageForumsMessageManager messageManager;
 	/** Needed to get topics if tool within a site */
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager\"]}")
 	private DiscussionForumManager forumManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MembershipManager\"]}")
 	private MembershipManager membershipManager;
 	/** Manages anonymous IDs */
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AnonymousManager\"]}")
 	private AnonymousManager anonymousManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ToolManager\"]}")
 	private ToolManager toolManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.UserDirectoryService\"]}")
 	private UserDirectoryService userDirectoryService;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.authz.api.SecurityService\"]}")
 	private SecurityService securityService;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.event.api.EventTrackingService\"]}")
 	private EventTrackingService eventTrackingService;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
 	private SiteService siteService;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
 	private SessionManager sessionManager;
 	/** Needed to determine if user has read permission of topic */
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager\"]}")
 	private UIPermissionsManager uiPermissionsManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
 	private FormattedText formattedText;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.LocaleService\"]}")
 	private LocaleService localeService;
 
 	public boolean getDiscussionGeneric() {

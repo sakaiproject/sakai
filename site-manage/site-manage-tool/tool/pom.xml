@@ -15,6 +15,10 @@
     <packaging>war</packaging>
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.lti</groupId>
             <artifactId>lti-api</artifactId>
         </dependency>
@@ -71,6 +75,17 @@
         <dependency>
             <groupId>org.sakaiproject.velocity</groupId>
             <artifactId>sakai-velocity-tool</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity.tools</groupId>
+            <artifactId>velocity-tools-generic</artifactId>
+            <version>3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.userauditservice</groupId>

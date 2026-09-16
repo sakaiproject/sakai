@@ -111,6 +111,7 @@
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
         <property name="permissionLevelManager" ref="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
@@ -215,7 +216,7 @@
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="permissionLevelManager" ref="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>

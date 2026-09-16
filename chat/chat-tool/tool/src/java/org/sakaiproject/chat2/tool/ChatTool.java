@@ -22,6 +22,7 @@
 package org.sakaiproject.chat2.tool;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -34,15 +35,15 @@ import java.util.Locale;
 import java.util.Map;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.validator.ValidatorException;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.ManagedBean;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
@@ -75,9 +76,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter @Setter
-@Named("ChatTool")
+@ManagedBean(name="ChatTool")
 @SessionScoped
-public class ChatTool {
+public class ChatTool implements Serializable {
+
+   private static final long serialVersionUID = 1L;
 
    private static final String IFRAME_ROOM_USERS = "Presence";
    
@@ -121,17 +124,17 @@ public class ChatTool {
    
    private Boolean fromPermissions = false;
 
-   @Inject
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.chat2.model.ChatManager\"]}")
    private ChatManager chatManager;
-   @Inject
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.component.api.ServerConfigurationService\"]}")
    private ServerConfigurationService serverConfigurationService;
-   @Inject
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ActiveToolManager\"]}")
    private ToolManager toolManager;
-   @Inject
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.UserDirectoryService\"]}")
    private UserDirectoryService userDirectoryService;
-   @Inject
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
    private SessionManager sessionManager;
-   @Inject
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
    private SiteService siteService;
    
    /** The current channel the user is in */

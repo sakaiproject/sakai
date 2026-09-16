@@ -26,9 +26,9 @@
 		<navigation-handler>
 			org.sakaiproject.jsf2.app.SakaiNavigationHandler
 		</navigation-handler>
-		<variable-resolver>
+		<el-resolver>
 			org.sakaiproject.jsf2.app.SakaiVariableResolver
-		</variable-resolver>
+		</el-resolver>
 	</application>
 
 </faces-config>

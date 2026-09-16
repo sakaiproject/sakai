@@ -38,12 +38,12 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* For shared: Person backing bean. */
 @Slf4j
-@Named("person")
+@ManagedBean(name="person")
 @SessionScoped
 public class PersonBean implements Serializable {
 

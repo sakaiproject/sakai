@@ -68,8 +68,8 @@
     <bean id="org.sakaiproject.ignite.DataRegionConfiguration.SpringRegion"
           class="org.apache.ignite.configuration.DataRegionConfiguration">
         <property name="name" value="spring_region"/>
-        <property name="initialSize" value="#{10L * 1024 * 1024}"/>
-        <property name="maxSize" value="#{100L * 1024 * 1024}"/>
+        <property name="initialSize" value="#{300L * 1024 * 1024}"/>
+        <property name="maxSize" value="#{1024L * 1024 * 1024}"/>
         <property name="pageEvictionMode" value="RANDOM_2_LRU"/>
         <property name="persistenceEnabled" value="false"/>
         <property name="metricsEnabled" value="true"/>

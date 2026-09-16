@@ -47,6 +47,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipIt
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -67,6 +68,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     @Setter private AuthzGroupService authzGroupService;
     @Setter private DiscussionForumManager forumManager;
     @Setter private MemoryService memoryService;
+    @Setter private CacheManager cacheManager;
     @Setter private PermissionLevelManager permissionLevelManager;
     @Setter private SecurityService securityService;
     @Setter private SessionManager sessionManager;
@@ -75,7 +77,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     @Setter private UserDirectoryService userDirectoryService;
 
     private Cache<String, Set<DBMembershipItem>> membershipItemCache;
-    private Cache<String, Set<String>> userGroupMembershipCache;
+    private org.springframework.cache.Cache userGroupMembershipCache;
 
     private Predicate<DBMembershipItem> ifChangeSettings;
     private Predicate<DBMembershipItem> ifDeleteAny;
@@ -92,7 +94,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     public void init() {
         log.info("init()");
-        userGroupMembershipCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
+        userGroupMembershipCache = cacheManager.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
         membershipItemCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.membershipItemCache");
 
         ifChangeSettings = item -> resolvePermissionLevel(item).map(PermissionLevel::getChangeSettings).orElse(false);
@@ -794,7 +796,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         Set<String> groupIds = new HashSet<>();
         if (site != null && StringUtils.isNotBlank(userId)) {
             String cacheKey = site.getReference() + "/" + userId;
-            Set<String> cachedGroupIds = userGroupMembershipCache.get(cacheKey);
+            Set<String> cachedGroupIds = userGroupMembershipCache.get(cacheKey, Set.class);
             if (cachedGroupIds == null) {
                 Collection<Group> groups = site.getGroupsWithMember(userId);
                 groupIds = groups.stream().map(Group::getId).collect(Collectors.toSet());

@@ -46,8 +46,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -94,9 +93,7 @@ import org.sakaiproject.util.api.FormattedText;
 @Slf4j
 public class SamigoEntity implements LessonEntity, QuizEntity {
 
-    private static Cache assessmentCache = null;
-
-    protected static final int DEFAULT_EXPIRATION = 10 * 60;
+    private static org.springframework.cache.Cache assessmentCache = null;
     private static boolean samigo_linked = false;
 
     PublishedAssessmentService pService = new PublishedAssessmentService();
@@ -129,9 +126,9 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	return nextEntity;
     }
     
-    static MemoryService memoryService = null;
-    public void setMemoryService(MemoryService m) {
-	memoryService = m;
+    static CacheManager cacheManager = null;
+    public void setCacheManager(CacheManager m) {
+	cacheManager = m;
     }
 
     static MessageLocator messageLocator = null;
@@ -140,7 +137,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     }
 
     public void init () {
-	assessmentCache = memoryService
+	assessmentCache = cacheManager
 	    .getCache("org.sakaiproject.lessonbuildertool.service.SamigoEntity.cache");
 
 
@@ -191,7 +188,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	public PublishedAssessmentData getPublishedAssessment(Long publishedId, boolean nocache) {
 		PublishedAssessmentData data;
 		if (!nocache) {
-			data = (PublishedAssessmentData) assessmentCache.get(publishedId.toString());
+			data = assessmentCache.get(publishedId.toString(), PublishedAssessmentData.class);
 			if (data != null) return data;
 		}
 
@@ -664,9 +661,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	// will still have the old value
 	if (assessment != null)
 	    assessment.setComments(null);
-	PublishedAssessmentData cached = (PublishedAssessmentData)assessmentCache.get(id.toString());
-	if (cached != null)
-	    cached.setComments(null);
+	assessmentCache.evict(id.toString());
 
 	String siteId = ToolManager.getCurrentPlacement().getContext();
 

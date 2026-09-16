@@ -45,12 +45,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.ResourceLoader;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* For evaluation: Histogram Question Scores backing bean. */
 @Slf4j
-@Named("histogramquestionscores")
+@ManagedBean(name="histogramquestionscores")
 @SessionScoped
 public class HistogramQuestionScoresBean implements Serializable {
   private String assessmentName;

@@ -47,8 +47,6 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
@@ -68,8 +66,6 @@ import org.sakaiproject.lti.util.SakaiLTIUtil;
 
 @Slf4j
 public class BltiEntity implements LessonEntity, BltiInterface {
-    private static Cache bltiCache = null;
-    protected static final int DEFAULT_EXPIRATION = 10 * 60;
     protected static ResourceLoader rb = new ResourceLoader("lessons");
 
     private SimplePageBean simplePageBean;
@@ -86,11 +82,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     }
     public LessonEntity getNextEntity() {
         return nextEntity;
-    }
-
-    static MemoryService memoryService = null;
-    public void setMemoryService(MemoryService m) {
-        memoryService = m;
     }
 
     private static ToolManager toolManager;
@@ -115,8 +106,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 
     public void init () {
         log.info("init()");
-        bltiCache = memoryService
-            .getCache("org.sakaiproject.lessonbuildertool.service.BltiEntity.cache");
 
         if ( ltiService == null ) {
             Object service = ComponentManager.get("org.sakaiproject.lti.api.LTIService");
@@ -132,9 +121,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 
     public void destroy()
     {
-        //    bltiCache.destroy();
-        //    bltiCache = null;
-
         log.info("destroy()");
     }
 

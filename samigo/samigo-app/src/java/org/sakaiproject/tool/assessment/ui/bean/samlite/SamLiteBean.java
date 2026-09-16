@@ -33,16 +33,16 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Named("samLiteBean")
+@ManagedBean(name="samLiteBean")
 @SessionScoped
 public class SamLiteBean implements Serializable {
 	private static final long serialVersionUID = -3122436861866172596L;
@@ -56,12 +56,12 @@ public class SamLiteBean implements Serializable {
 	
 	private boolean isVisible = true;
 
-	@Autowired
+	@ManagedProperty(value="#{author}")
 	private AuthorBean authorBean;
-	@Autowired
+	@ManagedProperty(value="#{authorization}")
 	private AuthorizationBean authorizationBean;
-	@Autowired
-	@Setter private FormattedText formattedText;
+	@Setter @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
+	private FormattedText formattedText;
 
 	@Setter
 	private boolean richTextarea = false;
@@ -80,7 +80,7 @@ public class SamLiteBean implements Serializable {
 	}
 
 	private QuestionGroup questionGroup;
-	@Autowired
+	@ManagedProperty(value="#{org_sakaiproject_tool_assessment_services_samlite_SamLiteService}")
 	private SamLiteService samLiteService;
 
 	public void setSamLiteService(SamLiteService samLiteService) {

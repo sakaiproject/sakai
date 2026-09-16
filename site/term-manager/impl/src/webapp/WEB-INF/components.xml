@@ -7,10 +7,9 @@
    <bean id="org.sakaiproject.acadtermmanage.logic.AcademicSessionLogic"
        class="org.sakaiproject.acadtermmanage.logic.impl.AcademicSessionLogicImpl"
        init-method="init">
-       <property name="cache" ref="org.sakaiproject.acadtermmanage.sakai.academicsession_cache" />          
-        <property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+       <property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
         <property name="asSakaiProxy" ref="org.sakaiproject.acadtermmanage.logic.AcademicSessionSakaiProxy" />
-   
+
     </bean>
         
    <!--  SakaiProxy -->
@@ -29,21 +28,5 @@
         <property name="prefService" ref="org.sakaiproject.user.api.PreferencesService" />
    </bean>
    
-   <!-- Cache: ttl=1 hour -->
-    <bean id="org.sakaiproject.acadtermmanage.sakai.academicsession_cache"
-        class="org.springframework.cache.ehcache.EhCacheFactoryBean"
-        lazy-init="true">
-        <property name="cacheManager">
-            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        </property>
-        <property name="cacheName">
-            <value>org.sakaiproject.acadtermmanage.sakai.academicsession_cache</value>
-        </property>
-        <property name="maxElementsInMemory" value="200" />
-        <property name="diskPersistent" value="false" />
-        <property name="eternal" value="false" />
-        <property name="timeToLive" value="3600" />
-        <property name="timeToIdle" value="3600" />
-    </bean>
 
 </beans>

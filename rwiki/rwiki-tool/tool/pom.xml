@@ -120,13 +120,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.velocity</groupId>
-      <artifactId>velocity</artifactId>
+      <artifactId>velocity-engine-core</artifactId>
       <version>${sakai.velocity.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>velocity-tools</groupId>
-      <artifactId>velocity-tools</artifactId>
-      <version>1.4</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.velocity</groupId>

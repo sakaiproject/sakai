@@ -53,8 +53,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -75,7 +75,7 @@ public class SakaiProxyImpl implements SakaiProxy {
     private EntityManager entityManager;
     private EventTrackingService eventTrackingService;
     private FunctionManager functionManager;
-    private MemoryService memoryService;
+    private CacheManager cacheManager;
     private SecurityService securityService;
     private SessionManager sessionManager;
     private ServerConfigurationService serverConfigurationService;
@@ -446,7 +446,7 @@ public class SakaiProxyImpl implements SakaiProxy {
     public Cache getCache(String cache) {
 
         try {
-            return memoryService.getCache(cache);
+            return cacheManager.getCache(cache);
         } catch (Exception e) {
             log.error("Exception whilst retrieving '" + cache + "' cache. Returning null ...", e);
             return null;
