@@ -77,6 +77,12 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
       this.updateComplete.then(() => {
 
+        // Empty topics and already-read replies cannot trigger the post observer.
+        // Only the visible desktop/mobile instance should persist this status.
+        if (!this.topic.viewed && this.topic.numberOfUnreadPosts === 0 && this.checkVisibility()) {
+          this._markPostsViewed([], true);
+        }
+
         if (this.postId) {
           const el = this.querySelector(`#post-${this.postId}`);
           el && (el.scrollIntoView());
@@ -93,9 +99,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
         this.topic.posts = posts;
 
-        // We've clicked on a topic and it has no posts. Ergo, it has been "viewed".
-        if (!this.topic?.posts?.length) this.topic.viewed = true;
-
         update();
         this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic, dontUpdateCurrent: true }, bubbles: true }));
       });
@@ -106,20 +109,22 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
   get topic() { return this._topic; }
 
-  _markPostsViewed(postIds) {
+  _markPostsViewed(postIds, markTopicViewed = false) {
+
+    const topic = this.topic;
 
     // Filter out postIds that have already been marked as viewed
     const newPostIds = postIds.filter(id => !this._observedPosts.has(id));
 
-    // If there are no new posts to mark as viewed, return early
-    if (newPostIds.length === 0) {
+    // Empty batches only persist the viewed status of an opened topic.
+    if (newPostIds.length === 0 && !markTopicViewed) {
       return Promise.resolve();
     }
 
     // Add these posts to our tracked set before making the request
     newPostIds.forEach(id => this._observedPosts.add(id));
 
-    const url = this.topic.links.find(l => l.rel === "markpostsviewed").href;
+    const url = topic.links.find(l => l.rel === "markpostsviewed").href;
     return fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -131,7 +136,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         // Posts marked. Now unobserve them. We don't want to keep triggering this fetch
         newPostIds.forEach(postId => {
 
-          const post = findPost(this.topic, { postId });
+          const post = findPost(topic, { postId });
           if (post) {
             post.viewed = true;
           }
@@ -143,7 +148,8 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
           }
         });
 
-        this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds: newPostIds, topicId: this.topic.id } }));
+        if (markTopicViewed) topic.viewed = true;
+        this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds: newPostIds, topicId: topic.id } }));
         this.requestUpdate();
       } else {
         throw new Error(`Network error while marking posts as viewed at url ${url}`);
