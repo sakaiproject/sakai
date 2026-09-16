@@ -92,6 +92,11 @@
         </dependency>
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
             <artifactId>txw2</artifactId>
             <scope>compile</scope>
         </dependency>
