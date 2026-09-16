@@ -367,7 +367,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         allTools.check();
         assertThat(activityEventOptions).isHidden();
         page.getByLabel("Show their own statistics to students").check();
-        assertThat(page.getByLabel("Grade completion threshold (%)")).isVisible();
+        assertThat(page.getByLabel("Grade threshold (%)")).isVisible();
         assertThat(page.getByText("If empty, the site default of 50% is used.")).isVisible();
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Update$", Pattern.CASE_INSENSITIVE))).click();
@@ -438,7 +438,8 @@ class SiteStatsTest extends SakaiUiTestBase {
 
     private void assertWidgetHasMetricLabels(Locator widget, String... labels) {
         for (String label : labels) {
-            assertThat(widget.locator("dt").filter(new Locator.FilterOptions().setHasText(label))).hasCount(1);
+            assertThat(widget.locator("dt").filter(
+                new Locator.FilterOptions().setHasText(Pattern.compile("^" + Pattern.quote(label) + "$")))).hasCount(1);
         }
     }
 
