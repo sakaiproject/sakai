@@ -274,7 +274,7 @@ public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Obs
 		}
 
         try {
-			sessionFactory.getCurrentSession().merge(jobRun);
+			sessionFactory.getCurrentSession().persist(jobRun);
 			return true;
 		} catch(DataAccessException | HibernateException dae) {
 			log.error("Could not save job: {}", dae.getMessage(), dae);
@@ -850,13 +850,22 @@ public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Obs
 		}
 		
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	private boolean doUpdateConsolidatedEvents() {
+		lock.lock();
+		try {
+			return doUpdateConsolidatedEventsInternal();
+		} finally {
+			lock.unlock();
+		}
+	}
 
 	// ################################################################
 	// Db update methods
 	// ################################################################	
 	@SuppressWarnings("unchecked")
-	private synchronized boolean doUpdateConsolidatedEvents() {
+	private synchronized boolean doUpdateConsolidatedEventsInternal() {
 		long startTime = System.currentTimeMillis();
 		if(eventStatMap.size() > 0 || resourceStatMap.size() > 0
 				|| activityMap.size() > 0 || uniqueVisitsMap.size() > 0 

@@ -52,7 +52,7 @@ public class DB {
 	public void insertObject(final Object obj) {
         try {
             Session session = sessionFactory.getCurrentSession();
-            session.merge(obj);
+            session.persist(obj);
         } catch(DataAccessException | HibernateException dae) {
             log.error("Error while saving: {}", dae.getMessage(), dae);
         }
@@ -76,7 +76,7 @@ public class DB {
 	private <T> void deleteAllOfClass(Session session, Class<T> classz) {
         CriteriaQuery<T> cq = session.getCriteriaBuilder().createQuery(classz);
         cq.from(classz);
-        session.createQuery(cq).getResultList().forEach(session::delete);
+        session.createQuery(cq).getResultList().forEach(session::remove);
     }
 	
 	@SuppressWarnings("unchecked")
