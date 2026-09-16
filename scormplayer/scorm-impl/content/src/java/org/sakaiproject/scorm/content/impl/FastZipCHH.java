@@ -26,8 +26,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
+import org.springframework.cache.Cache;
 
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -106,8 +105,7 @@ public class FastZipCHH extends ZipCHH
 	{
 		if (null != fs && cache != null)
 		{
-			Element e = new Element(VIRTUAL_FS_CACHE_KEY + key, fs);
-			cache.put(e);
+			cache.put(VIRTUAL_FS_CACHE_KEY + key, fs);
 		}
 	}
 
@@ -116,10 +114,10 @@ public class FastZipCHH extends ZipCHH
 		VirtualFileSystem fs = null;
 		try
 		{
-			Element element = (cache != null ? cache.get(VIRTUAL_FS_CACHE_KEY + key) : null);
-			if (element != null)
+			Cache.ValueWrapper wrapper = (cache != null ? cache.get(VIRTUAL_FS_CACHE_KEY + key) : null);
+			if (wrapper != null)
 			{
-				fs = (VirtualFileSystem) element.getValue();
+				fs = (VirtualFileSystem) wrapper.get();
 			}
 		}
 		catch (ClassCastException cce)
