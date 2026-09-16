@@ -42,7 +42,7 @@
     <script src="/samigo-app/js/sortHelper.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const pageLengthStorageKey = `samigo-pageLength-${portal.user.id}`;
+            const pageLengthStorageKey = "samigo-pageLength-" + portal.user.id;
 
             function getPageLength() {
                 const pageLength = localStorage.getItem(pageLengthStorageKey);
@@ -63,8 +63,9 @@
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="`#{authorFrontDoorMessages.assessment_view_all}`" />]],
                     "pageLength": getPageLength(),
                     "order": [[parseInt(assessmentSortingColumn), "desc"]],
+                    "columnDefs": [{ "targets": "_all", "orderSequence": ["asc", "desc"] }],
                     "columns": [
-                        {"orderable": true, "searchable": true, "type": "natural-ci", "orderDataType": "dom-span"},
+                        {"orderable": true, "searchable": true, "type": "assessment-title", "orderDataType": "dom-assessment-title"},
                         {"orderable": false, "searchable": false},
                         {"orderable": true, "searchable": false},
                         {"orderable": true, "searchable": false},
@@ -97,6 +98,11 @@
                         document.querySelectorAll(".select-checkbox").forEach(checkbox => checkbox.checked = false);
                         updateRemoveButton();
                     },
+                    // Match the entered phrase, including spaces, as before the migration.
+                    "search": { "smart": false },
+                    "stateLoadParams": function(settings, data) {
+                        data.search.smart = false;
+                    },
                     "stateSave": true,
                     "stateDuration": -1
                 });
@@ -110,13 +116,13 @@
                     let showByGroups = !<h:outputText value="#{author.groupFilterEnabled}" />;
 
                     if (spanClassName != "") {
-                        showBySpan = cells.some(cell => cell.querySelector(`span.${CSS.escape(spanClassName)}`));
+                        showBySpan = cells.some(cell => cell.querySelector("span." + CSS.escape(spanClassName)));
                     }
                     if (filterGroups != null) {
                         for (let i = 0; i < filterGroups.length; i++) {
                             const filter = filterGroups[i];
                             if (filter.startsWith("releaseto")) {
-                                showByGroups = cells.some(cell => cell.querySelector(`.${CSS.escape(filter)}`));
+                                showByGroups = cells.some(cell => cell.querySelector("." + CSS.escape(filter)));
                             } else {
                                 showByGroups = Array.from(cells[5]?.querySelectorAll(".groupList > li > .d-none") || [])
                                     .some(item => item.textContent.includes(filter));
