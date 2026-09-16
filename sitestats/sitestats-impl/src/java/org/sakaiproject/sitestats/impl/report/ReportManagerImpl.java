@@ -585,7 +585,8 @@ public class ReportManagerImpl implements ReportManager, Observer {
 		}
 
 		try {
-			sessionFactory.getCurrentSession().merge(reportDef);
+			ReportDef mergedReportDef  = sessionFactory.getCurrentSession().merge(reportDef);
+			reportDef.setId(mergedReportDef.getId());
 			cacheReportDef.clear();
 			String siteId = reportDef.getSiteId();
 			if (siteId == null) {
