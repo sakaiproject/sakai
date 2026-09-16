@@ -15,10 +15,6 @@
         <script>
           document.addEventListener('DOMContentLoaded', () => {
             const dataTableConfig = JSON.parse('<h:outputText value="#{eventLog.dataTableConfig.json}" />');
-            // Preserve the ascending / descending cycle used before DataTables 2.
-            dataTableConfig.columns.forEach(column => {
-              column.orderSequence = ['asc', 'desc'];
-            });
             setupDataTable("eventLogId:eventLogTable", dataTableConfig);
           });
         </script>
