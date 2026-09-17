@@ -129,7 +129,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Named("PrivateMessagesTool")
 @SessionScoped
-public class PrivateMessagesTool {
+public class PrivateMessagesTool implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private static final String MESSAGECENTER_PRIVACY_URL = "messagecenter.privacy.url";
   private static final String MESSAGECENTER_PRIVACY_TEXT = "messagecenter.privacy.text";
@@ -439,10 +441,10 @@ public class PrivateMessagesTool {
   private final DraftRecipientsDelegate drDelegate;
   
   @Getter @Setter
-  public String schedulerSendDateString;
+  private String schedulerSendDateString;
 
   @Getter
-  public Date openDate;
+  private Date openDate;
   @Getter @Setter
   private boolean booleanSchedulerSend = false;
 
@@ -4242,27 +4244,27 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
 
   @Getter @Setter
-  public boolean searchOnBody=false ;
+  private boolean searchOnBody=false ;
   @Getter @Setter
-  public boolean searchOnSubject=true;  //default is search on Subject
+  private boolean searchOnSubject=true;  //default is search on Subject
   @Getter @Setter
-  public boolean searchOnLabel= false ;
+  private boolean searchOnLabel= false ;
   @Getter @Setter
-  public boolean searchOnAuthor=false;
+  private boolean searchOnAuthor=false;
   @Getter @Setter
-  public boolean searchOnDate=false;
+  private boolean searchOnDate=false;
   @Getter @Setter
-  public boolean searchOnTags=false;
+  private boolean searchOnTags=false;
   @Getter @Setter
-  public Date searchFromDate;
+  private Date searchFromDate;
   @Getter @Setter
-  public Date searchToDate;
+  private Date searchToDate;
   @Getter @Setter
-  public String selectedSearchLabel="pvt_priority_normal";
+  private String selectedSearchLabel="pvt_priority_normal";
   @Getter @Setter
-  public String searchFromDateString;
+  private String searchFromDateString;
   @Getter @Setter
-  public String searchToDateString; 
+  private String searchToDateString;
 
   //////////////        HELPER      //////////////////////////////////
   /**

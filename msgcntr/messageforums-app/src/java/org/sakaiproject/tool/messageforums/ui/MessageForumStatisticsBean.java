@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.messageforums.ui;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,7 +96,9 @@ import org.sakaiproject.grading.api.model.Gradebook;
 @Slf4j
 @Named("mfStatisticsBean")
 @SessionScoped
-public class MessageForumStatisticsBean {
+public class MessageForumStatisticsBean implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 	
 	/**
 	 * Used to store Statistic information on message forum per 
