@@ -60,7 +60,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         CriteriaQuery<Vote> query = cb.createQuery(Vote.class);
         Root<Vote> root = query.from(Vote.class);
 
-        Predicate optionPredicate = cb.equal(root.get("option"), optionId);
+        Predicate optionPredicate = cb.equal(root.get("option").get("id"), optionId);
 
         query.select(root)
                 .where(optionPredicate);
