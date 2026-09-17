@@ -487,7 +487,10 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     private LocalDateTime parseImportedPollDateTime(String dateValue, String timeValue, int rowNumber) {
         try {
-            Locale locale = pollsBundle != null ? pollsBundle.getLocale() : Locale.getDefault();
+            // Same locale resolution as preferredCsvDelimiter() (site locale, then user preference,
+            // then JVM default) so the delimiter guess and the date format guess for the same
+            // uploaded file are never based on two different locales.
+            Locale locale = localeService != null ? localeService.getLocaleForCurrentSiteAndUser() : Locale.getDefault();
             return PollImportCsvFormat.parseDateTime(dateValue, timeValue, locale);
         } catch (DateTimeParseException e) {
             throw new PollImportException(PollImportError.INVALID_DATES, rowNumber, new Object[] { e.getParsedString() }, e);

@@ -108,6 +108,9 @@ public class PollsServiceTests {
         Mockito.when(formattedText.processFormattedText(Mockito.anyString(), Mockito.isNull(), Mockito.eq(true), Mockito.eq(true)))
                .thenAnswer(inv -> inv.getArgument(0));
         Mockito.when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
+        // Matches ResourceLoader.getLocale()'s own fallback when no site/user locale is configured -
+        // keeps the default here consistent with what a real, unmocked LocaleService would resolve to.
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.getDefault());
 
         Site mockSite = Mockito.mock(Site.class);
         Group g1 = Mockito.mock(Group.class);

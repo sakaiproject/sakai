@@ -24,11 +24,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.format.FormatStyle;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -85,6 +86,13 @@ public final class PollImportCsvFormat {
     // java.text date pattern, so it can be forced to 4 digits without touching locales (fr-FR,
     // pt-BR...) that already use a variable-width "y".
     private static final Pattern TWO_DIGIT_YEAR_TOKEN = Pattern.compile("(?<!y)yy(?!y)");
+
+    // Matches any run of the java.text year-of-era token ("y", "yy", "yyyy"...), so it can be
+    // rewritten to the same-width java.time proleptic-year token ("u"...). ResolverStyle.STRICT
+    // cannot resolve a bare "y" pattern (year-of-era needs an era in the parsed text), and without
+    // STRICT an out-of-range date like 30 February silently rolls over to 28 February instead of
+    // being rejected.
+    private static final Pattern YEAR_OF_ERA_TOKEN = Pattern.compile("y+");
 
     private PollImportCsvFormat() {
     }
@@ -243,25 +251,54 @@ public final class PollImportCsvFormat {
         return LocalDate.parse(dateValue, DATE_FORMAT);
     }
 
+    /**
+     * The locale's short date format, day/month order and 2-digit year included - what Excel
+     * actually writes when it re-saves the downloaded template on that locale. Derived via
+     * java.text.DateFormat (like localizedFourDigitYearDateFormat() below) rather than
+     * DateTimeFormatter.ofLocalizedDate(), so both tiers agree on the exact same day/month order,
+     * with STRICT resolution so an out-of-range date isn't silently rolled over to a nearby valid
+     * one. Falls back to the fixed ISO format if the pattern can't be derived (an exotic
+     * locale/calendar not backed by SimpleDateFormat) - parseDate() moves on to the next fallback
+     * rather than throwing an unexpected error.
+     */
     private static DateTimeFormatter localizedDateFormat(Locale locale) {
-        return DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(locale);
+        try {
+            String pattern = toProlepticYearPattern(shortDatePattern(locale));
+            return DateTimeFormatter.ofPattern(pattern, locale).withResolverStyle(ResolverStyle.STRICT);
+        } catch (RuntimeException e) {
+            return DATE_FORMAT;
+        }
     }
 
     /**
      * The locale's short date day/month order with the year forced to 4 digits, used for the
      * exported template (so it never shows an ambiguous 2-digit year) and as a second import
-     * attempt. Falls back to the plain locale format if the pattern can't be derived (an exotic
-     * locale/calendar not backed by SimpleDateFormat) - that formatter will simply fail to match
-     * and parsing moves on to the next fallback rather than throwing an unexpected error.
+     * attempt. STRICT resolution for the same reason as localizedDateFormat() above. Falls back to
+     * the plain locale format if the pattern can't be derived (an exotic locale/calendar not backed
+     * by SimpleDateFormat) - that formatter will simply fail to match and parsing moves on to the
+     * next fallback rather than throwing an unexpected error.
      */
     private static DateTimeFormatter localizedFourDigitYearDateFormat(Locale locale) {
         try {
-            String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, locale)).toPattern();
-            String fourDigitPattern = TWO_DIGIT_YEAR_TOKEN.matcher(pattern).replaceAll("yyyy");
-            return DateTimeFormatter.ofPattern(fourDigitPattern, locale);
+            String fourDigitPattern = TWO_DIGIT_YEAR_TOKEN.matcher(shortDatePattern(locale)).replaceAll("yyyy");
+            return DateTimeFormatter.ofPattern(toProlepticYearPattern(fourDigitPattern), locale).withResolverStyle(ResolverStyle.STRICT);
         } catch (RuntimeException e) {
             return localizedDateFormat(locale);
         }
+    }
+
+    private static String shortDatePattern(Locale locale) {
+        return ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, locale)).toPattern();
+    }
+
+    private static String toProlepticYearPattern(String pattern) {
+        Matcher matcher = YEAR_OF_ERA_TOKEN.matcher(pattern);
+        StringBuilder result = new StringBuilder();
+        while (matcher.find()) {
+            matcher.appendReplacement(result, "u".repeat(matcher.group().length()));
+        }
+        matcher.appendTail(result);
+        return result.toString();
     }
 
     public static String normalizeCell(String value) {
