@@ -66,13 +66,14 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 
                     try {
                         Site site = siteService.getSite(siteId);
+                        String siteTitle = portalService.getSiteDisplayTitle(site);
 
                         return announcementService.getMessages(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER), filter, false, false)
                             .stream()
                             .filter(announcementService::isMessageViewable)
                             .map(am -> {
                                 Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
-                                return new AnnouncementRestBean(site, am, optionalUrl.get());
+                                return new AnnouncementRestBean(site, siteTitle, am, optionalUrl.get());
                             });
                     } catch (IdUnusedException idue) {
                         log.warn("Failed to get messages for site {}: {}", siteId, idue.toString());
@@ -110,7 +111,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                 .filter(announcementService::isMessageViewable)
                 .map(am -> {
                     Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
-                    return new AnnouncementRestBean(site, am, optionalUrl.get());
+                    return new AnnouncementRestBean(site, site.getTitle(), am, optionalUrl.get());
                 }).collect(Collectors.toList()));
         } catch (IdUnusedException idue) {
             log.error("No announcements for id {}", siteId);

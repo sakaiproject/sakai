@@ -340,6 +340,15 @@ public interface PortalService
 	void reorderPinnedSites(String userId, List<String> siteIds);
 
 	/**
+	 * Get the site's display title for the current user, using the short description
+	 * when preferred and nonblank, otherwise the site title.
+	 *
+	 * @param site The site to display
+	 * @return The preferred site title
+	 */
+	String getSiteDisplayTitle(Site site);
+
+	/**
 	 * Get the list of pinned site ids for the current user
 	 *
 	 * @return a list of site ids
