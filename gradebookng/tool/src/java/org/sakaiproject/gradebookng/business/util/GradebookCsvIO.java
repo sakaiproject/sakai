@@ -33,13 +33,14 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import org.sakaiproject.util.CsvSeparator;
+
 /**
  * Opens Gradebook CSV readers and writers with the encoding and delimiter conventions used by Excel.
  */
 public final class GradebookCsvIO {
 
 	private static final byte[] UTF_8_BOM = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
-	private static final char CSV_SEMICOLON_SEPARATOR = ';';
 	private static final Charset WINDOWS_1252 = Charset.forName("windows-1252");
 
 	private GradebookCsvIO() {
@@ -78,23 +79,15 @@ public final class GradebookCsvIO {
 				.onMalformedInput(CodingErrorAction.REPORT)
 				.onUnmappableCharacter(CodingErrorAction.REPORT));
 		final CSVParser parser = new CSVParserBuilder()
-				.withSeparator(separatorFor(decimalSeparator))
+				.withSeparator(CsvSeparator.forDecimalSeparator(decimalSeparator))
 				.build();
 		return new CSVReaderBuilder(inputStreamReader)
 				.withCSVParser(parser)
 				.build();
 	}
 
-	/**
-	 * Excel uses semicolon field separators when comma is the locale decimal separator, so numeric
-	 * grades such as {@code 7,5} are not split across columns.
-	 */
-	private static char separatorFor(final String decimalSeparator) {
-		return ",".equals(decimalSeparator) ? CSV_SEMICOLON_SEPARATOR : CSVWriter.DEFAULT_SEPARATOR;
-	}
-
 	private static CSVWriter newCsvWriter(final OutputStreamWriter outputStreamWriter, final String decimalSeparator) {
-		return new CSVWriter(outputStreamWriter, separatorFor(decimalSeparator), CSVWriter.DEFAULT_QUOTE_CHARACTER,
+		return new CSVWriter(outputStreamWriter, CsvSeparator.forDecimalSeparator(decimalSeparator), CSVWriter.DEFAULT_QUOTE_CHARACTER,
 				CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
 	}
 }
