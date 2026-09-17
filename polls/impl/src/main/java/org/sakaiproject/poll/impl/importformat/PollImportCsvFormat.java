@@ -14,7 +14,7 @@
  * limitations under the License.
  **********************************************************************************/
 
-package org.sakaiproject.poll.api.importformat;
+package org.sakaiproject.poll.impl.importformat;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -189,17 +189,6 @@ public final class PollImportCsvFormat {
         }
 
         return optionHeaders >= 2;
-    }
-
-    public static String formatHeaderRow(Function<String, String> messageResolver, int optionColumnCount) {
-        List<String> headers = new ArrayList<>(FIXED_COLUMN_COUNT + optionColumnCount);
-        for (String key : FIXED_HEADER_MESSAGE_KEYS) {
-            headers.add(messageResolver.apply(key));
-        }
-        for (int optionNumber = 1; optionNumber <= optionColumnCount; optionNumber++) {
-            headers.add(MessageFormat.format(messageResolver.apply(HEADER_OPTION_KEY), optionNumber));
-        }
-        return writeCsv(CSVWriter.DEFAULT_SEPARATOR, headers.toArray(String[]::new)).trim();
     }
 
     public static LocalDateTime parseDateTime(String dateValue, String timeValue, Locale locale) throws DateTimeParseException {

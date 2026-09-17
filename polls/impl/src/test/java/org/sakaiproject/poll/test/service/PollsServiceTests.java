@@ -26,10 +26,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
-import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,7 +38,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.poll.api.importformat.PollImportCsvFormat;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
@@ -730,10 +729,13 @@ public class PollsServiceTests {
 
     // ========== Bulk Import Tests ==========
 
-    private static final Function<String, String> ENGLISH_IMPORT_HEADERS = PollImportCsvFormat::defaultEnglishHeader;
-
     private String importCsvHeader(int optionColumnCount) {
-        return PollImportCsvFormat.formatHeaderRow(ENGLISH_IMPORT_HEADERS, optionColumnCount);
+        StringBuilder header = new StringBuilder("Question,Description,Access,Groups,Opening date,Opening time,"
+            + "Closing date,Closing time,Minimum options,Maximum options,Results visibility");
+        for (int option = 1; option <= optionColumnCount; option++) {
+            header.append(",Option ").append(option);
+        }
+        return header.toString();
     }
 
     @Test
@@ -916,8 +918,7 @@ public class PollsServiceTests {
 
     @Test
     public void testImportSampleCsvCreatesImportablePoll() {
-        String csv = PollImportCsvFormat.buildSampleCsv(
-            PollImportCsvFormat.buildColumnHeaders(ENGLISH_IMPORT_HEADERS), Locale.US);
+        String csv = pollsService.getPollImportSampleCsv(ResourceBundle.getBundle("bundle.polls", Locale.US)::getString);
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -983,8 +984,7 @@ public class PollsServiceTests {
     @Test
     public void testImportLocalizedSampleCsvCreatesImportablePoll() {
         Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
-        String csv = PollImportCsvFormat.buildSampleCsv(
-            PollImportCsvFormat.buildColumnHeaders(ENGLISH_IMPORT_HEADERS), Locale.forLanguageTag("es-ES"))
+        String csv = pollsService.getPollImportSampleCsv(ResourceBundle.getBundle("bundle.polls", Locale.US)::getString)
             .replace("What is your favorite color?", "Localized sample poll");
         Assert.assertTrue(csv.startsWith("Question;Description;"));
 

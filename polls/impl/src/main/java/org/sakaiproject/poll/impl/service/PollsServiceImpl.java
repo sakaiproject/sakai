@@ -77,7 +77,6 @@ import static org.sakaiproject.poll.api.PollConstants.PERMISSION_PREFIX;
 import static org.sakaiproject.poll.api.PollConstants.PERMISSION_VOTE;
 import static org.sakaiproject.poll.api.PollConstants.REFERENCE_ROOT;
 import org.sakaiproject.poll.api.entity.PollEntity;
-import org.sakaiproject.poll.api.importformat.PollImportCsvFormat;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
@@ -89,6 +88,7 @@ import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.util.PollUtil;
 import org.sakaiproject.poll.api.util.PollUtils;
+import org.sakaiproject.poll.impl.importformat.PollImportCsvFormat;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -254,6 +254,12 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         for (ImportedPoll importedPoll : importedPolls) {
             savePoll(buildImportedPoll(importedPoll, siteId, ownerId));
         }
+    }
+
+    @Override
+    public String getPollImportSampleCsv(Function<String, String> messageResolver) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
+        return PollImportCsvFormat.buildSampleCsv(PollImportCsvFormat.buildColumnHeaders(messageResolver), locale);
     }
 
     private List<ImportedPoll> parseImportedPolls(String csvContent, Locale locale) {

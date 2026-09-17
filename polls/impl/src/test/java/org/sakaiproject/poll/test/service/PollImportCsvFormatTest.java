@@ -29,7 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.sakaiproject.poll.api.importformat.PollImportCsvFormat;
+import org.sakaiproject.poll.impl.importformat.PollImportCsvFormat;
 
 @RunWith(Parameterized.class)
 public class PollImportCsvFormatTest {
