@@ -695,6 +695,8 @@ function includeWebjarLibrary(library, options = {}) {
 		case 'datatables':
 			libraryVersion = "3.0.3";
 			document.write(`<script src="${webjars}/datatables.net/${libraryVersion}/js/dataTables.min.js${ver}"></script>`);
+			// Preserve Sakai's two-direction sort cycle before any tables initialize.
+			document.write("<script>DataTable.defaults.column.orderSequence = ['asc', 'desc'];</script>");
 			document.write(`<script src="${webjars}/datatables.net-bs5/${libraryVersion}/js/dataTables.bootstrap5.min.js${ver}"></script>`);
 			document.write(`<script src="${webjars}/datatables.net-plugins/3.0.2/sorting/natural.js${ver}"></script>`);
 			document.write(`<script src="${webjars}/datatables.net-plugins/3.0.2/sorting/any-number.js${ver}"></script>`);
