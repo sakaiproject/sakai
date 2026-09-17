@@ -23,8 +23,10 @@ import org.sakaiproject.javax.Filter;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,12 +55,16 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 	@Autowired
 	private EntityManager entityManager;
 
+    @Autowired
+    private PreferencesService preferencesService;
+
     @GetMapping(value = "/users/me/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List> getUserAnnouncements() throws UserNotDefinedException {
 
         checkSakaiSession();
 
         Filter filter = announcementService.getMaxAgeInDaysAndAmountFilter(10, 100);
+        boolean useSiteDescription = preferencesService.getSiteTitleDisplayPreference() == PreferencesService.USE_SITE_DESCRIPTION;
 
         try {
 
@@ -72,7 +78,11 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                             .filter(announcementService::isMessageViewable)
                             .map(am -> {
                                 Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
-                                return new AnnouncementRestBean(site, am, optionalUrl.get());
+                                AnnouncementRestBean announcement = new AnnouncementRestBean(site, am, optionalUrl.get());
+                                if (useSiteDescription && StringUtils.isNotBlank(site.getShortDescription())) {
+                                    announcement.setSiteTitle(site.getShortDescription());
+                                }
+                                return announcement;
                             });
                     } catch (IdUnusedException idue) {
                         log.warn("Failed to get messages for site {}: {}", siteId, idue.toString());
