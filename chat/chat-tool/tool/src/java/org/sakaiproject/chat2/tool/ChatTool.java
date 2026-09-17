@@ -22,6 +22,7 @@
 package org.sakaiproject.chat2.tool;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -77,7 +78,9 @@ import lombok.extern.slf4j.Slf4j;
 @Getter @Setter
 @Named("ChatTool")
 @SessionScoped
-public class ChatTool {
+public class ChatTool implements Serializable {
+
+   private static final long serialVersionUID = 1L;
 
    private static final String IFRAME_ROOM_USERS = "Presence";
    
