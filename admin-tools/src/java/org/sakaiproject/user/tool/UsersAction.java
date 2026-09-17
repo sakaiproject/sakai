@@ -221,14 +221,14 @@ public class UsersAction extends PagedResourceActionII
 
 		if (state.getAttribute("single-user") == null)
 		{
-			state.setAttribute("single-user", new Boolean(config.getInitParameter("single-user", "false")));
-			state.setAttribute("include-password", new Boolean(config.getInitParameter("include-password", "true")));
+			state.setAttribute("single-user", Boolean.valueOf(config.getInitParameter("single-user", "false")));
+			state.setAttribute("include-password", Boolean.valueOf(config.getInitParameter("include-password", "true")));
 		}
 
 		if (state.getAttribute("create-user") == null)
 		{
-			state.setAttribute("create-user", new Boolean(config.getInitParameter("create-user", "false")));
-			state.setAttribute("create-login", new Boolean(config.getInitParameter("create-login", "false")));
+			state.setAttribute("create-user", Boolean.valueOf(config.getInitParameter("create-user", "false")));
+			state.setAttribute("create-login", Boolean.valueOf(config.getInitParameter("create-login", "false")));
 		}
 
 		if (state.getAttribute("create-type") == null)
@@ -238,12 +238,12 @@ public class UsersAction extends PagedResourceActionII
 
 		if (state.getAttribute(CONFIG_VALIDATE_THROUGH_EMAIL) == null)
 		{
-			state.setAttribute(CONFIG_VALIDATE_THROUGH_EMAIL, new Boolean(config.getInitParameter(CONFIG_VALIDATE_THROUGH_EMAIL, "false")));
+			state.setAttribute(CONFIG_VALIDATE_THROUGH_EMAIL, Boolean.valueOf(config.getInitParameter(CONFIG_VALIDATE_THROUGH_EMAIL, "false")));
 		}
 
 		if (state.getAttribute(CONFIG_FORCE_EID_EQUALS_EMAIL) == null)
 		{
-			state.setAttribute(CONFIG_FORCE_EID_EQUALS_EMAIL, new Boolean(config.getInitParameter(CONFIG_FORCE_EID_EQUALS_EMAIL, "false")));
+			state.setAttribute(CONFIG_FORCE_EID_EQUALS_EMAIL, Boolean.valueOf(config.getInitParameter(CONFIG_FORCE_EID_EQUALS_EMAIL, "false")));
 		}
 
 		if (state.getAttribute(CONFIG_CREATE_BLURB) == null)
@@ -1654,7 +1654,7 @@ public class UsersAction extends PagedResourceActionII
 		
 		// use special form of the helper for the admin workspace
 		ToolSession session = sessionManager.getCurrentToolSession();
-        session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, new Boolean(true).toString());
+        session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, Boolean.TRUE.toString());
 		
 		// use the helper
 		startHelper(rundata.getRequest(), "sakai.filepicker");
