@@ -109,14 +109,14 @@ public class ContentItemTest {
     }
 
     /**
-     * Tests validation when data parameter is missing
+     * The data= parameter is optional - a tool only echoes it back if the platform sent one
      */
     @Test
-    public void testContentItemThrowsNoData() {
+    public void testContentItemAcceptsMissingData() {
         request.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": \"ene\"}");
-        expectedEx.expect(RuntimeException.class);
-        expectedEx.expectMessage(ContentItem.NO_DATA_MESSAGE);
-        new ContentItem(request);
+        ContentItem contentItem = new ContentItem(request);
+        assertTrue("Data properties should be empty when no data= was returned",
+            contentItem.getDataProperties().isEmpty());
     }
 
     /**
