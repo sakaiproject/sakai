@@ -1375,6 +1375,29 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         topic.tags = Collections.singletonList(saved);
         topic = conversationsService.saveTopic(topic, false);
         assertEquals(Collections.singletonList(saved.getId()), tagService.getTagAssociationIds(site1Id, topic.id));
+
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+
+        Reference reference = mock(Reference.class);
+        when(reference.getReference()).thenReturn(ConversationsReferenceReckoner.reckoner()
+            .siteId(site1Id).type("t").id(topic.id).reckon().getReference());
+        switchToUser2();
+        List<TopicTransferBean> topicResponses = Arrays.asList(
+            topic,
+            conversationsService.getTopic(topic.id).get(),
+            conversationsService.getTopicsForSite(site1Id).get(0),
+            conversationsService.lockTopic(topic.id, false, false),
+            conversationsService.upvoteTopic(site1Id, topic.id),
+            conversationsService.unUpvoteTopic(site1Id, topic.id),
+            (TopicTransferBean) ((ConversationsServiceImpl) AopTestUtils.getTargetObject(conversationsService)).getEntity(reference));
+
+        for (TopicTransferBean response : topicResponses) {
+            assertEquals(1, response.tags.size());
+            assertEquals(saved.getId(), response.tags.get(0).getId());
+            assertEquals(site1Id, response.tags.get(0).getSiteId());
+            assertEquals("Edited through shared service", response.tags.get(0).getLabel());
+        }
     }
 
     @Test

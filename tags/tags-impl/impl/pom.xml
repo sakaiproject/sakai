@@ -29,7 +29,7 @@
         <artifactId>maven-jar-plugin</artifactId>
         <executions>
           <execution>
-            <phase>package</phase>
+            <phase>process-test-classes</phase>
             <goals><goal>jar</goal></goals>
             <configuration><classifier>classes</classifier></configuration>
           </execution>

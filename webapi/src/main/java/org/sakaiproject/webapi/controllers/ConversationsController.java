@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -408,11 +409,14 @@ public class ConversationsController extends AbstractSakaiApiController {
     }
 
 	@PostMapping(value = "/sites/{siteId}/conversations/tags", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<TagTransferBean> createTags(@PathVariable String siteId, @RequestBody List<TagTransferBean> tags) throws ConversationsPermissionsException {
+    public ResponseEntity<List<TagTransferBean>> createTags(@PathVariable String siteId, @RequestBody List<TagTransferBean> tags) throws ConversationsPermissionsException {
 
 		checkSakaiSession();
+        if (tags == null || tags.stream().anyMatch(Objects::isNull)) {
+            return ResponseEntity.badRequest().build();
+        }
         tags.forEach(tag -> tag.setSiteId(siteId));
-        return conversationsService.createTags(tags);
+        return ResponseEntity.ok(conversationsService.createTags(tags));
     }
 
 	@GetMapping(value = "/sites/{siteId}/conversations/tags", produces = MediaType.APPLICATION_JSON_VALUE)

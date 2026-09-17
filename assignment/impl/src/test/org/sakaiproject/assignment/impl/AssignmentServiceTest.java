@@ -111,6 +111,7 @@ import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
@@ -169,6 +170,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SiteService siteService;
+    @Autowired private TagService tagService;
     @Autowired private TaskService taskService;
     @Resource(name = "org.sakaiproject.time.api.TimeService")
     private TimeService timeService;
@@ -179,6 +181,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Before
     public void setUp() {
+        when(serverConfigurationService.getBoolean("tagservice.enable.integrations", true)).thenReturn(false);
         when(serverConfigurationService.getAccessUrl()).thenReturn("http://localhost:8080/access");
         resourceLoader = mock(ResourceLoader.class);
         when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
@@ -668,6 +671,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void deleteAssignment() {
+        when(serverConfigurationService.getBoolean("tagservice.enable.integrations", true)).thenReturn(true);
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
         String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
@@ -675,6 +679,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, stringRef)).thenReturn(true);
         try {
             assignmentService.deleteAssignment(assignment);
+            verify(tagService).updateTagAssociations(context, assignment.getId(), Collections.emptyList(), true);
             deleted = assignmentService.getAssignment(assignment.getId());
         } catch (PermissionException e) {
             Assert.fail("Assignment not deleted\n" + e.toString());
@@ -688,6 +693,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void deleteAssignmentPermissionDenied() {
+        when(serverConfigurationService.getBoolean("tagservice.enable.integrations", true)).thenReturn(true);
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
         String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
@@ -695,6 +701,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         try {
             assignmentService.deleteAssignment(assignment);
         } catch (PermissionException e) {
+            verify(tagService, Mockito.never()).updateTagAssociations(eq(context), eq(assignment.getId()), anyCollection(), eq(true));
             Assignment notDeleted = null;
             try {
                 notDeleted = assignmentService.getAssignment(assignment.getId());
@@ -706,6 +713,19 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             return;
         }
         Assert.fail("Should never reach this line");
+    }
+
+    @Test
+    public void deleteAssignmentWithTagIntegrationsDisabled() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+
+        assignmentService.deleteAssignment(assignment);
+
+        Assert.assertThrows(IdUnusedException.class, () -> assignmentService.getAssignment(assignment.getId()));
+        verify(tagService, Mockito.never()).updateTagAssociations(eq(context), eq(assignment.getId()), anyCollection(), eq(true));
     }
 
     @Test

@@ -295,7 +295,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     }
 
     public Optional<TopicTransferBean> getTopic(String topicId) throws ConversationsPermissionsException {
-        return topicRepository.findById(topicId).map(TopicTransferBean::of);
+        return topicRepository.findById(topicId).map(this::toTopicTransferBean);
     }
 
     public boolean currentUserCanViewTopic(ConversationsTopic topic) {
@@ -551,7 +551,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         
         topic = updateCalendarForTopic(oldDueDateCalendarEventId, topic);
 
-        TopicTransferBean outTopicBean = TopicTransferBean.of(topic);
+        TopicTransferBean outTopicBean = toTopicTransferBean(topic);
 
         if (isNew) {
             topicStatusRepository.setViewedByTopicId(topic.getId(), true);
@@ -779,7 +779,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         Settings settings = getSettingsForSite(topic.getSiteId());
         topic = topicRepository.save(topic);
-        TopicTransferBean bean = decorateTopicBean(TopicTransferBean.of(topic), topic, currentUserId, settings);
+        TopicTransferBean bean = decorateTopicBean(toTopicTransferBean(topic), topic, currentUserId, settings);
         postsCache.remove(topicId);
         return bean;
     }
@@ -976,7 +976,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             });
         }
 
-        return TopicTransferBean.of(topicRepository.save(topic));
+        return toTopicTransferBean(topicRepository.save(topic));
     }
 
     @Override
@@ -1006,7 +1006,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         topicStatusRepository.save(status);
         topic.setUpvotes(topic.getUpvotes() - 1);
 
-        return TopicTransferBean.of(topicRepository.save(topic));
+        return toTopicTransferBean(topicRepository.save(topic));
     }
 
     public Optional<PostTransferBean> getPost(String postId) throws ConversationsPermissionsException {
@@ -1807,8 +1807,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }));
     }
 
+    private TopicTransferBean toTopicTransferBean(ConversationsTopic topic) {
+        TopicTransferBean topicBean = TopicTransferBean.of(topic);
+        topicBean.tags = getTopicTags(topic);
+        return topicBean;
+    }
+
     private List<TopicTransferBean> decorateTopics(List<ConversationsTopic> topics, String currentUserId, Settings settings) {
-        return topics.stream().map(t -> decorateTopicBean(TopicTransferBean.of(t), t, currentUserId, settings)).collect(Collectors.toList());
+        return topics.stream().map(t -> decorateTopicBean(toTopicTransferBean(t), t, currentUserId, settings)).collect(Collectors.toList());
     }
 
     private TopicTransferBean decorateTopicBean(TopicTransferBean topicBean, ConversationsTopic topic, String currentUserId, Settings settings) {
@@ -1834,8 +1840,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (topic != null) {
-
-            topicBean.tags = getTopicTags(topic);
 
             topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
                 .ifPresent(s -> {
@@ -2851,7 +2855,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         } else {
             switch (reference.getType()) {
                 case "t":
-                    return topicRepository.findById(reference.getId()).map(TopicTransferBean::of).orElse(null);
+                    return topicRepository.findById(reference.getId()).map(this::toTopicTransferBean).orElse(null);
                 case "p":
                     return postRepository.findById(reference.getId()).map(PostTransferBean::of).orElse(null);
                 default:

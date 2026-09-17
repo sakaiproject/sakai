@@ -1326,6 +1326,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         String context = assignment.getContext();
 
+        if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
+            tagService.updateTagAssociations(context, assignment.getId(), Collections.emptyList(), true);
+        }
+
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
         assignmentRepository.deleteAssignment(assignment.getId());
 
