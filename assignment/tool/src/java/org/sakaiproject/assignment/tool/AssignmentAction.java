@@ -11709,15 +11709,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String aReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
             List<AssignmentSubmission> submissions = getFilteredSubmitters(state, aReference);
             for (AssignmentSubmission s : submissions) {
-                // if the submission is not already released
-                // if the assignment type is either
-                //   UNGRADED and comments have been left on the submission
-                //   GRADED and a grade exists on the submission
-                //   PEER ASSESSED and feedback has been left without a grade
-                if (!s.getGradeReleased()
-                        && (a.getTypeOfGrade() == Assignment.GradeType.UNGRADED_GRADE_TYPE && assignmentService.doesSubmissionHaveInstructorFeedback(s)
-                        || ((a.getTypeOfGrade() != Assignment.GradeType.UNGRADED_GRADE_TYPE) && StringUtils.isNotBlank(s.getGrade()))
-                        || (a.getAllowPeerAssessment() && assignmentService.getSubmissionCanonicalStatus(s, true) == SubmissionStatus.COMMENTED))) {
+                if (assignmentService.isSubmissionEligibleForRelease(s)) {
                     s.setGraded(true);
                     s.setGradeReleased(true);
                     s.setReturned(true);

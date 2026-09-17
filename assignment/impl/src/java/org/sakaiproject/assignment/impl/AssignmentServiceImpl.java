@@ -2753,10 +2753,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         SubmissionStatus status;
         if (canGrade) {
             status = getGradersCanonicalSubmissionStatus(submission);
-            if (submission != null && submission.getAssignment().getAllowPeerAssessment()
-                    && (status == SubmissionStatus.UNGRADED || status == SubmissionStatus.NO_SUBMISSION)
-                    && assignmentPeerAssessmentService.getPeerAssessmentItems(submission.getId(), submission.getAssignment().getScaleFactor())
-                            .stream().anyMatch(review -> !review.getRemoved() && StringUtils.isNotBlank(review.getComment()))) {
+            if ((status == SubmissionStatus.UNGRADED || status == SubmissionStatus.NO_SUBMISSION)
+                    && doesSubmissionHavePeerFeedback(submission)) {
                 status = SubmissionStatus.COMMENTED;
             }
         } else {
@@ -2840,6 +2838,27 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission) {
         return StringUtils.isNotBlank(submission.getFeedbackComment()) || CollectionUtils.isNotEmpty(submission.getFeedbackAttachments());
+    }
+
+    private boolean doesSubmissionHavePeerFeedback(AssignmentSubmission submission) {
+        return submission != null && submission.getAssignment().getAllowPeerAssessment()
+                && assignmentPeerAssessmentService.getPeerAssessmentItems(submission.getId(), submission.getAssignment().getScaleFactor())
+                        .stream().anyMatch(review -> !review.getRemoved() && StringUtils.isNotBlank(review.getComment()));
+    }
+
+    @Override
+    public boolean isSubmissionEligibleForRelease(AssignmentSubmission submission) {
+        if (submission.getGradeReleased()) {
+            return false;
+        }
+        Assignment assignment = submission.getAssignment();
+        if (assignment.getTypeOfGrade() == Assignment.GradeType.UNGRADED_GRADE_TYPE
+                ? doesSubmissionHaveInstructorFeedback(submission) : StringUtils.isNotBlank(submission.getGrade())) {
+            return true;
+        }
+        SubmissionStatus status = getGradersCanonicalSubmissionStatus(submission);
+        return (status == SubmissionStatus.UNGRADED || status == SubmissionStatus.NO_SUBMISSION || status == SubmissionStatus.COMMENTED)
+                && doesSubmissionHavePeerFeedback(submission);
     }
 
     private AssignmentConstants.SubmissionStatus getSubmittersCanonicalSubmissionStatus(AssignmentSubmission submission) {

@@ -2078,20 +2078,28 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, assignmentService.getSubmissionCanonicalStatus(submission, false));
         Assert.assertNull(submission.getGrade());
         Assert.assertFalse(submission.getGradeReleased());
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
 
         review.setRemoved(true);
         assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setFeedbackComment("Instructor feedback with a removed peer review");
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setFeedbackComment(null);
 
         review.setRemoved(false);
         review.setComment(" \t ");
         assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
 
         review.setComment("Peer feedback without a score");
         assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
         assignment.setAllowPeerAssessment(false);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
 
         assignment.setAllowPeerAssessment(true);
         submission.setGraded(true);
@@ -2100,11 +2108,45 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         submission.setGrade(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
         submission.setReturned(true);
         submission.setGradeReleased(true);
         submission.setDateReturned(Instant.now());
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, true));
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setGradeReleased(false);
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+    }
+
+    @Test
+    public void bulkReleasePreservesInstructorFeedbackEligibility() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.setAllowPeerAssessment(true);
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        AssignmentSubmission submission = createNewSubmission(context, UUID.randomUUID().toString(), assignment);
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+
+        submission.setFeedbackComment("Instructor feedback without a score");
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+
+        assignment.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setFeedbackComment(null);
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.getFeedbackAttachments().add("/content/feedback.txt");
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setGrade("1000");
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+        assignment.setAllowPeerAssessment(false);
+        Assert.assertTrue(assignmentService.isSubmissionEligibleForRelease(submission));
+        submission.setGradeReleased(true);
+        Assert.assertFalse(assignmentService.isSubmissionEligibleForRelease(submission));
     }
 
     @Test
