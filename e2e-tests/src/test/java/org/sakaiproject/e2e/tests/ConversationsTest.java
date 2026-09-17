@@ -94,8 +94,8 @@ class ConversationsTest extends SakaiUiTestBase {
         editor.press("Tab");
 
         page.locator("sakai-add-topic:visible input[value='Publish']").click();
-        assertThat(page.locator("sakai-topic-summary").filter(new Locator.FilterOptions().setHasText(TOPIC_TITLE)).first())
-            .isVisible();
+        assertThat(page.locator(".conversations-topic__title")).hasText(TOPIC_TITLE);
+        assertThat(page.locator("sakai-topic:visible .topic-message")).containsText(TOPIC_BODY);
     }
 
     @Test
@@ -105,12 +105,19 @@ class ConversationsTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Conversation");
 
-        Locator topic = page.locator("sakai-topic-summary:visible")
-            .filter(new Locator.FilterOptions().setHasText(TOPIC_TITLE));
+        Locator topic = page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true));
         assertThat(topic).isVisible();
-        page.locator("sakai-topic-list:visible select:has(option[value='by_unviewed'])").selectOption("by_unviewed");
+        Locator filter = page.getByRole(AriaRole.COMBOBOX,
+            new Page.GetByRoleOptions().setName("Filter by various").setExact(true));
+        filter.selectOption("by_unviewed");
         page.waitForResponse(response -> response.url().endsWith("/markpostsviewed") && response.ok(), topic::click);
         assertThat(page.locator("sakai-topic:visible .topic-message")).containsText(TOPIC_BODY);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Topics").setExact(true)).click();
+        assertThat(filter).hasValue("by_unviewed");
+        assertThat(topic).hasCount(0);
+        filter.selectOption("any");
+        assertThat(topic).isVisible();
         assertThat(page.locator("sakai-topic-list:visible option[value='by_unviewed']")).hasCount(0);
 
         page.reload();
@@ -136,7 +143,7 @@ class ConversationsTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     void navigatesInFilteredOrderAndRetainsFilter() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
@@ -175,12 +182,12 @@ class ConversationsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Topics").setExact(true)).click();
         assertThat(filter).hasValue("by_question");
         assertThat(titles).hasText(originalOrder.toArray(String[]::new));
-        assertThat(page.locator(".topic-summary-link").filter(new Locator.FilterOptions()
-            .setHasText(originalOrder.get(originalOrder.size() - 1)))).isFocused();
+        assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
+            .setName(originalOrder.get(originalOrder.size() - 1)).setExact(true))).isFocused();
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void updatesTopicMenuActionsWithoutLeavingList() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
