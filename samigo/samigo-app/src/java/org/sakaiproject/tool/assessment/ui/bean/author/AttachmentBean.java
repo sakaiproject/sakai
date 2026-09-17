@@ -23,14 +23,14 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /* For author: Item Attachment backing bean. */
-@Named("attachmentBean")
+@ManagedBean(name="attachmentBean")
 @SessionScoped
 public class AttachmentBean implements Serializable {
 

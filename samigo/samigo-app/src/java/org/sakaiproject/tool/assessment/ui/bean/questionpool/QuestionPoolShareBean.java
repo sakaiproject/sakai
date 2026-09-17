@@ -27,12 +27,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.component.html.HtmlDataTable;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.model.SelectItem;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,7 +53,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 /* Question Pool share backing bean. */
 @Slf4j
-@Named("questionpoolshare")
+@ManagedBean(name="questionpoolshare")
 @SessionScoped
 public class QuestionPoolShareBean implements Serializable {
 

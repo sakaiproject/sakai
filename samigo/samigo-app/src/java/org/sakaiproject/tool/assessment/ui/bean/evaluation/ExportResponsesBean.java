@@ -34,10 +34,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
@@ -71,7 +71,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /* For evaluation: Export Responses backing bean. */
 @Slf4j
-@Named("exportResponses")
+@ManagedBean(name="exportResponses")
 @SessionScoped
 public class ExportResponsesBean extends SpringBeanAutowiringSupport implements Serializable, PhaseAware {
 

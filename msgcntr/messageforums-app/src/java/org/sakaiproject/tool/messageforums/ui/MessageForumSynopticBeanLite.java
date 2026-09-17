@@ -54,11 +54,11 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.RequestScoped;
+import jakarta.faces.bean.ManagedBean;
 
 @Slf4j
-@Named("mfSynopticBeanLite")
+@ManagedBean(name="mfSynopticBeanLite")
 @RequestScoped
 public class MessageForumSynopticBeanLite {
 	

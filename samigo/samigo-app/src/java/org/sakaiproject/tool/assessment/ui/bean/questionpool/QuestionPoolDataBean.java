@@ -37,12 +37,12 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.util.api.FormattedText;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* For questionpool: Question Pool Data backing bean. */
 @Slf4j
-@Named("questionpooldata")
+@ManagedBean(name="questionpooldata")
 @SessionScoped
 public class QuestionPoolDataBean implements Serializable {
 

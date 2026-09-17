@@ -28,10 +28,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.bean.RequestScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -65,7 +65,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Named("mfSynopticBean")
+@ManagedBean(name="mfSynopticBean")
 @RequestScoped
 public class MessageForumSynopticBean {
 

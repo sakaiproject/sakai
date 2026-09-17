@@ -36,13 +36,13 @@ import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Named("samLiteBean")
+@ManagedBean(name="samLiteBean")
 @SessionScoped
 public class SamLiteBean implements Serializable {
 	private static final long serialVersionUID = -3122436861866172596L;
