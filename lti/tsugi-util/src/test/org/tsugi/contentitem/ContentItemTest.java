@@ -120,6 +120,18 @@ public class ContentItemTest {
     }
 
     /**
+     * An explicitly empty data= parameter is treated the same as an omitted one
+     */
+    @Test
+    public void testContentItemAcceptsEmptyData() {
+        request.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": \"ene\"}");
+        request.addParameter("data", "");
+        ContentItem contentItem = new ContentItem(request);
+        assertTrue("Data properties should be empty when data= was returned empty",
+            contentItem.getDataProperties().isEmpty());
+    }
+
+    /**
      * Tests validation of malformed data parameter
      */
     @Test
