@@ -1030,9 +1030,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.jboss</groupId>
+        <groupId>io.smallrye</groupId>
         <artifactId>jandex</artifactId>
-        <version>2.4.3.Final</version>
+        <version>3.2.7</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
