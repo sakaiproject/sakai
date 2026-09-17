@@ -46,21 +46,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 @Slf4j
 public class SakaiVariableResolver extends ELResolver
 {
-	/** The VariableResolver already in place that we add features to. */
-	protected ELResolver m_resolver = null;
-
-	/**
-	 * Construct taking the VariableResolver alreay in place that we decorate.
-	 * 
-	 * @param other
-	 *        The VariableResolver already in place.
-	 */
-	public SakaiVariableResolver(ELResolver other)
-	{
-		m_resolver = other;
-		if (log.isDebugEnabled()) log.debug("constructed around: " + m_resolver);
-	}
-
 	@Override
 	public Object getValue(ELContext context, Object base, Object property) throws ELException
 	{
