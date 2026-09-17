@@ -94,7 +94,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List> getSiteAnnouncements(@PathVariable String siteId) throws UserNotDefinedException {
+    public Map<String, List> getSiteAnnouncements(@PathVariable("siteId") String siteId) throws UserNotDefinedException {
 
         checkSakaiSession();
 

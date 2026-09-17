@@ -6,10 +6,10 @@
  * http://opensource.org/licenses/ECL-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ *  License for the specific language governing permissions and limitations under
+ *  the License.
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
@@ -79,7 +79,7 @@ public class TasksController extends AbstractSakaiApiController {
 
     @Resource
     private UserDirectoryService userDirectoryService;
-    
+
     @Resource
     private SecurityService securityService;
 
@@ -105,12 +105,12 @@ public class TasksController extends AbstractSakaiApiController {
 
         return data;
     }
-    
+
     @GetMapping(value = "/sites/{siteId}/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> getSiteTasks(@PathVariable String siteId) throws UserNotDefinedException, IdUnusedException {
+    public Map<String, Object> getSiteTasks(@PathVariable("siteId") String siteId) throws UserNotDefinedException, IdUnusedException {
 
         Session session = checkSakaiSession();
-        
+
         final Site site = siteService.getSite(siteId);
 
         Map<String, Object> data = new HashMap<>();
@@ -120,8 +120,8 @@ public class TasksController extends AbstractSakaiApiController {
             .stream().map(bean -> {
 
                 if (site != null) {
-                	bean.setSiteTitle(site.getTitle());
-                	bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
+                    bean.setSiteTitle(site.getTitle());
+                    bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
                 }
                 if (StringUtils.isNotBlank(bean.getReference()) && !bean.getReference().startsWith("/user/")) {
                     entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));
@@ -150,7 +150,7 @@ public class TasksController extends AbstractSakaiApiController {
 
         return data;
     }
-    
+
     @PostMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserTaskAdapterBean createTask(@RequestBody UserTaskAdapterBean taskTransfer) {
 
@@ -205,7 +205,7 @@ public class TasksController extends AbstractSakaiApiController {
             }
         } else {
             result = UserTaskAdapterBean.from(taskService.createSingleUserTask(taskTransfer));
-        	if (!StringUtils.isEmpty(taskTransfer.getSiteId())) {
+            if (!StringUtils.isEmpty(taskTransfer.getSiteId())) {
                 try {
                     Site site = siteService.getSite(taskTransfer.getSiteId());
                     result.setTaskAssignedTo(getTaskAssignedDescription(result.getTaskId(), site));
@@ -216,12 +216,12 @@ public class TasksController extends AbstractSakaiApiController {
             }
         }
         result.setOwner(taskTransfer.getUserId());
- 
+
         return result;
     }
 
     @PutMapping(value = "/tasks/{userTaskId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserTaskAdapterBean updateTask(@RequestBody UserTaskAdapterBean taskTransfer ) {
+    public UserTaskAdapterBean updateTask(@RequestBody UserTaskAdapterBean taskTransfer) {
 
         checkSakaiSession();
 
@@ -232,12 +232,12 @@ public class TasksController extends AbstractSakaiApiController {
             } catch (IdUnusedException e) {
                 log.error(e.getMessage(), e);
             }
-        }        
+        }
         return bean;
     }
 
     @DeleteMapping("/tasks/{userTaskId}")
-    public void deleteTask(@PathVariable Long userTaskId) {
+    public void deleteTask(@PathVariable("userTaskId") Long userTaskId) {
 
         checkSakaiSession();
         taskService.removeUserTask(userTaskId);
