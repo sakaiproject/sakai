@@ -77,6 +77,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentService.OpenDateNotification;
@@ -84,6 +85,8 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -155,6 +158,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Resource(name = "org.sakaiproject.announcement.api.AnnouncementService")
     private AnnouncementService announcementService;
     @Autowired private AssignmentEventObserver assignmentEventObserver;
+    @Autowired private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Autowired private AssignmentService assignmentService;
     @Autowired private AuthzGroupService authzGroupService;
     @Resource(name = "org.sakaiproject.calendar.api.CalendarService")
@@ -2049,6 +2053,58 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(now.minus(1, ChronoUnit.HOURS).toEpochMilli()));
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RESUBMIT_ALLOWED, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
+    }
+
+    @Test
+    public void peerFeedbackWithoutScoreIsCommented() throws Exception {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        assignment.setAllowPeerAssessment(true);
+        assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+        AssignmentSubmission submission = createNewSubmission(context, UUID.randomUUID().toString(), assignment);
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now());
+
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        PeerAssessmentItem review = new PeerAssessmentItem();
+        review.setId(new AssessorSubmissionId(submission.getId(), UUID.randomUUID().toString()));
+        review.setAssignmentId(assignment.getId());
+        review.setComment("Peer feedback without a score");
+        review.setSubmitted(true);
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+        Assert.assertNull(submission.getGrade());
+        Assert.assertFalse(submission.getGradeReleased());
+
+        review.setRemoved(true);
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        review.setRemoved(false);
+        review.setComment(" \t ");
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        review.setComment("Peer feedback without a score");
+        assignmentPeerAssessmentService.savePeerAssessmentItem(review, context, AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW);
+        assignment.setAllowPeerAssessment(false);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        assignment.setAllowPeerAssessment(true);
+        submission.setGraded(true);
+        submission.setGrade("1000");
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        submission.setGrade(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        submission.setReturned(true);
+        submission.setGradeReleased(true);
+        submission.setDateReturned(Instant.now());
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
     }
 
     @Test

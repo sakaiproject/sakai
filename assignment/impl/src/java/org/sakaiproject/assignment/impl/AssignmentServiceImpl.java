@@ -2753,6 +2753,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         SubmissionStatus status;
         if (canGrade) {
             status = getGradersCanonicalSubmissionStatus(submission);
+            if (submission != null && submission.getAssignment().getAllowPeerAssessment()
+                    && (status == SubmissionStatus.UNGRADED || status == SubmissionStatus.NO_SUBMISSION)
+                    && assignmentPeerAssessmentService.getPeerAssessmentItems(submission.getId(), submission.getAssignment().getScaleFactor())
+                            .stream().anyMatch(review -> !review.getRemoved() && StringUtils.isNotBlank(review.getComment()))) {
+                status = SubmissionStatus.COMMENTED;
+            }
         } else {
             status = getSubmittersCanonicalSubmissionStatus(submission);
         }
