@@ -898,27 +898,20 @@ public class MessageForumsForumManagerImpl implements MessageForumsForumManager 
     public DiscussionForum getFaqForumForArea(Area area) {
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<OpenForumImpl> cq = cb.createQuery(OpenForumImpl.class);
-        Root<OpenForumImpl> forum = cq.from(OpenForumImpl.class);
-
-        forum.fetch("topicsSet", JoinType.LEFT).fetch("attachmentsSet", JoinType.LEFT);
-        forum.fetch("attachmentsSet", JoinType.LEFT);
+        CriteriaQuery<DiscussionForumImpl> cq = cb.createQuery(DiscussionForumImpl.class);
+        Root<DiscussionForumImpl> forum = cq.from(DiscussionForumImpl.class);
 
         cq.select(forum)
-          .distinct(true)
           .where(
               cb.equal(forum.get("typeUuid"), area.getTypeUuid()),
-              cb.equal(forum.get("area").get("contextId"), area.getContextId()),
-              cb.isTrue(forum.get("faqForum"))
-         );
+              cb.equal(forum.get("area").get("contextId"), area.getContextId())
+          );
 
-        DiscussionForum existingFaqForum = session.createQuery(cq)
+        return session.createQuery(cq)
                 .getResultList()
                 .stream()
                 .findAny()
-                .map(f -> (DiscussionForum) f)
                 .orElse(null);
-        return existingFaqForum != null ? existingFaqForum : createFaqForum(area);
     }
 
     public DiscussionTopic getFaqTopicForForum(DiscussionForum faqForum) {
