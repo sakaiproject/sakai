@@ -94,7 +94,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
 import jakarta.el.ELContext;
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.FactoryFinder;
 import jakarta.faces.application.ApplicationFactory;
 import jakarta.faces.application.FacesMessage;
@@ -102,7 +102,7 @@ import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.model.SelectItem;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.text.ParseException;
@@ -127,7 +127,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Named("PrivateMessagesTool")
+@ManagedBean(name="PrivateMessagesTool")
 @SessionScoped
 public class PrivateMessagesTool implements Serializable {
 

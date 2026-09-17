@@ -43,13 +43,13 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.model.SelectItem;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 import jakarta.servlet.ServletContext;
 
 import lombok.Getter;
@@ -106,7 +106,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 /* For author: Item Author backing bean. */
 @Slf4j
-@Named("itemauthor")
+@ManagedBean(name="itemauthor")
 @SessionScoped
 public class ItemAuthorBean implements Serializable {
 

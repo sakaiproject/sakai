@@ -21,10 +21,10 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListe
 import org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
-@Named("beginDeliveryActionBean")
+@ManagedBean(name="beginDeliveryActionBean")
 @SessionScoped
 public class BeginDeliveryActionBean implements Serializable {
     private static final long serialVersionUID = 1L;

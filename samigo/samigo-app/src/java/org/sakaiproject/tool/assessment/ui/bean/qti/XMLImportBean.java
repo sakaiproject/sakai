@@ -34,12 +34,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ValueChangeEvent;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.ManagedProperty;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -75,7 +75,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Bean for QTI Import Data</p>
  */
 @Slf4j
-@Named("xmlImport")
+@ManagedBean(name="xmlImport")
 @SessionScoped
 public class XMLImportBean implements Serializable {
 	  /** Use serialVersionUID for interoperability. */
@@ -86,15 +86,15 @@ public class XMLImportBean implements Serializable {
   private String uploadFileName;
   private String importType;
   private String pathToData;
-  @Inject
+  @ManagedProperty(value="#{author}")
   private AuthorBean authorBean;
-  @Inject
+  @ManagedProperty(value="#{assessmentBean}")
   private AssessmentBean assessmentBean;
-  @Inject
+  @ManagedProperty(value="#{itemauthor}")
   private ItemAuthorBean itemAuthorBean;
-  @Inject
+  @ManagedProperty(value="#{authorization}")
   private AuthorizationBean authorizationBean;
-  @Inject
+  @ManagedProperty(value="#{questionpool}")
   private QuestionPoolBean questionPoolBean;
   private boolean isCP;
   private String importType2;
