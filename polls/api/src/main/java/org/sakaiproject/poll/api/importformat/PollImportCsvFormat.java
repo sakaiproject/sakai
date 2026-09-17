@@ -16,15 +16,20 @@
 
 package org.sakaiproject.poll.api.importformat;
 
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -76,6 +81,11 @@ public final class PollImportCsvFormat {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("H:mm");
 
+    // Matches a standalone 2-digit year token ("yy", not part of a longer "yyy"/"yyyy" run) in a
+    // java.text date pattern, so it can be forced to 4 digits without touching locales (fr-FR,
+    // pt-BR...) that already use a variable-width "y".
+    private static final Pattern TWO_DIGIT_YEAR_TOKEN = Pattern.compile("(?<!y)yy(?!y)");
+
     private PollImportCsvFormat() {
     }
 
@@ -120,26 +130,29 @@ public final class PollImportCsvFormat {
         return headers;
     }
 
-    public static String buildSampleCsv(List<String> columnHeaders) {
+    public static String buildSampleCsv(List<String> columnHeaders, Locale locale) {
         if (columnHeaders == null || columnHeaders.isEmpty()) {
             throw new IllegalArgumentException("columnHeaders must not be empty");
         }
 
         StringBuilder csv = new StringBuilder();
         appendCsvRow(csv, columnHeaders);
-        appendCsvRow(csv, List.of(sampleDataRow()));
+        appendCsvRow(csv, List.of(sampleDataRow(locale)));
         return csv.toString();
     }
 
-    public static String[] sampleDataRow() {
+    public static String[] sampleDataRow(Locale locale) {
+        DateTimeFormatter dateFormat = locale != null
+                ? localizedFourDigitYearDateFormat(locale)
+                : DATE_FORMAT;
         return new String[] {
             "What is your favorite color?",
             "",
             "site",
             "",
-            "2026-05-29",
+            LocalDate.of(2026, 5, 29).format(dateFormat),
             "09:00",
-            "2026-05-30",
+            LocalDate.of(2026, 5, 30).format(dateFormat),
             "17:00",
             "1",
             "1",
@@ -190,7 +203,7 @@ public final class PollImportCsvFormat {
         return csv.toString().trim();
     }
 
-    public static LocalDateTime parseDateTime(String dateValue, String timeValue) throws DateTimeParseException {
+    public static LocalDateTime parseDateTime(String dateValue, String timeValue, Locale locale) throws DateTimeParseException {
         if (StringUtils.isAllBlank(dateValue, timeValue)) {
             return null;
         }
@@ -199,12 +212,56 @@ public final class PollImportCsvFormat {
             throw new DateTimeParseException("Date is required when a time is provided", StringUtils.defaultString(timeValue), 0);
         }
 
-        LocalDate date = LocalDate.parse(dateValue, DATE_FORMAT);
+        LocalDate date = parseDate(dateValue, locale);
         LocalTime time = LocalTime.MIDNIGHT;
         if (StringUtils.isNotBlank(timeValue)) {
             time = LocalTime.parse(timeValue, TIME_FORMAT);
         }
         return LocalDateTime.of(date, time);
+    }
+
+    /**
+     * Tries the user's short locale date format first (matching what Excel actually writes for that
+     * locale, 2-digit year included), then the same day/month order with the year forced to 4 digits
+     * (matching a full year typed by hand, which the exact locale format above rejects outright -
+     * a 2-digit-year field doesn't accept extra digits), falling back to the fixed yyyy-MM-dd format
+     * documented in the import instructions.
+     */
+    private static LocalDate parseDate(String dateValue, Locale locale) throws DateTimeParseException {
+        if (locale != null) {
+            try {
+                return LocalDate.parse(dateValue, localizedDateFormat(locale));
+            } catch (DateTimeParseException e) {
+                // fall through to the 4-digit-year variant below
+            }
+            try {
+                return LocalDate.parse(dateValue, localizedFourDigitYearDateFormat(locale));
+            } catch (DateTimeParseException e) {
+                // fall through to the fixed ISO format below
+            }
+        }
+        return LocalDate.parse(dateValue, DATE_FORMAT);
+    }
+
+    private static DateTimeFormatter localizedDateFormat(Locale locale) {
+        return DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(locale);
+    }
+
+    /**
+     * The locale's short date day/month order with the year forced to 4 digits, used for the
+     * exported template (so it never shows an ambiguous 2-digit year) and as a second import
+     * attempt. Falls back to the plain locale format if the pattern can't be derived (an exotic
+     * locale/calendar not backed by SimpleDateFormat) - that formatter will simply fail to match
+     * and parsing moves on to the next fallback rather than throwing an unexpected error.
+     */
+    private static DateTimeFormatter localizedFourDigitYearDateFormat(Locale locale) {
+        try {
+            String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, locale)).toPattern();
+            String fourDigitPattern = TWO_DIGIT_YEAR_TOKEN.matcher(pattern).replaceAll("yyyy");
+            return DateTimeFormatter.ofPattern(fourDigitPattern, locale);
+        } catch (RuntimeException e) {
+            return localizedDateFormat(locale);
+        }
     }
 
     public static String normalizeCell(String value) {

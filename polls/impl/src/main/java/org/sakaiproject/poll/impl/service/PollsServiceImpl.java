@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -101,12 +102,16 @@ import org.sakaiproject.util.MergeConfig;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -118,6 +123,12 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     private static final String DEFAULT_IP_ADDRESS = "Nothing";
     public static final String EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION = "polls.notifyDeletedOption";
 
+    // RFC 4180 / the international CSV convention uses ',' as the delimiter - that's what
+    // CSVParser.DEFAULT_SEPARATOR already exposes. Some regional settings (see
+    // preferredCsvDelimiter()) override that standard with ';' instead - this is that "plan B"
+    // regional override, never the starting point.
+    private static final char CSV_REGIONAL_SEPARATOR_OVERRIDE = ';';
+
     @Setter private AuthzGroupService authzGroupService;
     @Setter private EmailService emailService;
     @Setter private List<String> emailTemplates;
@@ -126,6 +137,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     @Setter private EntityManager entityManager;
     @Setter private FunctionManager functionManager;
     @Setter private FormattedText formattedText;
+    @Setter private LocaleService localeService;
     @Setter private PollRepository pollRepository;
     @Setter private VoteRepository voteRepository;
     @Setter private LearningResourceStoreService learningResourceStoreService;
@@ -249,13 +261,45 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     }
 
     private List<ImportedPoll> parseImportedPolls(String csvContent) {
-        List<ImportedPoll> importedPolls = new ArrayList<>();
         if (StringUtils.isBlank(csvContent)) {
-            return importedPolls;
+            return new ArrayList<>();
         }
 
+        char preferredDelimiter = preferredCsvDelimiter();
+        if (preferredDelimiter == CSVParser.DEFAULT_SEPARATOR) {
+            return parseImportedPolls(csvContent, preferredDelimiter);
+        }
+
+        try {
+            return parseImportedPolls(csvContent, preferredDelimiter);
+        } catch (PollImportException e) {
+            // Only retry with the default delimiter when the chosen one couldn't even produce a
+            // valid header row - any other failure means the delimiter was right and the error is
+            // a genuine data problem, not a delimiter guess gone wrong.
+            if (e.getError() != PollImportError.INVALID_HEADER) {
+                throw e;
+            }
+            return parseImportedPolls(csvContent, CSVParser.DEFAULT_SEPARATOR);
+        }
+    }
+
+    /**
+     * Excel writes CSV files using ';' instead of ',' whenever the user's regional settings use a
+     * comma as the decimal separator - the same signal gradebookng already uses for the same reason
+     * (GradeImportUploadStep/ExportPanel). Tried first, with a fallback to the default ',' in
+     * parseImportedPolls(String), so a user on that locale who isn't affected (a plain
+     * comma-delimited file from any other source) still imports correctly.
+     */
+    private char preferredCsvDelimiter() {
+        String decimalSeparator = localeService != null ? localeService.getDecimalSeparator() : null;
+        return ",".equals(decimalSeparator) ? CSV_REGIONAL_SEPARATOR_OVERRIDE : CSVParser.DEFAULT_SEPARATOR;
+    }
+
+    private List<ImportedPoll> parseImportedPolls(String csvContent, char delimiter) {
+        List<ImportedPoll> importedPolls = new ArrayList<>();
         int rowNumber = 0;
-        try (CSVReader reader = new CSVReader(new StringReader(csvContent))) {
+        CSVParser csvParser = new CSVParserBuilder().withSeparator(delimiter).build();
+        try (CSVReader reader = new CSVReaderBuilder(new StringReader(csvContent)).withCSVParser(csvParser).build()) {
             boolean headerValidated = false;
             String[] row;
             while ((row = reader.readNext()) != null) {
@@ -443,7 +487,8 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     private LocalDateTime parseImportedPollDateTime(String dateValue, String timeValue, int rowNumber) {
         try {
-            return PollImportCsvFormat.parseDateTime(dateValue, timeValue);
+            Locale locale = pollsBundle != null ? pollsBundle.getLocale() : Locale.getDefault();
+            return PollImportCsvFormat.parseDateTime(dateValue, timeValue, locale);
         } catch (DateTimeParseException e) {
             throw new PollImportException(PollImportError.INVALID_DATES, rowNumber, new Object[] { e.getParsedString() }, e);
         }

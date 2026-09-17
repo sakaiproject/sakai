@@ -36,6 +36,7 @@
         <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
         <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
         <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+        <property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
         <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
         <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>

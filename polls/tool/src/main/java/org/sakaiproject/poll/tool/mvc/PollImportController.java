@@ -106,7 +106,7 @@ public class PollImportController {
 
         // Prepend a UTF-8 BOM so Excel recognizes the encoding and re-saves it as UTF-8
         // instead of defaulting to Windows-1252 and corrupting accented characters.
-        String csv = "\uFEFF" + PollImportCsvFormat.buildSampleCsv(buildImportColumnHeaders(locale));
+        String csv = "\uFEFF" + PollImportCsvFormat.buildSampleCsv(buildImportColumnHeaders(locale), locale);
         String filename = messageSource.getMessage("poll_import_sample_filename", null, locale);
 
         ContentDisposition contentDisposition = ContentDisposition.attachment()
@@ -176,7 +176,7 @@ public class PollImportController {
                 .map(group -> toGroupInfo(group, locale))
                 .toList();
         model.addAttribute("groups", groups);
-        model.addAttribute("importExample", PollImportCsvFormat.buildSampleCsv(buildImportColumnHeaders(locale)));
+        model.addAttribute("importExample", PollImportCsvFormat.buildSampleCsv(buildImportColumnHeaders(locale), locale));
     }
 
     private PollGroupInfo toGroupInfo(Group group, Locale locale) {

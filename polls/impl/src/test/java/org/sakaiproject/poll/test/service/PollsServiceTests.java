@@ -22,8 +22,13 @@
 package org.sakaiproject.poll.test.service;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -53,6 +58,7 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -77,6 +83,7 @@ public class PollsServiceTests {
     @Autowired private SiteService siteService;
     @Autowired private SessionManager sessionManager;
     @Autowired private FormattedText formattedText;
+    @Autowired private LocaleService localeService;
     @Autowired private UserTimeService userTimeService;
 
     @Before
@@ -787,15 +794,19 @@ public class PollsServiceTests {
 
     @Test
     public void testImportPollsFromCsvRejectsInvalidDates() {
+        // 32/13/2026 is not a valid day-of-month or month-of-year under any date order (day/month or
+        // month/day), so it stays invalid regardless of the account's locale - unlike a merely
+        // ambiguous date such as 06/01/2026, which the locale-aware parser now accepts (see
+        // testImportPollsFromCsvAcceptsLocaleFormattedDate).
         String csv = importCsvHeader(2) + "\n"
-            + "Q?,,site,,06/01/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+            + "Q?,,site,,32/13/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
         Assert.assertEquals(PollImportError.INVALID_DATES, exception.getError());
         Assert.assertEquals(2, exception.getRowNumber());
-        Assert.assertArrayEquals(new Object[] { "06/01/2026" }, exception.getMessageArgs());
+        Assert.assertArrayEquals(new Object[] { "32/13/2026" }, exception.getMessageArgs());
     }
 
     @Test
@@ -814,7 +825,7 @@ public class PollsServiceTests {
     public void testImportPollsFromCsvReportsRowNumberOfFailingRowInBatch() {
         String csv = importCsvHeader(2) + "\n"
             + "Valid question,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,A,B\n"
-            + "Q?,,site,,06/01/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+            + "Q?,,site,,32/13/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
@@ -913,7 +924,7 @@ public class PollsServiceTests {
     @Test
     public void testImportSampleCsvCreatesImportablePoll() {
         String csv = PollImportCsvFormat.buildSampleCsv(
-            PollImportCsvFormat.buildColumnHeaders(ENGLISH_IMPORT_HEADERS));
+            PollImportCsvFormat.buildColumnHeaders(ENGLISH_IMPORT_HEADERS), Locale.getDefault());
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -930,6 +941,83 @@ public class PollsServiceTests {
         );
         Assert.assertEquals(PollImportError.INVALID_HEADER, exception.getError());
         Assert.assertEquals(1, exception.getRowNumber());
+    }
+
+    @Test
+    public void testImportPollsFromCsvHandlesSemicolonDelimiterOnCommaDecimalLocale() {
+        // Excel writes ';' instead of ',' as the CSV field separator whenever the account's regional
+        // settings use ',' as the decimal separator (e.g. es-ES) - see preferredCsvDelimiter().
+        Mockito.when(localeService.getDecimalSeparator()).thenReturn(",");
+        try {
+            String csv = importCsvHeader(2).replace(',', ';') + "\n"
+                + "Semicolon delimited question;;site;;2026-06-01;09:00;2026-06-02;17:00;1;1;1;One;Two\n";
+
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+            Assert.assertTrue(pollsService.findAllPolls(LOCATION1_ID).stream()
+                .anyMatch(p -> "Semicolon delimited question".equals(p.getText())));
+        } finally {
+            Mockito.reset(localeService);
+        }
+    }
+
+    @Test
+    public void testImportPollsFromCsvFallsBackToCommaDelimiterWhenFileIsCommaDelimited() {
+        // Even on a comma-decimal locale (so ';' is preferred), a plain comma-delimited file - e.g.
+        // downloaded from the sample template rather than re-saved by Excel - must still import,
+        // via the retry in parseImportedPolls(String).
+        Mockito.when(localeService.getDecimalSeparator()).thenReturn(",");
+        try {
+            String csv = importCsvHeader(2) + "\n"
+                + "Comma delimited question,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+            Assert.assertTrue(pollsService.findAllPolls(LOCATION1_ID).stream()
+                .anyMatch(p -> "Comma delimited question".equals(p.getText())));
+        } finally {
+            Mockito.reset(localeService);
+        }
+    }
+
+    @Test
+    public void testImportPollsFromCsvAcceptsTwoDigitYearLocaleDate() {
+        // Tier 1 of parseDate(): the account locale's native SHORT date format, 2-digit year included
+        // - what Excel actually writes when it re-saves the downloaded template on that locale.
+        DateTimeFormatter shortFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(Locale.getDefault());
+        LocalDate openDate = LocalDate.of(2026, 6, 1);
+        LocalDate closeDate = LocalDate.of(2026, 6, 2);
+        String csv = importCsvHeader(2) + "\n"
+            + "Two-digit year locale date,,site,," + openDate.format(shortFormat) + ",09:00,"
+            + closeDate.format(shortFormat) + ",17:00,1,1,1,One,Two\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Two-digit year locale date".equals(p.getText()))
+            .findFirst()
+            .orElseThrow();
+        Assert.assertEquals(openDate.atTime(9, 0).toInstant(ZoneOffset.UTC), saved.getVoteOpen());
+        Assert.assertEquals(closeDate.atTime(17, 0).toInstant(ZoneOffset.UTC), saved.getVoteClose());
+    }
+
+    @Test
+    public void testImportPollsFromCsvAcceptsFourDigitYearLocaleDate() {
+        // Tier 2 of parseDate(): the account locale's day/month order with the year forced to 4
+        // digits - what a user types by hand instead of a 2-digit year (see sampleDataRow(Locale)).
+        String[] sample = PollImportCsvFormat.sampleDataRow(Locale.getDefault());
+        String csv = importCsvHeader(2) + "\n"
+            + "Four-digit year locale date,,site,," + sample[PollImportCsvFormat.COL_OPEN_DATE] + ",09:00,"
+            + sample[PollImportCsvFormat.COL_CLOSE_DATE] + ",17:00,1,1,1,One,Two\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Four-digit year locale date".equals(p.getText()))
+            .findFirst()
+            .orElseThrow();
+        Assert.assertEquals(LocalDate.of(2026, 5, 29).atTime(9, 0).toInstant(ZoneOffset.UTC), saved.getVoteOpen());
+        Assert.assertEquals(LocalDate.of(2026, 5, 30).atTime(17, 0).toInstant(ZoneOffset.UTC), saved.getVoteClose());
     }
 
     @Test
