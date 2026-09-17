@@ -75,8 +75,10 @@ describe("Conversations topic navigation", () => {
   });
 
   it("keeps the original sequence as unviewed topics are read", async () => {
-    const first = { ...data.discussionTopic, id: "first", title: "First unread", viewed: false };
-    const second = { ...data.discussionTopic, id: "second", title: "Second unread", viewed: false };
+    const markViewedUrl = data.discussionTopic.links.find(link => link.rel === "markpostsviewed").href;
+    fetchMock.post(markViewedUrl, 200);
+    const first = { ...data.discussionTopic, id: "first", title: "First unread", viewed: false, numberOfUnreadPosts: 0 };
+    const second = { ...data.discussionTopic, id: "second", title: "Second unread", viewed: false, numberOfUnreadPosts: 0 };
     const el = await renderTopics([
       first,
       { ...data.discussionTopic, id: "read", title: "Already read", viewed: true },
@@ -90,6 +92,8 @@ describe("Conversations topic navigation", () => {
     expect(el.querySelector("#conv-next-topic").disabled).to.be.true;
     await returnToTopics(el);
     expect(el.querySelectorAll("#topic-list-filters select")[1].value).to.equal("by_unviewed");
+    await waitUntil(() => titles(el).length === 0);
+    expect(fetchMock.callHistory.calls(markViewedUrl)).to.have.lengthOf(2);
     expect(titles(el)).to.deep.equal([]);
     await waitUntil(() => document.activeElement === el.querySelector("#topic-list-filters select:not([disabled])"));
   });
