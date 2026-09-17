@@ -264,6 +264,7 @@ class ConversationsTest extends SakaiUiTestBase {
         Locator composer = editCurrentTopic();
         composer.locator("#tag-post-block select").selectOption(new SelectOption().setLabel(label));
         composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
+        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(1);
         composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Publish").setExact(true)).click();
         Locator topicTag = page.locator("sakai-topic:visible .topic-tags .tag")
             .filter(new Locator.FilterOptions().setHasText(label));
@@ -274,6 +275,7 @@ class ConversationsTest extends SakaiUiTestBase {
         assertThat(topicTag).hasCount(1);
         composer = editCurrentTopic();
         composer.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Remove " + label).setExact(true)).click();
+        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(0);
         composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Publish").setExact(true)).click();
         assertThat(page.locator("sakai-topic:visible")).isVisible();
         assertThat(topicTag).hasCount(0);
@@ -285,6 +287,7 @@ class ConversationsTest extends SakaiUiTestBase {
         assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(0);
         composer.locator("#tag-post-block select").selectOption(new SelectOption().setLabel(label));
         composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
+        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(1);
         composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Publish").setExact(true)).click();
         assertThat(topicTag).hasCount(1);
     }
@@ -293,7 +296,11 @@ class ConversationsTest extends SakaiUiTestBase {
         Locator topic = page.locator("sakai-topic:visible");
         topic.locator(".topic-options-menu [data-bs-toggle='dropdown']").click();
         topic.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Edit this topic").setExact(true)).click();
-        return page.locator("sakai-add-topic:visible");
+        Locator composer = page.locator("sakai-add-topic:visible");
+        // The editor expands while loading and can move the tag controls during a click.
+        assertThat(composer.locator("#topic-details-editor").frameLocator("iframe.cke_wysiwyg_frame")
+            .locator("body[contenteditable='true']")).containsText(TOPIC_BODY);
+        return composer;
     }
 
     private boolean isVisible(Locator locator, double timeoutMs) {
