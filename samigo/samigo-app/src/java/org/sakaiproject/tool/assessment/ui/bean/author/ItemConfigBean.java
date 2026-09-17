@@ -26,10 +26,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.model.SelectItemGroup;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -45,7 +45,7 @@ import org.sakaiproject.util.ResourceLoader;
  * Also developers could add an administrative configuration later.</p>
  *
  */
-@Named("itemConfig")
+@ManagedBean(name="itemConfig")
 @SessionScoped
 public class ItemConfigBean implements Serializable {
 

@@ -35,7 +35,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.ExternalContext;
@@ -43,7 +43,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.validator.ValidatorException;
 import org.springframework.beans.factory.annotation.Autowired;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
@@ -76,7 +76,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter @Setter
-@Named("ChatTool")
+@ManagedBean(name="ChatTool")
 @SessionScoped
 public class ChatTool implements Serializable {
 

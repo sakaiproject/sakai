@@ -29,13 +29,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 
 @Slf4j
-@Named("backingbean")
+@ManagedBean(name="backingbean")
 @SessionScoped
 public class BackingBean implements Serializable {
 

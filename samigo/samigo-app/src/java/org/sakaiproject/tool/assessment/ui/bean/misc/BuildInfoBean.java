@@ -23,11 +23,11 @@ package org.sakaiproject.tool.assessment.ui.bean.misc;
 
 import java.io.Serializable;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* Build Information. */
-@Named("buildinfo")
+@ManagedBean(name="buildinfo")
 @SessionScoped
 public class BuildInfoBean implements Serializable {
   private static final long serialVersionUID = 1L;

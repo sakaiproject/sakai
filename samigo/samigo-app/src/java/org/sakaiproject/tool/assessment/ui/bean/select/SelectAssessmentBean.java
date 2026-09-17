@@ -27,11 +27,11 @@ import java.util.List;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* For select: Select Assessment backing bean. */
-@Named("select")
+@ManagedBean(name="select")
 @SessionScoped
 public class SelectAssessmentBean implements Serializable {
 	private List takeableAssessments;
