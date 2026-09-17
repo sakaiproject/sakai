@@ -540,6 +540,19 @@
         <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
+      <!-- required transitively by spring-web's Observation API support -->
+      <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-observation</artifactId>
+        <version>1.15.12</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-commons</artifactId>
+        <version>1.15.12</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework.data</groupId>
         <artifactId>spring-data-jpa</artifactId>
