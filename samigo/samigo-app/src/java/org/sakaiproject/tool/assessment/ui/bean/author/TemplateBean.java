@@ -38,8 +38,8 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServ
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /**
  * <p> For author: Template editor backing bean
@@ -47,7 +47,7 @@ import jakarta.inject.Named;
  *
  */
 @Slf4j
-@Named("template")
+@ManagedBean(name="template")
 @SessionScoped
  public class TemplateBean implements Serializable {
   private static final long serialVersionUID = 7526471155622776147L;

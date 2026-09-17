@@ -25,10 +25,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -44,7 +44,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 /* For evaluation: Student Scores backing bean. */
 @Slf4j
-@Named("studentScores")
+@ManagedBean(name="studentScores")
 @SessionScoped
 @Getter @Setter
 public class StudentScoresBean implements Serializable {

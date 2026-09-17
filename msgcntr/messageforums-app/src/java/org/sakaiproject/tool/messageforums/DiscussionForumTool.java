@@ -48,7 +48,7 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.component.UIData;
 import jakarta.faces.component.UIInput;
@@ -57,7 +57,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
 import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.model.SelectItem;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -188,7 +188,7 @@ import static org.sakaiproject.component.app.messageforums.dao.hibernate.Message
 @Slf4j
 @Setter
 @Getter
-@Named("ForumTool")
+@ManagedBean(name="ForumTool")
 @SessionScoped
 public class DiscussionForumTool implements Serializable {
 

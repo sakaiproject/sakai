@@ -39,13 +39,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ValueChangeEvent;
 import jakarta.faces.model.SelectItem;
-import jakarta.inject.Named;
+import jakarta.faces.bean.ManagedBean;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -94,7 +94,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.sakaiproject.grading.api.model.Gradebook;
 
 @Slf4j
-@Named("mfStatisticsBean")
+@ManagedBean(name="mfStatisticsBean")
 @SessionScoped
 public class MessageForumStatisticsBean implements Serializable {
 
@@ -262,8 +262,8 @@ public class MessageForumStatisticsBean implements Serializable {
 	}
 	
 	/** Decorated Bean to store stats for user **/
-	public DecoratedCompiledMessageStatistics userInfo = null;
-	public UserStatistics userAuthoredInfo = null;
+	private DecoratedCompiledMessageStatistics userInfo = null;
+	private UserStatistics userAuthoredInfo = null;
 	
 	private boolean discussionGeneric = true;
 	private String groupId = "";
@@ -321,22 +321,22 @@ public class MessageForumStatisticsBean implements Serializable {
 	private static final String FORUM_STATISTICS_ALL_AUTHORED_MSG = "dfStatisticsAllAuthoredMessageForOneUser";
 	private static final String FORUM_STATISTICS_MSG = "dfStatisticsFullTextForOne";
 
-	public String selectedSiteUserId = null;
-	public String selectedSiteUser = null;
-	public String selectedMsgId= null;
-	public String selectedMsgSubject= null;
-	public String selectedForumTitle= null;
-	public String selectedTopicTitle= null;
-	public String selectedTopicId= null;
-	public String selectedAllTopicsTopicId = null;
-	public String selectedAllTopicsForumId = null;
-	public String selectedAllTopicsTopicTitle = null;
-	public String selectedAllTopicsForumTitle = null;
+	private String selectedSiteUserId = null;
+	private String selectedSiteUser = null;
+	private String selectedMsgId= null;
+	private String selectedMsgSubject= null;
+	private String selectedForumTitle= null;
+	private String selectedTopicTitle= null;
+	private String selectedTopicId= null;
+	private String selectedAllTopicsTopicId = null;
+	private String selectedAllTopicsForumId = null;
+	private String selectedAllTopicsTopicTitle = null;
+	private String selectedAllTopicsForumTitle = null;
 
 	private String buttonUserName;
 	private boolean isFirstParticipant = false;
 	private boolean isLastParticipant = false;
-	public boolean selectMoreThanOneItem = false;
+	private boolean selectMoreThanOneItem = false;
 	
 	//Comparatibles
 	public static Comparator nameComparatorAsc;

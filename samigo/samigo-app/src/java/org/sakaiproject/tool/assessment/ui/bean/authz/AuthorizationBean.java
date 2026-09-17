@@ -34,14 +34,14 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.cover.ToolManager;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.cover.SessionManager;
 
 /* For authorization */
 @Slf4j
-@Named("authorization")
+@ManagedBean(name="authorization")
 @SessionScoped
 public class AuthorizationBean implements Serializable {
 

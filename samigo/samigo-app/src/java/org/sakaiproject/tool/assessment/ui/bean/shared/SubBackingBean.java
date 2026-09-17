@@ -26,10 +26,10 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
-@Named("subbackingbean")
+@ManagedBean(name="subbackingbean")
 @SessionScoped
 public class SubBackingBean implements Serializable {
 

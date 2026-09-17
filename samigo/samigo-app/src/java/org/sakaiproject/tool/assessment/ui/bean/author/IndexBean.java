@@ -34,12 +34,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* For author: Template Index backing bean. */
 @Slf4j
-@Named("templateIndex")
+@ManagedBean(name="templateIndex")
 @SessionScoped
 public class IndexBean implements Serializable {
   private Collection templateList;

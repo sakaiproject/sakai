@@ -31,12 +31,12 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* For evaluation: Retake Assessment backing bean. */
 @Slf4j
-@Named("retakeAssessment")
+@ManagedBean(name="retakeAssessment")
 @SessionScoped
 public class RetakeAssessmentBean implements Serializable {
 
