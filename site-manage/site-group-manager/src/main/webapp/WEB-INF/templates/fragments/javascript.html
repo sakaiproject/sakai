@@ -299,6 +299,8 @@
       closeOnSelect: false,
       width: '100%'
     });
+
+    [...document.querySelectorAll('.joinableset-popover')].map(el => new bootstrap.Popover(el));
   });
 
   // Button spinners
