@@ -531,7 +531,7 @@ export class SakaiAddTopic extends SakaiElement {
             <button type="button"
                 class="btn btn-link"
                 @click=${this._editAvailableTags}>
-              ${this._i18n.edit_tags}
+              ${this._i18n.add_new_tags}
             </button>
           </span>
           ` : nothing}

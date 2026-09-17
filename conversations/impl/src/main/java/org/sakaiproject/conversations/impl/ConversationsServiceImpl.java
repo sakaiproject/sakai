@@ -2170,26 +2170,13 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
     }
 
-    public TagTransferBean saveTag(TagTransferBean tag) throws ConversationsPermissionsException {
-        getCheckedCurrentUserId();
-        if (!securityService.unlock(Permissions.TAG_CREATE.label, siteService.siteReference(tag.getSiteId()))) {
-            throw new ConversationsPermissionsException("Current user cannot create tags");
-        }
-        validateTagLabel(tag);
-        Tag sharedTag;
-        if (StringUtils.isBlank(tag.getId())) {
-            // The shared service creates the site's collection when necessary.
-            tagService.duplicateTags(tag.getSiteId(), true, Collections.emptyList(), null);
-            sharedTag = new Tag(null, tag.getSiteId(), tag.getLabel(),
-                tag.getDescription(), null, 0L, null, 0L, null, null, false, 0L,
-                false, 0L, null, null, null, null, null);
-            sharedTag.setTagId(tagService.getTags().createTag(sharedTag));
-        } else {
-            sharedTag = requireSiteTag(tag.getSiteId(), tag.getId());
-            sharedTag.setTagLabel(tag.getLabel());
-            sharedTag.setDescription(tag.getDescription());
-            tagService.getTags().updateTag(sharedTag);
-        }
+    private TagTransferBean createTag(TagTransferBean tag) {
+        // The shared service creates the site's collection when necessary.
+        tagService.duplicateTags(tag.getSiteId(), true, Collections.emptyList(), null);
+        Tag sharedTag = new Tag(null, tag.getSiteId(), tag.getLabel(),
+            tag.getDescription(), null, 0L, null, 0L, null, null, false, 0L,
+            false, 0L, null, null, null, null, null);
+        sharedTag.setTagId(tagService.getTags().createTag(sharedTag));
         return toConversationTag(sharedTag);
     }
 
@@ -2207,7 +2194,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
         List<TagTransferBean> created = new ArrayList<>();
         for (TagTransferBean tag : tags) {
-            created.add(saveTag(tag));
+            created.add(createTag(tag));
         }
         return created;
     }
@@ -2223,16 +2210,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             .map(this::toConversationTag)
             .sorted(Comparator.comparing(TagTransferBean::getLabel, new AlphaNumericComparator()))
             .collect(Collectors.toList());
-    }
-
-    @Override
-    public void deleteTag(String siteId, String tagId) throws ConversationsPermissionsException {
-        getCheckedCurrentUserId();
-        if (!securityService.unlock(Permissions.TAG_CREATE.label, siteService.siteReference(siteId))) {
-            throw new ConversationsPermissionsException("Current user cannot delete tags");
-        }
-        requireSiteTag(siteId, tagId);
-        tagService.getTags().deleteTag(tagId);
     }
 
     // Rich text is cleaned before persistence; read paths return stored values unchanged.

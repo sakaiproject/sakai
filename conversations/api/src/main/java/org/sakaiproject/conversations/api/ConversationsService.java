@@ -113,9 +113,7 @@ public interface ConversationsService extends EntityProducer {
     Optional<String> getCommentPortalUrl(String commentId);
 
     List<TagTransferBean> createTags(List<TagTransferBean> tags) throws ConversationsPermissionsException;
-    TagTransferBean saveTag(TagTransferBean tag) throws ConversationsPermissionsException;
     List<TagTransferBean> getTagsForSite(String siteId) throws ConversationsPermissionsException;
-    void deleteTag(String siteId, String tagId) throws ConversationsPermissionsException;
 
     Settings getSettingsForSite(String siteId) throws ConversationsPermissionsException;
     Settings saveSettings(Settings settings) throws ConversationsPermissionsException;

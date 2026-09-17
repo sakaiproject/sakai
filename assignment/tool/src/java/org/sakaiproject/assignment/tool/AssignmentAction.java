@@ -5272,7 +5272,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         List<String> users = ss.getSubmission().getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).toList();
                         for (String user : users) {
                             String agrade = assignmentService.getGradeForSubmitter(ss.getSubmission(), user);
-                            if (agrade != null) {
+                            if (agrade != null && assignmentService.isGradeOverridden(ss.getSubmission(), user)) {
                                 userGrades.put(user, agrade);
                             }
                         }

@@ -422,25 +422,6 @@ public class ConversationsController extends AbstractSakaiApiController {
         return conversationsService.getTagsForSite(siteId);
     }
 
-	@PutMapping(value = "/sites/{siteId}/conversations/tags/{tagId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TagTransferBean> updateTag(@PathVariable String siteId, @PathVariable String tagId, @RequestBody TagTransferBean tag) throws ConversationsPermissionsException {
-
-		checkSakaiSession();
-
-        tag.setSiteId(siteId);
-        tag.setId(tagId);
-        return ResponseEntity.ok(conversationsService.saveTag(tag));
-    }
-
-	@DeleteMapping(value = "/sites/{siteId}/conversations/tags/{tagId}")
-    public ResponseEntity deleteTag(@PathVariable String siteId, @PathVariable String tagId) throws ConversationsPermissionsException  {
-
-		checkSakaiSession();
-
-        conversationsService.deleteTag(siteId, tagId);
-        return new ResponseEntity(HttpStatus.OK);
-    }
-
 	@PostMapping(value = "/sites/{siteId}/conversations/settings/guidelines")
     public ResponseEntity saveSetting(@PathVariable String siteId, @RequestBody String guidelines) throws ConversationsPermissionsException {
 
