@@ -6242,7 +6242,7 @@ public class DiscussionForumTool implements Serializable {
     return null;
   } 
 
-  public String currentChange;
+  private String currentChange;
   public void setCurrentChange(String newChange){
 	currentChange = newChange;
   }
