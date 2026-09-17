@@ -917,6 +917,15 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	@Override
+	public String getSiteDisplayTitle(Site site) {
+		if (preferencesService.getSiteTitleDisplayPreference() == PreferencesService.USE_SITE_DESCRIPTION
+				&& StringUtils.isNotBlank(site.getShortDescription())) {
+			return site.getShortDescription();
+		}
+		return site.getTitle();
+	}
+
+	@Override
 	public List<String> getPinnedSites() {
 		String userId = sessionManager.getCurrentSessionUserId();
 		return getPinnedSites(userId);

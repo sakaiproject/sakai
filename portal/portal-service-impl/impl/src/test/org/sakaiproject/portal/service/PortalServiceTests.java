@@ -81,6 +81,22 @@ public class PortalServiceTests extends SakaiTests {
     }
 
     @Test
+    public void testSiteDisplayTitle() {
+        when(site1.getTitle()).thenReturn("Site title");
+        when(site1.getShortDescription()).thenReturn("Site short description");
+        when(preferencesService.getSiteTitleDisplayPreference()).thenReturn(PreferencesService.USE_SITE_TITLE);
+        Assert.assertEquals("Site title", portalService.getSiteDisplayTitle(site1));
+
+        when(preferencesService.getSiteTitleDisplayPreference()).thenReturn(PreferencesService.USE_SITE_DESCRIPTION);
+        Assert.assertEquals("Site short description", portalService.getSiteDisplayTitle(site1));
+
+        for (String description : new String[] {null, "", "  "}) {
+            when(site1.getShortDescription()).thenReturn(description);
+            Assert.assertEquals("Site title", portalService.getSiteDisplayTitle(site1));
+        }
+    }
+
+    @Test
     public void testPinnedSites() throws IdUnusedException {
 
         String user1SiteId = "~user1";

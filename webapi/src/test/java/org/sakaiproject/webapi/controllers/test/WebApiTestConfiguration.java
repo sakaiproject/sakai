@@ -25,7 +25,6 @@ import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,11 +40,6 @@ public class WebApiTestConfiguration {
     @Bean
     public EntityManager entityManager() {
         return mock(EntityManager.class);
-    }
-
-    @Bean
-    public PreferencesService preferencesService() {
-        return mock(PreferencesService.class);
     }
 
     @Bean

@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.restdocs.JUnitRestDocumentation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,7 +53,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.controllers.AnnouncementsController;
@@ -71,9 +69,6 @@ import com.github.javafaker.Faker;
 public class AnnouncementsControllerTests extends BaseControllerTests {
 
     private MockMvc mockMvc;
-
-    @Autowired
-    private PreferencesService preferencesService;
 
     @Mock
     private ContentHostingService contentHostingService;
@@ -107,8 +102,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
 
         faker = new Faker(new Random(24));
 
-        reset(announcementService, preferencesService);
-        when(preferencesService.getSiteTitleDisplayPreference()).thenReturn(PreferencesService.USE_SITE_TITLE);
+        reset(announcementService);
 
         AnnouncementsController controller = new AnnouncementsController();
 
@@ -121,7 +115,6 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
         controller.setPortalService(portalService);
         controller.setSiteService(siteService);
         controller.setEntityManager(entityManager);
-        controller.setPreferencesService(preferencesService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
 	}
@@ -145,7 +138,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
         Site site1 = mock(Site.class);
         when(site1.getId()).thenReturn(site1Id);
         when(site1.getTitle()).thenReturn(site1Title);
-        when(site1.getShortDescription()).thenReturn("Site 1 short description");
+        when(portalService.getSiteDisplayTitle(site1)).thenReturn(site1Title);
         when(siteService.getSite(site1Id)).thenReturn(site1);
         String site1ChannelRef = "/main/" + site1Id;
         when(announcementService.channelReference(site1Id, SiteService.MAIN_CONTAINER)).thenReturn(site1ChannelRef);
@@ -153,6 +146,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
         var site2 = mock(Site.class);
         when(site2.getId()).thenReturn(site2Id);
         when(site2.getTitle()).thenReturn(site2Title);
+        when(portalService.getSiteDisplayTitle(site2)).thenReturn(site2Title);
         when(siteService.getSite(site2Id)).thenReturn(site2);
         var site2ChannelRef = "/main/" + site2Id;
         when(announcementService.channelReference(site2Id, SiteService.MAIN_CONTAINER)).thenReturn(site2ChannelRef);
@@ -197,19 +191,11 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
             .andExpect(jsonPath("$.announcements[1].date", is(releaseDate2.toEpochMilli())))
             .andDo(document("get-user-announcements"));
 
-        when(preferencesService.getSiteTitleDisplayPreference()).thenReturn(PreferencesService.USE_SITE_DESCRIPTION);
+        when(portalService.getSiteDisplayTitle(site1)).thenReturn("Site 1 short description");
 
         mockMvc.perform(get("/users/me/announcements"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.announcements[0].siteTitle", is("Site 1 short description")))
-            .andExpect(jsonPath("$.announcements[1].siteTitle", is(site2Title)));
-
-        when(site1.getShortDescription()).thenReturn("  ");
-        when(site2.getShortDescription()).thenReturn("");
-
-        mockMvc.perform(get("/users/me/announcements"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.announcements[0].siteTitle", is(site1Title)))
             .andExpect(jsonPath("$.announcements[1].siteTitle", is(site2Title)));
     }
 
