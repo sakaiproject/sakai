@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<head th:fragment="head(title)">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+    <link media="all" href="/library/skin/default-skin/tool.css" rel="stylesheet" type="text/css" />
+    <title th:text="${title}">Video Training</title>
+    <script src="/library/js/headscripts.js"></script>
+    <script src="/library/js/spinner.js"></script>
+    <script>includeWebjarLibrary('plyr');</script>
+</head>
+
+<div th:fragment="jQuery">
+    <script>includeLatestJQuery('sakai.video.training');</script>
+    <script>
+        (function() {
+            const toolFrameId = window.name || (window.frameElement && window.frameElement.id);
+            if (toolFrameId) {
+                setMainFrameHeight(toolFrameId);
+            }
+        })();
+    </script>
+</div>
+
+<div th:fragment="menu(current, canManage, canAnalytics, canView)" th:unless="${param.embedded != null and param.embedded[0] == 'true'}">
+    <div class="dropdown-toggle dropdown-navIntraTool" th:text="#{video.training.menu.tool.options}">Tool Options</div>
+    <ul class="navIntraTool actionToolBar navIntraToolMobile">
+        <li>
+            <span th:class="${current} == 'list' ? 'current'">
+                <span th:if="${current} == 'list'" th:text="#{video.training.menu.library}">Library</span>
+                <a th:unless="${current} == 'list'" th:href="@{/videos}" th:text="#{video.training.menu.library}">Library</a>
+            </span>
+        </li>
+        <li th:if="${canManage && !isGlobalSite}">
+            <span th:class="${current} == 'add' ? 'current'">
+                <span th:if="${current} == 'add'" th:text="#{video.training.menu.add}">Add video</span>
+                <a th:unless="${current} == 'add'" th:href="@{/videos/new}" th:text="#{video.training.menu.add}">Add video</a>
+            </span>
+        </li>
+        <li th:if="${canManage}">
+            <span th:class="${current} == 'upload-jobs' ? 'current'">
+                <span th:if="${current} == 'upload-jobs'" th:text="#{video.training.menu.uploadJobs}">Upload jobs</span>
+                <a th:unless="${current} == 'upload-jobs'" th:href="@{/upload-jobs}" th:text="#{video.training.menu.uploadJobs}">Upload jobs</a>
+            </span>
+        </li>
+        <li th:if="${canManageCategories}">
+            <span th:class="${current} == 'categories' ? 'current'">
+                <span th:if="${current} == 'categories'" th:text="#{video.training.menu.categories}">Categories</span>
+                <a th:unless="${current} == 'categories'" th:href="@{/categories}" th:text="#{video.training.menu.categories}">Categories</a>
+            </span>
+        </li>
+        <li th:if="${canAnalytics}">
+            <span th:class="${current} == 'analytics' ? 'current'">
+                <span th:if="${current} == 'analytics'" th:text="#{video.training.menu.analytics}">Analytics</span>
+                <a th:unless="${current} == 'analytics'" th:href="@{/analytics}" th:text="#{video.training.menu.analytics}">Analytics</a>
+            </span>
+        </li>
+        <li th:if="${canView}">
+            <span th:class="${current} == 'favorites' ? 'current'">
+                <span th:if="${current} == 'favorites'" th:text="#{video.training.favorites}">Favorites</span>
+                <a th:unless="${current} == 'favorites'" th:href="@{/favorites}" th:text="#{video.training.favorites}">Favorites</a>
+            </span>
+        </li>
+        <li th:if="${canView}">
+            <span th:class="${current} == 'watch-later' ? 'current'">
+                <span th:if="${current} == 'watch-later'" th:text="#{video.training.watchLater}">Watch later</span>
+                <a th:unless="${current} == 'watch-later'" th:href="@{/watch-later}" th:text="#{video.training.watchLater}">Watch later</a>
+            </span>
+        </li>
+    </ul>
+</div>
+
+<div th:fragment="messages(success, error)">
+    <div class="sak-banner-success" role="status" th:if="${success}" th:text="${success}">Saved</div>
+    <div class="sak-banner-error" role="alert" th:if="${error}" th:text="${error}">Error</div>
+</div>
+</body>
+</html>
