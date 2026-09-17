@@ -42,7 +42,7 @@ import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.validator.ValidatorException;
-import jakarta.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -124,17 +124,17 @@ public class ChatTool implements Serializable {
    
    private Boolean fromPermissions = false;
 
-   @Inject
+   @Autowired
    private ChatManager chatManager;
-   @Inject
+   @Autowired
    private ServerConfigurationService serverConfigurationService;
-   @Inject
+   @Autowired
    private ToolManager toolManager;
-   @Inject
+   @Autowired
    private UserDirectoryService userDirectoryService;
-   @Inject
+   @Autowired
    private SessionManager sessionManager;
-   @Inject
+   @Autowired
    private SiteService siteService;
    
    /** The current channel the user is in */
