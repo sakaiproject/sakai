@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.messageforums;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -189,7 +190,9 @@ import static org.sakaiproject.component.app.messageforums.dao.hibernate.Message
 @Getter
 @Named("ForumTool")
 @SessionScoped
-public class DiscussionForumTool {
+public class DiscussionForumTool implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   /**
    * List individual forum details
