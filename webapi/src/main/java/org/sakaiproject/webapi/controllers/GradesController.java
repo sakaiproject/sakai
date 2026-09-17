@@ -6,10 +6,10 @@
  * http://opensource.org/licenses/ECL-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ *  License for the specific language governing permissions and limitations under
+ *  the License.
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
@@ -210,7 +210,7 @@ public class GradesController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/grades", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List> getSiteGrades(@PathVariable String siteId) throws UserNotDefinedException {
+    public Map<String, List> getSiteGrades(@PathVariable("siteId") String siteId) throws UserNotDefinedException {
 
         checkSakaiSession();
 
@@ -218,7 +218,7 @@ public class GradesController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/grading/item-data", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List> getSiteCategories(@PathVariable String siteId) {
+    public Map<String, List> getSiteCategories(@PathVariable("siteId") String siteId) {
 
         checkSakaiSession();
 
@@ -226,7 +226,7 @@ public class GradesController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/grades/{gradingItemId}/{userId}")
-    public void submitGrade(@PathVariable String siteId, @PathVariable Long gradingItemId, @PathVariable String userId, @RequestBody Map<String, String> body) {
+    public void submitGrade(@PathVariable("siteId") String siteId, @PathVariable("gradingItemId") Long gradingItemId, @PathVariable("userId") String userId, @RequestBody Map<String, String> body) {
 
         String grade = body.get("grade");
         String comment = body.get("comment");
@@ -240,8 +240,7 @@ public class GradesController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = {"/sites/{siteId}/items/{appName}", "/sites/{siteId}/items/{appName}/{userId}", "/sites/{siteId}/items/{appName}/{userId}/{gbUid}"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GradebookRestBean> getSiteItems(@PathVariable String siteId, @PathVariable String appName, @PathVariable Optional<String> gbUid,
-        @PathVariable Optional<String> userId) throws UserNotDefinedException {
+    public List<GradebookRestBean> getSiteItems(@PathVariable("siteId") String siteId, @PathVariable("appName") String appName, @PathVariable(value = "gbUid", required = false) Optional<String> gbUid, @PathVariable(value = "userId", required = false) Optional<String> userId) throws UserNotDefinedException {
 
         String currentUserId = checkSakaiSession().getUserId();
 
@@ -303,7 +302,7 @@ public class GradesController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/categories", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GradebookRestBean> getGroupCategoriesList(@PathVariable String siteId) throws UserNotDefinedException {
+    public List<GradebookRestBean> getGroupCategoriesList(@PathVariable("siteId") String siteId) throws UserNotDefinedException {
 
         String userId = checkSakaiSession().getUserId();
 
