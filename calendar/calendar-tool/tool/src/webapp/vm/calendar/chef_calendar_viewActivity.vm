@@ -160,10 +160,10 @@
 					<td>$formattedText.escapeHtml($event.Location)</td>
 				</tr>
 			#end
-			#if($event.EventUrl && $event.EventUrl != "")
+			#if($formattedText.validateURL($event.EventUrl))
 				<tr>
 					<th>$tlang.getString("gen.url")</th>
-					<td><a href="$event.EventUrl">$formattedText.escapeHtml($event.DisplayName)</a></td>
+					<td><a href="$formattedText.escapeHtml($event.EventUrl, false)">$formattedText.escapeHtml($event.DisplayName)</a></td>
 				</tr>
 			#end
 			#set ($calObj = $CalendarService.getCalendar($event.CalendarReference))
