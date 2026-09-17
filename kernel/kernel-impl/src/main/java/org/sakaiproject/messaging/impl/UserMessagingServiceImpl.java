@@ -20,20 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import nl.martijndwars.webpush.Notification;
-import nl.martijndwars.webpush.PushService;
-import nl.martijndwars.webpush.Subscription;
-import nl.martijndwars.webpush.Utils;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.http.HttpResponse;
-
-import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.interfaces.ECPrivateKey;
-import org.bouncycastle.jce.interfaces.ECPublicKey;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.DigestService;
@@ -141,7 +129,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     private ExecutorService executor;
     private boolean pushEnabled = false;
-    private PushService pushService;
 
     public UserMessagingServiceImpl() {
 
@@ -152,8 +139,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         handlerMap.put(SiteService.EVENT_SITE_PUBLISH, null);
         notificationHandlers = Collections.unmodifiableMap(handlerMap);
 
-        // Web Push Protocol requires Elliptic Curve cryptography for generating VAPID keys
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     public void init() {
@@ -184,55 +169,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
             pushEnabled = serverConfigurationService.getBoolean("portal.notifications.push.enabled", true);
 
-            if (pushEnabled) {
-                String home = serverConfigurationService.getSakaiHomePath();
-                String publicKeyFileName = serverConfigurationService.getString(PUSH_PUBKEY_PROPERTY, "sakai_push.key.pub");
-                Path publicKeyPath = Paths.get(home, publicKeyFileName);
-                String privateKeyFileName = serverConfigurationService.getString(PUSH_PRIVKEY_PROPERTY, "sakai_push.key");
-                Path privateKeyPath = Paths.get(home, privateKeyFileName);
-
-                if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath)) {
-                    try {
-                        String publicKey = String.join("", Files.readAllLines(publicKeyPath));
-                        String privateKey = String.join("", Files.readAllLines(privateKeyPath));
-                        pushService = new PushService(publicKey, privateKey);
-                    } catch (Exception e) {
-                        log.error("Failed to setup push service: {}", e.toString());
-                    }
-                } else {
-                    ECNamedCurveParameterSpec parameterSpec = ECNamedCurveTable.getParameterSpec("prime256v1");
-
-                    try {
-                        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("ECDH", BouncyCastleProvider.PROVIDER_NAME);
-                        keyPairGenerator.initialize(parameterSpec);
-
-                        KeyPair keyPair = keyPairGenerator.generateKeyPair();
-
-                        byte[] publicKey = Utils.encode((ECPublicKey) keyPair.getPublic());
-                        String publicKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(publicKey);
-                        try (FileWriter fw = new FileWriter(publicKeyPath.toFile())) {
-                            fw.write(publicKeyBase64);
-                        }
-
-                        byte[] privateKey = Utils.encode((ECPrivateKey) keyPair.getPrivate());
-                        String privateKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(privateKey);
-                        try (FileWriter fw = new FileWriter(privateKeyPath.toFile())) {
-                            fw.write(privateKeyBase64);
-                        }
-
-                        pushService = new PushService(publicKeyBase64, privateKeyBase64);
-                    } catch (Exception e) {
-                        log.error("Failed to generate key pair: {}", e.toString());
-                    }
-                }
-
-                if (pushService != null) {
-                    String defaultSubject = serverConfigurationService.getServerUrl();
-                    String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", defaultSubject);
-                    pushService.setSubject(pushSubject);
-                    log.info("Push service configured with VAPID subject: {}", pushSubject);
-                }
-            }
         }
     }
 
@@ -608,11 +544,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
      */
     private void pushToAllUsers(UserNotificationTransferBean bean) {
 
-        if (!pushEnabled || pushService == null) {
-            log.debug("Push service is not enabled or not initialized");
-            return;
-        }
-
         executor.execute(() -> {
 
             int current = 0;
@@ -644,11 +575,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             return;
         }
 
-        if (!pushEnabled || pushService == null) {
-            log.debug("Push service is not enabled or not initialized");
-            return;
-        }
-
         pushSubscriptionRepository.findByUser(un.to).forEach(ps -> this.push(ps, un));
     }
 
@@ -668,42 +594,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             return;
         }
 
-        Subscription sub = new Subscription(pushEndpoint, new Subscription.Keys(pushUserKey, pushAuth));
-        try {
-            String notificationJson = objectMapper.writeValueAsString(un);
-            HttpResponse pushResponse = pushService.send(new Notification(sub, notificationJson));
-
-            int statusCode = pushResponse.getStatusLine().getStatusCode();
-            if (statusCode >= 200 && statusCode < 300) {
-                log.debug("Successfully sent push notification to {} with status {}", 
-                        pushEndpoint, statusCode);
-            } else {
-                String reason = pushResponse.getStatusLine().getReasonPhrase();
-                log.warn("Push notification to {} failed with status {} and reason {}", 
-                        pushEndpoint, statusCode, reason);
-
-                switch (statusCode) {
-                    case 410:
-                    case 404:
-                    case 400:
-                        log.info("Removing invalid push subscription for user {} due to status {}", 
-                            un.to, statusCode);
-                        // Clear the invalid subscription
-                        clearPushSubscription(subscription);
-                        break;
-                    case 403:
-                        log.warn("Push failed with {}. Check VAPID configuration", statusCode);
-                        break;
-                    case 429:
-                        log.warn("Push failed with {}. Check rate of push message sending", statusCode);
-                        break;
-                    default:
-                        log.warn("Push failed with {}", statusCode);
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Failed to serialize notification for push", e);
-        }
     }
 
     /**
