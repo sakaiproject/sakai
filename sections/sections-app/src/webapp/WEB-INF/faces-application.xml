@@ -4,10 +4,10 @@
               xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-facesconfig_3_0.xsd"
               version="3.0">
     <application>
-        <!-- Sakai VariableResolver for JSF -->
-        <variable-resolver>
+        <!-- Sakai ELResolver for JSF -->
+        <el-resolver>
             org.sakaiproject.jsf2.app.SakaiVariableResolver
-        </variable-resolver>
+        </el-resolver>
         <message-bundle>
             sections
         </message-bundle>
