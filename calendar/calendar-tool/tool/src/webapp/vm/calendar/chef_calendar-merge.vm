@@ -19,7 +19,7 @@
 					#if ($calendarEntry.isVisible())
 						#set ($num=$num + 1)
 						<tr> 
-							<td headers="schedule"><label for="check_$num">$calendarEntry.getDisplayName()</label></td>
+							<td headers="schedule"><label for="check_$num">$formattedText.escapeHtml($calendarEntry.getDisplayName())</label></td>
 							<td headers="checkbox">
 								
 								<input type="checkbox" name="$calendarEntry.getReference()" value="$calendarEntry.getReference()" id="check_$num"

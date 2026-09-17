@@ -163,14 +163,14 @@
 			#if($event.EventUrl && $event.EventUrl != "")
 				<tr>
 					<th>$tlang.getString("gen.url")</th>
-					<td><a href="$event.EventUrl">$event.DisplayName</a></td>
+					<td><a href="$event.EventUrl">$formattedText.escapeHtml($event.DisplayName)</a></td>
 				</tr>
 			#end
 			#set ($calObj = $CalendarService.getCalendar($event.CalendarReference))
 			#if ($calObj.getContext() != $PortalService.CurrentSiteId )
 				<tr> 
 					<th>$tlang.getString("gen.fromsite")</th>
-					<td>$SiteService.getSiteDisplay($calObj.getContext())</td>
+					<td>$formattedText.escapeHtml($SiteService.getSiteDisplay($calObj.getContext()))</td>
 				</tr>
 			#end
 
