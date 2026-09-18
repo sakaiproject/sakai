@@ -2365,7 +2365,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			// add draft, subject
 			String encodedSubject = formattedText.encodeUnicode(getSubject());
 			header.setAttribute("subject", encodedSubject);
-			header.setAttribute("draft", new Boolean(getDraft()).toString());
+			header.setAttribute("draft", Boolean.toString(getDraft()));
 
 			return header;
 
