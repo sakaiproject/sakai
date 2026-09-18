@@ -145,6 +145,7 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringService;
@@ -840,6 +841,7 @@ public class SiteAction extends PagedResourceActionII {
 	private LinkMigrationHelper linkMigrationHelper;
 	private LocaleService localeService;
 	private MemoryService memoryService;
+	private CacheManager cacheManager;
 	private PreferencesService preferencesService;
 	private PrivacyManager privacyManager;
 	private PublishingSiteScheduleService publishingSiteScheduleService;
@@ -881,6 +883,7 @@ public class SiteAction extends PagedResourceActionII {
 		localeService = ComponentManager.get(LocaleService.class);
 		ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 		memoryService = ComponentManager.get(MemoryService.class);
+		cacheManager = (CacheManager) ComponentManager.get("org.sakaiproject.ignite.SakaiCacheManager");
 		preferencesService = ComponentManager.get(PreferencesService.class);
 		privacyManager = ComponentManager.get(PrivacyManager.class);
 		publishingSiteScheduleService = ComponentManager.get(PublishingSiteScheduleService.class);
@@ -918,7 +921,8 @@ public class SiteAction extends PagedResourceActionII {
 
 		showOrphanedMembers = serverConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
 		m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.siteService.userSiteCache");
-		memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.enabled");
+		org.springframework.cache.Cache gradebookGroupEnabledCacheOnInit = cacheManager.getCache("org.sakaiproject.tool.gradebook.group.enabled");
+		if (gradebookGroupEnabledCacheOnInit != null) gradebookGroupEnabledCacheOnInit.clear();
 		memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.instances");
 
 		defaultPublishType = serverConfigurationService.getString("site.setup.publish.default", SITE_PUBLISH_TYPE_MANUAL);
@@ -11836,10 +11840,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 				}
 
-				if (memoryService != null) {
-					Cache gradebookGroupEnabledCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.enabled");
-					Cache gradebookGroupInstancesCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.instances");
+				if (cacheManager != null) {
+					org.springframework.cache.Cache gradebookGroupEnabledCache = cacheManager.getCache("org.sakaiproject.tool.gradebook.group.enabled");
 					if (gradebookGroupEnabledCache != null) gradebookGroupEnabledCache.clear();
+				}
+				if (memoryService != null) {
+					Cache gradebookGroupInstancesCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.instances");
 					if (gradebookGroupInstancesCache != null) gradebookGroupInstancesCache.clear();
 				}
 			}else if (choice.equals(TOOL_ID_SITEINFO)) {
