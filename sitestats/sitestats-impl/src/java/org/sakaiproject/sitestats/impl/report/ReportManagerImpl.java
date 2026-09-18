@@ -80,8 +80,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -145,10 +145,10 @@ public class ReportManagerImpl implements ReportManager, Observer {
 	@Setter private ToolManager toolManager;
 	@Setter private UserTimeService userTimeService;
 	@Setter private EventTrackingService eventTrackingService;
-	@Setter private MemoryService memoryService;
-	
+	@Setter private CacheManager cacheManager;
+
 	/** Caching */
-	private Cache<String, Object> cacheReportDef = null;
+	private Cache cacheReportDef = null;
 	
 	public void init(){
 		boolean testsEnabled = BooleanUtils.toBoolean(System.getProperty("sakai.tests.enabled"));
@@ -158,7 +158,7 @@ public class ReportManagerImpl implements ReportManager, Observer {
 
 		// Initialize cacheReportDef and event observer for cacheReportDef invalidation across cluster
 		eventTrackingService.addPriorityObserver(this);
-		cacheReportDef = memoryService.getCache(ReportDef.class.getName());
+		cacheReportDef = cacheManager.getCache(ReportDef.class.getName());
 		
 		// Initialize FopFactory (moved from static initializer)
 		// Create a factory with default configuration
@@ -194,22 +194,22 @@ public class ReportManagerImpl implements ReportManager, Observer {
 				
 				// expire report with specified id
 				log.debug("Expiring report for id: "+siteId);
-				cacheReportDef.remove(id);
-				
+				cacheReportDef.evict(id);
+
 				// expire list of site reports
 				log.debug("Expiring report lists for site: "+siteId);
-				cacheReportDef.remove( new KeyReportDefList(siteId, true, true).toString() );
-				cacheReportDef.remove( new KeyReportDefList(siteId, true, false).toString() );
-				cacheReportDef.remove( new KeyReportDefList(siteId, false, true).toString() );
-				cacheReportDef.remove( new KeyReportDefList(siteId, false, false).toString() );
+				cacheReportDef.evict( new KeyReportDefList(siteId, true, true).toString() );
+				cacheReportDef.evict( new KeyReportDefList(siteId, true, false).toString() );
+				cacheReportDef.evict( new KeyReportDefList(siteId, false, true).toString() );
+				cacheReportDef.evict( new KeyReportDefList(siteId, false, false).toString() );
 
 				// expire list of predefined reports
 				// required as event contains siteId and not null (which identifies predefined reports)
 				log.debug("Expiring predefined report lists");
-				cacheReportDef.remove( new KeyReportDefList(null, true, true).toString() );
-				cacheReportDef.remove( new KeyReportDefList(null, true, false).toString() );
-				cacheReportDef.remove( new KeyReportDefList(null, false, true).toString() );
-				cacheReportDef.remove( new KeyReportDefList(null, false, false).toString() );
+				cacheReportDef.evict( new KeyReportDefList(null, true, true).toString() );
+				cacheReportDef.evict( new KeyReportDefList(null, true, false).toString() );
+				cacheReportDef.evict( new KeyReportDefList(null, false, true).toString() );
+				cacheReportDef.evict( new KeyReportDefList(null, false, false).toString() );
 			}
 		}
 	}
@@ -509,7 +509,7 @@ public class ReportManagerImpl implements ReportManager, Observer {
 	 */
 	public ReportDef getReportDefinition(final long id) {
 		ReportDef reportDef = null;
-		Object cached = cacheReportDef.get(String.valueOf(id));
+		Object cached = cacheReportDef.get(String.valueOf(id), Object.class);
 		if(cached != null){
 			reportDef = (ReportDef) cached;
 		}else{
@@ -629,7 +629,7 @@ public class ReportManagerImpl implements ReportManager, Observer {
 	public List<ReportDef> getReportDefinitions(final String siteId, final boolean includedPredefined, final boolean includeHidden) {
 		List<ReportDef> reportDefs = null;
 		KeyReportDefList key = new KeyReportDefList(siteId, includedPredefined, includeHidden);
-		Object cached = cacheReportDef.get(key.toString());
+		Object cached = cacheReportDef.get(key.toString(), Object.class);
 		if(cached != null) {
 			reportDefs = (List<ReportDef>) cached;
 			log.debug("Getting report list from cache for site "+siteId);

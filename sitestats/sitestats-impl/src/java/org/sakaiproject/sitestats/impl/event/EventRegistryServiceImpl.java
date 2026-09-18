@@ -35,8 +35,8 @@ import lombok.Setter;
 import org.sakaiproject.authz.api.SecurityService;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -74,13 +74,13 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	@Getter @Setter private List<String> serverEventIds = new ArrayList<>();
 
 	/** Caching */
-	private Cache<String, List<ToolInfo>> eventRegistryCache = null;
+	private Cache eventRegistryCache = null;
 
 	/** Sakai services */
 	@Setter private StatsManager				statsManager;
 	@Setter private SiteService					siteService;
 	@Setter private ToolManager					toolManager;
-	@Setter private MemoryService				memoryService;
+	@Setter private CacheManager				cacheManager;
 	@Setter private ServerConfigurationService	serverConfigurationService;
 	@Setter private SecurityService				securityService;
 
@@ -93,7 +93,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		log.info("init(): " + willCheckLocalEventNamesFirst);
 		
 		// configure cache
-		eventRegistryCache = memoryService.getCache(CACHENAME);
+		eventRegistryCache = cacheManager.getCache(CACHENAME);
 		entityBrokerEventRegistry.addObserver(this);
 	}
 
@@ -291,7 +291,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	/** Get the merged Event Registry. */
 	@SuppressWarnings("unchecked")
 	private List<ToolInfo> getMergedEventRegistry() {
-		List<ToolInfo> eventRegistry = (List<ToolInfo>) eventRegistryCache.get(CACHENAME_EVENTREGISTRY);
+		List<ToolInfo> eventRegistry = eventRegistryCache.get(CACHENAME_EVENTREGISTRY, List.class);
 		if (eventRegistry == null) { // not found in the cache
 			// First:  use file Event Registry
 			eventRegistry = fileEventRegistry.getEventRegistry();
@@ -361,7 +361,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	/** Process event registry expired notifications */
 	public void update(Observable obs, Object obj) {
 		if(NOTIF_EVENT_REGISTRY_EXPIRED.equals(obj)) {
-			eventRegistryCache.remove(CACHENAME_EVENTREGISTRY);
+			eventRegistryCache.evict(CACHENAME_EVENTREGISTRY);
 			eventIdToolMap = null;
 			toolEventIds = null;
 			anonymousToolEventIds = null;

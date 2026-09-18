@@ -232,6 +232,11 @@ public class SiteStatsTestConfiguration {
         return memoryService;
     }
 
+    @Bean(name = "org.sakaiproject.ignite.SakaiCacheManager")
+    public org.springframework.cache.CacheManager cacheManager() {
+        return new org.springframework.cache.concurrent.ConcurrentMapCacheManager();
+    }
+
     @Bean(name = "org.sakaiproject.user.api.PreferencesService")
     public PreferencesService preferencesService() {
         return mock(PreferencesService.class);
