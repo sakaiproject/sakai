@@ -24,6 +24,33 @@ describe("add-topic tests", () => {
 
   window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { timezone: "Europe/London" } };
 
+  it("detaches a tag from the topic while keeping it available for reuse", async () => {
+    const topic = { ...data.questionTopic, tags: [...data.tags] };
+    fetchMock.put(topic.url, ({ options }) => JSON.parse(options.body));
+    const el = await fixture(html`
+      <sakai-add-topic .topic=${topic}
+          .tags=${data.tags}
+          .groups=${data.groups}
+          site-id=${data.siteId}
+          can-create-question>
+      </sakai-add-topic>
+    `);
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    el.querySelector(`#tags [data-tag-id="${data.tags[0].id}"]`).click();
+    await elementUpdated(el);
+    expect(el.querySelectorAll("#tags > .tag")).to.have.length(1);
+    expect(el.querySelector(`#tag-post-block option[value="${data.tags[0].id}"]`)).to.exist;
+
+    const saved = oneEvent(el, "topic-saved");
+    el.querySelector("#button-block input").click();
+    const { detail } = await saved;
+    expect(detail.topic.tags).to.deep.equal([data.tags[1]]);
+    expect(data.tags).to.have.length(2);
+    expect(fetchMock.callHistory.calls(/conversations\/tags/)).to.have.length(0);
+  });
+
   it ("creates a new discussion topic", async () => {
 
     const el = await fixture(html`

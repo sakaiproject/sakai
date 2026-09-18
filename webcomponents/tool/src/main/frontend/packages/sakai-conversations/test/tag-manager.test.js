@@ -44,8 +44,8 @@ describe("sakai-conversations-tag-manager tests", () => {
       expect(tagRows[index].querySelector(".tag-label").textContent).to.equal(tag.label);
     });
 
-    // Check edit and delete buttons exist for each tag
-    expect(el.querySelectorAll(".tag-buttons input[type='button']").length).to.equal(data.tags.length * 2);
+    // Shared tag definitions are managed by the Tags administration tool.
+    expect(el.querySelector(".tag-row input, .tag-row button, .tag-editor")).not.to.exist;
   });
 
   it("creates new tags", async () => {
@@ -56,8 +56,8 @@ describe("sakai-conversations-tag-manager tests", () => {
       { label: "newTag2", siteId: data.siteId }
     ];
     const newTagsResponse = [
-      { label: "newTag1", siteId: data.siteId, id: 3 },
-      { label: "newTag2", siteId: data.siteId, id: 4 }
+      { label: "newTag1", siteId: data.siteId, id: "conv-3" },
+      { label: "newTag2", siteId: data.siteId, id: "conv-4" }
     ];
 
     fetchMock.post(createTagsUrl, newTagsResponse);
@@ -91,129 +91,6 @@ describe("sakai-conversations-tag-manager tests", () => {
 
     // Verify _saveable is set to false after successful creation
     expect(el._saveable).to.be.false;
-  });
-
-  it("edits an existing tag", async () => {
-
-    const tagId = data.tags[0].id;
-    const updateUrl = `/api/sites/${data.siteId}/conversations/tags/${tagId}`;
-    const updatedTag = { ...data.tags[0], label: "updated-eggs" };
-
-    fetchMock.put(updateUrl, updatedTag);
-
-    const el = await fixture(html`
-      <sakai-conversations-tag-manager
-          site-id="${data.siteId}"
-          .tags=${data.tags}>
-      </sakai-conversations-tag-manager>
-    `);
-
-    await waitUntil(() => el._i18n);
-    await elementUpdated(el);
-
-    await expect(el).to.be.accessible();
-
-    // Click edit button for the first tag
-    const editButton = el.querySelector(`.tag-buttons input[data-tag-id="${tagId}"][value="${el._i18n.edit}"]`);
-    editButton.click();
-    await elementUpdated(el);
-
-    await expect(el).to.be.accessible();
-
-    // Verify tag editor is displayed
-    const tagEditor = el.querySelector(`#tag-${tagId}-editor`);
-    expect(tagEditor).to.exist;
-    expect(tagEditor.value).to.equal(data.tags[0].label);
-
-    // Change the tag name
-    tagEditor.value = updatedTag.label;
-
-    // Set up listener for tag-updated event
-    const tagUpdatedPromise = oneEvent(el, "tag-updated");
-
-    // Click save button
-    setTimeout(() => el.querySelector(`.tag-editor input[data-tag-id="${tagId}"][value="${el._i18n.save}"]`).click());
-
-    // Wait for the event
-    const { detail } = await tagUpdatedPromise;
-
-    // Verify the event contains the updated tag
-    expect(detail.tag).to.deep.equal(updatedTag);
-
-    // Verify editor is no longer displayed
-    expect(el._tagsBeingEdited.includes(parseInt(tagId))).to.be.false;
-  });
-
-  it("cancels tag editing", async () => {
-
-    const el = await fixture(html`
-      <sakai-conversations-tag-manager
-          site-id="${data.siteId}"
-          .tags=${data.tags}>
-      </sakai-conversations-tag-manager>
-    `);
-
-    await waitUntil(() => el._i18n);
-    await elementUpdated(el);
-
-    await expect(el).to.be.accessible();
-
-    // Click edit button for the first tag
-    const tagId = data.tags[0].id;
-    const editButton = el.querySelector(`.tag-buttons input[data-tag-id="${tagId}"][value="${el._i18n.edit}"]`);
-    editButton.click();
-    await elementUpdated(el);
-
-    // Verify tag editor is displayed
-    expect(el._tagsBeingEdited.includes(parseInt(tagId))).to.be.true;
-    expect(el.querySelector(`#tag-${tagId}-editor`)).to.exist;
-
-    // Click cancel button
-    el.querySelector(`.tag-editor input[data-tag-id="${tagId}"][value="${el._i18n.cancel}"]`).click();
-    await elementUpdated(el);
-
-    // Verify editor is no longer displayed
-    expect(el._tagsBeingEdited.includes(parseInt(tagId))).to.be.false;
-    expect(el.querySelector(`#tag-${tagId}-editor`)).to.not.exist;
-  });
-
-  it("deletes a tag", async () => {
-
-    const tagId = data.tags[0].id;
-    const deleteUrl = `/api/sites/${data.siteId}/conversations/tags/${tagId}`;
-
-    fetchMock.delete(deleteUrl, 200);
-
-    const el = await fixture(html`
-      <sakai-conversations-tag-manager
-          site-id="${data.siteId}"
-          .tags=${data.tags}>
-      </sakai-conversations-tag-manager>
-    `);
-
-    await waitUntil(() => el._i18n);
-    await elementUpdated(el);
-
-    await expect(el).to.be.accessible();
-
-    // Mock confirm to return true
-    const originalConfirm = window.confirm;
-    window.confirm = () => true;
-
-    // Set up listener for tag-deleted event
-    const tagDeletedPromise = oneEvent(el, "tag-deleted");
-
-    // Click delete button
-    setTimeout(() => el.querySelector(`.tag-buttons input[data-tag-id="${tagId}"][value="${el._i18n.delete}"]`).click());
-
-    // Wait for the event
-    const { detail } = await tagDeletedPromise;
-
-    // Verify the event contains the deleted tag id
-    expect(detail.id == tagId).to.be.true;
-
-    // Restore original confirm
-    window.confirm = originalConfirm;
   });
 
   it("handles cancel button click", async () => {

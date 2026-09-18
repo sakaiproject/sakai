@@ -48,7 +48,7 @@ describe("Conversations topic navigation", () => {
       { ...data.questionTopic, id: "other", title: "Other question", tags: [data.tags[1]] },
       data.discussionTopic,
     ]);
-    await selectFilter(el, 0, "1");
+    await selectFilter(el, 0, data.tags[0].id);
     await selectFilter(el, 1, "by_question");
     expect(titles(el)).to.deep.equal([first.title]);
     el.querySelector(".topic-summary-link").click();
@@ -56,7 +56,7 @@ describe("Conversations topic navigation", () => {
     expect(el.querySelector("#conv-next-topic").disabled).to.be.true;
     await returnToTopics(el);
     expect([...el.querySelectorAll("#topic-list-filters select")].map(select => select.value))
-      .to.deep.equal(["1", "by_question"]);
+      .to.deep.equal([data.tags[0].id, "by_question"]);
     expect(titles(el)).to.deep.equal([first.title]);
   });
 
@@ -135,7 +135,8 @@ describe("Conversations topic navigation", () => {
       { ...data.discussionTopic, tags: [data.tags[0]] },
       { ...data.discussionTopic, id: "other", title: "Sports topic", tags: [data.tags[1]] },
     ]);
-    await selectFilter(el, 0, "1");
+    await selectFilter(el, 0, data.tags[0].id);
+    expect(titles(el)).to.deep.equal([data.discussionTopic.title]);
     const confirm = window.confirm;
     try {
       window.confirm = () => true;

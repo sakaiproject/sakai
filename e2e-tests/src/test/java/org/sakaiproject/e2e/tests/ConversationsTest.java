@@ -20,6 +20,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
@@ -232,6 +233,74 @@ class ConversationsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Publish").setExact(true)).click();
         assertThat(page.locator(".conversations-topic__title")).hasText(title);
         assertThat(page.locator(".topic-message")).containsText(TOPIC_BODY);
+    }
+
+    @Test
+    @Order(3)
+    void createsAndDetachesSharedTag() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Conversation");
+        page.locator(".conv-settings-link button:visible").click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Manage Tags").setExact(true)).click();
+
+        Locator manager = page.locator("sakai-conversations-tag-manager:visible");
+        String label = "Playwright shared tag " + System.currentTimeMillis();
+        manager.locator("#tag-creation-field").fill(label);
+        page.waitForResponse(response -> response.url().endsWith("/conversations/tags")
+                && response.request().method().equals("POST") && response.ok(),
+            () -> manager.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add New Tags").setExact(true)).click());
+        assertThat(manager).hasCount(0);
+
+        page.reload();
+        page.locator(".conv-settings-link button:visible").click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Manage Tags").setExact(true)).click();
+        Locator row = manager.locator(".tag-row").filter(new Locator.FilterOptions().setHasText(label));
+        assertThat(row).hasCount(1);
+        assertThat(row.locator("button, input")).hasCount(0);
+
+        page.reload();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true)).click();
+        Locator composer = editCurrentTopic();
+        composer.locator("#tag-post-block select").selectOption(new SelectOption().setLabel(label));
+        composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
+        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(1);
+        composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Publish").setExact(true)).click();
+        Locator topicTag = page.locator("sakai-topic:visible .topic-tags .tag")
+            .filter(new Locator.FilterOptions().setHasText(label));
+        assertThat(topicTag).hasCount(1);
+
+        page.reload();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true)).click();
+        assertThat(topicTag).hasCount(1);
+        composer = editCurrentTopic();
+        composer.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Remove " + label).setExact(true)).click();
+        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(0);
+        composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Publish").setExact(true)).click();
+        assertThat(page.locator("sakai-topic:visible")).isVisible();
+        assertThat(topicTag).hasCount(0);
+
+        page.reload();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true)).click();
+        assertThat(topicTag).hasCount(0);
+        composer = editCurrentTopic();
+        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(0);
+        composer.locator("#tag-post-block select").selectOption(new SelectOption().setLabel(label));
+        composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
+        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(1);
+        composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Publish").setExact(true)).click();
+        assertThat(topicTag).hasCount(1);
+    }
+
+    private Locator editCurrentTopic() {
+        Locator topic = page.locator("sakai-topic:visible");
+        topic.locator(".topic-options-menu [data-bs-toggle='dropdown']").click();
+        topic.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Edit this topic").setExact(true)).click();
+        Locator composer = page.locator("sakai-add-topic:visible");
+        // The editor expands while loading and can move the tag controls during a click.
+        assertThat(composer.locator("#topic-details-editor").frameLocator("iframe.cke_wysiwyg_frame")
+            .locator("body[contenteditable='true']")).containsText(TOPIC_BODY);
+        return composer;
     }
 
     private boolean isVisible(Locator locator, double timeoutMs) {

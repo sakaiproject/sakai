@@ -72,7 +72,7 @@ import org.sakaiproject.conversations.api.model.PostReaction;
 import org.sakaiproject.conversations.api.model.PostReactionTotal;
 import org.sakaiproject.conversations.api.model.PostStatus;
 import org.sakaiproject.conversations.api.model.Settings;
-import org.sakaiproject.conversations.api.model.Tag;
+import org.sakaiproject.conversations.api.beans.TagTransferBean;
 import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.TopicReaction;
 import org.sakaiproject.conversations.api.model.TopicReactionTotal;
@@ -85,7 +85,8 @@ import org.sakaiproject.conversations.api.repository.PostReactionRepository;
 import org.sakaiproject.conversations.api.repository.PostReactionTotalRepository;
 import org.sakaiproject.conversations.api.repository.PostStatusRepository;
 import org.sakaiproject.conversations.api.repository.SettingsRepository;
-import org.sakaiproject.conversations.api.repository.TagRepository;
+import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.conversations.api.repository.TopicReactionRepository;
 import org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
@@ -186,7 +187,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
     private StatsManager statsManager;
 
-    private TagRepository tagRepository;
+    private TagService tagService;
 
     private TimeService timeService;
 
@@ -294,7 +295,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     }
 
     public Optional<TopicTransferBean> getTopic(String topicId) throws ConversationsPermissionsException {
-        return topicRepository.findById(topicId).map(TopicTransferBean::of);
+        return topicRepository.findById(topicId).map(this::toTopicTransferBean);
     }
 
     public boolean currentUserCanViewTopic(ConversationsTopic topic) {
@@ -531,13 +532,26 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         sanitizeTopicBean(topicBean);
 
+        List<String> tagIds = topicBean.tags.stream().map(TagTransferBean::getId).collect(Collectors.toList());
+        for (String tagId : tagIds) {
+            requireSiteTag(topicBean.siteId, tagId);
+        }
+        List<String> previousTagIds = isNew ? Collections.emptyList()
+            : tagService.getTagAssociationIds(topicBean.siteId, topicBean.id);
+        if (!new HashSet<>(previousTagIds).equals(new HashSet<>(tagIds))
+                && !securityService.unlock(Permissions.TOPIC_TAG.label, siteService.siteReference(topicBean.siteId))) {
+            throw new ConversationsPermissionsException("Current user cannot tag topics");
+        }
         ConversationsTopic topic = topicRepository.save(topicBean.asTopic());
+        if (!tagIds.isEmpty() || !previousTagIds.isEmpty()) {
+            tagService.updateTagAssociations(topic.getSiteId(), topic.getId(), tagIds, true);
+        }
 
         syncGradingItem(isNew, existingGradingItemId, topic, topicBean);
         
         topic = updateCalendarForTopic(oldDueDateCalendarEventId, topic);
 
-        TopicTransferBean outTopicBean = TopicTransferBean.of(topic);
+        TopicTransferBean outTopicBean = toTopicTransferBean(topic);
 
         if (isNew) {
             topicStatusRepository.setViewedByTopicId(topic.getId(), true);
@@ -546,10 +560,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicStatusRepository.setViewedByTopicId(topic.getId(), false);
             outTopicBean.viewed = false;
         }
-
-        outTopicBean.tags = topic.getTagIds().stream()
-            .map(tagId -> tagRepository.findById(tagId).orElse(null))
-            .collect(Collectors.toList());
 
         TopicTransferBean decoratedBean = decorateTopicBean(outTopicBean, topic, currentUserId, settings);
 
@@ -769,7 +779,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         Settings settings = getSettingsForSite(topic.getSiteId());
         topic = topicRepository.save(topic);
-        TopicTransferBean bean = decorateTopicBean(TopicTransferBean.of(topic), topic, currentUserId, settings);
+        TopicTransferBean bean = decorateTopicBean(toTopicTransferBean(topic), topic, currentUserId, settings);
         postsCache.remove(topicId);
         return bean;
     }
@@ -836,6 +846,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         topicStatusRepository.deleteByTopicId(topicId);
         topicReactionRepository.deleteByTopicId(topicId);
         topicReactionTotalRepository.deleteByTopicId(topicId);
+        if (!tagService.getTagAssociationIds(topic.getSiteId(), topic.getId()).isEmpty()) {
+            tagService.updateTagAssociations(topic.getSiteId(), topic.getId(), Collections.emptyList(), true);
+        }
         topicRepository.delete(topic);
 
         if (topic.getDueDateCalendarEventId() != null) {
@@ -963,7 +976,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             });
         }
 
-        return TopicTransferBean.of(topicRepository.save(topic));
+        return toTopicTransferBean(topicRepository.save(topic));
     }
 
     @Override
@@ -993,7 +1006,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         topicStatusRepository.save(status);
         topic.setUpvotes(topic.getUpvotes() - 1);
 
-        return TopicTransferBean.of(topicRepository.save(topic));
+        return toTopicTransferBean(topicRepository.save(topic));
     }
 
     public Optional<PostTransferBean> getPost(String postId) throws ConversationsPermissionsException {
@@ -1794,8 +1807,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }));
     }
 
+    private TopicTransferBean toTopicTransferBean(ConversationsTopic topic) {
+        TopicTransferBean topicBean = TopicTransferBean.of(topic);
+        topicBean.tags = getTopicTags(topic);
+        return topicBean;
+    }
+
     private List<TopicTransferBean> decorateTopics(List<ConversationsTopic> topics, String currentUserId, Settings settings) {
-        return topics.stream().map(t -> decorateTopicBean(TopicTransferBean.of(t), t, currentUserId, settings)).collect(Collectors.toList());
+        return topics.stream().map(t -> decorateTopicBean(toTopicTransferBean(t), t, currentUserId, settings)).collect(Collectors.toList());
     }
 
     private TopicTransferBean decorateTopicBean(TopicTransferBean topicBean, ConversationsTopic topic, String currentUserId, Settings settings) {
@@ -1821,11 +1840,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (topic != null) {
-
-            topicBean.tags = topic.getTagIds().stream()
-                    .map(id -> tagRepository.findById(id).orElse(null))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
 
             topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
                 .ifPresent(s -> {
@@ -2134,73 +2148,72 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         return PostTransferBean.of(postRepository.save(post));
     }
 
-    public Tag saveTag(Tag tag) throws ConversationsPermissionsException {
-
-        getCheckedCurrentUserId();
-
-        String siteRef = "/site/" + tag.getSiteId();
-
-        if (!securityService.unlock(Permissions.TAG_CREATE.label, siteRef)) {
-            throw new ConversationsPermissionsException("Current user cannot create tags");
-        }
-
-        return tagRepository.save(tag);
+    private Tag requireSiteTag(String siteId, String tagId) {
+        return tagService.getTags().getForId(tagId)
+            .filter(tag -> siteId.equals(tag.getTagCollectionId()))
+            .orElseThrow(() -> new IllegalArgumentException("No tag in site " + siteId + " with id " + tagId));
     }
 
-    public List<Tag> createTags(List<Tag> tags) throws ConversationsPermissionsException {
+    private TagTransferBean toConversationTag(Tag sharedTag) {
+        TagTransferBean tag = new TagTransferBean();
+        tag.setId(sharedTag.getTagId());
+        tag.setSiteId(sharedTag.getTagCollectionId());
+        tag.setLabel(sharedTag.getTagLabel());
+        tag.setDescription(sharedTag.getDescription());
+        return tag;
+    }
 
-        getCheckedCurrentUserId();
+    private List<TagTransferBean> getTopicTags(ConversationsTopic topic) {
+        return tagService.getAssociatedTagsForItem(topic.getSiteId(), topic.getId()).stream()
+            .map(this::toConversationTag).collect(Collectors.toList());
+    }
 
-        String siteRef = "/site/" + tags.get(0).getSiteId();
-
-        if (!securityService.unlock(Permissions.TAG_CREATE.label, siteRef)) {
-            throw new ConversationsPermissionsException("Current user cannot create tags");
+    private void validateTagLabel(TagTransferBean tag) {
+        if (StringUtils.isBlank(tag.getLabel()) || tag.getLabel().length() > 255) {
+            throw new IllegalArgumentException("Tag label must contain between 1 and 255 characters");
         }
+    }
 
-        return tags.stream().map(tagRepository::save).collect(Collectors.toList());
+    private TagTransferBean createTag(TagTransferBean tag) {
+        // The shared service creates the site's collection when necessary.
+        tagService.duplicateTags(tag.getSiteId(), true, Collections.emptyList(), null);
+        Tag sharedTag = new Tag(null, tag.getSiteId(), tag.getLabel(),
+            tag.getDescription(), null, 0L, null, 0L, null, null, false, 0L,
+            false, 0L, null, null, null, null, null);
+        sharedTag.setTagId(tagService.getTags().createTag(sharedTag));
+        return toConversationTag(sharedTag);
+    }
+
+    public List<TagTransferBean> createTags(List<TagTransferBean> tags) throws ConversationsPermissionsException {
+        getCheckedCurrentUserId();
+        // Check every site before writing any tags, including calls outside the REST API.
+        for (TagTransferBean tag : tags) {
+            if (!securityService.unlock(Permissions.TAG_CREATE.label, siteService.siteReference(tag.getSiteId()))) {
+                throw new ConversationsPermissionsException("Current user cannot create tags");
+            }
+            validateTagLabel(tag);
+            if (StringUtils.isNotBlank(tag.getId())) {
+                throw new IllegalArgumentException("New tags must not have an id");
+            }
+        }
+        List<TagTransferBean> created = new ArrayList<>();
+        for (TagTransferBean tag : tags) {
+            created.add(createTag(tag));
+        }
+        return created;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Tag> getTagsForSite(String siteId) throws ConversationsPermissionsException {
-
+    public List<TagTransferBean> getTagsForSite(String siteId) throws ConversationsPermissionsException {
         getCheckedCurrentUserId();
-
-        String siteRef = siteService.siteReference(siteId);
-
-        if (!securityService.unlock(Permissions.TOPIC_TAG.label, siteRef)) {
-            return Collections.<Tag>emptyList();
+        if (!securityService.unlock(Permissions.TOPIC_TAG.label, siteService.siteReference(siteId))) {
+            return Collections.emptyList();
         }
-
-        List<Tag> tags = tagRepository.findBySiteId(siteId);
-        // Sort tags alphabetically by label
-        tags.sort(Comparator.comparing(Tag::getLabel, new AlphaNumericComparator()));
-        return tags;
-    }
-
-    @Override
-    public void deleteTag(Long tagId) throws ConversationsPermissionsException {
-
-        getCheckedCurrentUserId();
-
-        Optional<Tag> optTag = tagRepository.findById(tagId);
-
-        if (optTag.isPresent()) {
-            String siteRef = "/site/" + optTag.get().getSiteId();
-
-            if (!securityService.unlock(Permissions.TAG_CREATE.label, siteRef)) {
-                throw new ConversationsPermissionsException("Current user cannot delete tags");
-            }
-
-            tagRepository.deleteById(tagId);
-
-            // Update the topics that were using this tag
-            List<ConversationsTopic> topicsToUpdate = topicRepository.findByTags_Id(tagId);
-            topicsToUpdate.forEach(t -> t.getTagIds().remove(tagId));
-            topicRepository.saveAll(topicsToUpdate);
-        } else {
-            throw new IllegalArgumentException("No tag with id " + tagId);
-        }
+        return tagService.getTags().getAllInCollection(siteId).stream()
+            .map(this::toConversationTag)
+            .sorted(Comparator.comparing(TagTransferBean::getLabel, new AlphaNumericComparator()))
+            .collect(Collectors.toList());
     }
 
     // Rich text is cleaned before persistence; read paths return stored values unchanged.
@@ -2627,45 +2640,54 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
     @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
-
         Map<String, String> traversalMap = new HashMap<>();
-
+        Map<String, String> copiedTags = new HashMap<>();
         try {
-            getTopicsForSite(fromContext).stream().map(fromBean -> {
-
-                    TopicTransferBean newBean = new TopicTransferBean();
-
-                    newBean.id = fromBean.id;
-                    newBean.title = fromBean.title;
-                    newBean.message = ltiService.fixLtiLaunchUrls(fromBean.message, fromContext, toContext, traversalMap);
-                    newBean.siteId = toContext;
-                    newBean.draft = true;
-                    newBean.type = fromBean.type;
-
-                    return newBean;
-                }).forEach(tb -> {
-
-                    if (CollectionUtils.isEmpty(ids) || ids.contains(tb.id)) {
-
-                        String fromId = tb.id;
-                        tb.id = null;
-
-                        try {
-                            TopicTransferBean newTopicBean = saveTopic(tb, false);
-                            String fromRef
-                                = ConversationsReferenceReckoner.reckoner().siteId(fromContext).type("t").id(fromId).reckon().getReference();
-                            String toRef
-                                = ConversationsReferenceReckoner.reckoner().siteId(toContext).type("t").id(newTopicBean.id).reckon().getReference();
-                            traversalMap.put(fromRef, toRef);
-                        } catch (ConversationsPermissionsException e) {
-                            log.error("Failed to save topic \"{}\" during site import : {}", tb.title, e.toString());
+            for (TopicTransferBean source : getTopicsForSite(fromContext)) {
+                if (!CollectionUtils.isEmpty(ids) && !ids.contains(source.id)) {
+                    continue;
+                }
+                TopicTransferBean target = new TopicTransferBean();
+                target.title = source.title;
+                target.message = ltiService.fixLtiLaunchUrls(source.message, fromContext, toContext, traversalMap);
+                target.siteId = toContext;
+                target.draft = true;
+                target.type = source.type;
+                try {
+                    // Save first: this checks destination permissions before creating shared tags.
+                    TopicTransferBean saved = saveTopic(target, false);
+                    List<String> targetTagIds = new ArrayList<>();
+                    for (TagTransferBean sourceTag : source.tags) {
+                        String targetTagId = copiedTags.get(sourceTag.getId());
+                        if (targetTagId == null) {
+                            List<Tag> duplicates = tagService.getTagsByExactLabel(sourceTag.getLabel(), toContext);
+                            if (duplicates.isEmpty()) {
+                                duplicates = tagService.duplicateTags(toContext, true,
+                                    Collections.singletonList(sourceTag.getId()), null);
+                            }
+                            if (duplicates.isEmpty()) {
+                                continue;
+                            }
+                            targetTagId = duplicates.get(0).getTagId();
+                            copiedTags.put(sourceTag.getId(), targetTagId);
                         }
+                        targetTagIds.add(targetTagId);
                     }
-                });
+                    if (!targetTagIds.isEmpty()) {
+                        tagService.updateTagAssociations(toContext, saved.id, targetTagIds, true);
+                    }
+                    String fromRef = ConversationsReferenceReckoner.reckoner().siteId(fromContext)
+                        .type("t").id(source.id).reckon().getReference();
+                    String toRef = ConversationsReferenceReckoner.reckoner().siteId(toContext)
+                        .type("t").id(saved.id).reckon().getReference();
+                    traversalMap.put(fromRef, toRef);
+                } catch (ConversationsPermissionsException e) {
+                    log.warn("Cannot copy topic {} from site {} to {}", source.id, fromContext, toContext, e);
+                }
+            }
         } catch (ConversationsPermissionsException e) {
-            log.warn("Failed to get topics for site {} during site import : {}", fromContext, e.toString());
+            log.warn("Cannot read topics for site {} during site import", fromContext, e);
         }
-
         return traversalMap;
     }
 
@@ -2833,7 +2855,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         } else {
             switch (reference.getType()) {
                 case "t":
-                    return topicRepository.findById(reference.getId()).map(TopicTransferBean::of).orElse(null);
+                    return topicRepository.findById(reference.getId()).map(this::toTopicTransferBean).orElse(null);
                 case "p":
                     return postRepository.findById(reference.getId()).map(PostTransferBean::of).orElse(null);
                 default:

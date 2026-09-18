@@ -54,8 +54,6 @@ export class SakaiConversations extends SakaiElement {
     this.loadTranslations("conversations");
   }
 
-  _tagUpdatedOrDeleted() { this._fetchConversationsData(); }
-
   _tagsCreated() {
 
     this._fetchConversationsData();
@@ -528,8 +526,6 @@ export class SakaiConversations extends SakaiElement {
           site-id="${this.siteId}"
           ?editing-topic=${this.wasAddingTopic}
           @tags-created=${this._tagsCreated}
-          @tag-updated=${this._tagUpdatedOrDeleted}
-          @tag-deleted=${this._tagUpdatedOrDeleted}
           @continue=${this._resetState}
       >
       </sakai-conversations-tag-manager>
