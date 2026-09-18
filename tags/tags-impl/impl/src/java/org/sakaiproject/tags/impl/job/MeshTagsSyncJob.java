@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
@@ -45,6 +44,7 @@ import org.w3c.dom.NodeList;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.serialization.MapperFactory;
 
 /**
  * A quartz job to synchronize the TAGS with an
@@ -73,7 +73,7 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 				try {
 					targetStream=new FileInputStream(xmlFile);
 				} catch (Exception e){
-					log.warn("The Mesh file can't be found in the specified route: " + pathToXml);
+					log.warn("The Mesh file can't be found in the specified route: {}", pathToXml);
 				}
 		return targetStream;
 	}
@@ -92,49 +92,52 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 		if(log.isInfoEnabled()) {
 			log.info("Starting MESH Tag Collection synchronization");
 		}
-		try{
-			XMLInputFactory factory = XMLInputFactory.newInstance();
-			XMLStreamReader xsr = factory.createXMLStreamReader(getTagsXmlInputStream());
-			xsr.next();
-			xsr.nextTag();
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer t = tf.newTransformer();
+		try (InputStream input = getTagsXmlInputStream()) {
+			XMLStreamReader xsr = MapperFactory.xmlBuilder().build().getFactory()
+					.getXMLInputFactory().createXMLStreamReader(input);
+			try {
+				xsr.next();
+				xsr.nextTag();
+				TransformerFactory tf = TransformerFactory.newInstance();
+				Transformer t = tf.newTransformer();
 
-			while (xsr.nextTag() == XMLStreamConstants.START_ELEMENT) {
-				DOMResult result = new DOMResult();
-				t.transform(new StAXSource(xsr), result);
+				while (xsr.nextTag() == XMLStreamConstants.START_ELEMENT) {
+					DOMResult result = new DOMResult();
+					t.transform(new StAXSource(xsr), result);
 
-				Node nNode = result.getNode();
-				Element element = ((Document)nNode).getDocumentElement();
-				String tagLabel="undefined";
-				counterTotal++;
+					Node nNode = result.getNode();
+					Element element = ((Document)nNode).getDocumentElement();
+					String tagLabel="undefined";
+					counterTotal++;
 
-				try {
-					Element descriptorName = (Element) element.getElementsByTagName("DescriptorName").item(0);
-					tagLabel =	getString("String",descriptorName);
-					String externalId = getString("DescriptorUI",element);
-					String description = getString("Annotation",element);
-					long externalCreationDate = xmlDateToMs(element.getElementsByTagName("DateCreated").item(0),externalId);
-					long lastUpdateDateInExternalSystem = xmlDateToMs(element.getElementsByTagName("DateRevised").item(0),externalId);
-					String externalHierarchyCode = xmlTreeToString(element.getElementsByTagName("TreeNumberList").item(0),externalId);
-					String externalType = element.getAttribute("DescriptorClass");
-					String alternativeLabels = xmlToAlternativeLabels(element.getElementsByTagName("ConceptList").item(0), externalId);
-					updateOrCreateTagWithExternalSourceName(externalId, "MESH",  tagLabel,  description,
-							alternativeLabels,  externalCreationDate, lastUpdateDateInExternalSystem,  null,
-							externalHierarchyCode,  externalType,  null);
-					counterSuccess++;
-					lastSuccessfulLabel=tagLabel;
-				} catch (Exception e) {
-					log.warn("Mesh XML can't be processed for this Label: " + tagLabel + ". If the value is undefined, then, the previous successful label was: " + lastSuccessfulLabel,e);
-					sendStatusMail(2,e.getMessage());
-				}
-				if(counterTotal%1000==0){
-					log.info(counterSuccess + "/" + counterTotal + " labels processed correctly... and still processing. " + (counterTotal - counterSuccess) + " errors by the moment");
-				}
+					try {
+						Element descriptorName = (Element) element.getElementsByTagName("DescriptorName").item(0);
+						tagLabel =	getString("String",descriptorName);
+						String externalId = getString("DescriptorUI",element);
+						String description = getString("Annotation",element);
+						long externalCreationDate = xmlDateToMs(element.getElementsByTagName("DateCreated").item(0),externalId);
+						long lastUpdateDateInExternalSystem = xmlDateToMs(element.getElementsByTagName("DateRevised").item(0),externalId);
+						String externalHierarchyCode = xmlTreeToString(element.getElementsByTagName("TreeNumberList").item(0),externalId);
+						String externalType = element.getAttribute("DescriptorClass");
+						String alternativeLabels = xmlToAlternativeLabels(element.getElementsByTagName("ConceptList").item(0), externalId);
+						updateOrCreateTagWithExternalSourceName(externalId, "MESH",  tagLabel,  description,
+								alternativeLabels,  externalCreationDate, lastUpdateDateInExternalSystem,  null,
+								externalHierarchyCode,  externalType,  null);
+						counterSuccess++;
+						lastSuccessfulLabel=tagLabel;
+					} catch (Exception e) {
+						log.warn("Mesh XML can't be processed for this Label: {}. If the value is undefined, then, the previous successful label was: {}", tagLabel, lastSuccessfulLabel, e);
+						sendStatusMail(2,e.getMessage());
+					}
+					if(counterTotal%1000==0){
+						log.info("{}/{} labels processed correctly... and still processing. {} errors by the moment", counterSuccess, counterTotal, counterTotal - counterSuccess);
+					}
 
 
-			} // end while
-			xsr.close();
+				} // end while
+			} finally {
+				xsr.close();
+			}
 			updateTagCollectionSynchronization("MESH",0L);
 			deleteTagsOlderThanDateFromCollection("MESH",start);
 			sendStatusMail(1,"Imported from MESH finished. Num of labels processed successfully " + counterSuccess + "of" + counterTotal);
@@ -146,7 +149,7 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 		}
 
 		if(log.isInfoEnabled()) {
-			log.info("Finished Mesh Tags synchronization in " + (System.currentTimeMillis()-start) + " ms");
+			log.info("Finished Mesh Tags synchronization in {} ms", System.currentTimeMillis() - start);
 		}
 		counterTotal=0;
 		counterSuccess=0;
@@ -170,7 +173,7 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 			}
 			return treeNumberList;
 		}catch (Exception e){
-			log.debug("Treenumber Mesh XML can't be processed in:" + externalId,e);
+			log.debug("Treenumber Mesh XML can't be processed in:{}", externalId, e);
 			return null;
 		}
 	}
@@ -208,7 +211,7 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 			}
 			return alternativeLabelsList;
 		}catch (Exception e){
-			log.warn("AlternativeLabels in Mesh XML can't be processed at" +  externalId,e);
+			log.warn("AlternativeLabels in Mesh XML can't be processed at{}", externalId, e);
 			return null;
 		}
 	}

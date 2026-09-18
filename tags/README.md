@@ -1,3 +1,38 @@
+Persistence
+===========
+
+Tags, collections, and associations use Sakai's shared Hibernate session factory and
+`SpringCrudRepository`. Existing `tagservice_*` tables and IDs are retained; this
+change does not move data between tables. Collection IDs and audit user IDs are
+mapped to 99 characters; schema conversion is handled by the companion tags
+consolidation PR. Schema creation uses Sakai's global
+`auto.ddl` setting; the former `tagservice.auto.ddl` override is no longer used.
+
+Java callers use `TagService` directly, for example `getTag(id)` and
+`createTag(tag)`, instead of the former `Tags` and `TagCollections` sub-services.
+Reads follow the normal JPA lifecycle and may return managed entities inside an
+existing transaction. Prepare edits with `tag.toBuilder()` or
+`collection.toBuilder()`, then submit the built values to `updateTag` or
+`updateTagCollection`. The service loads and updates the managed entity, preserves
+creation metadata, and records the current editor and modification time on every
+explicit update, including unchanged submissions. Hibernate detects persistence
+changes; only content changes produce update events after a successful commit.
+
+Use `associateExistingTag(itemId, tagId)` for IDs and
+`createAndAssociateTag(collectionId, itemId, label, isSite)` for literal labels.
+The latter creates a new tag, retaining the existing duplicate-label behavior.
+`updateTagAssociations` remains the adapter for mixed UI selections: existing IDs
+are associated, and unrecognized values become new labels. The former
+`saveTagAssociation` method is now named `associateExistingTag` and rejects missing IDs.
+
+Legacy timestamp and Boolean metadata remain nullable in the entities and service
+API. JSON responses containing these entities may therefore contain null metadata
+instead of synthetic zero/false values. Form submissions preserve blank hidden
+metadata as null; UI permission checks treat a null external-creation flag as false.
+Updates preserve untouched nulls, while explicit zero/false values are stored as
+submitted. Creation and modification audit values are set by the service when the
+operation requires them.
+
 TAGS ADMINISTRATION 
 
 1. SAKAI PROPERTIES

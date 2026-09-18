@@ -396,8 +396,8 @@ public class ItemAddListener implements ActionListener {
 				if (more) {
 					tagsListToJson += ",";
 				}
-				if (tagService.getTags().getForId(s).isPresent()) {
-					Tag tag = tagService.getTags().getForId(s).get();
+				if (tagService.getTag(s).isPresent()) {
+					Tag tag = tagService.getTag(s).get();
 					String tagLabel = tag.getTagLabel();
 					String tagCollectionName = tag.getCollectionName();
 					tagsListToJson += "{\"tagId\":\"" + s + "\",\"tagLabel\":\"" + tagLabel + "\",\"tagCollectionName\":\"" + tagCollectionName + "\"}";
@@ -927,8 +927,8 @@ public class ItemAddListener implements ActionListener {
 				  }
 			  }
 			  if (!found) {  //If it is not in the list... we need to add it.
-				  if (tagService.getTags().getForId(s).isPresent()) {
-					  Tag tag = tagService.getTags().getForId(s).get();
+				  if (tagService.getTag(s).isPresent()) {
+					  Tag tag = tagService.getTag(s).get();
 					  item.addItemTag(s, tag.getTagLabel(), tag.getTagCollectionId(), tag.getCollectionName());
 				  }
 

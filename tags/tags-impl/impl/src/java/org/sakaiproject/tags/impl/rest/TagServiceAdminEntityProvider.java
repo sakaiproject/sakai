@@ -45,7 +45,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEnt
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.tags.api.Errors;
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
@@ -161,34 +160,25 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
 
 
-            Tag tag = new Tag(tagId,
-                    tagCollectionId,
-                    tagLabel,
-                    description,
-                    null,
-                    0L,
-                    null,
-                    0L,
-                    externalId,
-                    alternativeLabels,
-                    externalCreation,
-                    externalCreationDate,
-                    externalUpdate,
-                    lastUpdateDateInExternalSystem,
-                    parentId,
-                    externalHierarchyCode,
-                    externalType,
-                    data,
-                    null);
+            Tag tag = Tag.builder()
+                .tagId(tagId)
+                .tagCollectionId(tagCollectionId)
+                .tagLabel(tagLabel)
+                .description(description)
+                .externalId(externalId)
+                .alternativeLabels(alternativeLabels)
+                .externalCreation(externalCreation)
+                .externalCreationDate(externalCreationDate)
+                .externalUpdate(externalUpdate)
+                .lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem)
+                .parentId(parentId)
+                .externalHierarchyCode(externalHierarchyCode)
+                .externalType(externalType)
+                .data(data)
+                .build();
 
 
-            Errors errors = tag.validate();
-
-            if (errors.hasErrors()) {
-                return respondWithError(errors);
-            }
-
-            String uuid = tagService().getTags().createTag(tag);
+            String uuid = tagService().createTag(tag);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -246,28 +236,20 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
 
 
-            TagCollection tagCollection = new TagCollection(tagCollectionId,
-                    name,
-                    description,
-                    null,
-                    0L,
-                    externalsourcename,
-                    externalsourcedescription,
-                    null,
-                    0L,
-                    externalupdate,
-                    externalcreation,
-                    lastsynchronizationdate,
-                    lastupdatedateinexternalsystem);
+            TagCollection tagCollection = TagCollection.builder()
+                .tagCollectionId(tagCollectionId)
+                .name(name)
+                .description(description)
+                .externalSourceName(externalsourcename)
+                .externalSourceDescription(externalsourcedescription)
+                .externalUpdate(externalupdate)
+                .externalCreation(externalcreation)
+                .lastSynchronizationDate(lastsynchronizationdate)
+                .lastUpdateDateInExternalSystem(lastupdatedateinexternalsystem)
+                .build();
 
 
-            Errors errors = tagCollection.validate();
-
-            if (errors.hasErrors()) {
-                return respondWithError(errors);
-            }
-
-            String uuid = tagService().getTagCollections().createTagCollection(tagCollection);
+            String uuid = tagService().createTagCollection(tagCollection);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -287,7 +269,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             WrappedParams wp = new WrappedParams(params);
 
             String uuid = wp.getString("id");
-            tagService().getTags().deleteTag(uuid);
+            tagService().deleteTag(uuid);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -306,7 +288,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             WrappedParams wp = new WrappedParams(params);
 
             String uuid = wp.getString("id");
-            tagService().getTagCollections().deleteTagCollection(uuid);
+            tagService().deleteTagCollection(uuid);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -328,56 +310,50 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagid= wp.getString("tagid");
 
-            Tag tag = tagService().getTags().getForId(tagid).get();
+            Tag.TagBuilder tag = tagService().getTag(tagid).get().toBuilder();
 
             if (wp.containsKey("tagcollectionid")) {
-                tag.setTagCollectionId(wp.getString("tagcollectionid"));
+                tag.tagCollectionId(wp.getString("tagcollectionid"));
             }
             if (wp.containsKey("taglabel")){
-                tag.setTagLabel(wp.getString("taglabel"));
+                tag.tagLabel(wp.getString("taglabel"));
             }
             if (wp.containsKey("description")){
-                tag.setDescription(wp.getString("description"));
+                tag.description(wp.getString("description"));
             }
             if (wp.containsKey("externalid")){
-                tag.setExternalId(wp.getString("externalid"));
+                tag.externalId(wp.getString("externalid"));
             }
             if (wp.containsKey("alternativelabels")){
-                tag.setAlternativeLabels(wp.getString("alternativelabels"));
+                tag.alternativeLabels(wp.getString("alternativelabels"));
             }
             if (wp.containsKey("externalcreation")){
-                tag.setExternalCreation(wp.getBoolean("externalcreation"));
+                tag.externalCreation(wp.getBoolean("externalcreation"));
             }
             if (wp.containsKey("externalcreationdate")){
-                tag.setExternalCreationDate(wp.getEpochMS("externalcreationdate"));
+                tag.externalCreationDate(wp.getEpochMS("externalcreationdate"));
             }
             if (wp.containsKey("externalupdate")){
-                tag.setExternalUpdate(wp.getBoolean("externalupdate"));
+                tag.externalUpdate(wp.getBoolean("externalupdate"));
             }
             if (wp.containsKey("lastupdatedateinexternalsystem")){
-                tag.setLastUpdateDateInExternalSystem(wp.getEpochMS("lastupdatedateinexternalsystem"));
+                tag.lastUpdateDateInExternalSystem(wp.getEpochMS("lastupdatedateinexternalsystem"));
             }
             if (wp.containsKey("parentid")){
-                tag.setParentId(wp.getString("parentid"));
+                tag.parentId(wp.getString("parentid"));
             }
             if (wp.containsKey("externalhierarchycode")){
-                tag.setExternalHierarchyCode(wp.getString("externalhierarchycode"));
+                tag.externalHierarchyCode(wp.getString("externalhierarchycode"));
             }
             if (wp.containsKey("externaltype")){
-                tag.setExternalType(wp.getString("externaltype"));
+                tag.externalType(wp.getString("externaltype"));
             }
             if (wp.containsKey("data")) {
-                tag.setData(wp.getString("data"));
+                tag.data(wp.getString("data"));
             }
 
 
-            Errors errors = tag.validate();
-
-            if (errors.hasErrors()) {
-                return respondWithError(errors);
-            }
-
-            tagService().getTags().updateTag(tag);
+            tagService().updateTag(tag.build());
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -397,41 +373,35 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagcollectionid= wp.getString("tagcollectionid");
 
-            TagCollection tagCollection = tagService().getTagCollections().getForId(tagcollectionid).get();
+            TagCollection.TagCollectionBuilder tagCollection = tagService().getTagCollection(tagcollectionid).get().toBuilder();
 
             //We don't need to change the creation date or user
 
             if (wp.containsKey("name")){
-                tagCollection.setName(wp.getString("name"));
+                tagCollection.name(wp.getString("name"));
             }
             if (wp.containsKey("description")){
-            tagCollection.setDescription(wp.getString("description"));
+            tagCollection.description(wp.getString("description"));
             }
             if (wp.containsKey("externalsourcename")){
-                tagCollection.setExternalSourceName(wp.getString("externalsourcename"));
+                tagCollection.externalSourceName(wp.getString("externalsourcename"));
             }
             if (wp.containsKey("externalsourcedescription")){
-                tagCollection.setExternalSourceDescription(wp.getString("externalsourcedescription"));
+                tagCollection.externalSourceDescription(wp.getString("externalsourcedescription"));
             }
             if (wp.containsKey("externalupdate")){
-                tagCollection.setExternalUpdate(wp.getBoolean("externalupdate"));
+                tagCollection.externalUpdate(wp.getBoolean("externalupdate"));
             }
             if (wp.containsKey("externalcreation")){
-                tagCollection.setExternalCreation(wp.getBoolean("externalcreation"));
+                tagCollection.externalCreation(wp.getBoolean("externalcreation"));
             }
             if (wp.containsKey("lastsynchronizationdate")){
-                tagCollection.setLastSynchronizationDate(wp.getEpochMS("lastsynchronizationdate"));
+                tagCollection.lastSynchronizationDate(wp.getEpochMS("lastsynchronizationdate"));
             }
             if (wp.containsKey("lastupdatedateinexternalsystem")) {
-                tagCollection.setLastUpdateDateInExternalSystem(wp.getEpochMS("lastupdatedateinexternalsystem"));
+                tagCollection.lastUpdateDateInExternalSystem(wp.getEpochMS("lastupdatedateinexternalsystem"));
             }
-            Errors errors = tagCollection.validate();
-
-            if (errors.hasErrors()) {
-                return respondWithError(errors);
-            }
-
-            tagService().getTagCollections().updateTagCollection(tagCollection);
+            tagService().updateTagCollection(tagCollection.build());
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -451,7 +421,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagcollectionid= wp.getString("tagcollectionid");
 
-            List<Tag> tags = tagService().getTags().getAllInCollection(tagcollectionid);
+            List<Tag> tags = tagService().getTagsInCollection(tagcollectionid);
 
             return tags;
         } catch (Exception e) {
@@ -466,14 +436,6 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
         result.put("message", e.getMessage());
 
         log.error("Caught an error while handling a request", e);
-
-        return result.toJSONString();
-    }
-
-    private String respondWithError(Errors e) {
-        JSONObject result = new JSONObject();
-        result.put("status", "ERROR");
-        result.put("message", e.toMap());
 
         return result.toJSONString();
     }

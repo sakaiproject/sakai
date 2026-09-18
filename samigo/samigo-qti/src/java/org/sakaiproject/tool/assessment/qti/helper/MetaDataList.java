@@ -172,10 +172,10 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
                 }
 
                 if (!(tagCollectionName.equals("Not assigned collection"))){ //check if the collection is in our system and add the tag
-                    Optional collection = tagService.getTagCollections().getForExternalSourceName(tagCollectionName);
+                    Optional collection = tagService.getTagCollectionForExternalSourceName(tagCollectionName);
                     if (collection.isPresent()) {
                         TagCollection tagCollection = (TagCollection) collection.get();
-                        List<Tag> potentialTags = tagService.getTags().getTagsByExactLabel(tagLabel.trim(), tagCollection.getTagCollectionId());
+                        List<Tag> potentialTags = tagService.getTagsByExactLabel(tagLabel.trim(), tagCollection.getTagCollectionId());
                         potentialTags.stream().filter(t -> t.getCollectionName().equals(tagCollection.getName())).forEach(t -> {
                                 item.addItemTag(t.getTagId(), t.getTagLabel(), t.getTagCollectionId(), t.getCollectionName());
                         });
