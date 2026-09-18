@@ -38,7 +38,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.user.api.AuthenticationIdUDP;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
@@ -66,7 +66,7 @@ import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPConnection;
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPEntry;
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPException;
 import com.unboundid.util.ssl.SSLUtil;
-import org.sakaiproject.memory.api.Cache;
+import org.springframework.cache.Cache;
 
 /**
  * <p>
@@ -83,7 +83,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	@Setter private SecurityService securityService;
 
 	/** Memory Service */
-	@Setter private MemoryService memoryService;
+	@Setter private CacheManager cacheManager;
 
 	/** Default LDAP connection port */
 	public static final int[] DEFAULT_LDAP_PORT = {389};
@@ -283,7 +283,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		}
 
 		// setup the negative user cache
-		negativeCache = memoryService.getCache(getClass().getName() + ".negativeCache");
+		negativeCache = cacheManager.getCache(getClass().getName() + ".negativeCache");
 
 		createConnectionPool();
 		initLdapAttributeMapper();
@@ -590,10 +590,9 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 
 			// No LDAPException means we have a good connection. Cache a negative result.
 			if (!userFound) {
-				Object o = negativeCache.get(edit.getEid());
-				Integer seenCount = 0;
-				if (o != null) {
-					seenCount = (Integer) o;
+				Integer seenCount = negativeCache.get(edit.getEid(), Integer.class);
+				if (seenCount == null) {
+					seenCount = 0;
 				}
 				negativeCache.put(edit.getEid(), (seenCount + 1));
 			}
@@ -705,10 +704,9 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 				users.remove(userRemove);
 
 				// Add eid to negative cache. We are confident the LDAP conn is alive and well here.
-				Integer seenCount = 0;
-				Object o = negativeCache.get(userRemove.getEid());
-				if (o != null) {
-					seenCount = (Integer) o;
+				Integer seenCount = negativeCache.get(userRemove.getEid(), Integer.class);
+				if (seenCount == null) {
+					seenCount = 0;
 				}
 				negativeCache.put(userRemove.getEid(), (seenCount + 1));
 			}
@@ -832,12 +830,11 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	protected boolean isSearchableEid(String eid) {
 		if (negativeCache == null) {
-			negativeCache = memoryService.getCache(getClass().getName() + ".negativeCache");
+			negativeCache = cacheManager.getCache(getClass().getName() + ".negativeCache");
 			log.debug("negativeCache initialized in isSearchableEid");
 		}
-		Object o = negativeCache.get(eid);
-		if (o != null) {
-			Integer seenCount = (Integer) o;
+		Integer seenCount = negativeCache.get(eid, Integer.class);
+		if (seenCount != null) {
 			log.debug("negativeCache count for {}={}", eid, seenCount);
 			if (seenCount > 3) {
 				return false;

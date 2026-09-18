@@ -20,14 +20,15 @@ package org.sakaiproject.sitestats.impl.event;
 
 import java.util.*;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityProviderListener;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistry;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
@@ -46,14 +47,14 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 	private Map<String, String>		eventIdToEPPrefix		= new HashMap<String, String>();
 
 	/** Caching */
-	private Cache<String, String>					eventNamesCache			= null;
+	private Cache eventNamesCache = null;
 
 	/** Sakai Services */
 	private SessionManager			M_sm;
 	private PreferencesService		M_ps;
 	private EntityProviderManager	M_epm;
-	private MemoryService			M_ms;
-	
+	@Setter private CacheManager cacheManager;
+
 
 	// ################################################################
 	// Spring methods
@@ -70,15 +71,11 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 		this.M_epm = entityProviderManager;
 	}
 
-	public void setMemoryService(MemoryService memoryService) {
-		this.M_ms = memoryService;
-	}
-	
-	public void init() {
+    public void init() {
 		log.info("init()");
-		
+
 		// configure cache
-		eventNamesCache = M_ms.getCache(CACHENAME);
+		eventNamesCache = cacheManager.getCache(CACHENAME);
 		
 		// register EntityBrokerListener
 		M_epm.registerListener(this, true);
@@ -110,15 +107,9 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 		Locale currentUserLocale = getCurrentUserLocale();
 		EventLocaleKey key = new EventLocaleKey(eventId, currentUserLocale.toString());
 		String keyString = key.toString();
-		String eventName = null;
-		if(eventNamesCache.containsKey(keyString)) {
-			eventName = (String) eventNamesCache.get(keyString);
-			if(eventName != null) {
-				return eventName;
-			}
-			/* If there's an exception we won't re-establish the cache entry below */
-			eventNamesCache.remove(keyString);
-		}
+		String eventName = eventNamesCache.get(keyString, String.class);
+		if (eventName != null) return eventName;
+
 		try{
 			String prefix = eventIdToEPPrefix.get(eventId);
 			Statisticable s = M_epm.getProviderByPrefixAndCapability(prefix, Statisticable.class);

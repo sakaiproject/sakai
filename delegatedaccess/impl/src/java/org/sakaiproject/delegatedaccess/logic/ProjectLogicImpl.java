@@ -55,8 +55,8 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -80,7 +80,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	@Getter @Setter
 	private DelegatedAccessDao dao;
 	@Getter @Setter
-	private MemoryService memoryService;
+	private CacheManager cacheManager;
 	//Stores restricted tools map for users when they log back in
 	private Cache restrictedAuthToolsCache;
 	@Getter @Setter
@@ -92,8 +92,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 */
 	public void init() {
 		log.info("init");
-		restrictedAuthToolsCache = memoryService.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache");
-		restrictedPublicToolsCache = memoryService.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache");
+		restrictedAuthToolsCache = cacheManager.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache");
+		restrictedPublicToolsCache = cacheManager.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache");
 	}
 
 	/**
@@ -438,11 +438,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 				session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DELEGATED_ACCESS_FLAG, true);
 				//need to clear sakai realm permissions cache for user since Denied Tools list is tied to
 				//session and permissions are a saved in a system cache
-				Object el = restrictedAuthToolsCache.get(userId);
+				Map<String, String[]> el = restrictedAuthToolsCache.get(userId, Map.class);
 				if(el != null){
 					session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, el);
 				}
-				Object elPub = restrictedPublicToolsCache.get(userId);
+				Map<String, String[]> elPub = restrictedPublicToolsCache.get(userId, Map.class);
 				if(elPub != null){
 					session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS2, elPub);
 				}
