@@ -387,8 +387,7 @@ simplePageBean.addForumSummary,
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
     <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
-    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
-
+    <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.PagePromotionService"

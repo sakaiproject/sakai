@@ -35,7 +35,9 @@
 	       factory-method="getHttpServletResponse" />
 
 	<!-- the producer beans -->
-	<bean name="showPageProducer" class="org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer">
+	<bean name="showPageProducer"
+		  class="org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer"
+		  init-method="init">
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc" />
@@ -59,6 +61,8 @@
 		<property name="richTextEvolver" ref="richTextEvolver" />
 		<property name="imageToMimeMap" ref="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap"/>
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
 	
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReorderProducer" >

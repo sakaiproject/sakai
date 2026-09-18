@@ -36,13 +36,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -71,7 +69,6 @@ import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
 import org.sakaiproject.lessonbuildertool.tool.evolvers.SakaiFCKTextEvolver;
@@ -83,9 +80,8 @@ import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParameters;
 import org.sakaiproject.lessonbuildertool.util.LessonConditionUtil;
 import org.sakaiproject.lessonbuildertool.util.SimplePageItemUtilities;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.portal.util.CSSUtils;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.time.api.UserTimeService;
@@ -146,9 +142,10 @@ import org.sakaiproject.site.api.Group;
 @Slf4j
 public class ShowPageProducer implements ViewComponentProducer, DefaultView, NavigationCaseReporter, ViewParamsReporter {
 	String reqStar = "<span class=\"reqStar\">*</span>";
-	
+
+	@Setter private MessageLocator messageLocator;
 	private SimplePageBean simplePageBean;
-	private SimplePageToolDao simplePageToolDao;
+	@Setter private SimplePageToolDao simplePageToolDao;
 	@Setter private GradebookIfc gradebookIfc;
 	@Setter private AuthzGroupService authzGroupService;
 	@Setter private SecurityService securityService;
@@ -159,25 +156,25 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	@Setter private LocaleService localeService;
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
-	// have to do it here because we need it in urlCache. It has to happen before Spring initialization
-	private static MemoryService memoryService = (MemoryService)ComponentManager.get(MemoryService.class);
-	private ToolManager toolManager;
+	@Setter private CacheManager cacheManager;
+	@Setter private ToolManager toolManager;
 	public TextInputEvolver richTextEvolver;
 	private static LessonBuilderAccessService lessonBuilderAccessService;
-	DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, new ResourceLoader().getLocale());;
-	
-	private List<Long> printedSubpages;
-	
-	private Map<String,String> imageToMimeMap;
-	public void setImageToMimeMap(Map<String,String> map) {
-		this.imageToMimeMap = map;
-	}
-        public boolean useSakaiIcons = ServerConfigurationService.getBoolean("lessonbuilder.use-sakai-icons", false);
-        public boolean allowSessionId = ServerConfigurationService.getBoolean("session.parameter.allow", false);
-        public boolean allowCcExport = ServerConfigurationService.getBoolean("lessonbuilder.cc-export", true);
-        public boolean allowDeleteOrphans = ServerConfigurationService.getBoolean("lessonbuilder.delete-orphans", false);
+	@Setter private ServerConfigurationService serverConfigurationService;
 
-	public boolean isLessonPrintAllEnabled = ServerConfigurationService.getBoolean("lessonbuilder.printAll", false);
+	private Cache urlCache;
+
+	private List<Long> printedSubpages;
+	@Setter private Map<String,String> imageToMimeMap;
+	private DateFormat dateFormat;
+
+	public int majorVersion;
+	public String fullVersion;
+	public boolean useSakaiIcons;
+	public boolean allowSessionId;
+	public boolean allowCcExport;
+	public boolean allowDeleteOrphans;
+	public boolean isLessonPrintAllEnabled;
 
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
@@ -190,7 +187,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static LessonEntity assignmentEntity;
 	private static LessonEntity bltiEntity;
 	private static LessonEntity scormEntity;
-	public MessageLocator messageLocator;
 	private static LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
 	// mp4 means it plays with the flash player if HTML5 doesn't work.
@@ -207,19 +203,24 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	//institution's twitter widget id, should come from properties file
 	public static final String TWITTER_WIDGET_ID = "lessonbuilder.twitter.widget.id";
 
-	// WARNING: this must occur after memoryService, for obvious reasons. 
-	// I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
-	// and it's better to let Java's initialization code handle synchronization than do it ourselves in
-	// an init method
-	private static Cache urlCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
-    	public static int majorVersion = getMajorVersion();
-        public static String fullVersion = getFullVersion();
+	public void init() {
+		urlCache = cacheManager.getCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
 
-	protected static final int DEFAULT_EXPIRATION = 10 * 60;
+		dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, new ResourceLoader().getLocale());
 
-	public static int getMajorVersion() {
+		useSakaiIcons = serverConfigurationService.getBoolean("lessonbuilder.use-sakai-icons", false);
+		allowSessionId = serverConfigurationService.getBoolean("session.parameter.allow", false);
+		allowCcExport = serverConfigurationService.getBoolean("lessonbuilder.cc-export", true);
+		allowDeleteOrphans = serverConfigurationService.getBoolean("lessonbuilder.delete-orphans", false);
+		isLessonPrintAllEnabled = serverConfigurationService.getBoolean("lessonbuilder.printAll", false);
 
-	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "12");
+		majorVersion = getMajorVersion();
+		fullVersion = getFullVersion();
+	}
+
+	public int getMajorVersion() {
+
+	    String sakaiVersion = serverConfigurationService.getString("version.sakai", "12");
 
 	    int major = 2;
 
@@ -241,9 +242,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	    return major;
 	}
 
-	public static String getFullVersion() {
+	public String getFullVersion() {
 
-	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "12");
+	    String sakaiVersion = serverConfigurationService.getString("version.sakai", "12");
 
 	    int i = sakaiVersion.indexOf("-"); // for -snapshot
 	    if (i >= 0)
@@ -364,7 +365,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public String myUrl() {
 	    // previously we computed something, but this will give us the official one
-	        return ServerConfigurationService.getServerUrl();
+	        return serverConfigurationService.getServerUrl();
 	}
 
 	// NOTE:
@@ -505,7 +506,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		if (mp4Types == null) {
-			String m4Types = ServerConfigurationService.getString("lessonbuilder.mp4.types", DEFAULT_MP4_TYPES);
+			String m4Types = serverConfigurationService.getString("lessonbuilder.mp4.types", DEFAULT_MP4_TYPES);
 			mp4Types = m4Types.split(",");
 			for (int i = 0; i < mp4Types.length; i++) {
 				mp4Types[i] = mp4Types[i].trim().toLowerCase();
@@ -514,7 +515,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		if (html5Types == null) {
-			String jTypes = ServerConfigurationService.getString("lessonbuilder.html5.types", DEFAULT_HTML5_TYPES);
+			String jTypes = serverConfigurationService.getString("lessonbuilder.html5.types", DEFAULT_HTML5_TYPES);
 			html5Types = jTypes.split(",");
 			for (int i = 0; i < html5Types.length; i++) {
 				html5Types[i] = html5Types[i].trim().toLowerCase();
@@ -1125,7 +1126,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UIOutput.make(tofill, "startupHelp")
 				    .decorate(new UIFreeAttributeDecorator("src", helpUrl))
 				    .decorate(new UIFreeAttributeDecorator("id", "iframe"))
-					.decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
+					.decorate(new UIFreeAttributeDecorator("allow", serverConfigurationService.getBrowserFeatureAllowString()));
 				if (!iframeJavascriptDone) {
 				    UIOutput.make(tofill, "iframeJavascript");
 				    iframeJavascriptDone = true;
@@ -1234,8 +1235,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    	columnContainer.decorate(new UIStyleDecorator("noColor"));
 					}
 				    tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
-				    Integer width = new Integer(i.getAttribute("colwidth") == null ? "1" : i.getAttribute("colwidth"));
-				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
+				    Integer width = Integer.parseInt(i.getAttribute("colwidth") == null ? "1" : i.getAttribute("colwidth"));
+				    Integer split = Integer.parseInt(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
 				    colnum += width; // number after this column
 
 				    if (!first && !"section".equals(i.getFormat())) colColor = i.getAttribute("colcolor");
@@ -2051,14 +2052,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    // width="640" height="390"></object>
 
 						    item = UIOutput.make(tableRow, "youtubeIFrame")
-									.decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
+									.decorate(new UIFreeAttributeDecorator("allow", serverConfigurationService.getBrowserFeatureAllowString()));
 						    // youtube seems ok with length and width
 						    if(lengthOk(height)) {
 							    item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						    }
 						    else if(!lengthOk(height) && lengthOk(width) && ("px".equals(width.unit) || "".equals(width.unit))) {
 							    // Youtube seems to use aspect ratio of 16*9 from 2015 on
-							    int youtubeDerivedHeight = (int) Math.ceil(new Double(width.getOld()) * 9 / 16);
+							    int youtubeDerivedHeight = (int) Math.ceil(Double.parseDouble(width.getOld()) * 9 / 16);
 							    item.decorate(new UIFreeAttributeDecorator("height", youtubeDerivedHeight + ""));
 						    }
 						
@@ -2246,7 +2247,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             } else if (definiteLength(width)) {
 				// this is mostly because the default is 640 with no height specified
 				// we've validated width, so no errors in conversion should occur
-				Double h = new Double(width.getOld()) * 0.75;
+				Double h = Double.parseDouble(width.getOld()) * 0.75;
                                 if (oMimeType.startsWith("audio/"))
 				    h = 100.0;
                                 item2.decorate(new UIFreeAttributeDecorator("height", Double.toString(h))).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
@@ -2325,8 +2326,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    UILink.make(tableRow, "iframe-link-link", messageLocator.getMessage("simplepage.open_new_window"), itemUrl);
 						    item = UIOutput.make(tableRow, "iframe")
 									.decorate(new UIFreeAttributeDecorator("src", itemUrl))
-									.decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
-						    if (!IframeUrlUtil.isLocalToSakai(itemUrl, ServerConfigurationService.getServerUrl())) {
+									.decorate(new UIFreeAttributeDecorator("allow", serverConfigurationService.getBrowserFeatureAllowString()));
+						    if (!IframeUrlUtil.isLocalToSakai(itemUrl, serverConfigurationService.getServerUrl())) {
 								item.decorate(new UIStyleDecorator("sakai-iframe-force-light"));
 						    }
 						    // if user specifies auto, use Javascript to resize the
@@ -2526,7 +2527,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						for (Map cat: categories) {
 						    String rowText = String.valueOf(cat.get("rowText"));
 						    String rowId = String.valueOf(cat.get("id"));
-						    catMap.put(rowText, new Long(rowId));
+						    catMap.put(rowText, Long.parseLong(rowId));
 						}
 
 						List<String>groupMembers = simplePageBean.studentPageGroupMembers(i, null);
@@ -2651,7 +2652,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								rowId = catMap.get(rowText);
 							    if (rowId == null)
 								continue;
-							    selectedCells.put(rowId, new Integer(result.getColumnValue()));
+							    selectedCells.put(rowId, result.getColumnValue());
 							}
 
 							// for each student being evaluated
@@ -3511,7 +3512,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						String href  = "https://twitter.com/" + StringUtils.trim(username);
 						String divHeight = "height:" + height + "px;";
 						//Note: widget id used is from uni's twitter account
-						String html = "<div align=\"left\" style='"+divHeight+"' class=\"twitter-div\"><a class=\"twitter-timeline\" href= '" +href+ "' data-widget-id='" +ServerConfigurationService.getString(TWITTER_WIDGET_ID)+ "'  data-tweet-limit='" +tweetLimit +"' data-dnt=\"true\" data-screen-name='" +username+"'>Tweets by @'" +username+"'</a></div>";
+						String html = "<div align=\"left\" style='"+divHeight+"' class=\"twitter-div\"><a class=\"twitter-timeline\" href= '" +href+ "' data-widget-id='" + serverConfigurationService.getString(TWITTER_WIDGET_ID)+ "'  data-tweet-limit='" +tweetLimit +"' data-dnt=\"true\" data-screen-name='" +username+"'>Tweets by @'" +username+"'</a></div>";
 						UIVerbatim.make(tableRow, "content", html);
 						UIOutput.make(tableRow, "username", username);
 						UIOutput.make(tableRow, "tweetLimit", tweetLimit);
@@ -3565,7 +3566,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    if (!isAvailable)
 						UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
 					    String itemText;
-					    if (ServerConfigurationService.getBoolean("lessonbuilder.personalize.text", false)) {
+					    if (serverConfigurationService.getBoolean("lessonbuilder.personalize.text", false)) {
 						itemText = personalizeText(i.getHtml());
 					    } else {
 						itemText = i.getHtml();
@@ -3959,7 +3960,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                 String launchUrl = (lessonEntity != null) ? lessonEntity.getUrl() : "about:blank";
                 UIComponent ltiIframe = UIOutput.make(container, "blti-iframe")
                     .decorate(new UIFreeAttributeDecorator("launch-url", launchUrl))
-                    .decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()))
+                    .decorate(new UIFreeAttributeDecorator("allow", serverConfigurationService.getBrowserFeatureAllowString()))
                     .decorate(new UIFreeAttributeDecorator("height", h));
 
                 // normally we get the name from the link text, but there's no link text here
@@ -4087,13 +4088,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		securityService.pushAdvisor(yesMan);
 		try {
 			TimeZone tz = userTimeService.getLocalTimeZone();
-			df.setTimeZone(tz);
+			dateFormat.setTimeZone(tz);
 
 			AssignmentEntity assignment = (AssignmentEntity) assignmentEntity.getEntity(sakaiId, simplePageBean);
 			linkText += " " + messageLocator.getMessage("simplepage.assignment.open_close_date", 
 					new Object[] {
-							df.format(assignment.getOpenDate()),
-							assignment.isHiddenDueDate() ? "-" : df.format(assignment.getDueDate())
+							dateFormat.format(assignment.getOpenDate()),
+							assignment.isHiddenDueDate() ? "-" : dateFormat.format(assignment.getDueDate())
 			});
 		} catch (Exception ex) {
 			log.debug("getLinkText date exception", ex);
@@ -4180,11 +4181,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	}
 
-	public void setSimplePageToolDao(SimplePageToolDao s) {
-		simplePageToolDao = s;
-	}
-
-	public void setDateEvolver(FormatAwareDateInputEvolver dateevolver) {
+    public void setDateEvolver(FormatAwareDateInputEvolver dateevolver) {
 		this.dateevolver = dateevolver;
 	}
 
@@ -4254,11 +4251,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "forum-summary-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 		UICommand.make(form, "delete-forum-summary-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 	}
-	public void setToolManager(ToolManager m) {
-		toolManager = m;
-	}
 
-	public void setLessonBuilderAccessService (LessonBuilderAccessService a) {
+    public void setLessonBuilderAccessService (LessonBuilderAccessService a) {
 	    if (lessonBuilderAccessService == null)
 		lessonBuilderAccessService = a;
 	}
@@ -4296,7 +4290,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
-		boolean showAddResourceFolderLink = ServerConfigurationService.getBoolean("lessonbuilder.show.resource.folder.link", true);
+		boolean showAddResourceFolderLink = serverConfigurationService.getBoolean("lessonbuilder.show.resource.folder.link", true);
 		if (showAddResourceFolderLink){
 			createToolBarLink(FolderPickerProducer.VIEW_ID, tofill, "add-folder", "simplepage.folder", currentPage, "simplepage.addfolder.tooltip").setItemId(null);
 		}
@@ -4325,7 +4319,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "assignment-li");
 		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment-descrip", currentPage, "simplepage.assignment");
 
-		    boolean showEmbedCalendarLink = ServerConfigurationService.getBoolean("lessonbuilder.show.calendar.link", true);
+		    boolean showEmbedCalendarLink = serverConfigurationService.getBoolean("lessonbuilder.show.calendar.link", true);
 		    if (showEmbedCalendarLink){
 			UIOutput.make(tofill, "calendar-li");
 			UIOutput.make(tofill, "calendar-link").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
@@ -4371,7 +4365,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    makeCsrf(form, "csrf26");
 		    UICommand.make(form, "add-student", "#{simplePageBean.addStudentContentSection}");
 
-			boolean showEmbedTwitterLink = ServerConfigurationService.getBoolean("lessonbuilder.show.twitter.link", false);
+			boolean showEmbedTwitterLink = serverConfigurationService.getBoolean("lessonbuilder.show.twitter.link", false);
 			if (showEmbedTwitterLink){
 				//Adding 'Embed twitter timeline' component
 				UIOutput.make(tofill, "twitter-li");
@@ -4503,7 +4497,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		String scormTool = simplePageBean.getCurrentTool("sakai.scorm.tool");
 		if (scormTool != null) {
-		    String scormToolUrl = ServerConfigurationService.getToolUrl() + "/" + scormTool;
+		    String scormToolUrl = serverConfigurationService.getToolUrl() + "/" + scormTool;
 		    UILink.make(form, "configure-scorm", messageLocator.getMessage("simplepage.configure_scorm"), scormToolUrl);
 		}
 
@@ -4687,8 +4681,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private void createAddMultimediaDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "add-multimedia-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.resource")));
 
-		String max = ServerConfigurationService.getString("content.upload.max", "20");
-		String uploadMax = ServerConfigurationService.getString("content.upload.ceiling", max);
+		String max = serverConfigurationService.getString("content.upload.max", "20");
+		String uploadMax = serverConfigurationService.getString("content.upload.ceiling", max);
 
 		UIOutput.make(tofill, "mm-add-files-instructions", messageLocator.getMessage("simplepage.add_file_instructions", uploadMax));
 
@@ -5093,7 +5087,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
 			UIOutput.make(form, "cssUpload");
-			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", false);
+			boolean showSetOwner = serverConfigurationService.getBoolean("lessonbuilder.show.set.owner", false);
 			if (showSetOwner){
 				//Set the changeOwner dropdown in the settings dialog
 				UIOutput.make(form, "ownerDefaultInstructions", messageLocator.getMessage("simplepage.owner-default-instructions")
@@ -5392,12 +5386,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		for (int count=0; count<20; count++){	//make array of Strings for the number of subpages/tasks to create
 			subpageCountValues[count] = String.valueOf(count+1);
 		}
-		UIOutput.make(form2,"page-preview-subpage-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-subpage-layout.png"));
-		UIOutput.make(form2,"page-preview-subpage").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-subpage-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
-		UIOutput.make(form2,"page-preview-resource-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-resource-layout.png"));
-		UIOutput.make(form2,"page-preview-resource").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-resource-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
-		UIOutput.make(form2,"page-preview-task-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-task-layout.png"));
-		UIOutput.make(form2,"page-preview-task").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-task-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
+		UIOutput.make(form2,"page-preview-subpage-image").decorate(new UIFreeAttributeDecorator("src",serverConfigurationService.getServerUrl() + "/library/image/lessons/preview-subpage-layout.png"));
+		UIOutput.make(form2,"page-preview-subpage").decorate(new UIFreeAttributeDecorator("href",serverConfigurationService.getServerUrl() + "/library/image/lessons/preview-subpage-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
+		UIOutput.make(form2,"page-preview-resource-image").decorate(new UIFreeAttributeDecorator("src",serverConfigurationService.getServerUrl() + "/library/image/lessons/preview-resource-layout.png"));
+		UIOutput.make(form2,"page-preview-resource").decorate(new UIFreeAttributeDecorator("href",serverConfigurationService.getServerUrl() + "/library/image/lessons/preview-resource-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
+		UIOutput.make(form2,"page-preview-task-image").decorate(new UIFreeAttributeDecorator("src",serverConfigurationService.getServerUrl() + "/library/image/lessons/preview-task-layout.png"));
+		UIOutput.make(form2,"page-preview-task").decorate(new UIFreeAttributeDecorator("href",serverConfigurationService.getServerUrl() + "/library/image/lessons/preview-task-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
 		UISelect.make(form2, "page-dropdown", SimplePageBean.pageLayoutValues, pageLayoutLabels, "#{simplePageBean.pageLayoutSelect}", SimplePageBean.pageLayoutValues[0]);
 		UISelect.make(form2, "page-color-scheme", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.pageButtonColorScheme}", SimplePageBean.NewColors[0]);
 		UISelect.make(form2, "page-color-scheme-3", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.pageColorScheme}", SimplePageBean.NewColors[0]);
@@ -5551,7 +5545,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		Locale locale = new ResourceLoader().getLocale();
 
-		String helploc = ServerConfigurationService.getString("lessonbuilder.helpfolder", null);
+		String helploc = serverConfigurationService.getString("lessonbuilder.helpfolder", null);
 
 		// we need to test the localized URL and return the initial one if it
 		// doesn't exists
@@ -5632,9 +5626,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
     // or something relative to the servlet base, e.g. /lessonbuilder-tool/template/instructions/general.html
 	private boolean UrlOk(String url) {
 		String origurl = url;
-		Boolean cached = (Boolean) urlCache.get(url);
+		Boolean cached = urlCache.get(url, Boolean.class);
 		if (cached != null)
-		    return (boolean) cached;
+		    return cached;
 
 		if (url.startsWith("http:") || url.startsWith("https:")) {
 		    // actual URL, check it out
@@ -5850,7 +5844,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (i.getId() == item) {
 		    String width = i.getAttribute("colwidth");
 		    if (width != null)
-			cols += (new Integer(width)) - 1;
+			cols += Integer.parseInt(width) - 1;
 		    found = true;
 		    continue;
 		}
@@ -5859,7 +5853,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			cols++;
 			String width = i.getAttribute("colwidth");
 			if (width != null)
-			    cols += (new Integer(width)) - 1;
+			    cols += Integer.parseInt(width) - 1;
 		    } else // section break; in next section. we're done
 			break;
 		}
