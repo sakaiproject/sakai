@@ -16,7 +16,7 @@ describe("sakai-course-list tests", () => {
     .get("*", 500, { overwriteRoutes: true });
 
   it ("renders correctly", async () => {
- 
+
     const el = await fixture(html`<sakai-course-list user-id="${data.userId}"></sakai-course-list>`);
 
     await waitUntil(() => el.sites);
@@ -27,5 +27,27 @@ describe("sakai-course-list tests", () => {
 
     expect(el.querySelectorAll("#course-list-term-filter option").length).to.equal(3);
     expect(el.querySelectorAll("sakai-course-card").length).to.equal(3);
+  });
+
+  it("renders all pinned sites when a course term is unmatched", async () => {
+
+    fetchMock.get(data.courseListUrl, {
+      ...data.courseList,
+      sites: [
+        { ...data.courseList.sites[0], term: "Spring Term " },
+        data.courseList.sites[1],
+        { ...data.courseList.sites[2], course: false, project: true },
+      ],
+    }, { overwriteRoutes: true });
+
+    const el = await fixture(html`<sakai-course-list user-id="${data.userId}"></sakai-course-list>`);
+
+    await waitUntil(() => el.querySelectorAll("sakai-course-card").length === 3);
+
+    expect(el.querySelector(".sak-banner-info")).to.be.null;
+    expect(Array.from(el.querySelectorAll("sakai-course-card"), card => card.courseData.title))
+      .to.deep.equal(data.courseList.sites.map(site => site.title));
+    expect(Array.from(el.querySelectorAll("#course-list-term-filter option"), option => option.value))
+      .to.deep.equal([ "none", "summer" ]);
   });
 });
