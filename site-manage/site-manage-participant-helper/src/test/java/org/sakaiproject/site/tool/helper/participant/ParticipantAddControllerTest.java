@@ -123,15 +123,40 @@ public class ParticipantAddControllerTest {
     public void keepsExistingMemberWarningAcrossRoleRedirect() throws Exception {
         MockHttpSession session = new MockHttpSession();
         mvc.perform(post("/add").header("Sec-Fetch-Site", "same-origin").session(session).param("csrfToken", "token")
-                .param("officialAccountParticipant", "existing\r\nnew-user").param("statusChoice", "active"))
+                .param("officialAccountParticipant", "existing\r\nnew-user\r\nnew-user").param("statusChoice", "active"))
                 .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/roles"));
         MvcResult roles = mvc.perform(get("/roles").session(session)).andExpect(status().isOk()).andReturn();
         String html = roles.getResponse().getContentAsString();
         assertTrue(html, html.contains("sak-banner-warn"));
         assertTrue(html, html.contains("existing"));
         assertTrue(html, html.contains("new-user"));
+        assertTrue(html, html.contains("Following duplicated entry has been removed"));
+        assertFalse(html, html.contains("You may continue adding the other participants"));
         String refreshed = mvc.perform(get("/roles").session(session))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         assertFalse(refreshed, refreshed.contains("sak-banner-warn"));
+    }
+
+    @Test
+    public void keepsExistingMemberMessagesOnAddPage() throws Exception {
+        MvcResult result = mvc.perform(post("/add").header("Sec-Fetch-Site", "same-origin").param("csrfToken", "token")
+                .param("officialAccountParticipant", "existing").param("statusChoice", "active"))
+                .andExpect(status().isOk()).andReturn();
+        String html = result.getResponse().getContentAsString();
+        assertTrue(html, html.contains("sak-banner-warn"));
+        assertTrue(html, html.contains("already members of this site"));
+        assertTrue(html, html.contains("sak-banner-error"));
+        assertTrue(html, html.contains("id=\"officialAccountParticipant\""));
+    }
+
+    @Test
+    public void keepsAddInstructionsWhenInvalidAccountPreventsRedirect() throws Exception {
+        MvcResult result = mvc.perform(post("/add").header("Sec-Fetch-Site", "same-origin").param("csrfToken", "token")
+                .param("officialAccountParticipant", "existing\r\nnew-user\r\nunknown").param("statusChoice", "active"))
+                .andExpect(status().isOk()).andReturn();
+        String html = result.getResponse().getContentAsString();
+        assertTrue(html, html.contains("sak-banner-warn"));
+        assertTrue(html, html.contains("You may continue adding the other participants"));
+        assertTrue(html, html.contains("id=\"officialAccountParticipant\""));
     }
 }

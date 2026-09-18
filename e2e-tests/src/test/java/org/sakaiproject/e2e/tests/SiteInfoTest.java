@@ -89,6 +89,8 @@ class SiteInfoTest extends SakaiUiTestBase {
 
         assertThat(existingParticipantMessage).isVisible();
         assertThat(existingParticipantMessage).containsText("instructor1");
+        assertThat(page.locator("#participant-helper")).not()
+                .containsText("You may continue adding the other participants by following the directions below.");
 
         page.locator("#different-role").check(new Locator.CheckOptions().setForce(true));
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();

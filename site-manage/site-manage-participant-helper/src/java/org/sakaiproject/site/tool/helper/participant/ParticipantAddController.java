@@ -68,7 +68,7 @@ public class ParticipantAddController {
     public String submitAdd(@ModelAttribute AddForm form, Model model, RedirectAttributes redirectAttributes) {
         if (handler.submitAdd(form.getCsrfToken(), form.getOfficialAccountParticipant(),
                 form.getNonOfficialAccountParticipant(), ParticipantStatus.fromFormValue(form.getStatusChoice()))) {
-            redirectAttributes.addFlashAttribute("messages", messageViews());
+            redirectAttributes.addFlashAttribute("messages", messageViews("roles"));
             return "redirect:/roles";
         }
         model.addAttribute("addForm", createAddForm(handler.snapshot()));
@@ -177,12 +177,13 @@ public class ParticipantAddController {
     private String render(Model model, String view, int step) {
         model.addAttribute("siteTitle", handler.getSiteTitle());
         model.addAttribute("step", step);
-        model.mergeAttributes(Map.of("messages", messageViews()));
+        model.mergeAttributes(Map.of("messages", messageViews(view)));
         return view;
     }
 
-    private List<ParticipantMessageView> messageViews() {
+    private List<ParticipantMessageView> messageViews(String view) {
         return handler.getMessages().stream()
+                .filter(message -> "add".equals(view) || !"add.existingpart.2".equals(message.getCode()))
                 .map(message -> new ParticipantMessageView(
                         messageSource.getMessage(message.getCode(), message.getArgs(), LocaleContextHolder.getLocale()),
                         message.getSeverity()))
