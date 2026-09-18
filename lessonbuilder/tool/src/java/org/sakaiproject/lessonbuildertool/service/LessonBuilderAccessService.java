@@ -91,9 +91,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageProperty;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -120,68 +119,23 @@ public class LessonBuilderAccessService {
 	public static final String RFC1123_DATE = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	public static final Locale LOCALE_US = Locale.US;
 
-	LessonBuilderAccessAPI lessonBuilderAccessAPI = null;
-
-	public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI s) {
-		lessonBuilderAccessAPI = s;
-	}
-
-	SimplePageToolDao simplePageToolDao = null;
-
-	public void setSimplePageToolDao(SimplePageToolDao d) {
-		simplePageToolDao = d;
-	}
-
-	SecurityService securityService = null;
-
-	public void setSecurityService(SecurityService s) {
-		securityService = s;
-	}
-
-	ContentHostingService contentHostingService = null;
-
-	public void setContentHostingService(ContentHostingService s) {
-		contentHostingService = s;
-	}
-
-	EventTrackingService eventTrackingService = null;
-
-	public void setEventTrackingService(EventTrackingService s) {
-		eventTrackingService = s;
-	}
-
-	SessionManager sessionManager = null;
-
-	public void setSessionManager(SessionManager s) {
-		sessionManager = s;
-	}
-
-	public MessageLocator messageLocator;
-
-	public void setMessageLocator(MessageLocator s) {
-		messageLocator = s;
-	}
-
-	private ToolManager toolManager;
-
-	public void setToolManager(ToolManager s) {
-		toolManager = s;
-	}
-
-	private SiteService siteService;
-
-	public void setSiteService(SiteService s) {
-		siteService = s;
-	}
-
-	@Setter
-	private UserTimeService userTimeService;
-
-	@Setter
-	private ConditionService conditionService;
-
-	@Setter
-	private UserDirectoryService userDirectoryService;
+	@Setter private AuthzGroupService authzGroupService;
+	@Setter private CacheManager cacheManager = null;
+	@Setter private ConditionService conditionService;
+	@Setter private ContentFilterService contentFilterService;
+	@Setter private GradebookIfc gradebookIfc = null;
+	@Setter private LessonBuilderAccessAPI lessonBuilderAccessAPI = null;
+	@Setter private LessonEntity scormEntity = null;
+	@Setter private MessageLocator messageLocator;
+	@Setter private SessionManager sessionManager = null;
+	@Setter private ToolManager toolManager;
+	@Setter private UserDirectoryService userDirectoryService;
+    @Setter private ContentHostingService contentHostingService = null;
+    @Setter private EventTrackingService eventTrackingService = null;
+    @Setter private SecurityService securityService = null;
+    @Setter private SimplePageToolDao simplePageToolDao = null;
+    @Setter private SiteService siteService;
+    @Setter private UserTimeService userTimeService;
 
 	LessonEntity forumEntity = null;
 
@@ -197,13 +151,7 @@ public class LessonBuilderAccessService {
 
 	LessonEntity assignmentEntity = null;
 
-	ContentFilterService contentFilterService;
-
-	public void setContentFilterService(ContentFilterService s) {
-		contentFilterService = s;
-	}
-
-	public void setAssignmentEntity(Object e) {
+    public void setAssignmentEntity(Object e) {
 		assignmentEntity = (LessonEntity) e;
 	}
 
@@ -212,30 +160,7 @@ public class LessonBuilderAccessService {
 	    bltiEntity = (LessonEntity)e;
         }
 
-	LessonEntity scormEntity = null;
-	public void setScormEntity(LessonEntity e) {
-		scormEntity = e;
-	}
-
-	static MemoryService memoryService = null;
-
-	public void setMemoryService(MemoryService m) {
-		memoryService = m;
-	}
-
-	private GradebookIfc gradebookIfc = null;
-
-	public void setGradebookIfc(GradebookIfc g) {
-		gradebookIfc = g;
-	}
-
-	private AuthzGroupService authzGroupService;
-
-	public void setAuthzGroupService(AuthzGroupService a) {
-		authzGroupService = a;
-	}
-
-	protected static final long MAX_URL_LENGTH = 8192;
+    protected static final long MAX_URL_LENGTH = 8192;
 	protected static final int STREAM_BUFFER_SIZE = 102400;
 	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
 	private boolean inlineHtml = ServerConfigurationService.getBoolean(INLINEHTML, true);
@@ -279,10 +204,7 @@ public class LessonBuilderAccessService {
 
 	public void init() {
 		lessonBuilderAccessAPI.setHttpAccess(getHttpAccess());
-		accessCache = memoryService.createCache(
-				"org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService.cache",
-				new SimpleConfiguration<Object, Object>(CACHE_MAX_ENTRIES, CACHE_TIME_TO_LIVE_SECONDS, CACHE_TIME_TO_IDLE_SECONDS)
-		);
+		accessCache = cacheManager.getCache("org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService.cache");
 
 		SimplePageItem metaItem = null;
 		// Get crypto session key from metadata item
@@ -586,7 +508,7 @@ public class LessonBuilderAccessService {
 					    }
 
 					    // now enforce LB access restrictions if any
-					    if (item != null && item.isPrerequisite() && !"true".equals((String) accessCache.get(accessKey))) {
+				    if (item != null && item.isPrerequisite() && !"true".equals(accessCache.get(accessKey, String.class))) {
 						// computing requirements is so messy that it's worth
 						// instantiating
 						// a SimplePageBean to do it. Otherwise we have to duplicate

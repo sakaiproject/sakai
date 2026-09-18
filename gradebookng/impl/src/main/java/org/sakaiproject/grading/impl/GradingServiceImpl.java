@@ -106,6 +106,7 @@ import org.sakaiproject.grading.api.model.LetterGradePlusMinusMapping;
 import org.sakaiproject.grading.api.model.PassNotPassMapping;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -156,6 +157,7 @@ public class GradingServiceImpl implements GradingService {
     @Autowired private GradingPermissionService gradingPermissionService;
     @Autowired private GradingPersistenceManager gradingPersistenceManager;
     @Autowired private MemoryService memoryService;
+    @Autowired private CacheManager cacheManager;
     @Autowired private PlusService plusService;
     @Autowired private LocaleService localeService;
     @Autowired private ResourceLoader resourceLoader;
@@ -171,10 +173,8 @@ public class GradingServiceImpl implements GradingService {
     private Map<String, String> propertiesMap = new HashMap<>();
 
     public void init() {
-        log.debug(buildCacheLogDebug("creatingCache", gradebookGroupEnabledCache));
         log.debug(buildCacheLogDebug("creatingCache", gradebookGroupInstancesCache));
 
-        memoryService.newCache(gradebookGroupEnabledCache);
         memoryService.newCache(gradebookGroupInstancesCache);
     }
 
@@ -5339,16 +5339,12 @@ public class GradingServiceImpl implements GradingService {
 
     @Override
     public boolean isGradebookGroupEnabled(String siteId) {
-        Cache<String, Boolean> gradebookGroupEnabled = memoryService.getCache(gradebookGroupEnabledCache);
+        org.springframework.cache.Cache gradebookGroupEnabled = cacheManager.getCache(gradebookGroupEnabledCache);
 
-        if (gradebookGroupEnabled != null && gradebookGroupEnabled.containsKey(siteId)) {
-            log.debug(buildCacheLogDebug("cacheKeyFound", gradebookGroupEnabledCache));
-            Boolean groupEnabledCacheValue = gradebookGroupEnabled.get(siteId);
-
-            if (groupEnabledCacheValue != null) {
-                log.debug(buildCacheLogDebug("cacheValueFound", gradebookGroupEnabledCache));
-                return (boolean) groupEnabledCacheValue;
-            }
+        Boolean groupEnabledCacheValue = gradebookGroupEnabled != null ? gradebookGroupEnabled.get(siteId, Boolean.class) : null;
+        if (groupEnabledCacheValue != null) {
+            log.debug(buildCacheLogDebug("cacheValueFound", gradebookGroupEnabledCache));
+            return groupEnabledCacheValue;
         }
 
         try {
