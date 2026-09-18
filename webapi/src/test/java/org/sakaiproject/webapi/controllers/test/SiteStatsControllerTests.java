@@ -26,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportSummary;
@@ -107,7 +108,8 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 	@Test
 	public void getWidgetMetricsReturnsMetricJson() throws Exception {
 		SiteStatsWidgetMetric metric = new SiteStatsWidgetMetric("activity-events", "Events", "all", true);
-		when(siteStatsViewService.getWidgetMetrics(SITE_ID, "activity")).thenReturn(Collections.singletonList(metric));
+		when(siteStatsViewService.getWidgetMetrics(eq(SITE_ID), eq("activity"), any(SiteStatsReportRequest.class)))
+			.thenReturn(Collections.singletonList(metric));
 
 		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/activity/metrics"))
 			.andExpect(status().isOk())
@@ -119,10 +121,36 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 
 	@Test
 	public void getWidgetMetricsMapsUnknownWidgetToNotFound() throws Exception {
-		when(siteStatsViewService.getWidgetMetrics(SITE_ID, "missing")).thenThrow(new IllegalArgumentException("missing"));
+		when(siteStatsViewService.getWidgetMetrics(eq(SITE_ID), eq("missing"), any(SiteStatsReportRequest.class)))
+			.thenThrow(new IllegalArgumentException("missing"));
 
 		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/missing/metrics"))
 			.andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void getWidgetMetricsPassesItemType() throws Exception {
+		when(siteStatsViewService.getWidgetMetrics(eq(SITE_ID), eq("submissions"), any(SiteStatsReportRequest.class)))
+			.thenReturn(Collections.emptyList());
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/submissions/metrics?itemType=sakai.assignment.grades,sakai.samigo"))
+			.andExpect(status().isOk());
+
+		ArgumentCaptor<SiteStatsReportRequest> captor = ArgumentCaptor.forClass(SiteStatsReportRequest.class);
+		verify(siteStatsViewService).getWidgetMetrics(eq(SITE_ID), eq("submissions"), captor.capture());
+		org.junit.Assert.assertEquals("sakai.assignment.grades,sakai.samigo", captor.getValue().getItemType());
+	}
+
+	@Test
+	public void getWidgetHighlightsReturnsChartJson() throws Exception {
+		SiteStatsChart chart = new SiteStatsChart();
+		chart.setTitle("Submission status");
+		when(siteStatsViewService.getWidgetHighlights(eq(SITE_ID), eq("submissions"), any(SiteStatsReportRequest.class)))
+			.thenReturn(Collections.singletonList(chart));
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/submissions/highlights?itemType=sakai.assignment.grades"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$[0].title", is("Submission status")));
 	}
 
 	@Test
@@ -186,6 +214,33 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 
 		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/server-wide/monthlyLogin"))
 			.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWidgetReportPassesExtendedFilters() throws Exception {
+		SiteStatsReportView view = new SiteStatsReportView();
+		view.setSiteId(SITE_ID);
+		view.setWidgetId("visits");
+		view.setTabId("bydate");
+		when(siteStatsViewService.getWidgetReport(eq(SITE_ID), eq("visits"), eq("bydate"), any(SiteStatsReportRequest.class)))
+			.thenReturn(view);
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/visits/tabs/bydate"
+				+ "?date=when-custom&whenFrom=2026-06-01&whenTo=2026-06-30&itemType=sakai.assignment.grades"
+				+ "&group=group-1&item=sakai.assignment.grades:asn-homework-1&threshold=70"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.widgetId", is("visits")));
+
+		ArgumentCaptor<SiteStatsReportRequest> captor = ArgumentCaptor.forClass(SiteStatsReportRequest.class);
+		verify(siteStatsViewService).getWidgetReport(eq(SITE_ID), eq("visits"), eq("bydate"), captor.capture());
+		SiteStatsReportRequest request = captor.getValue();
+		org.junit.Assert.assertEquals("when-custom", request.getDate());
+		org.junit.Assert.assertEquals("2026-06-01", request.getWhenFrom());
+		org.junit.Assert.assertEquals("2026-06-30", request.getWhenTo());
+		org.junit.Assert.assertEquals("sakai.assignment.grades", request.getItemType());
+		org.junit.Assert.assertEquals("group-1", request.getGroup());
+		org.junit.Assert.assertEquals("sakai.assignment.grades:asn-homework-1", request.getItem());
+		org.junit.Assert.assertEquals(Double.valueOf(70), request.getThreshold());
 	}
 
 	@Test

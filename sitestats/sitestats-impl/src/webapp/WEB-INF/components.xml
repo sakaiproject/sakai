@@ -261,14 +261,31 @@
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 	</bean>
 
 	<bean id="org.sakaiproject.sitestats.impl.view.WidgetFilterCatalog"
-		  class="org.sakaiproject.sitestats.impl.view.WidgetFilterCatalog"/>
+		  class="org.sakaiproject.sitestats.impl.view.WidgetFilterCatalog">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
 	<bean id="org.sakaiproject.sitestats.impl.view.WidgetReportDefFactory"
 		  class="org.sakaiproject.sitestats.impl.view.WidgetReportDefFactory"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.WidgetMetricSupport"
 		  class="org.sakaiproject.sitestats.impl.view.WidgetMetricSupport"/>
+
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookupImpl"/>
+
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics">
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+		<property name="samigoLookup" ref="org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup"/>
+	</bean>
+
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsGradesAnalytics"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsGradesAnalytics">
+		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
+	</bean>
 
 	<bean id="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"
 		  class="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"/>
@@ -282,6 +299,8 @@
 		<property name="filterCatalog" ref="org.sakaiproject.sitestats.impl.view.WidgetFilterCatalog"/>
 		<property name="reportFactory" ref="org.sakaiproject.sitestats.impl.view.WidgetReportDefFactory"/>
 		<property name="metricSupport" ref="org.sakaiproject.sitestats.impl.view.WidgetMetricSupport"/>
+		<property name="submissionsAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics"/>
+		<property name="gradesAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsGradesAnalytics"/>
 	</bean>
 
 	<!-- SiteStatsWidgetDefinitionSupport __________________________________________________________ -->
@@ -297,6 +316,14 @@
 		  class="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.StudentPresenceAccessWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.StudentPresenceAccessWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.SubmissionsWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.SubmissionsWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.StudentSubmissionsWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.StudentSubmissionsWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.GradesWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.GradesWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.StudentGradesWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.StudentGradesWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"
@@ -314,6 +341,10 @@
 				<ref bean="org.sakaiproject.sitestats.impl.view.PresenceAccessWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.StudentVisitsWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.StudentPresenceAccessWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.SubmissionsWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.StudentSubmissionsWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.GradesWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.StudentGradesWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"/>

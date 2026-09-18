@@ -22,4 +22,9 @@ public class SiteStatsFilterOption implements Serializable {
 
 	private String value;
 	private String label;
+	private String icon;
+
+	public SiteStatsFilterOption(String value, String label) {
+		this(value, label, null);
+	}
 }

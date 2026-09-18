@@ -19,12 +19,15 @@ import static org.hibernate.cfg.Environment.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -62,7 +65,10 @@ import org.sakaiproject.sitestats.impl.view.SiteStatsChartMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportSummaryMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsReportViewMapper;
 import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
+import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalogFactory;
 import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetContext;
+import org.sakaiproject.sitestats.impl.view.SiteStatsWidgetDefinition;
+import org.sakaiproject.sitestats.impl.view.ViewFactoryFixtureWidgetDefinition;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEntityManager;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -80,6 +86,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -106,6 +113,9 @@ public class SiteStatsTestConfiguration {
     static {
         System.setProperty("sakai.tests.enabled", "true");
     }
+
+    private final org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup samigoLookupMock =
+            mock(org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup.class);
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public SessionFactory sessionFactory(Properties hibernateProperties) throws IOException {
@@ -144,6 +154,21 @@ public class SiteStatsTestConfiguration {
     @Bean(name = "org.sakaiproject.alias.api.AliasService")
     public AliasService aliasService() {
         return mock(AliasService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.assignment.api.AssignmentService")
+    public org.sakaiproject.assignment.api.AssignmentService assignmentService() {
+        return mock(org.sakaiproject.assignment.api.AssignmentService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.grading.api.GradingService")
+    public org.sakaiproject.grading.api.GradingService gradingService() {
+        return mock(org.sakaiproject.grading.api.GradingService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup")
+    public org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup samigoLookup() {
+        return samigoLookupMock;
     }
 
     @Bean(name = "org.sakaiproject.announcement.api.AnnouncementService")
@@ -242,6 +267,21 @@ public class SiteStatsTestConfiguration {
         ResourceLoader resourceLoader = mock(ResourceLoader.class);
         when(resourceLoader.getLocale()).thenReturn(java.util.Locale.US);
         when(resourceLoader.getString(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(resourceLoader.getFormattedMessage(anyString(), any())).thenAnswer(invocation -> {
+            String key = invocation.getArgument(0);
+            Object[] allArgs = invocation.getArguments();
+            Object[] formatArgs;
+            if (allArgs.length == 2 && allArgs[1] instanceof Object[]) {
+                formatArgs = (Object[]) allArgs[1];
+            } else {
+                formatArgs = java.util.Arrays.copyOfRange(allArgs, 1, allArgs.length);
+            }
+            return java.text.MessageFormat.format(resourceLoader.getString(key), formatArgs);
+        });
+        when(resourceLoader.getString("overview_title_grades_below_threshold"))
+                .thenReturn("Students below {0}% on graded work");
+        when(resourceLoader.getString("overview_help_grades_below_threshold"))
+                .thenReturn("Students whose earned/possible points on graded, non-excused Gradebook work are below {0}%. Students without grades are excluded. Covers all time.");
         when(resourceLoader.getString("report_content_attachments")).thenReturn("Attachments");
         when(resourceLoader.getString("report_what_visits")).thenReturn("Visits");
         when(resourceLoader.getString("report_when_all")).thenReturn("All");
@@ -257,7 +297,15 @@ public class SiteStatsTestConfiguration {
 
     @Bean
     public BeanPostProcessor siteStatsResourceLoaderPostProcessor(ResourceLoader resourceLoader) {
-        return new BeanPostProcessor() {
+        return new InstantiationAwareBeanPostProcessor() {
+            @Override
+            public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+                if (org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookupImpl.class.equals(beanClass)) {
+                    return samigoLookupMock;
+                }
+                return null;
+            }
+
             @Override
             public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
                 if (bean instanceof ReportManagerImpl) {
@@ -272,6 +320,14 @@ public class SiteStatsTestConfiguration {
                     ((SiteStatsReportSummaryMapper) bean).setMessages(resourceLoader);
                 } else if (bean instanceof SiteStatsWidgetContext) {
                     ((SiteStatsWidgetContext) bean).setMessages(resourceLoader);
+                } else if (bean instanceof SiteStatsWidgetCatalogFactory) {
+                    SiteStatsWidgetCatalogFactory factory = (SiteStatsWidgetCatalogFactory) bean;
+                    List<SiteStatsWidgetDefinition> definitions = new ArrayList<>(factory.getWidgetDefinitions());
+                    definitions.add(new ViewFactoryFixtureWidgetDefinition());
+                    factory.setWidgetDefinitions(definitions);
+                } else if (bean instanceof org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics) {
+                    ((org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics) bean)
+                            .setSamigoLookup(samigoLookupMock);
                 }
                 return bean;
             }

@@ -7,6 +7,7 @@ package org.sakaiproject.sitestats.impl.view;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -16,10 +17,13 @@ import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.SiteStatsToolEventsService;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
 @Getter
+@Slf4j
 public class SiteStatsWidgetContext {
 
 	@Setter private StatsManager statsManager;
@@ -30,6 +34,7 @@ public class SiteStatsWidgetContext {
 	@Setter private ContentHostingService contentHostingService;
 	@Setter private UserDirectoryService userDirectoryService;
 	@Setter private UserTimeService userTimeService;
+	@Setter private SessionManager sessionManager;
 
 	@Setter private ResourceLoader messages = new ResourceLoader("Messages");
 
@@ -44,5 +49,32 @@ public class SiteStatsWidgetContext {
 	public String message(String key, String defaultValue) {
 		String value = message(key);
 		return key.equals(value) || StringUtils.startsWith(value, "[missing key") ? defaultValue : value;
+	}
+
+	public String formattedMessage(String key, Object... args) {
+		if (args == null || args.length == 0) {
+			return message(key);
+		}
+		try {
+			return messages.getFormattedMessage(key, args);
+		} catch (Exception e) {
+			log.warn("Unable to format widget message {}", key, e);
+			return message(key);
+		}
+	}
+
+	public String currentUserId() {
+		if (sessionManager == null) {
+			return null;
+		}
+		Session session = sessionManager.getCurrentSession();
+		return session == null ? null : session.getUserId();
+	}
+
+	public String toolName(String toolId) {
+		if (StringUtils.isBlank(toolId) || eventRegistryService == null) {
+			return toolId;
+		}
+		return StringUtils.defaultIfBlank(eventRegistryService.getToolName(toolId), toolId);
 	}
 }
