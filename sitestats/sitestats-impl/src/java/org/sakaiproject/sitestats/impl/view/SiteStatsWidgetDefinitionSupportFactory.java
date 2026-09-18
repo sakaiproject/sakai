@@ -15,6 +15,7 @@ public class SiteStatsWidgetDefinitionSupportFactory {
 	@Setter private WidgetMetricSupport metricSupport;
 	@Setter private SiteStatsSubmissionsAnalytics submissionsAnalytics;
 	@Setter private SiteStatsGradesAnalytics gradesAnalytics;
+	@Setter private SiteStatsCommunicationAnalytics communicationAnalytics;
 
 	public SiteStatsWidgetDefinitionSupport create() {
 		filterCatalog.setContext(context);
@@ -39,6 +40,12 @@ public class SiteStatsWidgetDefinitionSupportFactory {
 			filterCatalog.setGradesAnalytics(gradesAnalytics);
 		}
 
+		if (communicationAnalytics != null) {
+			communicationAnalytics.setContext(context);
+			communicationAnalytics.setFilterCatalog(filterCatalog);
+			communicationAnalytics.setMetricSupport(metricSupport);
+		}
+
 		SiteStatsWidgetDefinitionSupport support = new SiteStatsWidgetDefinitionSupport();
 		support.setContext(context);
 		support.setFilterCatalog(filterCatalog);
@@ -46,6 +53,7 @@ public class SiteStatsWidgetDefinitionSupportFactory {
 		support.setMetricSupport(metricSupport);
 		support.setSubmissionsAnalytics(submissionsAnalytics);
 		support.setGradesAnalytics(gradesAnalytics);
+		support.setCommunicationAnalytics(communicationAnalytics);
 		return support;
 	}
 }
