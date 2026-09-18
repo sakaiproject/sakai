@@ -1002,3 +1002,25 @@ function lti_frameResizeNow(new_height, element_id) {
 
     DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT = new_height;
 }
+
+// Highlight CKEditor code snippets on view pages
+(function () {
+	function cdnQuery() {
+		if (typeof portal !== 'undefined' && portal.portalCDNQuery) {
+			return portal.portalCDNQuery;
+		}
+		try {
+			if (window.parent && window.parent.portal && window.parent.portal.portalCDNQuery) {
+				return window.parent.portal.portalCDNQuery;
+			}
+		} catch (e) {
+			// Cross-origin parent.
+		}
+		return '';
+	}
+
+	var script = document.createElement('script');
+	script.src = '/library/js/codesnippet-highlight.js' + cdnQuery();
+	script.defer = true;
+	(document.head || document.documentElement).appendChild(script);
+})();
