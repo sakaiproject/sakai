@@ -40,6 +40,8 @@ import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -309,6 +311,11 @@ public class MsgcntrTestConfiguration {
     @Bean(name = "org.sakaiproject.memory.api.MemoryService")
     public MemoryService memoryService() {
         return mock(MemoryService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.ignite.SakaiCacheManager")
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager();
     }
 
     @Bean(name = "org.sakaiproject.thread_local.api.ThreadLocalManager")
