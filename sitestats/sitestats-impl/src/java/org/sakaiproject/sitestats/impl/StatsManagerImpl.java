@@ -56,9 +56,9 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.LessonBuilderStat;
@@ -142,7 +142,7 @@ public class StatsManagerImpl implements StatsManager, Observer {
 	@Setter private ServerConfigurationService	serverConfigurationService;
 	@Setter private ToolManager					toolManager;
 	@Setter private SimplePageToolDao			lessonBuilderService;
-	@Setter private MemoryService				memoryService;
+	@Setter private CacheManager				cacheManager;
 	@Setter private SessionManager				sessionManager;
 	@Setter private EventTrackingService		eventTrackingService;
 	@Setter private EntityManager				entityManager;
@@ -150,7 +150,7 @@ public class StatsManagerImpl implements StatsManager, Observer {
 	@Setter private ContentTypeImageService		contentTypeImageService;
 	
 	/** Caching */
-	private Cache<String, PrefsData> cachePrefsData = null;
+	private Cache cachePrefsData = null;
 
 	// ################################################################
 	// Spring init/destroy methods
@@ -168,7 +168,7 @@ public class StatsManagerImpl implements StatsManager, Observer {
 		
 		// Initialize cacheReportDef and event observer for preferences invalidation across cluster
 		eventTrackingService.addPriorityObserver(this);
-		cachePrefsData = memoryService.getCache(PrefsData.class.getName());
+		cachePrefsData = cacheManager.getCache(PrefsData.class.getName());
 		
 		log.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
 				eventContextSupported +','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
@@ -199,7 +199,7 @@ public class StatsManagerImpl implements StatsManager, Observer {
 			String event = LOG_APP + '.' + LOG_OBJ_PREFSDATA + '.' + LOG_ACTION_EDIT;
 			if(e.getEvent() != null && e.getEvent().equals(event)) {
 				String siteId = e.getResource().split("/")[2];
-				cachePrefsData.remove(siteId);
+				cachePrefsData.evict(siteId);
 				log.debug("Expiring preferences cache for site: "+siteId);
 			}
 		}
@@ -214,7 +214,7 @@ public class StatsManagerImpl implements StatsManager, Observer {
 		if (siteId == null) throw new IllegalArgumentException("Site Id was null");
 
 		PrefsData prefsdata = null;
-		PrefsData cached = cachePrefsData.get(siteId);
+		PrefsData cached = cachePrefsData.get(siteId, PrefsData.class);
 		if (cached != null) {
 			prefsdata = cached;
 			log.debug("Getting preferences for site {} from cache", siteId);
@@ -300,7 +300,7 @@ public class StatsManagerImpl implements StatsManager, Observer {
 			prefs.setPrefs(prefsdata.toXmlPrefs());
 			session.merge(prefs);
 
-			cachePrefsData.remove(siteId);
+			cachePrefsData.evict(siteId);
 			logEvent(prefsdata, LOG_ACTION_EDIT, siteId, false);
 			return true;
 		} catch (DataAccessException | HibernateException dae) {

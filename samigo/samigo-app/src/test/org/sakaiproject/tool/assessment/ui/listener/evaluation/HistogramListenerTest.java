@@ -38,8 +38,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.junit.Test;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
@@ -371,13 +371,13 @@ public class HistogramListenerTest {
 
     private StatisticsService createStatisticsService() {
         GradingService gradingService = new GradingService();
-        MemoryService memoryService = mock(MemoryService.class);
+        CacheManager cacheManager = mock(CacheManager.class);
         Cache cache = mock(Cache.class);
-        when(memoryService.getCache(anyString())).thenReturn(cache);
+        when(cacheManager.getCache(anyString())).thenReturn(cache);
         QuestionPoolService questionPoolService = mock(QuestionPoolService.class);
         StatisticsFacadeQueriesAPI statisticsFacadeQueries = mock(StatisticsFacadeQueriesAPI.class);
 
-        return new StatisticsService(gradingService, memoryService, questionPoolService, statisticsFacadeQueries);
+        return new StatisticsService(gradingService, cacheManager, questionPoolService, statisticsFacadeQueries);
     }
 
     private ItemGradingData itemGrading(Long itemGradingId, Long answerId, String agentId, Long assessmentGradingId) {
