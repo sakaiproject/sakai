@@ -34,8 +34,8 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.shortenedurl.model.RandomisedUrl;
 import org.springframework.transaction.annotation.Transactional;
@@ -172,7 +172,7 @@ public class RandomisedUrlService implements ShortenedUrlService {
 		}
 
 		//first check cache
-		String value = (String) cache.get(key);
+		String value = cache.get(key, String.class);
 		if (value != null) {
 			return encodeUrl(value);
 		}
@@ -232,7 +232,7 @@ public class RandomisedUrlService implements ShortenedUrlService {
 		}
 		
 		//first check cache
-		String value = (String) cache.get(url);
+		String value = cache.get(url, String.class);
 		if (value != null) {
 			return value;
 		}
@@ -416,7 +416,7 @@ public class RandomisedUrlService implements ShortenedUrlService {
   		log.debug("Sakai RandomisedUrlService init().");
   		
   		//setup cache
-  		cache = memoryService.getCache(CACHE_NAME);
+  		cache = cacheManager.getCache(CACHE_NAME);
   	}
 
   	private ServerConfigurationService serverConfigurationService;
@@ -428,9 +428,9 @@ public class RandomisedUrlService implements ShortenedUrlService {
 		this.eventTrackingService = eventTrackingService;
 	}
 	
-	private MemoryService memoryService;
-	public void setMemoryService(MemoryService memoryService) {
-		this.memoryService = memoryService;
+	private CacheManager cacheManager;
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 
 }

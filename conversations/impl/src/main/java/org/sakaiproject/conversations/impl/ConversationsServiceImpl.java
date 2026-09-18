@@ -104,8 +104,8 @@ import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -161,7 +161,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
     private FormattedText formattedText;
 
-    private MemoryService memoryService;
+    private CacheManager cacheManager;
 
     private ConversationsPostRepository postRepository;
 
@@ -211,16 +211,16 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
     private LTIService ltiService;
 
-    private Cache<String, List<ConversationsStat>> sortedStatsCache;
-    private Cache<String, Map<String, Map<String, Object>>> postsCache;
+    private Cache sortedStatsCache;
+    private Cache postsCache;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public void init() {
 
         Permissions.stream().forEach(p -> functionManager.registerFunction(p.label, true));
-        this.sortedStatsCache = memoryService.<String, List<ConversationsStat>>getCache(STATS_CACHE_NAME);
-        this.postsCache = memoryService.<String, Map<String, Map<String, Object>>>getCache(POSTS_CACHE_NAME);
+        this.sortedStatsCache = cacheManager.getCache(STATS_CACHE_NAME);
+        this.postsCache = cacheManager.getCache(POSTS_CACHE_NAME);
         eventTrackingService.addObserver(this);
 
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -239,24 +239,24 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             String event = e.getEvent();
             if (event.equals(AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP)) {
                 String baseCacheKey = e.getContext() + "/conversations/";
-                this.sortedStatsCache.remove(baseCacheKey + SORT_NAME_ASCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_NAME_DESCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_CREATED_ASCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_CREATED_DESCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_VIEWED_ASCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_VIEWED_DESCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPIC_REACTIONS_ASCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPIC_REACTIONS_DESCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPIC_UPVOTES_ASCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPIC_UPVOTES_DESCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_CREATED_ASCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_CREATED_DESCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_READ_ASCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_READ_DESCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_POST_REACTIONS_ASCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_POST_REACTIONS_DESCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_POST_UPVOTES_ASCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_POST_UPVOTES_DESCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_NAME_ASCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_NAME_DESCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_TOPICS_CREATED_ASCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_TOPICS_CREATED_DESCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_TOPICS_VIEWED_ASCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_TOPICS_VIEWED_DESCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_TOPIC_REACTIONS_ASCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_TOPIC_REACTIONS_DESCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_TOPIC_UPVOTES_ASCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_TOPIC_UPVOTES_DESCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_POSTS_CREATED_ASCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_POSTS_CREATED_DESCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_POSTS_READ_ASCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_POSTS_READ_DESCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_POST_REACTIONS_ASCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_POST_REACTIONS_DESCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_POST_UPVOTES_ASCENDING);
+                this.sortedStatsCache.evict(baseCacheKey + SORT_POST_UPVOTES_DESCENDING);
             }
         }
     }
@@ -520,7 +520,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             // but seems the safest way of catching changes like due and availability dates. Maybe
             // we will need to be more precise about when we need to do this, like when the due date
             // has been updated, or whatever.
-            postsCache.remove(topicBean.id);
+            postsCache.evict(topicBean.id);
         }
 
         topicBean.setModifier(currentUserId);
@@ -779,8 +779,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         Settings settings = getSettingsForSite(topic.getSiteId());
         topic = topicRepository.save(topic);
-        TopicTransferBean bean = decorateTopicBean(toTopicTransferBean(topic), topic, currentUserId, settings);
-        postsCache.remove(topicId);
+        TopicTransferBean bean = decorateTopicBean(TopicTransferBean.of(topic), topic, currentUserId, settings);
+        postsCache.evict(topicId);
         return bean;
     }
 
@@ -1077,7 +1077,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         post.setLocked(topic.getLocked());
         post = postRepository.save(post);
 
-        postsCache.remove(postBean.topic);
+        postsCache.evict(postBean.topic);
 
         if (StringUtils.isNotBlank(postBean.parentThread) && !postBean.draft) {
             postRepository.findById(postBean.parentThread).ifPresent(thread -> {
@@ -1320,10 +1320,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         List<PostTransferBean> fullList = null;
         PostSort previousSort = null;
-        Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
+        Map<String, Map<String, Object>> topicCache = postsCache.get(topicId, Map.class);
         if (topicCache == null) {
             topicCache = new HashMap<>();
-            postsCache.put(topicId, topicCache);
         } else {
             Map<String, Object> userMap = topicCache.get(currentUserId);
             fullList = userMap != null ? (List<PostTransferBean>) userMap.get("posts") : null;
@@ -1445,8 +1444,11 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             }
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("posts", fullList);
-            userMap.put("sort", pSort); 
+            userMap.put("sort", pSort);
             topicCache.put(currentUserId, userMap);
+            // topicCache is a nested value inside postsCache; Ignite deserializes a fresh copy on
+            // get(), so the mutation above only reaches the actual cache if we put it back here.
+            postsCache.put(topicId, topicCache);
         }
 
         int pageSize = serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE, 10);
@@ -1514,7 +1516,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             });
         }
 
-        postsCache.remove(topicId);
+        postsCache.evict(topicId);
 
         this.afterCommit(() -> {
             String reference = ConversationsReferenceReckoner.reckoner().siteId(siteId).type("p").id(postId).reckon().getReference();
@@ -1541,7 +1543,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         Settings settings = getSettingsForSite(siteId);
         PostTransferBean postBean = decoratePostBean(PostTransferBean.of(postRepository.save(post)), siteId, topic, currentUserId, settings, null, null);
         addDecoratedChildren(postBean, siteId, topic, currentUserId, settings);
-        postsCache.remove(topicId);
+        postsCache.evict(topicId);
         return postBean;
     }
 
@@ -1573,7 +1575,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         Settings settings = getSettingsForSite(siteId);
         String currentUserId = getCheckedCurrentUserId();
         PostTransferBean bean = decoratePostBean(PostTransferBean.of(postRepository.save(post)), siteId, topic, currentUserId, settings, null, null);
-        postsCache.remove(topicId);
+        postsCache.evict(topicId);
         return bean;
     }
 
@@ -1647,7 +1649,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         });
 
         // Do we need to uncache posts if it's just a reaction?
-        postsCache.remove(topicId);
+        postsCache.evict(topicId);
 
         Map<Reaction, Integer> reactionTotals = postReactionTotalRepository.findByPostId(postId)
                 .stream().collect(Collectors.toMap(rt -> rt.getReaction(), rt -> rt.getTotal()));
@@ -1682,8 +1684,12 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     + "due to the way the client detects posts scrolling into view", pe);
         }
 
-        Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
-        if (topicCache != null) topicCache.remove(currentUserId);
+        Map<String, Map<String, Object>> topicCache = postsCache.get(topicId, Map.class);
+        if (topicCache != null) {
+            topicCache.remove(currentUserId);
+            // write the mutated map back; see the note in getPostsByTopicId for why this is required.
+            postsCache.put(topicId, topicCache);
+        }
     }
 
     private void markPostViewed(String topicId, ConversationsPost post, String currentUserId) {
@@ -1760,7 +1766,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         this.afterCommit(() -> {
 
-            postsCache.remove(commentBean.topicId);
+            postsCache.evict(commentBean.topicId);
 
             ConversationsEvent event = isNew ? ConversationsEvent.COMMENT_CREATED : ConversationsEvent.COMMENT_UPDATED;
             String reference = ConversationsReferenceReckoner.reckoner()
@@ -2100,7 +2106,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             updatePostHowActiveScore(post);
         }
 
-        postsCache.remove(topicId);
+        postsCache.evict(topicId);
 
         return PostTransferBean.of(postRepository.save(post));
     }
@@ -2143,7 +2149,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             updatePostHowActiveScore(post);
         }
 
-        postsCache.remove(post.getTopic().getId());
+        postsCache.evict(post.getTopic().getId());
 
         return PostTransferBean.of(postRepository.save(post));
     }
@@ -2281,7 +2287,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         Settings newSettings = settingsRepository.save(settings);
 
-        topicRepository.findBySiteId(settings.getSiteId()).forEach(t -> postsCache.remove(t.getId()));
+        topicRepository.findBySiteId(settings.getSiteId()).forEach(t -> postsCache.evict(t.getId()));
 
         return newSettings;
     }
@@ -2407,7 +2413,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         List<ConversationsStat> sortedStats = new ArrayList<>();
         if (sort == null) {
-            sortedStats = sortedStatsCache.get(nameAscendingKey);
+            sortedStats = sortedStatsCache.get(nameAscendingKey, List.class);
             if (sortedStats == null) {
                 sortedStats = stats.stream().sorted(Comparator.comparing(s -> s.name)).collect(Collectors.toList());
                 sortedStatsCache.put(nameAscendingKey, sortedStats);
@@ -2415,7 +2421,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         } else {
             switch (sort) {
                 case SORT_NAME_ASCENDING:
-                    sortedStats = sortedStatsCache.get(nameAscendingKey);
+                    sortedStats = sortedStatsCache.get(nameAscendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getName)).collect(Collectors.toList());
                         sortedStatsCache.put(nameAscendingKey, sortedStats);
@@ -2423,7 +2429,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_NAME_DESCENDING:
                     String nameDescendingKey = baseCacheKey + SORT_NAME_DESCENDING;
-                    sortedStats = sortedStatsCache.get(nameDescendingKey);
+                    sortedStats = sortedStatsCache.get(nameDescendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getName).reversed()).collect(Collectors.toList());
                         sortedStatsCache.put(nameDescendingKey, sortedStats);
@@ -2431,7 +2437,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_TOPICS_CREATED_ASCENDING:
                     String topicsCreatedAscendingKey = baseCacheKey + SORT_TOPICS_CREATED_ASCENDING;
-                    sortedStats = sortedStatsCache.get(topicsCreatedAscendingKey);
+                    sortedStats = sortedStatsCache.get(topicsCreatedAscendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicsCreated)).collect(Collectors.toList());
                         sortedStatsCache.put(topicsCreatedAscendingKey, sortedStats);
@@ -2439,7 +2445,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_TOPICS_CREATED_DESCENDING:
                     String topicsCreatedDescendingKey = baseCacheKey + SORT_TOPICS_CREATED_DESCENDING;
-                    sortedStats = sortedStatsCache.get(topicsCreatedDescendingKey);
+                    sortedStats = sortedStatsCache.get(topicsCreatedDescendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicsCreated).reversed()).collect(Collectors.toList());
                         sortedStatsCache.put(topicsCreatedDescendingKey, sortedStats);
@@ -2447,7 +2453,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_TOPICS_VIEWED_ASCENDING:
                     String topicsViewedAscendingKey = baseCacheKey + SORT_TOPICS_VIEWED_ASCENDING;
-                    sortedStats = sortedStatsCache.get(topicsViewedAscendingKey);
+                    sortedStats = sortedStatsCache.get(topicsViewedAscendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicsViewed)).collect(Collectors.toList());
                         sortedStatsCache.put(topicsViewedAscendingKey, sortedStats);
@@ -2455,7 +2461,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_TOPICS_VIEWED_DESCENDING:
                     String topicsViewedDescendingKey = baseCacheKey + SORT_TOPICS_VIEWED_DESCENDING;
-                    sortedStats = sortedStatsCache.get(topicsViewedDescendingKey);
+                    sortedStats = sortedStatsCache.get(topicsViewedDescendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicsViewed).reversed()).collect(Collectors.toList());
                         sortedStatsCache.put(topicsViewedDescendingKey, sortedStats);
@@ -2463,7 +2469,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_TOPIC_REACTIONS_ASCENDING:
                     String topicReactionsAscendingKey = baseCacheKey + SORT_TOPIC_REACTIONS_ASCENDING;
-                    sortedStats = sortedStatsCache.get(topicReactionsAscendingKey);
+                    sortedStats = sortedStatsCache.get(topicReactionsAscendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicReactions)).collect(Collectors.toList());
                         sortedStatsCache.put(topicReactionsAscendingKey, sortedStats);
@@ -2471,7 +2477,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_TOPIC_REACTIONS_DESCENDING:
                     String topicReactionsDescendingKey = baseCacheKey + SORT_TOPIC_REACTIONS_DESCENDING;
-                    sortedStats = sortedStatsCache.get(topicReactionsDescendingKey);
+                    sortedStats = sortedStatsCache.get(topicReactionsDescendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicReactions).reversed()).collect(Collectors.toList());
                         sortedStatsCache.put(topicReactionsDescendingKey, sortedStats);
@@ -2479,7 +2485,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_TOPIC_UPVOTES_ASCENDING:
                     String topicUpvotesAscendingKey = baseCacheKey + SORT_TOPIC_UPVOTES_ASCENDING;
-                    sortedStats = sortedStatsCache.get(topicUpvotesAscendingKey);
+                    sortedStats = sortedStatsCache.get(topicUpvotesAscendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicUpvotes)).collect(Collectors.toList());
                         sortedStatsCache.put(topicUpvotesAscendingKey, sortedStats);
@@ -2487,7 +2493,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_TOPIC_UPVOTES_DESCENDING:
                     String topicUpvotesDescendingKey = baseCacheKey + SORT_TOPIC_UPVOTES_DESCENDING;
-                    sortedStats = sortedStatsCache.get(topicUpvotesDescendingKey);
+                    sortedStats = sortedStatsCache.get(topicUpvotesDescendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicUpvotes).reversed()).collect(Collectors.toList());
                         sortedStatsCache.put(topicUpvotesDescendingKey, sortedStats);
@@ -2495,7 +2501,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_POSTS_CREATED_ASCENDING:
                     String postsCreatedAscendingKey = baseCacheKey + SORT_POSTS_CREATED_ASCENDING;
-                    sortedStats = sortedStatsCache.get(postsCreatedAscendingKey);
+                    sortedStats = sortedStatsCache.get(postsCreatedAscendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostsCreated)).collect(Collectors.toList());
                         sortedStatsCache.put(postsCreatedAscendingKey, sortedStats);
@@ -2503,7 +2509,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_POSTS_CREATED_DESCENDING:
                     String postsCreatedDescendingKey = baseCacheKey + SORT_POSTS_CREATED_DESCENDING;
-                    sortedStats = sortedStatsCache.get(postsCreatedDescendingKey);
+                    sortedStats = sortedStatsCache.get(postsCreatedDescendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostsCreated).reversed()).collect(Collectors.toList());
                         sortedStatsCache.put(postsCreatedDescendingKey, sortedStats);
@@ -2511,7 +2517,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_POSTS_READ_ASCENDING:
                     String postsReadAscendingKey = baseCacheKey + SORT_POSTS_READ_ASCENDING;
-                    sortedStats = sortedStatsCache.get(postsReadAscendingKey);
+                    sortedStats = sortedStatsCache.get(postsReadAscendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostsViewed)).collect(Collectors.toList());
                         sortedStatsCache.put(postsReadAscendingKey, sortedStats);
@@ -2519,7 +2525,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_POSTS_READ_DESCENDING:
                     String postsReadDescendingKey = baseCacheKey + SORT_POSTS_READ_DESCENDING;
-                    sortedStats = sortedStatsCache.get(postsReadDescendingKey);
+                    sortedStats = sortedStatsCache.get(postsReadDescendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostsViewed).reversed()).collect(Collectors.toList());
                         sortedStatsCache.put(postsReadDescendingKey, sortedStats);
@@ -2527,7 +2533,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_POST_REACTIONS_ASCENDING:
                     String postReactionsAscendingKey = baseCacheKey + SORT_POST_REACTIONS_ASCENDING;
-                    sortedStats = sortedStatsCache.get(postReactionsAscendingKey);
+                    sortedStats = sortedStatsCache.get(postReactionsAscendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostReactions)).collect(Collectors.toList());
                         sortedStatsCache.put(postReactionsAscendingKey, sortedStats);
@@ -2535,7 +2541,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_POST_REACTIONS_DESCENDING:
                     String postReactionsDescendingKey = baseCacheKey + SORT_POST_REACTIONS_DESCENDING;
-                    sortedStats = sortedStatsCache.get(postReactionsDescendingKey);
+                    sortedStats = sortedStatsCache.get(postReactionsDescendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostReactions).reversed()).collect(Collectors.toList());
                         sortedStatsCache.put(postReactionsDescendingKey, sortedStats);
@@ -2543,7 +2549,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_POST_UPVOTES_ASCENDING:
                     String postUpvotesAscendingKey = baseCacheKey + SORT_POST_UPVOTES_ASCENDING;
-                    sortedStats = sortedStatsCache.get(postUpvotesAscendingKey);
+                    sortedStats = sortedStatsCache.get(postUpvotesAscendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostUpvotes)).collect(Collectors.toList());
                         sortedStatsCache.put(postUpvotesAscendingKey, sortedStats);
@@ -2551,7 +2557,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     break;
                 case SORT_POST_UPVOTES_DESCENDING:
                     String postUpvotesDescendingKey = baseCacheKey + SORT_POST_UPVOTES_DESCENDING;
-                    sortedStats = sortedStatsCache.get(postUpvotesDescendingKey);
+                    sortedStats = sortedStatsCache.get(postUpvotesDescendingKey, List.class);
                     if (sortedStats == null) {
                         sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostUpvotes).reversed()).collect(Collectors.toList());
                         sortedStatsCache.put(postUpvotesDescendingKey, sortedStats);
@@ -2586,7 +2592,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     public void clearCacheForGradedTopic(Long gradingItemId) {
 
         topicRepository.findTopicsByGradingItemId(gradingItemId)
-            .forEach(t -> postsCache.remove(t.getId()));
+            .forEach(t -> postsCache.evict(t.getId()));
     }
 
     private void afterCommit(Runnable runnable) {

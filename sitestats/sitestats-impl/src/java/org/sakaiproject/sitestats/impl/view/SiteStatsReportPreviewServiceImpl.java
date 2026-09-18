@@ -12,25 +12,21 @@ import java.util.UUID;
 import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService;
 
 public class SiteStatsReportPreviewServiceImpl implements SiteStatsReportPreviewService {
 
 	private static final String PREVIEW_CACHE = SiteStatsReportPreviewServiceImpl.class.getName();
-	private static final int MAX_PREVIEWS = 1_000;
-	private static final int PREVIEW_TTL_SECONDS = 30 * 60;
 
-	@Setter private MemoryService memoryService;
+	@Setter private CacheManager cacheManager;
 
-	private Cache<String, ReportDef> previews;
+	private Cache previews;
 
 	public void init() {
-		previews = memoryService.createCache(PREVIEW_CACHE,
-				new SimpleConfiguration<String, ReportDef>(MAX_PREVIEWS, PREVIEW_TTL_SECONDS, 0));
+		previews = cacheManager.getCache(PREVIEW_CACHE);
 	}
 
 	@Override
@@ -48,7 +44,7 @@ public class SiteStatsReportPreviewServiceImpl implements SiteStatsReportPreview
 		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(userId) || StringUtils.isBlank(previewId)) {
 			return null;
 		}
-		ReportDef preview = previews.get(cacheKey(siteId, userId, previewId));
+		ReportDef preview = previews.get(cacheKey(siteId, userId, previewId), ReportDef.class);
 		return preview == null ? null : new ReportDef(preview, siteId);
 	}
 
