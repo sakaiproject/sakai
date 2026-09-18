@@ -21,6 +21,7 @@ public class SiteStatsWidgetDefinitionSupport {
 	@Setter private WidgetMetricSupport metricSupport;
 	@Setter private SiteStatsSubmissionsAnalytics submissionsAnalytics;
 	@Setter private SiteStatsGradesAnalytics gradesAnalytics;
+	@Setter private SiteStatsCommunicationAnalytics communicationAnalytics;
 
 	public StatsManager getStatsManager() {
 		return context.getStatsManager();
@@ -64,6 +65,10 @@ public class SiteStatsWidgetDefinitionSupport {
 
 	public SiteStatsGradesAnalytics getGradesAnalytics() {
 		return gradesAnalytics;
+	}
+
+	public SiteStatsCommunicationAnalytics getCommunicationAnalytics() {
+		return communicationAnalytics;
 	}
 
 	public String message(String key) {

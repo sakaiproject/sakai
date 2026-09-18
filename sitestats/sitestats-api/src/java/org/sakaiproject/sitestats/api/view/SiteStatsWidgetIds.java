@@ -23,6 +23,8 @@ public final class SiteStatsWidgetIds {
 	public static final String WIDGET_STUDENT_SUBMISSIONS = "student-submissions";
 	public static final String WIDGET_GRADES = "grades";
 	public static final String WIDGET_STUDENT_GRADES = "student-grades";
+	public static final String WIDGET_COMMUNICATION = "communication";
+	public static final String WIDGET_STUDENT_COMMUNICATION = "student-communication";
 	public static final String WIDGET_ACTIVITY = "activity";
 	public static final String WIDGET_RESOURCES = "resources";
 	public static final String WIDGET_LESSONS = "lessons";
@@ -94,6 +96,12 @@ public final class SiteStatsWidgetIds {
 	public static final String METRIC_STUDENT_GRADES_GRADED = "student-grades-graded";
 	public static final String METRIC_STUDENT_GRADES_COMPLETE = "student-grades-complete";
 	public static final String METRIC_STUDENT_GRADES_BELOW_THRESHOLD = "student-grades-below-threshold";
+	public static final String METRIC_COMMUNICATION_AUTHORED = "communication-authored";
+	public static final String METRIC_COMMUNICATION_REPLIED = "communication-replied";
+	public static final String METRIC_COMMUNICATION_UNANSWERED = "communication-unanswered";
+	public static final String METRIC_COMMUNICATION_MOST_ACTIVE = "communication-most-active";
+	public static final String METRIC_STUDENT_COMMUNICATION_AUTHORED = "student-communication-authored";
+	public static final String METRIC_STUDENT_COMMUNICATION_REPLIED = "student-communication-replied";
 	public static final String METRIC_ACTIVITY_EVENTS = "activity-events";
 	public static final String METRIC_ACTIVITY_MOST_ACTIVE_TOOL = "activity-most-active-tool";
 	public static final String METRIC_ACTIVITY_MOST_ACTIVE_USER = "activity-most-active-user";
@@ -110,7 +118,9 @@ public final class SiteStatsWidgetIds {
 	public static final String HIGHLIGHT_PRESENCE_LAST_30_DAYS = "presence-last-30-days";
 	public static final String HIGHLIGHT_SUBMISSIONS_STATUS_SHARE = "submissions-status-share";
 	public static final String HIGHLIGHT_GRADES_FUNNEL = "grades-funnel";
+	public static final String HIGHLIGHT_COMMUNICATION_SHARE = "communication-share";
 
+	public static final String CHART_COLOR_INFO = "info";
 	public static final String CHART_COLOR_SUCCESS = "success";
 	public static final String CHART_COLOR_WARNING = "warning";
 	public static final String CHART_COLOR_DANGER = "danger";
