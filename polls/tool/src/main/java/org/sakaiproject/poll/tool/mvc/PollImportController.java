@@ -31,7 +31,6 @@ import java.util.Locale;
 import java.util.StringJoiner;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.poll.api.importformat.PollImportCsvFormat;
 import org.sakaiproject.poll.api.service.PollImportError;
 import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
@@ -106,7 +105,7 @@ public class PollImportController {
 
         // Prepend a UTF-8 BOM so Excel recognizes the encoding and re-saves it as UTF-8
         // instead of defaulting to Windows-1252 and corrupting accented characters.
-        String csv = "\uFEFF" + PollImportCsvFormat.buildSampleCsv(buildImportColumnHeaders(locale));
+        String csv = "\uFEFF" + pollsService.getPollImportSampleCsv(key -> messageSource.getMessage(key, null, locale));
         String filename = messageSource.getMessage("poll_import_sample_filename", null, locale);
 
         ContentDisposition contentDisposition = ContentDisposition.attachment()
@@ -176,7 +175,7 @@ public class PollImportController {
                 .map(group -> toGroupInfo(group, locale))
                 .toList();
         model.addAttribute("groups", groups);
-        model.addAttribute("importExample", PollImportCsvFormat.buildSampleCsv(buildImportColumnHeaders(locale)));
+        model.addAttribute("importExample", pollsService.getPollImportSampleCsv(key -> messageSource.getMessage(key, null, locale)));
     }
 
     private PollGroupInfo toGroupInfo(Group group, Locale locale) {
@@ -188,11 +187,6 @@ public class PollImportController {
         StringJoiner joiner = new StringJoiner(", ");
         members.forEach(user -> joiner.add(user.getDisplayName()));
         return new PollGroupInfo(group.getTitle(), joiner.toString());
-    }
-
-    private List<String> buildImportColumnHeaders(Locale locale) {
-        return PollImportCsvFormat.buildColumnHeaders(
-                key -> messageSource.getMessage(key, null, locale));
     }
 
     private String showImportError(Model model, String errorMessage, String pollUploadedText, Locale locale) {

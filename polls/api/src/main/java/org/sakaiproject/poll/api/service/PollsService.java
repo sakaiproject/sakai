@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.model.Option;
@@ -166,6 +167,14 @@ public interface PollsService {
      * @throws PollImportException when the CSV content is empty, malformed, or fails poll validation
      */
     void importPollsFromCsv(List<String> csvContents, String siteId, String ownerId);
+
+    /**
+     * Generate a CSV import template using the effective site/user locale for dates and separators.
+     *
+     * @param messageResolver resolves Polls message keys to translated column labels
+     * @return CSV content containing column headings and one sample poll, without a UTF-8 BOM
+     */
+    String getPollImportSampleCsv(Function<String, String> messageResolver);
 
     /**
      * Is this poll public?

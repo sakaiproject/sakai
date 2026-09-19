@@ -14,19 +14,32 @@
  * limitations under the License.
  **********************************************************************************/
 
-package org.sakaiproject.poll.api.importformat;
+package org.sakaiproject.poll.impl.importformat;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.opencsv.CSVWriter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.util.CsvSeparator;
 
 public final class PollImportCsvFormat {
 
@@ -76,6 +89,9 @@ public final class PollImportCsvFormat {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("H:mm");
 
+    // Match quoted literals separately so their letters are never treated as pattern tokens.
+    private static final Pattern YEAR_OR_LITERAL = Pattern.compile("'(?:[^']|'')*'|y+");
+
     private PollImportCsvFormat() {
     }
 
@@ -120,26 +136,24 @@ public final class PollImportCsvFormat {
         return headers;
     }
 
-    public static String buildSampleCsv(List<String> columnHeaders) {
+    public static String buildSampleCsv(List<String> columnHeaders, Locale locale) {
         if (columnHeaders == null || columnHeaders.isEmpty()) {
             throw new IllegalArgumentException("columnHeaders must not be empty");
         }
 
-        StringBuilder csv = new StringBuilder();
-        appendCsvRow(csv, columnHeaders);
-        appendCsvRow(csv, List.of(sampleDataRow()));
-        return csv.toString();
+        return writeCsv(CsvSeparator.forLocale(locale), columnHeaders.toArray(String[]::new), sampleDataRow(locale));
     }
 
-    public static String[] sampleDataRow() {
+    public static String[] sampleDataRow(Locale locale) {
+        DateTimeFormatter dateFormat = localizedDateFormat(locale, "uuuu");
         return new String[] {
             "What is your favorite color?",
             "",
             "site",
             "",
-            "2026-05-29",
+            LocalDate.of(2026, 5, 29).format(dateFormat),
             "09:00",
-            "2026-05-30",
+            LocalDate.of(2026, 5, 30).format(dateFormat),
             "17:00",
             "1",
             "1",
@@ -177,20 +191,7 @@ public final class PollImportCsvFormat {
         return optionHeaders >= 2;
     }
 
-    public static String formatHeaderRow(Function<String, String> messageResolver, int optionColumnCount) {
-        List<String> headers = new ArrayList<>(FIXED_COLUMN_COUNT + optionColumnCount);
-        for (String key : FIXED_HEADER_MESSAGE_KEYS) {
-            headers.add(messageResolver.apply(key));
-        }
-        for (int optionNumber = 1; optionNumber <= optionColumnCount; optionNumber++) {
-            headers.add(MessageFormat.format(messageResolver.apply(HEADER_OPTION_KEY), optionNumber));
-        }
-        StringBuilder csv = new StringBuilder();
-        appendCsvRow(csv, headers);
-        return csv.toString().trim();
-    }
-
-    public static LocalDateTime parseDateTime(String dateValue, String timeValue) throws DateTimeParseException {
+    public static LocalDateTime parseDateTime(String dateValue, String timeValue, Locale locale) throws DateTimeParseException {
         if (StringUtils.isAllBlank(dateValue, timeValue)) {
             return null;
         }
@@ -199,12 +200,33 @@ public final class PollImportCsvFormat {
             throw new DateTimeParseException("Date is required when a time is provided", StringUtils.defaultString(timeValue), 0);
         }
 
-        LocalDate date = LocalDate.parse(dateValue, DATE_FORMAT);
+        LocalDate date = parseDate(dateValue, locale);
         LocalTime time = LocalTime.MIDNIGHT;
         if (StringUtils.isNotBlank(timeValue)) {
             time = LocalTime.parse(timeValue, TIME_FORMAT);
         }
         return LocalDateTime.of(date, time);
+    }
+
+    private static LocalDate parseDate(String dateValue, Locale locale) {
+        for (DateTimeFormatter formatter : List.of(DATE_FORMAT,
+                localizedDateFormat(locale, "uuuu"), localizedDateFormat(locale, "uu"))) {
+            try {
+                return LocalDate.parse(dateValue, formatter);
+            } catch (DateTimeParseException e) {
+                // Try the next supported format; report the original value if none match.
+            }
+        }
+        throw new DateTimeParseException("Expected an ISO or localized date", dateValue, 0);
+    }
+
+    /** Use the locale's date order, with four-digit years or two-digit years in 2000–2099. */
+    private static DateTimeFormatter localizedDateFormat(Locale locale, String yearPattern) {
+        String pattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+                FormatStyle.SHORT, null, IsoChronology.INSTANCE, locale);
+        String localizedPattern = YEAR_OR_LITERAL.matcher(pattern).replaceAll(match ->
+                match.group().startsWith("'") ? Matcher.quoteReplacement(match.group()) : yearPattern);
+        return DateTimeFormatter.ofPattern(localizedPattern, locale).withResolverStyle(ResolverStyle.STRICT);
     }
 
     public static String normalizeCell(String value) {
@@ -252,21 +274,16 @@ public final class PollImportCsvFormat {
         return normalizeCell(actual).equalsIgnoreCase(StringUtils.trimToEmpty(expected));
     }
 
-    private static void appendCsvRow(StringBuilder csv, List<String> cells) {
-        for (int i = 0; i < cells.size(); i++) {
-            if (i > 0) {
-                csv.append(',');
+    private static String writeCsv(char separator, String[]... rows) {
+        StringWriter output = new StringWriter();
+        try (CSVWriter writer = new CSVWriter(output, separator, CSVWriter.DEFAULT_QUOTE_CHARACTER,
+                CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END)) {
+            for (String[] row : rows) {
+                writer.writeNext(row, false);
             }
-            csv.append(escapeCsvCell(cells.get(i)));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        csv.append('\n');
-    }
-
-    private static String escapeCsvCell(String value) {
-        String cell = StringUtils.defaultString(value);
-        if (cell.contains(",") || cell.contains("\"") || cell.contains("\n") || cell.contains("\r")) {
-            return "\"" + cell.replace("\"", "\"\"") + "\"";
-        }
-        return cell;
+        return output.toString();
     }
 }

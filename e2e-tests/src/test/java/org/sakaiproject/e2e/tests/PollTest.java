@@ -354,6 +354,23 @@ class PollTest extends SakaiUiTestBase {
         assertThat(page.locator("[role=\"alert\"].sak-banner-error")).containsText("Row 3");
     }
 
+    @Test
+    @Order(8)
+    void canUploadDownloadedCsvTemplate() {
+        createsSiteWithPolls();
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Poll");
+
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Bulk Creation")).click();
+        Download sample = page.waitForDownload(() -> page.locator("a[href*='/pollImport/sample']").click());
+        page.locator("#poll-upload-file").setInputFiles(sample.path());
+        page.locator("form:visible input[type=\"submit\"], form:visible button[type=\"submit\"]").first().click();
+
+        assertThat(page.locator(".sak-banner-success")).containsText("Polls imported successfully");
+        assertThat(page.locator("body")).containsText("What is your favorite color?");
+    }
+
     private Locator addOptionControl() {
         return page.locator("input[type=\"button\"][value=\"Add option\"], input[type=\"button\"][value=\"Add Option\"], input[type=\"button\"][value*=\"Add option\"], input[type=\"button\"][value*=\"Add Option\"], button:has-text(\"Add option\"), button:has-text(\"Add Option\"), a:has-text(\"Add option\"), a:has-text(\"Add Option\")").first();
     }
