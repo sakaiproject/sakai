@@ -15,7 +15,8 @@
   "files": [
     "*.js",
     "src",
-    "test/images/orville.jpeg"
+    "test/images/orville.jpeg",
+    "test-utils.js"
   ],
   "scripts": {
     "lint:fix": "eslint src --fix",
@@ -29,6 +30,7 @@
   },
   "exports": {
     ".": "./index.js",
+    "./test-utils": "./test-utils.js",
     "./sakai-image-editor.js": "./sakai-image-editor.js",
     "./image-editor-launcher.js": "./image-editor-launcher.js"
   },

@@ -111,7 +111,6 @@ $page-header-border-color: color.adjust(#000, $lightness: 46.7%) !default; // #e
 $jumbotron-heading-font-size: $h4-font-size;
 
 @import "webcomponents/account/account";
-@import "webcomponents/course-card/course-card";
 @import "webcomponents/permissions/permissions";
 @import "webcomponents/sakai-notifications/sakai-notifications";
 @import "webcomponents/user-photo/user-photo";
