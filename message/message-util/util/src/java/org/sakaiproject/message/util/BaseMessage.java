@@ -77,9 +77,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageChannelEdit;
@@ -138,14 +136,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	private static final String SCHED_INV_UUID = "schInvUuid";
 	//private static final String SCHINV_DELETE_EVENT = "schInv.delete";
 
-	private Cache<String, List<Message>> messagesCache;
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/** Dependency: MemoryService. */
-	@Setter protected MemoryService memoryService;
 
 	/** Dependency: ServerConfigurationService. */
 	@Setter protected ServerConfigurationService serverConfigurationService;
@@ -211,7 +204,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// construct a storage helper and read
 			m_storage = newStorage();
 			m_storage.open();
-			messagesCache = memoryService.getCache("org.sakaiproject.announcement.tool.messages.cache");
 			log.info("init()");
 		}
 		catch (Throwable t)
@@ -3129,15 +3121,17 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		 * @return a List of all messages in the channel.
 		 */
 		protected List findMessages() {
-			List msgs;
-			final List<Message> cachedMessages = messagesCache.get(getReference());
-			if (cachedMessages != null) {
-				msgs = cachedMessages;
-			} else {
-				msgs = m_storage.getMessages(this);
-				messagesCache.put(getReference(), msgs);
-			}
-			return msgs;
+			// TODO: this channel-level message list used to be cached (keyed by channel
+			// reference, evicted by AnnouncementObserver on add/update/remove). For the
+			// Announcements tool, where every tool render/import/entity-provider call routes
+			// through here, that cache avoided a full storage read of the channel's message
+			// list per request. It was removed because its cached value's concrete type
+			// (BaseMessageEdit, a non-static inner class of BaseMessage) captures an implicit
+			// reference to the enclosing service instance and cannot be safely marshalled into
+			// the Ignite-backed distributed cache. If this read becomes a hot path again, a
+			// cache could be reintroduced backed by a proper serializable DTO snapshot of each
+			// message rather than the live Message/BaseMessageEdit object.
+			return m_storage.getMessages(this);
 		} // findMessages
 
 		protected List<Message> findSortedMessages(boolean ascending) {
