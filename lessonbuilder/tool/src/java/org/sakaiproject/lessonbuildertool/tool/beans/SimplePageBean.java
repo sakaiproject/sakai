@@ -41,7 +41,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.condition.api.model.Condition;
@@ -105,8 +105,6 @@ import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
@@ -129,7 +127,11 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.lti.ContentItem;
 import org.tsugi.lti.LTIUtil;
@@ -233,7 +235,7 @@ public class SimplePageBean {
 	private List<GroupEntry> currentGroups = null;
 	private Set<String> myGroups = null;
 
-	private String filterHtml = ServerConfigurationService.getString(FILTERHTML);
+	private String filterHtml;
 
 	public String selectedAssignment = null;
 	public String selectedBlti = null;
@@ -433,13 +435,7 @@ public class SimplePageBean {
 			"Teal",
 			"Purple"
 	};
-	private String[] newColorLabelsI18n = null;
-	public String[] getNewColorLabelsI18n() {
-		if (newColorLabelsI18n == null) {
-			newColorLabelsI18n = new String[]{messageLocator.getMessage("simplepage.columnnone"), messageLocator.getMessage("simplepage.col.newgray"), messageLocator.getMessage("simplepage.col.newblack"), messageLocator.getMessage("simplepage.col.newblue"), messageLocator.getMessage("simplepage.col.newblue2"), messageLocator.getMessage("simplepage.col.newred"), messageLocator.getMessage("simplepage.col.newnavy"), messageLocator.getMessage("simplepage.col.newnavy2"), messageLocator.getMessage("simplepage.col.newgreen"), messageLocator.getMessage("simplepage.col.neworange"), messageLocator.getMessage("simplepage.col.newgold"), messageLocator.getMessage("simplepage.col.newteal"), messageLocator.getMessage("simplepage.col.newpurple")};
-		}
-		return newColorLabelsI18n;
-	}
+
 	public static final String pageLayoutValues[] = {"none", "addSubpageList", "interiorResources", "interiorTask"};
 	public static final String FAILURE = "failure";
 	public static final String FORCE_BTN = "forceBtn";
@@ -449,8 +445,8 @@ public class SimplePageBean {
 	public static final String COLUMN = "column";
 	public static final String COL_COLOR = "colcolor";
 	public static final String CHECKLIST_ITEMS = "checklistItems";
-	private static final String ERROR_MESSAGES_SESSION_ATTRIBUTE = "lessonbuilder.errors";
-	private static final String SUCCESS_MESSAGES_SESSION_ATTRIBUTE = "lessonbuilder.successes";
+	public static final String ERROR_MESSAGES_SESSION_ATTRIBUTE = "lessonbuilder.errors";
+	public static final String SUCCESS_MESSAGES_SESSION_ATTRIBUTE = "lessonbuilder.successes";
 	public static final String BTN_COLOR = "btnColor";
 	public static final String CUSTOM_CSS_CLASS = "customCssClass";
 	public static final String COLLAPSIBLE = "collapsible";
@@ -464,61 +460,134 @@ public class SimplePageBean {
 	public static final String SUCCESS = "success";
 	public static final String PREFIX_URL = "/url/";
 
-        // SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously
-        private int totalMultimediaFilesToAdd = 0;
-        private int remainingMultimediaFilesToAdd = 0;
-        
-     // Spring Injection
-
-    @Setter private SessionManager sessionManager;
-    @Setter private ContentHostingService contentHostingService;
-    @Setter private GradebookIfc gradebookIfc = null;
-    @Setter private AssignmentService assignmentService;
-    @Setter private ToolManager toolManager;
-    @Setter private LTIService ltiService;
-    @Setter private SecurityService securityService;
-    @Setter private SiteService siteService;
-    @Setter private AuthzGroupService authzGroupService;
-    @Getter @Setter private SimplePageToolDao simplePageToolDao;
-    @Setter private LessonsAccess lessonsAccess;
-    @Setter private LessonBuilderAccessService lessonBuilderAccessService;
-    @Setter private RemovedPageService removedPageService;
-    @Setter private PagePromotionService pagePromotionService;
-    @Getter @Setter private MessageLocator messageLocator;
+	@Autowired @Setter private ArchiveService archiveService;
+    @Autowired @Setter private AssignmentService assignmentService;
+    @Autowired @Setter private AuthzGroupService authzGroupService;
+	@Autowired @Setter private CacheManager cacheManager;
+    @Autowired @Setter private ConditionService conditionService;
+    @Autowired @Setter private ContentHostingService contentHostingService;
+    @Autowired @Setter private ContentTypeImageService contentTypeImageService;
+    @Autowired @Setter private EventTrackingService eventTrackingService;
+    @Autowired @Setter private FormattedText formattedText;
+    @Autowired @Setter private GradebookIfc gradebookIfc = null;
     @Setter private HttpServletResponse httpServletResponse;
-    @Setter private LessonBuilderEntityProducer lessonBuilderEntityProducer;
-    @Setter private SqlService sqlService;
-    @Setter private ContentTypeImageService contentTypeImageService;
-    @Setter private EventTrackingService eventTrackingService;
-    @Setter private NotificationService notificationService;
-    @Setter private IdManager idManager;
-    @Setter private UserDirectoryService userDirectoryService;
-    @Setter private FormattedText formattedText;
-    @Setter private UserTimeService userTimeService;
-    @Setter private ConditionService conditionService;
-    @Getter @Setter private TaskService taskService;
-    @Getter @Setter private ArchiveService archiveService;
+    @Autowired @Setter private IdManager idManager;
+    @Autowired @Setter private LTIService ltiService;
+    @Autowired @Setter private LessonBuilderAccessService lessonBuilderAccessService;
+    @Autowired @Setter private LessonBuilderEntityProducer lessonBuilderEntityProducer;
+    @Autowired @Setter private LessonsAccess lessonsAccess;
+    @Autowired @Getter @Setter private MessageLocator messageLocator;
+    @Autowired @Setter private NotificationService notificationService;
+    @Autowired @Setter private PagePromotionService pagePromotionService;
+    @Autowired @Setter private RemovedPageService removedPageService;
+    @Autowired @Setter private SecurityService securityService;
+    @Autowired @Setter private ServerConfigurationService serverConfigurationService;
+    @Autowired @Setter private SessionManager sessionManager;
+    @Autowired @Getter @Setter private SimplePageToolDao simplePageToolDao;
+    @Autowired @Setter private SiteService siteService;
+    @Autowired @Setter private SqlService sqlService;
+    @Autowired @Setter private TaskService taskService;
+    @Autowired @Setter private ToolManager toolManager;
+    @Autowired @Setter private UserDirectoryService userDirectoryService;
+    @Autowired @Setter private UserTimeService userTimeService;
 
-    private LessonEntity forumEntity = null;
+	// Caches
+
+	// The following caches are used only during a single display of the page. I believe they
+	// are so transient that we don't have to worry about synchronizing them or keeping them up to date.
+	// Because the producer code tends to deal with items and even item ID's, it doesn't keep objects such
+	// as Assignment or PublishedAssessment around. It calls functions here to worry about those. If we
+	// don't cache, we'll be doing database lookups a lot. The worst is the code to see whether an item
+	// is available. Because it checks all items above, we'd end up order N**2 in the number of items on the
+	// page in database queries. It doesn't appear that assignments and assessments do any caching of their
+	// own, but hibernate as we use it does.
+	//   Normal code shouldn't use the caches directly, but should call something like getAssignment here,
+	// which checks the cache and if necessary calls the real getAssignment. I've chosen to do caching on
+	// this level, and let the DAO be actual database access. I've really only optimized what is used by
+	// ShowPageProducer, as that is used every time a page is shown. Things used when you add or change
+	// an item aren't as critical.
+	//   If anyone is doing serious work on the code, I recommend creating an Item class that encapsulates
+	// all the stuff associated with items. Then the producer would manipulate items. Thus the things in
+	// these caches would be held in the Items.
+
+	private Map<Long, SimplePageItem> itemCache = new HashMap<> ();
+	private Map<Long, SimplePage> pageCache = new HashMap<> ();
+	private Map<Long, List<SimplePageItem>> itemsCache = new HashMap<> ();
+	private Map<String, SimplePageLogEntry> logCache = new HashMap<>();
+	private Map<Long, Boolean> completeCache = new HashMap<>();
+	private Map<Long, Boolean> visibleCache = new HashMap<>();
+	private org.springframework.cache.Cache groupCache;
+	private org.springframework.cache.Cache cssResourceCache;
+
+
+	private String[] newColorLabelsI18n = null;
+	// SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously
+	private int totalMultimediaFilesToAdd = 0;
+	private int remainingMultimediaFilesToAdd = 0;
+
+	public SimplePageBean() {
+		this(false);
+	}
+
+	/**
+	 * Constructs a new {@code SimplePageBean}, optionally autowiring its dependencies and initializing it.
+	 * <p>
+	 * This constructor does not use RSF to fully construct the bean as it would during a UI render.
+	 * Use it only when a {@code SimplePageBean} is needed outside the UI rendering lifecycle and shared
+	 * Sakai dependencies must be injected.
+	 *
+	 * @param withAutoWireAndInit {@code true} to autowire dependencies and call {@link #init()};
+	 *        {@code false} to skip autowiring and initialization
+	 */
+	public SimplePageBean(boolean withAutoWireAndInit) {
+		if (withAutoWireAndInit) {
+			SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+			init();
+		}
+	}
+
+	public void init () {
+		groupCache = cacheManager.getCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.groupCache");
+		cssResourceCache = cacheManager.getCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.cssResourceCache");
+
+		isoDateFormat = getIsoDateFormat();
+		filterHtml = serverConfigurationService.getString(FILTERHTML);
+		bltiTools = initBltiTools();
+		initHtmlTypes();
+	}
+
+	public String[] getNewColorLabelsI18n() {
+		if (newColorLabelsI18n == null) {
+			newColorLabelsI18n = new String[]{messageLocator.getMessage("simplepage.columnnone"), messageLocator.getMessage("simplepage.col.newgray"), messageLocator.getMessage("simplepage.col.newblack"), messageLocator.getMessage("simplepage.col.newblue"), messageLocator.getMessage("simplepage.col.newblue2"), messageLocator.getMessage("simplepage.col.newred"), messageLocator.getMessage("simplepage.col.newnavy"), messageLocator.getMessage("simplepage.col.newnavy2"), messageLocator.getMessage("simplepage.col.newgreen"), messageLocator.getMessage("simplepage.col.neworange"), messageLocator.getMessage("simplepage.col.newgold"), messageLocator.getMessage("simplepage.col.newteal"), messageLocator.getMessage("simplepage.col.newpurple")};
+		}
+		return newColorLabelsI18n;
+	}
+
+	@Autowired @Qualifier("org.sakaiproject.lessonbuildertool.service.ForumEntity")
+	private LessonEntity forumEntity = null;
     	public void setForumEntity(Object e) {
     		forumEntity = (LessonEntity)e;
     	}
 
+    	@Autowired @Qualifier("org.sakaiproject.lessonbuildertool.service.SamigoEntity")
     	private LessonEntity quizEntity = null;
     	public void setQuizEntity(Object e) {
     		quizEntity = (LessonEntity)e;
     	}
 
+    	@Autowired @Qualifier("org.sakaiproject.lessonbuildertool.service.AssignmentEntity")
     	private LessonEntity assignmentEntity = null;
     	public void setAssignmentEntity(Object e) {
     		assignmentEntity = (LessonEntity)e;
     	}
 
+    	@Autowired @Qualifier("org.sakaiproject.lessonbuildertool.service.BltiEntity")
     	private LessonEntity bltiEntity = null;
     	public void setBltiEntity(Object e) {
     		bltiEntity = (LessonEntity)e;
     	}
 
+    	@Autowired @Qualifier("org.sakaiproject.lessonbuildertool.service.ScormEntity")
     	private LessonEntity scormEntity = null;
     	public void setScormEntity(Object e) {
     		scormEntity = (LessonEntity)e;
@@ -615,37 +684,6 @@ public class SimplePageBean {
 		this.folderPath = folderPath;
 	}
 
-	// Caches
-
-    // The following caches are used only during a single display of the page. I believe they
-    // are so transient that we don't have to worry about synchronizing them or keeping them up to date.
-    // Because the producer code tends to deal with items and even item ID's, it doesn't keep objects such
-    // as Assignment or PublishedAssessment around. It calls functions here to worry about those. If we
-    // don't cache, we'll be doing database lookups a lot. The worst is the code to see whether an item
-    // is available. Because it checks all items above, we'd end up order N**2 in the number of items on the
-    // page in database queries. It doesn't appear that assignments and assessments do any caching of their
-    // own, but hibernate as we use it does.
-    //   Normal code shouldn't use the caches directly, but should call something like getAssignment here,
-    // which checks the cache and if necessary calls the real getAssignment. I've chosen to do caching on
-    // this level, and let the DAO be actual database access. I've really only optimized what is used by
-    // ShowPageProducer, as that is used every time a page is shown. Things used when you add or change
-    // an item aren't as critical.
-    //   If anyone is doing serious work on the code, I recommend creating an Item class that encapsulates
-    // all the stuff associated with items. Then the producer would manipulate items. Thus the things in
-    // these caches would be held in the Items.
-
-	private Map<Long, SimplePageItem> itemCache = new HashMap<> ();
-	private Map<Long, SimplePage> pageCache = new HashMap<> ();
-	private Map<Long, List<SimplePageItem>> itemsCache = new HashMap<> ();
-	private Map<String, SimplePageLogEntry> logCache = new HashMap<>();
-	private Map<Long, Boolean> completeCache = new HashMap<>();
-	private Map<Long, Boolean> visibleCache = new HashMap<>();
-	// this one needs to be global
-	static MemoryService memoryService = (MemoryService)org.sakaiproject.component.cover.ComponentManager.get("org.sakaiproject.memory.api.MemoryService");
-	private static Cache<String, Object> groupCache = memoryService.getCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.groupCache");  // itemId => grouplist
-	private static Cache<String, List> resourceCache = memoryService.getCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.resourceCache");
-	protected static final int DEFAULT_EXPIRATION = 10 * 60;
-
 	public static class PathEntry {
 		public Long pageId;
 		public Long pageItemId;
@@ -684,10 +722,38 @@ public class SimplePageBean {
 	    public String addInstructions; // can be null
 	}
 
-	public static Map<Integer,BltiTool> bltiTools = initBltiTools();
+	// Plain, cacheable stand-in for a ContentResource. ContentResource's concrete runtime
+	// type (BaseContentService.BaseResourceEdit) is a non-static inner class carrying an
+	// implicit reference to the enclosing BaseContentService, so it can never be cached
+	// directly - only these three fields are ever read off a cached CSS resource.
+	public static class CssResource {
+	    public String id;
+	    public String url;
+	    public String displayName;
 
-	public static Map<Integer,BltiTool> initBltiTools() {
-	    String[] bltiToolLines = ServerConfigurationService.getStrings("lessonbuilder.blti_tools");
+	    public CssResource(String id, String url, String displayName) {
+		this.id = id;
+		this.url = url;
+		this.displayName = displayName;
+	    }
+
+	    public String getId() {
+		return id;
+	    }
+
+	    public String getUrl() {
+		return url;
+	    }
+
+	    public String getDisplayName() {
+		return displayName;
+	    }
+	}
+
+	public Map<Integer,BltiTool> bltiTools;
+
+	public Map<Integer,BltiTool> initBltiTools() {
+	    String[] bltiToolLines = serverConfigurationService.getStrings("lessonbuilder.blti_tools");
 	    if (bltiToolLines == null || bltiToolLines.length == 0)
 		return null;
 	    CSVParser csvParser = new CSVParser();
@@ -769,10 +835,10 @@ public class SimplePageBean {
 	}
 
 	private static final String DEFAULT_HTML_TYPES = "html,xhtml,htm,xht";
-	private static String[] htmlTypes = null;
+	private String[] htmlTypes = null;
 
-        static {
-	    String mmTypes = ServerConfigurationService.getString("lessonbuilder.html.types", DEFAULT_HTML_TYPES);
+	private void initHtmlTypes() {
+	    String mmTypes = serverConfigurationService.getString("lessonbuilder.html.types", DEFAULT_HTML_TYPES);
 	    htmlTypes = mmTypes.split(",");
 	    for (int i = 0; i < htmlTypes.length; i++) {
 		htmlTypes[i] = htmlTypes[i].trim().toLowerCase();
@@ -793,14 +859,6 @@ public class SimplePageBean {
  	    format.setTimeZone(tz);
  	    return format;
  	}
-
-	// Don't put things here. It isn't always called.
-	public void init () {
-		isoDateFormat = getIsoDateFormat();
-	}
-
-    // no destroy. We want to leave the cache intact when we exit, because there's one of us
-    // per request. 
 
 	public SimplePageItem findItem(long itId) {
 		Long itemId = itId;
@@ -1734,7 +1792,7 @@ public class SimplePageBean {
 	    // will be HTML. That's the default if this fails.
 	    URLConnection conn = null;
 	    try {
-		conn = new URL(new URL(ServerConfigurationService.getServerUrl()),url).openConnection();
+		conn = new URL(new URL(serverConfigurationService.getServerUrl()),url).openConnection();
 		conn.setConnectTimeout(10000);
 		conn.setReadTimeout(10000);
 		// generate cookie based on code in  RequestFilter.java
@@ -3888,7 +3946,7 @@ public class SimplePageBean {
 			 && i.getType() != SimplePageItem.BREAK
 		         && i.getType() != SimplePageItem.STUDENT_CONTENT
 		         && i.getType() != SimplePageItem.CALENDAR) {
-	       Object cached = groupCache.get(i.getSakaiId());
+	       Object cached = groupCache.get(i.getSakaiId(), Object.class);
 	       if (cached != null) {
 		   if (cached instanceof String)
 		       return null;
@@ -4130,7 +4188,7 @@ public class SimplePageBean {
 	   //Remove the existing groups from the item cache before assigning the new groups.
 	   if(i != null && StringUtils.isNotBlank(i.getSakaiId())){
 	       log.info("Removing the item {} assigned groups from the cache.", i.getSakaiId());
-	       groupCache.remove(i.getSakaiId());
+	       groupCache.evict(i.getSakaiId());
 	   }
 
 	   LessonEntity lessonEntity = null;
@@ -4495,7 +4553,7 @@ public class SimplePageBean {
 			atom = atom.substring(0, i);
 		    // first atom is hostname
 		    if (atom.contains( "." )) {
-			String server= ServerConfigurationService.getServerUrl();
+			String server= serverConfigurationService.getServerUrl();
 			if (server.startsWith("https:"))
 			    url = "https://" + url;
 			else
@@ -4751,8 +4809,8 @@ public class SimplePageBean {
 			page.setCssSheet(uploadId);
 			
 			// Make sure the relevant caches are wiped clean.
-			resourceCache.remove(collectionId);
-			resourceCache.remove(uploadId);
+			cssResourceCache.evict(collectionId);
+			cssResourceCache.evict(uploadId);
 		}else {
 			page.setCssSheet(dropDown);
 		}
@@ -4788,8 +4846,8 @@ public class SimplePageBean {
 	    }
 
 	    // implement precedence rules: ceiling if set, else max, else 20
-	    String max = ServerConfigurationService.getString("content.upload.max", null);
-	    String ceiling = ServerConfigurationService.getString("content.upload.ceiling", null);
+	    String max = serverConfigurationService.getString("content.upload.max", null);
+	    String ceiling = serverConfigurationService.getString("content.upload.ceiling", null);
 	    String effective = ceiling;
 	    if (effective == null)
 		effective = max;
@@ -6634,8 +6692,8 @@ public class SimplePageBean {
 // for group-owned student pages, put it in the worksite of the current user
 	public String getCollectionId(boolean urls) {
 		String siteId = getCurrentPage().getSiteId();
-		String baseDir = ServerConfigurationService.getString("lessonbuilder.basefolder", null);
-		boolean hiddenWithAccessDir = ServerConfigurationService.getBoolean("lessonbuilder.folder.hidden.withaccess", true);
+		String baseDir = serverConfigurationService.getString("lessonbuilder.basefolder", null);
+		boolean hiddenWithAccessDir = serverConfigurationService.getBoolean("lessonbuilder.folder.hidden.withaccess", true);
 		String pageOwner = getCurrentPage().getOwner();
 		String collectionId;
 		String folder;
@@ -9101,52 +9159,68 @@ public class SimplePageBean {
 	 * Caches lookups, to prevent extra database hits.
 	 * @return
 	 */
-	public ArrayList<ContentResource> getAvailableCss() {
-		ArrayList<ContentResource> list = new ArrayList<>();
-		
+	private CssResource toCssResource(ContentResource r) {
+		if (r == null) return null;
+		String displayName = r.getProperties() != null ? r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) : null;
+		return new CssResource(r.getId(), r.getUrl(), displayName);
+	}
+
+	public ArrayList<CssResource> getAvailableCss() {
+		ArrayList<CssResource> list = new ArrayList<>();
+
 		String collectionId = contentHostingService.getSiteCollection(getCurrentSiteId()) + "LB-CSS/";
-		
-		List<ContentResource> resources = (List<ContentResource>) resourceCache.get(collectionId);
+
+		List<CssResource> resources = cssResourceCache.get(collectionId, List.class);
 		if(resources == null) {
-			resources = contentHostingService.getAllResources(collectionId);
-			if(resources == null) resources = new ArrayList<>();
-			
-			resourceCache.put(collectionId, resources);
+			List<ContentResource> contentResources = contentHostingService.getAllResources(collectionId);
+			resources = new ArrayList<>();
+			if (contentResources != null) {
+				for (ContentResource r : contentResources) {
+					resources.add(toCssResource(r));
+				}
+			}
+
+			cssResourceCache.put(collectionId, resources);
 		}
-		
+
 		// For a while, up to Sakai 11.3, uploading a custom css file directly from
 		// the lessonbuilder page could cause Sakai to generate file names like foo.css-1
 		// In such cases, they should appear in the dropdown for custom css
 		Pattern cssPattern = Pattern.compile("\\.css(-[0-9][0-9]*){0,1}$", Pattern.CASE_INSENSITIVE);
-		
-		for(ContentResource r : resources) {
+
+		for(CssResource r : resources) {
 			if(cssPattern.matcher(r.getUrl()).find()) {
 				list.add(r);
 			}
 		}
-		
+
 		collectionId = "/public/LB-CSS/";
-		
-		resources = (List<ContentResource>) resourceCache.get(collectionId);
+
+		resources = cssResourceCache.get(collectionId, List.class);
 		if(resources == null) {
-			resources = contentHostingService.getAllResources(collectionId);
-			if(resources == null) resources = new ArrayList<>();
-			
-			resourceCache.put(collectionId, resources);
+			List<ContentResource> contentResources = contentHostingService.getAllResources(collectionId);
+			resources = new ArrayList<>();
+			if (contentResources != null) {
+				for (ContentResource r : contentResources) {
+					resources.add(toCssResource(r));
+				}
+			}
+
+			cssResourceCache.put(collectionId, resources);
 		}
-		
+
 		// Insert separator
 		if(list.size() > 0 && resources.size() > 0) {
 			list.add(null);
 		}
-		
-		for(ContentResource r : resources) {
+
+		for(CssResource r : resources) {
 			if(cssPattern.matcher(r.getUrl()).find()) {
 				list.add(r);
 			}
 		}
-		
-		
+
+
 		return list;
 	}
 	/**
@@ -9157,72 +9231,72 @@ public class SimplePageBean {
 	 * Caches lookups to prevent too many lookups in the database.
 	 * @return
 	 */
-	public ContentResource getCssForCurrentPage() {
-		ContentResource resource;
-		
-		// I'm always using ArrayList for the resourceCache so that I can distinguish
+	public CssResource getCssForCurrentPage() {
+		CssResource resource;
+
+		// I'm always using ArrayList for the cssResourceCache so that I can distinguish
 		// between never having looked up the resource, and the resource not being there.
 		// Otherwise, if I just check for null, if a resource isn't there, it will still check
 		// every time.
-		
+
 		String collectionId = getCurrentPage().getCssSheet();
 		if(getCurrentPage().getCssSheet() != null) {
 			try {
-				ArrayList<ContentResource> resources = (ArrayList<ContentResource>) resourceCache.get(collectionId);
+				List<CssResource> resources = cssResourceCache.get(collectionId, List.class);
 				if(resources == null) {
-					resource = contentHostingService.getResource(collectionId);
+					resource = toCssResource(contentHostingService.getResource(collectionId));
 					resources = new ArrayList<>();
 					resources.add(resource);
-					resourceCache.put(collectionId, resources);
+					cssResourceCache.put(collectionId, resources);
 				}
-				
+
 				if(resources.size() > 0) {
 					return resources.get(0);
 				}else {
 					throw new Exception();
 				}
 			}catch(Exception ex) {
-				resourceCache.put(collectionId, new ArrayList<>());
+				cssResourceCache.put(collectionId, new ArrayList<>());
 			}
 		}
-		
+
 		collectionId = contentHostingService.getSiteCollection(getCurrentSiteId())
-				+ "LB-CSS/" + ServerConfigurationService.getString("lessonbuilder.default.css", "default.css");
-		
+				+ "LB-CSS/" + serverConfigurationService.getString("lessonbuilder.default.css", "default.css");
+
 		try {
-			ArrayList<ContentResource> resources = (ArrayList<ContentResource>) resourceCache.get(collectionId);
+			List<CssResource> resources = cssResourceCache.get(collectionId, List.class);
 			if(resources == null) {
-				resource = contentHostingService.getResource(collectionId);
+				resource = toCssResource(contentHostingService.getResource(collectionId));
 				resources = new ArrayList<>();
 				resources.add(resource);
-				resourceCache.put(collectionId, resources);
+				cssResourceCache.put(collectionId, resources);
 			}
-			
+
 			if(resources.size() > 0) {
 				return resources.get(0);
 			}
 		}catch(Exception ignore) {
-			resourceCache.put(collectionId, new ArrayList<>());
+			cssResourceCache.put(collectionId, new ArrayList<>());
 		}
-		
-		collectionId = "/public/LB-CSS/" + ServerConfigurationService.getString("lessonbuilder.default.css", "default.css");
-		
+
+		collectionId = "/public/LB-CSS/" + serverConfigurationService.getString("lessonbuilder.default.css", "default.css");
+
 		try {
-			ArrayList<ContentResource> resources = (ArrayList<ContentResource>) resourceCache.get(collectionId);
+			List<CssResource> resources = cssResourceCache.get(collectionId, List.class);
 			if(resources == null) {
-				resource = contentHostingService.getResource(collectionId);
+				resource = toCssResource(contentHostingService.getResource(collectionId));
 				resources = new ArrayList<>();
 				resources.add(resource);
-				resourceCache.put(collectionId, resources);
+				cssResourceCache.put(collectionId, resources);
 			}
-			
+
 			if(resources.size() > 0) {
 				return resources.get(0);
 			}
 		}catch(Exception ignore) {
-			resourceCache.put(collectionId, new ArrayList<>());
+			cssResourceCache.put(collectionId, new ArrayList<>());
 		}
-				
+
 		return null;
 	}
 	/** Used for both adding and updating peer evaluation on a page. */
@@ -9362,7 +9436,7 @@ public class SimplePageBean {
 		for (Map cat: categories) {
 		    String rowText = String.valueOf(cat.get("rowText"));
 		    String rowId = String.valueOf(cat.get("id"));
-		    rowMap.put(rowText, new Long(rowId));
+		    rowMap.put(rowText, Long.parseLong(rowId));
 		}
 
 		// set up data for permission checks
@@ -9384,7 +9458,7 @@ public class SimplePageBean {
 			catMap = new HashMap<>();
 			dataMap.put(items[2], catMap);
 		    }
-		    catMap.put(new Long(items[0]), new Integer(items[1]));
+		    catMap.put(Long.parseLong(items[0]), Integer.parseInt(items[1]));
 		}
 
 		// have user data, now update database
@@ -9646,7 +9720,6 @@ public class SimplePageBean {
 	}
 	/**
 	 * Method to add calendar component in the Lessons Page
-	 * @param ab
 	 * @return
 	 */
 	public String addCalendar(){

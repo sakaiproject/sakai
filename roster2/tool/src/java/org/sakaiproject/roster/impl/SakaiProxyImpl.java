@@ -88,9 +88,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
@@ -144,7 +143,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     private CandidateDetailProvider candidateDetailProvider;
 
     @Resource private PrivacyManager privacyManager;
-    @Resource private MemoryService memoryService;
+    @Resource private CacheManager cacheManager;
     @Resource private ProfileService profileService;
     @Resource private SakaiPersonManager sakaiPersonManager;
     @Resource private SecurityService securityService;
@@ -766,7 +765,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         Cache cache = getCache(MEMBERSHIPS_CACHE);
         String key = siteId + (groupId == null ? "" : "#" + groupId) + (roleId == null ? "" : "#" + roleId);
 
-        List<RosterMember> siteMembers = (List<RosterMember>) cache.get(key);
+        List<RosterMember> siteMembers = cache.get(key, List.class);
         log.debug("Trying to get '{}' from cache. Is null? {}", key, siteMembers == null);
 
         if (siteMembers == null) {
@@ -820,8 +819,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             RosterMemberComparator memberComparator = getMemberComparator();
             cacheMembersMap.values().forEach(a -> a.sort(memberComparator));
-            cache.putAll(cacheMembersMap);
-            siteMembers = (List<RosterMember>) cache.get(key);
+            cacheMembersMap.forEach(cache::put);
+            siteMembers = cache.get(key, List.class);
         }
 
         return siteMembers;
@@ -841,7 +840,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         Cache cache = getCache(ENROLLMENTS_CACHE);
 
 
-        Map<String, List<RosterMember>> membersMap = (Map<String, List<RosterMember>>) cache.get(siteId);
+        Map<String, List<RosterMember>> membersMap = cache.get(siteId, Map.class);
         log.debug("Trying to get '{}' from enrollments cache. Is null? {}", siteId, membersMap == null);
 
         if (membersMap == null) {
@@ -904,6 +903,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             membersMap.put(enrollmentSetId + "#wait", waiting);
             log.debug("Caching enrolled members on '{}#enrolled' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#enrolled", enrolled);
+
+            // membersMap is a plain value pulled out of the cache; Ignite deserializes a fresh
+            // copy on get(), so the mutations above only reach the actual cache if we put the
+            // updated map back here.
+            cache.put(siteId, membersMap);
         }
         return membersMap;
     }
@@ -1113,11 +1117,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     private Cache getCache(String cache) {
 
         try {
-            Cache c = memoryService.getCache(cache);
-            if (c == null) {
-                c = memoryService.createCache(cache, new SimpleConfiguration(0));
-            }
-            return c;
+            return cacheManager.getCache(cache);
         } catch (Exception e) {
             log.warn("Exception whilst retrieving {} cache: {}", cache, e.toString());
             return null;
@@ -1213,18 +1213,18 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         }
 
         Cache enrollmentsCache = getCache(ENROLLMENTS_CACHE);
-        enrollmentsCache.remove(siteId);
+        enrollmentsCache.evict(siteId);
 
         Cache membershipsCache = getCache(MEMBERSHIPS_CACHE);
 
         synchronized(this) {
-            membershipsCache.remove(siteId);
+            membershipsCache.evict(siteId);
             Site site = getSite(siteId);
             if (site != null) {
                 Set<Role> roles = site.getRoles();
                 site.getGroups().stream().map(Group::getId).forEach(gId -> {
-                    membershipsCache.remove(siteId + "#" + gId);
-                    roles.forEach(r -> membershipsCache.remove(siteId + "#" + gId + "#" + r.getId()));
+                    membershipsCache.evict(siteId + "#" + gId);
+                    roles.forEach(r -> membershipsCache.evict(siteId + "#" + gId + "#" + r.getId()));
                 });
             }
         }

@@ -42,9 +42,8 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.profile2.api.MimeTypeByteArray;
 import org.sakaiproject.profile2.api.Person;
 import org.sakaiproject.profile2.api.ProfileConstants;
@@ -73,17 +72,17 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
 
     @Autowired private ProfileDao dao;
     @Autowired private EntityManager entityManager;
-    @Autowired private MemoryService memoryService;
+    @Autowired private CacheManager cacheManager;
     @Autowired private PreferencesService preferencesService;
     @Autowired private SakaiProxy sakaiProxy;
     @Autowired private SessionManager sessionManager;
 
     private static final String IMAGE_CACHE = "profile2.image.cache";
-    private Cache<String, ProfileImage> cache;
+    private Cache cache;
 
     public void init() {
 
-        cache = memoryService.createCache(IMAGE_CACHE, new SimpleConfiguration<>(0));
+        cache = cacheManager.getCache(IMAGE_CACHE);
         entityManager.registerEntityProducer(this, "/profile/");
     }
 
@@ -731,14 +730,7 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
     @Override
     public ProfileImage getProfileAvatarInitials(String userUuid) {
 
-        ProfileImage image = null;
-        if (cache.containsKey(userUuid)) {
-            image = cache.get(userUuid);
-            if (image == null) {
-                cache.remove(userUuid);
-            }
-
-        }
+        ProfileImage image = cache.get(userUuid, ProfileImage.class);
         if (image == null) {
             image = new ProfileImage();
             BufferedImage bufferedImage = new BufferedImage(ProfileConstants.PROFILE_AVATAR_WIDTH, ProfileConstants.PROFILE_AVATAR_HEIGHT, BufferedImage.TYPE_INT_ARGB);

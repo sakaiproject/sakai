@@ -59,9 +59,9 @@ public class GoogleDriveServiceImplTest extends AbstractTransactionalJUnit4Sprin
     private Drive drive;
     private GoogleDriveUserRepository googledriveRepo;
     private Cache<String, Drive> googledriveUserCache;
-    private Cache<String, List<GoogleDriveItem>> driveRootItemsCache;
-    private Cache<String, List<GoogleDriveItem>> driveChildrenItemsCache;
-    private Cache<String, GoogleDriveItem> driveItemsCache;
+    private org.springframework.cache.Cache driveRootItemsCache;
+    private org.springframework.cache.Cache driveChildrenItemsCache;
+    private org.springframework.cache.Cache driveItemsCache;
 
     @Before
     public void setUp() {
@@ -69,9 +69,9 @@ public class GoogleDriveServiceImplTest extends AbstractTransactionalJUnit4Sprin
         userId = UUID.randomUUID().toString();
         googledriveUserCache = mock(Cache.class);
         drive = mock(Drive.class);
-        driveRootItemsCache = mock(Cache.class);
-        driveChildrenItemsCache = mock(Cache.class);
-        driveItemsCache = mock(Cache.class);
+        driveRootItemsCache = mock(org.springframework.cache.Cache.class);
+        driveChildrenItemsCache = mock(org.springframework.cache.Cache.class);
+        driveItemsCache = mock(org.springframework.cache.Cache.class);
         googledriveRepo = mock(GoogleDriveUserRepository.class);
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
@@ -138,7 +138,7 @@ public class GoogleDriveServiceImplTest extends AbstractTransactionalJUnit4Sprin
     public void testCleanGoogleDriveCacheForUser() throws Exception {
         googleDriveService.cleanGoogleDriveCacheForUser(userId);
         verify(googledriveUserCache, times(1)).remove(userId);
-        verify(driveRootItemsCache, times(1)).remove(userId);
+        verify(driveRootItemsCache, times(1)).evict(userId);
         verify(driveChildrenItemsCache, times(1)).clear();
         verify(driveItemsCache, times(1)).clear();
         googleDriveService.cleanGoogleDriveCacheForUser(null);
@@ -148,7 +148,7 @@ public class GoogleDriveServiceImplTest extends AbstractTransactionalJUnit4Sprin
     public void testRevokeGoogleDriveConfiguration() throws Exception {
         googleDriveService.revokeGoogleDriveConfiguration(userId);
         verify(googledriveUserCache, times(1)).remove(userId);
-        verify(driveRootItemsCache, times(1)).remove(userId);
+        verify(driveRootItemsCache, times(1)).evict(userId);
         verify(driveChildrenItemsCache, times(1)).clear();
         verify(driveItemsCache, times(1)).clear();
         googleDriveService.revokeGoogleDriveConfiguration(null);
