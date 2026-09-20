@@ -15,71 +15,56 @@
  */
 package org.sakaiproject.calendar.impl;
 
-import org.sakaiproject.calendar.api.ExternalSubscriptionDetails;
-import org.sakaiproject.memory.api.Cache;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import org.springframework.cache.Cache;
+
 /**
- * Cache of calendars. This class just maps the the requests onto a Cache which actually
- * holds the calendars.
- * 
- * Ideally a request for a calendar is made and data is preloaded so we don't have a long pause
- * while the remote ical is downloaded and parsed. We don't want to do this in the Cache
- * expiration listener as that only fires on retrieval from the cache.
+ * Cache of external calendar subscription snapshots. This class just maps requests onto a
+ * Spring/Ignite-backed Cache which actually holds the (plain, marshalable) snapshots -
+ * conversion to/from the live, non-marshalable ExternalCalendarSubscription object graph is
+ * done by the caller (BaseExternalCalendarSubscriptionService), since only it can construct
+ * its own non-static inner classes.
  * <p>
- * 
- * We still want to use the LRU features of a cache so that we cache the most popular stuff.
- * Do we put an item into the cache which manages the refresh? No as we need iterate over the 
- * cache and refresh the items in it. We need to be careful that we don't keep existing items 
- * in the cache through our refreshing of them.
- *
- * Handles early expiry of failed lookups so that we re-try more often. By default we only cache
- * faul
+ * This is intentionally a distributed (not local) cache: the cached value is the result of
+ * fetching an external URL, which is the same regardless of which cluster node fetches it, so
+ * distributing it means only one node has to pay the network-fetch cost per refresh interval
+ * instead of every node paying it independently.
+ * <p>
+ * Handles early expiry of failed lookups so that we re-try more often. By default we only
+ * cache failures for a short time.
  *
  * @author nfernandes
  */
 public class SubscriptionCache {
 
-	private Clock clock;
+	private final Clock clock;
 
-	// Although using EhCache directly we could have TTLs on each Element this is outside the
-	// JSR-107 spec so ties us to EhCache too tightly.
-	private Cache<String, BaseExternalSubscriptionDetails> cache;
+	private final Cache cache;
 
-	public Cache<String, BaseExternalSubscriptionDetails> getCache() {
-		return cache;
-	}
-
-	SubscriptionCache(Cache<String, BaseExternalSubscriptionDetails> cache, Clock clock) {
+	SubscriptionCache(Cache cache, Clock clock) {
 		this.cache = cache;
 		this.clock = clock;
 	}
 
-	public BaseExternalSubscriptionDetails get(String url) {
-		BaseExternalSubscriptionDetails sub = cache.get(url);
-		if (sub != null) {
+	public ExternalCalendarSubscriptionSnapshot get(String url) {
+		ExternalCalendarSubscriptionSnapshot snapshot = cache.get(url, ExternalCalendarSubscriptionSnapshot.class);
+		if (snapshot != null && !snapshot.ok) {
 			// Check if we should early expire it, we only cache failed lookups for a short time.
-			if (sub.getState().equals(ExternalSubscriptionDetails.State.FAILED)) {
-				if (Instant.now(clock).minus(1, ChronoUnit.MINUTES).isAfter(sub.getRefreshed())) {
-					return null;
-				}
+			if (Instant.now(clock).minus(1, ChronoUnit.MINUTES).isAfter(snapshot.refreshed)) {
+				return null;
 			}
-			// We clone this so that the caller can't muller the item in the cache
-			// as we have examples of callers changing the context
-			return new BaseExternalSubscriptionDetails(sub);
 		}
-		return null;
+		return snapshot;
 	}
 
-	public void put(BaseExternalSubscriptionDetails sub) {
-		String url = sub.getSubscriptionUrl();
-		if (url == null) {
-			throw new IllegalArgumentException("The ExternalSubscriptionDetails must have a URL set.");
+	public void put(ExternalCalendarSubscriptionSnapshot snapshot) {
+		if (snapshot.subscriptionUrl == null) {
+			throw new IllegalArgumentException("The ExternalCalendarSubscriptionSnapshot must have a URL set.");
 		}
-		cache.put(url, new BaseExternalSubscriptionDetails(sub));
+		cache.put(snapshot.subscriptionUrl, snapshot);
 	}
 
 }

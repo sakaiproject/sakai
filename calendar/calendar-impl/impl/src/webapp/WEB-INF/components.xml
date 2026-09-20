@@ -64,7 +64,7 @@
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
 		<property name="clock">
 			<bean class="java.time.Clock" factory-method="systemUTC"/>
 		</property>
