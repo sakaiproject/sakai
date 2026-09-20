@@ -324,41 +324,45 @@
 	</bean>
 
 	<!-- backing beans -->
-	<bean name="simplePageBean" class="org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean" init-method="init">
-		<property name="messageLocator" ref="messageLocator"/>
-		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
-		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
-		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
-		<property name="httpServletResponse" ref="httpServletResponse" />
-		<property name="multipartMap" ref="multipartMap" />
-		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
-		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+	<bean name="simplePageBean"
+		  class="org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean"
+		  init-method="init">
+		<property name="archiveService" ref="org.sakaiproject.archive.api.ArchiveService"/>
 		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
  		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
-		<property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
-		<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
-		<property name="lessonBuilderEntityProducer" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"/>
-		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
-		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
-		<property name="removedPageService" ref="org.sakaiproject.lessonbuildertool.service.RemovedPageService" />
-		<property name="pagePromotionService" ref="org.sakaiproject.lessonbuildertool.service.PagePromotionService" />
-		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
-		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
+		<property name="conditionService" ref="org.sakaiproject.condition.api.ConditionService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-		<property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
-		<property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
-		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
-		<property name="conditionService" ref="org.sakaiproject.condition.api.ConditionService" />
+		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+		<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+		<property name="httpServletResponse" ref="httpServletResponse" />
+		<property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
+		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
+		<property name="lessonBuilderEntityProducer" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"/>
+		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
+		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="multipartMap" ref="multipartMap" />
+		<property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
+		<property name="pagePromotionService" ref="org.sakaiproject.lessonbuildertool.service.PagePromotionService" />
+		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+		<property name="removedPageService" ref="org.sakaiproject.lessonbuildertool.service.RemovedPageService" />
+		<property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
 		<property name="taskService" ref="org.sakaiproject.tasks.api.TaskService"/>
-		<property name="archiveService" ref="org.sakaiproject.archive.api.ArchiveService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 	</bean>
 	
 	<!-- Over-riding the CommonsMultipartResolver to have multiple files incoming under the same form input name  -->

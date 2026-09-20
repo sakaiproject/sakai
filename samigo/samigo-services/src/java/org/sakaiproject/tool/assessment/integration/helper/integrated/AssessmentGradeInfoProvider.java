@@ -38,8 +38,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.ExternalAssignmentProvider;
 import org.sakaiproject.grading.api.ExternalAssignmentProviderCompat;
 import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -63,14 +63,14 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     private GradingService gradingService;
     private UserDirectoryService userDirectoryService;
     private SiteService siteService;
-    private MemoryService memoryService;
+    private CacheManager cacheManager;
 
-    private Cache<String, PublishedAssessmentIfc> pubAssessmentCache;
-    
+    private Cache pubAssessmentCache;
+
     public void init() {
         log.info("INIT and Register Samigo AssessmentGradeInfoProvider");
         gradingService.registerExternalAssignmentProvider(this);
-        pubAssessmentCache = memoryService.getCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.pubAssessmentCache");
+        pubAssessmentCache = cacheManager.getCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.pubAssessmentCache");
     }
 
     public void destroy() {
@@ -84,14 +84,14 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
     
     private PublishedAssessmentIfc getPublishedAssessment(String id) {
-        PublishedAssessmentIfc a = pubAssessmentCache.get(id);
+        PublishedAssessmentIfc a = pubAssessmentCache.get(id, PublishedAssessmentIfc.class);
         if (a != null) {
             log.debug("Returning assessment {} from cache", id);
             return a;
         }
 
         /* Below we may fail to re-establish the value */
-        pubAssessmentCache.remove(id);
+        pubAssessmentCache.evict(id);
 
         PublishedAssessmentService pas = new PublishedAssessmentService();
         try {
@@ -423,8 +423,8 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         this.siteService = siteService;
     }
     
-    public void setMemoryService(MemoryService memoryService) {
-		this.memoryService = memoryService;
+    public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 }
 
