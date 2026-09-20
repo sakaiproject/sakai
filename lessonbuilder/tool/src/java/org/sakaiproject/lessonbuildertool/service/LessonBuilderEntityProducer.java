@@ -114,7 +114,6 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -182,7 +181,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	private SessionManager sessionManager;
 	private SiteService siteService;
 	private ContentHostingService contentHostingService;
-	private MemoryService memoryService;
 	private SimplePageToolDao simplePageToolDao;
 	private PageIndexService pageIndexService;
 	private RemovedPageService removedPageService;
@@ -2748,10 +2746,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		gradebookIfc = g;
 	}
 
-	public void setMemoryService(MemoryService m) {
-		memoryService = m;
-	}
-
 	public void setMessageSource(MessageSource s) {
 		messageSource = s;
 	}
@@ -3073,19 +3067,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 
 	SimplePageBean makeSimplePageBean(String siteId) {
-		SimplePageBean simplePageBean = new SimplePageBean();
-		simplePageBean.setMessageLocator(messageLocator);
-		simplePageBean.setToolManager(toolManager);
-		simplePageBean.setSecurityService(securityService);
-		simplePageBean.setSessionManager(sessionManager);
-		simplePageBean.setSiteService(siteService);
-		simplePageBean.setContentHostingService(contentHostingService);
-		simplePageBean.setSimplePageToolDao(simplePageToolDao);
-		simplePageBean.setForumEntity(forumEntity);
-		simplePageBean.setQuizEntity(quizEntity);
-		simplePageBean.setAssignmentEntity(assignmentEntity);
-		simplePageBean.setBltiEntity(bltiEntity);
-		simplePageBean.setGradebookIfc(gradebookIfc);
+		SimplePageBean simplePageBean = new SimplePageBean(true);
 		simplePageBean.setCurrentSiteId(siteId);
 		return simplePageBean;
 	}

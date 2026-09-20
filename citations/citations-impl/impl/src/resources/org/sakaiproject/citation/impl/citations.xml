@@ -111,7 +111,6 @@
 
     <bean id="org.sakaiproject.citation.api.SearchManager" class="org.sakaiproject.citation.impl.BaseSearchManager"
         init-method="init" destroy-method="destroy">
-        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
         <property name="configurationService" ref="org.sakaiproject.citation.api.ConfigurationService" />
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />

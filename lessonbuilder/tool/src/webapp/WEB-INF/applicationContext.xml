@@ -274,7 +274,7 @@ simplePageBean.addForumSummary,
         destroy-method="destroy">
 
     <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
-    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
     <property name="messageLocator" ref="messageLocator"/>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
   </bean>
@@ -297,7 +297,6 @@ simplePageBean.addForumSummary,
 	lazy-init="true"
         init-method="init"
         destroy-method="destroy">
-    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="messageLocator" ref="messageLocator"/>
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
@@ -356,7 +355,6 @@ simplePageBean.addForumSummary,
     <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="messageSource"><ref bean="messageSource"/></property>
 
   </bean>
@@ -534,7 +532,6 @@ simplePageBean.addForumSummary,
 	  <property name="dao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	  <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 	  <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-	  <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 	  <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	  <property name="messageLocator" ref="messageLocator"/>
 	  <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />

@@ -651,7 +651,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 		
 		// Set up customizable CSS
-		ContentResource cssLink = simplePageBean.getCssForCurrentPage();
+		SimplePageBean.CssResource cssLink = simplePageBean.getCssForCurrentPage();
 		if(cssLink != null) {
 			UIOutput.make(tofill, "customCSS").decorate(new UIFreeAttributeDecorator("href", cssLink.getUrl()));
 		}
@@ -3602,7 +3602,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(tofill, rsfid, "simplePageBean.csrfToken", sessionToken.toString());
 	}
 
-	public void createDialogs(UIContainer tofill, SimplePage currentPage, SimplePageItem pageItem, ContentResource cssLink) {
+	public void createDialogs(UIContainer tofill, SimplePage currentPage, SimplePageItem pageItem, SimplePageBean.CssResource cssLink) {
 		createEditItemDialog(tofill, currentPage, pageItem);
 		createAddMultimediaDialog(tofill, currentPage);
 		createEditMultimediaDialog(tofill, currentPage);
@@ -4975,7 +4975,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "movie-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 
-	private void createEditTitleDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem, ContentResource cssLink) {
+	private void createEditTitleDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem, SimplePageBean.CssResource cssLink) {
 		if (pageItem.getType() == SimplePageItem.STUDENT_CONTENT)
 			UIOutput.make(tofill, "edit-title-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.editTitle")));
 		else
@@ -5058,10 +5058,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		if(!simplePageBean.isStudentPage(page)) {
 			UIOutput.make(form, "csssection");
-			ArrayList<ContentResource> sheets = simplePageBean.getAvailableCss();
+			ArrayList<SimplePageBean.CssResource> sheets = simplePageBean.getAvailableCss();
 			String[] options = new String[sheets.size()+2];
 			String[] labels = new String[sheets.size()+2];
-			
+
 			// Sets up the CSS arrays
 			options[0] = null;
 			labels[0] = messageLocator.getMessage("simplepage.default-css");
@@ -5070,7 +5070,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			for(int i = 0; i < sheets.size(); i++) {
 				if(sheets.get(i) != null) {
 					options[i+2] = sheets.get(i).getId();
-					labels[i+2] = sheets.get(i).getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+					labels[i+2] = sheets.get(i).getDisplayName();
 				}else {
 					// We show just one un-named separator if there are only site css, or system css, but not both.
 					// If we get here, it means we have both, so we name them.

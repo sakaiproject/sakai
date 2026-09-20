@@ -88,8 +88,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -1004,7 +1002,6 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	protected String databaseHierarchyResourceRef;
 
-	@Setter private MemoryService memoryService;
 	@Setter private SecurityService securityService;
 	@Setter private ContentHostingService contentHostingService;
 	@Setter private EntityManager entityManager;
@@ -1866,14 +1863,5 @@ public class BaseSearchManager implements SearchManager, Observer
 	{
 		return (string == null) || (string.trim().equals(""));
 	}
-
-	/**
-	 * @return the memoryService
-	 */
-	public MemoryService getMemoryService()
-	{
-		return memoryService;
-	}
-
 
 }
