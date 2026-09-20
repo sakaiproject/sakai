@@ -519,28 +519,10 @@ public class LessonBuilderAccessService {
 						// but don't do this unless the item needs checking
 
 						if (!canSeeAll(currentPage.getSiteId())) {
-						SimplePageBean simplePageBean = new SimplePageBean();
-						simplePageBean.setMessageLocator(messageLocator);
-						simplePageBean.setToolManager(toolManager);
-						simplePageBean.setSecurityService(securityService);
-						simplePageBean.setSessionManager(sessionManager);
-						simplePageBean.setSiteService(siteService);
-						simplePageBean.setContentHostingService(contentHostingService);
-						simplePageBean.setSimplePageToolDao(simplePageToolDao);
-						simplePageBean.setForumEntity(forumEntity);
-						simplePageBean.setQuizEntity(quizEntity);
-						simplePageBean.setAssignmentEntity(assignmentEntity);
-						simplePageBean.setBltiEntity(bltiEntity);
-						simplePageBean.setScormEntity(scormEntity);
-						simplePageBean.setGradebookIfc(gradebookIfc);
+						SimplePageBean simplePageBean = new SimplePageBean(true);
 						simplePageBean.setCurrentSiteId(currentPage.getSiteId());
 						simplePageBean.setCurrentPage(currentPage);
 						simplePageBean.setCurrentPageId(currentPage.getPageId());
-						simplePageBean.setUserDirectoryService(userDirectoryService);
-						simplePageBean.setUserTimeService(userTimeService);
-						simplePageBean.setAuthzGroupService(authzGroupService);
-						simplePageBean.setConditionService(conditionService);
-						simplePageBean.init();
 
 						if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
 							throw new EntityPermissionException(null, null, null);
