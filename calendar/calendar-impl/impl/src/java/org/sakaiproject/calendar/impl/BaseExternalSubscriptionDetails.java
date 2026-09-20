@@ -151,6 +151,10 @@ public class BaseExternalSubscriptionDetails implements ExternalSubscriptionDeta
 	public Instant getRefreshed() {
 		return status != null? status.getRefreshed(): null;
 	}
+
+	public String getError() {
+		return status != null? status.getError(): null;
+	}
 	
 	public String getUserId() {
 		return userId;

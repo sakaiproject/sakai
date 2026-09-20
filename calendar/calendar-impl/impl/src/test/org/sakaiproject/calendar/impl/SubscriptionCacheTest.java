@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.sakaiproject.memory.api.Cache;
+import org.springframework.cache.Cache;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -54,10 +54,19 @@ public class SubscriptionCacheTest {
         subscriptionCache = new SubscriptionCache(cache, clock);
     }
 
+    private ExternalCalendarSubscriptionSnapshot snapshot(boolean ok, Instant refreshed) {
+        ExternalCalendarSubscriptionSnapshot snapshot = new ExternalCalendarSubscriptionSnapshot();
+        snapshot.subscriptionName = "test";
+        snapshot.subscriptionUrl = "http://example.com/";
+        snapshot.context = "siteId";
+        snapshot.ok = ok;
+        snapshot.refreshed = refreshed;
+        return snapshot;
+    }
+
     @Test
     public void testCachePut() {
-        BaseExternalSubscriptionDetails item = new BaseExternalSubscriptionDetails(
-                "test", "http://example.com/", "siteId", null, false);
+        ExternalCalendarSubscriptionSnapshot item = snapshot(true, Instant.now(clock));
         subscriptionCache.put(item);
         verify(cache).put("http://example.com/", item);
     }
@@ -65,32 +74,29 @@ public class SubscriptionCacheTest {
     @Test
     public void testCacheGetMissing() {
         assertNull(subscriptionCache.get("http://example.com/"));
-        verify(cache).get("http://example.com/");
+        verify(cache).get("http://example.com/", ExternalCalendarSubscriptionSnapshot.class);
     }
 
     @Test
     public void testCacheGetPresent() {
-        BaseExternalSubscriptionDetails value = new BaseExternalSubscriptionDetails(
-                "test", "http://example.com/", "siteId", null, false, null, null, true, null, Instant.now(clock));
-        when(cache.get("http://example.com/")).thenReturn(value);
+        ExternalCalendarSubscriptionSnapshot value = snapshot(true, Instant.now(clock));
+        when(cache.get("http://example.com/", ExternalCalendarSubscriptionSnapshot.class)).thenReturn(value);
         assertEquals(value, subscriptionCache.get("http://example.com/"));
         assertEquals(value, subscriptionCache.get("http://example.com/"));
     }
 
     @Test
     public void testCacheGetFailureNew() {
-        BaseExternalSubscriptionDetails value = new BaseExternalSubscriptionDetails(
-                "test", "http://example.com/", "siteId", null, false, null, null, false, null, Instant.now(clock));
-        when(cache.get("http://example.com/")).thenReturn(value);
+        ExternalCalendarSubscriptionSnapshot value = snapshot(false, Instant.now(clock));
+        when(cache.get("http://example.com/", ExternalCalendarSubscriptionSnapshot.class)).thenReturn(value);
         // Still not expired.
         assertEquals(value, subscriptionCache.get("http://example.com/"));
     }
 
     @Test
     public void testCacheGetFailureOld() {
-        BaseExternalSubscriptionDetails value = new BaseExternalSubscriptionDetails(
-                "test", "http://example.com/", "siteId", null, false, null, null, false, null, Instant.now(clock).minus(2, ChronoUnit.MINUTES));
-        when(cache.get("http://example.com/")).thenReturn(value);
+        ExternalCalendarSubscriptionSnapshot value = snapshot(false, Instant.now(clock).minus(2, ChronoUnit.MINUTES));
+        when(cache.get("http://example.com/", ExternalCalendarSubscriptionSnapshot.class)).thenReturn(value);
         // Now should have expired.
         assertNull(subscriptionCache.get("http://example.com/"));
     }
