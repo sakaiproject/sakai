@@ -1833,14 +1833,13 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
         List<Long> ids = new ArrayList<>(new LinkedHashSet<>(assessmentGradingIds));
         Map<Long, Set<ItemGradingData>> byAssessment = new HashMap<>();
         final int batchSize = 1000;
+        Session session = sessionFactory.getCurrentSession();
         for (int from = 0; from < ids.size(); from += batchSize) {
             List<Long> batch = ids.subList(from, Math.min(from + batchSize, ids.size()));
-            final HibernateCallback<List<ItemGradingData>> hcb = session -> {
-                Query q = session.createQuery("from ItemGradingData i where i.assessmentGradingId in (:ids)");
-                q.setParameterList("ids", batch);
-                return q.list();
-            };
-            List<ItemGradingData> itemGradings = getHibernateTemplate().execute(hcb);
+            Query<ItemGradingData> q = session.createQuery(
+                    "from ItemGradingData i where i.assessmentGradingId in (:ids)", ItemGradingData.class);
+            q.setParameterList("ids", batch);
+            List<ItemGradingData> itemGradings = q.list();
             if (itemGradings == null) {
                 continue;
             }

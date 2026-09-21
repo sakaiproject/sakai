@@ -96,10 +96,16 @@ public class SiteStatsController extends AbstractSakaiApiController {
 			@RequestParam(value = "page", defaultValue = "1") int page,
 			@RequestParam(value = "pageSize", defaultValue = "50") int pageSize,
 			@RequestParam(value = "date", required = false) String date,
+			@RequestParam(value = "whenFrom", required = false) String whenFrom,
+			@RequestParam(value = "whenTo", required = false) String whenTo,
 			@RequestParam(value = "role", required = false) String role,
 			@RequestParam(value = "tool", required = false) String tool,
 			@RequestParam(value = "resourceAction", required = false) String resourceAction,
-			@RequestParam(value = "lessonAction", required = false) String lessonAction) {
+			@RequestParam(value = "lessonAction", required = false) String lessonAction,
+			@RequestParam(value = "itemType", required = false) String itemType,
+			@RequestParam(value = "group", required = false) String group,
+			@RequestParam(value = "item", required = false) String item,
+			@RequestParam(value = "threshold", required = false) Double threshold) {
 		checkSakaiSession();
 		checkSite(siteId);
 		SiteStatsReportRequest request = request(include, page, pageSize);
@@ -124,7 +130,8 @@ public class SiteStatsController extends AbstractSakaiApiController {
 	}
 
 	@GetMapping(value = SiteStatsApiUrls.WIDGET_METRICS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<SiteStatsWidgetMetric> getWidgetMetrics(@PathVariable("siteId") String siteId, @PathVariable("widgetId") String widgetId) {
+	public List<SiteStatsWidgetMetric> getWidgetMetrics(@PathVariable("siteId") String siteId, @PathVariable("widgetId") String widgetId,
+			@RequestParam(value = "itemType", required = false) String itemType) {
 		checkSakaiSession();
 		checkSite(siteId);
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
@@ -139,8 +146,8 @@ public class SiteStatsController extends AbstractSakaiApiController {
 	}
 
 	@GetMapping(value = SiteStatsApiUrls.WIDGET_HIGHLIGHTS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<SiteStatsChart> getWidgetHighlights(@PathVariable String siteId, @PathVariable String widgetId,
-			@RequestParam(required = false) String itemType) {
+	public List<SiteStatsChart> getWidgetHighlights(@PathVariable("siteId") String siteId, @PathVariable("widgetId") String widgetId,
+			@RequestParam(value = "itemType", required = false) String itemType) {
 		checkSakaiSession();
 		checkSite(siteId);
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
