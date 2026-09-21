@@ -61,6 +61,9 @@ public class PageIndexService {
                 LinkedHashMap::new));
 
         List<SimplePageItem> topLevelItems = getActiveTopLevelItems(siteId, sitePages);
+        if (topLevelItems == null) {
+            topLevelItems = Collections.emptyList();
+        }
 
         Set<Long> topLevelPageIds = topLevelItems.stream()
                 .map(SimplePageItem::getSakaiId)
@@ -84,7 +87,12 @@ public class PageIndexService {
     }
 
     public Set<Long> getRemovedPageIds(String siteId) {
-        return getPageIndex(siteId).removedPages().stream()
+        List<SimplePage> removedPages = getPageIndex(siteId).removedPages();
+        if (removedPages == null) {
+            return Collections.emptySet();
+        }
+
+        return removedPages.stream()
                 .map(SimplePage::getPageId)
                 .collect(Collectors.toUnmodifiableSet());
     }

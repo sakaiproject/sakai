@@ -238,17 +238,16 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
     public List<SimplePageItem> findItemsInSite(String siteId) {
 
         List<SimplePage> topLevelPages = getTopLevelPages(siteId);
-
-        List<String> lessonsPageIds = new ArrayList<>();
-        if (topLevelPages != null && !topLevelPages.isEmpty()) {
-            for (SimplePage lessonsPage : topLevelPages) {
-                String pageId = String.valueOf(lessonsPage.getPageId());
-                lessonsPageIds.add(pageId);
-            }
-            List<SimplePageItem> pageItems = findTopLevelPageItemsBySakaiIds(lessonsPageIds);
-            return pageItems;
+        if (topLevelPages == null || topLevelPages.isEmpty()) {
+            return Collections.emptyList();
         }
-        return null;
+
+        List<String> lessonsPageIds = topLevelPages.stream()
+                .map(page -> String.valueOf(page.getPageId()))
+                .collect(Collectors.toList());
+
+        List<SimplePageItem> pageItems = findTopLevelPageItemsBySakaiIds(lessonsPageIds);
+        return pageItems != null ? pageItems : Collections.emptyList();
     }
 
 	public List<SimplePageItem> findDummyItemsInSite(String siteId) {
@@ -714,7 +713,7 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 		List<SimplePageItem> list = session.createQuery(cq).setCacheable(true).getResultList();
 
 		if (list == null || list.size() < 1) {
-			return null;
+			return Collections.emptyList();
 		}
 
 		return list;
@@ -1233,25 +1232,22 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 
 	public List<SimplePage> getSitePages(String siteId) {
 		Session session = currentSession();
-		CriteriaBuilder cb = session.getCriteriaBuilder();
-		CriteriaQuery<SimplePage> cq = cb.createQuery(SimplePage.class);
-		Root<SimplePageImpl> root = cq.from(SimplePageImpl.class);
-		cq.select(root);
+	    CriteriaBuilder cb = session.getCriteriaBuilder();
+	    CriteriaQuery<SimplePage> cq = cb.createQuery(SimplePage.class);
+	    Root<SimplePageImpl> root = cq.from(SimplePageImpl.class);
 
-		cq.where(
-			cb.equal(root.get("siteId"), siteId),
-			cb.or(
-				cb.isNull(root.get("owner")),
-				cb.equal(root.get("owned"), true)
-			)
-		);
+	    Predicate siteIdPredicate = cb.equal(root.get("siteId"), siteId);
+	    Predicate ownerIsNull = cb.isNull(root.get("owner"));
+	    Predicate ownedIsTrue = cb.equal(root.get("owned"), true);
 
-		List<SimplePage> l = session.createQuery(cq).setCacheable(true).getResultList();
+	    cq.where(cb.and(siteIdPredicate, cb.or(ownerIsNull, ownedIsTrue)));
+
+	    List<SimplePage> l = session.createQuery(cq).getResultList();
 
 		if (l != null && l.size() > 0) {
 		    return l;
 		} else {
-		    return null;
+		    return Collections.emptyList();
 		}
 	}
 
@@ -2260,7 +2256,7 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 		try {
 			List<SitePage> sitePages = siteService.getSite(siteId).getOrderedPages();
 			if (sitePages.isEmpty()) {
-				return null;
+				return Collections.emptyList();
 			}
 
 			final List<String> sitePageIds = sitePages.stream().map(sp -> sp.getId()).collect(Collectors.toList());
@@ -2276,12 +2272,12 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 				cb.isNull(root.get("parent"))
 			);
 
-			List<SimplePage> lessonsPages = session.createQuery(cq).setCacheable(true).getResultList();
+			return session.createQuery(cq).setCacheable(true).getResultList();
 
 		} catch (IdUnusedException e) {
 			log.warn("Could not find site {}: {}", siteId, e);
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
     /**
@@ -2291,25 +2287,34 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 
         // The unordered top level items
         final List<SimplePageItem> tmpSiteItems = findItemsInSite(siteId);
+        if (tmpSiteItems == null || tmpSiteItems.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-        final List<ToolConfiguration> siteTools = getSiteTools(siteId);
+        List<ToolConfiguration> siteTools = getSiteTools(siteId);
 
-        if (siteTools.size() < 1) {
-            return tmpSiteItems;
+        if (siteTools == null || siteTools.isEmpty()) {
+        	return Collections.unmodifiableList(tmpSiteItems);
         }
 
         // build map of all pages, so we can see if any are left over
         final Map<Long, SimplePage> pageMap = getSitePages(siteId)
                 .stream().collect(Collectors.toMap(SimplePage::getPageId, Function.identity()));
 
-        return siteTools.stream().map(t -> {
-
-            return tmpSiteItems
-                .stream()
-                .filter(spi -> pageMap.get(Long.valueOf(spi.getSakaiId())).getToolId().equals(t.getPageId()))
-                .findAny().orElse(null);
-
-        }).filter(spi -> spi != null).collect(Collectors.toList());
+        return siteTools.stream()
+                .map(t -> tmpSiteItems.stream()
+                        .filter(spi -> {
+                            try {
+                                SimplePage page = pageMap.get(Long.valueOf(spi.getSakaiId()));
+                                return page != null && page.getToolId().equals(t.getPageId());
+                            } catch (NumberFormatException e) {
+                                log.warn("Invalid sakaiId in top-level page item: {}", spi.getSakaiId());
+                                return false;
+                            }
+                        })
+                        .findAny().orElse(null))
+                .filter(spi -> spi != null)
+                .collect(Collectors.toList());
     }
 
 	public void deleteLogForLessonsItem(SimplePageItem item) {
