@@ -779,8 +779,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         }
     }
 
-    /*TO-DO JAKARTA BRANCH*/
-    /*@Test
+    @Test
     public void crudPost() {
 
         try {
@@ -828,7 +827,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         } catch (ConversationsPermissionsException cpe) {
             fail("Unexpected exception when saving post");
         }
-    }*/
+    }
 
     @Test
     public void getPostsByTopicId() {
@@ -1069,8 +1068,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         }
     }
 
-    /*TO-DO JAKARTA BRANCH*/
-    /*@Test
+    @Test
     @Transactional
     public void topicPostCount() {
 
@@ -1197,6 +1195,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean = posts.iterator().next();
             assertEquals(0, postBean.comments.size());
 
+            commentBean.id = null;
             conversationsService.saveComment(commentBean);
             posts = conversationsService.getPostsByTopicId(site1Id, topicBean.id, 0, null, null);
             postBean = posts.iterator().next();
@@ -1206,6 +1205,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             List<ConversationsComment> comments = commentRepository.findByPostId(postBean.id);
             assertTrue(comments.isEmpty());
 
+            postBean.id = null;
             postBean = conversationsService.savePost(postBean, true);
             commentBean.postId = postBean.id;
             conversationsService.saveComment(commentBean);
@@ -1219,7 +1219,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             e.printStackTrace();
             fail("Unexpected exception when crudding comment");
         }
-    }*/
+    }
 
     @Test
     public void richTextFieldsAreSanitizedOnSave() throws Exception {
@@ -1698,8 +1698,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         }
     }
 
-    /*TO-DO JAKARTA BRANCH*/
-    /*@Test
+    @Test
     public void deletePost() {
 
         switchToUser1();
@@ -1760,7 +1759,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             cpe.printStackTrace();
             fail("Unexpected exception when deleting post");
         }
-    }*/
+    }
 
     @Test
     public void hidePost() {
