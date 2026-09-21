@@ -1,4 +1,4 @@
-<%@ page import="java.util.*,javax.faces.context.*,javax.faces.application.*,javax.faces.el.*,org.sakaiproject.tool.messageforums.*,org.sakaiproject.api.app.messageforums.*,org.sakaiproject.site.cover.SiteService,org.sakaiproject.tool.cover.ToolManager" %>
+<%@ page import="java.util.*,jakarta.faces.context.*,jakarta.faces.application.*,jakarta.faces.el.*,org.sakaiproject.tool.messageforums.*,org.sakaiproject.api.app.messageforums.*,org.sakaiproject.site.cover.SiteService,org.sakaiproject.tool.cover.ToolManager" %>
 <%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
 <%@ page import="org.slf4j.Logger,org.slf4j.LoggerFactory" %>
 <%! static final Logger log = LoggerFactory.getLogger("dfViewMessageDirect.jsp"); %>
