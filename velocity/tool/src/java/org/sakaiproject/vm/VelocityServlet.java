@@ -28,6 +28,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -59,6 +60,8 @@ public class VelocityServlet extends HttpServlet {
             for (String key : props.stringPropertyNames()) {
                 velocityEngine.setProperty(key, props.getProperty(key));
             }
+
+            velocityEngine.setApplicationAttribute(ServletContext.class.getName(), getServletContext());
 
             velocityEngine.init();
 
