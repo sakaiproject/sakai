@@ -52,8 +52,8 @@ import org.sakaiproject.tool.messageforums.SynopticSiteSemesterComparator;
 import org.sakaiproject.tool.messageforums.SynopticSitesPreferencesComparator;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.cover.PreferencesService;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import jakarta.faces.bean.ManagedProperty;
 import jakarta.faces.bean.RequestScoped;
 import jakarta.faces.bean.ManagedBean;
 
@@ -67,15 +67,15 @@ public class MessageForumSynopticBeanLite {
 	private transient Boolean anyMFToolInSite = null;
 	private transient List<DecoratedSynopticMsgcntrItem> myContents = null;
 	private transient DecoratedSynopticMsgcntrItem siteHomepageContent = null;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager\"]}")
 	private SynopticMsgcntrManager synopticMsgcntrManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsForumManager\"]}")
 	private MessageForumsForumManager forumsManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsTypeManager\"]}")
 	private MessageForumsTypeManager typeManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
 	private AreaManager areaManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager\"]}")
 	private PrivateMessageManager pvtMessageManager;
 	private int myContentsSize = -1;
 	private Map mfPageInSiteMap, sitesMap;
@@ -89,11 +89,11 @@ public class MessageForumSynopticBeanLite {
 	private String disableMyWorkspaceDisabledMessage;
 	
 	/** Dependency Injected   */
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
 	private SiteService siteService;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
 	private SessionManager sessionManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ToolManager\"]}")
 	private ToolManager toolManager;
 
 	public void setToolManager(ToolManager toolManager) {
