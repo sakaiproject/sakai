@@ -98,7 +98,6 @@ public class RemovedPageServiceTest {
         verify(siteService).save(site);
     }
 
-    /*TO-DO JAKARTA BRANCH*/
     @Test
     public void deleteRejectsEntireSelectionWhenAnyPageIsActive() {
         SimplePage active = savePage("active-tool", "Active", null);
