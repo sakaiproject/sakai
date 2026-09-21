@@ -31,8 +31,6 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.app.VelocityEngine;
 
-import org.sakaiproject.velocity.util.SLF4JLogChute;
-
 /**
  * a simple VelocityHelper Utility
  */
@@ -44,7 +42,6 @@ public class VelocityHelper {
 			   org.apache.velocity.exception.ParseErrorException, java.lang.Exception
 			   {
 				   VelocityEngine vengine = new VelocityEngine();
-				   vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, new SLF4JLogChute());
 				   Properties p = new Properties();
 				   String webappRegPath = "/WEB-INF/velocity.config";
 				   InputStream is = pContext.getResourceAsStream(webappRegPath);
@@ -68,7 +65,7 @@ public class VelocityHelper {
 	{
 		boolean retval = false;
 		try {
-			vengine.mergeTemplate(vTemplate, context, out);
+			vengine.mergeTemplate(vTemplate, RuntimeConstants.ENCODING_DEFAULT, context, out);
 			retval = true;
 		}
 
@@ -108,16 +105,15 @@ public class VelocityHelper {
 	}
 
 	// A default configuration that is reasonable
-	private static final String defaultConfiguration = 
-		"resource.loader=class\n" +
-		"class.resource.loader.description=Velocity Classpath Resource Loader\n" +
-		"class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader\n" +
-		"class.resource.loader.cache=true\n" +
-		"class.resource.loader.modificationCheckInterval=0\n" +
-		"input.encoding=UTF-8\n" +
-		"output.encoding=UTF-8\n" +
-		"runtime.log.logsystem.class=org.sakaiproject.velocity.util.SLF4JLogChute\n" +
-		"velocimacro.permissions.allow.inline=true\n" +
-		"velocimacro.permissions.allow.inline.override=true\n" ;
+	private static final String defaultConfiguration =
+		"resource.loaders=class\n" +
+		"resource.loader.class.description=Velocity Classpath Resource Loader\n" +
+		"resource.loader.class.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader\n" +
+		"resource.loader.class.cache=true\n" +
+		"resource.loader.class.modification_check_interval=0\n" +
+		"resource.default_encoding=UTF-8\n" +
+		"velocimacro.inline.allow=true\n" +
+		"velocimacro.inline.replace_global=true\n" +
+		"parser.allow_hyphen_in_identifiers=true\n" ;
 
 }
