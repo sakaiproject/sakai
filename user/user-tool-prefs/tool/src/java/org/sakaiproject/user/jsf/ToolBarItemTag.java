@@ -70,7 +70,7 @@ public class ToolBarItemTag extends UIComponentELTag
     }
 
     public String getComponentType() {
-        return "javax.faces.Command";
+        return "jakarta.faces.Command";
     }
 
 }

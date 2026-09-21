@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -36,9 +36,9 @@ public class CourseGradeStatisticsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 
-	public CourseGradeStatisticsPanel(final String id, final ModalWindow window) {
+	public CourseGradeStatisticsPanel(final String id, final GbModalWindow window) {
 		super(id);
 		this.window = window;
 	}

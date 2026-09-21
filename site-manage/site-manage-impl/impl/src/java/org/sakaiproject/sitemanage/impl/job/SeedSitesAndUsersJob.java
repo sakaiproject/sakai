@@ -390,12 +390,13 @@ public class SeedSitesAndUsersJob implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		log.info("SeedSitesAndUsersJob started.");
 		
-		students = new HashMap<>();
-		instructors = new HashMap<>();
-		sites = new HashMap<>();
+		Map<String, User> students = new HashMap<>();
+		Map<String, User> instructors = new HashMap<>();
+		Map<String, Site> sites = new HashMap<>();
 
 		Session session = sessionManager.getCurrentSession();
-		String currentUser = session.getUserId();
+		String originalUserId = session.getUserId();
+		String originalUserEid = session.getUserEid();
 		
 		session.setUserId("admin");
 		session.setUserEid("admin");
@@ -416,17 +417,12 @@ public class SeedSitesAndUsersJob implements Job {
 			seedData();
 		} catch (Exception e) {
 			log.error("executing job: ", e);
+		} finally {
+			securityService.popAdvisor(securityAdvisor);
+			session.setUserId(originalUserId);
+			session.setUserEid(originalUserEid);
 		}
-		
-		securityService.popAdvisor(securityAdvisor);
-		
-		session.setUserId(currentUser);
-		session.setUserEid(currentUser);
-		
-		students = null;
-		instructors = null;
-		sites = null;
-		
+
 		log.info("SeedSitesAndUsersJob completed.");
 	}
 

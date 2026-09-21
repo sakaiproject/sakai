@@ -195,7 +195,7 @@ public class MainController {
 	}
 
 	@GetMapping(value = "/tenant/{tenantId}")
-	public String tenantDetail(Model model, @PathVariable String tenantId, HttpServletRequest request) {
+	public String tenantDetail(Model model, @PathVariable("tenantId") String tenantId, HttpServletRequest request) {
 
 		if ( ! isAdmin() ) return "notallow";
 
@@ -219,7 +219,7 @@ public class MainController {
 	}
 
 	@GetMapping(value = "/edit/{tenantId}")
-	public String tenantEdit(Model model, @PathVariable String tenantId, HttpServletRequest request) {
+	public String tenantEdit(Model model, @PathVariable("tenantId") String tenantId, HttpServletRequest request) {
 
 		if ( ! isAdmin() ) return "notallow";
 
@@ -234,7 +234,7 @@ public class MainController {
 	}
 
 	@GetMapping(value = "/delete/{tenantId}")
-	public String tenantDelete(Model model, @PathVariable String tenantId, HttpServletRequest request) {
+	public String tenantDelete(Model model, @PathVariable("tenantId") String tenantId, HttpServletRequest request) {
 
 		if ( ! isAdmin() ) return "notallow";
 
@@ -248,7 +248,7 @@ public class MainController {
 	}
 
 	@PostMapping(value = "/delete/{tenantId}")
-	public String tenantDeletePost(Model model, @PathVariable String tenantId, RedirectAttributes redirectAttrs) {
+	public String tenantDeletePost(Model model, @PathVariable("tenantId") String tenantId, RedirectAttributes redirectAttrs) {
 		if ( ! isAdmin() ) return "notallow";
 
 		Optional<Tenant> optTenant = tenantRepository.findById(tenantId);
@@ -262,7 +262,7 @@ public class MainController {
 	}
 
 	@GetMapping(value = "/contexts/{tenantId}")
-	public String contexts(Model model, @PathVariable String tenantId, HttpServletRequest request) {
+	public String contexts(Model model, @PathVariable("tenantId") String tenantId, HttpServletRequest request) {
 
 		if ( ! isAdmin() ) return "notallow";
 		loadModel(model, request);
@@ -282,13 +282,13 @@ public class MainController {
 	}
 
 	@GetMapping(value = "/context/{contextId}")
-	public String contextDetailAdmin(Model model, @PathVariable String contextId, HttpServletRequest request) {
+	public String contextDetailAdmin(Model model, @PathVariable("contextId") String contextId, HttpServletRequest request) {
 		if ( ! isAdmin() ) return "notallow";
 		return contextDetail(model, contextId, request);
 	}
 
 	@GetMapping(value = "/membership/{contextId}")
-	public String membershipsDetail(Model model, @PathVariable String contextId, HttpServletRequest request) {
+	public String membershipsDetail(Model model, @PathVariable("contextId") String contextId, HttpServletRequest request) {
 
 		Optional<Context> optContext = contextRepository.findById(contextId);
 		if ( ! optContext.isPresent() ) return "notfound";
@@ -307,7 +307,7 @@ public class MainController {
 	}
 
 	@PostMapping(value = "/expire/{contextId}")
-	public String membershipsDetail(Model model, @PathVariable String contextId, HttpServletRequest request, RedirectAttributes redirectAttrs) {
+	public String membershipsDetail(Model model, @PathVariable("contextId") String contextId, HttpServletRequest request, RedirectAttributes redirectAttrs) {
 
 		Optional<Context> optContext = contextRepository.findById(contextId);
 		if ( ! optContext.isPresent() ) return "notfound";

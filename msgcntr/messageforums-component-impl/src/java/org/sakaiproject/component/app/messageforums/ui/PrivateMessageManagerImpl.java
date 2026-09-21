@@ -46,6 +46,7 @@ import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -795,9 +796,15 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
           + orderField + ", order:" + order + ")");
     }
 
+    // Strip legacy "message." prefix from sort column constants
+    String actualField = orderField.startsWith("message.")
+            ? orderField.substring("message.".length())
+            : orderField;
+
     Session session = sessionFactory.getCurrentSession();
     CriteriaBuilder cb = session.getCriteriaBuilder();
     CriteriaQuery<PrivateMessageImpl> cq = cb.createQuery(PrivateMessageImpl.class);
+
     Root<PrivateMessageImpl> root = cq.from(PrivateMessageImpl.class);
 
     Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient =
@@ -811,7 +818,7 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
         cb.equal(recipient.get("contextId"), getContextId())
     );
 
-    Path<?> orderPath = root.get(orderField);
+    Path<?> orderPath = root.get(actualField);
     if ("desc".equalsIgnoreCase(order)) {
         cq.orderBy(cb.desc(orderPath));
     } else {
@@ -975,22 +982,10 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
     }
 
     Session session = sessionFactory.getCurrentSession();
-    CriteriaBuilder cb = session.getCriteriaBuilder();
-
-    CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
-    Root<PrivateMessageRecipientImpl> recipient = cq.from(PrivateMessageRecipientImpl.class);
-
-    cq.select(cb.array(recipient.get("read"), recipient.get("typeUuid"), cb.count(recipient.get("read"))))
-    .where(
-        cb.equal(recipient.get("userId"), userId),
-        cb.equal(recipient.get("contextId"), contextId)
-    )
-    .groupBy(
-        recipient.get("read"),
-        recipient.get("typeUuid")
-    );
-
-    return session.createQuery(cq).getResultList();
+    NativeQuery q = (NativeQuery) session.createNamedQuery(QUERY_AGGREGATE_COUNT);
+    q.setParameter("contextId", contextId);
+    q.setParameter("userId", userId);
+    return q.list();
   }
 
 

@@ -20,7 +20,9 @@ import static org.mockito.Mockito.*;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Files;
@@ -35,8 +37,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.googledrive.repository.GoogleDriveUserRepository;
 import org.sakaiproject.googledrive.model.GoogleDriveItem;
 import org.sakaiproject.googledrive.model.GoogleDriveUser;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -58,7 +58,7 @@ public class GoogleDriveServiceImplTest extends AbstractTransactionalJUnit4Sprin
     private String userId;
     private Drive drive;
     private GoogleDriveUserRepository googledriveRepo;
-    private Cache<String, Drive> googledriveUserCache;
+    private Map<String, Drive> googledriveUserCache;
     private org.springframework.cache.Cache driveRootItemsCache;
     private org.springframework.cache.Cache driveChildrenItemsCache;
     private org.springframework.cache.Cache driveItemsCache;
@@ -67,7 +67,7 @@ public class GoogleDriveServiceImplTest extends AbstractTransactionalJUnit4Sprin
     public void setUp() {
 
         userId = UUID.randomUUID().toString();
-        googledriveUserCache = mock(Cache.class);
+        googledriveUserCache = new HashMap<>();
         drive = mock(Drive.class);
         driveRootItemsCache = mock(org.springframework.cache.Cache.class);
         driveChildrenItemsCache = mock(org.springframework.cache.Cache.class);
@@ -75,7 +75,7 @@ public class GoogleDriveServiceImplTest extends AbstractTransactionalJUnit4Sprin
         googledriveRepo = mock(GoogleDriveUserRepository.class);
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
-        when(googledriveUserCache.get(userId)).thenReturn(drive);
+        googledriveUserCache.put(userId, drive);
 
         ReflectionTestUtils.setField(googleDriveService, "googledriveUserCache", googledriveUserCache);
         ReflectionTestUtils.setField(googleDriveService, "driveRootItemsCache", driveRootItemsCache);
@@ -137,7 +137,7 @@ public class GoogleDriveServiceImplTest extends AbstractTransactionalJUnit4Sprin
     @Test
     public void testCleanGoogleDriveCacheForUser() throws Exception {
         googleDriveService.cleanGoogleDriveCacheForUser(userId);
-        verify(googledriveUserCache, times(1)).remove(userId);
+        Assert.assertFalse(googledriveUserCache.containsKey(userId));
         verify(driveRootItemsCache, times(1)).evict(userId);
         verify(driveChildrenItemsCache, times(1)).clear();
         verify(driveItemsCache, times(1)).clear();
@@ -147,7 +147,7 @@ public class GoogleDriveServiceImplTest extends AbstractTransactionalJUnit4Sprin
     @Test
     public void testRevokeGoogleDriveConfiguration() throws Exception {
         googleDriveService.revokeGoogleDriveConfiguration(userId);
-        verify(googledriveUserCache, times(1)).remove(userId);
+        Assert.assertFalse(googledriveUserCache.containsKey(userId));
         verify(driveRootItemsCache, times(1)).evict(userId);
         verify(driveChildrenItemsCache, times(1)).clear();
         verify(driveItemsCache, times(1)).clear();

@@ -919,9 +919,10 @@ public class SiteAction extends PagedResourceActionII {
 
 		showOrphanedMembers = serverConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
 		m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.siteService.userSiteCache");
-		org.springframework.cache.Cache gradebookGroupEnabledCacheOnInit = cacheManager.getCache("org.sakaiproject.tool.gradebook.group.enabled");
-		if (gradebookGroupEnabledCacheOnInit != null) gradebookGroupEnabledCacheOnInit.clear();
-		memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.instances");
+		if (cacheManager != null) {
+			org.springframework.cache.Cache gradebookGroupEnabledCacheOnInit = cacheManager.getCache("org.sakaiproject.tool.gradebook.group.enabled");
+			if (gradebookGroupEnabledCacheOnInit != null) gradebookGroupEnabledCacheOnInit.clear();
+		}
 
 		defaultPublishType = serverConfigurationService.getString("site.setup.publish.default", SITE_PUBLISH_TYPE_MANUAL);
 		if (!StringUtils.equalsAny(defaultPublishType, SITE_PUBLISH_TYPE_AUTO, SITE_PUBLISH_TYPE_SCHEDULED, SITE_PUBLISH_TYPE_MANUAL)) {
@@ -11825,10 +11826,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				if (cacheManager != null) {
 					org.springframework.cache.Cache gradebookGroupEnabledCache = cacheManager.getCache("org.sakaiproject.tool.gradebook.group.enabled");
 					if (gradebookGroupEnabledCache != null) gradebookGroupEnabledCache.clear();
-				}
-				if (memoryService != null) {
-					Cache gradebookGroupInstancesCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.instances");
-					if (gradebookGroupInstancesCache != null) gradebookGroupInstancesCache.clear();
 				}
 			}else if (choice.equals(TOOL_ID_SITEINFO)) {
 				hasSiteInfo = true;

@@ -107,7 +107,7 @@ public class CardGameController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/card-game/config", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> getConfig(@PathVariable String siteId) {
+    public Map<String, Object> getConfig(@PathVariable("siteId") String siteId) {
         checkSakaiSession();
         checkSite(siteId);
 
@@ -120,7 +120,7 @@ public class CardGameController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/card-game/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<CardGameUserRestBean> getUsers(@PathVariable String siteId) {
+    public List<CardGameUserRestBean> getUsers(@PathVariable("siteId") String siteId) {
         Session session = checkSakaiSession();
         Site site = checkSite(siteId);
 
@@ -152,7 +152,7 @@ public class CardGameController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/card-game/groups", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Set<SimpleGroup>> getGroups(@PathVariable String siteId) {
+    public ResponseEntity<Set<SimpleGroup>> getGroups(@PathVariable("siteId") String siteId) {
         String userId = checkSakaiSession().getUserId();
         Site site = checkSite(siteId);
 
@@ -160,8 +160,8 @@ public class CardGameController extends AbstractSakaiApiController {
     }
 
     @PutMapping(value = "/sites/{siteId}/card-game/users/{userId}/checkResult", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> addHitOrMiss(@PathVariable String siteId, @PathVariable String userId,
-            @RequestParam(required = true) boolean correct) {
+    public ResponseEntity<String> addHitOrMiss(@PathVariable("siteId") String siteId, @PathVariable("userId") String userId,
+            @RequestParam(name = "correct", required = true) boolean correct) {
         String currentUserId = checkSakaiSession().getUserId();
         checkSite(siteId);
 
@@ -177,7 +177,7 @@ public class CardGameController extends AbstractSakaiApiController {
     }
 
     @PutMapping(value = "/sites/{siteId}/card-game/users/{userId}/markAsLearned", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> markUserAsLearned(@PathVariable String siteId, @PathVariable String userId) {
+    public ResponseEntity<String> markUserAsLearned(@PathVariable("siteId") String siteId, @PathVariable("userId") String userId) {
         String currentUserId = checkSakaiSession().getUserId();
         checkSite(siteId);
 

@@ -27,6 +27,7 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.thymeleaf.spring6.ISpringTemplateEngine;
@@ -97,4 +98,9 @@ public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAwar
         return new SessionLocaleResolver();
     }
 
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.setPatternParser(null);
+    }
 }

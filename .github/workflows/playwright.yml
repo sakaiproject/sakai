@@ -17,7 +17,7 @@ jobs:
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
       NODE_OPTIONS: "--disable-warning=DEP0169"
       PLAYWRIGHT_BROWSER: "chromium"
-      TOMCAT_VERSION: "10.1.57"
+      TOMCAT_VERSION: "10.1.60"
     steps:
       - name: Git Checkout
         uses: actions/checkout@v7.0.1

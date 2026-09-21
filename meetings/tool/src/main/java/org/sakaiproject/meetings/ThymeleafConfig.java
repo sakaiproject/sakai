@@ -26,6 +26,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.spring6.ISpringTemplateEngine;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -78,4 +79,9 @@ public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAwar
         return templateResolver;
     }
 
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.setPatternParser(null);
+    }
 }

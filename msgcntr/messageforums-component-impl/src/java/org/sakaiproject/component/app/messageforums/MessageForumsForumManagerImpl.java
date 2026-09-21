@@ -396,7 +396,7 @@ public class MessageForumsForumManagerImpl implements MessageForumsForumManager 
         .where(
             area.get("contextId").in(siteList),
             cb.equal(topic.get("title"), "pvt_received"),
-            cb.equal(topic.get("owner"), getCurrentUser())
+            cb.equal(topic.get("userId"), getCurrentUser())
         );
 
       return session.createQuery(cq).getResultList();

@@ -15,21 +15,38 @@
  */
 package org.sakaiproject.gradebookng.tool.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalDialog;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A custom ModalWindow that adds behaviours specific to our tool
+ * A custom ModalDialog (Wicket 10's replacement for the removed ModalWindow) that adds
+ * behaviours specific to our tool: a title bar, a close button, focus trapping/restoration,
+ * and a WindowClosedCallback mechanism fired on every close path (explicit close or escape key).
+ * Deliberately does not close on backdrop click, matching the original ModalWindow's behavior.
  */
 @Slf4j
-public class GbModalWindow extends ModalWindow {
+public class GbModalWindow extends ModalDialog {
 
 	private static final long serialVersionUID = 1L;
+
+	public interface WindowClosedCallback extends Serializable {
+		void onClose(AjaxRequestTarget target);
+	}
 
 	private Component componentToReturnFocusTo;
 	private String assignmentIdToReturnFocusTo;
@@ -37,6 +54,28 @@ public class GbModalWindow extends ModalWindow {
 	private boolean returnFocusToCourseGrade = false;
 	private List<WindowClosedCallback> closeCallbacks;
 	private Component initialFocusComponent;
+	private Component content;
+
+	private IModel<String> title = Model.of("");
+	private String cssClassName;
+	private int initialWidth = -1;
+	private int initialHeight = -1;
+	private String widthUnit = "px";
+
+	private static final CssHeaderItem CSS = CssHeaderItem.forCSS(
+			".gb-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; "
+			+ "background: rgba(0, 0, 0, 0.5); display: flex; align-items: flex-start; justify-content: center; }"
+			+ ".gb-modal-dialog { position: relative; background: var(--sakai-modal-content-bg, #fff); "
+			+ "color: var(--sakai-text-color-1, #000); margin-top: 5vh; max-height: 90vh; max-width: 95vw; "
+			+ "overflow: auto; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4); border-radius: 3px; }"
+			+ ".gb-modal-titlebar { display: flex; align-items: center; justify-content: space-between; "
+			+ "padding: 0.75em 1em; background: var(--sakai-modal-header-bg, #f5f5f5); "
+			+ "color: var(--sakai-modal-header-color, #000); border-bottom: 1px solid var(--sakai-border-color, #ddd); }"
+			+ ".gb-modal-title { font-weight: bold; font-size: 1.1em; color: inherit; }"
+			+ ".gb-modal-close { text-decoration: none; color: inherit; opacity: 0.75; font-size: 1.2em; padding: 0 0.25em; }"
+			+ ".gb-modal-close:hover { opacity: 1; }"
+			+ ".gb-modal-content { padding: 1em; }",
+			"gb-modal-window-css");
 
 	public GbModalWindow(final String id) {
 		super(id);
@@ -45,103 +84,155 @@ public class GbModalWindow extends ModalWindow {
 	}
 
 	@Override
-	public void onInitialize() {
+	public void renderHead(final IHeaderResponse response) {
+		super.renderHead(response);
+
+		response.render(CSS);
+	}
+
+	@Override
+	protected void onInitialize() {
 		super.onInitialize();
 
-		setMaskType(MaskType.TRANSPARENT);
-		setResizable(false);
-		setUseInitialHeight(false);
+		closeOnEscape();
+		trapFocus();
 
-		setDefaultWindowClosedCallback();
+		final WebMarkupContainer dialogContainer = (WebMarkupContainer) get("overlay:dialog");
+		dialogContainer.setOutputMarkupId(true);
 
-		setWindowClosedCallback(new WindowClosedCallback() {
+		dialogContainer.add(new Label("title", new IModel<String>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onClose(final AjaxRequestTarget target) {
-				GbModalWindow.this.closeCallbacks.forEach((callback) -> {
-					callback.onClose(target);
-				});
+			public String getObject() {
+				return GbModalWindow.this.title == null ? null : GbModalWindow.this.title.getObject();
+			}
+		}));
+
+		dialogContainer.add(new AjaxLink<Void>("close") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(final AjaxRequestTarget target) {
+				GbModalWindow.this.close(target);
 			}
 		});
+
+		dialogContainer.add(AttributeModifier.replace("style", (IModel<String>) this::buildDialogStyle));
+		dialogContainer.add(AttributeModifier.append("class", (IModel<String>) () -> this.cssClassName == null ? "" : this.cssClassName));
+
+		setDefaultWindowClosedCallback();
+	}
+
+	private String buildDialogStyle() {
+		final StringBuilder style = new StringBuilder();
+		if (this.initialWidth > 0) {
+			style.append("width:").append(this.initialWidth).append(this.widthUnit).append(";");
+		}
+		if (this.initialHeight > 0) {
+			style.append("height:").append(this.initialHeight).append("px;");
+		}
+		return style.toString();
 	}
 
 	@Override
-	protected CharSequence getShowJavaScript() {
-		if (getContent() == null) {
-			log.warn("ModalWindow content is null, cannot generate show JavaScript reliably.");
-			return super.getShowJavaScript();
+	public GbModalWindow open(final AjaxRequestTarget target) {
+		super.open(target);
+
+		if (getContent() != null) {
+			if (this.initialFocusComponent != null && this.initialFocusComponent.getOutputMarkupId()) {
+				target.appendJavaScript(String.format(
+						"setTimeout(function() { try { $('#%s').focus(); } catch(e) { console.error('Failed to focus initial component:', e); } }, 500);",
+						this.initialFocusComponent.getMarkupId()));
+			} else {
+				target.appendJavaScript(String.format(
+						"setTimeout(function() { try { "
+						+ "$('#%s').find('input, select, textarea, button, a[href]').not(':disabled').filter(':visible').first().focus(); "
+						+ "} catch(e) { console.error('Failed to focus first input in modal content:', e); } }, 500);",
+						getContent().getMarkupId()));
+			}
 		}
-		getContent().setOutputMarkupId(true);
 
-		StringBuilder js = new StringBuilder(super.getShowJavaScript().toString());
+		return this;
+	}
 
-		js.append(String.format("$('#%s').attr('tabindex', '-1');", getContent().getMarkupId()));
+	public void show(final AjaxRequestTarget target) {
+		open(target);
+	}
 
-		js.append("setTimeout(function() {");
-		if (this.initialFocusComponent != null && this.initialFocusComponent.getOutputMarkupId()) {
-			js.append(String.format("try { $('#%s').focus(); } catch(e) { console.error('Failed to focus initial component:', e); }",
-					this.initialFocusComponent.getMarkupId()));
-		} else {
-			js.append(String.format("try { $('#%s').focus(); } catch(e) { console.error('Failed to focus modal content:', e); }",
-					getContent().getMarkupId()));
-		}
-		js.append("}, 500);");
+	public boolean isShown() {
+		return isOpen();
+	}
 
-		js.append("function GbModalWindow_trapFocus(event, modalContentId) {");
-		js.append("  if (!modalContentId || event.key !== 'Tab' && event.keyCode !== 9) return;");
-		js.append("  const modalContent = document.getElementById(modalContentId);");
-		js.append("  if (!modalContent) return;");
-		js.append("  const modalWindowEl = modalContent.closest('.wicket-modal');");
-		js.append("  if (!modalWindowEl) return;");
+	public GbModalWindow showUnloadConfirmation(final boolean show) {
+		// no-op: ModalDialog has no built-in unload confirmation support
+		return this;
+	}
 
-		js.append("  const focusableElements = modalWindowEl.querySelectorAll(");
-		js.append("    'a[href]:not([disabled]), button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex=\"-1\"])'");
-		js.append("  );");
-		js.append("  if (focusableElements.length === 0) return;");
-		js.append("  const firstFocusableElement = focusableElements[0];");
-		js.append("  const lastFocusableElement = focusableElements[focusableElements.length - 1];");
+	public GbModalWindow setTitle(final String title) {
+		this.title = Model.of(title);
+		return this;
+	}
 
-		js.append("  if (event.shiftKey) {");
-		js.append("    if (document.activeElement === firstFocusableElement) {");
-		js.append("      lastFocusableElement.focus();");
-		js.append("      event.preventDefault();");
-		js.append("    }");
-		js.append("  } else {");
-		js.append("    if (document.activeElement === lastFocusableElement) {");
-		js.append("      firstFocusableElement.focus();");
-		js.append("      event.preventDefault();");
-		js.append("    }");
-		js.append("  }");
-		js.append("}");
+	public GbModalWindow setTitle(final IModel<String> title) {
+		this.title = title;
+		return this;
+	}
 
-		// Attach the event listener to the document, namespaced per modal instance
-		this.setOutputMarkupId(true); // Ensure modal window itself has an ID for namespacing
-		js.append(String.format(
-			"$(document).on('keydown.gbTrapFocus_%s', function(e) { " +
-			"  if (e.key !== 'Tab' && e.keyCode !== 9) return; " + // Early exit
-			"  const modalContent = document.getElementById('%s'); " +
-			"  if (!modalContent) { $(document).off('keydown.gbTrapFocus_%s'); return; } " + // Cleanup if content disappears
-			"  const modalWindow = $(modalContent).closest('.wicket-modal'); " +
-			"  if (!modalWindow || modalWindow.is(':hidden')) return; " + // Check if *this* modal is visible
-			"  if (modalContent.contains(document.activeElement)) { " + // Check if focus is currently inside
-			"    GbModalWindow_trapFocus(e, '%s'); " +
-			"  } " +
-			"});",
-			this.getMarkupId(),      // Namespace for document listener
-			getContent().getMarkupId(),
-			this.getMarkupId(),      // Namespace for cleanup inside listener
-			getContent().getMarkupId()
-		));
+	public GbModalWindow setCssClassName(final String cssClassName) {
+		this.cssClassName = cssClassName;
+		return this;
+	}
 
-		return js;
+	public GbModalWindow setInitialWidth(final int initialWidth) {
+		this.initialWidth = initialWidth;
+		return this;
+	}
+
+	public GbModalWindow setInitialHeight(final int initialHeight) {
+		this.initialHeight = initialHeight;
+		return this;
+	}
+
+	public GbModalWindow setWidthUnit(final String widthUnit) {
+		this.widthUnit = widthUnit;
+		return this;
+	}
+
+	public GbModalWindow setResizable(final boolean resizable) {
+		// no-op: ModalDialog is never resizable
+		return this;
+	}
+
+	public GbModalWindow setUseInitialHeight(final boolean useInitialHeight) {
+		// no-op: sizing is CSS-driven in ModalDialog
+		return this;
+	}
+
+	public String getContentId() {
+		return CONTENT_ID;
+	}
+
+	protected Component getContent() {
+		return this.content;
 	}
 
 	@Override
-	public ModalWindow setContent(final Component component) {
+	public void setContent(final Component component) {
 		component.setOutputMarkupId(true);
 
-		return super.setContent(component);
+		this.content = component;
+
+		super.setContent(component);
+	}
+
+	@Override
+	public GbModalWindow close(final AjaxRequestTarget target) {
+		super.close(target);
+
+		this.closeCallbacks.forEach(callback -> callback.onClose(target));
+
+		return this;
 	}
 
 	/**
@@ -212,9 +303,11 @@ public class GbModalWindow extends ModalWindow {
 
 			@Override
 			public void onClose(final AjaxRequestTarget target) {
-				target.appendJavaScript(
-						String.format("try { $('#%s :input').prop('disabled', true); } catch(e) { console.error('Failed to disable inputs on close:', e); }",
-								GbModalWindow.this.getContent().getMarkupId()));
+				if (GbModalWindow.this.getContent() != null) {
+					target.appendJavaScript(
+							String.format("try { $('#%s :input').prop('disabled', true); } catch(e) { console.error('Failed to disable inputs on close:', e); }",
+									GbModalWindow.this.getContent().getMarkupId()));
+				}
 
 				target.appendJavaScript("try { $('#ui-datepicker-div').hide(); } catch(e) { console.error('Failed to hide datepicker:', e); }");
 
@@ -224,9 +317,6 @@ public class GbModalWindow extends ModalWindow {
 					"  try { GradebookGradeSummaryUtils.clearBlur(); } catch(e) { console.error('Failed to clear blur:', e); } " +
 					"} else { console.debug('GradebookGradeSummaryUtils or clearBlur function not found.'); }"
 				);
-
-				// Remove the focus trap listener from the document using the correct namespace
-				target.appendJavaScript(String.format("try { $(document).off('keydown.gbTrapFocus_%s'); } catch(e) { console.error('Failed to remove focus trap listener:', e); }", GbModalWindow.this.getMarkupId()));
 
 				String focusScript = "setTimeout(function() { try { ";
 				boolean focusSet = false;
@@ -262,9 +352,6 @@ public class GbModalWindow extends ModalWindow {
 				if (focusSet) {
 					focusScript += " } catch(e) { console.error('Error returning focus:', e); } }, 50);";
 					target.appendJavaScript(focusScript);
-				} else {
-					// Fallback focus if nothing specific is set? Maybe focus body or a known static element?
-					// For now, do nothing if no specific return focus is set.
 				}
 			}
 		});

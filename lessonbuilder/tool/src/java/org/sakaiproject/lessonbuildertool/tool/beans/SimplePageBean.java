@@ -751,7 +751,7 @@ public class SimplePageBean {
 	    }
 	}
 
-	public Map<Integer,BltiTool> bltiTools;
+	@Setter public Map<Integer,BltiTool> bltiTools;
 
 	public Map<Integer,BltiTool> initBltiTools() {
 	    String[] bltiToolLines = serverConfigurationService.getStrings("lessonbuilder.blti_tools");

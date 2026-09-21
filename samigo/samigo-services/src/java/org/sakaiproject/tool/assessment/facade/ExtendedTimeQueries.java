@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Setter;
@@ -65,7 +66,9 @@ public class ExtendedTimeQueries implements ExtendedTimeQueriesAPI {
             CriteriaQuery<ExtendedTime> cq = cb.createQuery(ExtendedTime.class);
             Root<ExtendedTime> root = cq.from(ExtendedTime.class);
 
-            cq.select(root).where(cb.equal(root.get("assessmentId"), ass.getAssessmentBaseId()));
+            root.fetch("assessment", JoinType.INNER);
+            cq.select(root)
+              .where(cb.equal(root.get("assessment"), ass));
 
             return session.createQuery(cq).getResultList();
         } catch (DataAccessException e) {
@@ -87,8 +90,9 @@ public class ExtendedTimeQueries implements ExtendedTimeQueriesAPI {
             CriteriaQuery<ExtendedTime> cq = cb.createQuery(ExtendedTime.class);
             Root<ExtendedTime> root = cq.from(ExtendedTime.class);
 
+            root.fetch("pubAssessment", JoinType.INNER);
             cq.select(root)
-              .where(cb.equal(root.get("publishedAssessmentId"), pub.getPublishedAssessmentId()));
+              .where(cb.equal(root.get("pubAssessment"), pub));
 
             return session.createQuery(cq).getResultList();
         } catch (DataAccessException e) {
@@ -195,7 +199,7 @@ public class ExtendedTimeQueries implements ExtendedTimeQueriesAPI {
             CriteriaDelete<ExtendedTime> delete = cb.createCriteriaDelete(ExtendedTime.class);
             Root<ExtendedTime> e = delete.from(ExtendedTime.class);
 
-            delete.where(cb.equal(e.get("pubAssessment").get("publishedAssessmentId"), publishedAssessmentId));
+            delete.where(cb.equal(e.get("pubAssessment"), pub));
 
             session.createQuery(delete).executeUpdate();
             return true;
@@ -214,8 +218,7 @@ public class ExtendedTimeQueries implements ExtendedTimeQueriesAPI {
             Root<ExtendedTime> root = cq.from(ExtendedTime.class);
 
             cq.select(root).where(cb.and(
-                cb.equal(root.get("pubAssessment").get("publishedAssessmentId"),
-                    pub.getPublishedAssessmentId()),
+                cb.equal(root.get("pubAssessment"), pub),
                 cb.equal(root.get(secondParam), secondParamValue)
             ));
 
@@ -234,7 +237,7 @@ public class ExtendedTimeQueries implements ExtendedTimeQueriesAPI {
              CriteriaQuery<ExtendedTime> cq = cb.createQuery(ExtendedTime.class);
              Root<ExtendedTime> root = cq.from(ExtendedTime.class);
 
-             cq.select(root).where(cb.equal(root.get("entryId"), Long.valueOf(entryId)));
+             cq.select(root).where(cb.equal(root.get("id"), Long.valueOf(entryId)));
 
              return session.createQuery(cq).uniqueResult();
         } catch (DataAccessException e) {

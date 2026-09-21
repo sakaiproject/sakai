@@ -80,7 +80,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.wicket</groupId>
-			<artifactId>wicket-tool-9</artifactId>
+			<artifactId>wicket-tool-10</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -107,7 +107,6 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -124,7 +123,6 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
-			<scope>provided</scope> <!-- to satisfy EB and eclipse -->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -157,11 +155,6 @@
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>tabulator-tables</artifactId>
 			<version>6.5.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>webjars-servlet-2.x</artifactId>
-			<version>1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>

@@ -281,6 +281,12 @@ public class MockSiteService implements SiteService
     }
 
     @Override
+    public Collection<String> getToolPlacementPropertyValues( String siteId, String commonToolId, String propertyName )
+    {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
+
+    @Override
     public List<SiteAdvisor> getSiteAdvisors()
     {
         return Collections.emptyList();

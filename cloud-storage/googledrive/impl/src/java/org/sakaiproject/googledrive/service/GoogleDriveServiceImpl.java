@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -60,8 +61,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -94,14 +93,12 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 	private SessionManager sessionManager;
 
 	@Setter
-	private MemoryService memoryService;
-
-	@Setter
 	private org.springframework.cache.CacheManager cacheManager;
 
-	// holds a live Drive API client (HTTP transport + credentials) - each node needs its own,
-	// so this stays on the local MemoryService cache rather than the distributed CacheManager.
-	private Cache<String, Drive> googledriveUserCache;
+	// holds a live Drive API client (HTTP transport + credentials) - each node needs its own and
+	// it can never be marshalled (Ignite always marshals into off-heap page memory regardless of
+	// cache mode, local or distributed), so this is a plain in-JVM map, not an Ignite cache.
+	private final Map<String, Drive> googledriveUserCache = new ConcurrentHashMap<>();
 	private org.springframework.cache.Cache driveRootItemsCache;
 	private org.springframework.cache.Cache driveChildrenItemsCache;
 	private org.springframework.cache.Cache driveItemsCache;
@@ -165,7 +162,6 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 
 		driveRootItemsCache = cacheManager.getCache("org.sakaiproject.googledrive.service.driveRootItemsCache");
 		driveChildrenItemsCache = cacheManager.getCache("org.sakaiproject.googledrive.service.driveChildrenItemsCache");
-		googledriveUserCache = memoryService.<String, Drive>getCache("org.sakaiproject.googledrive.service.googledriveUserCache");
 		driveItemsCache = cacheManager.getCache("org.sakaiproject.googledrive.service.driveItemsCache");
 	}
 
