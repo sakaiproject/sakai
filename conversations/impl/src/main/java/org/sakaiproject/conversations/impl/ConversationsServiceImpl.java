@@ -1045,6 +1045,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         // We're creating a new topic, so set the initial dates of creation and modification
         Instant now = Instant.now();
         if (isNew) {
+            postBean.setId(null);
             postBean.setCreator(currentUserId);
             postBean.setCreated(now);
         } else {
