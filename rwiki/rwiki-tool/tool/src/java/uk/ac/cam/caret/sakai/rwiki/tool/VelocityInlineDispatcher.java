@@ -40,12 +40,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.sakaiproject.velocity.util.SLF4JLogChute;
 
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
@@ -76,7 +76,6 @@ public class VelocityInlineDispatcher implements Dispatcher
 			vengine = new VelocityEngine();
 
 			vengine.setApplicationAttribute(ServletContext.class.getName(), context);
-			vengine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, new SLF4JLogChute());
 
 			Properties p = new Properties();
 			p.load(this.getClass().getResourceAsStream("rwikivelocity.config"));
@@ -137,7 +136,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 			String filePath = path + ".vm";
 			response.setContentType("text/html");
 			response.setCharacterEncoding("UTF-8");
-			vengine.mergeTemplate(filePath, vcontext, response.getWriter());
+			vengine.mergeTemplate(filePath, RuntimeConstants.ENCODING_DEFAULT, vcontext, response.getWriter());
 		}
 		catch (MethodInvocationException e)
 		{
@@ -149,7 +148,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 					String filePath = "/WEB-INF/vm/permission.vm";
 					response.setContentType("text/html");
 					response.setCharacterEncoding("UTF-8");
-					vengine.mergeTemplate(filePath, vcontext, response.getWriter());
+					vengine.mergeTemplate(filePath, RuntimeConstants.ENCODING_DEFAULT, vcontext, response.getWriter());
 				}
 				catch (Exception ex)
 				{
