@@ -16,7 +16,7 @@
 package org.sakaiproject.lti.api.model;
 
 import java.io.Serializable;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 

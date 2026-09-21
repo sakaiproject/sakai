@@ -31,13 +31,13 @@ import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.MapJoin;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
@@ -274,7 +274,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<AssignmentSubmission> findSubmissions(Collection<String> assignmentIds) {
         if (assignmentIds == null || assignmentIds.isEmpty()) {
             return Collections.emptyList();
@@ -288,12 +287,13 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         if (ids.isEmpty()) {
             return Collections.emptyList();
         }
-        return geCurrentSession().createCriteria(AssignmentSubmission.class)
-                .createAlias("assignment", "a")
-                .setFetchMode("assignment", FetchMode.JOIN)
-                .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("a.id", ids))
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<AssignmentSubmission> cq = cb.createQuery(AssignmentSubmission.class);
+        Root<AssignmentSubmission> root = cq.from(AssignmentSubmission.class);
+        Join<AssignmentSubmission, Assignment> a = root.join("assignment", JoinType.LEFT);
+        cq.select(root).distinct(true)
+                .where(HibernateCriterionUtils.PredicateInSplitter(cb, a.get("id"), ids));
+        return geCurrentSession().createQuery(cq).list();
     }
 
     @Override

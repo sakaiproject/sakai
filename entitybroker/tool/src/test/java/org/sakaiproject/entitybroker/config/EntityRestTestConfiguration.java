@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.entitybroker.config;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.ignite.IgniteSpringBean;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.cluster.api.ClusterService;
