@@ -42,7 +42,7 @@ import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.validator.ValidatorException;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.faces.bean.ManagedProperty;
 import jakarta.faces.bean.ManagedBean;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -124,17 +124,17 @@ public class ChatTool implements Serializable {
    
    private Boolean fromPermissions = false;
 
-   @Autowired
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.chat2.model.ChatManager\"]}")
    private ChatManager chatManager;
-   @Autowired
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.component.api.ServerConfigurationService\"]}")
    private ServerConfigurationService serverConfigurationService;
-   @Autowired
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ActiveToolManager\"]}")
    private ToolManager toolManager;
-   @Autowired
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.UserDirectoryService\"]}")
    private UserDirectoryService userDirectoryService;
-   @Autowired
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
    private SessionManager sessionManager;
-   @Autowired
+   @ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
    private SiteService siteService;
    
    /** The current channel the user is in */

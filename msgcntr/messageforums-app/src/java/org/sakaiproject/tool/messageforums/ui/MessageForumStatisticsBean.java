@@ -39,6 +39,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
+import jakarta.faces.bean.ManagedProperty;
 import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
@@ -87,7 +88,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LocaleService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
@@ -404,34 +404,34 @@ public class MessageForumStatisticsBean implements Serializable {
 	private boolean m_displayAnonIds; // this will be true in a pure-anon scenario
 
 	/** Needed if within a site so we only need stats for this site */
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
 	private MessageForumsMessageManager messageManager;
 	/** Needed to get topics if tool within a site */
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager\"]}")
 	private DiscussionForumManager forumManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MembershipManager\"]}")
 	private MembershipManager membershipManager;
 	/** Manages anonymous IDs */
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AnonymousManager\"]}")
 	private AnonymousManager anonymousManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.ToolManager\"]}")
 	private ToolManager toolManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.UserDirectoryService\"]}")
 	private UserDirectoryService userDirectoryService;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.authz.api.SecurityService\"]}")
 	private SecurityService securityService;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.event.api.EventTrackingService\"]}")
 	private EventTrackingService eventTrackingService;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
 	private SiteService siteService;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.tool.api.SessionManager\"]}")
 	private SessionManager sessionManager;
 	/** Needed to determine if user has read permission of topic */
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager\"]}")
 	private UIPermissionsManager uiPermissionsManager;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
 	private FormattedText formattedText;
-	@Autowired
+	@ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.LocaleService\"]}")
 	private LocaleService localeService;
 
 	public boolean getDiscussionGeneric() {
