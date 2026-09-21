@@ -17,7 +17,7 @@ package org.sakaiproject.lti.api.model;
 
 import java.io.Serializable;
 import java.time.Instant;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
