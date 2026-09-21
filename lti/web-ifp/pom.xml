@@ -50,7 +50,7 @@
 <!-- velocity and dependencies (logkit, oro, collections) -->
     <dependency>
       <groupId>org.apache.velocity</groupId>
-      <artifactId>velocity</artifactId>
+      <artifactId>velocity-engine-core</artifactId>
       <version>${sakai.velocity.version}</version>
     </dependency>
       <dependency>
