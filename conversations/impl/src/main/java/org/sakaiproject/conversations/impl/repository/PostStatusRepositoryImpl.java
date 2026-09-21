@@ -21,7 +21,6 @@ import java.util.Optional;
 import org.hibernate.Session;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
@@ -105,10 +104,13 @@ public class PostStatusRepositoryImpl extends SpringCrudRepositoryImpl<PostStatu
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<PostStatus> delete = cb.createCriteriaDelete(PostStatus.class);
-        Root<PostStatus> postStatus = delete.from(PostStatus.class);
-        delete.where(cb.equal(postStatus.get("post").get("id"), postId));
+        CriteriaQuery<PostStatus> query = cb.createQuery(PostStatus.class);
+        Root<PostStatus> postStatus = query.from(PostStatus.class);
+        query.where(cb.equal(postStatus.get("post").get("id"), postId));
 
-        return session.createQuery(delete).executeUpdate();
+        // Remove managed statuses so they no longer reference the post when it is deleted.
+        List<PostStatus> statuses = session.createQuery(query).getResultList();
+        statuses.forEach(session::remove);
+        return statuses.size();
     }
 }
