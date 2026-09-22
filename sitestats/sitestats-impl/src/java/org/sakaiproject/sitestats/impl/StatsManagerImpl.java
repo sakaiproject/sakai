@@ -92,6 +92,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -301,6 +303,15 @@ public class StatsManagerImpl implements StatsManager, Observer {
 			session.merge(prefs);
 
 			cachePrefsData.evict(siteId);
+			if (TransactionSynchronizationManager.isSynchronizationActive()) {
+				TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+					@Override
+					public void afterCompletion(int status) {
+						// Reads before completion may cache preferences that are later rolled back.
+						cachePrefsData.evict(siteId);
+					}
+				});
+			}
 			logEvent(prefsdata, LOG_ACTION_EDIT, siteId, false);
 			return true;
 		} catch (DataAccessException | HibernateException dae) {
