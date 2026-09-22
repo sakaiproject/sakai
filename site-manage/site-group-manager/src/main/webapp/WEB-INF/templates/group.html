@@ -62,7 +62,7 @@
             </div>
             <div class="block">
               <label for="joinableSetNumOfMembers" class="form-control-label" th:text="#{groups.joinableset.maxmembers}">Max members:</label>
-              <a class="si si-info-circle" tabindex="0" data-bs-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" th:attr="data-bs-content=''+#{groups.joinableset.maxmembers.info}+''"></a>
+              <a class="si si-info-circle joinableset-popover" tabindex="0" data-bs-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" th:attr="aria-label=#{groups.more.info}, data-bs-content=''+#{groups.joinableset.maxmembers.info}+''"></a>
             </div>
             <input name="joinableSetNumOfMembers" id="joinableSetNumOfMembers" type="number" th:field="*{joinableSetNumOfMembers}" min="1" max="999" class="form-control"/>
           </div>
@@ -73,7 +73,7 @@
               <input id="groupJoinableShowAllUsers" class="form-check-input" type="checkbox" th:field="*{groupJoinableShowAllUsers}" th:checked="${groupForm.groupJoinableShowAllUsers}"/>
               <span th:text="#{groups.joinableset.show.all}">Show all site participants, even if they already joined a group of this joinable set</span>
             </label>
-            <a class="si si-info-circle" tabindex="0" data-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" th:attr="data-bs-content=''+#{groups.joinableset.show.all.info}+''"></a>
+            <a class="si si-info-circle joinableset-popover" tabindex="0" data-bs-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" th:attr="aria-label=#{groups.more.info}, data-bs-content=''+#{groups.joinableset.show.all.info}+''"></a>
           </div>
         </div>
       </div>
