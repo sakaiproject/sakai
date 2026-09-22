@@ -1297,10 +1297,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void groupSubmissionFirstLtiPostByNonMemberPreservesExplicitSubmittee() {
-        // Replays SakaiLTIUtil.handleAssignment's actual sequence: addSubmission() runs under the LTI
-        // service identity (never the student), so nobody is flagged yet; the submitting student's row
-        // is then flagged directly by userId match, same as handleAssignment does; then updateSubmission()
-        // is called once, still under the service identity.
+        // Replays the real LTI sequence: student flagged directly (as SakaiLTIUtil does),
+        // then updateSubmission() called once by the non-member service identity.
         String context = UUID.randomUUID().toString();
         String groupId = "team-7";
         String submittingStudent = "student0041";
@@ -1345,7 +1343,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
-        // Stands in for pushAdvisor() in the real LTI path: grade + read access despite not being a member.
+        // Stands in for pushAdvisor(): grants access despite not being a member.
         when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
         when(authzGroupService.getAuthzGroupsIsAllowed(eq(ltiServiceIdentity), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
                 .thenReturn(Collections.singleton(groupReference));
@@ -1397,8 +1395,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void groupSubmissionUpdateByNonMemberWithoutGradePermissionIsRejected() {
-        // This actor has update permission on the submission but not grade permission, and is
-        // not a group member.
+        // Has update permission but not grade permission, and isn't a group member.
         String context = UUID.randomUUID().toString();
         String groupId = "team-6";
         String submittingUser = "student0031";
@@ -1467,7 +1464,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
 
-        // The real member posts first, so a submittee is legitimately recorded.
+        // A real member posts first, establishing a legitimate submittee.
         submission.setUserSubmission(true);
         submission.setSubmitted(true);
         submission.setDateSubmitted(Instant.now());
@@ -1486,12 +1483,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
         Assert.assertEquals(1, afterMemberPost.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
 
-        // SECURE_GRADE_ASSIGNMENT_SUBMISSION is left unstubbed, so nonMemberUpdater only gets in via
-        // SECURE_UPDATE_ASSIGNMENT_SUBMISSION.
+        // Grade permission is left unstubbed - only update permission lets this actor in.
         when(sessionManager.getCurrentSessionUserId()).thenReturn(nonMemberUpdater);
-        // dateModified is auto-timestamped past dateSubmitted on save, so reconcile only runs again if
-        // dateSubmitted looks fresh. Real LTI resubmissions keep the old dateSubmitted (so wouldn't
-        // reach reconcile here) - this forces it, to pin down behavior if it is reached this way.
+        // Forces reconcile to run again (a real resubmission keeps the old dateSubmitted, so
+        // wouldn't reach it) - pins down behavior if it ever does.
         afterMemberPost.setDateSubmitted(Instant.now());
         afterMemberPost.setFeedbackComment("A comment from a non-member updater");
 
