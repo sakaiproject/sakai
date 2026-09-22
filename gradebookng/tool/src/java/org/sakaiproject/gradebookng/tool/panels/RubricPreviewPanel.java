@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.StringHeaderItem;
@@ -45,9 +45,9 @@ public class RubricPreviewPanel extends BasePanel {
     @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     private GradebookNgBusinessService businessService;
 
-    private final ModalWindow window;
+    private final GbModalWindow window;
 
-    public RubricPreviewPanel(String id, IModel<Long> model, ModalWindow window) {
+    public RubricPreviewPanel(String id, IModel<Long> model, GbModalWindow window) {
 
         super(id, model);
 

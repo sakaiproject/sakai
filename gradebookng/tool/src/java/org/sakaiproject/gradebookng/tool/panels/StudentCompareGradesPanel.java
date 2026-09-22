@@ -18,7 +18,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import com.google.gson.Gson;
 import java.util.List;
 
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
@@ -34,10 +34,10 @@ public class StudentCompareGradesPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
 
-    private final ModalWindow window;
+    private final GbModalWindow window;
     private final Assignment assignment;
 
-    public StudentCompareGradesPanel(final String id, final IModel<Assignment> model, final ModalWindow window) {
+    public StudentCompareGradesPanel(final String id, final IModel<Assignment> model, final GbModalWindow window) {
         super(id, model);
         this.window = window;
         this.assignment = model.getObject();

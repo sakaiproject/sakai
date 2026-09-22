@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
@@ -33,9 +33,9 @@ public class AssignmentStatisticsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 
-	public AssignmentStatisticsPanel(final String id, final IModel<Long> model, final ModalWindow window) {
+	public AssignmentStatisticsPanel(final String id, final IModel<Long> model, final GbModalWindow window) {
 		super(id, model);
 		this.window = window;
 	}
