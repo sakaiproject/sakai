@@ -466,7 +466,7 @@ class SamigoTest extends SakaiUiTestBase {
 
     @Test
     @Order(10)
-    void eventLogSortingAlwaysAlternatesDirection() {
+    void eventLogSearchMatchesPhrasesAndSortingAlternatesDirection() {
         String courseUrl = ensureCourseUrl();
         sakai.login("student0011");
         // Opening the introduction does not create an event; begin real attempts.
@@ -491,6 +491,16 @@ class SamigoTest extends SakaiUiTestBase {
 
         Locator table = page.locator("[id='eventLogId:eventLogTable']");
         assertThat(table).isVisible();
+        assertThat(table.locator("tbody > tr")).hasCount(2);
+        Locator quizRows = table.locator("tbody > tr").filter(new Locator.FilterOptions().setHasText(SAMIGO_TITLE));
+        Locator search = page.locator("[id='eventLogId:eventLogTable_wrapper'] input[type='search']");
+        search.fill("Quiz " + RUN_ID);
+        assertThat(quizRows).hasCount(1);
+        assertThat(table.locator("tbody > tr")).hasCount(1);
+        // The same words in reverse order must not match a title phrase.
+        search.fill(RUN_ID + " Quiz");
+        assertThat(quizRows).hasCount(0);
+        search.fill("");
         assertThat(table.locator("tbody > tr")).hasCount(2);
         Locator headers = table.locator("thead th");
         for (int column = 0; column < headers.count(); column++) {
