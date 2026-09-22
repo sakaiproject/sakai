@@ -20,8 +20,8 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload2.core.FileUploadByteCountLimitException;
+import org.apache.commons.fileupload2.core.FileUploadException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -149,7 +149,7 @@ public class GradeImportUploadStep extends BasePanel {
 
 		@Override
 		protected void onFileUploadException(FileUploadException e, Map<String, Object> model) {
-			if (e instanceof FileUploadBase.SizeLimitExceededException) {
+			if (e instanceof FileUploadByteCountLimitException) {
 				error(MessageHelper.getString("importExport.error.fileTooBig", RL.getLocale(), maxUploadFileSize));
 				continueButton.setEnabled(false);
 			}

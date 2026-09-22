@@ -23,7 +23,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
@@ -52,7 +52,7 @@ public class BulkEditItemsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 
 	@Getter
     private List<Long> deletableItemsList = new ArrayList<Long>();
@@ -61,7 +61,7 @@ public class BulkEditItemsPanel extends BasePanel {
 		this.deletableItemsList.clear();
 	}
 
-	public BulkEditItemsPanel(final String id, final ModalWindow window) {
+	public BulkEditItemsPanel(final String id, final GbModalWindow window) {
 		super(id);
 		this.window = window;
 	}

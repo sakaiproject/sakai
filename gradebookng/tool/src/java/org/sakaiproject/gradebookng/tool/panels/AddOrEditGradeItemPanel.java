@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
@@ -291,7 +290,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 						AddOrEditGradeItemPanel.this.replaceWith(newFormPanel);
 						this.window.setAssignmentToReturnFocusTo(String.valueOf(assignmentId));
 						this.window.clearWindowClosedCallbacks();
-						this.window.addWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+						this.window.addWindowClosedCallback(new GbModalWindow.WindowClosedCallback() {
 							@Override
 							public void onClose(final AjaxRequestTarget ajaxRequestTarget) {
 								setResponsePage(AddOrEditGradeItemPanel.this.window.getPage().getPageClass(),

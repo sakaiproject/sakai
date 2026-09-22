@@ -18,7 +18,6 @@ package org.sakaiproject.gradebookng.tool.actions;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -70,7 +69,7 @@ public class EditCommentAction extends InjectableAction implements Serializable 
 		window.clearWindowClosedCallbacks();
 		window.setAssignmentToReturnFocusTo(assignmentId);
 		window.setStudentToReturnFocusTo(studentUuid);
-		window.addWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+		window.addWindowClosedCallback(new GbModalWindow.WindowClosedCallback() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
