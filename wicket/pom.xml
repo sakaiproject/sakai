@@ -17,6 +17,7 @@
 	<modules>
 		<module>wicket6</module>
 		<module>wicket9</module>
+		<module>wicket10</module>
 	</modules>
 
 </project>
