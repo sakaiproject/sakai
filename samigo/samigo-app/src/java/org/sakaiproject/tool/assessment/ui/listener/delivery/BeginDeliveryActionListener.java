@@ -344,6 +344,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setInstructorMessage(instructorMessage);
 
     String ownerSiteId = service.getPublishedAssessmentOwner(pubAssessment.getPublishedAssessmentId());
+    delivery.setSiteId(ownerSiteId);
     String ownerSiteName = AgentFacade.getSiteName(ownerSiteId);
     delivery.setCourseName(ownerSiteName);
 
