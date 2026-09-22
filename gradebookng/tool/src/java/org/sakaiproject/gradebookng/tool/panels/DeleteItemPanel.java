@@ -18,7 +18,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.text.MessageFormat;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
@@ -35,9 +35,9 @@ public class DeleteItemPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 
-	public DeleteItemPanel(final String id, final IModel<Long> model, final ModalWindow window) {
+	public DeleteItemPanel(final String id, final IModel<Long> model, final GbModalWindow window) {
 		super(id, model);
 		this.window = window;
 	}

@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -42,9 +42,9 @@ public class CourseGradeOverrideLogPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 
-	public CourseGradeOverrideLogPanel(final String id, final IModel<String> model, final ModalWindow window) {
+	public CourseGradeOverrideLogPanel(final String id, final IModel<String> model, final GbModalWindow window) {
 		super(id, model);
 		this.window = window;
 	}

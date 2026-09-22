@@ -26,7 +26,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.basic.Label;
@@ -50,9 +50,9 @@ public class SortGradeItemsPanel extends BasePanel {
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 
-	public SortGradeItemsPanel(final String id, final IModel<Map<String, Object>> model, final ModalWindow window) {
+	public SortGradeItemsPanel(final String id, final IModel<Map<String, Object>> model, final GbModalWindow window) {
 		super(id, model);
 		this.window = window;
 	}

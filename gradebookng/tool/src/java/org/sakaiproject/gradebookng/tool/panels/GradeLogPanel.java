@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -41,9 +41,9 @@ public class GradeLogPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 
-	public GradeLogPanel(final String id, final IModel<Map<String, Object>> model, final ModalWindow window) {
+	public GradeLogPanel(final String id, final IModel<Map<String, Object>> model, final GbModalWindow window) {
 		super(id, model);
 		this.window = window;
 	}

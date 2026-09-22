@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
@@ -116,7 +116,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
 		final Map<Long, Double> categoryAverages = new HashMap<>();
 		Map<String, CategoryDefinition> categoriesMap = Collections.emptyMap();
-		final ModalWindow statsWindow = new ModalWindow("statsWindow");
+		final GbModalWindow statsWindow = new GbModalWindow("statsWindow");
 		add(statsWindow);
 
 		// if gradebook release setting disabled, no work to do

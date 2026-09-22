@@ -29,7 +29,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -100,10 +100,10 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		final String studentUuid = (String) data.get("studentUuid");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
-		final ModalWindow assignmentStatsWindow = new ModalWindow("assignmentStatsWindow");
+		final GbModalWindow assignmentStatsWindow = new GbModalWindow("assignmentStatsWindow");
 		addOrReplace(assignmentStatsWindow);
 
-		final ModalWindow compareGradesWindow = new ModalWindow("compareGradesWindow");
+		final GbModalWindow compareGradesWindow = new GbModalWindow("compareGradesWindow");
 		addOrReplace(compareGradesWindow);
 
 		// Cache user role to avoid repeated calls
