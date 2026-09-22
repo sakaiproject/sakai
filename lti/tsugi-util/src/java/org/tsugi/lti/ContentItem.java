@@ -124,7 +124,6 @@ public class ContentItem {
 	public static final String CONTENT_ITEMS = "content_items";
 	public static final String NO_CONTENT_ITEMS = "Missing content_items= parameter from ContentItem return";
 	public static final String BAD_CONTENT_MESSAGE = "CONTENT_ITEMS is wrong type ";
-	public static final String NO_DATA_MESSAGE = "Missing data= parameter from ContentItem return";
 	public static final String NO_GRAPH_MESSAGE = "A content_item must include a @graph";
 	public static final String BAD_DATA_MESSAGE = "data= parameter is wrong type ";
 
@@ -159,27 +158,26 @@ public class ContentItem {
 			throw new java.lang.RuntimeException(BAD_CONTENT_MESSAGE + cit.getClass().getName());
 		}
 
+		// The data= parameter is optional - a tool only echoes it back if it was sent one to begin with
 		String returnedData = req.getParameter("data");
-		if ( StringUtils.isEmpty(returnedData) ) {
-			throw new java.lang.RuntimeException(NO_DATA_MESSAGE);
-		}
+		if ( StringUtils.isNotEmpty(returnedData) ) {
+			returnedData = StringEscapeUtils.unescapeJson(returnedData);
 
-		returnedData = StringEscapeUtils.unescapeJson(returnedData);
+			Object dat = JSONValue.parse(returnedData);
+			JSONObject dataJson = null;
+			if ( dat != null && dat instanceof JSONObject ) {
+				dataJson = (JSONObject) dat;
+			} else {
+				throw new java.lang.RuntimeException("data= parameter is wrong type "+dat.getClass().getName());
+			}
 
-		Object dat = JSONValue.parse(returnedData);
-		JSONObject dataJson = null;
-		if ( dat != null && dat instanceof JSONObject ) {
-			dataJson = (JSONObject) dat;
-		} else {
-			throw new java.lang.RuntimeException("data= parameter is wrong type "+dat.getClass().getName());
-		}
-
-		Iterator it = dataJson.keySet().iterator();
-		while (it.hasNext()) {
-			String key = (String) it.next();
-			Object value = dataJson.get(key);
-			if ( value == null || ! (value instanceof String) ) continue;
-			dataProps.setProperty(key, (String) value);
+			Iterator it = dataJson.keySet().iterator();
+			while (it.hasNext()) {
+				String key = (String) it.next();
+				Object value = dataJson.get(key);
+				if ( value == null || ! (value instanceof String) ) continue;
+				dataProps.setProperty(key, (String) value);
+			}
 		}
 
 		graph = getArray(contentItem,LTIConstants.GRAPH);
