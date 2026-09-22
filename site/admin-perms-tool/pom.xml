@@ -24,19 +24,6 @@
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
     </dependency>
-    <!-- We need this special package to run the jsps in Sakai -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsp-adapter</artifactId>
-      <version>0.10-K1</version>
-      <scope>runtime</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
     <!-- Sakai dependencies -->
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
