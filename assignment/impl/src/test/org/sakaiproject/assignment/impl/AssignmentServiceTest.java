@@ -1296,6 +1296,314 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void groupSubmissionFirstLtiPostByNonMemberPreservesExplicitSubmittee() {
+        // Replays SakaiLTIUtil.handleAssignment's actual sequence: addSubmission() runs under the LTI
+        // service identity (never the student), so nobody is flagged yet; the submitting student's row
+        // is then flagged directly by userId match, same as handleAssignment does; then updateSubmission()
+        // is called once, still under the service identity.
+        String context = UUID.randomUUID().toString();
+        String groupId = "team-7";
+        String submittingStudent = "student0041";
+        String otherMember = "student0042";
+        String ltiServiceIdentity = "lti-score-callback-2";
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        String groupReference = siteReference + "/group/" + groupId;
+
+        assignment.getGroups().add(groupReference);
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+
+        Set<Member> members = new HashSet<>(Arrays.asList(
+                buildGroupMember(submittingStudent),
+                buildGroupMember(otherMember)));
+
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+            when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
+        } catch (Exception e) {
+            Assert.fail("Could not configure LTI-post mocks\n" + e.toString());
+        }
+
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        when(group.getMembers()).thenReturn(members);
+        when(site.getGroups()).thenReturn(Collections.singleton(group));
+        when(site.getGroup(groupId)).thenReturn(group);
+        when(site.getGroup(groupReference)).thenReturn(group);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        // Stands in for pushAdvisor() in the real LTI path: grade + read access despite not being a member.
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(ltiServiceIdentity), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
+                .thenReturn(Collections.singleton(groupReference));
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Could not update assignment for LTI-post test\n" + e.toString());
+        }
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(ltiServiceIdentity);
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.addSubmission(assignment.getId(), groupId);
+        } catch (Exception e) {
+            Assert.fail("Could not create group submission\n" + e.toString());
+        }
+
+        Assert.assertNotNull(submission);
+        Assert.assertEquals("Nobody should be flagged yet - the LTI service identity isn't a member",
+                0, submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+
+        submission.getSubmitters().stream()
+                .filter(s -> submittingStudent.equals(s.getSubmitter()))
+                .findFirst()
+                .ifPresent(s -> s.setSubmittee(true));
+
+        submission.setUserSubmission(true);
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now());
+
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+        try {
+            assignmentService.updateSubmission(submission);
+            AssignmentSubmission reloaded = assignmentService.getSubmission(submission.getId());
+
+            Assert.assertEquals(1, reloaded.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+            Assert.assertTrue(reloaded.getSubmitters().stream()
+                    .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                    .anyMatch(s -> submittingStudent.equals(s.getSubmitter())));
+        } catch (Exception e) {
+            Assert.fail("Could not post first LTI submission for the group\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void groupSubmissionPostByNonMemberKeepsExistingSubmittee() {
+        String context = UUID.randomUUID().toString();
+        String groupId = "team-5";
+        String submittingUser = "student0021";
+        String otherMember = "student0022";
+        // e.g. the LTI score callback, which posts under a security advisor and is not a group member
+        String nonMemberActor = "lti-score-callback";
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        String groupReference = siteReference + "/group/" + groupId;
+
+        assignment.getGroups().add(groupReference);
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+
+        Set<Member> members = new HashSet<>(Arrays.asList(
+                buildGroupMember(submittingUser),
+                buildGroupMember(otherMember)));
+
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+            when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
+        } catch (Exception e) {
+            Assert.fail("Could not configure non-member submittee mocks\n" + e.toString());
+        }
+
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        when(group.getMembers()).thenReturn(members);
+        when(site.getGroups()).thenReturn(Collections.singleton(group));
+        when(site.getGroup(groupId)).thenReturn(group);
+        when(site.getGroup(groupReference)).thenReturn(group);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, groupReference)).thenReturn(true);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(submittingUser), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
+                .thenReturn(Collections.singleton(groupReference));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(submittingUser);
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Could not update assignment for non-member submittee test\n" + e.toString());
+        }
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.addSubmission(assignment.getId(), groupId);
+        } catch (Exception e) {
+            Assert.fail("Could not create group submission\n" + e.toString());
+        }
+
+        Assert.assertNotNull(submission);
+        Assert.assertEquals(1, submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+        Assert.assertTrue(submission.getSubmitters().stream()
+                .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                .anyMatch(s -> submittingUser.equals(s.getSubmitter())));
+
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(nonMemberActor);
+
+        submission.setUserSubmission(true);
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now());
+
+        try {
+            assignmentService.updateSubmission(submission);
+            AssignmentSubmission reloaded = assignmentService.getSubmission(submission.getId());
+
+            Assert.assertEquals(1, reloaded.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+            Assert.assertTrue(reloaded.getSubmitters().stream()
+                    .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                    .anyMatch(s -> submittingUser.equals(s.getSubmitter())));
+        } catch (Exception e) {
+            Assert.fail("Could not post group submission as a non-member\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void groupSubmissionUpdateByNonMemberWithoutGradePermissionIsRejected() {
+        // Unlike groupSubmissionPostByNonMemberKeepsExistingSubmittee, this actor has update
+        // permission on the submission but not grade permission, and is not a group member.
+        String context = UUID.randomUUID().toString();
+        String groupId = "team-6";
+        String submittingUser = "student0031";
+        String otherMember = "student0032";
+        String nonMemberUpdater = "support-role-0001";
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        String siteReference = "/site/" + context;
+        String groupReference = siteReference + "/group/" + groupId;
+
+        assignment.getGroups().add(groupReference);
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+
+        Set<Member> members = new HashSet<>(Arrays.asList(
+                buildGroupMember(submittingUser),
+                buildGroupMember(otherMember)));
+
+        when(siteService.siteReference(context)).thenReturn(siteReference);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+            when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
+        } catch (Exception e) {
+            Assert.fail("Could not configure non-member update mocks\n" + e.toString());
+        }
+
+        when(group.getId()).thenReturn(groupId);
+        when(group.getReference()).thenReturn(groupReference);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        when(group.getMembers()).thenReturn(members);
+        when(site.getGroups()).thenReturn(Collections.singleton(group));
+        when(site.getGroup(groupId)).thenReturn(group);
+        when(site.getGroup(groupReference)).thenReturn(group);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, groupReference)).thenReturn(true);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(submittingUser), eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection()))
+                .thenReturn(Collections.singleton(groupReference));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(submittingUser);
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Could not update assignment for non-member update test\n" + e.toString());
+        }
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.addSubmission(assignment.getId(), groupId);
+        } catch (Exception e) {
+            Assert.fail("Could not create group submission\n" + e.toString());
+        }
+
+        Assert.assertNotNull(submission);
+
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+        // The real member posts first, so a submittee is legitimately recorded.
+        submission.setUserSubmission(true);
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now());
+
+        try {
+            assignmentService.updateSubmission(submission);
+        } catch (PermissionException e) {
+            Assert.fail("Group member's own post should not require grade permission\n" + e.toString());
+        }
+
+        AssignmentSubmission afterMemberPost = null;
+        try {
+            afterMemberPost = assignmentService.getSubmission(submission.getId());
+        } catch (Exception e) {
+            Assert.fail("Could not reload submission after member post\n" + e.toString());
+        }
+        Assert.assertEquals(1, afterMemberPost.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).count());
+
+        // SECURE_GRADE_ASSIGNMENT_SUBMISSION is left unstubbed, so nonMemberUpdater only gets in via
+        // SECURE_UPDATE_ASSIGNMENT_SUBMISSION.
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(nonMemberUpdater);
+        // dateModified is auto-timestamped past dateSubmitted on save, so reconcile only runs again if
+        // dateSubmitted looks fresh. Real LTI resubmissions keep the old dateSubmitted (so wouldn't
+        // reach reconcile here) - this forces it, to pin down behavior if it is reached this way.
+        afterMemberPost.setDateSubmitted(Instant.now());
+        afterMemberPost.setFeedbackComment("A comment from a non-member updater");
+
+        boolean threw = false;
+        try {
+            assignmentService.updateSubmission(afterMemberPost);
+        } catch (PermissionException e) {
+            threw = true;
+        } catch (Exception e) {
+            Assert.fail("Expected a PermissionException, got\n" + e.toString());
+        }
+
+        Assert.assertTrue("A non-member with update-only (not grade) permission should be rejected here, "
+                + "even though a submittee is already recorded", threw);
+    }
+
+    @Test
     public void ambiguousGroupUserLookupFindsMatchingSubmissionAndCanSubmit() {
         String context = UUID.randomUUID().toString();
         String teamOneId = "team-1";
