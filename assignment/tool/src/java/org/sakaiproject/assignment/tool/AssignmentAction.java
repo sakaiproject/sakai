@@ -5254,16 +5254,16 @@ public class AssignmentAction extends PagedResourceActionII {
 
             List<SubmitterSubmission> userSubmissions = prepPage(state);
 
-            boolean canWithdrawGrades = false;
+            boolean canWithdrawGradesAndCommented = false;
             if (userSubmissions != null) {
                 for (SubmitterSubmission ss : userSubmissions) {
                     if (ss.getSubmission() != null && ss.getSubmission().getGradeReleased()) {
-                        canWithdrawGrades = true;
+                        canWithdrawGradesAndCommented = true;
                         break;
                     }
                 }
             }
-            context.put("canWithdrawGrades", Boolean.valueOf(canWithdrawGrades));
+            context.put("canWithdrawGradesAndCommented", Boolean.valueOf(canWithdrawGradesAndCommented));
 
             // attach the assignment to these submissions now to avoid costly lookup for each submission later in the velocity template
             for (SubmitterSubmission s : userSubmissions) {

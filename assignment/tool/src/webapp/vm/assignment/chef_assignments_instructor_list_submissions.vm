@@ -146,11 +146,19 @@ function printView(url) {
 								## release grades
 								<a href="#" class="assignment-item" id="releaseGrades" title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
 							#end
-							#if ($typeOfGrade != 0 && $canWithdrawGrades)
-                                <a href="#" class="assignment-item" id="withdrawGrades"
-                                    onclick="ASN.withdrawGradesConfirm(document.getElementById('withdrawgrad-confirmation-template').value, this); return false;"
-                                    title="$!tlang.getString('withdrawgrad.title')">$!tlang.getString('withdrawgrad.title')</a>
-                            #end
+							#if ($canWithdrawGradesAndCommented)
+								#if ($!typeOfGrade == 1)
+									## unrelease commented
+									<a href="#" class="assignment-item" id="withdrawCommented"
+										onclick="ASN.withdrawGradesConfirm(document.getElementById('withdrawgrad-confirmation-template').value, this); return false;"
+										title="$!tlang.getString('withdrawgrad.title.commented')">$!tlang.getString('withdrawgrad.title.commented')</a>
+								#else
+									## unrelease grades
+									<a href="#" class="assignment-item" id="withdrawGrades"
+										onclick="ASN.withdrawGradesConfirm(document.getElementById('withdrawgrad-confirmation-template').value, this); return false;"
+										title="$!tlang.getString('withdrawgrad.title')">$!tlang.getString('withdrawgrad.title')</a>
+								#end
+							#end
 						#end
 						#if ($taggable)
 							#foreach ($provider in $providers)
