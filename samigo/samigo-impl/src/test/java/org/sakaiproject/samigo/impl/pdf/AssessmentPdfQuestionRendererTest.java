@@ -138,6 +138,22 @@ public class AssessmentPdfQuestionRendererTest {
     }
 
     @Test
+    public void printableRenderAcceptsLatexStemWhenMathJaxEnabled() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.MULTIPLE_CHOICE)
+                .sequence("1")
+                .itemHtmlText("<p>Solve $$x+1$$</p>")
+                .text("Solve $$x+1$$")
+                .points(1.0)
+                .maxPoints(1.0)
+                .build();
+
+        OverlayCapturingDocument document = renderPrint(question, printSettings(false),
+                mock(ContentHostingService.class), true);
+        assertTrue(document.overlays.isEmpty());
+    }
+
+    @Test
     public void printableRenderUsesImageMapSrcAndPaintsRegionsWhenKeysAreShown() throws Exception {
         ContentHostingService contentHostingService = contentHosting(MAP_RESOURCE);
         AssessmentPdfQuestionModel question = imageMapQuestion(null, MAP_RESOURCE, List.of(VALID_REGION),
@@ -217,8 +233,14 @@ public class AssessmentPdfQuestionRendererTest {
 
     private static OverlayCapturingDocument renderPrint(AssessmentPdfQuestionModel question,
             AssessmentPdfPrintSettingsModel settings, ContentHostingService contentHostingService) throws Exception {
+        return renderPrint(question, settings, contentHostingService, false);
+    }
+
+    private static OverlayCapturingDocument renderPrint(AssessmentPdfQuestionModel question,
+            AssessmentPdfPrintSettingsModel settings, ContentHostingService contentHostingService,
+            boolean mathJaxEnabled) throws Exception {
         AssessmentPdfContentHelper helper = new AssessmentPdfContentHelper(contentHostingService);
-        AssessmentPrintPdfModel printModel = new AssessmentPrintPdfModel("Quiz", "", false, settings,
+        AssessmentPrintPdfModel printModel = new AssessmentPrintPdfModel("Quiz", "", mathJaxEnabled, settings,
                 List.of(new AssessmentPdfPartModel("Part 1", "", Collections.emptyList(), List.of(question))));
         return render(QuestionRenderContext.forPrint(question, 1, 1, printModel, helper), helper);
     }

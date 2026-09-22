@@ -167,4 +167,43 @@ public class AssessmentPdfContentHelperTest {
         assertTrue(output.size() > 200);
         verify(contentHostingService).getResource("/group/site/photo.png");
     }
+
+    @Test
+    public void createLatexParagraphRendersFormulaImageWhenMathJaxEnabled() {
+        AssessmentPdfContentHelper helper = helperWithoutContentHosting();
+        com.lowagie.text.Paragraph paragraph = helper.createLatexParagraph(
+                "before $$x+1$$ after", AssessmentPdfStyle.BODY_FONT, true);
+
+        boolean hasImage = false;
+        for (Object chunkObject : paragraph.getChunks()) {
+            com.lowagie.text.Chunk chunk = (com.lowagie.text.Chunk) chunkObject;
+            if (chunk.getImage() != null) {
+                hasImage = true;
+                break;
+            }
+        }
+        assertTrue(hasImage);
+    }
+
+    @Test
+    public void createLatexParagraphKeepsPlainTextWhenMathJaxDisabled() {
+        AssessmentPdfContentHelper helper = helperWithoutContentHosting();
+        com.lowagie.text.Paragraph paragraph = helper.createLatexParagraph(
+                "before $$x+1$$ after", AssessmentPdfStyle.BODY_FONT, false);
+
+        assertEquals(1, paragraph.getChunks().size());
+        com.lowagie.text.Chunk chunk = (com.lowagie.text.Chunk) paragraph.getChunks().get(0);
+        assertNull(chunk.getImage());
+        assertEquals("before $$x+1$$ after", chunk.getContent());
+    }
+
+    @Test
+    public void getQuestionTitleIncludesLatexWhenMathJaxEnabled() {
+        AssessmentPdfContentHelper helper = helperWithoutContentHosting();
+        com.lowagie.text.pdf.PdfPTable titleTable = helper.getQuestionTitle(
+                "<p>Solve $$x+1$$</p>", true, true, null);
+
+        assertTrue(titleTable != null);
+        assertTrue(titleTable.size() >= 1);
+    }
 }

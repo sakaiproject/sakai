@@ -334,6 +334,36 @@ public class AssessmentPdfSnapshotBuilderTest {
         assertEquals(Integer.valueOf(1), click.getSequence());
     }
 
+    @Test
+    public void buildPrintModelPreservesMathJaxEnabledFlag() {
+        ItemDataIfc itemData = mock(ItemDataIfc.class);
+        when(itemData.getTypeId()).thenReturn(TypeIfc.MULTIPLE_CHOICE);
+        when(itemData.getText()).thenReturn("Solve $$x+1$$");
+
+        ItemContentsBean item = new ItemContentsBean();
+        item.setItemData(itemData);
+        item.setSequence("1");
+
+        SectionContentsBean section = mock(SectionContentsBean.class);
+        when(section.getItemContents()).thenReturn(List.of(item));
+        when(section.getAttachmentList()).thenReturn(Collections.emptyList());
+        when(section.getTitle()).thenReturn("Part 1");
+        when(section.getDescription()).thenReturn("");
+
+        DeliveryBean deliveryBean = mock(DeliveryBean.class);
+        when(deliveryBean.getAssessmentTitle()).thenReturn("Sample Quiz");
+        when(deliveryBean.getIsMathJaxEnabled()).thenReturn(Boolean.TRUE);
+
+        AssessmentPrintPdfModel model = snapshotBuilder()
+                .deliveryBean(deliveryBean)
+                .deliveryParts(List.of(section))
+                .printSettings(new PrintSettingsBean())
+                .buildPrintModel();
+
+        assertTrue(model.isMathJaxEnabled());
+        assertEquals("Solve $$x+1$$", model.getParts().get(0).getQuestions().get(0).getItemHtmlText());
+    }
+
     private static AssessmentPdfSnapshotBuilder snapshotBuilder() {
         return new AssessmentPdfSnapshotBuilder(mock(FormattedText.class), mock(ResourceLoader.class));
     }

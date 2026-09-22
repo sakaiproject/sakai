@@ -2775,12 +2775,13 @@ public class DeliveryBean implements Serializable {
 
     public boolean getIsMathJaxEnabled() {
         String siteId = AgentFacade.getCurrentSiteId();
-        if (siteId == null) {
-            // AgentFacade needs the portal's current placement, which is absent when the PDF is built
-            // from a plain servlet request. The bean caches its own site id, so prefer that next.
+        if (StringUtils.isBlank(siteId)) {
             siteId = getSiteId();
         }
-        if (siteId == null && StringUtils.isNumeric(getAssessmentId())) {
+        if (StringUtils.isBlank(siteId) && publishedAssessment != null) {
+            siteId = publishedAssessment.getOwnerSiteId();
+        }
+        if (StringUtils.isBlank(siteId) && StringUtils.isNumeric(getAssessmentId())) {
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.parseLong(getAssessmentId()));
         }
