@@ -967,4 +967,10 @@ public interface AssignmentService extends EntityProducer {
      * Returns true if the submission contains instructor feedback, whether as comment text (inline) or attachments.
      */
     public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission);
+
+    /**
+     * Returns whether an unreleased submission has a grade or feedback eligible for bulk release.
+     * This checks submission state only; updating the submission still requires permission.
+     */
+    public boolean isSubmissionEligibleForRelease(AssignmentSubmission submission);
 }
