@@ -575,15 +575,25 @@ public class TagServiceTest {
         String row = "<Tag><TagLabel>%s</TagLabel><ExternalId>%s</ExternalId>"
             + "<ExternalSourceName>Dates-source</ExternalSourceName>%s</Tag>";
         String date = "<DateCreated><Year>2024</Year><Month>02</Month><Day>%s</Day></DateCreated>";
+        StringBuilder partialDates = new StringBuilder();
+        for (String part : new String[] { "Year", "Month", "Day" }) {
+            partialDates.append(String.format(row, part, part,
+                String.format(date, "29").replaceAll("<" + part + ">[^<]*</" + part + ">", "")));
+        }
         Files.writeString(files.getRoot().toPath().resolve("tags.xml"), "<Tags>"
             + String.format(row, "Invalid", "invalid", String.format(date, "30"))
             + String.format(row, "Missing", "missing", "")
+            + partialDates
             + String.format(row, "Leap day", "valid", String.format(date, "29")) + "</Tags>");
 
         genericImport.execute(null);
 
         assertEquals(Long.valueOf(0L), service.getTagForExternalIdAndCollection("invalid", collection.getTagCollectionId()).get().getExternalCreationDate());
         assertEquals(Long.valueOf(0L), service.getTagForExternalIdAndCollection("missing", collection.getTagCollectionId()).get().getExternalCreationDate());
+        for (String part : new String[] { "Year", "Month", "Day" }) {
+            assertEquals(Long.valueOf(0L), service.getTagForExternalIdAndCollection(part,
+                collection.getTagCollectionId()).get().getExternalCreationDate());
+        }
         assertEquals(Long.valueOf(Instant.parse("2024-02-29T00:00:00Z").toEpochMilli()),
             service.getTagForExternalIdAndCollection("valid", collection.getTagCollectionId()).get().getExternalCreationDate());
     }
@@ -621,6 +631,29 @@ public class TagServiceTest {
             for (String id : originalIds) {
                 assertTrue(service.getTag(id).isPresent());
                 assertTrue(service.getTag(id).get().getLastModificationDate() > 1L);
+            }
+        }
+    }
+
+    @Test
+    public void meshImportStoresIncompleteDatesAsZero() throws Exception {
+        TagCollection collection = TagCollection.builder().name("MeSH").externalSourceName("MESH").build();
+        service.createTagCollection(collection);
+        when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
+        when(configuration.getString("tags.meshcollectionfile", "tags/mesh.xml")).thenReturn("mesh.xml");
+        String xml;
+        try (java.io.InputStream sample = getClass().getResourceAsStream("/xmlsamples/mesh.xml")) {
+            xml = new String(sample.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        }
+        for (String part : new String[] { "Year", "Month", "Day" }) {
+            Files.writeString(files.getRoot().toPath().resolve("mesh.xml"),
+                xml.replaceAll("<" + part + ">[^<]*</" + part + ">", ""));
+            meshImport.syncAllTags();
+            List<Tag> imported = service.getTagsInCollection(collection.getTagCollectionId());
+            assertEquals(14, imported.size());
+            for (Tag tag : imported) {
+                assertEquals(Long.valueOf(0L), tag.getExternalCreationDate());
+                assertEquals(Long.valueOf(0L), tag.getLastUpdateDateInExternalSystem());
             }
         }
     }
