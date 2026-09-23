@@ -98,6 +98,9 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 				while (!xsr.isStartElement() && xsr.hasNext()) {
 					xsr.next();
 				}
+				if (!xsr.isStartElement() || !"DescriptorRecordSet".equals(xsr.getLocalName())) {
+					throw new XMLStreamException("Expected MeSH DescriptorRecordSet root");
+				}
 				xsr.nextTag();
 				TransformerFactory tf = TransformerFactory.newInstance();
 				Transformer t = tf.newTransformer();
@@ -139,12 +142,12 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 			} finally {
 				xsr.close();
 			}
-			if (counterSuccess == counterTotal) {
+			if (counterTotal > 0 && counterSuccess == counterTotal) {
 				updateTagCollectionSynchronization("MESH",0L);
 				deleteTagsOlderThanDateFromCollection("MESH",start);
 				sendStatusMail(1,"Imported from MESH finished. Num of labels processed successfully " + counterSuccess + "of" + counterTotal);
 			} else {
-				log.warn("MESH import had {} failed descriptors; skipping synchronization completion and tag deletion", counterTotal - counterSuccess);
+				log.warn("MESH import processed {} descriptors with {} failures; skipping synchronization completion and tag deletion", counterTotal, counterTotal - counterSuccess);
 			}
 		} catch (XMLStreamException ex) {
 			log.warn("Mesh XML can't be processed",ex);
