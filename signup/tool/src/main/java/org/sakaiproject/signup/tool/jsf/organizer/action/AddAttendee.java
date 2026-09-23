@@ -176,7 +176,13 @@ public class AddAttendee extends SignupAction {
 		if((new Date()).after(meeting.getSignupDeadline())){
 			throw new SignupUserActionException(Utilities.rb.getString("event.signup.deadline.passed"));
 		}
-		
+
+		//check if sign-up period has not started yet (this UI-only restriction must also be enforced server-side,
+		//otherwise it can be bypassed by calling the REST/EntityBroker API directly)
+		if((new Date()).before(meeting.getSignupBegins())){
+			throw new SignupUserActionException(Utilities.rb.getString("event.signup.not.yet.open"));
+		}
+
 		for (SignupTimeslot upTodateTimeslot : signupTimeSlots) {
 			if (upTodateTimeslot.getId().equals(changedTimeslotId)) {
 				if (upTodateTimeslot.isCanceled())
