@@ -587,7 +587,7 @@ public class PrivacyManagerImpl implements PrivacyManager, AuthzGroupAdvisor
 			throw new IllegalArgumentException("Null Argument in createPrivacyRecord");
 		} else {
 			PrivacyRecord privacy = new PrivacyRecord(userId, contextId, recordType, viewable);
-			privacy = savePrivacyRecord(privacy);
+			persistPrivacyRecord(privacy);
 			return privacy;
 		}
 	}
@@ -658,6 +658,11 @@ public class PrivacyManagerImpl implements PrivacyManager, AuthzGroupAdvisor
 	      cb.equal(root.get(RECORD_TYPE), recordType),
 	      root.get(USER_ID).in(userIds));
 	  return sessionFactory.getCurrentSession().createQuery(cq).setCacheable(true).getResultList();
+  }
+
+  private void persistPrivacyRecord(PrivacyRecord privacy)
+  {
+    sessionFactory.getCurrentSession().persist(privacy);
   }
 
   private PrivacyRecord savePrivacyRecord(PrivacyRecord privacy)
