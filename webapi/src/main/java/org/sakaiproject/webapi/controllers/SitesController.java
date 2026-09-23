@@ -82,7 +82,7 @@ public class SitesController extends AbstractSakaiApiController {
     private UserMessagingService userMessagingService;
 
     @GetMapping(value = "/users/{userId}/sites", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<Map<String, Object>>> getSites(@PathVariable String userId, @RequestParam Optional<Boolean> pinned)
+    public Map<String, List<Map<String, Object>>> getSites(@PathVariable("userId") String userId, @RequestParam("pinned") Optional<Boolean> pinned)
         throws UserNotDefinedException {
 
         checkSakaiSession();
@@ -105,7 +105,7 @@ public class SitesController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> getSite(@PathVariable String siteId) {
+    public ResponseEntity<Map<String, Object>> getSite(@PathVariable("siteId") String siteId) {
 
         List<UserNotificationTransferBean> notifications = userMessagingService.getNotifications();
         List<String> pinnedSites = portalService.getPinnedSites();
@@ -115,7 +115,7 @@ public class SitesController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/image", produces = "text/plain")
-    public String postImage(HttpServletRequest req, @PathVariable String siteId) throws Exception {
+    public String postImage(HttpServletRequest req, @PathVariable("siteId") String siteId) throws Exception {
 
         if (!securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteService.siteReference(siteId))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -133,7 +133,7 @@ public class SitesController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/card-config")
-    public void postCardConfig(HttpServletRequest req, @PathVariable String siteId, @RequestParam String mode, @RequestParam(required = false) String background, @RequestParam(required = false) String foreground) throws Exception {
+    public void postCardConfig(HttpServletRequest req, @PathVariable("siteId") String siteId, @RequestParam("mode") String mode, @RequestParam(name = "background", required = false) String background, @RequestParam(name = "foreground", required = false) String foreground) throws Exception {
 
         if (!securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteService.siteReference(siteId))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
