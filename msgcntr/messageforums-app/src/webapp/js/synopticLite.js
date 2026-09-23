@@ -1,40 +1,60 @@
 var SynMainLite = SynMainLite || {};
 
-SynMainLite.setOptionsVisible = function (visible) {
-	const element = document.querySelector(".workspaceTable");
-	if (!element || !DataTable.isDataTable(element)) {
-		resize();
-		return;
+
+	
+var count = 0;
+
+
+
+
+SynMainLite.toggleHiddenRows = function(){
+	// Keep DataTables' column definition in sync with the hidden Options cells.
+	document.querySelectorAll(".workspaceTable colgroup col:first-child").forEach(column => {
+		column.classList.add("optionsTable");
+		column.style.display = "none";
+	});
+	jQuery("tr", $(".workspaceTable")).each(function(){
+		 if($(this.cells).size() >= 1){
+			$($(this.cells)[0]).addClass('optionsTable');
+			$($(this.cells)[0]).hide();
+			count++
+			if($(this.cells)[0].childNodes[0].checked){
+				$(this).addClass('optionsTable');
+				$(this).hide();
+				count--;
+			}
+		 }	
+		});
+
+	if(count == 1){
+		$(".workspaceTable").hide();
 	}
-
-	const table = new DataTable(element);
-	let displayedRows = 0;
-	table.rows().every(function () {
-		// DataTables retains the checkbox cell even while the column is detached.
-		const cell = table.cell(this.index(), 0).node();
-		const checkbox = cell.querySelector("input[type='checkbox']:not(.unchangedValue)");
-		const savedValue = cell.querySelector(".unchangedValue").checked;
-		if (!visible) checkbox.checked = savedValue;
-		this.node().hidden = !visible && savedValue;
-		if (!savedValue) displayedRows++;
-	});
-
-	element.hidden = !visible && displayedRows === 0;
-	table.column(0).visible(visible);
-
-	const form = element.closest("form");
-	form.querySelectorAll(".optionsTable, .hideInfo").forEach(control => {
-		control.style.display = visible ? "" : "none";
-	});
-	form.querySelectorAll(".optionLink").forEach(link => {
-		link.parentElement.parentElement.style.display = visible ? "none" : "";
-	});
-	form.querySelectorAll(".noActivity").forEach(message => {
-		message.style.display = !visible && displayedRows === 0 ? "" : "none";
-	});
 	resize();
 };
 
+
+SynMainLite.getCount = function(){
+	//if count returns 1, then that means there were no
+	//rows in the table besides the header
+	return count;
+};
+
+
+SynMainLite.resetCheckboxes = function(){
+	//this is called when a user cancels their action
+	//this function resets the checkboxes back to their orignal
+	//value
+	jQuery("tr", $(".workspaceTable")).each(function(){
+		 if($(this.cells).size() >= 1){				
+			if($(this.cells)[0].childNodes.length == 2){
+				//checkbox exists, so reset to original setting
+				$(this.cells)[0].childNodes[0].checked = $(this.cells)[0].childNodes[1].checked;
+			}
+		 }	
+		});
+	
+};
+	
 SynMainLite.setupTableCss = function(){
 	
 	jQuery("tr", $(".workspaceTable")).each(function(){
@@ -71,7 +91,7 @@ $(document).ready(function() {
 
 
 $(window).load(function(){
-	SynMainLite.setOptionsVisible(false);
+	SynMainLite.toggleHiddenRows();
 });
 
 */

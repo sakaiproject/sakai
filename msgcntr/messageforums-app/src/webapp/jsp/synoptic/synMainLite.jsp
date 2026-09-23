@@ -155,7 +155,7 @@ function mySetMainFrameHeightViewCell(id)
 			
 			<f:subview id="optionsView" rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}">
 				<sakai:tool_bar>			
-					<f:verbatim><a id="showOptions" name="showOptions" class="optionLink" href="#" onclick="SynMainLite.setOptionsVisible(true); return false;"></a></f:verbatim>
+					<f:verbatim><a id="showOptions" name="showOptions" class="optionLink" href="#" onclick="$('.optionsTable').fadeIn(resize);$('.optionLink').parent().parent().toggle();$('.workspaceTable').fadeIn();$('.noActivity').fadeOut();$('.hideInfo').fadeIn();"></a></f:verbatim>			  	
 		 		</sakai:tool_bar>
 	
 				
@@ -279,7 +279,7 @@ function mySetMainFrameHeightViewCell(id)
 			</f:verbatim>
 			<h:commandButton id="update" value="#{msgs.syn_update}" action="#{mfSynopticBeanLite.proccessActionSaveChanges}" styleClass="active" />
 	 		<f:verbatim>
-				<input type="button" id="cancel" value='</f:verbatim><h:outputText value="#{msgs.syn_cancel}"/><f:verbatim>' onclick="SynMainLite.setOptionsVisible(false);">
+	 			<input type="button" id="cancel" value='</f:verbatim><h:outputText value="#{msgs.syn_cancel}"/><f:verbatim>' onclick="$('.optionsTable').fadeOut(resize);$('.optionLink').parent().parent().toggle();SynMainLite.resetCheckboxes();$('.hideInfo').fadeOut();if(SynMainLite.getCount() == 1){$('.noActivity').fadeIn();$('.workspaceTable').fadeOut();};">
 	 		</f:verbatim> 		
 	 		<f:verbatim> 		
 	 			</div> 			
@@ -354,7 +354,7 @@ function mySetMainFrameHeightViewCell(id)
 		SynMainLite.setupTableSortImageOffset();
 		//hide all checkboxes that are used to reset original values
 		$(".unchangedValue").hide();
-		SynMainLite.setOptionsVisible(false);
+		SynMainLite.toggleHiddenRows();
 	</script>
   </sakai:view>
  </f:view> 

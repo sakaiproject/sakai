@@ -105,7 +105,7 @@
 			SynMainLite.setupTableSortImageOffset();
 			//hide all checkboxes that are used to reset original values
 			$(".unchangedValue").hide();
-			SynMainLite.setOptionsVisible(false);
+			SynMainLite.toggleHiddenRows();
 
 		 	
 		}
@@ -123,7 +123,7 @@
 		SynMainLite.setupTableSortImageOffset();
 		//hide all checkboxes that are used to reset original values
 		$(".unchangedValue").hide();
-		SynMainLite.setOptionsVisible(false);
+		SynMainLite.toggleHiddenRows();
 	}
 
 	/*
