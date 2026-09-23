@@ -4532,4 +4532,17 @@ public class ListItem
         }
     }
 
+    public boolean isLocked()
+    {
+        if(contentService == null)
+        {
+            contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
+        }
+        if(this.id == null)
+        {
+            return false;
+        }
+        return contentService.isLocked(this.id);
+    }
+
 }
