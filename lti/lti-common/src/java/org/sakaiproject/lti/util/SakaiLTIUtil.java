@@ -3123,7 +3123,12 @@ public class SakaiLTIUtil {
 			
 			// For individual submissions or when we know the specific user
 			if (!a.getIsGroup() || submission.getSubmitters().stream().anyMatch(s -> s.getSubmitter().equals(userId))) {
-				submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(userId)).findFirst().ifPresent(s -> s.setSubmittee(true));
+				if (a.getIsGroup()) {
+					// Make the just-scored user the sole submittee so the grading launch targets them.
+					submission.getSubmitters().forEach(s -> s.setSubmittee(s.getSubmitter().equals(userId)));
+				} else {
+					submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(userId)).findFirst().ifPresent(s -> s.setSubmittee(true));
+				}
 			}
 
 			// If we are in any of these states - set the grade to null
