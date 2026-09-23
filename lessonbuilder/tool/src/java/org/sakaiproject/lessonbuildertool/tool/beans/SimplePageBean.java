@@ -6846,8 +6846,10 @@ public class SimplePageBean {
 		// ShowPageProducer figures out how to display type 2 (or default) items 
 		// on the fly, so we don't have to known here what they are.
 
+		SimplePageItem replacedItem = replacefile && itemId != null && itemId != -1 ? findItem(itemId) : null;
+		boolean websiteUpload = isWebsite || (replacedItem != null && "LBWEBSITE".equals(replacedItem.getHtml()));
 		// Check before pushAdvisor(), which grants permissions on student pages.
-		if (isWebsite && !securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteService.siteReference(getCurrentSiteId())))
+		if (websiteUpload && !securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteService.siteReference(getCurrentSiteId())))
 			return;
 
 		SecurityAdvisor advisor = null;
