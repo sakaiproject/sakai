@@ -29,13 +29,24 @@ class OverviewTest extends SakaiUiTestBase {
     @Test
     void messageCenterColumnsStayAlignedWhenTogglingOptions() {
         sakai.login("instructor1");
-        sakai.createCourse("instructor1", List.of("sakai.messages", "sakai.forums"));
+        List<String> tools = List.of("home", "sakai.messages", "sakai.forums");
+        List<String> sites = List.of(sakai.createCourse("instructor1", tools),
+            sakai.createProject("instructor1", tools));
+        // Loading each site's notification summary creates its synoptic record.
+        for (String site : sites) {
+            page.navigate(site);
+            assertThat(page.frameLocator("iframe[title='Message Center Notifications ']")
+                .getByText("New Messages", new FrameLocator.GetByTextOptions()
+                    .setExact(true))).isVisible();
+        }
         page.navigate("/portal");
 
         FrameLocator notifications = page.frameLocator("iframe[title='Message Center Notifications ']");
         Locator table = notifications.locator(".workspaceTable");
         assertThat(table).isVisible();
-        assertThat(table.locator("tbody tr").first()).isVisible();
+        for (String site : sites) {
+            assertThat(table.locator("a[href$='/" + sakai.siteIdFromUrl(site) + "']")).isVisible();
+        }
 
         for (int width : new int[] {1280, 600}) {
             page.setViewportSize(width, 900);

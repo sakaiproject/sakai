@@ -252,7 +252,8 @@ public class SakaiHelper {
         uncheckUnrequestedToolCheckboxes(requestedToolIds);
 
         for (String toolId : requestedToolIds) {
-            Locator checkbox = page.locator("input#" + cssEscape(toolId)).first();
+            String checkboxId = "home".equals(toolId) ? "sakai.home" : toolId;
+            Locator checkbox = page.locator("input#" + cssEscape(checkboxId)).first();
             boolean selected = false;
             if (checkbox.count() > 0 && checkbox.isVisible()) {
                 checkbox.check(new Locator.CheckOptions().setForce(true));
