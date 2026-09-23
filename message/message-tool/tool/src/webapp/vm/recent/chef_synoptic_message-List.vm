@@ -52,7 +52,25 @@
 										<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
 									#else
 										#set ($text=$item.Body)
-										<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</div>
+										## A message's rich-text body can embed its own <style> tag with generic,
+										## unprefixed selectors (e.g. a class like "fondo_kolore" for a colored
+										## stripe) - harmless when sakai.motd only ever showed one message, but
+										## the carousel renders every message's body into the same document at
+										## once, so two messages built from the same authoring template collide:
+										## same-specificity rules for the same class name are resolved document-
+										## wide by source order, so the later message's colors silently win for
+										## every earlier message using that class too (confirmed live: two
+										## announcements each with their own <style>.fondo_kolore rule both ended
+										## up showing whichever color came from the later slide's <style> tag).
+										## The outer .textPanel div stays in the light DOM so the skin's normal
+										## .textPanel styling still applies (inherited properties like font and
+										## color also still cross into the shadow tree); only the untrusted body
+										## markup itself - and any <style> it embeds - is sandboxed inside a
+										## shadow root, scoped back to being this message's own problem only,
+										## same as when it renders alone outside the carousel.
+										<div class="textPanel">
+											<template shadowrootmode="open">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</template>
+										</div>
 									#end
 
 									#set ($size = 0)
@@ -122,6 +140,29 @@
 					</div>
 				#end
 				<script>
+					## Upgrades each message's <template shadowrootmode="open"> (see above) into a
+					## real shadow root by hand, for browsers old enough to have attachShadow() but
+					## not yet the newer native HTML-parser support for declarative shadow roots -
+					## document.getElementById("motdCarousel") below already bails out early on
+					## anything without querySelectorAll/addEventListener, so this only needs to
+					## cover that middle tier. A browser natively supporting the declarative form
+					## has already turned the template into host.shadowRoot by the time this parses
+					## (it's parsed inline, after the template tags in the same document), so those
+					## are skipped here. A browser with neither falls back to plain light DOM - the
+					## same cross-message CSS collision risk this exists to fix, but no worse than
+					## every version of this widget before that fix existed.
+					document.querySelectorAll("template[shadowrootmode]").forEach(function (template) {
+						var host = template.parentNode;
+						if (!host || host.shadowRoot) {
+							return;
+						}
+						if (host.attachShadow) {
+							host.attachShadow({ mode: template.getAttribute("shadowrootmode") }).appendChild(template.content);
+						} else {
+							host.appendChild(template.content);
+						}
+						template.remove();
+					});
 					## Each carousel slide can be a different height. The parent iframe is only
 					## auto-sized once, on body onload, so without this the frame is left at the
 					## first slide's height and later, taller slides get clipped with a scrollbar.
