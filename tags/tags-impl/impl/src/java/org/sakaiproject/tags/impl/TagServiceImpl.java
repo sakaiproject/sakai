@@ -294,6 +294,7 @@ public class TagServiceImpl implements TagService {
         if (StringUtils.isBlank(tag.getTagLabel())) {
             throw new IllegalArgumentException("Tag label must not be blank");
         }
+        requireTagCollection(tag.getTagCollectionId());
         tag.setTagId(null);
         tag.setCreatedBy(sessionManager.getCurrentSessionUserId());
         tag.setCreationDate(Instant.now().toEpochMilli());
@@ -330,6 +331,7 @@ public class TagServiceImpl implements TagService {
         }
         Tag original = tagRepository.findById(tag.getTagId())
             .orElseThrow(() -> new TagServiceException("No tag with id " + tag.getTagId()));
+        requireTagCollection(tag.getTagCollectionId());
         boolean generateEvent = hasContentChanges(tag, original);
         original.setTagCollectionId(tag.getTagCollectionId());
         original.setTagLabel(tag.getTagLabel());
@@ -418,6 +420,12 @@ public class TagServiceImpl implements TagService {
             deleteTag(tag.getTagId());
         }
         return ids;
+    }
+
+    private void requireTagCollection(String id) {
+        if (id == null || !tagCollectionRepository.existsById(id)) {
+            throw new TagServiceException("No collection with id " + id);
+        }
     }
 
     private int offset(int pageNum, int pageSize) {

@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagCollection;
@@ -42,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.sakaiproject.tool.api.Session;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -115,6 +117,12 @@ public class TagServiceAdminEntityProviderTest {
         assertEquals(1, downloaded.size());
         assertEquals(tagId, downloaded.get(0).getTagId());
         assertEquals(tag.getTagLabel(), downloaded.get(0).getTagLabel());
+        XMLTranscoder encoder = new XMLTranscoder(true, true, false, false);
+        String xml = encoder.encode(downloaded.get(0), "Tag", null);
+        Map<String, Object> exported = encoder.decode(xml);
+        assertEquals(collection.getTagCollectionId(), exported.get("tagCollectionId"));
+        assertEquals(tag.getTagLabel(), exported.get("tagLabel"));
+        assertFalse(exported.containsKey("collection"));
     }
 
     @Test

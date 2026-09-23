@@ -834,6 +834,17 @@ public class TagServiceTest {
     }
 
     @Test
+    public void rejectsMovingTagsToMissingCollectionsWithoutEvent() {
+        TagCollection collection = collection("Existing");
+        Tag original = tag(collection, "Tag");
+        clearInvocations(events);
+        assertThrows(org.sakaiproject.tags.api.TagServiceException.class,
+            () -> service.updateTag(original.toBuilder().tagCollectionId("missing").build()));
+        assertEquals(collection.getTagCollectionId(), service.getTag(original.getTagId()).get().getTagCollectionId());
+        verify(events, never()).post(any());
+    }
+
+    @Test
     public void preservesLongTextFields() {
         String text = "Imported metadata ".repeat(300);
         TagCollection collection = collection("Long text");
