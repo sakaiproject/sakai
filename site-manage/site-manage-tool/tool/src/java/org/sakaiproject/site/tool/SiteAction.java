@@ -10623,11 +10623,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									}
 
 									if (state.getAttribute(STATE_MESSAGE) != null) {
+										deleteTempDupSiteOnError(site);
 										return;
 									}
 
 									if (!siteManageService.importAllToolsIntoSiteThread(oldSiteId, site)) {
 										addAlert(state, rb.getString("java.import.existing"));
+										deleteTempDupSiteOnError(site);
 										return;
 									}
 									state.setAttribute(IMPORT_QUEUED, rb.get("importQueued"));
