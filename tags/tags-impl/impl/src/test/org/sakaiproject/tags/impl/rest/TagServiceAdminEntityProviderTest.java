@@ -27,6 +27,8 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagCollection;
@@ -113,6 +115,22 @@ public class TagServiceAdminEntityProviderTest {
         assertEquals(1, downloaded.size());
         assertEquals(tagId, downloaded.get(0).getTagId());
         assertEquals(tag.getTagLabel(), downloaded.get(0).getTagLabel());
+    }
+
+    @Test
+    public void updatingMissingTagReportsItsId() {
+        params.put("tagid", "missing-tag");
+        JSONObject response = (JSONObject) JSONValue.parse(provider.updateTag(null, params));
+        assertEquals("ERROR", response.get("status"));
+        assertEquals("No tag with id missing-tag", response.get("message"));
+    }
+
+    @Test
+    public void updatingMissingCollectionReportsItsId() {
+        params.put("tagcollectionid", "missing-collection");
+        JSONObject response = (JSONObject) JSONValue.parse(provider.updateTagCollection(null, params));
+        assertEquals("ERROR", response.get("status"));
+        assertEquals("No tag collection with id missing-collection", response.get("message"));
     }
 
     @Test

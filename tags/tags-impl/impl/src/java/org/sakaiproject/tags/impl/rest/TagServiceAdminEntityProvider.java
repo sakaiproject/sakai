@@ -310,7 +310,8 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagid= wp.getString("tagid");
 
-            Tag.TagBuilder tag = tagService.getTag(tagid).get().toBuilder();
+            Tag.TagBuilder tag = tagService.getTag(tagid)
+                .orElseThrow(() -> new IllegalArgumentException("No tag with id " + tagid)).toBuilder();
 
             if (wp.containsKey("tagcollectionid")) {
                 tag.tagCollectionId(wp.getString("tagcollectionid"));
@@ -373,7 +374,8 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagcollectionid= wp.getString("tagcollectionid");
 
-            TagCollection.TagCollectionBuilder tagCollection = tagService.getTagCollection(tagcollectionid).get().toBuilder();
+            TagCollection.TagCollectionBuilder tagCollection = tagService.getTagCollection(tagcollectionid)
+                .orElseThrow(() -> new IllegalArgumentException("No tag collection with id " + tagcollectionid)).toBuilder();
 
             //We don't need to change the creation date or user
 
