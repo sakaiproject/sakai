@@ -30,6 +30,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -81,6 +82,9 @@ public class PollsServiceTests {
     @Autowired private LocaleService localeService;
     @Autowired private UserTimeService userTimeService;
 
+    /** Backs the mocked {@code pollsBundle}, so tests can pick which locale's real translations it resolves. */
+    private final AtomicReference<Locale> pollsBundleLocale = new AtomicReference<>(Locale.ROOT);
+
     @Before
     public void onSetUp() {
         ResourceLoader etsOptionDeleted = Mockito.mock(ResourceLoader.class);
@@ -91,6 +95,12 @@ public class PollsServiceTests {
         Mockito.when(etsOptionDeleted.getString("message4")).thenReturn("Please log in to");
         Mockito.when(etsOptionDeleted.getString("message5")).thenReturn("and place a new vote for the poll.");
         ((PollsServiceImpl) AopTestUtils.getTargetObject(pollsService)).setOptionDeletedBundle(etsOptionDeleted);
+
+        pollsBundleLocale.set(Locale.ROOT);
+        ResourceLoader pollsBundle = Mockito.mock(ResourceLoader.class);
+        Mockito.when(pollsBundle.getString(Mockito.anyString())).thenAnswer(invocation ->
+            ResourceBundle.getBundle("bundle.polls", pollsBundleLocale.get()).getString(invocation.getArgument(0)));
+        ((PollsServiceImpl) AopTestUtils.getTargetObject(pollsService)).setPollsBundle(pollsBundle);
 
         Mockito.when(siteService.siteReference(LOCATION1_ID)).thenReturn(LOCATION1_REF);
 
@@ -918,7 +928,9 @@ public class PollsServiceTests {
 
     @Test
     public void testImportSampleCsvCreatesImportablePoll() {
-        String csv = pollsService.getPollImportSampleCsv(ResourceBundle.getBundle("bundle.polls", Locale.US)::getString);
+        // Locale.ROOT, not Locale.US: bundle.polls has no en/en_US variant, so requesting Locale.US would
+        // fall back to the JVM's default locale (e.g. es-ES under the "ES locale" CI matrix) before root.
+        String csv = pollsService.getPollImportSampleCsv(ResourceBundle.getBundle("bundle.polls", Locale.ROOT)::getString);
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -983,10 +995,14 @@ public class PollsServiceTests {
 
     @Test
     public void testImportLocalizedSampleCsvCreatesImportablePoll() {
+        Locale spanish = Locale.forLanguageTag("es");
         Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
-        String csv = pollsService.getPollImportSampleCsv(ResourceBundle.getBundle("bundle.polls", Locale.US)::getString)
+        // The header validation path resolves labels through pollsBundle, so point its mock at the same
+        // Spanish translations used to build the sample, then assert those real translations round-trip.
+        pollsBundleLocale.set(spanish);
+        String csv = pollsService.getPollImportSampleCsv(ResourceBundle.getBundle("bundle.polls", spanish)::getString)
             .replace("What is your favorite color?", "Localized sample poll");
-        Assert.assertTrue(csv.startsWith("Question;Description;"));
+        Assert.assertTrue(csv.startsWith("Pregunta;Descripción;"));
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
