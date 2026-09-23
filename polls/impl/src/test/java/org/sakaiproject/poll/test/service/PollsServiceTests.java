@@ -965,6 +965,22 @@ public class PollsServiceTests {
     }
 
     @Test
+    public void testImportPollsFromCsvHandlesSemicolonDelimiterOnCommaPreferringLocale() {
+        // Default @Before locale is Locale.US (comma-preferring): the account's locale doesn't
+        // guarantee the delimiter of a file built with another tool/locale, so ';' must still work.
+        String csv = importCsvHeader(2).replace(',', ';') + "\n"
+            + "Semicolon file on comma locale;\"Description; with a separator\";site;;2026-06-01;09:00;2026-06-02;17:00;1;1;1;One;Two\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Semicolon file on comma locale".equals(p.getText())).findFirst().orElseThrow();
+        Assert.assertEquals("Description; with a separator", saved.getDescription());
+        Assert.assertEquals(Instant.parse("2026-06-01T09:00:00Z"), saved.getVoteOpen());
+        Assert.assertEquals(Instant.parse("2026-06-02T17:00:00Z"), saved.getVoteClose());
+    }
+
+    @Test
     public void testImportPollsFromCsvFallsBackToCommaDelimiterWhenFileIsCommaDelimited() {
         Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
         String csv = importCsvHeader(2) + "\n"

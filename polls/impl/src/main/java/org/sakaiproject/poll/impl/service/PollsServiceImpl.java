@@ -268,18 +268,17 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
 
         char preferredDelimiter = CsvSeparator.forLocale(locale);
-        if (preferredDelimiter == CSVParser.DEFAULT_SEPARATOR) {
-            return parseImportedPolls(csvContent, preferredDelimiter, locale);
-        }
+        char alternateDelimiter = preferredDelimiter == CSVParser.DEFAULT_SEPARATOR ? ';' : CSVParser.DEFAULT_SEPARATOR;
 
         try {
             return parseImportedPolls(csvContent, preferredDelimiter, locale);
         } catch (PollImportException e) {
-            // Retry comma-separated files only if the regional separator did not match the header.
+            // Retry with the other common delimiter only if the preferred one did not match the header;
+            // the account's locale doesn't guarantee the delimiter of a file built with another tool/locale.
             if (e.getError() != PollImportError.INVALID_HEADER) {
                 throw e;
             }
-            return parseImportedPolls(csvContent, CSVParser.DEFAULT_SEPARATOR, locale);
+            return parseImportedPolls(csvContent, alternateDelimiter, locale);
         }
     }
 
