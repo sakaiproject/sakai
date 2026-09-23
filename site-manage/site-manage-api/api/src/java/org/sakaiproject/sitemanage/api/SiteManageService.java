@@ -63,11 +63,7 @@ public interface SiteManageService {
     boolean importAllToolsIntoSiteThread(String fromSiteId, Site site);
 
     /**
-     * Synchronously import all content and advertised transfer options for the destination site's tools,
-     * using the same replace-import workflow as Site Info. Intended for newly created
-     * template sites whose placements have already been copied. Duplicate Site uses
-     * {@link #importAllToolsIntoSiteThread(String, Site)} instead.
-     * Callers must reload the destination site afterward because importers may change it.
+     * Copy tool content from old site
      *
      * @param oSiteId        source (old) site id
      * @param site           destination site

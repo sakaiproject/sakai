@@ -116,7 +116,7 @@ public class SiteManageServiceImplImportToolContentTest {
         verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         verify(siteManageService, never()).transferSiteResource(oldSiteId, newSiteId, destinationSiteInfoUrl);
         verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
-        verify(siteService, atLeastOnce()).save(destinationSite);
+        verify(siteService).save(destinationSite);
     }
 
     @Test
@@ -140,7 +140,7 @@ public class SiteManageServiceImplImportToolContentTest {
         InOrder inOrder = inOrder(siteManageService, destinationSite, siteService);
         inOrder.verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         inOrder.verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
-        inOrder.verify(siteService, atLeastOnce()).save(destinationSite);
+        inOrder.verify(siteService).save(destinationSite);
     }
 
     @Test
@@ -164,7 +164,7 @@ public class SiteManageServiceImplImportToolContentTest {
         verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
         verify(destinationSite, never()).setInfoUrl("");
-        verify(siteService, atLeastOnce()).save(destinationSite);
+        verify(siteService).save(destinationSite);
     }
 
     @Test
@@ -369,7 +369,6 @@ public class SiteManageServiceImplImportToolContentTest {
 
         when(tool.getId()).thenReturn(SiteManageConstants.SITE_INFO_TOOL_ID);
         when(toolConfiguration.getTool()).thenReturn(tool);
-        when(toolConfiguration.getToolId()).thenReturn(SiteManageConstants.SITE_INFO_TOOL_ID);
         when(page.getTools()).thenReturn(List.of(toolConfiguration));
 
         return page;
@@ -381,9 +380,6 @@ public class SiteManageServiceImplImportToolContentTest {
 
         when(sourceSite.getInfoUrl()).thenReturn(sourceSiteInfoUrl);
         when(sourceSite.getRoles()).thenReturn(Collections.emptySet());
-        when(sourceSite.getProperties()).thenReturn(mock(ResourceProperties.class));
-        when(destinationSite.getPropertiesEdit()).thenReturn(mock(ResourcePropertiesEdit.class));
-        when(siteService.getSite(newSiteId)).thenReturn(destinationSite);
 
         when(destinationSite.getId()).thenReturn(newSiteId);
         when(destinationSite.getInfoUrl()).thenReturn(destinationSiteInfoUrl);
