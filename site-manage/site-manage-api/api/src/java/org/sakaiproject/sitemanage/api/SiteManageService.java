@@ -52,9 +52,22 @@ public interface SiteManageService {
     void importToolsIntoSite(Site site, List<String> toolIds, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, boolean cleanup);
 
     /**
-     * Import all content and advertised transfer options for the destination site's tools,
+     * Queue the same background replace-import as Site Info with every destination tool
+     * and its advertised transfer options selected. Finish saving the new site and its
+     * realm before calling; do not save the site again after the import is queued.
+     *
+     * @param fromSiteId source site id
+     * @param site destination site, with its copied placements already saved
+     * @param copyScoringData copy external scoring associations after the tool content
+     * @return true if queued, false if an import is already running or the executor rejects it
+     */
+    boolean importAllToolsIntoSiteThread(String fromSiteId, Site site, boolean copyScoringData);
+
+    /**
+     * Synchronously import all content and advertised transfer options for the destination site's tools,
      * using the same replace-import workflow as Site Info. Intended for newly created
-     * duplicate/template sites whose placements have already been copied.
+     * template sites whose placements have already been copied. Duplicate Site uses
+     * {@link #importAllToolsIntoSiteThread(String, Site, boolean)} instead.
      * Callers must reload the destination site afterward because importers may change it.
      *
      * @param oSiteId        source (old) site id
