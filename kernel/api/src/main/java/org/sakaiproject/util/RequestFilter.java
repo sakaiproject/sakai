@@ -733,7 +733,7 @@ public class RequestFilter implements Filter
 		contentExceptions = serverConfigurationService.getStrings("content.chsexception.urlprefixes");
 		if (contentExceptions == null) {
 			// add in default exceptions here, if desired
-			contentExceptions = new String[] { "/access/calendar/", "/access/citation/export_ris_sel/", "/access/citation/export_ris_all/" };
+			contentExceptions = new String[] { "/access/calendar/" };
 		}
 
 		// capture the servlet context for later user

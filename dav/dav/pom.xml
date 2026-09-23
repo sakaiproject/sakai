@@ -32,10 +32,6 @@
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-dav-common</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-citations-api</artifactId>
-        </dependency>
         <!-- in tomcat common, so no need to bundle -->
 <!--
         <dependency>

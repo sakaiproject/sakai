@@ -106,7 +106,6 @@ public class AutoConfigController {
 	) throws Exception {
 		List<String> excluded_sites = Arrays.asList(
 			"!admin",
-			"citationsAdmin",
 			"mercury"
 		);
 		

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-  <!-- Pulling this off the classpath means we can use it in tests and in production -->
-  <import resource="classpath:org/sakaiproject/citation/impl/citations.xml"/>
-  <import resource="classpath:org/sakaiproject/citation/impl/openurl.xml"/>
-</beans>
