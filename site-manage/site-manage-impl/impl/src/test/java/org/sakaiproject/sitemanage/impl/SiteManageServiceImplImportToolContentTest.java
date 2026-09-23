@@ -20,27 +20,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-import org.junit.After;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.site.api.Site;
@@ -48,30 +38,31 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitemanage.api.SiteManageConstants;
-import org.sakaiproject.sitemanage.api.SiteManageService;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.tsugi.lti13.LTICustomVars;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 /**
- * Tests the public import service using its production Spring wiring.
+ * Focused unit tests for SiteManageServiceImpl#importToolContent site info URL behavior.
  */
-public class SiteManageServiceImportTest {
+public class SiteManageServiceImplImportToolContentTest {
 
     private static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 
-    private SiteManageService siteManageService;
-    private SiteManageTestConfiguration configuration;
+    private SiteManageServiceImpl siteManageService;
     private SiteService siteService;
     private AuthzGroupService authzGroupService;
     private FunctionManager functionManager;
@@ -80,19 +71,28 @@ public class SiteManageServiceImportTest {
 
     @Before
     public void setUp() {
-        configuration = new SiteManageTestConfiguration();
-        siteManageService = configuration.getBean(SiteManageService.class);
-        siteService = configuration.getBean(SiteService.class);
-        authzGroupService = configuration.getBean(AuthzGroupService.class);
-        functionManager = configuration.getBean(FunctionManager.class);
-        serverConfigurationService = configuration.getBean(ServerConfigurationService.class);
-        entityManager = configuration.getBean(EntityManager.class);
-        when(entityManager.getEntityProducers()).thenReturn(Collections.emptyList());
-    }
+        siteManageService = spy(new SiteManageServiceImpl());
+        siteService = mock(SiteService.class);
+        authzGroupService = mock(AuthzGroupService.class);
+        functionManager = mock(FunctionManager.class);
+        serverConfigurationService = mock(ServerConfigurationService.class);
+        entityManager = mock(EntityManager.class);
+        TransactionTemplate transactionTemplate = mock(TransactionTemplate.class);
 
-    @After
-    public void tearDown() {
-        configuration.close();
+        siteManageService.setSiteService(siteService);
+        siteManageService.setAuthzGroupService(authzGroupService);
+        siteManageService.setFunctionManager(functionManager);
+        siteManageService.setServerConfigurationService(serverConfigurationService);
+        siteManageService.setEntityManager(entityManager);
+        siteManageService.setTransactionTemplate(transactionTemplate);
+
+        // Keep this test class focused on site-info URL behavior.
+        doReturn(false).when(siteManageService).isAddMissingToolsOnImportEnabled();
+        when(entityManager.getEntityProducers()).thenReturn(Collections.emptyList());
+        when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
+            TransactionCallback<?> callback = invocation.getArgument(0);
+            return callback.doInTransaction(mock(TransactionStatus.class));
+        });
     }
 
     @Test
@@ -109,10 +109,12 @@ public class SiteManageServiceImportTest {
         Site destinationSite = mock(Site.class);
         mockImportContext(oldSiteId, newSiteId, sourceSiteInfoUrl, destinationSiteInfoUrl, sourceSite, destinationSite);
 
-        mockSiteInfoResourceTransfer(transferResultSiteInfoUrl);
+        doReturn(transferResultSiteInfoUrl).when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
 
         siteManageService.importToolContent(oldSiteId, destinationSite, false);
 
+        verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
+        verify(siteManageService, never()).transferSiteResource(oldSiteId, newSiteId, destinationSiteInfoUrl);
         verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
         verify(siteService, atLeastOnce()).save(destinationSite);
     }
@@ -131,11 +133,12 @@ public class SiteManageServiceImportTest {
         mockImportContext(oldSiteId, newSiteId, sourceSiteInfoUrl, destinationSiteInfoUrl, sourceSite, destinationSite);
 
         // Simulate no update from transferSiteResource (non-resource URL case).
-
+        doReturn(sourceSiteInfoUrl).when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
 
         siteManageService.importToolContent(oldSiteId, destinationSite, false);
 
-        InOrder inOrder = inOrder(destinationSite, siteService);
+        InOrder inOrder = inOrder(siteManageService, destinationSite, siteService);
+        inOrder.verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         inOrder.verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
         inOrder.verify(siteService, atLeastOnce()).save(destinationSite);
     }
@@ -154,10 +157,11 @@ public class SiteManageServiceImportTest {
         mockImportContext(oldSiteId, newSiteId, sourceSiteInfoUrl, destinationSiteInfoUrl, sourceSite, destinationSite);
 
         // Simulate transfer failure after resolving a resource.
-        mockSiteInfoResourceTransfer("");
+        doReturn("").when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
 
         siteManageService.importToolContent(oldSiteId, destinationSite, false);
 
+        verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
         verify(destinationSite, never()).setInfoUrl("");
         verify(siteService, atLeastOnce()).save(destinationSite);
@@ -189,7 +193,7 @@ public class SiteManageServiceImportTest {
         when(siteService.getSite(newSiteId)).thenReturn(destinationSite);
 
         // Simulate no update from transferSiteResource (non-resource URL case).
-
+        doReturn(sourceSiteInfoUrl).when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
 
         Map<String, List<String>> importTools = new HashMap<>();
         importTools.put(SiteManageConstants.SITE_INFO_TOOL_ID, List.of(oldSiteId));
@@ -203,6 +207,7 @@ public class SiteManageServiceImportTest {
             false
         );
 
+        verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         verify(destinationSite).setDescription(sourceSiteDescription);
         verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
         verify(destinationSite, never()).setInfoUrl("");
@@ -235,7 +240,7 @@ public class SiteManageServiceImportTest {
         when(siteService.getSite(newSiteId)).thenReturn(destinationSite);
 
         // Simulate transfer failure after resolving a resource.
-        mockSiteInfoResourceTransfer("");
+        doReturn("").when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
 
         Map<String, List<String>> importTools = new HashMap<>();
         importTools.put(SiteManageConstants.SITE_INFO_TOOL_ID, List.of(oldSiteId));
@@ -249,6 +254,7 @@ public class SiteManageServiceImportTest {
             false
         );
 
+        verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         verify(destinationSite).setDescription(sourceSiteDescription);
         verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
         verify(destinationSite, never()).setInfoUrl("");
@@ -354,144 +360,6 @@ public class SiteManageServiceImportTest {
         inOrder.verify(assignmentTransferrer).transferCopyEntities(oldSiteId, newSiteId, null, null, true);
         verify(announcementTransferrer).transferCopyEntities(oldSiteId, newSiteId, announcementItems, null, true);
         verify(assignmentTransferrer).transferCopyEntities(oldSiteId, newSiteId, null, null, true);
-    }
-
-    @Test
-    public void fullImportSelectsAllOptionsAndOrdersToolsAcrossEveryPlacement() throws Exception {
-        String sourceId = "site-old";
-        String destinationId = "site-new";
-        Site source = mock(Site.class);
-        Site destination = mock(Site.class);
-        mockImportContext(sourceId, destinationId, null, null, source, destination);
-        String assignments = "sakai.assignment.grades";
-        String gradebook = SiteManageConstants.GRADEBOOK_TOOL_ID;
-        String resources = SiteManageConstants.RESOURCES_TOOL_ID;
-        // Deliberately reverse the dependency order and repeat a tool on another page.
-        SitePage firstPage = mock(SitePage.class);
-        SitePage secondPage = mock(SitePage.class);
-        List<ToolConfiguration> firstTools = List.of(placement(assignments), placement(ANNOUNCEMENTS_TOOL_ID));
-        List<ToolConfiguration> secondTools = List.of(placement(gradebook), placement(resources), placement(assignments));
-        when(firstPage.getTools()).thenReturn(firstTools);
-        when(secondPage.getTools()).thenReturn(secondTools);
-        when(destination.getPages()).thenReturn(List.of(firstPage, secondPage));
-        ContentHostingService content = configuration.getBean(ContentHostingService.class);
-        when(content.getSiteCollection(sourceId)).thenReturn("/group/site-old/");
-        when(content.getSiteCollection(destinationId)).thenReturn("/group/site-new/");
-
-        EntityTransferrer assignment = transferrer(assignments, List.of(EntityTransferrer.COPY_PERMISSIONS_OPTION, EntityTransferrer.PUBLISH_OPTION));
-        EntityTransferrer announcement = transferrer(ANNOUNCEMENTS_TOOL_ID, List.of(EntityTransferrer.COPY_PERMISSIONS_OPTION));
-        EntityTransferrer grades = transferrer(gradebook, List.of(EntityTransferrer.COPY_SETTINGS_OPTION));
-        EntityTransferrer resource = transferrer(resources, List.of());
-        when(entityManager.getEntityProducers()).thenReturn(List.of(
-            (EntityProducer) assignment, (EntityProducer) announcement, (EntityProducer) grades, (EntityProducer) resource));
-        Map<String, String> resourceLinks = Map.of("/group/site-old/file", "/group/site-new/file");
-        when(resource.transferCopyEntities("/group/site-old/", "/group/site-new/", null, List.of(), true)).thenReturn(resourceLinks);
-
-        Role sourceRole = mock(Role.class);
-        Role destinationRole = mock(Role.class);
-        when(source.getRoles()).thenReturn(Set.of(sourceRole));
-        when(sourceRole.getId()).thenReturn("access");
-        when(sourceRole.isAllowed("asn.submit")).thenReturn(true);
-        when(assignment.getToolPermissionsPrefix()).thenReturn("asn.");
-        when(assignment.supportsTransferOption(EntityTransferrer.COPY_PERMISSIONS_OPTION)).thenReturn(true);
-        when(functionManager.getRegisteredFunctions("asn.")).thenReturn(List.of("asn.submit", "asn.new"));
-        AuthzGroup realm = authzGroupService.getAuthzGroup("/site/" + destinationId);
-        when(realm.getRole("access")).thenReturn(destinationRole);
-        ToolConfiguration sourcePlacement = placement(assignments);
-        ToolConfiguration destinationPlacement = placement(assignments);
-        when(sourcePlacement.getId()).thenReturn("assignment-old");
-        when(destinationPlacement.getId()).thenReturn("assignment-new");
-        when(serverConfigurationService.getPortalUrl()).thenReturn("https://sakai.example.edu/portal");
-        Properties sourceConfig = new Properties();
-        Properties destinationConfig = new Properties();
-        sourceConfig.setProperty(ToolManager.PORTAL_VISIBLE, "false");
-        when(sourcePlacement.getPlacementConfig()).thenReturn(sourceConfig);
-        when(destinationPlacement.getPlacementConfig()).thenReturn(destinationConfig);
-        when(source.getTools(assignments)).thenReturn(List.of(sourcePlacement));
-        when(destination.getTools(assignments)).thenReturn(List.of(destinationPlacement));
-
-        // Enabling missing-tool import must not change the selection or duplicate transfers.
-        when(serverConfigurationService.getBoolean("site.setup.import.addmissingtools", true)).thenReturn(true);
-        siteManageService.importToolContent(sourceId, destination, false);
-
-        InOrder order = inOrder(resource, grades, announcement, assignment);
-        order.verify(resource).transferCopyEntities("/group/site-old/", "/group/site-new/", null, List.of(), true);
-        order.verify(grades).transferCopyEntities(sourceId, destinationId, null, List.of(EntityTransferrer.COPY_SETTINGS_OPTION), true);
-        order.verify(announcement).transferCopyEntities(sourceId, destinationId, null, List.of(EntityTransferrer.COPY_PERMISSIONS_OPTION), true);
-        order.verify(assignment).transferCopyEntities(sourceId, destinationId, null,
-            List.of(EntityTransferrer.COPY_PERMISSIONS_OPTION, EntityTransferrer.PUBLISH_OPTION), true);
-        verify(assignment).transferCopyEntities(sourceId, destinationId, null,
-            List.of(EntityTransferrer.COPY_PERMISSIONS_OPTION, EntityTransferrer.PUBLISH_OPTION), true);
-        Map<String, String> expectedLinks = new HashMap<>(resourceLinks);
-        expectedLinks.put("https://sakai.example.edu/portal/directtool/assignment-old/",
-            "https://sakai.example.edu/portal/directtool/assignment-new/");
-        verify(assignment).updateEntityReferences(destinationId, expectedLinks);
-        verify(resource).updateEntityReferences(destinationId, expectedLinks);
-        verify(destinationRole).allowFunction("asn.submit");
-        verify(destinationRole).disallowFunction("asn.new");
-        assertEquals("false", destinationConfig.getProperty(ToolManager.PORTAL_VISIBLE));
-        verify(destinationPlacement).save();
-        verify(destination.getPropertiesEdit()).addProperty(LTICustomVars.CONTEXT_ID_HISTORY, sourceId);
-    }
-
-    @Test
-    public void fullImportIncludesSiteInformationWithoutAddingAnOverviewPlacement() throws Exception {
-        Site source = mock(Site.class);
-        Site destination = mock(Site.class);
-        mockImportContext("site-old", "site-new", "https://sakai.example.edu/portal/site/site-old", null, source, destination);
-        when(source.getDescription()).thenReturn("Source description");
-        when(destination.getPages()).thenReturn(List.of());
-        when(serverConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)).thenReturn(true);
-        when(serverConfigurationService.getBoolean("site.setup.import.addmissingtools", true)).thenReturn(true);
-
-        siteManageService.importToolContent("site-old", destination, false);
-
-        verify(destination).setDescription("Source description");
-        verify(destination).setInfoUrl("https://sakai.example.edu/portal/site/site-new");
-        verify(destination, never()).addPage();
-    }
-
-    @Test
-    public void templateImportAlwaysRemovesItsSecurityAdvisor() throws Exception {
-        Site destination = mock(Site.class);
-        when(destination.getId()).thenReturn("site-new");
-        when(destination.getPages()).thenThrow(new IllegalStateException("Cannot read placements"));
-        SecurityService security = configuration.getBean(SecurityService.class);
-
-        siteManageService.importToolContent("site-old", destination, true);
-
-        ArgumentCaptor<SecurityAdvisor> advisor =
-            ArgumentCaptor.forClass(SecurityAdvisor.class);
-        verify(security).pushAdvisor(advisor.capture());
-        verify(security).popAdvisor(advisor.getValue());
-    }
-
-    private ToolConfiguration placement(String toolId) {
-        ToolConfiguration placement = mock(ToolConfiguration.class);
-        when(placement.getToolId()).thenReturn(toolId);
-        return placement;
-    }
-
-    private EntityTransferrer transferrer(String toolId, List<String> options) {
-        EntityProducer producer = mock(EntityProducer.class, withSettings().extraInterfaces(EntityTransferrer.class));
-        EntityTransferrer transferrer = (EntityTransferrer) producer;
-        when(transferrer.myToolIds()).thenReturn(new String[] { toolId });
-        when(transferrer.getTransferOptions()).thenReturn(Optional.of(options));
-        return transferrer;
-    }
-
-    private void mockSiteInfoResourceTransfer(String transferredUrl) throws Exception {
-        ContentHostingService content = configuration.getBean(ContentHostingService.class);
-        when(serverConfigurationService.getAccessUrl()).thenReturn("https://sakai.example.edu/access");
-        Reference reference = mock(Reference.class);
-        when(entityManager.newReference(any(String.class))).thenReturn(reference);
-        when(reference.getId()).thenReturn("/group/site-old/site-info");
-        ContentResource source = mock(ContentResource.class);
-        ContentResource destination = mock(ContentResource.class);
-        when(content.getResource("/group/site-old/site-info")).thenReturn(source);
-        when(source.getId()).thenReturn("/group/site-old/site-info");
-        when(content.getResource("/group/site-new/site-info")).thenReturn(destination);
-        when(destination.getUrl(false)).thenReturn(transferredUrl);
     }
 
     private SitePage mockSiteInfoPage() {

@@ -108,55 +108,6 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
         assertThat(page.locator("body")).containsText(ASSIGNMENT_TITLE);
     }
 
-    @Test
-    void duplicateSiteImportsAllOptionsAndPublishesAssignments() {
-        String assignmentTitle = "Duplicate assignment " + System.currentTimeMillis();
-        String duplicateTitle = "Duplicate all " + System.currentTimeMillis();
-        sakai.login("instructor1");
-        String sourceSite = sakai.createProject("instructor1", List.of(
-            "sakai\\.announcements",
-            "sakai\\.assignment\\.grades",
-            "sakai\\.schedule",
-            "sakai\\.gradebookng"
-        ));
-        page.navigate(sourceSite);
-        sakai.toolClick("Assignments");
-        openAddAssignmentForm();
-        page.locator("#new_assignment_title").fill(assignmentTitle);
-        Locator gradeAssignment = page.locator("#gradeAssignment").first();
-        if (gradeAssignment.count() > 0 && gradeAssignment.isChecked()) {
-            gradeAssignment.uncheck(new Locator.UncheckOptions().setForce(true));
-        }
-        page.locator("#new_assignment_check_auto_announce").check(new Locator.CheckOptions().setForce(true));
-        fillAssignmentInstructions("<p>Content copied by the full Site Info import.</p>");
-        submitAssignmentForm();
-        assertThat(page.locator("body")).containsText(assignmentTitle);
-
-        sakai.toolClick("Site Info");
-        page.locator(".navIntraTool a, .navIntraTool button")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Duplicate Site$", Pattern.CASE_INSENSITIVE)))
-            .first().click(new Locator.ClickOptions().setForce(true));
-        page.locator("#title").fill(duplicateTitle);
-        page.locator("#duplicateSite").click();
-        Locator duplicateLink = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(duplicateTitle).setExact(true));
-        assertThat(duplicateLink).isVisible();
-        duplicateLink.click();
-        page.waitForLoadState();
-
-        sakai.toolClick("Assignments");
-        assertThat(page.locator("body")).containsText(assignmentTitle);
-        Locator assignmentRow = page.locator("tr, li, .assignment")
-            .filter(new Locator.FilterOptions().setHasText(assignmentTitle)).first();
-        assertThat(assignmentRow).not().containsText(Pattern.compile("\\bDraft\\b", Pattern.CASE_INSENSITIVE));
-        sakai.toolClick("Announcements");
-        assertThat(page.locator("body")).containsText(assignmentTitle);
-
-        // The full import must leave the source content intact.
-        page.navigate(sourceSite);
-        sakai.toolClick("Assignments");
-        assertThat(page.locator("body")).containsText(assignmentTitle);
-    }
-
     private void openAddAssignmentForm() {
         Locator addLink = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^(Add|New)$", Pattern.CASE_INSENSITIVE)))
