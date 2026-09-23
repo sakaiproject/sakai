@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
 
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -96,12 +95,14 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 			XMLStreamReader xsr = MapperFactory.xmlBuilder().build().getFactory()
 					.getXMLInputFactory().createXMLStreamReader(input);
 			try {
-				xsr.next();
+				while (!xsr.isStartElement() && xsr.hasNext()) {
+					xsr.next();
+				}
 				xsr.nextTag();
 				TransformerFactory tf = TransformerFactory.newInstance();
 				Transformer t = tf.newTransformer();
 
-				while (xsr.nextTag() == XMLStreamConstants.START_ELEMENT) {
+				while (hasImportElement(xsr)) {
 					DOMResult result = new DOMResult();
 					t.transform(new StAXSource(xsr), result);
 
@@ -138,9 +139,13 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 			} finally {
 				xsr.close();
 			}
-			updateTagCollectionSynchronization("MESH",0L);
-			deleteTagsOlderThanDateFromCollection("MESH",start);
-			sendStatusMail(1,"Imported from MESH finished. Num of labels processed successfully " + counterSuccess + "of" + counterTotal);
+			if (counterSuccess == counterTotal) {
+				updateTagCollectionSynchronization("MESH",0L);
+				deleteTagsOlderThanDateFromCollection("MESH",start);
+				sendStatusMail(1,"Imported from MESH finished. Num of labels processed successfully " + counterSuccess + "of" + counterTotal);
+			} else {
+				log.warn("MESH import had {} failed descriptors; skipping synchronization completion and tag deletion", counterTotal - counterSuccess);
+			}
 		} catch (XMLStreamException ex) {
 			log.warn("Mesh XML can't be processed",ex);
 		} catch (Exception e){

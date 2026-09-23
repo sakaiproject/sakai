@@ -589,7 +589,7 @@ public class TagServiceTest {
     }
 
     @Test
-    public void meshImportReadsSampleWithExternalDoctype() throws Exception {
+    public void meshImportReadsAllDescriptorsWithOrWithoutDoctypeAndWhitespace() throws Exception {
         TagCollection collection = TagCollection.builder().name("MeSH").externalSourceName("MESH").build();
         service.createTagCollection(collection);
         when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
@@ -603,6 +603,55 @@ public class TagServiceTest {
         assertEquals(14, service.getTagsInCollection(collection.getTagCollectionId()).size());
         assertEquals("Calcimycin", service.getTagForExternalIdAndCollection("D000001",
             collection.getTagCollectionId()).get().getTagLabel());
+
+        Path meshFile = files.getRoot().toPath().resolve("mesh.xml");
+        String xml = Files.readString(meshFile);
+        List<String> originalIds = service.getTagsInCollection(collection.getTagCollectionId()).stream()
+            .map(Tag::getTagId).collect(java.util.stream.Collectors.toList());
+        String obsoleteId = service.createTag(Tag.builder().tagCollectionId(collection.getTagCollectionId())
+            .tagLabel("Obsolete").externalId("obsolete").build());
+        for (String variant : new String[] { xml.replaceAll(">\\s+<", "><"),
+                xml.replaceAll("<!DOCTYPE[^>]*>", ""),
+                xml.replaceAll("<!DOCTYPE[^>]*>", "").replaceAll(">\\s+<", "><") }) {
+            jdbc.update("UPDATE tagservice_tag SET lastmodificationdate = 1");
+            Files.writeString(meshFile, variant);
+            meshImport.syncAllTags();
+            assertEquals(14, service.getTagsInCollection(collection.getTagCollectionId()).size());
+            assertFalse(service.getTag(obsoleteId).isPresent());
+            for (String id : originalIds) {
+                assertTrue(service.getTag(id).isPresent());
+                assertTrue(service.getTag(id).get().getLastModificationDate() > 1L);
+            }
+        }
+    }
+
+    @Test
+    public void meshImportPreservesExistingTagsWhenDescriptorFails() throws Exception {
+        TagCollection collection = TagCollection.builder().name("MeSH").externalSourceName("MESH")
+            .lastSynchronizationDate(1L).build();
+        service.createTagCollection(collection);
+        String failedId = service.createTag(Tag.builder().tagCollectionId(collection.getTagCollectionId())
+            .tagLabel("Original label").externalId("D000001").build());
+        String absentId = service.createTag(Tag.builder().tagCollectionId(collection.getTagCollectionId())
+            .tagLabel("Absent from import").externalId("absent").build());
+        service.associateExistingTag("mesh-item", failedId);
+        jdbc.update("UPDATE tagservice_tag SET lastmodificationdate = 1");
+        when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
+        when(configuration.getString("tags.meshcollectionfile", "tags/mesh.xml")).thenReturn("mesh.xml");
+        try (java.io.InputStream sample = getClass().getResourceAsStream("/xmlsamples/mesh.xml")) {
+            String xml = new String(sample.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            Files.writeString(files.getRoot().toPath().resolve("mesh.xml"), xml.replace("Calcimycin", " "));
+        }
+
+        meshImport.syncAllTags();
+
+        assertTrue(service.getTag(failedId).isPresent());
+        assertEquals("Original label", service.getTag(failedId).get().getTagLabel());
+        assertTrue(service.getTag(absentId).isPresent());
+        assertEquals(Collections.singletonList(failedId),
+            service.getTagAssociationIds(collection.getTagCollectionId(), "mesh-item"));
+        assertEquals(15, service.getTagsInCollection(collection.getTagCollectionId()).size());
+        assertEquals(Long.valueOf(1L), service.getTagCollection(collection.getTagCollectionId()).get().getLastSynchronizationDate());
     }
 
     @Test
