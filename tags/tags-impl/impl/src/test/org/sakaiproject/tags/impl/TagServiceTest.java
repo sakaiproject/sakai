@@ -43,6 +43,7 @@ import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tags.impl.job.TagsSyncJob;
+import org.sakaiproject.tags.impl.job.MeshTagsSyncJob;
 import org.sakaiproject.tags.impl.job.TagsExportedXMLSyncJob;
 import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,7 @@ public class TagServiceTest {
     @Rule public TemporaryFolder files = new TemporaryFolder();
     @Autowired private ServerConfigurationService configuration;
     @Autowired private TagsSyncJob genericImport;
+    @Autowired private MeshTagsSyncJob meshImport;
     @Autowired private TagsExportedXMLSyncJob fullImport;
     @Autowired private TagService service;
     @Autowired private SessionManager sessionManager;
@@ -584,6 +586,23 @@ public class TagServiceTest {
         assertEquals(Long.valueOf(0L), service.getTagForExternalIdAndCollection("missing", collection.getTagCollectionId()).get().getExternalCreationDate());
         assertEquals(Long.valueOf(Instant.parse("2024-02-29T00:00:00Z").toEpochMilli()),
             service.getTagForExternalIdAndCollection("valid", collection.getTagCollectionId()).get().getExternalCreationDate());
+    }
+
+    @Test
+    public void meshImportReadsSampleWithExternalDoctype() throws Exception {
+        TagCollection collection = TagCollection.builder().name("MeSH").externalSourceName("MESH").build();
+        service.createTagCollection(collection);
+        when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
+        when(configuration.getString("tags.meshcollectionfile", "tags/mesh.xml")).thenReturn("mesh.xml");
+        try (java.io.InputStream sample = getClass().getResourceAsStream("/xmlsamples/mesh.xml")) {
+            Files.copy(sample, files.getRoot().toPath().resolve("mesh.xml"));
+        }
+
+        meshImport.syncAllTags();
+
+        assertEquals(14, service.getTagsInCollection(collection.getTagCollectionId()).size());
+        assertEquals("Calcimycin", service.getTagForExternalIdAndCollection("D000001",
+            collection.getTagCollectionId()).get().getTagLabel());
     }
 
     @Test
