@@ -58,16 +58,15 @@ public interface SiteManageService {
      *
      * @param fromSiteId source site id
      * @param site destination site, with its copied placements already saved
-     * @param copyScoringData copy external scoring associations after the tool content
      * @return true if queued, false if an import is already running or the executor rejects it
      */
-    boolean importAllToolsIntoSiteThread(String fromSiteId, Site site, boolean copyScoringData);
+    boolean importAllToolsIntoSiteThread(String fromSiteId, Site site);
 
     /**
      * Synchronously import all content and advertised transfer options for the destination site's tools,
      * using the same replace-import workflow as Site Info. Intended for newly created
      * template sites whose placements have already been copied. Duplicate Site uses
-     * {@link #importAllToolsIntoSiteThread(String, Site, boolean)} instead.
+     * {@link #importAllToolsIntoSiteThread(String, Site)} instead.
      * Callers must reload the destination site afterward because importers may change it.
      *
      * @param oSiteId        source (old) site id

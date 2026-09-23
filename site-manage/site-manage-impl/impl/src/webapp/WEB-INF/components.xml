@@ -12,7 +12,6 @@
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
 		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
-		<property name="scoringService" ref="org.sakaiproject.scoringservice.api.ScoringService"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>

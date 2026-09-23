@@ -59,8 +59,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.scoringservice.api.ScoringAgent;
-import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -99,7 +97,6 @@ public class SiteManageServiceImpl implements SiteManageService {
     @Setter private EventTrackingService eventTrackingService;
     @Setter private LinkMigrationHelper linkMigrationHelper;
     @Setter private PreferencesService preferencesService;
-    @Setter private ScoringService scoringService;
     @Setter private SecurityService securityService;
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SessionManager sessionManager;
@@ -142,13 +139,6 @@ public class SiteManageServiceImpl implements SiteManageService {
     @Override
     public boolean importToolsIntoSiteThread(final Site site, List<String> existingTools, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, final boolean cleanup) {
 
-        return importToolsIntoSiteThread(site, existingTools, importTools, toolItemMap, toolOptions, cleanup, null);
-    }
-
-    private boolean importToolsIntoSiteThread(final Site site, List<String> existingTools, Map<String, List<String>> importTools,
-            Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions,
-            final boolean cleanup, String scoringSourceSiteId) {
-
         final User user = userDirectoryService.getCurrentUser();
         final Locale locale = preferencesService.getLocale(user.getId());
         final Session session = sessionManager.getCurrentSession();
@@ -172,19 +162,13 @@ public class SiteManageServiceImpl implements SiteManageService {
             }
             eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 			
-			// Reflects only that the import and optional scoring copy returned without throwing. transferCopyEntities
+			// Reflects only that importToolsIntoSite returned without throwing. transferCopyEntities
             // logs and swallows individual EntityProducer failures, so a partial import still
             // counts as succeeded here.
             boolean importSucceeded = false;
 			try {
                 log.info("Started Site Import for the site {}", id);
                 importToolsIntoSite(site, existingTools, importTools, toolItemMap, toolOptions, cleanup);
-                if (scoringSourceSiteId != null) {
-                    ScoringAgent agent = scoringService.getDefaultScoringAgent();
-                    if (agent != null && agent.isEnabled(scoringSourceSiteId, null)) {
-                        agent.transferScoringComponentAssociations(scoringSourceSiteId, id);
-                    }
-                }
                 importSucceeded = true;
                 log.info("Finished Site Import for the site {}", id);
             } catch (Exception e) {
@@ -246,10 +230,10 @@ public class SiteManageServiceImpl implements SiteManageService {
     }
 
     @Override
-    public boolean importAllToolsIntoSiteThread(String fromSiteId, Site site, boolean copyScoringData) {
+    public boolean importAllToolsIntoSiteThread(String fromSiteId, Site site) {
         FullSiteImport selection = selectAllTools(fromSiteId, site);
         return importToolsIntoSiteThread(site, selection.toolIds(), selection.importTools(), Collections.emptyMap(),
-            selection.toolOptions(), true, copyScoringData ? fromSiteId : null);
+            selection.toolOptions(), true);
     }
 
     private FullSiteImport selectAllTools(String fromSiteId, Site site) {

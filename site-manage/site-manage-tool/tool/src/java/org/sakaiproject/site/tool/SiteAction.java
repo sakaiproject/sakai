@@ -146,8 +146,6 @@ import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.rubrics.api.RubricsService;
-import org.sakaiproject.scoringservice.api.ScoringAgent;
-import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -3420,18 +3418,6 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("duplicatedName", state.getAttribute(SITE_DUPLICATED_NAME));
 			}
 			context.put( CONTEXT_IS_ADMIN, securityService.isSuperUser() );
-			// Add option to also copy ScoringComponent associations
-			ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService"); 
-			ScoringAgent scoringAgent = scoringService.getDefaultScoringAgent();
-			if (scoringAgent != null && scoringAgent.isEnabled(site.getId(), null)) {
-				// check to see if the site has any associated ScoringComponents to duplicate
-				List components = scoringAgent.getScoringComponents(site.getId());
-				if (components != null && !components.isEmpty()) {
-					context.put("scoringAgentOption", Boolean.TRUE);
-					context.put("scoringAgentName", scoringAgent.getName());
-				}
-			}
-			
 			// SAK-20797 - display checkboxes only if sitespecific value exists
 			long quota = getSiteSpecificQuota(site);
 			if (quota > 0) {
@@ -10640,8 +10626,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										return;
 									}
 
-									boolean copyScoringData = "transferScoringData".equals(params.getString("selectScoringData"));
-									if (!siteManageService.importAllToolsIntoSiteThread(oldSiteId, site, copyScoringData)) {
+									if (!siteManageService.importAllToolsIntoSiteThread(oldSiteId, site)) {
 										addAlert(state, rb.getString("java.import.existing"));
 										return;
 									}
