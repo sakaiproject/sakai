@@ -52,7 +52,10 @@ public interface SiteManageService {
     void importToolsIntoSite(Site site, List<String> toolIds, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, boolean cleanup);
 
     /**
-     * Copy tool content from old site
+     * Import all content and advertised transfer options for the destination site's tools,
+     * using the same replace-import workflow as Site Info. Intended for newly created
+     * duplicate/template sites whose placements have already been copied.
+     * Callers must reload the destination site afterward because importers may change it.
      *
      * @param oSiteId        source (old) site id
      * @param site           destination site

@@ -218,71 +218,46 @@ public class SiteManageServiceImpl implements SiteManageService {
                 securityService.pushAdvisor(securityAdvisor);
             }
 
-            List<SitePage> pageList = site.getPages();
-            Set<String> toolsCopied = new HashSet<>();
-
-
-            Map<String, String> transversalMap = new HashMap<>();
-            
-            // Add code to copy tool permissions from source site to destination site
-            log.debug("About to copy tool permissions from site {} to site {}", oSiteId, nSiteId);
-            copyToolPermissions(oSiteId, nSiteId);
-
-            String sourceSiteInfoUrl = site.getInfoUrl();
-            try {
-                sourceSiteInfoUrl = siteService.getSite(oSiteId).getInfoUrl();
-            } catch (IdUnusedException iue) {
-                log.warn("Cannot resolve source site {} while importing site info URL, {}", oSiteId, iue.getMessage());
+            // A full-site copy is the same import as Site Info with every tool and option selected.
+            // Use the destination placements so site-creation tool exclusions remain effective.
+            Set<String> toolIds = new LinkedHashSet<>();
+            for (SitePage page : site.getPages()) {
+                for (ToolConfiguration tool : page.getTools()) {
+                    if (StringUtils.isNotBlank(tool.getToolId())) {
+                        toolIds.add(tool.getToolId());
+                    }
+                }
             }
 
-            if (pageList != null) {
-                for (SitePage page : pageList) {
-                    List<ToolConfiguration> pageToolList = page.getTools();
-                    if ((pageToolList != null) && !pageToolList.isEmpty()) {
-                        Tool tool = pageToolList.get(0).getTool();
-                        if (tool != null) { // ignore page if the tool can't be retrieved
-                            String toolId = tool.getId();
-                            if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)) {
-                                // special handling for resources
-                                transversalMap.putAll(
-                                        transferCopyEntities(toolId,
-                                                contentHostingService.getSiteCollection(oSiteId),
-                                                contentHostingService.getSiteCollection(nSiteId),
-                                                Collections.EMPTY_LIST,
-                                                Collections.EMPTY_LIST,
-                                                false));
-                                transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
+            // Site Info also offers site information when no Overview placement is present.
+            if (serverConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)) {
+                toolIds.add(SiteManageConstants.SITE_INFO_TOOL_ID);
+            }
 
-                            } else if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.SITE_INFO_TOOL_ID)) {
-                                // handle Home tool specially, need to update the site infomration display url if needed
-                                String newSiteInfoUrl = resolveImportedSiteInfoUrl(oSiteId, nSiteId, sourceSiteInfoUrl);
-                                site.setInfoUrl(newSiteInfoUrl);
-
-                                String description = site.getDescription();
-                                if (StringUtils.isNotBlank(description) && description.contains(oSiteId)) {
-                                    site.setDescription(rewriteSiteIdInDescription(description, oSiteId, nSiteId));
-                                }
-
-                                saveSite(site);
-                                toolsCopied.add(toolId);
-                            } else if (StringUtils.isNotBlank(toolId)) {
-                                // all other tools
-                                if (!toolsCopied.contains(toolId)) {
-                                    transversalMap.putAll(transferCopyEntities(toolId, oSiteId, nSiteId, Collections.EMPTY_LIST, Collections.EMPTY_LIST, false));
-                                    transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
-                                    toolsCopied.add(toolId);
-                                }
+            Map<String, List<String>> importTools = new HashMap<>();
+            Map<String, Map<String, List<String>>> toolOptions = new HashMap<>();
+            for (String toolId : toolIds) {
+                importTools.put(toolId, List.of(oSiteId));
+            }
+            for (EntityProducer producer : entityManager.getEntityProducers()) {
+                if (producer instanceof EntityTransferrer) {
+                    EntityTransferrer transferrer = (EntityTransferrer) producer;
+                    String[] supportedTools = transferrer.myToolIds();
+                    if (supportedTools != null) {
+                        for (String toolId : supportedTools) {
+                            if (toolIds.contains(toolId)) {
+                                transferrer.getTransferOptions().ifPresent(options ->
+                                    toolOptions.put(toolId, Map.of(oSiteId, new ArrayList<>(options))));
                             }
-                        } else {
-                            log.warn("Skipping page {}, because the tool could not be retrieved", page.getId());
                         }
                     }
                 }
-                // after all site pages have been processed time to update references for each tool copied
-                toolsCopied.forEach(t -> updateEntityReferences(t, nSiteId, transversalMap, site));
             }
+
+            // Replace the cloned placements/content, including tools that recreate their own pages.
+            importToolsIntoSite(site, new ArrayList<>(toolIds), importTools, Collections.emptyMap(), toolOptions, true);
         } catch (Exception e) {
-            log.warn("Error during tool import for site {}, {}", nSiteId, e.getMessage());
+            log.warn("Error importing all tools from site {} to site {}", oSiteId, nSiteId, e);
         } finally {
             if (bypassSecurity) {
                 securityService.popAdvisor(securityAdvisor);
@@ -1099,15 +1074,6 @@ public class SiteManageServiceImpl implements SiteManageService {
                 }
             }
         }
-    }
-
-    /**
-     * Copy tool permissions from source site to destination site
-     * @param fromSiteId The source site ID
-     * @param toSiteId The destination site ID
-     */
-    private void copyToolPermissions(String fromSiteId, String toSiteId) {
-	    copyToolPermissions(fromSiteId, toSiteId, null);
     }
 
     /**

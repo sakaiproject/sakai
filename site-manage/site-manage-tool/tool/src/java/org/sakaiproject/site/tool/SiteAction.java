@@ -10588,13 +10588,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									}
 
 									try {
+										// Remove tools and pages that may not be duplicated before importing.
+										removeToolsNotForDuplication(site);
 										siteService.save(site);
 
-										// Remove tools and pages that may not be duplicated
-										removeToolsNotForDuplication(site);
-
-										// import tool content
+										// Import all content and options through the Site Info import workflow.
 										siteManageService.importToolContent(oldSiteId, site, false);
+										// Importers can replace placements and update site properties.
+										site = siteService.getSite(newSiteId);
 
 										String transferScoringData = params.getString("selectScoringData");
 										if(transferScoringData != null && transferScoringData.equals("transferScoringData")) {
