@@ -15,6 +15,7 @@
         <script>
           document.addEventListener('DOMContentLoaded', () => {
             const dataTableConfig = JSON.parse('<h:outputText value="#{eventLog.dataTableConfig.json}" />');
+            dataTableConfig.search = { smart: false };
             setupDataTable("eventLogId:eventLogTable", dataTableConfig);
           });
         </script>
