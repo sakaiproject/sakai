@@ -50,6 +50,9 @@
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
           class="org.sakaiproject.tags.impl.rest.TagServiceAdminEntityProvider">
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
     </bean>
 
     <!--  Hibernate persistence -->

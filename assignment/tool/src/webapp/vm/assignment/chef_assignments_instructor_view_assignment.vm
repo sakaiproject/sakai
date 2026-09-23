@@ -1,24 +1,6 @@
 <!-- start: chef_assignments_instructor_view_assignment.vm  -->
 <div class="portletBody">
-	#if ($taggable && $allowAddAssignment)
-		#if (!$activityHelpers.isEmpty())
-		<ul class="navIntraTool actionToolBar">
-				#set ($first = true)
-				#foreach ($helperInfo in $activityHelpers)
-					#if (!$first)
-					<li  class="firstToolBarItem">
-						<span><a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$formattedText.escapeUrl($activity.reference)&providerId=$formattedText.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
-					</li>	
-					#else
-						#set ($first = false)
-						<li>						
-							<span><a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$formattedText.escapeUrl($activity.reference)&providerId=$formattedText.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
-						</li>	
-					#end
-				#end
-			</ul>
-		#end
-	#end
+
 	<h3>
 		$tlang.getString("viewassig.viewass1")
 	</h3>
@@ -226,9 +208,7 @@
 		## Assignment attachments
 		#attachmentFragment($assignment.Attachments $attachmentReferences $decoratedUrlMap false)
 
-		#if ($taggable)
-   	    	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
-		#end
+
 		#elseif ($allowAddAssignment && $hideAssignmentFlag)
 			## hide the assignment content
 			<p class="discTria">

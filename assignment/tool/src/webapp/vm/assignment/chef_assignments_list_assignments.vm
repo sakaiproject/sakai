@@ -70,7 +70,7 @@
 			<form id="tagFilterForm" name="tagFilterForm" class="d-flex gap-1" method="post" action="#toolForm("AssignmentAction")">
 				<input hidden id="tag_selector" name="tag_selector" />
 				<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
-				
+
 				<div class="flex-grow-1">
 					<sakai-tag-selector id="tag-selector" selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
 				</div>
@@ -371,21 +371,7 @@
 										#set($prevAction=false)
 										#if ($!allowUpdateAssignment)#set($prevAction=true)<a name="asnActionLink" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' );" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$!tlang.getString("gen.revi")<span class="skip"> $formattedText.escapeHtml($!assignment.Title)</span></a>#end
 										#if ($allowAddAssignment&&$!allowUpdateAssignment)#if($prevAction) |#else#set($prevAction=true)#end<a name="asnActionLink" onclick="duplicateLink(this);SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' );return false;" href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")<span class="skip"> $formattedText.escapeHtml($!assignment.Title)</span></a>#end
-										#if ($taggable && $allowAddAssignment)
-											#foreach ($provider in $providers)
-												#set ($helperInfo = false)
-												#set ($activity = $producer.getActivity($assignment))
-												#set ($helperInfo = $provider.getActivityHelperInfo($activity.reference))
-												#if ($helperInfo)
-													#if($prevAction)
-														|
-													#else
-														#set($prevAction=true)
-													#end
-														<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$formattedText.escapeUrl($activity.reference)&providerId=$formattedText.escapeUrl($provider.id)")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' );" title="$!helperInfo.description">$!helperInfo.name</a>
-												#end
-											#end
-										#end
+
 										#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))#if($prevAction) |#end
 										#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
 										## show "view submissions" link for ungraded type of assignment
@@ -483,37 +469,7 @@
 												entity-id="$assignment.Id">
 											</sakai-rubric-student-button>
 											#end
-											#if ($taggable && $allowAddAssignment)
-												<div class="itemAction">
-													#set($prevAction=false)
-													#foreach ($provider in $providers)
-														#set ($activityHelperInfo = false)
-														#set ($activity = $producer.getActivity($assignment))
-														#set ($activityHelperInfo = $provider.getActivityHelperInfo($activity.reference))
-														#if ($activityHelperInfo)
-															#if($prevAction)
-																|
-															#else
-																#set($prevAction=true)
-															#end
-															<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$formattedText.escapeUrl($activity.reference)&providerId=$formattedText.escapeUrl($provider.id)")" title="$!activityHelperInfo.description">$!activityHelperInfo.name</a>
-														#end
-														#if ($!submission)
-															#set ($itemHelperInfo = false)
-															#set ($item = $producer.getItem($submission, $user.getId()))
-															#set ($itemHelperInfo = $provider.getItemHelperInfo($item.reference))
-															#if ($itemHelperInfo)
-																#if($prevAction)
-																	|
-																#else
-																	#set($prevAction=true)
-																#end
-																<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($provider.id)")" title="$!itemHelperInfo.description">$!itemHelperInfo.name</a>
-															#end
-														#end
-													#end
-												</div>
-											#end
+
 										#else
 											<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignmentReference")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 										#end

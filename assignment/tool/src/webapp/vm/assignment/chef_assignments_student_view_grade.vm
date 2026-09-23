@@ -9,24 +9,7 @@
     #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
         #navBarTimesheet("Assignment")
     #end
-    #if ($taggable)
-        #if (!$itemHelpers.isEmpty())
-            <ul class="navIntraTool actionToolBar">
-                #set ($first = true)
-                #foreach ($helperInfo in $itemHelpers)
-                    #if (!$first)
-                        <li class="firstToolBarItem">
-                            <span><a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
-                        </li>
-                    #else
-                        #set ($first = false)
-                    <li>
-                        <span><a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
-                    #end
-                #end
-            </ul>
-        #end
-    #end
+
     <h3>$formattedText.escapeHtml($assignment.Title)
         #if ($!assignment.IsGroup)
             <span> - $tlang.getString("gen.groupassignment") </span>
@@ -208,10 +191,8 @@
     #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $decoratedUrlMap false)
 
     #supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
- 
-    #if ($taggable)
-        #parse ("/vm/assignment/chef_assignments_tags_list.vm")
-    #end
+
+
     <hr class="itemSeparator"/>
 	#if ($!nonElectronicType)
 		<p class="sak-banner-info">
