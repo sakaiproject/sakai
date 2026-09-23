@@ -15,22 +15,8 @@
  */
 package org.sakaiproject.conversations.impl;
 
-import javax.sql.DataSource;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
-import org.sakaiproject.tags.api.TagAssociation;
-import org.sakaiproject.tags.api.TagAssociationRepository;
-import org.sakaiproject.tags.api.Tags;
-import org.sakaiproject.tags.api.TagCollections;
-import org.sakaiproject.tags.impl.TagServiceImpl;
-import org.sakaiproject.tags.impl.TagAssociationRepositoryImpl;
-import org.sakaiproject.tags.impl.common.DB;
-import org.sakaiproject.tags.impl.storage.TagStorage;
-import org.sakaiproject.tags.impl.storage.TagCollectionStorage;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.core.io.ClassPathResource;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -63,6 +49,7 @@ import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.conversations.impl.repository.TopicStatusRepositoryImpl;
 import org.sakaiproject.conversations.impl.notificationprefs.ConversationsNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -84,12 +71,15 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@ImportResource("classpath:/WEB-INF/components.xml")
+@ImportResource({"classpath:/WEB-INF/components.xml", "classpath:/META-INF/sakai-tags/tags-service.xml"})
 @PropertySource("classpath:/hibernate.properties")
 public class ConversationsTestConfiguration extends SakaiTestConfiguration {
 
     @Resource(name = "conversationsHibernateMappings")
     protected AdditionalHibernateMappings additionalHibernateMappings;
+
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.tagservice")
+    protected AdditionalHibernateMappings tagMappings;
 
     @Override
     protected AdditionalHibernateMappings getAdditionalHibernateMappings() {
@@ -97,7 +87,7 @@ public class ConversationsTestConfiguration extends SakaiTestConfiguration {
             @Override
             public void processAdditionalMappings(LocalSessionFactoryBuilder configuration) throws IOException {
                 additionalHibernateMappings.processAdditionalMappings(configuration);
-                configuration.addAnnotatedClass(TagAssociation.class);
+                tagMappings.processAdditionalMappings(configuration);
             }
         };
     }
@@ -150,57 +140,9 @@ public class ConversationsTestConfiguration extends SakaiTestConfiguration {
         return settingsRepository;
     }
 
-    @Bean(name = "org.sakaiproject.tags.impl.common.DB")
-    public DB tagsDatabase(DataSource dataSource) {
-        new ResourceDatabasePopulator(
-            new ClassPathResource("db/migration/hsqldb.sql")).execute(dataSource);
-        DB db = new DB();
-        db.setDataSource(dataSource);
-        db.setVendor("hsqldb");
-        return db;
-    }
-
-    @Bean(name = "org.sakaiproject.tags.api.Tags")
-    public TagStorage tags(
-            DB db,
-            SessionManager sessionManager,
-            EventTrackingService eventTrackingService) {
-        TagStorage tags = new TagStorage();
-        tags.setDb(db);
-        tags.setSessionManager(sessionManager);
-        tags.setEventTrackingService(eventTrackingService);
-        return tags;
-    }
-
-    @Bean(name = "org.sakaiproject.tags.api.TagCollections")
-    public TagCollectionStorage tagCollections(
-            DB db,
-            SessionManager sessionManager,
-            EventTrackingService eventTrackingService) {
-        TagCollectionStorage collections = new TagCollectionStorage();
-        collections.setDb(db);
-        collections.setSessionManager(sessionManager);
-        collections.setEventTrackingService(eventTrackingService);
-        return collections;
-    }
-
-    @Bean(name = "org.sakaiproject.tags.api.TagAssociationRepository")
-    public TagAssociationRepositoryImpl tagAssociations(SessionFactory sessionFactory) {
-        TagAssociationRepositoryImpl repository = new TagAssociationRepositoryImpl();
-        repository.setSessionFactory(sessionFactory);
-        return repository;
-    }
-
-    @Bean(name = "org.sakaiproject.tags.api.TagService")
-    public TagServiceImpl tagService(
-            Tags tags,
-            TagCollections collections,
-            TagAssociationRepository associations) {
-        TagServiceImpl service = new TagServiceImpl();
-        service.setTags(tags);
-        service.setTagCollections(collections);
-        service.setTagAssociationRepository(associations);
-        return service;
+    @Bean(name = "org.sakaiproject.email.api.EmailService")
+    public EmailService emailService() {
+        return mock(EmailService.class);
     }
 
     @Bean(name = "org.sakaiproject.calendar.api.CalendarService")

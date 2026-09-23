@@ -18,6 +18,16 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>jakarta.mail</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.tags</groupId>
       <artifactId>tags-impl</artifactId>
       <classifier>classes</classifier>

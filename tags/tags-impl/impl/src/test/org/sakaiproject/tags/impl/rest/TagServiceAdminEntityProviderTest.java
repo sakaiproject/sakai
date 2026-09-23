@@ -30,40 +30,44 @@ import org.junit.Test;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagCollection;
-import org.sakaiproject.tags.impl.TagServiceImpl;
-import org.sakaiproject.tags.impl.storage.BaseStorageTest;
+import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.tags.impl.TagServiceTestConfiguration;
+import org.sakaiproject.tool.api.SessionManager;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.sakaiproject.tool.api.Session;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-public class TagServiceAdminEntityProviderTest extends BaseStorageTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = TagServiceTestConfiguration.class)
+public class TagServiceAdminEntityProviderTest {
 
-    private TagServiceAdminEntityProvider provider;
-    private SecurityService securityService;
+    @Autowired private TagService tagService;
+    @Autowired private SessionManager sessionManager;
+
+    @Autowired private TagServiceAdminEntityProvider provider;
+    @Autowired private SecurityService securityService;
     private Session session;
     private Map<String, Object> params;
 
     @Before
     public void setUpProvider() {
-        // Reuse the module's database-backed storage harness; only kernel boundaries are mocked.
-        TagServiceImpl tagService = new TagServiceImpl();
-        tagService.setTags(tagStorage);
-        tagService.setTagCollections(tagCollectionStorage);
-        securityService = mock(SecurityService.class);
+        reset(securityService, sessionManager);
         session = mock(Session.class);
         when(sessionManager.getCurrentSession()).thenReturn(session);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("admin");
         when(securityService.unlock("tagservice.manage", "/site/!admin")).thenReturn(true);
         when(session.getAttribute("sakai.tagservice-admin.token")).thenReturn("valid-token");
         params = new HashMap<>();
         params.put("session", "valid-token");
-        provider = new TagServiceAdminEntityProvider();
-        provider.setSessionManager(sessionManager);
-        provider.setSecurityService(securityService);
-        provider.setTagService(tagService);
     }
 
     @Test
@@ -100,9 +104,10 @@ public class TagServiceAdminEntityProviderTest extends BaseStorageTest {
 
     @Test
     public void permittedDownloadReturnsStoredTags() {
-        TagCollection collection = newPersistentTagCollection("download");
-        Tag tag = newTag("download", collection);
-        String tagId = tagStorage.createTag(tag);
+        TagCollection collection = TagCollection.builder().name("download").build();
+        tagService.createTagCollection(collection);
+        Tag tag = Tag.builder().tagCollectionId(collection.getTagCollectionId()).tagLabel("download").build();
+        String tagId = tagService.createTag(tag);
         params.put("tagcollectionid", collection.getTagCollectionId());
         List<Tag> downloaded = provider.downloadCollection(null, params);
         assertEquals(1, downloaded.size());

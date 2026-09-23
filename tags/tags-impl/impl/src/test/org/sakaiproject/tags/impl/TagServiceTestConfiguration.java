@@ -23,6 +23,10 @@
 package org.sakaiproject.tags.impl;
 
 import javax.sql.DataSource;
+import org.sakaiproject.tags.impl.rest.TagServiceAdminEntityProvider;
+import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.email.api.EmailService;
 import static org.mockito.Mockito.mock;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -48,6 +52,16 @@ public class TagServiceTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.email.api.EmailService")
     public EmailService emailService() {
         return mock(EmailService.class);
+    }
+
+    @Bean
+    public TagServiceAdminEntityProvider adminEntityProvider(TagService tagService,
+            SessionManager sessionManager, SecurityService securityService) {
+        TagServiceAdminEntityProvider provider = new TagServiceAdminEntityProvider();
+        provider.setTagService(tagService);
+        provider.setSessionManager(sessionManager);
+        provider.setSecurityService(securityService);
+        return provider;
     }
 
     @Override

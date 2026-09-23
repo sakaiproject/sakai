@@ -178,7 +178,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                 .build();
 
 
-            String uuid = tagService().createTag(tag);
+            String uuid = tagService.createTag(tag);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -249,7 +249,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
                 .build();
 
 
-            String uuid = tagService().createTagCollection(tagCollection);
+            String uuid = tagService.createTagCollection(tagCollection);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -269,7 +269,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             WrappedParams wp = new WrappedParams(params);
 
             String uuid = wp.getString("id");
-            tagService().deleteTag(uuid);
+            tagService.deleteTag(uuid);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -288,7 +288,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             WrappedParams wp = new WrappedParams(params);
 
             String uuid = wp.getString("id");
-            tagService().deleteTagCollection(uuid);
+            tagService.deleteTagCollection(uuid);
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -310,7 +310,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagid= wp.getString("tagid");
 
-            Tag.TagBuilder tag = tagService().getTag(tagid).get().toBuilder();
+            Tag.TagBuilder tag = tagService.getTag(tagid).get().toBuilder();
 
             if (wp.containsKey("tagcollectionid")) {
                 tag.tagCollectionId(wp.getString("tagcollectionid"));
@@ -353,7 +353,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             }
 
 
-            tagService().updateTag(tag.build());
+            tagService.updateTag(tag.build());
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -373,7 +373,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagcollectionid= wp.getString("tagcollectionid");
 
-            TagCollection.TagCollectionBuilder tagCollection = tagService().getTagCollection(tagcollectionid).get().toBuilder();
+            TagCollection.TagCollectionBuilder tagCollection = tagService.getTagCollection(tagcollectionid).get().toBuilder();
 
             //We don't need to change the creation date or user
 
@@ -401,7 +401,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
             if (wp.containsKey("lastupdatedateinexternalsystem")) {
                 tagCollection.lastUpdateDateInExternalSystem(wp.getEpochMS("lastupdatedateinexternalsystem"));
             }
-            tagService().updateTagCollection(tagCollection.build());
+            tagService.updateTagCollection(tagCollection.build());
 
             JSONObject result = new JSONObject();
             result.put("status", "OK");
@@ -420,7 +420,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             String tagcollectionid= wp.getString("tagcollectionid");
 
-            List<Tag> tags = tagService().getTagsInCollection(tagcollectionid);
+            List<Tag> tags = tagService.getTagsInCollection(tagcollectionid);
 
             return tags;
         } catch (Exception e) {

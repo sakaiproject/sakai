@@ -23,7 +23,7 @@
 
   <build>
     <plugins>
-      <!-- Expose the real service and storage to integration tests in consuming tools. -->
+      <!-- Expose the real service and repositories to integration tests in consuming tools. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -41,6 +41,11 @@
       <testResource><directory>src/webapp</directory></testResource>
     </testResources>
     <resources>
+      <resource>
+        <directory>src/webapp/WEB-INF</directory>
+        <targetPath>META-INF/sakai-tags</targetPath>
+        <includes><include>tags-service.xml</include></includes>
+      </resource>
       <resource>
         <directory>${basedir}/src/resources</directory>
       </resource>
