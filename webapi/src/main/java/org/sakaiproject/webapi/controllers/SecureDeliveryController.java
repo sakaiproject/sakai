@@ -90,7 +90,7 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
     private ContentHostingService contentHostingService;
 
     @PutMapping(value = "/sites/{siteId}/assessments/published/{publishedAssessmentId}/sebValidation", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> setSebValidation(@PathVariable String siteId, @PathVariable Long publishedAssessmentId,
+    public ResponseEntity<HttpStatus> setSebValidation(@PathVariable("siteId") String siteId, @PathVariable("publishedAssessmentId") Long publishedAssessmentId,
             @RequestBody SebValidationBean sebValidation) {
         Session session = checkSakaiSession();
         String userId = session.getUserId();
@@ -112,8 +112,8 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/assessments/published/{publishedAssessmentId}/sebConfig")
-    public ResponseEntity<?> getSebConfig(@PathVariable String siteId, @PathVariable String publishedAssessmentId,
-            @RequestParam(defaultValue = "false") boolean launch, HttpServletRequest request) {
+    public ResponseEntity<?> getSebConfig(@PathVariable("siteId") String siteId, @PathVariable("publishedAssessmentId") String publishedAssessmentId,
+            @RequestParam(name = "launch", defaultValue = "false") boolean launch, HttpServletRequest request) {
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
         PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
@@ -198,7 +198,7 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/assessments/new/sebConfig", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> setSebConfig(@PathVariable String siteId, @RequestAttribute("file") FileItem file, HttpServletRequest request) {
+    public ResponseEntity<String> setSebConfig(@PathVariable("siteId") String siteId, @RequestAttribute("file") FileItem file, HttpServletRequest request) {
         Session session = checkSakaiSession();
 
         checkSite(siteId);

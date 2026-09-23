@@ -42,7 +42,7 @@ public class TagsController extends AbstractSakaiApiController {
 	private SecurityService securityService;
 
 	@GetMapping(value = "/sites/{siteId}/tools/{tool}/tags/{collectionId}/items/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<Tag> getTagsForItem(@PathVariable String siteId, @PathVariable String tool, @PathVariable String collectionId, @PathVariable String itemId) {
+	public Iterable<Tag> getTagsForItem(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @PathVariable("collectionId") String collectionId, @PathVariable("itemId") String itemId) {
 		checkSakaiSession();
 		checkAccess(siteId, tool);
 
@@ -50,7 +50,7 @@ public class TagsController extends AbstractSakaiApiController {
 	}
 	
 	@GetMapping(value = "/sites/{siteId}/tools/{tool}/tags/{collectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<Tag> getTagsForCollection(@PathVariable String siteId, @PathVariable String tool, @PathVariable String collectionId) {
+	public Iterable<Tag> getTagsForCollection(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @PathVariable("collectionId") String collectionId) {
 		checkSakaiSession();
 		checkAccess(siteId, tool);
 
