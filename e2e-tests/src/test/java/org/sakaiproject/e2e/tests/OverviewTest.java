@@ -41,18 +41,77 @@ class OverviewTest extends SakaiUiTestBase {
             page.setViewportSize(width, 900);
             assertColumnsFillTable(table, 3);
             notifications.locator("#showOptions").click();
-            assertThat(table.locator("thead th").first()).isVisible();
+            assertThat(table.locator(".hideHeader")).isVisible();
             assertColumnsFillTable(table, 4);
+            Locator checkbox = table.locator("tbody tr:visible input[type='checkbox']:not(.unchangedValue)").first();
+            boolean originalValue = checkbox.isChecked();
+            checkbox.setChecked(!originalValue);
             notifications.locator("#cancel").click();
-            assertThat(table.locator("thead th").first()).isHidden();
+            assertThat(table.locator(".hideHeader")).isHidden();
             assertColumnsFillTable(table, 3);
+            notifications.locator("#showOptions").click();
+            assertEquals(originalValue, checkbox.isChecked(), "Cancel should restore the saved checkbox value");
+            notifications.locator("#cancel").click();
             table.locator("#siteHeader").click();
             assertColumnsFillTable(table, 3);
         }
+
+        String siteUrl = table.locator("tbody tr:visible").first().locator("td").last()
+            .locator("a").getAttribute("href");
+        Locator siteRow = table.locator("tbody tr").filter(new Locator.FilterOptions()
+            .setHas(notifications.locator("a[href='" + siteUrl + "']")));
+        notifications.locator("#showOptions").click();
+        siteRow.locator("input[type='checkbox']:not(.unchangedValue)").check();
+        notifications.locator("input[type='submit'][value='Update']").click();
+        assertThat(table.locator(".hideHeader")).isHidden();
+        assertThat(siteRow).isHidden();
+
+        page.reload();
+        assertThat(table.locator("#siteHeader")).isVisible();
+        assertThat(siteRow).isHidden();
+        notifications.locator("#showOptions").click();
+        assertThat(siteRow).isVisible();
+        assertThat(siteRow.locator("input[type='checkbox']:not(.unchangedValue)")).isChecked();
+        siteRow.locator("input[type='checkbox']:not(.unchangedValue)").uncheck();
+        notifications.locator("input[type='submit'][value='Update']").click();
+        assertThat(table.locator(".hideHeader")).isHidden();
+        assertThat(siteRow).isVisible();
+        assertColumnsFillTable(table, 3);
+
+        List<String> displayedSites = table.locator("tbody tr:visible td:last-child a").all().stream()
+            .map(link -> link.getAttribute("href")).toList();
+        notifications.locator("#showOptions").click();
+        for (Locator checkbox : table.locator("input[type='checkbox']:not(.unchangedValue)").all()) {
+            checkbox.check();
+        }
+        notifications.locator("input[type='submit'][value='Update']").click();
+        assertThat(table).isHidden();
+        assertThat(notifications.locator(".noActivity")).isVisible();
+        notifications.locator("#showOptions").click();
+        assertThat(table).isVisible();
+        assertColumnsFillTable(table, 4);
+        siteRow.locator("input[type='checkbox']:not(.unchangedValue)").uncheck();
+        notifications.locator("#cancel").click();
+        assertThat(table).isHidden();
+        assertThat(notifications.locator(".noActivity")).isVisible();
+        notifications.locator("#showOptions").click();
+        assertThat(siteRow.locator("input[type='checkbox']:not(.unchangedValue)")).isChecked();
+        for (String displayedSite : displayedSites) {
+            table.locator("tbody tr").filter(new Locator.FilterOptions()
+                .setHas(notifications.locator("a[href='" + displayedSite + "']")))
+                .locator("input[type='checkbox']:not(.unchangedValue)").uncheck();
+        }
+        notifications.locator("input[type='submit'][value='Update']").click();
+        assertThat(table.locator(".hideHeader")).isHidden();
+        assertThat(table).isVisible();
+        assertColumnsFillTable(table, 3);
     }
 
     private void assertColumnsFillTable(Locator table, int columns) {
         assertThat(table.locator("thead th:visible")).hasCount(columns);
+        assertEquals(columns, ((Number) table.evaluate(
+            "table => new DataTable(table).columns(':visible').count()")).intValue(),
+            "DataTables visibility should match the rendered columns");
         // A leftover col creates blank table space even when its cells are hidden.
         double unusedWidth = ((Number) table.evaluate("""
             table => table.getBoundingClientRect().width - [...table.tHead.rows[0].cells]
