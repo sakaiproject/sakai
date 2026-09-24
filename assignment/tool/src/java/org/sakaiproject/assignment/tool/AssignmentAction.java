@@ -115,7 +115,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-import org.sakaiproject.assignment.api.model.AssignmentSupplementItemUpdate;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
@@ -9370,12 +9369,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 } //if
 
                 // save supplement item information
-                AssignmentSupplementItemUpdate supplementUpdate = getSupplementItemUpdate(state);
-                String creatorId = supplementUpdate.note() != null && !supplementUpdate.note().delete()
-                        ? userDirectoryService.getCurrentUser().getId() : null;
-                boolean allPurposeAccessLookupFailed = assignmentSupplementItemService.saveSupplementItems(
-                        a.getId(), siteId, creatorId, supplementUpdate)
-                        == AssignmentSupplementItemService.SaveResult.ACCESS_LOOKUP_FAILED;
+                boolean allPurposeAccessLookupFailed = applySupplementState(state, siteId, a.getId());
 
                 // set default sorting
                 setDefaultSort(state);
@@ -9471,34 +9465,36 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private AssignmentSupplementItemUpdate getSupplementItemUpdate(SessionState state) {
-        AssignmentSupplementItemUpdate.Change<AssignmentSupplementItemUpdate.ModelAnswer> modelAnswer = null;
+    private boolean applySupplementState(SessionState state, String siteId, String assignmentId) {
         if ("true".equals(state.getAttribute(MODELANSWER_TO_DELETE))) {
-            modelAnswer = AssignmentSupplementItemUpdate.Change.remove();
+            assignmentSupplementItemService.updateModelAnswer(assignmentId, null, 0, null, true);
         } else if (state.getAttribute(MODELANSWER_TEXT) != null) {
             int showTo = state.getAttribute(MODELANSWER_SHOWTO) == null ? 0
                     : Integer.parseInt((String) state.getAttribute(MODELANSWER_SHOWTO));
-            modelAnswer = AssignmentSupplementItemUpdate.Change.save(
-                    new AssignmentSupplementItemUpdate.ModelAnswer(
-                            (String) state.getAttribute(MODELANSWER_TEXT), showTo,
-                            getSupplementAttachmentIds(state, MODELANSWER_ATTACHMENTS)));
+            assignmentSupplementItemService.updateModelAnswer(assignmentId,
+                    (String) state.getAttribute(MODELANSWER_TEXT), showTo,
+                    getSupplementAttachmentIds(state, MODELANSWER_ATTACHMENTS), false);
         }
 
-        AssignmentSupplementItemUpdate.Change<AssignmentSupplementItemUpdate.Note> note = null;
         if ("true".equals(state.getAttribute(NOTE_TO_DELETE))) {
-            note = AssignmentSupplementItemUpdate.Change.remove();
+            assignmentSupplementItemService.updateNote(assignmentId, null, null, 0, true);
         } else if (state.getAttribute(NOTE_TEXT) != null) {
             int shareWith = state.getAttribute(NOTE_SHAREWITH) == null ? 0
                     : Integer.parseInt((String) state.getAttribute(NOTE_SHAREWITH));
-            note = AssignmentSupplementItemUpdate.Change.save(
-                    new AssignmentSupplementItemUpdate.Note((String) state.getAttribute(NOTE_TEXT), shareWith));
+            assignmentSupplementItemService.updateNote(assignmentId,
+                    userDirectoryService.getCurrentUser().getId(),
+                    (String) state.getAttribute(NOTE_TEXT), shareWith, false);
         }
 
-        AssignmentSupplementItemUpdate.Change<AssignmentSupplementItemUpdate.AllPurpose> allPurpose = null;
         if ("true".equals(state.getAttribute(ALLPURPOSE_TO_DELETE))) {
-            allPurpose = AssignmentSupplementItemUpdate.Change.remove();
+            assignmentSupplementItemService.updateAllPurposeItem(
+                    assignmentId, siteId, null, null, null, true);
         } else if (state.getAttribute(ALLPURPOSE_TITLE) != null) {
+            AssignmentAllPurposeItem values = new AssignmentAllPurposeItem();
+            values.setTitle((String) state.getAttribute(ALLPURPOSE_TITLE));
+            values.setText((String) state.getAttribute(ALLPURPOSE_TEXT));
             boolean hide = Boolean.TRUE.equals(state.getAttribute(ALLPURPOSE_HIDE));
+            values.setHide(hide);
             Instant releaseTime = Boolean.TRUE.equals(state.getAttribute(ALLPURPOSE_SHOW_FROM)) && !hide
                     ? getTimeFromState(state, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY,
                             ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN)
@@ -9507,6 +9503,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     ? getTimeFromState(state, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY,
                             ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN)
                     : null;
+            values.setReleaseDate(releaseTime == null ? null : Date.from(releaseTime));
+            values.setRetractDate(retractTime == null ? null : Date.from(retractTime));
             Set<String> selectedAccess = null;
             if (state.getAttribute(ALLPURPOSE_ACCESS) != null) {
                 selectedAccess = new HashSet<>();
@@ -9514,13 +9512,10 @@ public class AssignmentAction extends PagedResourceActionII {
                     selectedAccess.add((String) value);
                 }
             }
-            allPurpose = AssignmentSupplementItemUpdate.Change.save(
-                    new AssignmentSupplementItemUpdate.AllPurpose(
-                            (String) state.getAttribute(ALLPURPOSE_TITLE),
-                            (String) state.getAttribute(ALLPURPOSE_TEXT), hide, releaseTime, retractTime,
-                            getSupplementAttachmentIds(state, ALLPURPOSE_ATTACHMENTS), selectedAccess));
+            return !assignmentSupplementItemService.updateAllPurposeItem(assignmentId, siteId, values,
+                    getSupplementAttachmentIds(state, ALLPURPOSE_ATTACHMENTS), selectedAccess, false);
         }
-        return new AssignmentSupplementItemUpdate(modelAnswer, note, allPurpose);
+        return false;
     }
 
     private Set<String> getSupplementAttachmentIds(SessionState state, String attachmentKey) {

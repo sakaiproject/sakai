@@ -30,11 +30,14 @@ import java.util.Set;
  */
 public interface AssignmentSupplementItemService {
 
-    enum SaveResult { SAVED, ACCESS_LOOKUP_FAILED }
+    void updateModelAnswer(String assignmentId, String text, int showTo,
+                           Set<String> attachmentIds, boolean delete);
 
-    /** Save the model answer, private note, and All Purpose item for an assignment. */
-    SaveResult saveSupplementItems(String assignmentId, String siteId, String creatorId,
-                                   AssignmentSupplementItemUpdate update);
+    void updateNote(String assignmentId, String creatorId, String text, int shareWith, boolean delete);
+
+    /** Returns false when access could not be reconciled; the item is still saved. */
+    boolean updateAllPurposeItem(String assignmentId, String siteId, AssignmentAllPurposeItem values,
+                                 Set<String> attachmentIds, Set<String> selectedAccess, boolean delete);
 
     /*************** attachment ********************/
     /**

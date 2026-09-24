@@ -16,6 +16,7 @@
 package org.sakaiproject.assignment.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-import org.sakaiproject.assignment.api.model.AssignmentSupplementItemUpdate;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,11 +69,12 @@ public class AssignmentSupplementItemServiceTest {
         when(siteService.siteReference(siteId)).thenReturn(siteReference);
         when(authzGroupService.getAuthzGroup(siteReference)).thenThrow(new RuntimeException("lookup failed"));
 
-        AssignmentSupplementItemUpdate update = new AssignmentSupplementItemUpdate(null, null,
-                AssignmentSupplementItemUpdate.Change.save(new AssignmentSupplementItemUpdate.AllPurpose(
-                        "After edit", "Text", false, null, null, Set.of(), Set.of("instructor"))));
-        assertEquals(AssignmentSupplementItemService.SaveResult.ACCESS_LOOKUP_FAILED,
-                service.saveSupplementItems(assignmentId, siteId, null, update));
+        AssignmentAllPurposeItem values = new AssignmentAllPurposeItem();
+        values.setTitle("After edit");
+        values.setText("Text");
+        values.setHide(false);
+        assertFalse(service.updateAllPurposeItem(assignmentId, siteId, values,
+                Set.of(), Set.of("instructor"), false));
 
         AssignmentAllPurposeItem saved = service.getAllPurposeItem(assignmentId);
         assertEquals("After edit", saved.getTitle());
@@ -83,14 +84,8 @@ public class AssignmentSupplementItemServiceTest {
     @Test
     public void savesModelAnswerAndNoteThroughService() {
         String assignmentId = UUID.randomUUID().toString();
-        AssignmentSupplementItemUpdate update = new AssignmentSupplementItemUpdate(
-                AssignmentSupplementItemUpdate.Change.save(
-                        new AssignmentSupplementItemUpdate.ModelAnswer("Answer", 2, Set.of())),
-                AssignmentSupplementItemUpdate.Change.save(
-                        new AssignmentSupplementItemUpdate.Note("Private note", 1)), null);
-
-        assertEquals(AssignmentSupplementItemService.SaveResult.SAVED,
-                service.saveSupplementItems(assignmentId, "site", "instructor", update));
+        service.updateModelAnswer(assignmentId, "Answer", 2, Set.of(), false);
+        service.updateNote(assignmentId, "instructor", "Private note", 1, false);
         assertEquals("Answer", service.getModelAnswer(assignmentId).getText());
         assertEquals("Private note", service.getNoteItem(assignmentId).getNote());
         assertEquals("instructor", service.getNoteItem(assignmentId).getCreatorId());
@@ -101,17 +96,8 @@ public class AssignmentSupplementItemServiceTest {
     public void editingModelAnswerKeepsSelectedAttachment() {
         String assignmentId = UUID.randomUUID().toString();
         String attachmentId = "/attachment/" + UUID.randomUUID();
-        AssignmentSupplementItemUpdate first = new AssignmentSupplementItemUpdate(
-                AssignmentSupplementItemUpdate.Change.save(
-                        new AssignmentSupplementItemUpdate.ModelAnswer("Before", 1, Set.of(attachmentId))),
-                null, null);
-        service.saveSupplementItems(assignmentId, "site", null, first);
-
-        AssignmentSupplementItemUpdate second = new AssignmentSupplementItemUpdate(
-                AssignmentSupplementItemUpdate.Change.save(
-                        new AssignmentSupplementItemUpdate.ModelAnswer("After", 2, Set.of(attachmentId))),
-                null, null);
-        service.saveSupplementItems(assignmentId, "site", null, second);
+        service.updateModelAnswer(assignmentId, "Before", 1, Set.of(attachmentId), false);
+        service.updateModelAnswer(assignmentId, "After", 2, Set.of(attachmentId), false);
 
         assertEquals(Set.of(attachmentId),
                 Set.copyOf(service.getAttachmentListForSupplementItem(service.getModelAnswer(assignmentId))));
@@ -120,18 +106,17 @@ public class AssignmentSupplementItemServiceTest {
     @Test
     public void removesSupplementItemsWithTheirChildren() {
         String assignmentId = UUID.randomUUID().toString();
-        service.saveSupplementItems(assignmentId, "site", null, new AssignmentSupplementItemUpdate(
-                AssignmentSupplementItemUpdate.Change.save(
-                        new AssignmentSupplementItemUpdate.ModelAnswer("Answer", 1, Set.of("/attachment/model"))),
-                null,
-                AssignmentSupplementItemUpdate.Change.save(
-                        new AssignmentSupplementItemUpdate.AllPurpose("Resource", "Text", false,
-                                null, null, Set.of("/attachment/resource"), null))));
+        service.updateModelAnswer(assignmentId, "Answer", 1, Set.of("/attachment/model"), false);
+        AssignmentAllPurposeItem values = new AssignmentAllPurposeItem();
+        values.setTitle("Resource");
+        values.setText("Text");
+        values.setHide(false);
+        service.updateAllPurposeItem(assignmentId, "site", values,
+                Set.of("/attachment/resource"), null, false);
         service.saveAllPurposeItemWithAccess(service.getAllPurposeItem(assignmentId), Set.of("student"));
 
-        service.saveSupplementItems(assignmentId, "site", null, new AssignmentSupplementItemUpdate(
-                AssignmentSupplementItemUpdate.Change.remove(), null,
-                AssignmentSupplementItemUpdate.Change.remove()));
+        service.updateModelAnswer(assignmentId, null, 0, null, true);
+        service.updateAllPurposeItem(assignmentId, "site", null, null, null, true);
 
         assertNull(service.getModelAnswer(assignmentId));
         assertNull(service.getAllPurposeItem(assignmentId));
