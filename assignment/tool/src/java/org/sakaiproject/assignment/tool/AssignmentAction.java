@@ -3676,6 +3676,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
             context.put("tagsEnabled", Boolean.TRUE);
+            context.put(TAG_SELECTOR, StringUtils.defaultString((String) state.getAttribute(TAG_SELECTOR)));
             context.put("tagTool", TagService.TOOL_ASSIGNMENTS);
             context.put("allowAddTags", assignmentService.allowAddTags(contextString));
         }
@@ -10550,6 +10551,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(STATE_SECTION_STRING, a.getSection());
 
                 // put the names and values into vm file
+                if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true) && assignmentService.allowAddTags(a.getContext())) {
+                    state.setAttribute(TAG_SELECTOR, String.join(",", tagService.getTagAssociationIds(a.getContext(), a.getId())));
+                }
                 state.setAttribute(NEW_ASSIGNMENT_TITLE, a.getTitle());
                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, a.getContentId());
                 if ( a.getContentId() != null ) {

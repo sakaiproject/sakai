@@ -318,6 +318,75 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("#tag_selector")).hasValue("");
     }
 
+    @Test
+    @Order(11)
+    void preservesSavedTagsWhenLoadingFailsAndAllowsRemovingAllTags() {
+        String courseUrl = ensureCourseUrl();
+        String title = "Preserved tags " + System.currentTimeMillis();
+        String label = "Saved assignment tag " + System.currentTimeMillis();
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        openAddAssignmentForm();
+        page.locator("#new_assignment_title").fill(title);
+        Locator gradeAssignment = page.locator("#gradeAssignment").first();
+        if (gradeAssignment.count() > 0 && gradeAssignment.isChecked()) {
+            gradeAssignment.uncheck();
+        }
+        fillAssignmentInstructions("<p>Preserve tags when the selector cannot load.</p>");
+        Locator selector = page.locator("sakai-tag-selector");
+        selector.getByRole(AriaRole.COMBOBOX).fill(label);
+        selector.getByRole(AriaRole.COMBOBOX).press("Enter");
+        submitAssignmentForm();
+        goToAssignmentsList();
+
+        String tagRequests = "**/api/sites/*/tools/*/tags/**";
+        for (boolean failRequest : List.of(true, false)) {
+            // Cover both a failed request and one still pending when the form is saved.
+            page.route(tagRequests, route -> {
+                if (failRequest) {
+                    route.abort();
+                }
+            });
+            editAssignment(title);
+            assertThat(page.locator("#tag_selector")).hasAttribute("value", Pattern.compile(".+"));
+            String savedIds = page.locator("#tag_selector").getAttribute("value");
+            assertThat(selector.getByRole(AriaRole.COMBOBOX)).isDisabled();
+            if (failRequest) {
+                assertThat(selector.getByRole(AriaRole.ALERT)).isVisible();
+            }
+            assertThat(page.locator("#tag_selector")).hasValue(savedIds);
+            fillAssignmentInstructions("<p>Save with the existing tags.</p>");
+            page.unroute(tagRequests);
+            submitAssignmentForm();
+            assertThat(page.locator("#new_assignment_title")).hasCount(0);
+            goToAssignmentsList();
+            editAssignment(title);
+            assertThat(selector.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Deselect: " + label).setExact(true))).isVisible();
+            assertThat(page.locator("#tag_selector")).hasValue(savedIds);
+            submitAssignmentForm();
+            goToAssignmentsList();
+        }
+
+        editAssignment(title);
+        selector.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Deselect: " + label).setExact(true)).click();
+        assertThat(page.locator("#tag_selector")).hasValue("");
+        submitAssignmentForm();
+        goToAssignmentsList();
+        editAssignment(title);
+        assertThat(selector.getByRole(AriaRole.COMBOBOX)).isEnabled();
+        assertThat(selector.getByRole(AriaRole.BUTTON)).hasCount(0);
+        assertThat(page.locator("#tag_selector")).hasValue("");
+    }
+
+    private void editAssignment(String title) {
+        page.locator("tr").filter(new Locator.FilterOptions().setHasText(title))
+            .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName(Pattern.compile("^Edit\\b"))).click();
+        assertThat(page.locator("#new_assignment_title")).hasValue(title);
+    }
+
     private void openAddAssignmentForm() {
         goToAssignmentsList();
 
