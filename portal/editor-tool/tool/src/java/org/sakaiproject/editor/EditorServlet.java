@@ -162,7 +162,6 @@ public class EditorServlet extends HttpServlet
 					out.print("sakai.editor.contentItemUrl = false;\n");
 				}
 				out.print("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(tool) + "';\n");
-				out.print("sakai.editor.enableResourceSearch = '" + EditorConfiguration.enableResourceSearch() + "';\n");
 				out.print("sakai.editor.editors.ckeditor.browser = '" + EditorConfiguration.getCKEditorFileBrowser() + "';\n");
 				out.print("sakai.editor.siteToolSkin = '" + CSSUtils.getCssToolSkin(skin) + "';\n");
 				out.print("sakai.editor.sitePrintSkin = '" + CSSUtils.getCssPrintSkin(skin) + "';\n");

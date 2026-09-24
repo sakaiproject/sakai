@@ -1198,7 +1198,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         headJs.append("sakai.locale.userLanguage = '").append(MESSAGES.getLocale().getLanguage()).append("';\n");
         headJs.append("sakai.locale.userLocale = '").append(MESSAGES.getLocale().toString()).append("';\n");
         headJs.append("sakai.editor.collectionId = '").append(portalService.getBrowserCollectionId(placement)).append("';\n");
-        headJs.append("sakai.editor.enableResourceSearch = ").append(EditorConfiguration.enableResourceSearch()).append(";\n");
         if (contentItemUrl != null) {
             headJs.append("sakai.editor.contentItemUrl = '").append(contentItemUrl).append("';\n");
         } else {
