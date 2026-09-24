@@ -23,8 +23,6 @@ var autosaveContext = "ckeditor-autosave-context";
 var autosaveEntityKey = "ckeditor-autosave-entity-id";
 sakai.editor = sakai.editor || {};
 sakai.editor.editors = sakai.editor.editors || {};
-// Temporarily disable enableResourceSearch till citations plugin is ported (SAK-22862)
-sakai.editor.enableResourceSearch = false;
 sakai.editor.enableSakaiPreview = true;
 sakai.editor.enableSakaiOpenLink = true;
 
@@ -336,7 +334,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             'wordcount',
             (sakai.editor.sakaiDropdownToolbar ? 'sakaidropdowntoolbar' : ''),
             (sakai.editor.enableSakaiPreview ? 'sakaipreview' : 'preview'),
-            (sakai.editor.enableResourceSearch ? 'resourcesearch' : ''),
             (sakai.editor.enableSakaiOpenLink ? 'sakaiopenlink' : ''),
             `${ckeditor-extra-plugins}`,
             `${ckeditor-a11y-extra-plugins}`,
@@ -370,7 +367,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['Underline', 'Strike', 'Subscript', 'Superscript'],
             ['BidiLtr', 'BidiRtl' ],
             ['Blockquote', 'HorizontalRule', 'Anchor', 'Html5video', 'AudioRecorder', 'Smiley', 'SpecialChar', 'CreateDiv', 'CodeSnippet'],
-            [(sakai.editor.contentItemUrl ? 'ContentItem' : undefined),(sakai.editor.enableResourceSearch ? 'ResourceSearch' : undefined)],
+            [(sakai.editor.contentItemUrl ? 'ContentItem' : undefined)],
             ['atd-ckeditor'],
             '/',
             ['Styles', 'Font', 'FontSize', 'Print', 'SakaiPreview'],

@@ -51,7 +51,6 @@
                 <module>calendar</module>
                 <module>card-game</module>
                 <module>chat</module>
-                <module>citations</module>
                 <module>common</module>
                 <module>commons</module>
                 <module>conditions</module>
@@ -140,7 +139,6 @@
                 <module>lti</module>
                 <module>calendar</module>
                 <module>chat</module>
-                <module>citations</module>
                 <module>clog</module>
                 <module>common</module>
                 <module>commons</module>
@@ -285,7 +283,6 @@
                 <module>calendar/calendar-hbm</module>
                 <module>card-game/api</module>
                 <module>chat/chat-api/api</module>
-                <module>citations/citations-api/api</module>
                 <module>commons/api</module>
                 <module>common/impl</module>
                 <module>help/help-component-shared</module>

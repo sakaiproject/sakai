@@ -124,7 +124,6 @@ import org.apache.catalina.util.XMLWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.buf.UDecoder;
 import org.sakaiproject.alias.api.AliasService;
-import org.sakaiproject.citation.api.CitationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -341,7 +340,6 @@ public class DavServlet extends HttpServlet
 	private String[] nonDavUserAgent = null;
 
 	@Setter private ContentHostingService contentHostingService;
-	private CitationService citationService;
 	private EntityManager entityManager;
 	private AliasService aliasService;
 	private AuthenticationManager authenticationManager;
@@ -578,7 +576,6 @@ public class DavServlet extends HttpServlet
 		aliasService = ComponentManager.get(AliasService.class);
 		authenticationManager = ComponentManager.get(AuthenticationManager.class);
 		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
-		citationService = ComponentManager.get(CitationService.class);
 		entityManager = ComponentManager.get(EntityManager.class);
 		formattedText = ComponentManager.get(FormattedText.class);
 		siteService = ComponentManager.get(SiteService.class);
@@ -2743,12 +2740,6 @@ public class DavServlet extends HttpServlet
 			{
 				edit = contentHostingService.addResource(resourcePath);
 
-				String resourceType = (String) req.getSession().getAttribute("resourceType");
-				if ("org.sakaiproject.citation.impl.CitationList".equalsIgnoreCase(resourceType))
-				{
-					edit.setResourceType(resourceType);
-					edit.getProperties().addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, "/citation");
-				}
 				final ResourcePropertiesEdit p = edit.getPropertiesEdit();
 				p.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 
@@ -2772,11 +2763,6 @@ public class DavServlet extends HttpServlet
 			// commit the change
 			contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
 
-			if ("org.sakaiproject.citation.impl.CitationList".equalsIgnoreCase(edit.getResourceType()))
-			{
-				Reference reference = entityManager.newReference(edit.getReference());
-				citationService.copyCitationCollection(reference);
-			}
 
 
 		}

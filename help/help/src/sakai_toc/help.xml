@@ -5637,7 +5637,6 @@
         <ref bean="howdoIaddaweblinkorURL"/>
         <ref bean="howdoIcreateatextdocument"/>
         <ref bean="howdoIcreateanHTMLpage"/>
-        <ref bean="howdoIimportacitationlist"/>
         <ref bean="howdoImoveafileorfolderwithinResourcesinthesamesite"/>
         <ref bean="howdoIcopyafileorfolderwithinResourcesinthesamesite"/>
         <ref bean="howdoIcopyafileorfolderfromonesitetoanothersite"/>
@@ -5660,7 +5659,6 @@
         <ref bean="howdoIattachfilesfrommyHomeResourcestosubmissionsinmyothersites"/>
         <ref bean="howdoIsetupanduseWebDAVonMacOS108andup"/>
         <ref bean="howdoIsetupanduseWebDAVonWindows1011"/>
-        <ref bean="howdoImanuallyaddcitationstoalist"/>
         <ref bean="howdoIsetupanduseWebDAVwithCyberduck"/>
       </list>
     </property>
@@ -5765,17 +5763,6 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_resourcesUserGuide/howdoIcreateanHTMLpage.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIimportacitationlist" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIimportacitationlist</value>
-    </property>
-    <property name="name">
-      <value>How do I import a citation list?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_resourcesUserGuide/howdoIimportacitationlist.html</value>
     </property>
   </bean>
   <bean id="howdoImoveafileorfolderwithinResourcesinthesamesite" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -6018,17 +6005,6 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_resourcesUserGuide/howdoIsetupanduseWebDAVonWindows1011.html</value>
-    </property>
-  </bean>
-  <bean id="howdoImanuallyaddcitationstoalist" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoImanuallyaddcitationstoalist</value>
-    </property>
-    <property name="name">
-      <value>How do I manually add citations to a list?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_resourcesUserGuide/howdoImanuallyaddcitationstoalist.html</value>
     </property>
   </bean>
   <bean id="howdoIsetupanduseWebDAVwithCyberduck" class="org.sakaiproject.component.app.help.model.ResourceBean">
