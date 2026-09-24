@@ -146,8 +146,6 @@ import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.rubrics.api.RubricsService;
-import org.sakaiproject.scoringservice.api.ScoringAgent;
-import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -3420,18 +3418,6 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("duplicatedName", state.getAttribute(SITE_DUPLICATED_NAME));
 			}
 			context.put( CONTEXT_IS_ADMIN, securityService.isSuperUser() );
-			// Add option to also copy ScoringComponent associations
-			ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService"); 
-			ScoringAgent scoringAgent = scoringService.getDefaultScoringAgent();
-			if (scoringAgent != null && scoringAgent.isEnabled(site.getId(), null)) {
-				// check to see if the site has any associated ScoringComponents to duplicate
-				List components = scoringAgent.getScoringComponents(site.getId());
-				if (components != null && !components.isEmpty()) {
-					context.put("scoringAgentOption", Boolean.TRUE);
-					context.put("scoringAgentName", scoringAgent.getName());
-				}
-			}
-			
 			// SAK-20797 - display checkboxes only if sitespecific value exists
 			long quota = getSiteSpecificQuota(site);
 			if (quota > 0) {
@@ -10437,12 +10423,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								String oldSiteId = (String) state
 										.getAttribute(STATE_SITE_INSTANCE_ID);
 
-								// Retrieve the source site reference to be used in the EventTrackingService
-								// notification of the start/end of a site duplication.
-								String sourceSiteRef = null;
+								// Verify the source still exists before creating the destination.
 								try {
-									Site sourceSite = siteService.getSite(oldSiteId);
-									sourceSiteRef = sourceSite.getReference();
+									siteService.getSite(oldSiteId);
 
 								} catch (IdUnusedException e) {
 									log.warn(this + ".actionForTemplate; case29: invalid source siteId: "+oldSiteId);
@@ -10551,9 +10534,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										}
 									}
 
-									// An event for starting the "duplicate site" action
-									eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
-
 									// get the new site icon url
 									if (site.getIconUrl() != null)
 									{
@@ -10588,22 +10568,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									}
 
 									try {
-										siteService.save(site);
-
-										// Remove tools and pages that may not be duplicated
+										// Finish site and realm setup before the shared import worker starts.
 										removeToolsNotForDuplication(site);
-
-										// import tool content
-										siteManageService.importToolContent(oldSiteId, site, false);
-
-										String transferScoringData = params.getString("selectScoringData");
-										if(transferScoringData != null && transferScoringData.equals("transferScoringData")) {
-											ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService");
-											ScoringAgent agent = scoringService.getDefaultScoringAgent();
-											if (agent != null && agent.isEnabled(oldSiteId, null)) {
-												agent.transferScoringComponentAssociations(oldSiteId, site.getId());
-											}
-										}
 
 										String siteType = site.getType();
 										if (siteTypeUtil.isCourseSite(siteType)) {
@@ -10627,7 +10593,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 											}
 										}
 
-										// save again
+										// Save the final title, term, properties, and placements before queueing.
 										siteService.save(site);
 										state.setAttribute(STATE_DUPE_SITE_STATUS_ID, site.getId());
 										state.setAttribute(STATE_DUPE_SITE_URL, site.getUrl());
@@ -10649,10 +10615,24 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 											log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.notaccess"), e);
 										}
 									} catch (IdUnusedException e) {
-										log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: IdUnusedException when saving " + newSiteId);
+										log.warn("Cannot save new site {} before importing from {}", newSiteId, oldSiteId, e);
+										addAlert(state, rb.getString("java.siteinval"));
 									} catch (PermissionException e) {
-										log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: PermissionException when saving " + newSiteId);
+										log.warn("Cannot save new site {} before importing from {}", newSiteId, oldSiteId, e);
+										addAlert(state, rb.getString("java.notaccess"));
 									}
+
+									if (state.getAttribute(STATE_MESSAGE) != null) {
+										deleteTempDupSiteOnError(site);
+										return;
+									}
+
+									if (!siteManageService.importAllToolsIntoSiteThread(oldSiteId, site)) {
+										addAlert(state, rb.getString("java.import.existing"));
+										deleteTempDupSiteOnError(site);
+										return;
+									}
+									state.setAttribute(IMPORT_QUEUED, rb.get("importQueued"));
 
 									scheduleTopRefresh();
 
@@ -10661,8 +10641,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 									state.setAttribute(SITE_DUPLICATED, Boolean.TRUE);
 
-									// An event for ending the "duplicate site" action
-									eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 								}
 							} catch (IdInvalidException e) {
 								addAlert(state, rb.getString("java.siteinval"));
