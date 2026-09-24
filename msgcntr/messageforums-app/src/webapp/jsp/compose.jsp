@@ -75,9 +75,6 @@
 					handleSelectionChange(document.getElementById('compose:list1'), 'compose:deleteSelection1');
 					handleSelectionChange(document.getElementById('compose:list2'), 'compose:deleteSelection2');
 
-					<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
-						initTagSelector("compose");
-					</f:verbatim>
 				});
 
 				function handleSelectionChange(selectElement, deleteSelectionId) {
@@ -356,6 +353,7 @@
         <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector"></h:inputHidden>
         <sakai-tag-selector
             id="tag-selector"
+            input-id="compose:tag_selector"
             selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
             collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
             item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'

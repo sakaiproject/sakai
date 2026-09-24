@@ -47,14 +47,6 @@ function textCounter(field, maxlimit) {
 }
 
 </script>
-<f:verbatim rendered="#{questionpool.showTags eq true and questionpool.canManageTags eq true}">
-	<script>
-		// Initialize input sync
-		window.addEventListener("load", () => {
-			window.syncTagSelectorInput("tag-selector", "editform:questionPoolTags");
-		});
-	</script>
-</f:verbatim>
 <script src="/library/js/spinner.js"></script>
           <script>
               function flagFolders() {
@@ -160,6 +152,7 @@ function textCounter(field, maxlimit) {
         <sakai-tag-selector
             tool="samigo"
             id="tag-selector"
+                input-id="editform:questionPoolTags"
             class="b5 flex-grow-1"
             selected-temp="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
             collection-id="<h:outputText value='#{questionpool.currentPool.ownerId}'/>"

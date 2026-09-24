@@ -280,6 +280,44 @@ class AssignmentTest extends SakaiUiTestBase {
         }
     }
 
+    @Test
+    @Order(10)
+    void canCreateSelectAndClearTagFilter() {
+        String courseUrl = ensureCourseUrl();
+        String suffix = Long.toString(System.currentTimeMillis());
+        String taggedTitle = "Tagged assignment " + suffix;
+        String otherTitle = "Other assignment " + suffix;
+        String tagLabel = "Assignment tag " + suffix;
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        createSimpleAssignment(otherTitle);
+
+        openAddAssignmentForm();
+        page.locator("#new_assignment_title").fill(taggedTitle);
+        Locator gradeAssignment = page.locator("#gradeAssignment").first();
+        if (gradeAssignment.count() > 0 && gradeAssignment.isChecked()) {
+            gradeAssignment.uncheck();
+        }
+        fillAssignmentInstructions("<p>Tag selector regression.</p>");
+        Locator selector = page.locator("sakai-tag-selector");
+        selector.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
+        selector.getByRole(AriaRole.COMBOBOX).press("Enter");
+        assertThat(page.locator("#tag_selector")).hasValue(tagLabel);
+        submitAssignmentForm();
+        goToAssignmentsList();
+
+        selector.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
+        selector.getByRole(AriaRole.COMBOBOX).press("ArrowDown");
+        selector.getByRole(AriaRole.COMBOBOX).press("Enter");
+        page.locator("#btnSearchTags1").click();
+        assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(taggedTitle))).isVisible();
+        assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(otherTitle))).hasCount(0);
+        page.locator("#btnSearchTagsClear").click();
+        assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(otherTitle))).isVisible();
+        assertThat(page.locator("#tag_selector")).hasValue("");
+    }
+
     private void openAddAssignmentForm() {
         goToAssignmentsList();
 

@@ -1,0 +1,10 @@
+{
+  "name": "@sakai-ui/sakai-tag-selector",
+  "version": "3.0.6",
+  "description": "Shared Sakai tag selector",
+  "main": "index.js",
+  "module": "sakai-tag-selector.js",
+  "license": "ECL-2.0",
+  "files": ["*.js", "src"],
+  "dependencies": { "@sakai-ui/sakai-element": "3.0.6", "lit": "^3.2.1" }
+}

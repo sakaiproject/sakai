@@ -43,10 +43,6 @@
         });
         ASN.checkIframeTags();
 
-        // Initialize tag selector
-        #if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
-            window.syncTagSelectorInput("tag-selector", "tag_selector");
-        #end
     });
 </script>
 
@@ -72,14 +68,14 @@
 				<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
 
 				<div class="flex-grow-1">
-					<sakai-tag-selector id="tag-selector" selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
+					<sakai-tag-selector id="tag-selector" input-id="tag_selector" selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
 				</div>
 				<div  class="">
 					<input type="submit" id="btnSearchTags1" value="$tlang.getString("tags_search")" accesskey="t"
 							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
 					#if ($!tag_selector)
 					<input type="submit" id="btnSearchTagsClear" value="$tlang.getString("search_clear")" accesskey="c"
-							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.clearShadowTags(); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.clearTags(); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
 					#end
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</div>

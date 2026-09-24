@@ -40,9 +40,10 @@
             console.error("Could not get clear filter button");
         }
 
-        // Initialize input sync and receive initial tag selection
-        const initialTags = window.syncTagSelectorInput(tagSelectorId, tagIdsInputId,
-                    (tags) => setButtonAbilityForTags(tags, [searchByTagsButton]));
+        document.getElementById(tagSelectorId)?.addEventListener("tags-changed", event => {
+            setButtonAbilityForTags(event.detail.value, [searchByTagsButton]);
+        });
+        const initialTags = document.getElementById(tagIdsInputId)?.value.split(",").filter(Boolean);
 
         // Only toggle the clear button once on load, so when the current filter tags
         // are unselected, the filter can still be cleared

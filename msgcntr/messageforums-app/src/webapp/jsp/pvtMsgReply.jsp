@@ -108,9 +108,6 @@
                     menuLinkSpan.addClass('current');
                     menuLinkSpan.html(menuLink.text());
 
-                    <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
-                        initTagSelector("pvtMsgReply")
-                    </f:verbatim>
 				});
 		</script>
 
@@ -401,6 +398,7 @@
         <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector"></h:inputHidden>
         <sakai-tag-selector 
             id="tag-selector"
+            input-id="pvtMsgReply:tag_selector"
             selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
             collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
             item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'
