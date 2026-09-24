@@ -135,8 +135,50 @@ class CalendarTest extends SakaiUiTestBase {
             new LocatorAssertions.HasCountOptions().setTimeout(20_000));
     }
 
+    private void ensureSiteParticipant(String eid) {
+        page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add Participants$", Pattern.CASE_INSENSITIVE)))
+            .first().click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+
+        page.locator("#officialAccountParticipant").fill(eid);
+        page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+        page.waitForLoadState();
+
+        // Nothing to add if eid is already a site member: the wizard re-shows step 1 with a
+        // warning banner instead of advancing to role/email selection.
+        Locator alreadyMember = page.locator("#participant-helper").filter(new Locator.FilterOptions().setHasText("already members"));
+        if (alreadyMember.count() > 0 && alreadyMember.isVisible()) {
+            sakai.gotoPath(sakaiUrl);
+            sakai.toolClick("Site Info");
+            return;
+        }
+
+        Locator sameRole = page.locator("#same-role");
+        if (sameRole.count() > 0 && sameRole.isVisible()) {
+            sameRole.check(new Locator.CheckOptions().setForce(true));
+            Locator maintainChoice = page.locator("input[name=\"sameRoleChoice\"][value=\"maintain\"]");
+            if (maintainChoice.count() > 0 && maintainChoice.isVisible()) {
+                maintainChoice.check(new Locator.CheckOptions().setForce(true));
+            }
+            page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+            page.waitForLoadState();
+        }
+
+        Locator dontSendEmail = page.locator("#dont-send-email");
+        if (dontSendEmail.count() > 0 && dontSendEmail.isVisible()) {
+            dontSendEmail.check(new Locator.CheckOptions().setForce(true));
+            page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
+            page.waitForLoadState();
+        }
+    }
+
     private void createGroupWithMember(String groupTitle, String memberEid) {
         sakai.toolClick("Site Info");
+        // Worksite Setup picks whichever course/section checkbox happens to be first, so the new
+        // site's CM roster (and whether memberEid ends up on it) isn't predictable. Adding the
+        // participant explicitly makes memberEid's presence in #groupMembers deterministic.
+        ensureSiteParticipant(memberEid);
+
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Groups$", Pattern.CASE_INSENSITIVE)))
             .first().click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
@@ -231,22 +273,30 @@ class CalendarTest extends SakaiUiTestBase {
     }
 
     private void switchToListView() {
-        // selectOption() triggers the view's onchange->form.submit() navigation, but doesn't wait
-        // for it; waitForLoadState() right after is a race (it can return before the navigation
-        // starts). Polling the next select's visibility instead waits out the actual navigation.
+        // selectOption()/click() trigger onchange->form.submit() navigations but don't wait for
+        // them, and the resulting page has the same select#timeFilterOption id as the page it
+        // replaces, so polling for that element's visibility can pass against the stale page
+        // before the navigation even starts. waitForNavigation() arms the wait before the
+        // triggering action so it's tied to the actual page load, not to an element that's
+        // present on both the old and new DOM.
         Locator viewSelect = page.locator("select#view").first();
         assertThat(viewSelect).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
         if (!"List of Events".equals(viewSelect.inputValue())) {
-            viewSelect.selectOption("List of Events");
+            page.waitForNavigation(() -> viewSelect.selectOption("List of Events"));
         }
 
         Locator timeFilter = page.locator("select#timeFilterOption").first();
         assertThat(timeFilter).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
         if (!"SHOW_ALL".equals(timeFilter.inputValue())) {
             timeFilter.selectOption("SHOW_ALL");
-            page.locator("input[name=\"eventSubmit_doFilter\"]").click(new Locator.ClickOptions().setForce(true));
-            assertThat(page.locator("select#timeFilterOption").first())
-                .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
+            page.waitForNavigation(() ->
+                page.locator("input[name=\"eventSubmit_doFilter\"]").click(new Locator.ClickOptions().setForce(true)));
+
+            Locator timeFilterAfterNav = page.locator("select#timeFilterOption").first();
+            assertThat(timeFilterAfterNav).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
+            if (!"SHOW_ALL".equals(timeFilterAfterNav.inputValue())) {
+                throw new IllegalStateException("Calendar list view did not apply the All events filter");
+            }
         }
     }
 
