@@ -338,15 +338,9 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 			managedItem.setAccessSet(accessSet);
 		}
 
+		accessSet.removeIf(access -> !accessValues.contains(access.getAccess()));
 		Set<String> remainingAccess = new HashSet<>(accessValues);
-		for (Iterator<AssignmentAllPurposeItemAccess> iterator = accessSet.iterator(); iterator.hasNext();)
-		{
-			AssignmentAllPurposeItemAccess access = iterator.next();
-			if (!remainingAccess.remove(access.getAccess()))
-			{
-				iterator.remove();
-			}
-		}
+		accessSet.forEach(access -> remainingAccess.remove(access.getAccess()));
 
 		for (String value : remainingAccess)
 		{
