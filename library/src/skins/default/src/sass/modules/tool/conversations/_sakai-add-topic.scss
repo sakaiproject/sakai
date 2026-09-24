@@ -71,18 +71,6 @@
     display: inline-block;
   }
 
-  #conv-edit-tags-link-wrapper {
-    white-space: nowrap;
-  }
-
-  #conv-edit-tags-link-wrapper > a {
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 24px;
-    text-decoration-line: underline;
-    color: var(--link-color);
-  }
-
   .topic-type-toggle {
     cursor: pointer;
     font-size: 18px;

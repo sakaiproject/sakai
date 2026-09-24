@@ -54,6 +54,10 @@ export class SakaiConversations extends SakaiElement {
     this.loadTranslations("conversations");
   }
 
+  _topicTagsCreated(event) {
+    this._data.tags = event.detail.tags;
+  }
+
   _tagsCreated() {
 
     this._fetchConversationsData();
@@ -325,10 +329,7 @@ export class SakaiConversations extends SakaiElement {
 
     this._showingSettings = false;
 
-    if (this.wasAddingTopic) {
-      this.wasAddingTopic = false;
-      this._state = STATE_ADDING_TOPIC;
-    } else if (this._currentTopic) {
+    if (this._currentTopic) {
       this._state = STATE_DISPLAYING_TOPIC;
       this._selectTopic();
     } else {
@@ -373,14 +374,6 @@ export class SakaiConversations extends SakaiElement {
 
     this._data.showGuidelines = false;
     this.requestUpdate();
-  }
-
-  async _editTags() {
-
-    await import("../sakai-conversations-tag-manager.js");
-
-    this.wasAddingTopic = true;
-    this._state = STATE_MANAGING_TAGS;
   }
 
   async _setStateSettings() {
@@ -524,9 +517,7 @@ export class SakaiConversations extends SakaiElement {
       <sakai-conversations-tag-manager
           .tags="${this._data.tags}"
           site-id="${this.siteId}"
-          ?editing-topic=${this.wasAddingTopic}
           @tags-created=${this._tagsCreated}
-          @continue=${this._resetState}
       >
       </sakai-conversations-tag-manager>
     `;
@@ -571,7 +562,7 @@ export class SakaiConversations extends SakaiElement {
         @topic-saved=${this._topicSaved}
         @save-wip-topic=${this._saveWipTopic}
         @topic-add-cancelled=${this._cancelAddTopic}
-        @edit-tags=${this._editTags}
+        @tags-created=${this._topicTagsCreated}
         ?can-create-discussion=${this._data.canCreateDiscussion}
         ?can-create-question=${this._data.canCreateQuestion}
         ?can-pin=${this._data.canPin}

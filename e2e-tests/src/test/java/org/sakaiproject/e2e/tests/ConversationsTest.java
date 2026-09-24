@@ -244,19 +244,22 @@ class ConversationsTest extends SakaiUiTestBase {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
         sakai.toolClick("Conversation");
-        page.locator(".conv-settings-link button:visible").click();
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Manage Tags").setExact(true)).click();
-
-        Locator manager = page.locator("sakai-conversations-tag-manager:visible");
+        page.locator("#conv-add-topic").click();
+        Locator inlineSelector = page.locator("sakai-add-topic sakai-tag-selector");
         String label = "Playwright shared tag " + System.currentTimeMillis();
         String secondLabel = "Second shared tag " + System.currentTimeMillis();
-        manager.locator("#tag-creation-field").fill(label + "," + secondLabel);
-        page.waitForResponse(response -> response.url().endsWith("/conversations/tags")
-                && response.request().method().equals("POST") && response.ok(),
-            () -> manager.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add New Tags").setExact(true)).click());
-        assertThat(manager).hasCount(0);
-
-        page.reload();
+        assertThat(page.locator("#conv-edit-tags-link-wrapper")).hasCount(0);
+        for (String newLabel : List.of(label, secondLabel)) {
+            inlineSelector.getByRole(AriaRole.COMBOBOX).fill(newLabel);
+            page.waitForResponse(response -> response.url().endsWith("/conversations/tags")
+                    && response.request().method().equals("POST") && response.ok(),
+                () -> inlineSelector.getByRole(AriaRole.COMBOBOX).press("Enter"));
+            assertThat(inlineSelector.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Deselect: " + newLabel).setExact(true))).isVisible();
+        }
+        page.locator("sakai-add-topic").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+        Locator manager = page.locator("sakai-conversations-tag-manager:visible");
         page.locator(".conv-settings-link button:visible").click();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Manage Tags").setExact(true)).click();
         Locator row = manager.locator(".tag-row").filter(new Locator.FilterOptions().setHasText(label));
