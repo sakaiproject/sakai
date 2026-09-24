@@ -162,6 +162,25 @@ describe("sakai-tag-selector", () => {
     expect(el.selectedTags).to.deep.equal([ { name: "日本語", code: "日本語" } ]);
   });
 
+  it("accepts caller-owned options and selection without fetching or emitting changes", async () => {
+    fetchMock.removeRoutes();
+    fetchMock.get(/getI18nProperties.*tag-selector/, translations);
+    const tags = [ { name: "Algebra", code: "one" }, { name: "Biology", code: "two" } ];
+    const el = await fixture(html`<sakai-tag-selector .options=${tags} .selectedTags=${[ tags[0] ]}></sakai-tag-selector>`);
+    await ready(el);
+    const events = [];
+    el.addEventListener("tags-changed", event => events.push(event.detail.value));
+    el.options = [ ...tags, { name: "Chemistry", code: "three" } ];
+    el.selectedTags = [ tags[1] ];
+    await elementUpdated(el);
+    expect(events).to.have.length(0);
+    expect(el.selectedTags).to.deep.equal([ tags[1] ]);
+    const input = await search(el, "Algebra");
+    key(input, "Enter");
+    expect(events).to.deep.equal([ [ tags[1], tags[0] ] ]);
+    expect(tags).to.have.length(2);
+  });
+
   it("renders tag labels as text and meets accessible combobox semantics", async () => {
     const el = await fixture(html`<sakai-tag-selector site-id="site" tool="samigo" collection-id="owner"
         extra-options=${"<img src=x onerror=alert(1)>"}></sakai-tag-selector>`);

@@ -9,6 +9,7 @@ describe("add-topic tests", () => {
 
   beforeEach(() => {
     fetchMock.mockGlobal();
+    fetchMock.get(/getI18nProperties.*tag-selector$/, data.tagSelectorI18n);
     fetchMock
       .get(data.i18nUrl, data.i18n)
       .get(graderData.i18nUrl, graderData.i18n)
@@ -38,10 +39,13 @@ describe("add-topic tests", () => {
     await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
-    el.querySelector(`#tags [data-tag-id="${data.tags[0].id}"]`).click();
+    const selector = el.querySelector("sakai-tag-selector");
+    await waitUntil(() => selector.shadowRoot.querySelector("button.tag"));
+    selector.shadowRoot.querySelector("button.tag").click();
     await elementUpdated(el);
-    expect(el.querySelectorAll("#tags > .tag")).to.have.length(1);
-    expect(el.querySelector(`#tag-post-block option[value="${data.tags[0].id}"]`)).to.exist;
+    await elementUpdated(selector);
+    expect(selector.selectedTags).to.have.length(1);
+    expect(selector.options.map(tag => tag.code)).to.include(String(data.tags[0].id));
 
     const saved = oneEvent(el, "topic-saved");
     el.querySelector("#button-block input").click();
@@ -87,17 +91,18 @@ describe("add-topic tests", () => {
     ({ detail } = await oneEvent(el, "save-wip-topic"));
     expect(detail.topic.message).to.equal(message);
 
-    const tagSelector = el.querySelector("#tag-post-block select");
-    tagSelector.value = data.tags[0].id;
-    setTimeout(() => tagSelector.dispatchEvent(new Event("change")));
-
-    // Click add tag button
-    setTimeout(() => tagSelector.nextElementSibling.click());
-    ({ detail } = await oneEvent(el, "save-wip-topic"));
+    const tagSelector = el.querySelector("sakai-tag-selector");
+    await waitUntil(() => tagSelector.shadowRoot.querySelector("input"));
+    const tagInput = tagSelector.shadowRoot.querySelector("input");
+    tagInput.focus();
+    await elementUpdated(tagSelector);
+    const changed = oneEvent(el, "save-wip-topic");
+    tagSelector.shadowRoot.querySelector("[role=option]").click();
+    ({ detail } = await changed);
     expect(detail.topic.tags.find(t => t.id === data.tags[0].id)).to.exist;
     await elementUpdated(el);
     await expect(el).to.be.accessible();
-    expect(el.querySelectorAll("#tags > .tag").length).to.equal(1);
+    expect(tagSelector.selectedTags).to.have.length(1);
 
     // Pick a group
     expect(el.querySelector("#add-topic-groups-block")).to.not.exist;

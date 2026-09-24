@@ -8,6 +8,7 @@ describe("Conversations topic navigation", () => {
   beforeEach(() => {
     window.top.portal = { user: { id: "user1", timezone: "Europe/London" } };
     fetchMock.mockGlobal();
+    fetchMock.get(/getI18nProperties.*tag-selector$/, data.tagSelectorI18n);
     fetchMock.get(data.i18nUrl, data.i18n);
     fetchMock.get(/.*posts.*/, []);
   });
@@ -22,9 +23,19 @@ describe("Conversations topic navigation", () => {
   }
 
   async function selectFilter(el, index, value) {
-    const select = el.querySelectorAll("#topic-list-filters select")[index];
-    select.value = value;
-    select.dispatchEvent(new Event("change"));
+    if (index === 0) {
+      const selector = el.querySelector("sakai-tag-selector");
+      await waitUntil(() => selector.shadowRoot.querySelector("input"));
+      const input = selector.shadowRoot.querySelector("input");
+      input.value = selector.options.find(tag => tag.code === String(value)).name;
+      input.dispatchEvent(new InputEvent("input", { bubbles: true }));
+      await elementUpdated(selector);
+      selector.shadowRoot.querySelector("[role=option]").click();
+    } else {
+      const select = el.querySelector("#topic-list-filters select");
+      select.value = value;
+      select.dispatchEvent(new Event("change"));
+    }
     await elementUpdated(el.querySelector("sakai-topic-list"));
   }
 
@@ -55,8 +66,8 @@ describe("Conversations topic navigation", () => {
     await expectTopic(el, first.title);
     expect(el.querySelector("#conv-next-topic").disabled).to.be.true;
     await returnToTopics(el);
-    expect([...el.querySelectorAll("#topic-list-filters select")].map(select => select.value))
-      .to.deep.equal([data.tags[0].id, "by_question"]);
+    expect(el.querySelector("sakai-tag-selector").selectedTags.map(tag => tag.code)).to.deep.equal([String(data.tags[0].id)]);
+    expect(el.querySelector("#topic-list-filters select").value).to.equal("by_question");
     expect(titles(el)).to.deep.equal([first.title]);
   });
 
@@ -91,7 +102,7 @@ describe("Conversations topic navigation", () => {
     await expectTopic(el, second.title);
     expect(el.querySelector("#conv-next-topic").disabled).to.be.true;
     await returnToTopics(el);
-    expect(el.querySelectorAll("#topic-list-filters select")[1].value).to.equal("by_unviewed");
+    expect(el.querySelector("#topic-list-filters select").value).to.equal("by_unviewed");
     await waitUntil(() => titles(el).length === 0);
     expect(fetchMock.callHistory.calls(markViewedUrl)).to.have.lengthOf(2);
     expect(titles(el)).to.deep.equal([]);
@@ -142,11 +153,11 @@ describe("Conversations topic navigation", () => {
       window.confirm = () => true;
       [...el.querySelectorAll(".dropdown-item")].find(button => button.textContent.trim() === "Delete").click();
       await waitUntil(() => titles(el).length === 1 && titles(el)[0] === "Sports topic");
-      expect(el.querySelectorAll("#topic-list-filters select")[0].value).to.equal("any");
+      expect(el.querySelector("sakai-tag-selector").selectedTags).to.deep.equal([]);
       el.querySelector(".topic-summary-link").click();
       await expectTopic(el, "Sports topic");
       await returnToTopics(el);
-      expect(el.querySelectorAll("#topic-list-filters select")[0].value).to.equal("any");
+      expect(el.querySelector("sakai-tag-selector").selectedTags).to.deep.equal([]);
       expect(titles(el)).to.deep.equal(["Sports topic"]);
     } finally {
       window.confirm = confirm;

@@ -71,12 +71,6 @@
     display: inline-block;
   }
 
-  #tag-post-block {
-    input {
-      margin-right: 20px;
-    }
-  }
-
   #conv-edit-tags-link-wrapper {
     white-space: nowrap;
   }
@@ -119,26 +113,7 @@
     }
   }
 
-  #tags {
-    margin-top: 10px;
-    .tag {
-      background-color: var(--sakai-background-color-4);
-      div {
-        color: var(--sakai-text-color);
-      }
-    }
-  }
-
   #post-to-block input {
-  }
-
-  .tag-remove-icon {
-    padding-top: 5px;
-    margin-left: 10px;
-  }
-
-  .tag-remove-icon sakai-icon {
-    color: red;
   }
 
   .add-topic-block input {

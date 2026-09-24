@@ -237,3 +237,11 @@ export const comment = {
   formattedCreatedDate: formattedCommentCreatedDate,
   message: commentMessage,
 };
+
+export const tagSelectorI18n = `search_filter=Search using tags
+search_or_add=Search or add a tag
+selected=Selected
+deselect=Deselect
+no_options=No tags for this site
+no_results=No tags found
+none_selected=No tags selected`;

@@ -1,3 +1,4 @@
+import "@sakai-ui/sakai-tag-selector/sakai-tag-selector.js";
 import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-editor/sakai-editor.js";
@@ -83,14 +84,6 @@ export class SakaiAddTopic extends SakaiElement {
   }
 
   get topic() { return this._topic; }
-
-  set tags(value) {
-
-    this._tags = value;
-    this.selectedTagId = this._tags.length ? this._tags[0].id : null;
-  }
-
-  get tags() { return this._tags; }
 
   _saveAsDraft() { this._save(true); }
 
@@ -190,30 +183,10 @@ export class SakaiAddTopic extends SakaiElement {
     this._saveWip();
   }
 
-  _selectTag() {
-
-    const tagId = this.selectedTagId;
-
-    this.topic.tags ??= [];
-
-    const existingIndex = this.topic.tags.findIndex(t => t?.id == tagId);
-    if (existingIndex !== -1) {
-      this.topic.tags.splice(existingIndex, 1);
-    } else {
-      const tag = this.tags.find(t => t?.id == tagId);
-      tag && this.topic.tags.push(tag);
-    }
-
+  _tagsChanged(event) {
+    const selected = new Set(event.detail.value.map(tag => tag.code));
+    this.topic.tags = this.tags.filter(tag => selected.has(String(tag.id)));
     this._saveWip();
-
-    this.requestUpdate();
-  }
-
-  _removeTag(e) {
-
-    const tagId = e.target.dataset.tagId;
-    const existingIndex = this.topic.tags.findIndex(t => t.id == tagId);
-    this.topic.tags.splice(existingIndex, 1);
     this.requestUpdate();
   }
 
@@ -395,8 +368,6 @@ export class SakaiAddTopic extends SakaiElement {
 
   _resetTitle() { this.titleError = false; }
 
-  _setSelectedTagId(e) { this.selectedTagId = e.target.value; }
-
   _setPinned(e) {
 
     this.topic.pinned = e.target.checked;
@@ -519,12 +490,11 @@ export class SakaiAddTopic extends SakaiElement {
         <div id="tag-post-block" class="add-topic-block">
           <div id="tag-post-label" class="add-topic-label">${this._i18n.tag_topic}</div>
           ${this.tags.length > 0 ? html`
-          <select @change="${this._setSelectedTagId}" aria-labelledby="tag-post-label">
-            ${this.tags.map(tag => html`
-            <option value="${tag.id}">${tag.label}</option>
-            `)}
-          </select>
-          <input type="button" value="${this._i18n.add}" @click=${this._selectTag}>
+          <sakai-tag-selector
+              .options=${this.tags.map(tag => ({ code: String(tag.id), name: tag.label }))}
+              .selectedTags=${(this.topic.tags || []).map(tag => ({ code: String(tag.id), name: tag.label }))}
+              @tags-changed=${this._tagsChanged}>
+          </sakai-tag-selector>
           ` : nothing}
           ${this.canEditTags ? html`
           <span id="conv-edit-tags-link-wrapper">
@@ -535,18 +505,6 @@ export class SakaiAddTopic extends SakaiElement {
             </button>
           </span>
           ` : nothing}
-          <div id="tags">
-          ${this.topic.tags?.map(tag => html`
-            <div class="tag">
-              <div>${tag.label}</div>
-              <a href="javascript:;" data-tag-id="${tag.id}" @click=${this._removeTag} aria-label="${this._i18n.remove} ${tag.label}">
-                <div class="tag-remove-icon">
-                  <sakai-icon type="close" size="small"></sakai-icon>
-                </div>
-              </a>
-            </div>
-          `)}
-          </div>
         </div>
         ` : nothing}
 

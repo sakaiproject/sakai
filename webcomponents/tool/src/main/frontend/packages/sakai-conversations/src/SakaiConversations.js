@@ -36,7 +36,7 @@ export class SakaiConversations extends SakaiElement {
 
     super();
 
-    this._topicListFilters = { filter: "any", tag: "any" };
+    this._topicListFilters = { filter: "any", tags: [] };
     this._topicSequence = [];
     this._state = STATE_NOTHING_SELECTED;
 

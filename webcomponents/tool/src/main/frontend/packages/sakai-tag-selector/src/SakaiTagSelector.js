@@ -5,6 +5,8 @@ import { css, html, nothing } from "lit";
 export class SakaiTagSelector extends SakaiShadowElement {
 
   static properties = {
+    options: { attribute: false },
+    selectedTags: { attribute: false },
     siteId: { attribute: "site-id", type: String },
     tool: { type: String },
     collectionId: { attribute: "collection-id", type: String },
@@ -34,6 +36,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
   }
 
   updated(changed) {
+    if (this.options !== undefined) { return; }
     if ([ "siteId", "tool", "collectionId", "itemId", "selectedTemp" ].some(p => changed.has(p))) {
       this._initializeSelection();
     }
@@ -47,6 +50,10 @@ export class SakaiTagSelector extends SakaiShadowElement {
   disconnectedCallback() {
     this._request?.abort();
     super.disconnectedCallback();
+  }
+
+  set selectedTags(tags) {
+    this._value = tags.map(tag => ({ ...tag }));
   }
 
   get selectedTags() {
@@ -108,7 +115,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
   get _availableOptions() {
     const extras = (this.extraOptions || "").split(",").filter(label => label.trim())
       .map(label => ({ name: label, code: label }));
-    const options = new Map(this._options.map(tag => [ tag.code, tag ]));
+    const options = new Map((this.options ?? this._options).map(tag => [ tag.code, tag ]));
     for (const tag of [ ...extras, ...this._value ]) {
       if (!options.has(tag.code)) { options.set(tag.code, tag); }
     }

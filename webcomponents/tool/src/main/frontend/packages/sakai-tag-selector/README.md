@@ -1,7 +1,7 @@
 # Sakai tag selector
 
 A Lit replacement for the shared Vue selector used by Assignments, Messages and
-Samigo question pools. It uses Sakai's `tag-selector` translations and is included
+Samigo question pools, also used by Conversations for topic tags and filtering. It uses Sakai's `tag-selector` translations and is included
 in the standard `base.js` bundle.
 
 ```html
@@ -25,3 +25,8 @@ in the standard `base.js` bundle.
 The picker supports arrow-key navigation, Enter selection/creation, Escape to
 close the options, and named buttons to remove selected tags. Labels are rendered
 as text. There is no global initialization helper or Vue dependency.
+
+Lit callers that already own their tag data can pass `.options` and
+`.selectedTags` as arrays of `{ name, code }`, and handle `tags-changed` to update
+their model. This skips API loading and requires no hidden form field.
+Programmatic selection changes do not emit events; user changes do.
