@@ -6,8 +6,6 @@
  *
  *   Unicon
  *
- *
- *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,13 +20,16 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tags.impl.common;
+package org.sakaiproject.tags.api;
 
-import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import org.sakaiproject.springframework.data.SpringCrudRepository;
 
-/**
- * Interface for performing a database query within a transaction.
- */
-public interface DBAction<E> {
-    public E call(DBConnection db) throws SQLException;
+public interface TagCollectionRepository extends SpringCrudRepository<TagCollection, String> {
+    /** Insert a collection with an assigned ID; reject duplicates instead of merging existing data. */
+    TagCollection create(TagCollection collection);
+    List<TagCollection> findAllOrdered(int offset, int limit);
+    Optional<TagCollection> findByName(String name);
+    Optional<TagCollection> findByExternalSourceName(String externalSourceName);
 }

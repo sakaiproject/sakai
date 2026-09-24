@@ -23,7 +23,7 @@
 
   <build>
     <plugins>
-      <!-- Expose the real service and storage to integration tests in consuming tools. -->
+      <!-- Expose the real service and repositories to integration tests in consuming tools. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -36,7 +36,16 @@
         </executions>
       </plugin>
     </plugins>
+    <testResources>
+      <testResource><directory>src/test/resources</directory></testResource>
+      <testResource><directory>src/webapp</directory></testResource>
+    </testResources>
     <resources>
+      <resource>
+        <directory>src/webapp/WEB-INF</directory>
+        <targetPath>META-INF/sakai-tags</targetPath>
+        <includes><include>tags-service.xml</include></includes>
+      </resource>
       <resource>
         <directory>${basedir}/src/resources</directory>
       </resource>
@@ -44,6 +53,20 @@
   </build>
 
   <dependencies>
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-commons</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
     
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>
@@ -83,12 +106,6 @@
       <artifactId>quartz</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>33.3.1-jre</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jdom</groupId>
       <artifactId>jdom2</artifactId>
     </dependency>
@@ -110,12 +127,6 @@
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-all</artifactId>
-        <version>${hamcrest.all.version}</version>
-        <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

@@ -25,8 +25,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Objects;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -46,6 +44,7 @@ import org.w3c.dom.Node;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.serialization.MapperFactory;
 
 /**
  * A quartz job to synchronize the TAGS with an
@@ -75,7 +74,7 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 				try {
 					targetStream=new FileInputStream(xmlFile);
 				} catch (Exception e){
-					log.warn("The Tags file can't be found in the specified route: " + tagsPathToXml);
+					log.warn("The Tags file can't be found in the specified route: {}", tagsPathToXml);
 				}
 		return targetStream;
 	}
@@ -88,7 +87,7 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 		try {
 			targetStream=new FileInputStream(xmlFile);
 		} catch (Exception e){
-			log.warn("The Tags file can't be found in the specified route: " + tagCollectionsPathToXml);
+			log.warn("The Tags file can't be found in the specified route: {}", tagCollectionsPathToXml);
 		}
 		return targetStream;
 	}
@@ -108,87 +107,96 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 			log.info("Starting Tag Collection synchronization");
 		}
 
-		try{
-			XMLInputFactory factory = XMLInputFactory.newInstance();
-			XMLStreamReader xsr = factory.createXMLStreamReader(getTagCollectionssXmlInputStream());
-			xsr.next();
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer t = tf.newTransformer();
+		try (InputStream input = getTagCollectionssXmlInputStream()) {
+			XMLStreamReader xsr = MapperFactory.xmlBuilder().build().getFactory()
+					.getXMLInputFactory().createXMLStreamReader(input);
+			try {
+				xsr.nextTag();
+				xsr.nextTag();
+				TransformerFactory tf = TransformerFactory.newInstance();
+				Transformer t = tf.newTransformer();
 
-			while (xsr.nextTag() == XMLStreamConstants.START_ELEMENT) {
-				DOMResult result = new DOMResult();
-				t.transform(new StAXSource(xsr), result);
+				while (hasImportElement(xsr)) {
+					DOMResult result = new DOMResult();
+					t.transform(new StAXSource(xsr), result);
 
-				Node nNode = result.getNode();
-				Element element = ((Document)nNode).getDocumentElement();
+					Node nNode = result.getNode();
+					Element element = ((Document)nNode).getDocumentElement();
 
-				String name = getString("Name",element);
-				log.debug("Found name: " + name);
-				String description = getString("Description",element);
-				log.debug("Found description : " + description);
-				String externalSourceName =  getString("ExternalSourceName",element);
-				log.debug("externalSourceName: " + externalSourceName);
-				String externalSourceDescription = getString("ExternalSourceDescription",element);
-				log.debug("externalSourceDescription: " + externalSourceDescription);
-				long lastUpdateDateInExternalSystem = xmlDateToMs(element.getElementsByTagName("DateRevised").item(0),name);
-				log.debug("lastUpdateDateInExternalSystem: " + lastUpdateDateInExternalSystem);
+					String name = getString("Name",element);
+					log.debug("Found name: {}", name);
+					String description = getString("Description",element);
+					log.debug("Found description : {}", description);
+					String externalSourceName =  getString("ExternalSourceName",element);
+					log.debug("externalSourceName: {}", externalSourceName);
+					String externalSourceDescription = getString("ExternalSourceDescription",element);
+					log.debug("externalSourceDescription: {}", externalSourceDescription);
+					long lastUpdateDateInExternalSystem = xmlDateToMs(element.getElementsByTagName("DateRevised").item(0),name);
+					log.debug("lastUpdateDateInExternalSystem: {}", lastUpdateDateInExternalSystem);
 
-				updateOrCreateTagCollection(name, description,
-						externalSourceName, externalSourceDescription, lastUpdateDateInExternalSystem);
+					updateOrCreateTagCollection(name, description,
+							externalSourceName, externalSourceDescription, lastUpdateDateInExternalSystem);
+				}
+			} finally {
+				xsr.close();
 			}
-
 			sendStatusMail(1,"");
 		}catch (Exception e){
 			log.warn("Error Synchronizing the Tags from an xml file:",e);
 			sendStatusMail(2,e.getMessage());
 		}
 
-		try{
-			XMLInputFactory factory = XMLInputFactory.newInstance();
-			XMLStreamReader xsr = factory.createXMLStreamReader(getTagsXmlInputStream());
-			xsr.next();
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer t = tf.newTransformer();
+		try (InputStream input = getTagsXmlInputStream()) {
+			XMLStreamReader xsr = MapperFactory.xmlBuilder().build().getFactory()
+					.getXMLInputFactory().createXMLStreamReader(input);
+			try {
+				xsr.nextTag();
+				xsr.nextTag();
+				TransformerFactory tf = TransformerFactory.newInstance();
+				Transformer t = tf.newTransformer();
 
-			while (xsr.nextTag() == XMLStreamConstants.START_ELEMENT) {
-				DOMResult result = new DOMResult();
-				t.transform(new StAXSource(xsr), result);
+				while (hasImportElement(xsr)) {
+					DOMResult result = new DOMResult();
+					t.transform(new StAXSource(xsr), result);
 
-				Node nNode = result.getNode();
-				Element element = ((Document)nNode).getDocumentElement();
-				String action = element.getAttribute("Action");
-				String tagLabel =	getString("TagLabel",element);
-				log.debug("Found tagLabel: " + tagLabel);
-				String externalId = getString("ExternalId",element);
-				log.debug("Found externalId: " + externalId);
-				String description = getString("Description",element);
-				log.debug("Found description : " + description);
-				long externalCreationDate = xmlDateToMs(element.getElementsByTagName("DateCreated").item(0),tagLabel);
-				log.debug("externalCreationDate: " + externalCreationDate);
-				long lastUpdateDateInExternalSystem = xmlDateToMs(element.getElementsByTagName("DateRevised").item(0),tagLabel);
-				log.debug("lastUpdateDateInExternalSystem: " + lastUpdateDateInExternalSystem);
-				String externalHierarchyCode =getString("HierarchyCode",element);
-				log.debug("externalHierarchyCode: " + externalHierarchyCode);
-				String externalType = getString("Type",element);
-				log.debug("externalType: " + externalType);
-				String alternativeLabels = getString("AlternativeLabels",element);
-				log.debug("alternativeLabels: " + alternativeLabels);
-				String externalSourceName =  getString("ExternalSourceName",element);
-				log.debug("externalSourceName: " + externalSourceName);
-				String data =  getString("Data",element);
-				log.debug("data: " + data);
-				String parentId = getString("ParentId",element);
-				log.debug("parentId: " + parentId);
+					Node nNode = result.getNode();
+					Element element = ((Document)nNode).getDocumentElement();
+					String action = element.getAttribute("Action");
+					String tagLabel =	getString("TagLabel",element);
+					log.debug("Found tagLabel: {}", tagLabel);
+					String externalId = getString("ExternalId",element);
+					log.debug("Found externalId: {}", externalId);
+					String description = getString("Description",element);
+					log.debug("Found description : {}", description);
+					long externalCreationDate = xmlDateToMs(element.getElementsByTagName("DateCreated").item(0),tagLabel);
+					log.debug("externalCreationDate: {}", externalCreationDate);
+					long lastUpdateDateInExternalSystem = xmlDateToMs(element.getElementsByTagName("DateRevised").item(0),tagLabel);
+					log.debug("lastUpdateDateInExternalSystem: {}", lastUpdateDateInExternalSystem);
+					String externalHierarchyCode =getString("HierarchyCode",element);
+					log.debug("externalHierarchyCode: {}", externalHierarchyCode);
+					String externalType = getString("Type",element);
+					log.debug("externalType: {}", externalType);
+					String alternativeLabels = getString("AlternativeLabels",element);
+					log.debug("alternativeLabels: {}", alternativeLabels);
+					String externalSourceName =  getString("ExternalSourceName",element);
+					log.debug("externalSourceName: {}", externalSourceName);
+					String data =  getString("Data",element);
+					log.debug("data: {}", data);
+					String parentId = getString("ParentId",element);
+					log.debug("parentId: {}", parentId);
 
-				if (Objects.equals(action,"delete")){
-					deleteTagFromExternalCollection(externalId,externalSourceName);
-				}else{
-					updateOrCreateTagWithExternalSourceName(externalId, externalSourceName,  tagLabel,  description,
-							alternativeLabels,  externalCreationDate,  lastUpdateDateInExternalSystem,  parentId,
-							externalHierarchyCode,  externalType,  data);
+					if (Objects.equals(action,"delete")){
+						deleteTagFromExternalCollection(externalId,externalSourceName);
+					}else{
+						updateOrCreateTagWithExternalSourceName(externalId, externalSourceName,  tagLabel,  description,
+								alternativeLabels,  externalCreationDate,  lastUpdateDateInExternalSystem,  parentId,
+								externalHierarchyCode,  externalType,  data);
+					}
+
+					updateTagCollectionSynchronization(externalSourceName,0L);
 				}
-
-				updateTagCollectionSynchronization(externalSourceName,0L);
+			} finally {
+				xsr.close();
 			}
 			sendStatusMail(1,"");
 		}catch (Exception e){
@@ -196,7 +204,7 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 			sendStatusMail(2,e.getMessage());
 		}
 		if(log.isInfoEnabled()) {
-			log.info("Finished Tags synchronization in " + (System.currentTimeMillis()-start) + " ms");
+			log.info("Finished Tags synchronization in {} ms", System.currentTimeMillis() - start);
 		}
 
 	}

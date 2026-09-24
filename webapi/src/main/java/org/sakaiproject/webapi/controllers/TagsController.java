@@ -54,7 +54,7 @@ public class TagsController extends AbstractSakaiApiController {
 		checkSakaiSession();
 		checkAccess(siteId, tool);
 
-		return tagService.getTags().getAllInCollection(collectionId);
+		return tagService.getTagsInCollection(collectionId);
 	}
 
 	private void checkAccess(String siteId, String tool) {

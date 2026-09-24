@@ -134,8 +134,8 @@ public class SearchQuestionBean   implements Serializable {
                 if (more) {
                     tagsLabels += ",";
                 }
-                if (tagService.getTags().getForId(s).isPresent()) {
-                    Tag tag = tagService.getTags().getForId(s).get();
+                if (tagService.getTag(s).isPresent()) {
+                    Tag tag = tagService.getTag(s).get();
                     String tagLabel = tag.getTagLabel();
                     String tagCollectionName = tag.getCollectionName();
                     tagsLabels += " " + tagLabel + "(" + tagCollectionName + ")";

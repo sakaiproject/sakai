@@ -2149,7 +2149,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     }
 
     private Tag requireSiteTag(String siteId, String tagId) {
-        return tagService.getTags().getForId(tagId)
+        return tagService.getTag(tagId)
             .filter(tag -> siteId.equals(tag.getTagCollectionId()))
             .orElseThrow(() -> new IllegalArgumentException("No tag in site " + siteId + " with id " + tagId));
     }
@@ -2177,10 +2177,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     private TagTransferBean createTag(TagTransferBean tag) {
         // The shared service creates the site's collection when necessary.
         tagService.duplicateTags(tag.getSiteId(), true, Collections.emptyList(), null);
-        Tag sharedTag = new Tag(null, tag.getSiteId(), tag.getLabel(),
-            tag.getDescription(), null, 0L, null, 0L, null, null, false, 0L,
-            false, 0L, null, null, null, null, null);
-        sharedTag.setTagId(tagService.getTags().createTag(sharedTag));
+        Tag sharedTag = Tag.builder().tagCollectionId(tag.getSiteId()).tagLabel(tag.getLabel())
+            .description(tag.getDescription()).build();
+        sharedTag.setTagId(tagService.createTag(sharedTag));
         return toConversationTag(sharedTag);
     }
 
@@ -2210,7 +2209,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (!securityService.unlock(Permissions.TOPIC_TAG.label, siteService.siteReference(siteId))) {
             return Collections.emptyList();
         }
-        return tagService.getTags().getAllInCollection(siteId).stream()
+        return tagService.getTagsInCollection(siteId).stream()
             .map(this::toConversationTag)
             .sorted(Comparator.comparing(TagTransferBean::getLabel, new AlphaNumericComparator()))
             .collect(Collectors.toList());
