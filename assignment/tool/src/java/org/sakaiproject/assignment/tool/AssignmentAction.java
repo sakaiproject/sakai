@@ -9369,7 +9369,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 } //if
 
                 // save supplement item information
-                boolean allPurposeAccessLookupFailed = saveAssignmentSupplementItem(state, params, siteId, a);
+                boolean allPurposeAccessLookupFailed = saveAssignmentSupplementItem(state, siteId, a);
 
                 // set default sorting
                 setDefaultSort(state);
@@ -9469,18 +9469,20 @@ public class AssignmentAction extends PagedResourceActionII {
      * supplement item related information
      *
      * @param state
-     * @param params
      * @param siteId
      * @param assignment
      */
-    private boolean saveAssignmentSupplementItem(SessionState state,
-                                              ParameterParser params, String siteId, Assignment assignment) {
-        // assignment supplement items
+    private boolean saveAssignmentSupplementItem(SessionState state, String siteId, Assignment assignment) {
         String aId = assignment.getId();
-        //model answer
-        if (state.getAttribute(MODELANSWER_TO_DELETE) != null && "true".equals((String) state.getAttribute(MODELANSWER_TO_DELETE))) {
+        saveModelAnswerSupplementItem(state, aId);
+        saveNoteSupplementItem(state, aId);
+        return saveAllPurposeSupplementItem(state, siteId, aId);
+    }
+
+    private void saveModelAnswerSupplementItem(SessionState state, String assignmentId) {
+        if ("true".equals(state.getAttribute(MODELANSWER_TO_DELETE))) {
             // to delete the model answer
-            AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(aId);
+            AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(assignmentId);
             if (mAnswer != null) {
                 assignmentSupplementItemService.cleanAttachment(mAnswer);
                 mAnswer.setAttachmentSet(new HashSet<>());
@@ -9488,10 +9490,10 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         } else if (state.getAttribute(MODELANSWER_TEXT) != null) {
             // edit/add model answer
-            AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(aId);
+            AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(assignmentId);
             if (mAnswer == null) {
                 mAnswer = assignmentSupplementItemService.newModelAnswer();
-                mAnswer.setAssignmentId(aId);
+                mAnswer.setAssignmentId(assignmentId);
                 assignmentSupplementItemService.saveModelAnswer(mAnswer);
             }
             mAnswer.setText((String) state.getAttribute(MODELANSWER_TEXT));
@@ -9499,27 +9501,33 @@ public class AssignmentAction extends PagedResourceActionII {
             mAnswer.setAttachmentSet(getAssignmentSupplementItemAttachment(state, mAnswer, MODELANSWER_ATTACHMENTS));
             assignmentSupplementItemService.saveModelAnswer(mAnswer);
         }
-        // note
-        if (state.getAttribute(NOTE_TO_DELETE) != null && "true".equals((String) state.getAttribute(NOTE_TO_DELETE))) {
+    }
+
+    private void saveNoteSupplementItem(SessionState state, String assignmentId) {
+        if ("true".equals(state.getAttribute(NOTE_TO_DELETE))) {
             // to remove note item
-            AssignmentNoteItem nNote = assignmentSupplementItemService.getNoteItem(aId);
-            if (nNote != null)
+            AssignmentNoteItem nNote = assignmentSupplementItemService.getNoteItem(assignmentId);
+            if (nNote != null) {
                 assignmentSupplementItemService.removeNoteItem(nNote);
+            }
         } else if (state.getAttribute(NOTE_TEXT) != null) {
             // edit/add private note
-            AssignmentNoteItem nNote = assignmentSupplementItemService.getNoteItem(aId);
-            if (nNote == null)
+            AssignmentNoteItem nNote = assignmentSupplementItemService.getNoteItem(assignmentId);
+            if (nNote == null) {
                 nNote = assignmentSupplementItemService.newNoteItem();
-            nNote.setAssignmentId(assignment.getId());
+            }
+            nNote.setAssignmentId(assignmentId);
             nNote.setNote((String) state.getAttribute(NOTE_TEXT));
             nNote.setShareWith(state.getAttribute(NOTE_SHAREWITH) != null ? Integer.parseInt((String) state.getAttribute(NOTE_SHAREWITH)) : 0);
             nNote.setCreatorId(userDirectoryService.getCurrentUser().getId());
             assignmentSupplementItemService.saveNoteItem(nNote);
         }
-        // all purpose
-        if (state.getAttribute(ALLPURPOSE_TO_DELETE) != null && "true".equals((String) state.getAttribute(ALLPURPOSE_TO_DELETE))) {
+    }
+
+    private boolean saveAllPurposeSupplementItem(SessionState state, String siteId, String assignmentId) {
+        if ("true".equals(state.getAttribute(ALLPURPOSE_TO_DELETE))) {
             // to remove allPurpose item
-            AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(aId);
+            AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(assignmentId);
             if (nAllPurpose != null) {
                 assignmentSupplementItemService.cleanAttachment(nAllPurpose);
                 nAllPurpose.setAttachmentSet(new HashSet<>());
@@ -9529,10 +9537,10 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         } else if (state.getAttribute(ALLPURPOSE_TITLE) != null) {
             // edit/add allPurpose item
-            AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(aId);
+            AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(assignmentId);
             if (nAllPurpose == null) {
                 nAllPurpose = assignmentSupplementItemService.newAllPurposeItem();
-                nAllPurpose.setAssignmentId(assignment.getId());
+                nAllPurpose.setAssignmentId(assignmentId);
                 nAllPurpose.setHide(false);//SAK-33681
                 assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
             }
@@ -9563,7 +9571,6 @@ public class AssignmentAction extends PagedResourceActionII {
             if (state.getAttribute(ALLPURPOSE_ACCESS) != null) {
                 // get the access settings
                 List<String> accessList = (List<String>) state.getAttribute(ALLPURPOSE_ACCESS);
-                Set<String> accessValues = new HashSet<>();
                 AuthzGroup realm;
                 try {
                     realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
@@ -9572,23 +9579,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
                     return true;
                 }
-                Set<Role> roles = realm.getRoles();
-                for (Iterator iRoles = roles.iterator(); iRoles.hasNext(); ) {
-                    // iterator through roles first
-                    Role r = (Role) iRoles.next();
-                    if (accessList.contains(r.getId())) {
-                        accessValues.add(r.getId());
-                    } else {
-                        // if the role is not selected, iterate through the users with this role
-                        Set userIds = realm.getUsersHasRole(r.getId());
-                        for (Iterator iUserIds = userIds.iterator(); iUserIds.hasNext(); ) {
-                            String userId = (String) iUserIds.next();
-                            if (accessList.contains(userId)) {
-                                accessValues.add(userId);
-                            }
-                        }
-                    }
-                }
+                Set<String> accessValues = selectedAllPurposeAccess(realm, accessList);
                 assignmentSupplementItemService.saveAllPurposeItemWithAccess(nAllPurpose, accessValues);
             } else {
                 assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
@@ -9597,13 +9588,29 @@ public class AssignmentAction extends PagedResourceActionII {
         return false;
     }
 
+    private Set<String> selectedAllPurposeAccess(AuthzGroup realm, List<String> selectedAccess) {
+        Set<String> accessValues = new HashSet<>();
+        for (Role role : realm.getRoles()) {
+            if (selectedAccess.contains(role.getId())) {
+                accessValues.add(role.getId());
+            } else {
+                for (String userId : realm.getUsersHasRole(role.getId())) {
+                    if (selectedAccess.contains(userId)) {
+                        accessValues.add(userId);
+                    }
+                }
+            }
+        }
+        return accessValues;
+    }
+
     private Set<AssignmentSupplementItemAttachment> getAssignmentSupplementItemAttachment(SessionState state, AssignmentSupplementItemWithAttachment mItem, String attachmentString) {
         Set<AssignmentSupplementItemAttachment> sAttachments = new HashSet<AssignmentSupplementItemAttachment>();
         List<String> attIdList = assignmentSupplementItemService.getAttachmentListForSupplementItem(mItem);
         if (state.getAttribute(attachmentString) != null) {
-            List currentAttachments = (List) state.getAttribute(attachmentString);
-            for (Iterator aIterator = currentAttachments.iterator(); aIterator.hasNext(); ) {
-                Reference attRef = (Reference) aIterator.next();
+            List<?> currentAttachments = (List<?>) state.getAttribute(attachmentString);
+            for (Object attachment : currentAttachments) {
+                Reference attRef = (Reference) attachment;
                 String attRefId = attRef.getReference();
                 // if the attachment is not exist, add it into db
                 if (!attIdList.contains(attRefId)) {
