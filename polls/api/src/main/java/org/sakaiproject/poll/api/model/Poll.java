@@ -32,15 +32,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import javax.persistence.AttributeConverter;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Converter;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -71,6 +72,20 @@ public class Poll implements PersistableEntity<String> {
     public enum Access {
         SITE,
         GROUP
+    }
+
+    @Converter
+    public static class AccessConverter implements AttributeConverter<Access, String> {
+        @Override
+        public String convertToDatabaseColumn(Access access) {
+            return (access == null ? Access.SITE : access).name();
+        }
+
+        @Override
+        public Access convertToEntityAttribute(String access) {
+            // Polls created before group support may have an empty access type.
+            return access == null || access.isBlank() ? Access.SITE : Access.valueOf(access);
+        }
     }
 
     @Id
@@ -125,7 +140,7 @@ public class Poll implements PersistableEntity<String> {
     @Column(name = "POLL_IS_PUBLIC", nullable = false)
     private boolean isPublic = false;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = AccessConverter.class)
     @Column(name = "ACCESS_TYPE", nullable = false, length = 10)
     private Access typeOfAccess = Access.SITE;
 
