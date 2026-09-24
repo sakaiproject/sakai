@@ -21,6 +21,7 @@ package org.sakaiproject.assignment.api.model;
 import org.sakaiproject.assignment.api.AssignmentService;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * This is the interface for accessing assignment supplement item
@@ -145,6 +146,14 @@ public interface AssignmentSupplementItemService {
      * @return
      */
     public boolean saveAllPurposeItem(AssignmentAllPurposeItem aItem);
+
+    /**
+     * Save the all purpose item and reconcile its role and user access entries.
+     *
+     * @param item the all purpose item
+     * @param accessValues the roles and users that should retain access
+     */
+    public void saveAllPurposeItemWithAccess(AssignmentAllPurposeItem item, Set<String> accessValues);
 
     /**
      * Remove the AssignmentAllPurposeItem object

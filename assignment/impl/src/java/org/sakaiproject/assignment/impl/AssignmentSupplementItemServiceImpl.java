@@ -23,6 +23,7 @@ package org.sakaiproject.assignment.impl;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -323,6 +324,37 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		{
 			log.warn("{}.saveAllPurposeItem() Hibernate could not save private AllPurpose for assignment {}", this, nItem.getAssignmentId(), e);
 			return false;
+		}
+	}
+
+	@Override
+	public void saveAllPurposeItemWithAccess(AssignmentAllPurposeItem item, Set<String> accessValues)
+	{
+		AssignmentAllPurposeItem managedItem = getHibernateTemplate().merge(item);
+		Set<AssignmentAllPurposeItemAccess> accessSet = managedItem.getAccessSet();
+		if (accessSet == null)
+		{
+			accessSet = new HashSet<>();
+			managedItem.setAccessSet(accessSet);
+		}
+
+		Set<String> remainingAccess = new HashSet<>(accessValues);
+		for (Iterator<AssignmentAllPurposeItemAccess> iterator = accessSet.iterator(); iterator.hasNext();)
+		{
+			AssignmentAllPurposeItemAccess access = iterator.next();
+			if (!remainingAccess.remove(access.getAccess()))
+			{
+				iterator.remove();
+			}
+		}
+
+		for (String value : remainingAccess)
+		{
+			AssignmentAllPurposeItemAccess access = new AssignmentAllPurposeItemAccess();
+			access.setAccess(value);
+			access.setAssignmentAllPurposeItem(managedItem);
+			getHibernateTemplate().save(access);
+			accessSet.add(access);
 		}
 	}
 	
