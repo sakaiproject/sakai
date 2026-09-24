@@ -16,9 +16,13 @@
 package org.sakaiproject.assignment.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
@@ -32,7 +36,9 @@ import org.junit.runner.RunWith;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -52,7 +58,7 @@ public class AssignmentSupplementItemServiceTest {
     private SiteService siteService;
 
     @Test
-    public void accessLookupFailureSavesItemAndPreservesAccess() throws Exception {
+    public void accessLookupFailurePreservesItemAndAccess() throws Exception {
         String assignmentId = UUID.randomUUID().toString();
         AssignmentAllPurposeItem item = service.newAllPurposeItem();
         item.setAssignmentId(assignmentId);
@@ -72,12 +78,35 @@ public class AssignmentSupplementItemServiceTest {
         values.setTitle("After edit");
         values.setText("Text");
         values.setHide(false);
-        service.updateAllPurposeItem(assignmentId, siteId, values,
-                Set.of(), Set.of("instructor"), false);
+        assertFalse(service.updateAllPurposeItem(assignmentId, siteId, values,
+                Set.of(), Set.of("instructor"), false));
 
         AssignmentAllPurposeItem saved = service.getAllPurposeItem(assignmentId);
-        assertEquals("After edit", saved.getTitle());
+        assertEquals("Before edit", saved.getTitle());
         assertEquals(originalAccess, accessIds(saved));
+    }
+
+    @Test
+    public void validatesSubmittedAccessOnceBeforeSaving() throws Exception {
+        String assignmentId = UUID.randomUUID().toString();
+        String siteId = UUID.randomUUID().toString();
+        String siteReference = "/site/" + siteId;
+        AuthzGroup realm = mock(AuthzGroup.class);
+        Role studentRole = mock(Role.class);
+        when(siteService.siteReference(siteId)).thenReturn(siteReference);
+        when(authzGroupService.getAuthzGroup(siteReference)).thenReturn(realm);
+        when(realm.getRoles()).thenReturn(Set.of(studentRole));
+        when(studentRole.getId()).thenReturn("student");
+        when(realm.getUsersHasRole("student")).thenReturn(Set.of("user1"));
+
+        AssignmentAllPurposeItem values = new AssignmentAllPurposeItem();
+        values.setTitle("Resource");
+        values.setHide(false);
+        assertTrue(service.updateAllPurposeItem(assignmentId, siteId, values,
+                Set.of(), Set.of("user1", "unknown"), false));
+
+        assertEquals(Set.of("user1"), accessIds(service.getAllPurposeItem(assignmentId)).keySet());
+        verify(authzGroupService, times(1)).getAuthzGroup(siteReference);
     }
 
     @Test

@@ -65,7 +65,7 @@ final class AssignmentSupplementItemForm {
     static final String ALLPURPOSE_RETRACT_MIN = "all_purpose_retract_min";
     static final String ALLPURPOSE_TO_DELETE = "allPurpose.toDelete";
 
-    static void save(SessionState state, String assignmentId, String siteId, String creatorId,
+    static boolean save(SessionState state, String assignmentId, String siteId, String creatorId,
             ZoneId zoneId, AssignmentSupplementItemService service) {
         if ("true".equals(state.getAttribute(MODELANSWER_TO_DELETE))) {
             service.updateModelAnswer(assignmentId, null, 0, null, true);
@@ -113,9 +113,10 @@ final class AssignmentSupplementItemForm {
                     selectedAccess.add((String) value);
                 }
             }
-            service.updateAllPurposeItem(assignmentId, siteId, values,
+            return !service.updateAllPurposeItem(assignmentId, siteId, values,
                     getSupplementAttachmentIds(state, ALLPURPOSE_ATTACHMENTS), selectedAccess, false);
         }
+        return false;
     }
 
     private static Set<String> getSupplementAttachmentIds(SessionState state, String attachmentKey) {

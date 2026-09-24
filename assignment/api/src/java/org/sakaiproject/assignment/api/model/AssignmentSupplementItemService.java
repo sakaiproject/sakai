@@ -35,8 +35,9 @@ public interface AssignmentSupplementItemService {
 
     void updateNote(String assignmentId, String creatorId, String text, int shareWith, boolean delete);
 
-    void updateAllPurposeItem(String assignmentId, String siteId, AssignmentAllPurposeItem values,
-                              Set<String> attachmentIds, Set<String> selectedAccess, boolean delete);
+    /** Returns false when access could not be validated; no All Purpose item changes are saved. */
+    boolean updateAllPurposeItem(String assignmentId, String siteId, AssignmentAllPurposeItem values,
+                                 Set<String> attachmentIds, Set<String> selectedAccess, boolean delete);
 
     /*************** attachment ********************/
     /**

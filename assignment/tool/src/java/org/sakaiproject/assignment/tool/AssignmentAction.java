@@ -8665,38 +8665,20 @@ public class AssignmentAction extends PagedResourceActionII {
             state.removeAttribute(ALLPURPOSE_SHOW_TO);
         }
 
-        String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
-        List<String> accessList = new ArrayList<String>();
-        try {
-            AuthzGroup realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
-            Set<Role> roles = realm.getRoles();
-            for (Iterator iRoles = roles.iterator(); iRoles.hasNext(); ) {
-                // iterator through roles first
-                Role role = (Role) iRoles.next();
-                if (params.getString("allPurpose_" + role.getId()) != null) {
-                    accessList.add(role.getId());
-                } else {
-                    // if the role is not selected, iterate through the users with this role
-                    Set userIds = realm.getUsersHasRole(role.getId());
-                    for (Iterator iUserIds = userIds.iterator(); iUserIds.hasNext(); ) {
-                        String userId = (String) iUserIds.next();
-                        if (params.getString("allPurpose_" + userId) != null) {
-                            accessList.add(userId);
-                        }
-                    }
-                }
+        List<String> accessList = new ArrayList<>();
+        params.getNames().forEachRemaining(name -> {
+            if (name.startsWith("allPurpose_") && !"allPurpose_to_delete".equals(name)) {
+                accessList.add(name.substring("allPurpose_".length()));
             }
-        } catch (Exception e) {
-            log.warn(this + ":setNewAssignmentParameters" + e.toString() + "error finding authzGroup for = " + siteId);
-        }
+        });
         state.setAttribute(ALLPURPOSE_ACCESS, accessList);
 
-        if (allPurposeTitle != null || allPurposeText != null || (accessList != null && !accessList.isEmpty()) || state.getAttribute(ALLPURPOSE_ATTACHMENTS) != null) {
+        if (allPurposeTitle != null || allPurposeText != null || !accessList.isEmpty() || state.getAttribute(ALLPURPOSE_ATTACHMENTS) != null) {
             // there is allpupose item input
             state.setAttribute(ALLPURPOSE, Boolean.TRUE);
 
             if (validify && !"true".equalsIgnoreCase(allPurpose_to_delete)) {
-                if (accessList == null || accessList.isEmpty()) {
+                if (accessList.isEmpty()) {
                     // missing access choice
                     addAlert(state, rb.getString("allPurpose.alert.access"));
                 }
@@ -9337,7 +9319,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 } //if
 
                 // save supplement item information
-                AssignmentSupplementItemForm.save(state, a.getId(), siteId,
+                boolean allPurposeAccessLookupFailed = AssignmentSupplementItemForm.save(state, a.getId(), siteId,
                         userDirectoryService.getCurrentUser().getId(),
                         userTimeService.getLocalTimeZone().toZoneId(), assignmentSupplementItemService);
 
@@ -9415,6 +9397,9 @@ public class AssignmentAction extends PagedResourceActionII {
                             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE, assignmentReference, true));
                         }
                     }
+                }
+                if (allPurposeAccessLookupFailed) {
+                    addAlert(state, rb.getString("allPurpose.alert.accessUpdateFailed"));
                 }
             }
 

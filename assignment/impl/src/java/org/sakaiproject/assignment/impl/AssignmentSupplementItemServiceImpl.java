@@ -97,9 +97,21 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	}
 
 	@Override
-	public void updateAllPurposeItem(String assignmentId, String siteId,
+	public boolean updateAllPurposeItem(String assignmentId, String siteId,
 			AssignmentAllPurposeItem values, Set<String> attachmentIds, Set<String> selectedAccess,
 			boolean delete) {
+		Set<String> accessValues = null;
+		if (!delete && selectedAccess != null) {
+			try {
+				AuthzGroup realm = m_authzGroupService.getAuthzGroup(m_siteService.siteReference(siteId));
+				accessValues = selectedAllPurposeAccess(realm, selectedAccess);
+			} catch (Exception e) {
+				log.warn("Could not validate All Purpose Item access for site {}", siteId, e);
+				return false;
+			}
+			if (!selectedAccess.isEmpty() && accessValues.isEmpty()) return false;
+		}
+
 		AssignmentAllPurposeItem item = getAllPurposeItem(assignmentId);
 		if (delete) {
 			if (item != null) {
@@ -109,7 +121,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 				if (item.getAccessSet() != null) item.getAccessSet().clear();
 				removeAllPurposeItem(item);
 			}
-			return;
+			return true;
 		}
 		if (item == null) {
 			item = newAllPurposeItem();
@@ -124,20 +136,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		item.setRetractDate(values.getRetractDate());
 		updateAttachments(item, attachmentIds);
 		saveAllPurposeItem(item);
-		if (selectedAccess == null) {
-			return;
+		if (accessValues != null) {
+			saveAllPurposeItemWithAccess(item, accessValues);
 		}
-
-		AuthzGroup realm;
-		try {
-			realm = m_authzGroupService.getAuthzGroup(m_siteService.siteReference(siteId));
-		}
-		catch (Exception e) {
-			log.warn("Could not find authzGroup for site {} while saving All Purpose Item access", siteId, e);
-			return;
-		}
-		Set<String> accessValues = selectedAllPurposeAccess(realm, selectedAccess);
-		saveAllPurposeItemWithAccess(item, accessValues);
+		return true;
 	}
 
 	private Set<String> selectedAllPurposeAccess(AuthzGroup realm, Set<String> selectedAccess) {
