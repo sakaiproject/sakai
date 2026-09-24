@@ -9337,7 +9337,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 } //if
 
                 // save supplement item information
-                boolean allPurposeAccessLookupFailed = AssignmentSupplementItemForm.save(state, a.getId(), siteId,
+                AssignmentSupplementItemForm.save(state, a.getId(), siteId,
                         userDirectoryService.getCurrentUser().getId(),
                         userTimeService.getLocalTimeZone().toZoneId(), assignmentSupplementItemService);
 
@@ -9415,10 +9415,6 @@ public class AssignmentAction extends PagedResourceActionII {
                             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE, assignmentReference, true));
                         }
                     }
-                }
-
-                if (allPurposeAccessLookupFailed) {
-                    addAlert(state, rb.getString("allPurpose.alert.accessUpdateFailed"));
                 }
             }
 

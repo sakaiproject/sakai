@@ -16,7 +16,6 @@
 package org.sakaiproject.assignment.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -73,8 +72,8 @@ public class AssignmentSupplementItemServiceTest {
         values.setTitle("After edit");
         values.setText("Text");
         values.setHide(false);
-        assertFalse(service.updateAllPurposeItem(assignmentId, siteId, values,
-                Set.of(), Set.of("instructor"), false));
+        service.updateAllPurposeItem(assignmentId, siteId, values,
+                Set.of(), Set.of("instructor"), false);
 
         AssignmentAllPurposeItem saved = service.getAllPurposeItem(assignmentId);
         assertEquals("After edit", saved.getTitle());

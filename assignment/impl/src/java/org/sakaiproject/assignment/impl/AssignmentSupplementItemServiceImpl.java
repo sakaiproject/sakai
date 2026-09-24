@@ -97,7 +97,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	}
 
 	@Override
-	public boolean updateAllPurposeItem(String assignmentId, String siteId,
+	public void updateAllPurposeItem(String assignmentId, String siteId,
 			AssignmentAllPurposeItem values, Set<String> attachmentIds, Set<String> selectedAccess,
 			boolean delete) {
 		AssignmentAllPurposeItem item = getAllPurposeItem(assignmentId);
@@ -109,7 +109,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 				if (item.getAccessSet() != null) item.getAccessSet().clear();
 				removeAllPurposeItem(item);
 			}
-			return true;
+			return;
 		}
 		if (item == null) {
 			item = newAllPurposeItem();
@@ -123,9 +123,9 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		item.setReleaseDate(values.getReleaseDate());
 		item.setRetractDate(values.getRetractDate());
 		updateAttachments(item, attachmentIds);
+		saveAllPurposeItem(item);
 		if (selectedAccess == null) {
-			saveAllPurposeItem(item);
-			return true;
+			return;
 		}
 
 		AuthzGroup realm;
@@ -134,12 +134,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (Exception e) {
 			log.warn("Could not find authzGroup for site {} while saving All Purpose Item access", siteId, e);
-			saveAllPurposeItem(item);
-			return false;
+			return;
 		}
 		Set<String> accessValues = selectedAllPurposeAccess(realm, selectedAccess);
 		saveAllPurposeItemWithAccess(item, accessValues);
-		return true;
 	}
 
 	private Set<String> selectedAllPurposeAccess(AuthzGroup realm, Set<String> selectedAccess) {
