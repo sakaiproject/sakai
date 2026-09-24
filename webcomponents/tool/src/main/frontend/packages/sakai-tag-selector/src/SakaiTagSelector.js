@@ -5,13 +5,13 @@ import { css, html, nothing } from "lit";
 export class SakaiTagSelector extends SakaiShadowElement {
 
   static properties = {
-    siteId: { attribute: "site-id" },
+    siteId: { attribute: "site-id", type: String },
     tool: { type: String },
-    collectionId: { attribute: "collection-id" },
-    itemId: { attribute: "item-id" },
-    selectedTemp: { attribute: "selected-temp" },
-    extraOptions: { attribute: "extra-options" },
-    inputId: { attribute: "input-id" },
+    collectionId: { attribute: "collection-id", type: String },
+    itemId: { attribute: "item-id", type: String },
+    selectedTemp: { attribute: "selected-temp", type: String },
+    extraOptions: { attribute: "extra-options", type: String },
+    inputId: { attribute: "input-id", type: String },
     addNew: { attribute: "add-new", converter: value => value !== null && value !== "false" },
     _options: { state: true },
     _value: { state: true },
@@ -147,12 +147,12 @@ export class SakaiTagSelector extends SakaiShadowElement {
     this._query = "";
     this._active = -1;
     this._publish();
-    this.shadowRoot.querySelector("input").focus();
+    this.renderRoot.querySelector("input").focus();
     this._open = false;
   }
 
   _focusout(event) {
-    if (!event.relatedTarget || !this.shadowRoot.contains(event.relatedTarget)) {
+    if (!event.relatedTarget || !this.renderRoot.contains(event.relatedTarget)) {
       this._open = false;
     }
   }
@@ -177,7 +177,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
         this._active = this._active < 0
           ? (event.key === "ArrowDown" ? 0 : count - 1)
           : (this._active + (event.key === "ArrowDown" ? 1 : -1) + count) % count;
-        this.updateComplete.then(() => this.shadowRoot.getElementById(`option-${this._active}`)?.scrollIntoView({ block: "nearest" }));
+        this.updateComplete.then(() => this.renderRoot.getElementById(`option-${this._active}`)?.scrollIntoView({ block: "nearest" }));
       }
     } else if (event.key === "Enter") {
       event.preventDefault();
