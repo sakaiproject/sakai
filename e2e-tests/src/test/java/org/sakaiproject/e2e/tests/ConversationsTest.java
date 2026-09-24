@@ -144,7 +144,7 @@ class ConversationsTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void navigatesInFilteredOrderAndRetainsFilter() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
@@ -188,7 +188,7 @@ class ConversationsTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     void updatesTopicMenuActionsWithoutLeavingList() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
@@ -239,7 +239,7 @@ class ConversationsTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     void createsAndDetachesSharedTag() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
