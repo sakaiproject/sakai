@@ -251,7 +251,7 @@ class ConversationsTest extends SakaiUiTestBase {
         assertThat(page.locator("#conv-edit-tags-link-wrapper")).hasCount(0);
         for (String newLabel : List.of(label, secondLabel)) {
             inlineSelector.getByRole(AriaRole.COMBOBOX).fill(newLabel);
-            page.waitForResponse(response -> response.url().endsWith("/conversations/tags")
+            page.waitForResponse(response -> response.url().endsWith("/tools/conversations/tags")
                     && response.request().method().equals("POST") && response.ok(),
                 () -> inlineSelector.getByRole(AriaRole.COMBOBOX).press("Enter"));
             assertThat(inlineSelector.getByRole(AriaRole.BUTTON,

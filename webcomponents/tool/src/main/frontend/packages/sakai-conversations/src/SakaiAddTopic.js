@@ -199,13 +199,15 @@ export class SakaiAddTopic extends SakaiElement {
       if (newTags.length) {
         if (!this.canEditTags) { throw new Error("Tag creation is not permitted"); }
         this._creatingTags = true;
-        const response = await fetch(`/api/sites/${this.siteId}/conversations/tags`, {
+        const response = await fetch(`/api/sites/${this.siteId}/tools/conversations/tags`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newTags.map(tag => ({ label: tag.name }))),
+          body: JSON.stringify(newTags.map(tag => ({ tagLabel: tag.name }))),
         });
         if (!response.ok) { throw new Error(`Unable to create tags: ${response.status}`); }
-        created = await response.json();
+        created = (await response.json()).map(tag => ({
+          id: tag.tagId, label: tag.tagLabel, description: tag.description, siteId: tag.tagCollectionId,
+        }));
         this.tags = [ ...this.tags, ...created ];
         this.dispatchEvent(new CustomEvent("tags-created", {
           detail: { tags: this.tags }, bubbles: true,

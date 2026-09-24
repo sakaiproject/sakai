@@ -53,9 +53,9 @@ export class SakaiConversationsTagManager extends SakaiElement {
       return;
     }
 
-    const tagsData = tagLabels.map(label => ({ label, siteId: this.siteId }));
+    const tagsData = tagLabels.map(label => ({ tagLabel: label }));
 
-    const url = `/api/sites/${this.siteId}/conversations/tags`;
+    const url = `/api/sites/${this.siteId}/tools/conversations/tags`;
     fetch(url, {
       method: "POST",
       credentials: "include",

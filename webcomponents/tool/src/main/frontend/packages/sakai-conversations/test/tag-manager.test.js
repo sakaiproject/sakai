@@ -50,10 +50,10 @@ describe("sakai-conversations-tag-manager tests", () => {
 
   it("creates new tags", async () => {
 
-    const createTagsUrl = `/api/sites/${data.siteId}/conversations/tags`;
+    const createTagsUrl = `/api/sites/${data.siteId}/tools/conversations/tags`;
     const newTagsPayload = [
-      { label: "newTag1", siteId: data.siteId },
-      { label: "newTag2", siteId: data.siteId }
+      { tagLabel: "newTag1" },
+      { tagLabel: "newTag2" }
     ];
     const newTagsResponse = [
       { label: "newTag1", siteId: data.siteId, id: "conv-3" },
@@ -76,7 +76,7 @@ describe("sakai-conversations-tag-manager tests", () => {
 
     // Enter new tags in the creation field
     const tagField = el.querySelector("#tag-creation-field");
-    tagField.value = newTagsPayload.map(t => t.label).join(", ");
+    tagField.value = newTagsPayload.map(t => t.tagLabel).join(", ");
     tagField.dispatchEvent(new Event("input"));
 
     expect(el._saveable).to.be.true;
@@ -126,7 +126,7 @@ describe("sakai-conversations-tag-manager tests", () => {
 
   it("ignores duplicate tags during creation", async () => {
 
-    const createTagsUrl = `/api/sites/${data.siteId}/conversations/tags`;
+    const createTagsUrl = `/api/sites/${data.siteId}/tools/conversations/tags`;
     const uniqueTagLabel = "unique";
     const uniqueTagResponse = { label: uniqueTagLabel, siteId: data.siteId, id: "3" };
 

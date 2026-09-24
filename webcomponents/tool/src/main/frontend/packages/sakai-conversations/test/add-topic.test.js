@@ -56,10 +56,10 @@ describe("add-topic tests", () => {
   });
 
   it("creates the first tag inline and saves its returned id with the topic", async () => {
-    const tag = { id: "new-tag-id", label: "New tag", siteId: data.siteId };
+    const tag = { id: "new-tag-id", label: "New tag", siteId: data.siteId, description: "Tag description" };
     let finishCreation;
-    fetchMock.post(`/api/sites/${data.siteId}/conversations/tags`, () => new Promise(resolve => {
-      finishCreation = () => resolve([tag]);
+    fetchMock.post(`/api/sites/${data.siteId}/tools/conversations/tags`, () => new Promise(resolve => {
+      finishCreation = () => resolve([{ tagId: tag.id, tagLabel: tag.label, tagCollectionId: tag.siteId, description: tag.description }]);
     }));
     const topic = { ...data.questionTopic, tags: [] };
     fetchMock.put(topic.url, ({ options }) => JSON.parse(options.body));
@@ -91,10 +91,10 @@ describe("add-topic tests", () => {
   });
 
   it("retains the previous selection after a failed creation and allows retry", async () => {
-    const url = `/api/sites/${data.siteId}/conversations/tags`;
+    const url = `/api/sites/${data.siteId}/tools/conversations/tags`;
     fetchMock.post(url, 403, { repeat: 1 });
-    const tag = { id: "retry-id", label: "Retry tag", siteId: data.siteId };
-    fetchMock.post(url, [tag]);
+    const tag = { id: "retry-id", label: "Retry tag", siteId: data.siteId, description: "Tag description" };
+    fetchMock.post(url, [{ tagId: tag.id, tagLabel: tag.label, tagCollectionId: tag.siteId, description: tag.description }]);
     const el = await fixture(html`<sakai-add-topic .topic=${{ ...data.questionTopic, tags: [data.tags[0]] }}
         .tags=${data.tags} .groups=${data.groups} site-id=${data.siteId} can-edit-tags can-create-question></sakai-add-topic>`);
     await waitUntil(() => el.querySelector("sakai-tag-selector"));

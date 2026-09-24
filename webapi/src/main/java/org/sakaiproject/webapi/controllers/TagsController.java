@@ -23,10 +23,13 @@ import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.webapi.exception.ForbiddenAccessException;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +43,12 @@ public class TagsController extends AbstractSakaiApiController {
 
 	@Resource
 	private SecurityService securityService;
+
+	@PostMapping(value = "/sites/{siteId}/tools/{tool}/tags", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<Tag> createTags(@PathVariable String siteId, @PathVariable String tool, @RequestBody List<Tag> tags) {
+		checkSakaiSession();
+		return tagService.createSiteTags(siteId, tool, tags);
+	}
 
 	@GetMapping(value = "/sites/{siteId}/tools/{tool}/tags/{collectionId}/items/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Iterable<Tag> getTagsForItem(@PathVariable String siteId, @PathVariable String tool, @PathVariable String collectionId, @PathVariable String itemId) {
