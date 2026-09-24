@@ -59,16 +59,8 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 
 	@Override
 	public void updateModelAnswer(String assignmentId, String text, int showTo,
-			Set<String> attachmentIds, boolean delete) {
+			Set<String> attachmentIds) {
 		AssignmentModelAnswerItem item = getModelAnswer(assignmentId);
-		if (delete) {
-			if (item != null) {
-				cleanAttachment(item);
-				if (item.getAttachmentSet() != null) item.getAttachmentSet().clear();
-				removeModelAnswer(item);
-			}
-			return;
-		}
 		if (item == null) {
 			item = newModelAnswer();
 			item.setAssignmentId(assignmentId);
@@ -81,13 +73,18 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	}
 
 	@Override
-	public void updateNote(String assignmentId, String creatorId, String text, int shareWith,
-			boolean delete) {
-		AssignmentNoteItem item = getNoteItem(assignmentId);
-		if (delete) {
-			if (item != null) removeNoteItem(item);
-			return;
+	public void deleteModelAnswer(String assignmentId) {
+		AssignmentModelAnswerItem item = getModelAnswer(assignmentId);
+		if (item != null) {
+			cleanAttachment(item);
+			if (item.getAttachmentSet() != null) item.getAttachmentSet().clear();
+			removeModelAnswer(item);
 		}
+	}
+
+	@Override
+	public void updateNote(String assignmentId, String creatorId, String text, int shareWith) {
+		AssignmentNoteItem item = getNoteItem(assignmentId);
 		if (item == null) item = newNoteItem();
 		item.setAssignmentId(assignmentId);
 		item.setNote(text);
@@ -97,11 +94,16 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	}
 
 	@Override
+	public void deleteNote(String assignmentId) {
+		AssignmentNoteItem item = getNoteItem(assignmentId);
+		if (item != null) removeNoteItem(item);
+	}
+
+	@Override
 	public boolean updateAllPurposeItem(String assignmentId, String siteId,
-			AssignmentAllPurposeItem values, Set<String> attachmentIds, Set<String> selectedAccess,
-			boolean delete) {
+			AssignmentAllPurposeItem values, Set<String> attachmentIds, Set<String> selectedAccess) {
 		Set<String> accessValues = null;
-		if (!delete && selectedAccess != null) {
+		if (selectedAccess != null) {
 			try {
 				AuthzGroup realm = m_authzGroupService.getAuthzGroup(m_siteService.siteReference(siteId));
 				accessValues = selectedAllPurposeAccess(realm, selectedAccess);
@@ -113,16 +115,6 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 
 		AssignmentAllPurposeItem item = getAllPurposeItem(assignmentId);
-		if (delete) {
-			if (item != null) {
-				cleanAttachment(item);
-				if (item.getAttachmentSet() != null) item.getAttachmentSet().clear();
-				cleanAllPurposeItemAccess(item);
-				if (item.getAccessSet() != null) item.getAccessSet().clear();
-				removeAllPurposeItem(item);
-			}
-			return true;
-		}
 		if (item == null) {
 			item = newAllPurposeItem();
 			item.setAssignmentId(assignmentId);
@@ -140,6 +132,18 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 			saveAllPurposeItemWithAccess(item, accessValues);
 		}
 		return true;
+	}
+
+	@Override
+	public void deleteAllPurposeItem(String assignmentId) {
+		AssignmentAllPurposeItem item = getAllPurposeItem(assignmentId);
+		if (item != null) {
+			cleanAttachment(item);
+			if (item.getAttachmentSet() != null) item.getAttachmentSet().clear();
+			cleanAllPurposeItemAccess(item);
+			if (item.getAccessSet() != null) item.getAccessSet().clear();
+			removeAllPurposeItem(item);
+		}
 	}
 
 	private Set<String> selectedAllPurposeAccess(AuthzGroup realm, Set<String> selectedAccess) {

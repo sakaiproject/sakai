@@ -79,7 +79,7 @@ public class AssignmentSupplementItemServiceTest {
         values.setText("Text");
         values.setHide(false);
         assertFalse(service.updateAllPurposeItem(assignmentId, siteId, values,
-                Set.of(), Set.of("instructor"), false));
+                Set.of(), Set.of("instructor")));
 
         AssignmentAllPurposeItem saved = service.getAllPurposeItem(assignmentId);
         assertEquals("Before edit", saved.getTitle());
@@ -103,7 +103,7 @@ public class AssignmentSupplementItemServiceTest {
         values.setTitle("Resource");
         values.setHide(false);
         assertTrue(service.updateAllPurposeItem(assignmentId, siteId, values,
-                Set.of(), Set.of("user1", "unknown"), false));
+                Set.of(), Set.of("user1", "unknown")));
 
         assertEquals(Set.of("user1"), accessIds(service.getAllPurposeItem(assignmentId)).keySet());
         verify(authzGroupService, times(1)).getAuthzGroup(siteReference);
@@ -112,8 +112,8 @@ public class AssignmentSupplementItemServiceTest {
     @Test
     public void savesModelAnswerAndNoteThroughService() {
         String assignmentId = UUID.randomUUID().toString();
-        service.updateModelAnswer(assignmentId, "Answer", 2, Set.of(), false);
-        service.updateNote(assignmentId, "instructor", "Private note", 1, false);
+        service.updateModelAnswer(assignmentId, "Answer", 2, Set.of());
+        service.updateNote(assignmentId, "instructor", "Private note", 1);
         assertEquals("Answer", service.getModelAnswer(assignmentId).getText());
         assertEquals("Private note", service.getNoteItem(assignmentId).getNote());
         assertEquals("instructor", service.getNoteItem(assignmentId).getCreatorId());
@@ -124,8 +124,8 @@ public class AssignmentSupplementItemServiceTest {
     public void editingModelAnswerKeepsSelectedAttachment() {
         String assignmentId = UUID.randomUUID().toString();
         String attachmentId = "/attachment/" + UUID.randomUUID();
-        service.updateModelAnswer(assignmentId, "Before", 1, Set.of(attachmentId), false);
-        service.updateModelAnswer(assignmentId, "After", 2, Set.of(attachmentId), false);
+        service.updateModelAnswer(assignmentId, "Before", 1, Set.of(attachmentId));
+        service.updateModelAnswer(assignmentId, "After", 2, Set.of(attachmentId));
 
         assertEquals(Set.of(attachmentId),
                 Set.copyOf(service.getAttachmentListForSupplementItem(service.getModelAnswer(assignmentId))));
@@ -134,19 +134,22 @@ public class AssignmentSupplementItemServiceTest {
     @Test
     public void removesSupplementItemsWithTheirChildren() {
         String assignmentId = UUID.randomUUID().toString();
-        service.updateModelAnswer(assignmentId, "Answer", 1, Set.of("/attachment/model"), false);
+        service.updateModelAnswer(assignmentId, "Answer", 1, Set.of("/attachment/model"));
+        service.updateNote(assignmentId, "instructor", "Private note", 1);
         AssignmentAllPurposeItem values = new AssignmentAllPurposeItem();
         values.setTitle("Resource");
         values.setText("Text");
         values.setHide(false);
         service.updateAllPurposeItem(assignmentId, "site", values,
-                Set.of("/attachment/resource"), null, false);
+                Set.of("/attachment/resource"), null);
         service.saveAllPurposeItemWithAccess(service.getAllPurposeItem(assignmentId), Set.of("student"));
 
-        service.updateModelAnswer(assignmentId, null, 0, null, true);
-        service.updateAllPurposeItem(assignmentId, "site", null, null, null, true);
+        service.deleteModelAnswer(assignmentId);
+        service.deleteNote(assignmentId);
+        service.deleteAllPurposeItem(assignmentId);
 
         assertNull(service.getModelAnswer(assignmentId));
+        assertNull(service.getNoteItem(assignmentId));
         assertNull(service.getAllPurposeItem(assignmentId));
     }
 

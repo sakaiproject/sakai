@@ -68,28 +68,27 @@ final class AssignmentSupplementItemForm {
     static boolean save(SessionState state, String assignmentId, String siteId, String creatorId,
             ZoneId zoneId, AssignmentSupplementItemService service) {
         if ("true".equals(state.getAttribute(MODELANSWER_TO_DELETE))) {
-            service.updateModelAnswer(assignmentId, null, 0, null, true);
+            service.deleteModelAnswer(assignmentId);
         } else if (state.getAttribute(MODELANSWER_TEXT) != null) {
             int showTo = state.getAttribute(MODELANSWER_SHOWTO) == null ? 0
                     : Integer.parseInt((String) state.getAttribute(MODELANSWER_SHOWTO));
             service.updateModelAnswer(assignmentId,
                     (String) state.getAttribute(MODELANSWER_TEXT), showTo,
-                    getSupplementAttachmentIds(state, MODELANSWER_ATTACHMENTS), false);
+                    getSupplementAttachmentIds(state, MODELANSWER_ATTACHMENTS));
         }
 
         if ("true".equals(state.getAttribute(NOTE_TO_DELETE))) {
-            service.updateNote(assignmentId, null, null, 0, true);
+            service.deleteNote(assignmentId);
         } else if (state.getAttribute(NOTE_TEXT) != null) {
             int shareWith = state.getAttribute(NOTE_SHAREWITH) == null ? 0
                     : Integer.parseInt((String) state.getAttribute(NOTE_SHAREWITH));
             service.updateNote(assignmentId,
                     creatorId,
-                    (String) state.getAttribute(NOTE_TEXT), shareWith, false);
+                    (String) state.getAttribute(NOTE_TEXT), shareWith);
         }
 
         if ("true".equals(state.getAttribute(ALLPURPOSE_TO_DELETE))) {
-            service.updateAllPurposeItem(
-                    assignmentId, siteId, null, null, null, true);
+            service.deleteAllPurposeItem(assignmentId);
         } else if (state.getAttribute(ALLPURPOSE_TITLE) != null) {
             AssignmentAllPurposeItem values = new AssignmentAllPurposeItem();
             values.setTitle((String) state.getAttribute(ALLPURPOSE_TITLE));
@@ -114,7 +113,7 @@ final class AssignmentSupplementItemForm {
                 }
             }
             return !service.updateAllPurposeItem(assignmentId, siteId, values,
-                    getSupplementAttachmentIds(state, ALLPURPOSE_ATTACHMENTS), selectedAccess, false);
+                    getSupplementAttachmentIds(state, ALLPURPOSE_ATTACHMENTS), selectedAccess);
         }
         return false;
     }

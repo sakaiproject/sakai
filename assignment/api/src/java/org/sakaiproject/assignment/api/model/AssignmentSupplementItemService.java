@@ -30,14 +30,19 @@ import java.util.Set;
  */
 public interface AssignmentSupplementItemService {
 
-    void updateModelAnswer(String assignmentId, String text, int showTo,
-                           Set<String> attachmentIds, boolean delete);
+    void updateModelAnswer(String assignmentId, String text, int showTo, Set<String> attachmentIds);
 
-    void updateNote(String assignmentId, String creatorId, String text, int shareWith, boolean delete);
+    void deleteModelAnswer(String assignmentId);
+
+    void updateNote(String assignmentId, String creatorId, String text, int shareWith);
+
+    void deleteNote(String assignmentId);
 
     /** Returns false when access could not be validated; no All Purpose item changes are saved. */
     boolean updateAllPurposeItem(String assignmentId, String siteId, AssignmentAllPurposeItem values,
-                                 Set<String> attachmentIds, Set<String> selectedAccess, boolean delete);
+                                 Set<String> attachmentIds, Set<String> selectedAccess);
+
+    void deleteAllPurposeItem(String assignmentId);
 
     /*************** attachment ********************/
     /**
