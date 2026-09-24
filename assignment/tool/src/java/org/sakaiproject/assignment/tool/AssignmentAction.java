@@ -9369,7 +9369,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 } //if
 
                 // save supplement item information
-                saveAssignmentSupplementItem(state, params, siteId, a);
+                boolean allPurposeAccessLookupFailed = saveAssignmentSupplementItem(state, params, siteId, a);
 
                 // set default sorting
                 setDefaultSort(state);
@@ -9446,6 +9446,10 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
                 }
+
+                if (allPurposeAccessLookupFailed) {
+                    addAlert(state, rb.getString("allPurpose.alert.accessUpdateFailed"));
+                }
             }
 
             if ((newAssignment && !a.getDraft()) || (!a.getDraft() && !newAssignment)) {
@@ -9469,7 +9473,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * @param siteId
      * @param assignment
      */
-    private void saveAssignmentSupplementItem(SessionState state,
+    private boolean saveAssignmentSupplementItem(SessionState state,
                                               ParameterParser params, String siteId, Assignment assignment) {
         // assignment supplement items
         String aId = assignment.getId();
@@ -9560,33 +9564,37 @@ public class AssignmentAction extends PagedResourceActionII {
                 // get the access settings
                 List<String> accessList = (List<String>) state.getAttribute(ALLPURPOSE_ACCESS);
                 Set<String> accessValues = new HashSet<>();
+                AuthzGroup realm;
                 try {
-                    AuthzGroup realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
-                    Set<Role> roles = realm.getRoles();
-                    for (Iterator iRoles = roles.iterator(); iRoles.hasNext(); ) {
-                        // iterator through roles first
-                        Role r = (Role) iRoles.next();
-                        if (accessList.contains(r.getId())) {
-                            accessValues.add(r.getId());
-                        } else {
-                            // if the role is not selected, iterate through the users with this role
-                            Set userIds = realm.getUsersHasRole(r.getId());
-                            for (Iterator iUserIds = userIds.iterator(); iUserIds.hasNext(); ) {
-                                String userId = (String) iUserIds.next();
-                                if (accessList.contains(userId)) {
-                                    accessValues.add(userId);
-                                }
+                    realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
+                } catch (Exception e) {
+                    log.warn("Could not find authzGroup for site {} while saving All Purpose Item access", siteId, e);
+                    assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
+                    return true;
+                }
+                Set<Role> roles = realm.getRoles();
+                for (Iterator iRoles = roles.iterator(); iRoles.hasNext(); ) {
+                    // iterator through roles first
+                    Role r = (Role) iRoles.next();
+                    if (accessList.contains(r.getId())) {
+                        accessValues.add(r.getId());
+                    } else {
+                        // if the role is not selected, iterate through the users with this role
+                        Set userIds = realm.getUsersHasRole(r.getId());
+                        for (Iterator iUserIds = userIds.iterator(); iUserIds.hasNext(); ) {
+                            String userId = (String) iUserIds.next();
+                            if (accessList.contains(userId)) {
+                                accessValues.add(userId);
                             }
                         }
                     }
-                } catch (Exception e) {
-                    throw new IllegalStateException("Could not find authzGroup for site " + siteId, e);
                 }
                 assignmentSupplementItemService.saveAllPurposeItemWithAccess(nAllPurpose, accessValues);
             } else {
                 assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
             }
         }
+        return false;
     }
 
     private Set<AssignmentSupplementItemAttachment> getAssignmentSupplementItemAttachment(SessionState state, AssignmentSupplementItemWithAttachment mItem, String attachmentString) {
