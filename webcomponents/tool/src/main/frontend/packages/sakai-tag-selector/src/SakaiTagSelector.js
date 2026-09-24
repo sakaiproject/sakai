@@ -34,14 +34,14 @@ export class SakaiTagSelector extends SakaiShadowElement {
   }
 
   updated(changed) {
-    if ([ "siteId", "tool", "collectionId", "itemId", "selectedTemp", "extraOptions", "addNew" ].some(p => changed.has(p))) {
+    if ([ "siteId", "tool", "collectionId", "itemId", "selectedTemp" ].some(p => changed.has(p))) {
       this._load();
     }
   }
 
   connectedCallback() {
     super.connectedCallback();
-    if (this.hasUpdated) { this._load(); }
+    if (this._loading) { this._load(); }
   }
 
   disconnectedCallback() {
@@ -82,18 +82,10 @@ export class SakaiTagSelector extends SakaiShadowElement {
       ]);
       if (request.signal.aborted) { return; }
       this._options = options;
-      for (const label of (this.extraOptions || "").split(",").filter(s => s.trim())) {
-        if (!this._options.some(tag => tag.code === label)) {
-          this._options.push({ name: label, code: label });
-        }
-      }
       this._value = this.selectedTemp
         ? [ ...new Set(this.selectedTemp.split(",").filter(s => s.trim())) ]
           .map(code => this._options.find(tag => tag.code === code) || { name: code, code })
         : saved;
-      for (const tag of this._value) {
-        if (!this._options.some(option => option.code === tag.code)) { this._options.push(tag); }
-      }
       this._publish();
     } catch (error) {
       if (!request.signal.aborted) {
@@ -113,11 +105,22 @@ export class SakaiTagSelector extends SakaiShadowElement {
     }));
   }
 
+  get _availableOptions() {
+    const extras = (this.extraOptions || "").split(",").filter(label => label.trim())
+      .map(label => ({ name: label, code: label }));
+    const options = new Map(this._options.map(tag => [ tag.code, tag ]));
+    for (const tag of [ ...extras, ...this._value ]) {
+      if (!options.has(tag.code)) { options.set(tag.code, tag); }
+    }
+    return [ ...options.values() ];
+  }
+
   get _choices() {
     const query = this._query.trim().toLowerCase();
-    const choices = this._options.filter(tag => tag.name.toLowerCase().includes(query));
+    const options = this._availableOptions;
+    const choices = options.filter(tag => tag.name.toLowerCase().includes(query));
     const label = this._query.replaceAll(",", "").trim();
-    if (this.addNew && label && !this._options.some(tag => tag.name.toLowerCase() === label.toLowerCase() || tag.code === label)) {
+    if (this.addNew && label && !options.some(tag => tag.name.toLowerCase() === label.toLowerCase() || tag.code === label)) {
       choices.push({ name: label, code: label, create: true });
     }
     return choices;
@@ -139,6 +142,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
   }
 
   _keydown(event) {
+    if (event.isComposing) { return; }
     if (event.key === "Escape") {
       event.preventDefault();
       this._open = false;
@@ -194,7 +198,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
               ${this._value.some(value => value.code === tag.code) ? html`<span aria-hidden="true"> ✓</span>` : nothing}
             </li>
           `)}
-          ${!choices.length ? html`<li role="presentation"><span role="status">${this._options.length ? this._i18n.no_results : this._i18n.no_options}</span></li>` : nothing}
+          ${!choices.length ? html`<li role="presentation"><span role="status">${this._availableOptions.length ? this._i18n.no_results : this._i18n.no_options}</span></li>` : nothing}
         </ul>
         ${this._loading ? html`<p role="status">${this._i18n.loading}</p>` : nothing}
         ${this._error ? html`<p role="alert">${this._i18n.load_error} <button type="button" @click=${this._load}>${this._i18n.retry}</button></p>` : nothing}

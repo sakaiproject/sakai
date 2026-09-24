@@ -117,6 +117,51 @@ describe("sakai-tag-selector", () => {
     expect(el.selectedTags[0].name).to.equal("Algebra");
   });
 
+  it("preserves edits when presentation options change or the element reconnects", async () => {
+    const form = await fixture(html`<form>
+      <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner" input-id="edited"
+          selected-temp="one" add-new="true"></sakai-tag-selector>
+      <input id="edited" name="tags" type="hidden" value="one">
+    </form>`);
+    const el = form.querySelector("sakai-tag-selector");
+    const input = await search(el, "New tag");
+    key(input, "Enter");
+    await elementUpdated(el);
+    // Any reload would fail: these changes must only affect presentation.
+    fetchMock.removeRoutes();
+    fetchMock.get(url, 500);
+    el.extraOptions = "Group A";
+    el.addNew = false;
+    await elementUpdated(el);
+    expect(input.disabled).to.equal(false);
+    await search(el, "Group A");
+    expect(el.shadowRoot.querySelector("[role=\"option\"]").textContent).to.contain("Group A");
+    el.extraOptions = "Group B";
+    await elementUpdated(el);
+    expect(el.shadowRoot.querySelectorAll("[role=\"option\"]")).to.have.length(0);
+    el.remove();
+    form.append(el);
+    await elementUpdated(el);
+    expect(input.disabled).to.equal(false);
+    expect(el.selectedTags.map(tag => tag.code)).to.deep.equal([ "one", "New tag" ]);
+    expect(new FormData(form).get("tags")).to.equal("one,New tag");
+  });
+
+  it("leaves composing keystrokes to the IME and selects only after composition", async () => {
+    const el = await fixture(html`<sakai-tag-selector site-id="site" tool="samigo" collection-id="owner" add-new="true"></sakai-tag-selector>`);
+    const input = await search(el, "日本語");
+    for (const name of [ "ArrowDown", "ArrowUp", "Escape", "Enter" ]) {
+      const event = new KeyboardEvent("keydown", { key: name, isComposing: true, bubbles: true, cancelable: true });
+      input.dispatchEvent(event);
+      expect(event.defaultPrevented).to.equal(false);
+    }
+    await elementUpdated(el);
+    expect(el.selectedTags).to.deep.equal([]);
+    expect(input.value).to.equal("日本語");
+    key(input, "Enter");
+    expect(el.selectedTags).to.deep.equal([ { name: "日本語", code: "日本語" } ]);
+  });
+
   it("renders tag labels as text and meets accessible combobox semantics", async () => {
     const el = await fixture(html`<sakai-tag-selector site-id="site" tool="samigo" collection-id="owner"
         extra-options=${"<img src=x onerror=alert(1)>"}></sakai-tag-selector>`);
