@@ -17,6 +17,7 @@ package org.sakaiproject.assignment.tool;
 
 import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
+import static org.sakaiproject.assignment.tool.AssignmentSupplementItemForm.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -991,39 +992,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String VIEW_SUBMISSION_SEARCH = "view_submission_search";
     // search string for assignment list
     private static final String SEARCH_ASSIGNMENTS = "searchString";
-    /******** Model Answer ************/
-    private static final String MODELANSWER = "modelAnswer";
-    private static final String MODELANSWER_TEXT = "modelAnswer.text";
-    private static final String MODELANSWER_SHOWTO = "modelAnswer.showTo";
-    private static final String MODELANSWER_ATTACHMENTS = "modelanswer_attachments";
-    private static final String MODELANSWER_TO_DELETE = "modelanswer.toDelete";
-    /******** Note ***********/
-    private static final String NOTE = "note";
-    private static final String NOTE_TEXT = "note.text";
-    private static final String NOTE_SHAREWITH = "note.shareWith";
-    private static final String NOTE_TO_DELETE = "note.toDelete";
-    /******** AllPurpose *******/
-    private static final String ALLPURPOSE = "allPurpose";
-    private static final String ALLPURPOSE_TITLE = "allPurpose.title";
-    private static final String ALLPURPOSE_TEXT = "allPurpose.text";
-    private static final String ALLPURPOSE_HIDE = "allPurpose.hide";
-    private static final String ALLPURPOSE_SHOW_FROM = "allPurpose.show.from";
-    private static final String ALLPURPOSE_SHOW_TO = "allPurpose.show.to";
-    private static final String ALLPURPOSE_RELEASE_DATE = "allPurpose.releaseDate";
-    private static final String ALLPURPOSE_RETRACT_DATE = "allPurpose.retractDate";
-    private static final String ALLPURPOSE_ACCESS = "allPurpose.access";
-    private static final String ALLPURPOSE_ATTACHMENTS = "allPurpose_attachments";
-    private static final String ALLPURPOSE_RELEASE_YEAR = "all_purpose_release_year";
-    private static final String ALLPURPOSE_RELEASE_MONTH = "all_purpose_release_month";
-    private static final String ALLPURPOSE_RELEASE_DAY = "all_purpose_release_day";
-    private static final String ALLPURPOSE_RELEASE_HOUR = "all_purpose_release_hour";
-    private static final String ALLPURPOSE_RELEASE_MIN = "all_purpose_release_min";
-    private static final String ALLPURPOSE_RETRACT_YEAR = "all_purpose_retract_year";
-    private static final String ALLPURPOSE_RETRACT_MONTH = "all_purpose_retract_month";
-    private static final String ALLPURPOSE_RETRACT_DAY = "all_purpose_retract_day";
-    private static final String ALLPURPOSE_RETRACT_HOUR = "all_purpose_retract_hour";
-    private static final String ALLPURPOSE_RETRACT_MIN = "all_purpose_retract_min";
-    private static final String ALLPURPOSE_TO_DELETE = "allPurpose.toDelete";
     private static final String RETURNED_FEEDBACK = "feedback_returned_to_selected_users";
     private static final String OW_FEEDBACK = "feedback_overwritten";
     private static final String SAVED_FEEDBACK = "feedback_saved";
@@ -9369,7 +9337,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 } //if
 
                 // save supplement item information
-                boolean allPurposeAccessLookupFailed = applySupplementState(state, siteId, a.getId());
+                boolean allPurposeAccessLookupFailed = AssignmentSupplementItemForm.save(state, a.getId(), siteId,
+                        userDirectoryService.getCurrentUser().getId(),
+                        userTimeService.getLocalTimeZone().toZoneId(), assignmentSupplementItemService);
 
                 // set default sorting
                 setDefaultSort(state);
@@ -9463,69 +9433,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
         }
-    }
-
-    private boolean applySupplementState(SessionState state, String siteId, String assignmentId) {
-        if ("true".equals(state.getAttribute(MODELANSWER_TO_DELETE))) {
-            assignmentSupplementItemService.updateModelAnswer(assignmentId, null, 0, null, true);
-        } else if (state.getAttribute(MODELANSWER_TEXT) != null) {
-            int showTo = state.getAttribute(MODELANSWER_SHOWTO) == null ? 0
-                    : Integer.parseInt((String) state.getAttribute(MODELANSWER_SHOWTO));
-            assignmentSupplementItemService.updateModelAnswer(assignmentId,
-                    (String) state.getAttribute(MODELANSWER_TEXT), showTo,
-                    getSupplementAttachmentIds(state, MODELANSWER_ATTACHMENTS), false);
-        }
-
-        if ("true".equals(state.getAttribute(NOTE_TO_DELETE))) {
-            assignmentSupplementItemService.updateNote(assignmentId, null, null, 0, true);
-        } else if (state.getAttribute(NOTE_TEXT) != null) {
-            int shareWith = state.getAttribute(NOTE_SHAREWITH) == null ? 0
-                    : Integer.parseInt((String) state.getAttribute(NOTE_SHAREWITH));
-            assignmentSupplementItemService.updateNote(assignmentId,
-                    userDirectoryService.getCurrentUser().getId(),
-                    (String) state.getAttribute(NOTE_TEXT), shareWith, false);
-        }
-
-        if ("true".equals(state.getAttribute(ALLPURPOSE_TO_DELETE))) {
-            assignmentSupplementItemService.updateAllPurposeItem(
-                    assignmentId, siteId, null, null, null, true);
-        } else if (state.getAttribute(ALLPURPOSE_TITLE) != null) {
-            AssignmentAllPurposeItem values = new AssignmentAllPurposeItem();
-            values.setTitle((String) state.getAttribute(ALLPURPOSE_TITLE));
-            values.setText((String) state.getAttribute(ALLPURPOSE_TEXT));
-            boolean hide = Boolean.TRUE.equals(state.getAttribute(ALLPURPOSE_HIDE));
-            values.setHide(hide);
-            Instant releaseTime = Boolean.TRUE.equals(state.getAttribute(ALLPURPOSE_SHOW_FROM)) && !hide
-                    ? getTimeFromState(state, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY,
-                            ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN)
-                    : null;
-            Instant retractTime = Boolean.TRUE.equals(state.getAttribute(ALLPURPOSE_SHOW_TO)) && !hide
-                    ? getTimeFromState(state, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY,
-                            ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN)
-                    : null;
-            values.setReleaseDate(releaseTime == null ? null : Date.from(releaseTime));
-            values.setRetractDate(retractTime == null ? null : Date.from(retractTime));
-            Set<String> selectedAccess = null;
-            if (state.getAttribute(ALLPURPOSE_ACCESS) != null) {
-                selectedAccess = new HashSet<>();
-                for (Object value : (List<?>) state.getAttribute(ALLPURPOSE_ACCESS)) {
-                    selectedAccess.add((String) value);
-                }
-            }
-            return !assignmentSupplementItemService.updateAllPurposeItem(assignmentId, siteId, values,
-                    getSupplementAttachmentIds(state, ALLPURPOSE_ATTACHMENTS), selectedAccess, false);
-        }
-        return false;
-    }
-
-    private Set<String> getSupplementAttachmentIds(SessionState state, String attachmentKey) {
-        Set<String> attachmentIds = new HashSet<>();
-        if (state.getAttribute(attachmentKey) != null) {
-            for (Object value : (List<?>) state.getAttribute(attachmentKey)) {
-                attachmentIds.add(((Reference) value).getReference());
-            }
-        }
-        return attachmentIds;
     }
 
     /**
