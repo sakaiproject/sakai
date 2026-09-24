@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -76,7 +77,6 @@ import static org.sakaiproject.poll.api.PollConstants.PERMISSION_PREFIX;
 import static org.sakaiproject.poll.api.PollConstants.PERMISSION_VOTE;
 import static org.sakaiproject.poll.api.PollConstants.REFERENCE_ROOT;
 import org.sakaiproject.poll.api.entity.PollEntity;
-import org.sakaiproject.poll.api.importformat.PollImportCsvFormat;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
@@ -88,6 +88,7 @@ import org.sakaiproject.poll.api.service.PollImportException;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.util.PollUtil;
 import org.sakaiproject.poll.api.util.PollUtils;
+import org.sakaiproject.poll.impl.importformat.PollImportCsvFormat;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -97,16 +98,21 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.CsvSeparator;
 import org.sakaiproject.util.MergeConfig;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -126,6 +132,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     @Setter private EntityManager entityManager;
     @Setter private FunctionManager functionManager;
     @Setter private FormattedText formattedText;
+    @Setter private LocaleService localeService;
     @Setter private PollRepository pollRepository;
     @Setter private VoteRepository voteRepository;
     @Setter private LearningResourceStoreService learningResourceStoreService;
@@ -234,9 +241,10 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     public void importPollsFromCsv(List<String> csvContents, String siteId, String ownerId) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         List<ImportedPoll> importedPolls = new ArrayList<>();
         for (String csv : csvContents) {
-            importedPolls.addAll(parseImportedPolls(csv));
+            importedPolls.addAll(parseImportedPolls(csv, locale));
         }
 
         if (importedPolls.isEmpty()) {
@@ -248,14 +256,37 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
     }
 
-    private List<ImportedPoll> parseImportedPolls(String csvContent) {
-        List<ImportedPoll> importedPolls = new ArrayList<>();
+    @Override
+    public String getPollImportSampleCsv(Function<String, String> messageResolver) {
+        Locale locale = localeService.getLocaleForCurrentSiteAndUser();
+        return PollImportCsvFormat.buildSampleCsv(PollImportCsvFormat.buildColumnHeaders(messageResolver), locale);
+    }
+
+    private List<ImportedPoll> parseImportedPolls(String csvContent, Locale locale) {
         if (StringUtils.isBlank(csvContent)) {
-            return importedPolls;
+            return new ArrayList<>();
         }
 
+        char preferredDelimiter = CsvSeparator.forLocale(locale);
+        char alternateDelimiter = preferredDelimiter == CSVParser.DEFAULT_SEPARATOR ? ';' : CSVParser.DEFAULT_SEPARATOR;
+
+        try {
+            return parseImportedPolls(csvContent, preferredDelimiter, locale);
+        } catch (PollImportException e) {
+            // Retry with the other common delimiter only if the preferred one did not match the header;
+            // the account's locale doesn't guarantee the delimiter of a file built with another tool/locale.
+            if (e.getError() != PollImportError.INVALID_HEADER) {
+                throw e;
+            }
+            return parseImportedPolls(csvContent, alternateDelimiter, locale);
+        }
+    }
+
+    private List<ImportedPoll> parseImportedPolls(String csvContent, char delimiter, Locale locale) {
+        List<ImportedPoll> importedPolls = new ArrayList<>();
         int rowNumber = 0;
-        try (CSVReader reader = new CSVReader(new StringReader(csvContent))) {
+        CSVParser csvParser = new CSVParserBuilder().withSeparator(delimiter).build();
+        try (CSVReader reader = new CSVReaderBuilder(new StringReader(csvContent)).withCSVParser(csvParser).build()) {
             boolean headerValidated = false;
             String[] row;
             while ((row = reader.readNext()) != null) {
@@ -325,8 +356,8 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                 importedPolls.add(new ImportedPoll(
                     question,
                     details,
-                    parseImportedPollDateTime(openDate, openTime, rowNumber),
-                    parseImportedPollDateTime(closeDate, closeTime, rowNumber),
+                    parseImportedPollDateTime(openDate, openTime, rowNumber, locale),
+                    parseImportedPollDateTime(closeDate, closeTime, rowNumber, locale),
                     parseImportedPollInteger(minOptions, 1, rowNumber),
                     parseImportedPollInteger(maxOptions, 1, rowNumber),
                     parseImportedPollDisplayResult(displayResult, rowNumber),
@@ -441,9 +472,9 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         return poll;
     }
 
-    private LocalDateTime parseImportedPollDateTime(String dateValue, String timeValue, int rowNumber) {
+    private LocalDateTime parseImportedPollDateTime(String dateValue, String timeValue, int rowNumber, Locale locale) {
         try {
-            return PollImportCsvFormat.parseDateTime(dateValue, timeValue);
+            return PollImportCsvFormat.parseDateTime(dateValue, timeValue, locale);
         } catch (DateTimeParseException e) {
             throw new PollImportException(PollImportError.INVALID_DATES, rowNumber, new Object[] { e.getParsedString() }, e);
         }

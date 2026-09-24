@@ -24,11 +24,13 @@ package org.sakaiproject.poll.test.service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,7 +39,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.poll.api.importformat.PollImportCsvFormat;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
@@ -53,6 +54,7 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -77,7 +79,11 @@ public class PollsServiceTests {
     @Autowired private SiteService siteService;
     @Autowired private SessionManager sessionManager;
     @Autowired private FormattedText formattedText;
+    @Autowired private LocaleService localeService;
     @Autowired private UserTimeService userTimeService;
+
+    /** Backs the mocked {@code pollsBundle}, so tests can pick which locale's real translations it resolves. */
+    private final AtomicReference<Locale> pollsBundleLocale = new AtomicReference<>(Locale.ROOT);
 
     @Before
     public void onSetUp() {
@@ -90,6 +96,12 @@ public class PollsServiceTests {
         Mockito.when(etsOptionDeleted.getString("message5")).thenReturn("and place a new vote for the poll.");
         ((PollsServiceImpl) AopTestUtils.getTargetObject(pollsService)).setOptionDeletedBundle(etsOptionDeleted);
 
+        pollsBundleLocale.set(Locale.ROOT);
+        ResourceLoader pollsBundle = Mockito.mock(ResourceLoader.class);
+        Mockito.when(pollsBundle.getString(Mockito.anyString())).thenAnswer(invocation ->
+            ResourceBundle.getBundle("bundle.polls", pollsBundleLocale.get()).getString(invocation.getArgument(0)));
+        ((PollsServiceImpl) AopTestUtils.getTargetObject(pollsService)).setPollsBundle(pollsBundle);
+
         Mockito.when(siteService.siteReference(LOCATION1_ID)).thenReturn(LOCATION1_REF);
 
         Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
@@ -101,6 +113,7 @@ public class PollsServiceTests {
         Mockito.when(formattedText.processFormattedText(Mockito.anyString(), Mockito.isNull(), Mockito.eq(true), Mockito.eq(true)))
                .thenAnswer(inv -> inv.getArgument(0));
         Mockito.when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.US);
 
         Site mockSite = Mockito.mock(Site.class);
         Group g1 = Mockito.mock(Group.class);
@@ -726,10 +739,13 @@ public class PollsServiceTests {
 
     // ========== Bulk Import Tests ==========
 
-    private static final Function<String, String> ENGLISH_IMPORT_HEADERS = PollImportCsvFormat::defaultEnglishHeader;
-
     private String importCsvHeader(int optionColumnCount) {
-        return PollImportCsvFormat.formatHeaderRow(ENGLISH_IMPORT_HEADERS, optionColumnCount);
+        StringBuilder header = new StringBuilder("Question,Description,Access,Groups,Opening date,Opening time,"
+            + "Closing date,Closing time,Minimum options,Maximum options,Results visibility");
+        for (int option = 1; option <= optionColumnCount; option++) {
+            header.append(",Option ").append(option);
+        }
+        return header.toString();
     }
 
     @Test
@@ -788,14 +804,14 @@ public class PollsServiceTests {
     @Test
     public void testImportPollsFromCsvRejectsInvalidDates() {
         String csv = importCsvHeader(2) + "\n"
-            + "Q?,,site,,06/01/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+            + "Q?,,site,,32/13/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
         );
         Assert.assertEquals(PollImportError.INVALID_DATES, exception.getError());
         Assert.assertEquals(2, exception.getRowNumber());
-        Assert.assertArrayEquals(new Object[] { "06/01/2026" }, exception.getMessageArgs());
+        Assert.assertArrayEquals(new Object[] { "32/13/2026" }, exception.getMessageArgs());
     }
 
     @Test
@@ -814,7 +830,7 @@ public class PollsServiceTests {
     public void testImportPollsFromCsvReportsRowNumberOfFailingRowInBatch() {
         String csv = importCsvHeader(2) + "\n"
             + "Valid question,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,A,B\n"
-            + "Q?,,site,,06/01/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+            + "Q?,,site,,32/13/2026,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
 
         PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
             pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER)
@@ -912,8 +928,9 @@ public class PollsServiceTests {
 
     @Test
     public void testImportSampleCsvCreatesImportablePoll() {
-        String csv = PollImportCsvFormat.buildSampleCsv(
-            PollImportCsvFormat.buildColumnHeaders(ENGLISH_IMPORT_HEADERS));
+        // Locale.ROOT, not Locale.US: bundle.polls has no en/en_US variant, so requesting Locale.US would
+        // fall back to the JVM's default locale (e.g. es-ES under the "ES locale" CI matrix) before root.
+        String csv = pollsService.getPollImportSampleCsv(ResourceBundle.getBundle("bundle.polls", Locale.ROOT)::getString);
 
         pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
 
@@ -930,6 +947,99 @@ public class PollsServiceTests {
         );
         Assert.assertEquals(PollImportError.INVALID_HEADER, exception.getError());
         Assert.assertEquals(1, exception.getRowNumber());
+    }
+
+    @Test
+    public void testImportPollsFromCsvHandlesSemicolonDelimiterOnCommaDecimalLocale() {
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
+        String csv = importCsvHeader(2).replace(',', ';') + "\n"
+            + "Semicolon delimited question;\"Description; with a separator\";site;;01/06/26;09:00;02/06/2026;17:00;1;1;1;One;Two\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Semicolon delimited question".equals(p.getText())).findFirst().orElseThrow();
+        Assert.assertEquals("Description; with a separator", saved.getDescription());
+        Assert.assertEquals(Instant.parse("2026-06-01T09:00:00Z"), saved.getVoteOpen());
+        Assert.assertEquals(Instant.parse("2026-06-02T17:00:00Z"), saved.getVoteClose());
+    }
+
+    @Test
+    public void testImportPollsFromCsvHandlesSemicolonDelimiterOnCommaPreferringLocale() {
+        // Default @Before locale is Locale.US (comma-preferring): the account's locale doesn't
+        // guarantee the delimiter of a file built with another tool/locale, so ';' must still work.
+        String csv = importCsvHeader(2).replace(',', ';') + "\n"
+            + "Semicolon file on comma locale;\"Description; with a separator\";site;;2026-06-01;09:00;2026-06-02;17:00;1;1;1;One;Two\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Semicolon file on comma locale".equals(p.getText())).findFirst().orElseThrow();
+        Assert.assertEquals("Description; with a separator", saved.getDescription());
+        Assert.assertEquals(Instant.parse("2026-06-01T09:00:00Z"), saved.getVoteOpen());
+        Assert.assertEquals(Instant.parse("2026-06-02T17:00:00Z"), saved.getVoteClose());
+    }
+
+    @Test
+    public void testImportPollsFromCsvFallsBackToCommaDelimiterWhenFileIsCommaDelimited() {
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
+        String csv = importCsvHeader(2) + "\n"
+            + "Comma delimited question,,site,,2026-06-01,09:00,2026-06-02,17:00,1,1,1,One,Two\n";
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Assert.assertTrue(pollsService.findAllPolls(LOCATION1_ID).stream()
+            .anyMatch(p -> "Comma delimited question".equals(p.getText())));
+    }
+
+    @Test
+    public void testImportPollsFromCsvExpandsTwoDigitYearsAcrossLocales() {
+        for (Locale locale : List.of(Locale.UK, Locale.FRANCE, Locale.forLanguageTag("pt-BR"))) {
+            Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(locale);
+            String question = "Localized years " + locale;
+            String csv = importCsvHeader(2) + "\n"
+                + question + ",,site,,01/06/26,09:00,02/06/2026,17:00,1,1,1,One,Two\n";
+
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+            Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+                .filter(p -> question.equals(p.getText())).findFirst().orElseThrow();
+            Assert.assertEquals(locale.toString(), Instant.parse("2026-06-01T09:00:00Z"), saved.getVoteOpen());
+            Assert.assertEquals(locale.toString(), Instant.parse("2026-06-02T17:00:00Z"), saved.getVoteClose());
+        }
+    }
+
+    @Test
+    public void testImportLocalizedSampleCsvCreatesImportablePoll() {
+        Locale spanish = Locale.forLanguageTag("es");
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
+        // The header validation path resolves labels through pollsBundle, so point its mock at the same
+        // Spanish translations used to build the sample, then assert those real translations round-trip.
+        pollsBundleLocale.set(spanish);
+        String csv = pollsService.getPollImportSampleCsv(ResourceBundle.getBundle("bundle.polls", spanish)::getString)
+            .replace("What is your favorite color?", "Localized sample poll");
+        Assert.assertTrue(csv.startsWith("Pregunta;Descripción;"));
+
+        pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER);
+
+        Poll saved = pollsService.findAllPolls(LOCATION1_ID).stream()
+            .filter(p -> "Localized sample poll".equals(p.getText())).findFirst().orElseThrow();
+        Assert.assertEquals(Instant.parse("2026-05-29T09:00:00Z"), saved.getVoteOpen());
+        Assert.assertEquals(Instant.parse("2026-05-30T17:00:00Z"), saved.getVoteClose());
+    }
+
+    @Test
+    public void testImportPollsFromCsvRejectsInvalidLocalizedDateWithoutRetryingDelimiter() {
+        Mockito.when(localeService.getLocaleForCurrentSiteAndUser()).thenReturn(Locale.forLanguageTag("es-ES"));
+        String csv = importCsvHeader(2).replace(',', ';') + "\n"
+            + "Invalid localized date;;site;;30/02/26;09:00;01/03/26;17:00;1;1;1;One;Two\n";
+
+        PollImportException exception = Assert.assertThrows(PollImportException.class, () ->
+            pollsService.importPollsFromCsv(List.of(csv), LOCATION1_ID, USER));
+
+        Assert.assertEquals(PollImportError.INVALID_DATES, exception.getError());
+        Assert.assertEquals(2, exception.getRowNumber());
+        Assert.assertArrayEquals(new Object[] { "30/02/26" }, exception.getMessageArgs());
     }
 
     @Test

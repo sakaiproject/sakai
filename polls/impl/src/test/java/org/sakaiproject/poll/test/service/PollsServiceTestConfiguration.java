@@ -29,6 +29,7 @@ import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -55,6 +56,11 @@ public class PollsServiceTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.FormattedText")
     public FormattedText formattedText() {
         return Mockito.mock(FormattedText.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public LocaleService localeService() {
+        return Mockito.mock(LocaleService.class);
     }
 
     @Bean(name = "org.sakaiproject.api.app.scheduler.SchedulerManager")
