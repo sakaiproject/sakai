@@ -659,7 +659,7 @@ public class TagServiceTest {
     }
 
     @Test
-    public void meshImportRejectsEmptyOrInvalidRootWithoutCompletingOrDeleting() throws Exception {
+    public void meshImportRejectsEmptyOrInvalidStructureWithoutCompletingOrDeleting() throws Exception {
         TagCollection collection = TagCollection.builder().name("MeSH").externalSourceName("MESH")
             .lastSynchronizationDate(1L).build();
         service.createTagCollection(collection);
@@ -668,12 +668,14 @@ public class TagServiceTest {
         jdbc.update("UPDATE tagservice_tag SET lastmodificationdate = 1");
         when(configuration.getSakaiHomePath()).thenReturn(files.getRoot().getAbsolutePath() + "/");
         when(configuration.getString("tags.meshcollectionfile", "tags/mesh.xml")).thenReturn("mesh.xml");
-        String invalidRoot;
+        String sampleXml;
         try (java.io.InputStream sample = getClass().getResourceAsStream("/xmlsamples/mesh.xml")) {
-            invalidRoot = new String(sample.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8)
-                .replace("DescriptorRecordSet", "InvalidRoot");
+            sampleXml = new String(sample.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
         }
-        for (String xml : new String[] { "<DescriptorRecordSet/>", invalidRoot }) {
+        String invalidRoot = sampleXml.replace("DescriptorRecordSet", "InvalidRoot");
+        String invalidChild = sampleXml.replace("<DescriptorRecord ", "<InvalidChild ")
+            .replace("</DescriptorRecord>", "</InvalidChild>");
+        for (String xml : new String[] { "<DescriptorRecordSet/>", invalidRoot, invalidChild }) {
             Files.writeString(files.getRoot().toPath().resolve("mesh.xml"), xml);
             meshImport.syncAllTags();
             assertTrue(service.getTag(tagId).isPresent());

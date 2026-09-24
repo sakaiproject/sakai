@@ -106,6 +106,9 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 				Transformer t = tf.newTransformer();
 
 				while (hasImportElement(xsr)) {
+					if (!"DescriptorRecord".equals(xsr.getLocalName())) {
+						throw new XMLStreamException("Expected MeSH DescriptorRecord child, found " + xsr.getLocalName());
+					}
 					DOMResult result = new DOMResult();
 					t.transform(new StAXSource(xsr), result);
 
