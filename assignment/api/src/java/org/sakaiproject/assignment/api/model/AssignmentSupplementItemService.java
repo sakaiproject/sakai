@@ -30,6 +30,12 @@ import java.util.Set;
  */
 public interface AssignmentSupplementItemService {
 
+    enum SaveResult { SAVED, ACCESS_LOOKUP_FAILED }
+
+    /** Save the model answer, private note, and All Purpose item for an assignment. */
+    SaveResult saveSupplementItems(String assignmentId, String siteId, String creatorId,
+                                   AssignmentSupplementItemUpdate update);
+
     /*************** attachment ********************/
     /**
      * new AssignmentSupplementItemAttachment object

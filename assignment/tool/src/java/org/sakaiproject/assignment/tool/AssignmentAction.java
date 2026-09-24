@@ -115,6 +115,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemUpdate;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
@@ -9369,7 +9370,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 } //if
 
                 // save supplement item information
-                boolean allPurposeAccessLookupFailed = saveAssignmentSupplementItem(state, siteId, a);
+                AssignmentSupplementItemUpdate supplementUpdate = getSupplementItemUpdate(state);
+                String creatorId = supplementUpdate.note() != null && !supplementUpdate.note().delete()
+                        ? userDirectoryService.getCurrentUser().getId() : null;
+                boolean allPurposeAccessLookupFailed = assignmentSupplementItemService.saveSupplementItems(
+                        a.getId(), siteId, creatorId, supplementUpdate)
+                        == AssignmentSupplementItemService.SaveResult.ACCESS_LOOKUP_FAILED;
 
                 // set default sorting
                 setDefaultSort(state);
@@ -9465,164 +9471,66 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    /**
-     * supplement item related information
-     *
-     * @param state
-     * @param siteId
-     * @param assignment
-     */
-    private boolean saveAssignmentSupplementItem(SessionState state, String siteId, Assignment assignment) {
-        String aId = assignment.getId();
-        saveModelAnswerSupplementItem(state, aId);
-        saveNoteSupplementItem(state, aId);
-        return saveAllPurposeSupplementItem(state, siteId, aId);
-    }
-
-    private void saveModelAnswerSupplementItem(SessionState state, String assignmentId) {
+    private AssignmentSupplementItemUpdate getSupplementItemUpdate(SessionState state) {
+        AssignmentSupplementItemUpdate.Change<AssignmentSupplementItemUpdate.ModelAnswer> modelAnswer = null;
         if ("true".equals(state.getAttribute(MODELANSWER_TO_DELETE))) {
-            // to delete the model answer
-            AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(assignmentId);
-            if (mAnswer != null) {
-                assignmentSupplementItemService.cleanAttachment(mAnswer);
-                mAnswer.setAttachmentSet(new HashSet<>());
-                assignmentSupplementItemService.removeModelAnswer(mAnswer);
-            }
+            modelAnswer = AssignmentSupplementItemUpdate.Change.remove();
         } else if (state.getAttribute(MODELANSWER_TEXT) != null) {
-            // edit/add model answer
-            AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(assignmentId);
-            if (mAnswer == null) {
-                mAnswer = assignmentSupplementItemService.newModelAnswer();
-                mAnswer.setAssignmentId(assignmentId);
-                assignmentSupplementItemService.saveModelAnswer(mAnswer);
-            }
-            mAnswer.setText((String) state.getAttribute(MODELANSWER_TEXT));
-            mAnswer.setShowTo(state.getAttribute(MODELANSWER_SHOWTO) != null ? Integer.parseInt((String) state.getAttribute(MODELANSWER_SHOWTO)) : 0);
-            mAnswer.setAttachmentSet(getAssignmentSupplementItemAttachment(state, mAnswer, MODELANSWER_ATTACHMENTS));
-            assignmentSupplementItemService.saveModelAnswer(mAnswer);
+            int showTo = state.getAttribute(MODELANSWER_SHOWTO) == null ? 0
+                    : Integer.parseInt((String) state.getAttribute(MODELANSWER_SHOWTO));
+            modelAnswer = AssignmentSupplementItemUpdate.Change.save(
+                    new AssignmentSupplementItemUpdate.ModelAnswer(
+                            (String) state.getAttribute(MODELANSWER_TEXT), showTo,
+                            getSupplementAttachmentIds(state, MODELANSWER_ATTACHMENTS)));
         }
-    }
 
-    private void saveNoteSupplementItem(SessionState state, String assignmentId) {
+        AssignmentSupplementItemUpdate.Change<AssignmentSupplementItemUpdate.Note> note = null;
         if ("true".equals(state.getAttribute(NOTE_TO_DELETE))) {
-            // to remove note item
-            AssignmentNoteItem nNote = assignmentSupplementItemService.getNoteItem(assignmentId);
-            if (nNote != null) {
-                assignmentSupplementItemService.removeNoteItem(nNote);
-            }
+            note = AssignmentSupplementItemUpdate.Change.remove();
         } else if (state.getAttribute(NOTE_TEXT) != null) {
-            // edit/add private note
-            AssignmentNoteItem nNote = assignmentSupplementItemService.getNoteItem(assignmentId);
-            if (nNote == null) {
-                nNote = assignmentSupplementItemService.newNoteItem();
-            }
-            nNote.setAssignmentId(assignmentId);
-            nNote.setNote((String) state.getAttribute(NOTE_TEXT));
-            nNote.setShareWith(state.getAttribute(NOTE_SHAREWITH) != null ? Integer.parseInt((String) state.getAttribute(NOTE_SHAREWITH)) : 0);
-            nNote.setCreatorId(userDirectoryService.getCurrentUser().getId());
-            assignmentSupplementItemService.saveNoteItem(nNote);
+            int shareWith = state.getAttribute(NOTE_SHAREWITH) == null ? 0
+                    : Integer.parseInt((String) state.getAttribute(NOTE_SHAREWITH));
+            note = AssignmentSupplementItemUpdate.Change.save(
+                    new AssignmentSupplementItemUpdate.Note((String) state.getAttribute(NOTE_TEXT), shareWith));
         }
-    }
 
-    private boolean saveAllPurposeSupplementItem(SessionState state, String siteId, String assignmentId) {
+        AssignmentSupplementItemUpdate.Change<AssignmentSupplementItemUpdate.AllPurpose> allPurpose = null;
         if ("true".equals(state.getAttribute(ALLPURPOSE_TO_DELETE))) {
-            // to remove allPurpose item
-            AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(assignmentId);
-            if (nAllPurpose != null) {
-                assignmentSupplementItemService.cleanAttachment(nAllPurpose);
-                nAllPurpose.setAttachmentSet(new HashSet<>());
-                assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
-                nAllPurpose.setAccessSet(new HashSet<>());
-                assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
-            }
+            allPurpose = AssignmentSupplementItemUpdate.Change.remove();
         } else if (state.getAttribute(ALLPURPOSE_TITLE) != null) {
-            // edit/add allPurpose item
-            AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(assignmentId);
-            if (nAllPurpose == null) {
-                nAllPurpose = assignmentSupplementItemService.newAllPurposeItem();
-                nAllPurpose.setAssignmentId(assignmentId);
-                nAllPurpose.setHide(false);//SAK-33681
-                assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
-            }
-            nAllPurpose.setTitle((String) state.getAttribute(ALLPURPOSE_TITLE));
-            nAllPurpose.setText((String) state.getAttribute(ALLPURPOSE_TEXT));
-
-            boolean allPurposeShowFrom = state.getAttribute(ALLPURPOSE_SHOW_FROM) != null ? (Boolean) state.getAttribute(ALLPURPOSE_SHOW_FROM) : false;
-            boolean allPurposeShowTo = state.getAttribute(ALLPURPOSE_SHOW_TO) != null ? (Boolean) state.getAttribute(ALLPURPOSE_SHOW_TO) : false;
-            boolean allPurposeHide = state.getAttribute(ALLPURPOSE_HIDE) != null ? (Boolean) state.getAttribute(ALLPURPOSE_HIDE) : false;
-            nAllPurpose.setHide(allPurposeHide);
-            // save the release and retract dates
-            if (allPurposeShowFrom && !allPurposeHide) {
-                // save release date
-                Instant releaseTime = getTimeFromState(state, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN);
-                nAllPurpose.setReleaseDate(Date.from(releaseTime));
-            } else {
-                nAllPurpose.setReleaseDate(null);
-            }
-            if (allPurposeShowTo && !allPurposeHide) {
-                // save retract date
-                Instant retractTime = getTimeFromState(state, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN);
-                nAllPurpose.setRetractDate(Date.from(retractTime));
-            } else {
-                nAllPurpose.setRetractDate(null);
-            }
-            nAllPurpose.setAttachmentSet(getAssignmentSupplementItemAttachment(state, nAllPurpose, ALLPURPOSE_ATTACHMENTS));
-
+            boolean hide = Boolean.TRUE.equals(state.getAttribute(ALLPURPOSE_HIDE));
+            Instant releaseTime = Boolean.TRUE.equals(state.getAttribute(ALLPURPOSE_SHOW_FROM)) && !hide
+                    ? getTimeFromState(state, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY,
+                            ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN)
+                    : null;
+            Instant retractTime = Boolean.TRUE.equals(state.getAttribute(ALLPURPOSE_SHOW_TO)) && !hide
+                    ? getTimeFromState(state, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY,
+                            ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN)
+                    : null;
+            Set<String> selectedAccess = null;
             if (state.getAttribute(ALLPURPOSE_ACCESS) != null) {
-                // get the access settings
-                List<String> accessList = (List<String>) state.getAttribute(ALLPURPOSE_ACCESS);
-                AuthzGroup realm;
-                try {
-                    realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
-                } catch (Exception e) {
-                    log.warn("Could not find authzGroup for site {} while saving All Purpose Item access", siteId, e);
-                    assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
-                    return true;
+                selectedAccess = new HashSet<>();
+                for (Object value : (List<?>) state.getAttribute(ALLPURPOSE_ACCESS)) {
+                    selectedAccess.add((String) value);
                 }
-                Set<String> accessValues = selectedAllPurposeAccess(realm, accessList);
-                assignmentSupplementItemService.saveAllPurposeItemWithAccess(nAllPurpose, accessValues);
-            } else {
-                assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
             }
+            allPurpose = AssignmentSupplementItemUpdate.Change.save(
+                    new AssignmentSupplementItemUpdate.AllPurpose(
+                            (String) state.getAttribute(ALLPURPOSE_TITLE),
+                            (String) state.getAttribute(ALLPURPOSE_TEXT), hide, releaseTime, retractTime,
+                            getSupplementAttachmentIds(state, ALLPURPOSE_ATTACHMENTS), selectedAccess));
         }
-        return false;
+        return new AssignmentSupplementItemUpdate(modelAnswer, note, allPurpose);
     }
 
-    private Set<String> selectedAllPurposeAccess(AuthzGroup realm, List<String> selectedAccess) {
-        Set<String> accessValues = new HashSet<>();
-        for (Role role : realm.getRoles()) {
-            if (selectedAccess.contains(role.getId())) {
-                accessValues.add(role.getId());
-            } else {
-                for (String userId : realm.getUsersHasRole(role.getId())) {
-                    if (selectedAccess.contains(userId)) {
-                        accessValues.add(userId);
-                    }
-                }
+    private Set<String> getSupplementAttachmentIds(SessionState state, String attachmentKey) {
+        Set<String> attachmentIds = new HashSet<>();
+        if (state.getAttribute(attachmentKey) != null) {
+            for (Object value : (List<?>) state.getAttribute(attachmentKey)) {
+                attachmentIds.add(((Reference) value).getReference());
             }
         }
-        return accessValues;
-    }
-
-    private Set<AssignmentSupplementItemAttachment> getAssignmentSupplementItemAttachment(SessionState state, AssignmentSupplementItemWithAttachment mItem, String attachmentString) {
-        Set<AssignmentSupplementItemAttachment> sAttachments = new HashSet<AssignmentSupplementItemAttachment>();
-        List<String> attIdList = assignmentSupplementItemService.getAttachmentListForSupplementItem(mItem);
-        if (state.getAttribute(attachmentString) != null) {
-            List<?> currentAttachments = (List<?>) state.getAttribute(attachmentString);
-            for (Object attachment : currentAttachments) {
-                Reference attRef = (Reference) attachment;
-                String attRefId = attRef.getReference();
-                // if the attachment is not exist, add it into db
-                if (!attIdList.contains(attRefId)) {
-                    AssignmentSupplementItemAttachment mAttach = assignmentSupplementItemService.newAttachment();
-                    mAttach.setAssignmentSupplementItemWithAttachment(mItem);
-                    mAttach.setAttachmentId(attRefId);
-                    assignmentSupplementItemService.saveAttachment(mAttach);
-                    sAttachments.add(mAttach);
-                }
-            }
-        }
-        return sAttachments;
+        return attachmentIds;
     }
 
     /**

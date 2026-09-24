@@ -24,7 +24,6 @@ package org.sakaiproject.assignment.impl;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -42,8 +41,11 @@ import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemUpdate;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -55,6 +57,163 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Transactional
 public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport implements AssignmentSupplementItemService {
+
+	@Override
+	public SaveResult saveSupplementItems(String assignmentId, String siteId, String creatorId,
+			AssignmentSupplementItemUpdate update)
+	{
+		saveModelAnswerChange(assignmentId, update.modelAnswer());
+		saveNoteChange(assignmentId, creatorId, update.note());
+		return saveAllPurposeChange(assignmentId, siteId, update.allPurpose());
+	}
+
+	private void saveModelAnswerChange(String assignmentId,
+			AssignmentSupplementItemUpdate.Change<AssignmentSupplementItemUpdate.ModelAnswer> change)
+	{
+		if (change == null) return;
+		AssignmentModelAnswerItem item = getModelAnswer(assignmentId);
+		if (change.delete())
+		{
+			if (item != null)
+			{
+				cleanAttachment(item);
+				if (item.getAttachmentSet() != null) item.getAttachmentSet().clear();
+				removeModelAnswer(item);
+			}
+			return;
+		}
+		if (item == null)
+		{
+			item = newModelAnswer();
+			item.setAssignmentId(assignmentId);
+			saveModelAnswer(item);
+		}
+		AssignmentSupplementItemUpdate.ModelAnswer value = change.value();
+		item.setText(value.text());
+		item.setShowTo(value.showTo());
+		updateAttachments(item, value.attachmentIds());
+		saveModelAnswer(item);
+	}
+
+	private void saveNoteChange(String assignmentId, String creatorId,
+			AssignmentSupplementItemUpdate.Change<AssignmentSupplementItemUpdate.Note> change)
+	{
+		if (change == null) return;
+		AssignmentNoteItem item = getNoteItem(assignmentId);
+		if (change.delete())
+		{
+			if (item != null) removeNoteItem(item);
+			return;
+		}
+		if (item == null) item = newNoteItem();
+		AssignmentSupplementItemUpdate.Note value = change.value();
+		item.setAssignmentId(assignmentId);
+		item.setNote(value.text());
+		item.setShareWith(value.shareWith());
+		item.setCreatorId(creatorId);
+		saveNoteItem(item);
+	}
+
+	private SaveResult saveAllPurposeChange(String assignmentId, String siteId,
+			AssignmentSupplementItemUpdate.Change<AssignmentSupplementItemUpdate.AllPurpose> change)
+	{
+		if (change == null) return SaveResult.SAVED;
+		AssignmentAllPurposeItem item = getAllPurposeItem(assignmentId);
+		if (change.delete())
+		{
+			if (item != null)
+			{
+				cleanAttachment(item);
+				if (item.getAttachmentSet() != null) item.getAttachmentSet().clear();
+				cleanAllPurposeItemAccess(item);
+				if (item.getAccessSet() != null) item.getAccessSet().clear();
+				removeAllPurposeItem(item);
+			}
+			return SaveResult.SAVED;
+		}
+		if (item == null)
+		{
+			item = newAllPurposeItem();
+			item.setAssignmentId(assignmentId);
+			item.setHide(false);
+			saveAllPurposeItem(item);
+		}
+		AssignmentSupplementItemUpdate.AllPurpose value = change.value();
+		item.setTitle(value.title());
+		item.setText(value.text());
+		item.setHide(value.hide());
+		item.setReleaseDate(value.releaseTime() == null ? null : Date.from(value.releaseTime()));
+		item.setRetractDate(value.retractTime() == null ? null : Date.from(value.retractTime()));
+		updateAttachments(item, value.attachmentIds());
+		if (value.selectedAccess() == null)
+		{
+			saveAllPurposeItem(item);
+			return SaveResult.SAVED;
+		}
+
+		AuthzGroup realm;
+		try
+		{
+			realm = m_authzGroupService.getAuthzGroup(m_siteService.siteReference(siteId));
+		}
+		catch (Exception e)
+		{
+			log.warn("Could not find authzGroup for site {} while saving All Purpose Item access", siteId, e);
+			saveAllPurposeItem(item);
+			return SaveResult.ACCESS_LOOKUP_FAILED;
+		}
+		Set<String> accessValues = selectedAllPurposeAccess(realm, value.selectedAccess());
+		saveAllPurposeItemWithAccess(item, accessValues);
+		return SaveResult.SAVED;
+	}
+
+	private Set<String> selectedAllPurposeAccess(AuthzGroup realm, Set<String> selectedAccess)
+	{
+		Set<String> accessValues = new HashSet<>();
+		for (Role role : realm.getRoles())
+		{
+			if (selectedAccess.contains(role.getId()))
+			{
+				accessValues.add(role.getId());
+			}
+			else
+			{
+				for (String userId : realm.getUsersHasRole(role.getId()))
+				{
+					if (selectedAccess.contains(userId)) accessValues.add(userId);
+				}
+			}
+		}
+		return accessValues;
+	}
+
+	private void updateAttachments(
+			AssignmentSupplementItemWithAttachment item, Set<String> attachmentIds)
+	{
+		Set<AssignmentSupplementItemAttachment> attachments = item.getAttachmentSet();
+		if (attachments == null)
+		{
+			attachments = new HashSet<>();
+			item.setAttachmentSet(attachments);
+		}
+		attachments.removeIf(attachment -> !attachmentIds.contains(attachment.getAttachmentId()));
+		Set<String> existingIds = new HashSet<>();
+		for (AssignmentSupplementItemAttachment attachment : attachments)
+		{
+			existingIds.add(attachment.getAttachmentId());
+		}
+		for (String id : attachmentIds)
+		{
+			if (!existingIds.contains(id))
+			{
+				AssignmentSupplementItemAttachment attachment = newAttachment();
+				attachment.setAssignmentSupplementItemWithAttachment(item);
+				attachment.setAttachmentId(id);
+				saveAttachment(attachment);
+				attachments.add(attachment);
+			}
+		}
+	}
 
    /** Dependency: UserDirectoryService */
 	protected UserDirectoryService m_userDirectoryService = null;
@@ -158,9 +317,8 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		Set<AssignmentSupplementItemAttachment> attachmentSet = item.getAttachmentSet();
 		if (attachmentSet != null)
 		{
-			for (Iterator<AssignmentSupplementItemAttachment> iAttachmentSet = attachmentSet.iterator(); iAttachmentSet.hasNext();)
+			for (AssignmentSupplementItemAttachment attachment : attachmentSet)
 			{
-				AssignmentSupplementItemAttachment attachment = iAttachmentSet.next();
 				rv &= removeAttachment(attachment);
 			}
 		}
@@ -379,9 +537,8 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		Set<AssignmentAllPurposeItemAccess> accessSet = mItem.getAccessSet();
 		if (accessSet != null)
 		{
-			for (Iterator<AssignmentAllPurposeItemAccess> iAccessSet = accessSet.iterator(); iAccessSet.hasNext();)
+			for (AssignmentAllPurposeItemAccess access : accessSet)
 			{
-				AssignmentAllPurposeItemAccess access = iAccessSet.next();
 				rv = removeAllPurposeItemAccess(access);
 			}
 		}
