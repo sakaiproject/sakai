@@ -106,7 +106,7 @@ class CalendarTest extends SakaiUiTestBase {
 
         sakai.login("instructor1");
         sakai.gotoPath(sakaiUrl);
-        createGroupWithMember(groupTitle, "student0011");
+        createGroupWithMember(groupTitle, "student0011", "student0012");
 
         sakai.gotoPath(sakaiUrl);
         sakai.toolClick("Calendar");
@@ -172,12 +172,15 @@ class CalendarTest extends SakaiUiTestBase {
         }
     }
 
-    private void createGroupWithMember(String groupTitle, String memberEid) {
+    private void createGroupWithMember(String groupTitle, String memberEid, String nonMemberSiteParticipantEid) {
         sakai.toolClick("Site Info");
         // Worksite Setup picks whichever course/section checkbox happens to be first, so the new
-        // site's CM roster (and whether memberEid ends up on it) isn't predictable. Adding the
-        // participant explicitly makes memberEid's presence in #groupMembers deterministic.
+        // site's CM roster (and whether memberEid/nonMemberSiteParticipantEid end up on it) isn't
+        // predictable. Adding both explicitly makes memberEid's presence in #groupMembers
+        // deterministic, and gives nonMemberSiteParticipantEid site access without group
+        // membership, so its negative visibility check tests group restriction, not site access.
         ensureSiteParticipant(memberEid);
+        ensureSiteParticipant(nonMemberSiteParticipantEid);
 
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Groups$", Pattern.CASE_INSENSITIVE)))
             .first().click(new Locator.ClickOptions().setForce(true));
