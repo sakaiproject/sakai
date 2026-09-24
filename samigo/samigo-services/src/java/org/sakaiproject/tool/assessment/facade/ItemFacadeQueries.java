@@ -304,6 +304,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateItemTagBindingsHavingTag(TagServiceHelper.TagView tagView) {
         // TODO when we add item search indexing, this is going to have to change to
         // first read in all the affected item IDs so we can generate events for each
@@ -318,6 +319,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteItemTagBindingsHavingTagId(String tagId) {
         // TODO when we add item search indexing, this is going to have to change to
         // first read in all the affected item IDs so we can generate events for each
@@ -329,6 +331,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateItemTagBindingsHavingTagCollection(TagServiceHelper.TagCollectionView tagCollectionView) {
         // TODO when we add item search indexing, this is going to have to change to
         // first read in all the affected item IDs so we can generate events for each
@@ -341,6 +344,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteItemTagBindingsHavingTagCollectionId(String tagCollectionId) {
         // TODO when we add item search indexing, this is going to have to change to
         // first read in all the affected item IDs so we can generate events for each
