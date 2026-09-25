@@ -103,11 +103,11 @@ public class MainController {
 	//called by AJAX - returns FRAGMENT/BODY
 	@GetMapping(value = {"/loadItems"})
 	public String loadItems(
-			@RequestParam(required = false) String sortBy,
-			@RequestParam(required = false) String sortOrder,
-			@RequestParam(required = false) Integer pageNum,
-			@RequestParam(required = false) Integer pageSize,
-			@RequestParam(required = false) String search,
+			@RequestParam(name = "sortBy", required = false) String sortBy,
+			@RequestParam(name = "sortOrder", required = false) String sortOrder,
+			@RequestParam(name = "pageNum", required = false) Integer pageNum,
+			@RequestParam(name = "pageSize", required = false) Integer pageSize,
+			@RequestParam(name = "search", required = false) String search,
 			FilterRequest requestBody,
 			Model model
 	) throws MicrosoftGenericException {
@@ -237,7 +237,7 @@ public class MainController {
 
 	//called by AJAX
 	@GetMapping(value = {"/listGroupSynchronizations/{siteSynchronizationId}"})
-	public String groupSynchronizations(@PathVariable String siteSynchronizationId, Model model) throws MicrosoftGenericException {
+	public String groupSynchronizations(@PathVariable("siteSynchronizationId") String siteSynchronizationId, Model model) throws MicrosoftGenericException {
 		log.debug("List group synchronizations for siteSynchronizationId={}", siteSynchronizationId);
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(siteSynchronizationId).build(), true);
 		if (ss != null) {
@@ -273,7 +273,7 @@ public class MainController {
 	
 	//called by AJAX - returns FRAGMENT
 	@GetMapping(value = {"/runSiteSynchronization/{id}"})
-	public String runSiteSynchronization(@PathVariable String id, Model model) throws Exception {
+	public String runSiteSynchronization(@PathVariable("id") String id, Model model) throws Exception {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build(), true);
 		if(ss != null) {
 			microsoftSynchronizationService.runSiteSynchronization(ss);
@@ -297,7 +297,7 @@ public class MainController {
 	
 	//called by AJAX - returns FRAGMENT
 	@GetMapping(value = {"/refreshSite/{id}"})
-	public String refreshRow(@PathVariable String id, Model model) throws Exception {
+	public String refreshRow(@PathVariable("id") String id, Model model) throws Exception {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build(), true);
 
 		if (ss != null) {
@@ -313,7 +313,7 @@ public class MainController {
 	//called by AJAX - returns JSON
 	@GetMapping(path = {"/setForced-siteSynchronization/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public AjaxResponse updateSiteSynchronizationForced(@PathVariable String id, @RequestParam Boolean forced,  Model model) {
+	public AjaxResponse updateSiteSynchronizationForced(@PathVariable("id") String id, @RequestParam("forced") Boolean forced,  Model model) {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build());
 		AjaxResponse ret = new AjaxResponse();
 		ret.setStatus(false);
@@ -338,7 +338,7 @@ public class MainController {
 	//called by AJAX - returns JSON
 	@PostMapping(path = {"/setDisabled-siteSynchronization/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public AjaxResponse updateSiteSynchronizationDisabled(@PathVariable String id, @RequestParam Boolean disabled, Model model) {
+	public AjaxResponse updateSiteSynchronizationDisabled(@PathVariable("id") String id, @RequestParam("disabled") Boolean disabled, Model model) {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build());
 		AjaxResponse ret = new AjaxResponse();
 		ret.setStatus(false);
@@ -356,8 +356,8 @@ public class MainController {
 	@GetMapping(path = {"/setDate-siteSynchronization/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public AjaxResponse updateSiteSynchronizationDate(
-			@PathVariable String id,
-			@RequestParam String name,
+			@PathVariable("id") String id,
+			@RequestParam("name") String name,
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, 
 			Model model
 	) {
@@ -401,8 +401,8 @@ public class MainController {
 	
 	@PostMapping(path = {"/update-siteSynchronizations"}, consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
 	public String updateSiteSynchronizations(
-			@RequestParam(required = false) List<String> selectedIds,
-			@RequestParam String action,
+			@RequestParam(name = "selectedIds", required = false) List<String> selectedIds,
+			@RequestParam("action") String action,
 			Model model,
 			RedirectAttributes redirectAttributes
 	) throws MicrosoftCredentialsException {
@@ -440,7 +440,7 @@ public class MainController {
 	//called by AJAX - returns FRAGMENT
 	//now, this end-point is never called by the GUI. Maybe we can remove this in the future
 	@GetMapping(value = {"/checkSiteSynchronizationStatus/{id}"})
-	public String checkSiteSynchronizationStatus(@PathVariable String id, Model model) throws Exception {
+	public String checkSiteSynchronizationStatus(@PathVariable("id") String id, Model model) throws Exception {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build(), true);
 		if(ss != null) {
 			microsoftSynchronizationService.checkStatus(ss);

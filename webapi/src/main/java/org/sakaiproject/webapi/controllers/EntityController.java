@@ -41,7 +41,7 @@ public class EntityController extends AbstractSakaiApiController {
     private EntityManager entityManager;
 
     @GetMapping(value = "/tool-entities/tools/{toolId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<Map<String, String>>> getToolEntityMaps(@PathVariable String toolId, @RequestParam List<String> sites) {
+    public Map<String, List<Map<String, String>>> getToolEntityMaps(@PathVariable("toolId") String toolId, @RequestParam("sites") List<String> sites) {
 
         Map<String, List<Map<String, String>>> map = new HashMap<>();
         for (EntityProducer ep : entityManager.getEntityProducers()) {

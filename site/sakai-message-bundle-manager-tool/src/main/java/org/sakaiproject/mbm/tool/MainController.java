@@ -180,7 +180,7 @@ public class MainController {
 	}
 
 	@RequestMapping(value = "/edit", params = { "id" }, method = RequestMethod.GET)
-	public String showEdit(@RequestParam long id, Model model) {
+	public String showEdit(@RequestParam("id") long id, Model model) {
 		log.debug("showEdit()");
 
 		MessageBundleProperty property = messageBundleService.getMessageBundleProperty(id);

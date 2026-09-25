@@ -197,7 +197,7 @@ public class PermissionsController extends AbstractSakaiApiController {
     @PostMapping(value = "/sites/{siteId}/permissions")
     public String setPermissions(@PathVariable("siteId") String siteId,
                                 @RequestParam("ref") String ref,
-                                @RequestParam Map<String, String> params) {
+                                @RequestParam("params") Map<String, String> params) {
 
         Session session = checkSakaiSession();
 

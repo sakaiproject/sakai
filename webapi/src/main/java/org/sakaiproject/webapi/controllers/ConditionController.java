@@ -52,7 +52,7 @@ public class ConditionController extends AbstractSakaiApiController {
 
 
     @GetMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Condition> getCondition(@PathVariable String siteId, @PathVariable String conditionId) {
+    public ResponseEntity<Condition> getCondition(@PathVariable("siteId") String siteId, @PathVariable("conditionId") String conditionId) {
         checkSakaiSession();
         checkSite(siteId);
 
@@ -67,8 +67,8 @@ public class ConditionController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/conditions", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Condition>> getConditions(@PathVariable String siteId,
-                @RequestParam Optional<String> toolId, @RequestParam Optional<String> itemId) {
+    public ResponseEntity<List<Condition>> getConditions(@PathVariable("siteId") String siteId,
+                @RequestParam("toolId") Optional<String> toolId, @RequestParam("itemId") Optional<String> itemId) {
         checkSakaiSession();
         checkSite(siteId);
 
@@ -87,7 +87,7 @@ public class ConditionController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/conditions", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Condition> createCondition(@PathVariable String siteId, @RequestBody Condition condition) {
+    public ResponseEntity<Condition> createCondition(@PathVariable("siteId") String siteId, @RequestBody Condition condition) {
         Session session = checkSakaiSession();
         Site site = checkSite(siteId);
 
@@ -107,7 +107,7 @@ public class ConditionController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/conditions/bulk", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Set<Condition>> createConditions(@PathVariable String siteId, @RequestBody Set<Condition> conditions) {
+    public ResponseEntity<Set<Condition>> createConditions(@PathVariable("siteId") String siteId, @RequestBody Set<Condition> conditions) {
         Session session = checkSakaiSession();
         Site site = checkSite(siteId);
 
@@ -129,7 +129,7 @@ public class ConditionController extends AbstractSakaiApiController {
     }
 
     @PutMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Condition> updateCondition(@PathVariable String siteId, @PathVariable String conditionId,
+    public ResponseEntity<Condition> updateCondition(@PathVariable("siteId") String siteId, @PathVariable("conditionId") String conditionId,
             @RequestBody Condition condition) {
         Session session = checkSakaiSession();
         Site site = checkSite(siteId);
@@ -154,7 +154,7 @@ public class ConditionController extends AbstractSakaiApiController {
     }
 
     @DeleteMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> deleteCondition(@PathVariable String siteId, @PathVariable String conditionId) {
+    public ResponseEntity<String> deleteCondition(@PathVariable("siteId") String siteId, @PathVariable("conditionId") String conditionId) {
         Session session = checkSakaiSession();
         Site site = checkSite(siteId);
 

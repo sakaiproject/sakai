@@ -81,7 +81,7 @@ public class GroupSynchronizationController {
 	private static final String NEW = "NEW";
 
 	@GetMapping(value = {"/editGroupSynchronization/{siteSynchronizationId}"})
-	public String editGroupSynchronization(@PathVariable String siteSynchronizationId, Model model, RedirectAttributes redirectAttributes) throws MicrosoftGenericException {
+	public String editGroupSynchronization(@PathVariable("siteSynchronizationId") String siteSynchronizationId, Model model, RedirectAttributes redirectAttributes) throws MicrosoftGenericException {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(siteSynchronizationId).build(), true);
 
 		if (ss == null) {
@@ -122,7 +122,7 @@ public class GroupSynchronizationController {
 	}
 
 	@PostMapping(path = {"/add-groupSynchronization/{siteSynchronizationId}"}, consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
-	public String saveGroupSynchronization(@PathVariable String siteSynchronizationId, @ModelAttribute GroupSynchronizationRequest payload, Model model, RedirectAttributes redirectAttributes) throws MicrosoftGenericException {
+	public String saveGroupSynchronization(@PathVariable("siteSynchronizationId") String siteSynchronizationId, @ModelAttribute GroupSynchronizationRequest payload, Model model, RedirectAttributes redirectAttributes) throws MicrosoftGenericException {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(siteSynchronizationId).build());
 		if (ss != null) {
 			Map<String, MicrosoftChannel> channelsMap = microsoftCommonService.getTeamPrivateChannels(ss.getTeamId());
@@ -166,7 +166,7 @@ public class GroupSynchronizationController {
 
 	@GetMapping(path = {"/delete-groupSynchronization/{groupSynchronizationId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Boolean deleteGroupSynchronization(@PathVariable String groupSynchronizationId, Model model, RedirectAttributes redirectAttributes) throws MicrosoftGenericException {
+	public Boolean deleteGroupSynchronization(@PathVariable("groupSynchronizationId") String groupSynchronizationId, Model model, RedirectAttributes redirectAttributes) throws MicrosoftGenericException {
 		boolean ok = false;
 		GroupSynchronization gs = microsoftSynchronizationService.getGroupSynchronization(GroupSynchronization.builder().id(groupSynchronizationId).build());
 		if (gs != null) {
@@ -177,7 +177,7 @@ public class GroupSynchronizationController {
 	}
 
 	@PostMapping(value = {"/channel"})
-	public String createNewChannel(@RequestParam String siteId, @RequestParam String name, RedirectAttributes redirectAttributes) throws MicrosoftGenericException {
+	public String createNewChannel(@RequestParam("siteId") String siteId, @RequestParam("name") String name, RedirectAttributes redirectAttributes) throws MicrosoftGenericException {
 		log.debug("NEW channel creating");
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(siteId).build());
 		try {

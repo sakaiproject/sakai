@@ -63,7 +63,7 @@ public class MainController {
 	
 	@RequestMapping(value = "/webhooks", method = RequestMethod.POST)
 	public void webhooks(HttpServletRequest request, HttpServletResponse response, Model model, 
-			@RequestParam Integer providerId, @RequestParam(required=false) String custom) {
+			@RequestParam("providerId") Integer providerId, @RequestParam(name = "custom", required = false) String custom) {
 		if(providerId == null) {
 			throw new InvalidParameterException("Missing providerName");
 		}
@@ -72,7 +72,7 @@ public class MainController {
 	}
 	
 	@RequestMapping(value = "/viewreport", method = RequestMethod.GET)
-	public String viewReport(Model model, @RequestParam String contentId, @RequestParam String assignmentRef, @RequestParam String contextId) {
+	public String viewReport(Model model, @RequestParam("contentId") String contentId, @RequestParam("assignmentRef") String assignmentRef, @RequestParam("contextId") String contextId) {
 		log.info("viewReport(): contentId: " + contentId + ", assignmentRef: " + assignmentRef);
 		if(sessionManager != null && sessionManager.getCurrentSession() != null
 				&& StringUtils.isNotEmpty(sessionManager.getCurrentSessionUserId())) {

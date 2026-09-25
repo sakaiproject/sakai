@@ -173,9 +173,9 @@ public class MainController {
 	 */
 	@RequestMapping(value = {"/items"}, method = RequestMethod.GET)
 	public String loadItems(
-			@RequestParam(defaultValue = "") String refreshSection,
-			@RequestParam(defaultValue = "name:0") String sortBy,
-			@RequestParam(defaultValue = "false") Boolean treeView,
+			@RequestParam(name = "refreshSection", defaultValue = "") String refreshSection,
+			@RequestParam(name = "sortBy", defaultValue = "name:0") String sortBy,
+			@RequestParam(name = "treeView", defaultValue = "false") Boolean treeView,
 			Model model
 	) throws MicrosoftGenericException {
 		
@@ -312,7 +312,7 @@ public class MainController {
 	
 	@GetMapping(value = {"/thumbnail/{itemId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public String getThumbnail(@PathVariable String itemId, @RequestParam(defaultValue = "0") Integer maxWidth, @RequestParam(defaultValue = "0") Integer maxHeight) throws MicrosoftGenericException {
+	public String getThumbnail(@PathVariable("itemId") String itemId, @RequestParam(name = "maxWidth", defaultValue = "0") Integer maxWidth, @RequestParam(name = "maxHeight", defaultValue = "0") Integer maxHeight) throws MicrosoftGenericException {
 		
 		String ret = "";
 		MicrosoftDriveItem item = mediaGallerySessionBean.getItem(itemId);
@@ -329,7 +329,7 @@ public class MainController {
 	
 	@GetMapping(value = {"/link/{itemId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public String getLink(@PathVariable String itemId) throws MicrosoftGenericException {
+	public String getLink(@PathVariable("itemId") String itemId) throws MicrosoftGenericException {
 		
 		String ret = "";
 		MicrosoftDriveItem item = mediaGallerySessionBean.getItem(itemId);
@@ -354,7 +354,7 @@ public class MainController {
 	}
 	
 	@GetMapping(value = {"/info/{itemId}"})
-	public String getInfo(@PathVariable String itemId, Model model) throws MicrosoftGenericException {
+	public String getInfo(@PathVariable("itemId") String itemId, Model model) throws MicrosoftGenericException {
 		MicrosoftDriveItem item = mediaGallerySessionBean.getItem(itemId);
 		if(item != null) {
 			model.addAttribute("item", item);
