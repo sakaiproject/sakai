@@ -120,9 +120,6 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 	public ActionReturn handleToolLinks(EntityView view, Map<String, Object> params) {
 		getLoggedInUserReference();
 		String siteId = view.getEntityReference().getId();
-		if (!ltiService.isMaintain(siteId)) {
-			throw new SecurityException("Tool Links requires site maintenance permission");
-		}
 		int draw = Integer.parseInt(toolLinksParameter(params, "draw", "0"));
 		int start = Integer.parseInt(toolLinksParameter(params, "start", "0"));
 		int length = Integer.parseInt(toolLinksParameter(params, "length", "50"));

@@ -1,4 +1,8 @@
 <!-- lti_tool_site.vm -->
+#macro(toolLinksFilter $column $label)
+#set($searchLabel = $formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $label)))
+<td><input class="form-control form-control-sm" data-column="$column" placeholder="$searchLabel" aria-label="$searchLabel" /></td>
+#end
 <script>includeWebjarLibrary('datatables');</script>
 <script type="module">
     import { initializeToolLinks } from "/lti-admin-tool/js/tool-links.js";
@@ -43,8 +47,6 @@
 			<th data-field="createdAt" data-column="created_at">$tlang.getString('bl_created_at')</th>
 			#if ($isAdmin)
 			<th data-field="siteContactName" data-column="SITE_CONTACT_NAME">$tlang.getString('bl_sitecontactname')</th>
-			#end
-			#if ($isAdmin)
 			<th data-field="siteContactEmail" data-column="SITE_CONTACT_EMAIL">$tlang.getString('bl_sitecontactemail')</th>
 			#end
 			#if ($isAdmin && $attribution_name)
@@ -53,20 +55,18 @@
 			<th data-field="actions">$tlang.getString("bl_action")</th>
 		</tr>
 		<tr class="sakai-datatables-filter-row">
-			<td><input class="form-control form-control-sm" data-column="title" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_title')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_title')))" /></td>
-			<td><input class="form-control form-control-sm" data-column="searchURL" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_url')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_url')))" /></td>
+			#toolLinksFilter("title" $tlang.getString('bl_title'))
+			#toolLinksFilter("searchURL" $tlang.getString('bl_url'))
 			#if ($isAdmin)
-			<td><input class="form-control form-control-sm" data-column="SITE_TITLE" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitetitle')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitetitle')))" /></td>
+			#toolLinksFilter("SITE_TITLE" $tlang.getString('bl_sitetitle'))
 			#end
-			<td><input class="form-control form-control-sm" data-column="created_at" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_created_at')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_created_at')))" /></td>
+			#toolLinksFilter("created_at" $tlang.getString('bl_created_at'))
 			#if ($isAdmin)
-			<td><input class="form-control form-control-sm" data-column="SITE_CONTACT_NAME" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactname')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactname')))" /></td>
-			#end
-			#if ($isAdmin)
-			<td><input class="form-control form-control-sm" data-column="SITE_CONTACT_EMAIL" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactemail')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactemail')))" /></td>
+			#toolLinksFilter("SITE_CONTACT_NAME" $tlang.getString('bl_sitecontactname'))
+			#toolLinksFilter("SITE_CONTACT_EMAIL" $tlang.getString('bl_sitecontactemail'))
 			#end
 			#if ($isAdmin && $attribution_name)
-			<td><input class="form-control form-control-sm" data-column="ATTRIBUTION" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $attribution_name))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $attribution_name))" /></td>
+			#toolLinksFilter("ATTRIBUTION" $attribution_name)
 			#end
 			<td></td>
 		</tr>
