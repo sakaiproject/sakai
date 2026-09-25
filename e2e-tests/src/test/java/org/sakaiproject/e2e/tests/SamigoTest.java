@@ -450,7 +450,7 @@ class SamigoTest extends SakaiUiTestBase {
 
     @Test
     @Order(11)
-    void deletedQuizIsUnavailableInLessons() {
+    void deletedQuizIsHiddenFromStudentsInLessons() {
         String courseUrl = ensureCourseUrl();
         sakai.login("instructor1");
         page.navigate(courseUrl);
@@ -508,10 +508,7 @@ class SamigoTest extends SakaiUiTestBase {
         sakai.login("student0011");
         page.navigate(courseUrl);
         sakai.toolClick("Lessons");
-        Locator unavailableQuiz = page.locator(".fake-disabled")
-            .filter(new Locator.FilterOptions().setHasText(SAMIGO_TITLE));
-        assertThat(unavailableQuiz).isVisible();
-        assertThat(unavailableQuiz).hasAttribute("title", "Item is not yet available");
+        assertThat(page.locator("#content")).not().containsText(SAMIGO_TITLE);
         assertThat(page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(SAMIGO_TITLE).setExact(true))).hasCount(0);
     }
