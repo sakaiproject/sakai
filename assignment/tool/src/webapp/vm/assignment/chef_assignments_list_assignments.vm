@@ -64,14 +64,14 @@
 		<div id="tagSection" class="pe-lg-3 w-100" >
 		#if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
 			<form id="tagFilterForm" name="tagFilterForm" class="d-flex gap-1" method="post" action="#toolForm("AssignmentAction")">
-				<input hidden id="tag_selector" name="tag_selector" />
+				<input hidden id="tag_selector" name="tag_selector" value="$formattedText.escapeHtml($!tag_selector)" />
 				<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
 
 				<div class="flex-grow-1">
 					<sakai-tag-selector
 					    id="tag-selector"
 					    input-id="tag_selector"
-					    selected-ids="$!tag_selector"
+					    selected-ids="$formattedText.escapeHtml($!tag_selector)"
 					    collection-id="$siteId"
 					    add-new="false"
 					    extra-options="$allTaggedGroupsAndInstructors"

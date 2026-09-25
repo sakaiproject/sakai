@@ -310,7 +310,17 @@ class AssignmentTest extends SakaiUiTestBase {
         selector.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
         selector.getByRole(AriaRole.COMBOBOX).press("ArrowDown");
         selector.getByRole(AriaRole.COMBOBOX).press("Enter");
+        String selectedIds = page.locator("#tag_selector").inputValue();
+        String tagRequests = "**/api/sites/*/tools/*/tags/**";
+        page.route(tagRequests, route -> route.abort());
         page.locator("#btnSearchTags1").click();
+        assertThat(selector.getByRole(AriaRole.ALERT)).isVisible();
+        assertThat(page.locator("#tag_selector")).hasAttribute("value", selectedIds);
+        assertThat(page.locator("#tag_selector")).hasValue(selectedIds);
+        page.locator("#btnSearchTags1").click();
+        assertThat(selector.getByRole(AriaRole.ALERT)).isVisible();
+        assertThat(page.locator("#tag_selector")).hasValue(selectedIds);
+        page.unroute(tagRequests);
         assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(taggedTitle))).isVisible();
         assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(otherTitle))).hasCount(0);
         page.locator("#btnSearchTagsClear").click();
