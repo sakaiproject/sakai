@@ -548,17 +548,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				}
 
 				// Format the date for display
-				Object created_at = contentBean.getCreatedAt();
-				String formattedDate = null;
-				if (created_at instanceof Date) {
-					formattedDate = userTimeService.dateTimeFormat(((Date) created_at), rb.getLocale(), java.text.DateFormat.MEDIUM);
-				} else if (created_at instanceof LocalDateTime) {
-					LocalDateTime ldt = (LocalDateTime) created_at;
-					// Form stores these as UTC
-					Instant ldtInstant = ldt.toInstant(ZoneOffset.UTC);
-					formattedDate = userTimeService.dateTimeFormat(ldtInstant, FormatStyle.MEDIUM, FormatStyle.SHORT);
-				} else {
-					formattedDate = created_at.toString();
+				Date created_at = contentBean.getCreatedAt();
+				String formattedDate = "";
+				if (created_at != null) {
+					formattedDate = userTimeService.dateTimeFormat(created_at, rb.getLocale(), java.text.DateFormat.MEDIUM);
 				}
 				formattedDateMap.put(contentId, formattedDate);
 
