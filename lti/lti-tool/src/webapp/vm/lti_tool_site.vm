@@ -1,89 +1,8 @@
-
 <!-- lti_tool_site.vm -->
-
-${includeLatestJQuery}
-
 <script>includeWebjarLibrary('datatables');</script>
-
-<script>
-	document.addEventListener('DOMContentLoaded', function() {
-		const table = document.getElementById('tools_site');
-		if (!table) return;
-
-		const headers = Array.from(table.tHead.rows[0].cells);
-		const sortedColumn = headers.findIndex(header => header.id === '$!LAST_SORTED_FIELD');
-		const direction = #if ($ASCENDING_ORDER) 'asc' #else 'desc' #end;
-
-		new DataTable(table, {
-			titleRow: 0,
-			serverSide: true,
-			deferLoading: $count_contents,
-			displayStart: $sortIndex - 1,
-			pageLength: $sortPageSize,
-			lengthMenu: [10, 50, 100, 200],
-			searching: false,
-			language: { emptyTable: table.dataset.emptyMessage },
-			orderMulti: false,
-			order: sortedColumn < 0 ? [] : [[sortedColumn, direction]],
-			columnDefs: [{ targets: 'no-sort', orderable: false, searchable: false }],
-			// Keep database paging and sorting through the existing tool actions.
-			ajax: function(request) {
-				const order = request.order[0];
-				if (order && (order.column !== sortedColumn || order.dir !== direction)) {
-					window.location.href = '#toolLinkParam("ToolSite" "doSort" "criteria=#criteria#")'
-						.replace(/&amp;/g, '&').replace('#criteria#', headers[order.column].id);
-				} else {
-					window.location.href = '#toolLinkParam("ToolSite" "doChangePage" "start=#start#&pagesize=#pageSize#")'
-						.replace(/&amp;/g, '&')
-						.replace('#start#', request.start).replace('#pageSize#', request.length);
-				}
-			},
-		});
-
-		//prepare searching fields
-		let changeTimeout = null;
-
-		const onInputchange = function(){
-			if(changeTimeout != null) {
-				clearTimeout(changeTimeout);
-			}
-			const id = this.id.replace('input_', '');
-			const value = this.value;
-			changeTimeout = setTimeout(function() { doChange(id, value); }, 1000);
-		};
-
-		document.querySelectorAll("#tools_site thead tr td input").forEach(function(input) {
-			input.addEventListener("input", onInputchange);
-			const id = input.id;
-			if(id) {
-				const header = document.getElementById(id.replace('input_', ''));
-				if (header) {
-					const label = header.getAttribute('data-placeholder');
-					input.setAttribute('placeholder', label);
-					input.setAttribute('aria-label', label);
-				}
-			}
-			input.addEventListener("focus", function() {
-				this.value = this.value;
-			});
-		});
-
-		document.querySelectorAll("#tools_site thead tr td select").forEach(function(select) {
-			select.addEventListener("change", onInputchange);
-		});
-
-		const doChange = function(id, val) {
-			window.location.href = '#toolLinkParam("ToolSite" "doSearch" "field=#fieldId#&search=#searchField#")'
-				.replace(/&amp;/g, '&')
-				.replace('#fieldId#', id)
-				.replace('#searchField#', encodeURIComponent(val));
-		};
-
-		#if($!SEARCH_LAST_FIELD)
-			document.getElementById("input_$!SEARCH_LAST_FIELD")?.focus();
-		#end
-
-	});
+<script type="module">
+    import { initializeToolLinks } from "/lti-admin-tool/js/tool-links.js";
+    initializeToolLinks(document.getElementById("tools_site"), #datatablesBundle($tlang));
 </script>
 
 <div class="portletBody">
@@ -101,111 +20,70 @@ ${includeLatestJQuery}
 	<br/>
 	$tlang.getString("tool.description.sites.helper")
 	#end
-	#if ($hasContents)	
-		#if ($contents && $contents.size() > 0)
-		<div class="navPanel">
-			<div class="listNav">
-				<a style="float:right" href="$export_url_excel"><input type="submit" value="$tlang.getString("content.export.excel")" /></a>
-				<a class="me-1" style="float:right" href="$export_url_csv"><input type="submit" value="$tlang.getString("content.export.csv")" /></a>
-			</div>
+	<div class="navPanel">
+		<div class="listNav">
+			<a class="btn btn-secondary" href="$export_url_excel">$tlang.getString("content.export.excel")</a>
+			<a class="btn btn-secondary" href="$export_url_csv">$tlang.getString("content.export.csv")</a>
 		</div>
-
-		#end
-		<table data-empty-message="$formattedText.escapeHtml($tlang.getString('content.none'))" id="tools_site" class="table table-striped table-hover" cellspacing="0" summary ="$tlang.getString("content.table")">
-			<thead>
-			<tr>
-				<th id="title" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_title'))">$tlang.getString("bl_title")</th>
-				<th id="searchURL">$tlang.getString("bl_url")
-					<input type="hidden" id="URL" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_url'))" />
-				</th>
-				#if ($isAdmin) 
-					<th id="SITE_TITLE" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitetitle'))">$tlang.getString("bl_sitetitle")</th>
-				#end
-					<th id="created_at" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_created_at'))">$tlang.getString("bl_created_at")</th>
-				#if ($isAdmin)
-					<th id="SITE_CONTACT_NAME" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactname'))">$tlang.getString("bl_sitecontactname")</th>
-					<th id="SITE_CONTACT_EMAIL" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactemail'))">$tlang.getString("bl_sitecontactemail")</th>
-					#if ($attribution_name)
-					<th id="ATTRIBUTION" data-placeholder="$tlang.getFormattedMessage('searchby', $attribution_name)">$attribution_name</th>
-					#end
-				#end
-				<th id="action" width="25%" class="no-sort">$tlang.getString("bl_action")</th>
-			</tr>
-            <tr class="sakai-datatables-filter-row">
-                <td><input class="form-control form-control-sm" id="input_title" #if($search_map && $search_map.get('title')) value="$search_map.get('title')" #end /></td>
-                <td><input class="form-control form-control-sm" id="input_URL" #if($search_map && $search_map.get('URL')) value="$search_map.get('URL')" #end /></td>
-                #if ($isAdmin)
-                    <td><input class="form-control form-control-sm" id="input_SITE_TITLE" #if($search_map && $search_map.get('SITE_TITLE')) value="$search_map.get('SITE_TITLE')" #end /></td>
-                #end
-                    <td><input class="form-control form-control-sm" id="input_created_at" #if($search_map && $search_map.get('created_at')) value="$search_map.get('created_at')" #end /></td>
-                #if ($isAdmin)
-                    <td><input class="form-control form-control-sm" id="input_SITE_CONTACT_NAME" #if($search_map && $search_map.get('SITE_CONTACT_NAME')) value="$search_map.get('SITE_CONTACT_NAME')" #end /></td>
-                    <td><input class="form-control form-control-sm" id="input_SITE_CONTACT_EMAIL" #if($search_map && $search_map.get('SITE_CONTACT_EMAIL')) value="$search_map.get('SITE_CONTACT_EMAIL')" #end /></td>
-                    #if ($attribution_name)
-                    <td><input class="form-control form-control-sm" id="input_ATTRIBUTION" #if($search_map && $search_map.get('ATTRIBUTION')) value="$search_map.get('ATTRIBUTION')" #end /></td>
-                    #end
-                #end
-                <td></td>
-            </tr>
-			</thead>
-			<tbody>
-			#if ($contents && $contents.size() > 0)
-			#foreach ($contentBean in $contents)
-			<tr>
-			<td headers="title">$formattedText.escapeHtml($contentBean.title)</td>
-			<td headers="searchURL">
-				#set($launch = "-")
-				#if ($contentBean.launch)
-					 #set($launch = $formattedText.escapeHtml($contentBean.launch))
-				#else
-					#set($tool=false)
-					#set($tool=$ltiService.getTool($contentBean.toolId, $contentBean.siteId))
-					#if ($!tool)
-						#set($launch = $formattedText.escapeHtml($tool.get("launch")))
-					#end
-				#end
-				#set($toolUrl = $toolUrlMap.get($contentBean.id))
-				<a target="_blank" href="$toolUrl">$launch</a>
-			</td>
-			#if ($isAdmin) 
-				#set($siteUrl = $siteUrlMap.get($contentBean.id))
-				<td headers="SITE_TITLE"><a target="_blank" href="$!siteUrl">$formattedText.escapeHtml($!contentBean.siteTitle)</a></td>
-			#end
-				#set($formattedDate = $formattedDateMap.get($contentBean.id))
-				<td headers="created_at">$!formattedDate</td>
+	</div>
+	<table id="tools_site" class="table table-striped table-hover"
+		data-ajax-url="$formattedText.escapeHtml($toolLinksUrl)"
+		data-edit-url="$formattedText.escapeHtml($sakai_ActionURL.setPanel('ContentPut'))"
+		data-delete-url="$formattedText.escapeHtml($sakai_ActionURL.setPanel('ContentDelete'))"
+		data-edit-label="$formattedText.escapeHtml($tlang.getString('gen.edit'))"
+		data-delete-label="$formattedText.escapeHtml($tlang.getString('gen.delete'))"
+		summary="$tlang.getString('content.table')">
+		<thead>
+		<tr>
+			<th data-field="title" data-column="title">$tlang.getString('bl_title')</th>
+			<th data-field="launch" data-column="searchURL">$tlang.getString('bl_url')</th>
 			#if ($isAdmin)
-				<td headers="SITE_CONTACT_NAME"> $formattedText.escapeHtml($!contentBean.siteContactName)</td>
-				<td headers="SITE_CONTACT_EMAIL"> $formattedText.escapeHtml($!contentBean.siteContactEmail)</td>
-				#if ($attribution_name)
-				<td headers="ATTRIBUTION"> $formattedText.escapeHtml($!contentBean.attribution)</td>
-				#end
+			<th data-field="siteTitle" data-column="SITE_TITLE">$tlang.getString('bl_sitetitle')</th>
 			#end
-			<td headers="action">
-            <ul style="list-style: none;">
-			<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$contentBean.id">$tlang.getString("gen.edit")</a></li>
-			<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$contentBean.id">$tlang.getString("gen.delete")</a></li>
-            </ul>
-			</td>
-			</tr>
+			<th data-field="createdAt" data-column="created_at">$tlang.getString('bl_created_at')</th>
+			#if ($isAdmin)
+			<th data-field="siteContactName" data-column="SITE_CONTACT_NAME">$tlang.getString('bl_sitecontactname')</th>
 			#end
+			#if ($isAdmin)
+			<th data-field="siteContactEmail" data-column="SITE_CONTACT_EMAIL">$tlang.getString('bl_sitecontactemail')</th>
 			#end
-			</tbody>
-		</table>
-	#else
-		<p>$tlang.getString("content.none")</p>
-	#end
+			#if ($isAdmin && $attribution_name)
+			<th data-field="attribution" data-column="ATTRIBUTION">$attribution_name</th>
+			#end
+			<th data-field="actions">$tlang.getString("bl_action")</th>
+		</tr>
+		<tr class="sakai-datatables-filter-row">
+			<td><input class="form-control form-control-sm" data-column="title" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_title')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_title')))" /></td>
+			<td><input class="form-control form-control-sm" data-column="searchURL" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_url')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_url')))" /></td>
+			#if ($isAdmin)
+			<td><input class="form-control form-control-sm" data-column="SITE_TITLE" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitetitle')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitetitle')))" /></td>
+			#end
+			<td><input class="form-control form-control-sm" data-column="created_at" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_created_at')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_created_at')))" /></td>
+			#if ($isAdmin)
+			<td><input class="form-control form-control-sm" data-column="SITE_CONTACT_NAME" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactname')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactname')))" /></td>
+			#end
+			#if ($isAdmin)
+			<td><input class="form-control form-control-sm" data-column="SITE_CONTACT_EMAIL" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactemail')))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $tlang.getString('bl_sitecontactemail')))" /></td>
+			#end
+			#if ($isAdmin && $attribution_name)
+			<td><input class="form-control form-control-sm" data-column="ATTRIBUTION" placeholder="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $attribution_name))" aria-label="$formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $attribution_name))" /></td>
+			#end
+			<td></td>
+		</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
 	$tlang.getString("content.note")
-	#if ( $isAdmin ) 
+	#if ($isAdmin)
 		$tlang.getString("content.admin.note")
 	#end
-#if ( ! $isAdmin ) 
+#if (!$isAdmin)
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-	## Does nothing if we are not in a frame of the right name
-	setMainFrameHeight('sakai-lti-admin-iframe'); 
-	window.addEventListener('resize', function() {
-		setMainFrameHeight('sakai-lti-admin-iframe');
-	});
+    setMainFrameHeight('sakai-lti-admin-iframe');
+    window.addEventListener('resize', function() {
+        setMainFrameHeight('sakai-lti-admin-iframe');
+    });
 });
 </script>
 #end

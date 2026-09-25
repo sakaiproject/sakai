@@ -16,6 +16,7 @@
 package org.sakaiproject.lti.entityprovider;
 
 import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 
 import lombok.Setter;
@@ -30,10 +31,12 @@ import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityParameters;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 
 import org.tsugi.lti.LTIUtil;
 
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.beans.LtiToolLinkPage;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
@@ -111,6 +114,47 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		LTIListEntity retval = new LTIListEntity (contents);
                 return retval;
         }
+
+	/** DataTables server-side endpoint: /direct/lti/{siteId}/toolLinks.json. */
+	@EntityCustomAction(action = "toolLinks", viewKey = EntityView.VIEW_SHOW)
+	public ActionReturn handleToolLinks(EntityView view, Map<String, Object> params) {
+		getLoggedInUserReference();
+		String siteId = view.getEntityReference().getId();
+		if (!ltiService.isMaintain(siteId)) {
+			throw new SecurityException("Tool Links requires site maintenance permission");
+		}
+		int draw = Integer.parseInt(toolLinksParameter(params, "draw", "0"));
+		int start = Integer.parseInt(toolLinksParameter(params, "start", "0"));
+		int length = Integer.parseInt(toolLinksParameter(params, "length", "50"));
+		int orderColumn = Integer.parseInt(toolLinksParameter(params, "order[0][column]", "0"));
+		String direction = toolLinksParameter(params, "order[0][dir]", "asc");
+		if (draw < 0 || orderColumn < 0 || orderColumn > 6 || !("asc".equals(direction) || "desc".equals(direction))) {
+			throw new IllegalArgumentException("Invalid Tool Links draw or order");
+		}
+		String sortField = toolLinksParameter(params, "columns[" + orderColumn + "][name]", "title");
+		Map<String, String> filters = new HashMap<>();
+		for (int column = 0; column < 7; column++) {
+			String field = toolLinksParameter(params, "columns[" + column + "][name]", null);
+			String value = toolLinksParameter(params, "columns[" + column + "][search][value]", null);
+			if (field != null && value != null && !value.isEmpty()) {
+				filters.put(field, value);
+			}
+		}
+		String toolId = toolLinksParameter(params, "toolId", null);
+		LtiToolLinkPage page = ltiService.getToolLinks(siteId,
+				toolId == null || toolId.isEmpty() ? null : Long.valueOf(toolId), start, length,
+				sortField, "asc".equals(direction), filters);
+		return new ActionReturn(Map.of("draw", draw, "recordsTotal", page.getTotal(),
+				"recordsFiltered", page.getFiltered(), "data", page.getLinks()),
+				Map.of("Cache-Control", "no-store"), Formats.JSON);
+	}
+
+	private String toolLinksParameter(Map<String, Object> params, String name, String defaultValue) {
+		Object value = params.get(name);
+		if (value == null) return defaultValue;
+		if (value instanceof String) return (String) value;
+		throw new IllegalArgumentException("Tool Links parameter must have one value: " + name);
+	}
 
         @EntityCustomAction(action = "content", viewKey = "")
         public Map<String,Object> handleContent(EntityView view) {

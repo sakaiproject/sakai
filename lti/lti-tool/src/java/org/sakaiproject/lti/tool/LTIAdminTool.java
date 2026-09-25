@@ -31,13 +31,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.Comparator;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.FormatStyle;
 
 import java.net.URLEncoder;
 
@@ -95,7 +90,6 @@ import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.foorm.Foorm;
-import org.sakaiproject.time.api.UserTimeService;
 
 // We need to interact with the RequestFilter
 import org.sakaiproject.util.RequestFilter;
@@ -131,32 +125,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private static String ALLOW_MAINTAINER_ADD_SYSTEM_TOOL = "lti:allow_maintainer_add_system_tool";
 	private static String ALLOW_MAINTAINER_ADD_TOOL_SITE = "lti:allow_maintainer_add_tool_site";
 
-	//accepted parameters for page, sort and search actions
 	private static String PARAM_ID = "id";
-	private static String PARAM_CRITERIA = "criteria";
-	private static String PARAM_PAGE_EVENT = "page_event";
-	private static String PARAM_PAGE = "pagesize";
-	private static String PARAM_SEARCH_FIELD = "field";
-	private static String PARAM_SEARCH_VALUE = "search";
-
-	//default elements per page
-	private static int ELEMENTS_PER_PAGE = 50;
-
-	//available paging events
-	private static String PAGE_EVENT_FIRST = "first";
-	private static String PAGE_EVENT_PREV = "prev";
-	private static String PAGE_EVENT_NEXT = "next";
-	private static String PAGE_EVENT_LAST = "last";
-
-	//attributes stored in the state/context
 	private static String ATTR_FILTER_ID = "FILTER_ID";
-	private static String ATTR_SORT_CRITERIA = "SORT_CRITERIA";
-	private static String ATTR_LAST_SORTED_FIELD = "LAST_SORTED_FIELD";
-	private static String ATTR_ASCENDING_ORDER = "ASCENDING_ORDER";
-	private static String ATTR_SORT_INDEX = "SORT_INDEX";
-	private static String ATTR_SORT_PAGESIZE = "SORT_PAGESIZE";
-	private static String ATTR_SEARCH_LAST_FIELD = "SEARCH_LAST_FIELD";
-	private static String ATTR_SEARCH_MAP = "search_map";
 
 	// Parameters for Content Item Flows
 	private static String FLOW_PARAMETER = "flow";
@@ -172,7 +142,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	protected static ToolManager toolManager = null;
 	protected static LTIService ltiService = null;
 	protected static ServerConfigurationService serverConfigurationService = null;
-	protected static UserTimeService userTimeService = null;
 
 	protected static Foorm foorm = new Foorm();
 
@@ -192,9 +161,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		if (serverConfigurationService == null) {
 			serverConfigurationService = (ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
-		}
-		if (userTimeService == null) {
-			userTimeService = (UserTimeService) ComponentManager.get("org.sakaiproject.time.api.UserTimeService");
 		}
 	}
 
@@ -300,161 +266,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 	}
 
-	/**
-	 * Sort action : allows to order the tool site list by the given field
-	 * (column name). Ascending/Descending order will be detected automatically.
-	 *
-	 * Accepted parameters : criteria
-	 *
-	 * @param data
-	 */
-	public void doSort(RunData data) {
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		String lastSortedField = (String) state.getAttribute(ATTR_LAST_SORTED_FIELD);
-		Boolean ascendingOrder = (Boolean) state.getAttribute(ATTR_ASCENDING_ORDER);
-
-		String criteria = data.getParameters().getString(PARAM_CRITERIA);
-
-		String ret = null;
-		boolean changeSortingOrder = StringUtils.isNotEmpty(criteria);
-		if (StringUtils.isNotEmpty(criteria) && !criteria.equals(lastSortedField)) {
-			changeSortingOrder = false;
-			ascendingOrder = true;
-		}
-		if (changeSortingOrder) {
-			ascendingOrder = !ascendingOrder;
-		}
-		if (StringUtils.isNotEmpty(criteria)) {
-			ret = criteria;
-			ret += (ascendingOrder ? " ASC" : " DESC");
-			state.setAttribute(ATTR_LAST_SORTED_FIELD, criteria);
-		}
-		state.setAttribute(ATTR_ASCENDING_ORDER, ascendingOrder);
-		state.setAttribute(ATTR_SORT_CRITERIA, ret);
-	}
-
-	/**
-	 * Change page action : allow to move through pages
-	 *
-	 * Accepted parameters : page_event, (optional)pagesize Allowed events :
-	 * first, prev, next, last. Alternatively, start supplies a zero-based row offset.
-	 *
-	 * @param data
-	 */
-	public void doChangePage(RunData data) {
-		//also check if page size has changed
-		doChangePageSize(data);
-
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		int start = data.getParameters().getInt("start", -1);
-		if (start >= 0) {
-			state.setAttribute(ATTR_SORT_INDEX, start);
-			return;
-		}
-
-		Integer index = (Integer) state.getAttribute(ATTR_SORT_INDEX);
-		try {
-			if (index == null) {
-				index = 0;
-			}
-			String event = data.getParameters().getString(PARAM_PAGE_EVENT);
-			if (StringUtils.isNotEmpty(event)) {
-				Integer pageSize = (Integer) state.getAttribute(ATTR_SORT_PAGESIZE);
-				if (PAGE_EVENT_FIRST.equals(event)) {
-					index = 0;
-				}
-				if (PAGE_EVENT_PREV.equals(event)) {
-					index = Math.max(0, index - pageSize);
-				}
-				if (PAGE_EVENT_NEXT.equals(event)) {
-					index += pageSize;
-				}
-				if (PAGE_EVENT_LAST.equals(event)) {
-					index = -1;
-				}
-			}
-		} catch (Exception ex) {
-		}
-		state.setAttribute(ATTR_SORT_INDEX, index);
-	}
-
-	/**
-	 * Change page size action : allows to change the page size
-	 *
-	 * Accepted parameters : pagesize
-	 *
-	 * @param data
-	 */
-	public void doChangePageSize(RunData data) {
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		Integer pageSize = (Integer) state.getAttribute(ATTR_SORT_PAGESIZE);
-		try {
-			String param = data.getParameters().getString(PARAM_PAGE);
-			if (StringUtils.isNotEmpty(param)) {
-				pageSize = Integer.parseInt(param);
-			}
-		} catch (Exception ex) {
-		}
-		if (pageSize == null || pageSize < 0) {
-			pageSize = ELEMENTS_PER_PAGE;
-		}
-		state.setAttribute(ATTR_SORT_PAGESIZE, pageSize);
-	}
-
-	/**
-	 * Search action : allows to search by a field (column) and value. One
-	 * action by one search, but multiple search (in different columns) will be
-	 * accumulative
-	 *
-	 * Accepted parameters : field, search
-	 *
-	 * @param data
-	 */
-	public void doSearch(RunData data) {
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		String searchField = data.getParameters().getString(PARAM_SEARCH_FIELD);
-		String searchValue = data.getParameters().getString(PARAM_SEARCH_VALUE);
-		Map<String, String> searchMap = (Map<String, String>) state.getAttribute(ATTR_SEARCH_MAP);
-		if (searchMap == null) {
-			searchMap = new HashMap<String, String>();
-		}
-		if (StringUtils.isNotEmpty(searchField)) {
-			if (StringUtils.isNotEmpty(searchValue)) {
-				searchValue = searchValue.replace(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND, LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND);
-				searchValue = searchValue.replace(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR, LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_OR);
-				searchMap.put(searchField, searchValue);
-			} else {
-				searchMap.remove(searchField);
-			}
-		}
-		state.setAttribute(ATTR_SEARCH_MAP, searchMap);
-		state.setAttribute(ATTR_SEARCH_LAST_FIELD, searchField);
-		state.setAttribute(ATTR_SORT_INDEX, 0);
-	}
-
-	/**
-	 * Reset all paging/sorting/searching fields in the state
-	 *
-	 * @param data
-	 */
+	/** Clear the installed-tool filter when returning to Installed Tools. */
 	public void doReset(RunData data) {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		state.setAttribute(ATTR_FILTER_ID, null);
-		state.setAttribute(ATTR_SEARCH_MAP, null);
-		state.setAttribute(ATTR_SEARCH_LAST_FIELD, null);
-		state.setAttribute(ATTR_SORT_INDEX, 0);
-		state.setAttribute(ATTR_LAST_SORTED_FIELD, null);
-		state.setAttribute(ATTR_ASCENDING_ORDER, true);
+		state.removeAttribute(ATTR_FILTER_ID);
 	}
 
 	public String buildToolSitePanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		context.put("tlang", rb);
-		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if (!ltiService.isMaintain(getSiteId(state))) {
 			addAlert(state, rb.getString("error.maintain.edit"));
 			return "lti_error";
@@ -468,119 +288,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
 
-		String order = (String) state.getAttribute(ATTR_SORT_CRITERIA);
-
-		Integer pageSize = (Integer) state.getAttribute(ATTR_SORT_PAGESIZE);
-		if (pageSize == null) {
-			pageSize = ELEMENTS_PER_PAGE;
-		}
-
-		//build search clause based on parameters and put some of them in the context
-		String search = buildSearch(data, context);
-
-		//check for tool filter
 		String filterId = (String) state.getAttribute(ATTR_FILTER_ID);
+		String linksUrl = "/direct/lti/" + URLEncoder.encode(getSiteId(state), java.nio.charset.StandardCharsets.UTF_8)
+				.replace("+", "%20") + "/toolLinks.json";
 		if (StringUtils.isNotEmpty(filterId)) {
-			search = "tool_id:" + filterId + ((search != null) ? (LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND + search) : "");
+			linksUrl += "?toolId=" + URLEncoder.encode(filterId, java.nio.charset.StandardCharsets.UTF_8);
 		}
+		context.put("toolLinksUrl", linksUrl);
 
-		//count all contents
-		int count_contents = ltiService.countContents(search, getSiteId(state));
-		context.put("count_contents", count_contents);
-
-		//if no contents detected
-		Integer totalCount = count_contents;
-		if (count_contents == 0) {
-			//count all contents without search
-			totalCount = ltiService.countContents(null, getSiteId(state));
-		}
-		context.put("hasContents", (totalCount > 0));
-
-		//get paging index
-		Integer index = (Integer) state.getAttribute(ATTR_SORT_INDEX);
-		if (index == null) {
-			index = 0;
-		}
-		if (index == -1) {
-			index = (count_contents - 1) / pageSize * pageSize;
-		} else if (index >= count_contents) {
-			index = Math.max(0, count_contents - 1);
-		}
-		int lastIndex = index + pageSize - 1;
-
-		//put all in the context
-		context.put("sortIndex", (index + 1));
-		context.put("sortLastIndex", Math.min(lastIndex + 1, count_contents));
-		context.put("sortPageSize", pageSize);
-		context.put(ATTR_LAST_SORTED_FIELD, state.getAttribute(ATTR_LAST_SORTED_FIELD));
-		context.put(ATTR_ASCENDING_ORDER, state.getAttribute(ATTR_ASCENDING_ORDER));
-
-		// this is for the "site tools" panel - using Beans directly for better performance and type safety
-		List<LtiContentBean> contentBeans = new ArrayList<>();
-		if (count_contents > 0) {
-			Map<String, String> siteURLMap = new HashMap<String, String>(); //cache for site URL
-			contentBeans = ltiService.getContentsAsBeans(search, order, index, lastIndex, getSiteId(state));
-			
-			// Create maps for additional properties indexed by content ID
-			Map<Long, String> toolUrlMap = new HashMap<>();
-			Map<Long, String> siteUrlMap = new HashMap<>();
-			Map<Long, String> formattedDateMap = new HashMap<>();
-			
-			for (LtiContentBean contentBean : contentBeans) {
-				Long contentId = contentBean.getId();
-				
-				// Validate placement
-				String plstr = contentBean.getPlacement();
-				ToolConfiguration tool = SiteService.findTool(plstr);
-				if (tool == null) {
-					// TODO: Review this closely
-					// Note: Invalid placement detected - tool configuration not found
-					// The setPlacement() method already exists in LtiContentBean (via Lombok)
-					// but we're just validating here, not fixing invalid placements
-				}
-
-				// Get site URL based on site ID
-				String siteId = contentBean.getSiteId();
-				try {
-					// Look for it in the cache
-					String url = siteURLMap.get(siteId);
-					if (url == null) {
-						url = SiteService.getSite(siteId).getUrl();
-						siteURLMap.put(siteId, url);
-					}
-					siteUrlMap.put(contentId, url);
-				} catch (Exception e) {
-					log.error("Error getting URL for site: {}", siteId);
-				}
-
-				// Format the date for display
-				Object created_at = contentBean.getCreatedAt();
-				String formattedDate = null;
-				if (created_at instanceof Date) {
-					formattedDate = userTimeService.dateTimeFormat(((Date) created_at), rb.getLocale(), java.text.DateFormat.MEDIUM);
-				} else if (created_at instanceof LocalDateTime) {
-					LocalDateTime ldt = (LocalDateTime) created_at;
-					// Form stores these as UTC
-					Instant ldtInstant = ldt.toInstant(ZoneOffset.UTC);
-					formattedDate = userTimeService.dateTimeFormat(ldtInstant, FormatStyle.MEDIUM, FormatStyle.SHORT);
-				} else {
-					formattedDate = created_at.toString();
-				}
-				formattedDateMap.put(contentId, formattedDate);
-
-				// Get LTI URL based on site ID and tool ID
-				String toolUrl = LTIService.LAUNCH_PREFIX + siteId + "/content:" + contentBean.getId();
-				toolUrlMap.put(contentId, toolUrl);
-			}
-			
-			// Add maps to context for template access
-			context.put("toolUrlMap", toolUrlMap);
-			context.put("siteUrlMap", siteUrlMap);
-			context.put("formattedDateMap", formattedDateMap);
-		}
-		
-		// Pass Beans directly to template - much more efficient!
-		context.put("contents", contentBeans);
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
 
@@ -3917,39 +3632,6 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_top_refresh";
-	}
-
-	//generates a search clause (SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N) and puts some parameters in the context
-	private String buildSearch(RunData data, Context context) {
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		StringBuilder sb = new StringBuilder();
-		Map<String, String> searchMap = (Map<String, String>) state.getAttribute(ATTR_SEARCH_MAP);
-		if (searchMap != null) {
-			for (String k : searchMap.keySet()) {
-				if (sb.length() > 0) {
-					sb.append(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND);
-				}
-				if (StringUtils.isNotEmpty(k) && StringUtils.isNotEmpty((String) searchMap.get(k))) {
-					if ("created_at".equals(k)) {
-						sb.append(k + ":" + LTIService.LTI_SEARCH_TOKEN_DATE + searchMap.get(k));
-					} else {
-						sb.append(k + ":" + searchMap.get(k));
-						if ("URL".equals(k)) {
-							sb.append(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND);
-							sb.append("launch:" + LTIService.LTI_SEARCH_TOKEN_NULL);
-							sb.append(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR);
-							sb.append("launch:" + searchMap.get(k));
-						}
-					}
-				}
-			}
-			context.put(ATTR_SEARCH_MAP, searchMap);
-			context.put(ATTR_SEARCH_LAST_FIELD, state.getAttribute(ATTR_SEARCH_LAST_FIELD));
-			if (sb.length() > 0) {
-				return sb.toString();
-			}
-		}
-		return null;
 	}
 
 	/* Flow from Editor, Assignments, and Lessons

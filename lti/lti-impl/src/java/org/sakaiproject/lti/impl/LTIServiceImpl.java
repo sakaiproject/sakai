@@ -24,6 +24,13 @@ package org.sakaiproject.lti.impl;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,6 +78,9 @@ import org.sakaiproject.lti.api.repository.LtiMembershipsJobRepository;
 import org.sakaiproject.lti.api.repository.LtiToolRepository;
 import org.sakaiproject.lti.api.repository.LtiToolSiteRepository;
 import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolLinkPage;
+import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.lti.beans.LtiMembershipsJobBean;
 import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.lti.beans.LtiToolSiteBean;
@@ -126,6 +136,12 @@ public class LTIServiceImpl implements LTIService {
 
 	@Autowired
 	private SiteService siteService;
+
+	@Autowired
+	private LocaleService localeService;
+
+	@Autowired
+	private UserTimeService userTimeService;
 
 	private Foorm foorm = new Foorm();
 
@@ -2008,6 +2024,87 @@ public class LTIServiceImpl implements LTIService {
 		return contentMaps.stream()
 				.map(LtiContentBean::of)
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public LtiToolLinkPage getToolLinks(String siteId, Long toolId, int start, int length,
+			String sortField, boolean ascending, Map<String, String> filters) {
+		if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())
+				|| StringUtils.isBlank(siteId) || !isMaintain(siteId)) {
+			throw new SecurityException("Tool Links requires site maintenance permission");
+		}
+		if (start < 0 || length < 1 || length > 200 || (toolId != null && toolId <= 0)) {
+			throw new IllegalArgumentException("Invalid Tool Links page or tool ID");
+		}
+		boolean admin = isAdmin(siteId);
+		Set<String> fields = admin
+				? Set.of("title", "searchURL", "created_at", "SITE_TITLE", "SITE_CONTACT_NAME", "SITE_CONTACT_EMAIL", "ATTRIBUTION")
+				: Set.of("title", "searchURL", "created_at");
+		if (!fields.contains(sortField) || !fields.containsAll(filters.keySet())) {
+			throw new IllegalArgumentException("Unsupported Tool Links column");
+		}
+
+		// Site-derived fields are enriched before filtering/paging.
+		// Load once for the total, filtered count and page, rather than once per count.
+		List<Map<String, Object>> rows = buildContentMaps(null, siteId, admin);
+		if (toolId != null) {
+			rows.removeIf(row -> !Objects.equals(toolId, row.get(LTI_TOOL_ID)));
+		}
+		int total = rows.size();
+		Locale locale = localeService.getLocaleForSiteAndUser(siteId, sessionManager.getCurrentSessionUserId());
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+				.withLocale(locale).withZone(userTimeService.getLocalTimeZone().toZoneId());
+		for (Map.Entry<String, String> filter : filters.entrySet()) {
+			filterToolLinks(rows, filter.getKey(), filter.getValue(), dateFormat);
+		}
+		int filtered = rows.size();
+		orderMaps(rows, sortField + (ascending ? " ASC" : " DESC"), fields);
+		int from = Math.min(start, filtered);
+		int to = from + Math.min(length, filtered - from);
+		List<LtiToolLinkPage.Link> links = new ArrayList<>();
+		for (Map<String, Object> row : rows.subList(from, to)) {
+			Long id = (Long) row.get(LTI_ID);
+			String contentSite = (String) row.get(LTI_SITE_ID);
+			String launch = StringUtils.defaultIfEmpty((String) row.get(LTI_LAUNCH), (String) row.get("URL"));
+			String launchUrl = contentSite == null ? null
+					: LAUNCH_PREFIX + URLEncoder.encode(contentSite, StandardCharsets.UTF_8).replace("+", "%20") + "/content:" + id;
+			String siteUrl = admin && contentSite != null
+					? siteService.getOptionalSite(contentSite).map(Site::getUrl).orElse(null) : null;
+			Instant created = (Instant) row.get(LTI_CREATED_AT);
+			links.add(new LtiToolLinkPage.Link(id, (String) row.get(LTI_TITLE), StringUtils.defaultIfEmpty(launch, "-"), launchUrl,
+					created == null ? "" : dateFormat.format(created),
+					admin ? (String) row.get("SITE_TITLE") : null, siteUrl,
+					admin ? (String) row.get("SITE_CONTACT_NAME") : null,
+					admin ? (String) row.get("SITE_CONTACT_EMAIL") : null,
+					admin ? (String) row.get("ATTRIBUTION") : null));
+		}
+		return new LtiToolLinkPage(total, filtered, links);
+	}
+
+	private void filterToolLinks(List<Map<String, Object>> rows, String field, String value, DateTimeFormatter dateFormat) {
+		if (StringUtils.isEmpty(value)) {
+			return;
+		}
+		if ("created_at".equals(field)) {
+			// Preserve the date filter's optional < / > comparison, using the display locale and timezone.
+			char operator = value.charAt(0);
+			String date = operator == '<' || operator == '>' ? value.substring(1) : value;
+			try {
+				Instant target = Instant.from(dateFormat.parse(date));
+				rows.removeIf(row -> {
+					Instant created = (Instant) row.get(LTI_CREATED_AT);
+					return created == null || (operator == '<' ? !created.isBefore(target)
+							: operator == '>' ? !created.isAfter(target) : created.getEpochSecond() != target.getEpochSecond());
+				});
+			} catch (DateTimeParseException e) {
+				rows.clear();
+			}
+		} else {
+			rows.removeIf(row -> !StringUtils.containsIgnoreCase("searchURL".equals(field)
+					? StringUtils.defaultIfEmpty((String) row.get(LTI_LAUNCH), (String) row.get("URL"))
+					: (String) row.get(field), value));
+		}
 	}
 
 	@Override
