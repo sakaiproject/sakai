@@ -5,6 +5,21 @@
        });
 </script>
 
+## Display stranded LTI tools
+#if ($strandedLtiTools && $strandedLtiTools.size() > 0)
+<div class="alert alert-warning" role="alert" style="margin: 15px 0;">
+    <h4 class="alert-heading">
+        <i class="fa fa-exclamation-triangle" style="margin-right: 8px;"></i>$tlang.getString("sitesetup.stranded.header")
+    </h4>
+    <p>$tlang.getString("sitesetup.stranded.message")</p>
+    <ul style="margin-bottom: 0;">
+    #foreach($tool in $strandedLtiTools)
+        <li><strong>$formattedText.escapeHtml($tool.title)</strong>#if ($tool.description && !$tool.description.trim().isEmpty()) - $formattedText.escapeHtml($tool.description)#end</li>
+    #end
+    </ul>
+</div>
+#end
+
 #macro(toolListControl $tool $toolRegistrationSelectedList $ltiTools $allowPageOrderHelper $toolRegistrationTitleList)
     #set($toolId = $tool.id)
     <div class="toolListControl" id="$toolId.replace(".","_")_wrap">
