@@ -8,7 +8,7 @@
       id="tag-search"
       input-id="questionpool:selectedTags"
       class="b5 flex-grow-1"
-      selected-temp="<h:outputText value='#{questionpool.filterTags.tagIdsCsv}'/>"
+      selected-ids="<h:outputText value='#{questionpool.filterTags.tagIdsCsv}'/>"
       collection-id="<h:outputText value='#{questionpool.agentId}'/>"
       site-id="<h:outputText value='#{author.currentSiteId}'/>"
       add-new="false"

@@ -225,7 +225,7 @@
               <h:panelGroup rendered="#{PrivateMessagesTool.detailMsg.isPreview || PrivateMessagesTool.detailMsg.isPreviewReply || PrivateMessagesTool.detailMsg.isPreviewReplyAll || PrivateMessagesTool.detailMsg.isPreviewForward}">
                 tabindex="-1" 
               </h:panelGroup>
-              selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+              selected-ids='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
               collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
               item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'
               site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'

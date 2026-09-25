@@ -37,7 +37,7 @@ describe("sakai-tag-selector", () => {
   it("restores IDs and new labels and submits them through the host form", async () => {
     const form = await fixture(html`<form>
       <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner" input-id="selected"
-          selected-temp="one,New label" add-new="true"></sakai-tag-selector>
+          selected-ids="one,New label" add-new="true"></sakai-tag-selector>
       <input id="selected" name="tags" type="hidden" value="one,New label">
     </form>`);
     const el = form.querySelector("sakai-tag-selector");
@@ -95,7 +95,7 @@ describe("sakai-tag-selector", () => {
     fetchMock.get(url, 500);
     const form = await fixture(html`<form>
       <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner"
-          input-id="saved" selected-temp="one"></sakai-tag-selector>
+          input-id="saved" selected-ids="one"></sakai-tag-selector>
       <input id="saved" name="tags" type="hidden" value="one">
     </form>`);
     const el = form.querySelector("sakai-tag-selector");
@@ -143,7 +143,7 @@ describe("sakai-tag-selector", () => {
   it("preserves edits when presentation options change or the element reconnects", async () => {
     const form = await fixture(html`<form>
       <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner" input-id="edited"
-          selected-temp="one" add-new="true"></sakai-tag-selector>
+          selected-ids="one" add-new="true"></sakai-tag-selector>
       <input id="edited" name="tags" type="hidden" value="one">
     </form>`);
     const el = form.querySelector("sakai-tag-selector");

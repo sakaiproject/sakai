@@ -11,7 +11,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
     tool: { type: String },
     collectionId: { attribute: "collection-id", type: String },
     itemId: { attribute: "item-id", type: String },
-    selectedTemp: { attribute: "selected-temp", type: String },
+    selectedIds: { attribute: "selected-ids", type: String },
     extraOptions: { attribute: "extra-options", type: String },
     inputId: { attribute: "input-id", type: String },
     addNew: { attribute: "add-new", converter: value => value !== null && value !== "false" },
@@ -68,14 +68,14 @@ export class SakaiTagSelector extends SakaiShadowElement {
     try {
       const [ options, saved ] = await Promise.all([
         readTags(url),
-        !this.selectedTemp && this.itemId && this.addNew
+        !this.selectedIds && this.itemId && this.addNew
           ? readTags(`${url}/items/${encodeURIComponent(this.itemId)}`) : Promise.resolve([]),
       ]);
       if (!this.isConnected) { return; }
       this._options = options;
       if (!this._cleared) {
-        this._selectedTags = this.selectedTemp
-          ? [ ...new Set(this.selectedTemp.split(",").filter(s => !!s.trim())) ]
+        this._selectedTags = this.selectedIds
+          ? [ ...new Set(this.selectedIds.split(",").filter(s => !!s.trim())) ]
             .map(code => this._options.find(tag => tag.code === code) || { name: code, code })
           : saved;
         this._publish();
@@ -157,24 +157,33 @@ export class SakaiTagSelector extends SakaiShadowElement {
 
   _keydown(event) {
     if (event.isComposing) { return; }
-    if (event.key === "Escape") {
-      event.preventDefault();
-      this._open = false;
-      this._active = -1;
-    } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      event.preventDefault();
-      this._open = true;
-      const count = this._choices.length;
-      if (count) {
-        this._active = this._active < 0
-          ? (event.key === "ArrowDown" ? 0 : count - 1)
-          : (this._active + (event.key === "ArrowDown" ? 1 : -1) + count) % count;
-        this.updateComplete.then(() => this.renderRoot.getElementById(`option-${this._active}`)?.scrollIntoView({ block: "nearest" }));
+    switch (event.key) {
+      case "Escape":
+        event.preventDefault();
+        this._open = false;
+        this._active = -1;
+        break;
+      case "ArrowDown":
+      case "ArrowUp": {
+        event.preventDefault();
+        this._open = true;
+        const count = this._choices.length;
+        const direction = event.key === "ArrowDown" ? 1 : -1;
+        if (count) {
+          this._active = this._active < 0
+            ? (direction === 1 ? 0 : count - 1)
+            : (this._active + direction + count) % count;
+          this.updateComplete.then(() => this.renderRoot.getElementById(`option-${this._active}`)?.scrollIntoView({ block: "nearest" }));
+        }
+        break;
       }
-    } else if (event.key === "Enter") {
-      event.preventDefault();
-      const choice = this._choices[this._active] || (this._query.trim() ? this._choices[0] : undefined);
-      if (choice) { this._selectTag(choice); }
+      case "Enter": {
+        event.preventDefault();
+        const choices = this._choices;
+        const choice = choices[this._active] || (this._query.trim() ? choices[0] : undefined);
+        if (choice) { this._selectTag(choice); }
+        break;
+      }
     }
   }
 
@@ -206,14 +215,17 @@ export class SakaiTagSelector extends SakaiShadowElement {
               @keydown=${this._keydown}>
         </div>
         <ul id="options" role="listbox" aria-label=${label} aria-multiselectable="true" ?hidden=${!this._open}>
-          ${choices.map((tag, index) => html`
-            <li id="option-${index}" role="option" aria-selected=${this._selectedTags.some(value => value.code === tag.code)}
+          ${choices.map((tag, index) => {
+      const selected = this._selectedTags.some(value => value.code === tag.code);
+      return html`
+            <li id="option-${index}" role="option" aria-selected=${selected}
                 class=${index === this._active ? "active" : ""}
                 @mousedown=${event => event.preventDefault()} @click=${() => this._selectTag(tag)}>
               ${tag.create ? html`${this._i18n.add_new}: ${tag.name}` : tag.name}
-              ${this._selectedTags.some(value => value.code === tag.code) ? html`<span aria-hidden="true"> ✓</span>` : nothing}
+              ${selected ? html`<span aria-hidden="true"> ✓</span>` : nothing}
             </li>
-          `)}
+          `;
+    })}
           ${!choices.length ? html`
             <li role="presentation">
               <span role="status">

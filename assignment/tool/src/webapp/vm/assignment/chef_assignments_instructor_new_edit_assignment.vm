@@ -1204,7 +1204,7 @@ function showExternalIframe(title, doreload) {
 		<sakai-tag-selector
 		    id="tag-selector"
 		    input-id="tag_selector"
-		    selected-temp="$formattedText.escapeHtml($!tag_selector)"
+		    selected-ids="$formattedText.escapeHtml($!tag_selector)"
 		    collection-id="$siteId"
 		    add-new="true"
 		    tool="$!tagTool"

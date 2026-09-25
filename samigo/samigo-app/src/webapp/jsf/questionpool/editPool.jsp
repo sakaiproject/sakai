@@ -154,7 +154,7 @@ function textCounter(field, maxlimit) {
             id="tag-selector"
                 input-id="editform:questionPoolTags"
             class="b5 flex-grow-1"
-            selected-temp="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
+            selected-ids="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
             collection-id="<h:outputText value='#{questionpool.currentPool.ownerId}'/>"
             site-id="<h:outputText value='#{author.currentSiteId}'/>"
             add-new="true"

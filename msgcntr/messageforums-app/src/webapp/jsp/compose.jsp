@@ -354,7 +354,7 @@
         <sakai-tag-selector
             id="tag-selector"
             input-id="compose:tag_selector"
-            selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+            selected-ids='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
             collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
             item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'
             site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'

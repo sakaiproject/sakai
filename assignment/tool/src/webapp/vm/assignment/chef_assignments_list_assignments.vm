@@ -71,7 +71,7 @@
 					<sakai-tag-selector
 					    id="tag-selector"
 					    input-id="tag_selector"
-					    selected-temp="$!tag_selector"
+					    selected-ids="$!tag_selector"
 					    collection-id="$siteId"
 					    add-new="false"
 					    extra-options="$allTaggedGroupsAndInstructors"
