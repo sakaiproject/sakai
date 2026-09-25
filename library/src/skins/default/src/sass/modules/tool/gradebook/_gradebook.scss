@@ -1404,6 +1404,9 @@ div.wicket-mask-transparent, div.wicket-mask-dark {
 .gb-summary-grade-panel {
   position: relative;
 }
+.gb-summary-grade-panel .dt-container {
+  clear: both;
+}
 .gb-summary-grade-panel .gb-summary-category-row td:first-child {
   font-weight: bold;
 }
