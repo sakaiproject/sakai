@@ -10,7 +10,7 @@ describe("sakai-conversations tests", () => {
 
   beforeEach(() => {
     fetchMock.mockGlobal();
-    fetchMock.get(/getI18nProperties.*tag-selector$/, data.tagSelectorI18n);
+    fetchMock.get(data.tagSelectorI18nUrl, data.tagSelectorI18n);
     fetchMock.get(data.i18nUrl, data.i18n);
   });
 

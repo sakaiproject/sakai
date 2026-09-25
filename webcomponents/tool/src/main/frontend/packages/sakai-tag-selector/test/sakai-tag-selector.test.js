@@ -1,20 +1,11 @@
 import "../sakai-tag-selector.js";
 import { expect, fixture, html, waitUntil, elementUpdated, oneEvent } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
+import { i18n, i18nUrl } from "./data.js";
 
 const url = "/api/sites/site/tools/samigo/tags/owner";
 const options = [ { tagId: "one", tagLabel: "Algebra" }, { tagId: "two", tagLabel: "Biology" } ];
-const translations = `search_or_add=Search or add a tag
-search_filter=Search using tags
-add_new=Add this text as new tag
-no_options=No tags for this site
-no_results=No tags found
-selected=Selected
-deselect=Deselect
-loading=Loading tags...
-load_error=Tags could not be loaded. Your saved selection has not been changed.
-retry=Retry
-none_selected=No tags selected`;
+
 
 async function ready(el) {
   await waitUntil(() => el.shadowRoot.querySelector("input:not(:disabled)"));
@@ -37,7 +28,7 @@ function key(input, name) {
 describe("sakai-tag-selector", () => {
   beforeEach(() => {
     fetchMock.mockGlobal();
-    fetchMock.get(/getI18nProperties.*tag-selector/, translations);
+    fetchMock.get(i18nUrl, i18n);
     fetchMock.get(url, options);
   });
 
@@ -100,7 +91,7 @@ describe("sakai-tag-selector", () => {
 
   it("does not overwrite a saved form value on failure and can retry", async () => {
     fetchMock.removeRoutes();
-    fetchMock.get(/getI18nProperties.*tag-selector/, translations);
+    fetchMock.get(i18nUrl, i18n);
     fetchMock.get(url, 500);
     const form = await fixture(html`<form>
       <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner"
@@ -115,6 +106,38 @@ describe("sakai-tag-selector", () => {
     el.shadowRoot.querySelector("[role=\"alert\"] button").click();
     await ready(el);
     expect(el.selectedTags[0].name).to.equal("Algebra");
+  });
+
+  it("does not let an old item response replace the current selection", async () => {
+    let finishOldItem;
+    fetchMock.get(`${url}/items/old`, () => new Promise(resolve => { finishOldItem = resolve; }));
+    fetchMock.get(`${url}/items/new`, [options[1]]);
+    const form = await fixture(html`<form>
+      <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner" item-id="old"
+          input-id="current-tags" add-new="true"></sakai-tag-selector>
+      <input type="hidden" id="current-tags" name="tags">
+    </form>`);
+    const el = form.querySelector("sakai-tag-selector");
+    await waitUntil(() => finishOldItem);
+    el.itemId = "new";
+    await elementUpdated(el);
+    await ready(el);
+    finishOldItem([options[0]]);
+    await fetchMock.callHistory.flush(true);
+    await elementUpdated(el);
+    expect(el.selectedTags).to.deep.equal([{ name: "Biology", code: "two" }]);
+    expect(new FormData(form).get("tags")).to.equal("two");
+  });
+
+  it("keeps catalog labels when fallback options have the same code", async () => {
+    const el = await fixture(html`<sakai-tag-selector
+        .options=${[{ code: "one", name: "Current label" }]}
+        .selectedTags=${[{ code: "one", name: "Old label" }]}
+        extra-options="one"></sakai-tag-selector>`);
+    await search(el, "");
+    const choices = el.shadowRoot.querySelectorAll("[role=option]");
+    expect(choices).to.have.length(1);
+    expect(choices[0].textContent).to.contain("Current label");
   });
 
   it("preserves edits when presentation options change or the element reconnects", async () => {
@@ -164,7 +187,7 @@ describe("sakai-tag-selector", () => {
 
   it("accepts caller-owned options and selection without fetching or emitting changes", async () => {
     fetchMock.removeRoutes();
-    fetchMock.get(/getI18nProperties.*tag-selector/, translations);
+    fetchMock.get(i18nUrl, i18n);
     const tags = [ { name: "Algebra", code: "one" }, { name: "Biology", code: "two" } ];
     const el = await fixture(html`<sakai-tag-selector .options=${tags} .selectedTags=${[ tags[0] ]}></sakai-tag-selector>`);
     await ready(el);

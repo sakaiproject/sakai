@@ -68,7 +68,16 @@
 				<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
 
 				<div class="flex-grow-1">
-					<sakai-tag-selector id="tag-selector" input-id="tag_selector" selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
+					<sakai-tag-selector
+					    id="tag-selector"
+					    input-id="tag_selector"
+					    selected-temp="$!tag_selector"
+					    collection-id="$siteId"
+					    add-new="false"
+					    extra-options="$allTaggedGroupsAndInstructors"
+					    tool="$!tagTool"
+					    site-id="$siteId"
+					></sakai-tag-selector>
 				</div>
 				<div  class="">
 					<input type="submit" id="btnSearchTags1" value="$tlang.getString("tags_search")" accesskey="t"

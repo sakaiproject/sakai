@@ -238,10 +238,4 @@ export const comment = {
   message: commentMessage,
 };
 
-export const tagSelectorI18n = `search_filter=Search using tags
-search_or_add=Search or add a tag
-selected=Selected
-deselect=Deselect
-no_options=No tags for this site
-no_results=No tags found
-none_selected=No tags selected`;
+export { i18n as tagSelectorI18n, i18nUrl as tagSelectorI18nUrl } from "../../sakai-tag-selector/test/data.js";

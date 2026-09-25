@@ -8,7 +8,7 @@ describe("Conversations topic navigation", () => {
   beforeEach(() => {
     window.top.portal = { user: { id: "user1", timezone: "Europe/London" } };
     fetchMock.mockGlobal();
-    fetchMock.get(/getI18nProperties.*tag-selector$/, data.tagSelectorI18n);
+    fetchMock.get(data.tagSelectorI18nUrl, data.tagSelectorI18n);
     fetchMock.get(data.i18nUrl, data.i18n);
     fetchMock.get(/.*posts.*/, []);
   });

@@ -16,7 +16,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
     inputId: { attribute: "input-id", type: String },
     addNew: { attribute: "add-new", converter: value => value !== null && value !== "false" },
     _options: { state: true },
-    _value: { state: true },
+    _selectedTags: { state: true },
     _query: { state: true },
     _open: { state: true },
     _active: { state: true },
@@ -27,7 +27,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
   constructor() {
     super();
     this._options = [];
-    this._value = [];
+    this._selectedTags = [];
     this._query = "";
     this._open = false;
     this._active = -1;
@@ -37,7 +37,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
 
   updated(changed) {
     if (this.options !== undefined) { return; }
-    if ([ "siteId", "tool", "collectionId", "itemId", "selectedTemp" ].some(p => changed.has(p))) {
+    if (!this._request || [ "siteId", "tool", "collectionId", "itemId", "selectedTemp" ].some(p => changed.has(p))) {
       this._initializeSelection();
     }
   }
@@ -53,18 +53,18 @@ export class SakaiTagSelector extends SakaiShadowElement {
   }
 
   set selectedTags(tags) {
-    this._value = tags.map(tag => ({ ...tag }));
+    this._selectedTags = tags.map(tag => ({ ...tag }));
   }
 
   get selectedTags() {
-    return this._value.map(tag => ({ ...tag }));
+    return this._selectedTags.map(tag => ({ ...tag }));
   }
 
   clear() {
     this._request?.abort();
     this._loading = false;
     this._query = "";
-    this._value = [];
+    this._selectedTags = [];
     this._publish();
   }
 
@@ -89,8 +89,8 @@ export class SakaiTagSelector extends SakaiShadowElement {
       ]);
       if (request.signal.aborted) { return; }
       this._options = options;
-      this._value = this.selectedTemp
-        ? [ ...new Set(this.selectedTemp.split(",").filter(s => s.trim())) ]
+      this._selectedTags = this.selectedTemp
+        ? [ ...new Set(this.selectedTemp.split(",").filter(s => !!s.trim())) ]
           .map(code => this._options.find(tag => tag.code === code) || { name: code, code })
         : saved;
       this._publish();
@@ -106,17 +106,18 @@ export class SakaiTagSelector extends SakaiShadowElement {
 
   _publish() {
     const input = this.ownerDocument.getElementById(this.inputId);
-    if (input) { input.value = this._value.map(tag => tag.code).join(","); }
+    input && (input.value = this._selectedTags.map(tag => tag.code).join(","));
     this.dispatchEvent(new CustomEvent("tags-changed", {
       detail: { value: this.selectedTags }, bubbles: true, composed: true,
     }));
   }
 
   get _availableOptions() {
-    const extras = (this.extraOptions || "").split(",").filter(label => label.trim())
+    const extras = (this.extraOptions || "").split(",").filter(label => !!label.trim())
       .map(label => ({ name: label, code: label }));
     const options = new Map((this.options ?? this._options).map(tag => [ tag.code, tag ]));
-    for (const tag of [ ...extras, ...this._value ]) {
+    // Preserve catalog labels when extras or selections contain the same ID.
+    for (const tag of [ ...extras, ...this._selectedTags ]) {
       if (!options.has(tag.code)) { options.set(tag.code, tag); }
     }
     return [ ...options.values() ];
@@ -134,7 +135,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
   }
 
   _selectTag(tag) {
-    if (this._value.some(value => value.code === tag.code)) {
+    if (this._selectedTags.some(value => value.code === tag.code)) {
       this._removeTag(tag);
       return;
     }
@@ -142,15 +143,15 @@ export class SakaiTagSelector extends SakaiShadowElement {
     if (tag.create) {
       this._options = [ ...this._options, value ];
     }
-    this._updateSelection([ ...this._value, value ]);
+    this._updateSelection([ ...this._selectedTags, value ]);
   }
 
   _removeTag(tag) {
-    this._updateSelection(this._value.filter(value => value.code !== tag.code));
+    this._updateSelection(this._selectedTags.filter(value => value.code !== tag.code));
   }
 
   _updateSelection(value) {
-    this._value = value;
+    this._selectedTags = value;
     this._query = "";
     this._active = -1;
     this._publish();
@@ -193,14 +194,17 @@ export class SakaiTagSelector extends SakaiShadowElement {
     }
   }
 
+  shouldUpdate() {
+    return !!this._i18n;
+  }
+
   render() {
-    if (!this._i18n) { return nothing; }
     const choices = this._choices;
     const label = this.addNew ? this._i18n.search_or_add : this._i18n.search_filter;
     return html`
       <div class="picker" @focusout=${this._focusout}>
         <div class="selector" aria-busy=${Boolean(this._loading)}>
-          ${this._value.map(tag => html`
+          ${this._selectedTags.map(tag => html`
             <button class="tag" type="button" aria-label="${this._i18n.deselect}: ${tag.name}"
                 ?disabled=${this._loading || this._error}
                 @click=${() => this._removeTag(tag)}>
@@ -219,11 +223,11 @@ export class SakaiTagSelector extends SakaiShadowElement {
         </div>
         <ul id="options" role="listbox" aria-label=${label} aria-multiselectable="true" ?hidden=${!this._open}>
           ${choices.map((tag, index) => html`
-            <li id="option-${index}" role="option" aria-selected=${this._value.some(value => value.code === tag.code)}
+            <li id="option-${index}" role="option" aria-selected=${this._selectedTags.some(value => value.code === tag.code)}
                 class=${index === this._active ? "active" : ""}
                 @mousedown=${event => event.preventDefault()} @click=${() => this._selectTag(tag)}>
               ${tag.create ? html`${this._i18n.add_new}: ${tag.name}` : tag.name}
-              ${this._value.some(value => value.code === tag.code) ? html`<span aria-hidden="true"> ✓</span>` : nothing}
+              ${this._selectedTags.some(value => value.code === tag.code) ? html`<span aria-hidden="true"> ✓</span>` : nothing}
             </li>
           `)}
           ${!choices.length ? html`
@@ -242,8 +246,8 @@ export class SakaiTagSelector extends SakaiShadowElement {
           </p>
         ` : nothing}
         <span class="status" role="status">
-          ${this._value.length
-            ? `${this._i18n.selected}: ${this._value.map(tag => tag.name).join(", ")}`
+          ${this._selectedTags.length
+            ? `${this._i18n.selected}: ${this._selectedTags.map(tag => tag.name).join(", ")}`
             : this._i18n.none_selected}
         </span>
       </div>

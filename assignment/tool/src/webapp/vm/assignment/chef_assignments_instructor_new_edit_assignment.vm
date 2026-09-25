@@ -1201,7 +1201,15 @@ function showExternalIframe(title, doreload) {
 	<div id="tagSection">
 	#if ($!tagsEnabled && $!allowAddTags)
 		<h4>$!tlang.getString('tags_header')</h4>
-		<sakai-tag-selector id="tag-selector" input-id="tag_selector" selected-temp="$formattedText.escapeHtml($!tag_selector)" collection-id="$siteId" add-new="true" tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
+		<sakai-tag-selector
+		    id="tag-selector"
+		    input-id="tag_selector"
+		    selected-temp="$formattedText.escapeHtml($!tag_selector)"
+		    collection-id="$siteId"
+		    add-new="true"
+		    tool="$!tagTool"
+		    site-id="$siteId"
+		></sakai-tag-selector>
 		<input type="hidden" name="tag_selector" id="tag_selector" value="$formattedText.escapeHtml($!tag_selector)" />
 		<div class="checkbox">
 			<label for="$name_CheckAddInstructorTags">
