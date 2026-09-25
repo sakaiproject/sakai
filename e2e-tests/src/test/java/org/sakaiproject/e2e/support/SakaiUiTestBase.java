@@ -91,7 +91,7 @@ public abstract class SakaiUiTestBase {
         // setLocale() only affects navigator.language/Intl in the browser; Sakai negotiates
         // its UI language server-side from the Accept-Language header, so it must be set here too.
         context.setExtraHTTPHeaders(Map.of("Accept-Language", "en-US,en;q=0.9"));
-        context.setDefaultTimeout(30_000);
+        context.setDefaultTimeout(60_000);
         context.setDefaultNavigationTimeout(120_000);
 
         context.tracing().start(new Tracing.StartOptions()

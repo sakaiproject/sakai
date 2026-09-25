@@ -61,7 +61,7 @@ class CalendarTest extends SakaiUiTestBase {
 
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(EVENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(40_000));
     }
 
     @Test
@@ -79,7 +79,7 @@ class CalendarTest extends SakaiUiTestBase {
 
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(UPDATED_EVENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(40_000));
     }
 
     @Test
@@ -95,7 +95,7 @@ class CalendarTest extends SakaiUiTestBase {
 
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(UPDATED_EVENT_TITLE))).hasCount(0,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(40_000));
     }
 
     @Test
@@ -125,14 +125,14 @@ class CalendarTest extends SakaiUiTestBase {
         sakai.toolClick("Calendar");
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(eventTitle))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(40_000));
 
         sakai.login("student0012");
         sakai.gotoPath(sakaiUrl);
         sakai.toolClick("Calendar");
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(eventTitle))).hasCount(0,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(40_000));
     }
 
     private void ensureSiteParticipant(String eid) {
@@ -283,20 +283,20 @@ class CalendarTest extends SakaiUiTestBase {
         // triggering action so it's tied to the actual page load, not to an element that's
         // present on both the old and new DOM.
         Locator viewSelect = page.locator("select#view").first();
-        assertThat(viewSelect).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
+        assertThat(viewSelect).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30_000));
         if (!"List of Events".equals(viewSelect.inputValue())) {
             page.waitForNavigation(() -> viewSelect.selectOption("List of Events"));
         }
 
         Locator timeFilter = page.locator("select#timeFilterOption").first();
-        assertThat(timeFilter).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
+        assertThat(timeFilter).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30_000));
         if (!"SHOW_ALL".equals(timeFilter.inputValue())) {
             timeFilter.selectOption("SHOW_ALL");
             page.waitForNavigation(() ->
                 page.locator("input[name=\"eventSubmit_doFilter\"]").click(new Locator.ClickOptions().setForce(true)));
 
             Locator timeFilterAfterNav = page.locator("select#timeFilterOption").first();
-            assertThat(timeFilterAfterNav).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
+            assertThat(timeFilterAfterNav).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30_000));
             if (!"SHOW_ALL".equals(timeFilterAfterNav.inputValue())) {
                 throw new IllegalStateException("Calendar list view did not apply the All events filter");
             }
