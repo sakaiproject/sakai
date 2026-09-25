@@ -730,7 +730,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 
 		cq.where(
 			cb.equal(aRoot.get("status"), 1),
-			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+			cb.equal(aRoot.get("assessmentBaseId").as(String.class), zRoot.get("qualifierId")),
 			cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
 			cb.equal(zRoot.get("agentIdString"), siteAgentId),
 			cb.equal(acRoot.get("assessmentBase").get("assessmentBaseId"), aRoot.get("assessmentBaseId")));
@@ -751,13 +751,13 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		cq2.select(cb2.array(
 			aRoot2.get("assessmentBaseId"),
 			cb2.count(iRoot)));
-		cq.where(
+		cq2.where(
 				cb.equal(aRoot2.get("assessmentBaseId"), sRoot.get("assessment").get("assessmentBaseId")),
 				cb.equal(sRoot.get("sectionId"), iRoot.get("section").get("sectionId")),
-				cb.equal(aRoot2.get("assessmentBaseId"), zRoot2.get("qualifierId")),
+				cb.equal(aRoot2.get("assessmentBaseId").as(String.class), zRoot2.get("qualifierId")),
 				cb.equal(zRoot2.get("functionId"), "EDIT_ASSESSMENT"),
 				cb.equal(zRoot2.get("agentIdString"), siteAgentId));
-		cq.groupBy(aRoot2.get("assessmentBaseId"));
+		cq2.groupBy(aRoot2.get("assessmentBaseId"));
 
 		List<Object[]> questionSizeList = session.createQuery(cq2).list();
 		Map<Object, Object> questionSizeMap = new HashMap<>();
@@ -830,6 +830,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 			aRoot.get("assessmentBaseId"),
 			aRoot.get("title"),
 			aRoot.get("lastModifiedDate")));
+		
 		cq.where(
 			cb.equal(aRoot.get("status"), 1),
 			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
@@ -1416,7 +1417,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 					cb.equal(aRoot.get("title"), title),
 					cb.notEqual(aRoot.get("assessmentBaseId"), assessmentBaseId),
 					cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
-					cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+					cb.equal(aRoot.get("assessmentBaseId").as(String.class), zRoot.get("qualifierId")),
 					cb.equal(zRoot.get("agentIdString"), siteId),
 					cb.equal(aRoot.get("status"), 1));
 
