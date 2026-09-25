@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -83,10 +84,14 @@ public abstract class SakaiUiTestBase {
         Browser.NewContextOptions contextOptions = new Browser.NewContextOptions()
             .setIgnoreHTTPSErrors(true)
             .setBaseURL(SakaiEnvironment.baseUrl())
+            .setLocale("en-US")
             .setRecordVideoDir(testDir.resolve("video"));
 
         context = activeBrowser.newContext(contextOptions);
-        context.setDefaultTimeout(30_000);
+        // setLocale() only affects navigator.language/Intl in the browser; Sakai negotiates
+        // its UI language server-side from the Accept-Language header, so it must be set here too.
+        context.setExtraHTTPHeaders(Map.of("Accept-Language", "en-US,en;q=0.9"));
+        context.setDefaultTimeout(60_000);
         context.setDefaultNavigationTimeout(120_000);
 
         context.tracing().start(new Tracing.StartOptions()
