@@ -15,7 +15,6 @@ describe("sakai-element tests", () => {
     fetchMock.hardReset();
   });
 
-  /*
   it ("is subclassed and renders correctly", async () => {
 
     class MyElement extends SakaiElement {
@@ -40,7 +39,6 @@ describe("sakai-element tests", () => {
         super();
 
         this.loadTranslations('myelement2');
-        //this.loadTranslations({ bundle: "myelement2" });
       }
 
       shouldUpdate() {
@@ -49,14 +47,8 @@ describe("sakai-element tests", () => {
 
       render() {
 
-        console.log("render");
-
-        console.log(this._i18n);
-
         return html`
-          <h1>BALLS</h1>
           <h1>${this._i18n.greeting} Somebody!</h1>
-          <h2>${this.tr("greeting1", [ "Adrian" ])}</h2>
         `;
       }
     }
@@ -65,11 +57,9 @@ describe("sakai-element tests", () => {
 
     const el = await fixture('<my-element2></my-element2>');
 
+    await waitUntil(() => el._i18n);
     await elementUpdated(el);
-
-    console.log(el);
 
     expect(el.querySelector("h1").innerText).to.equal(`${el._i18n.greeting} Somebody!`);
   });
-  */
 });

@@ -42,6 +42,7 @@
 - **Shadow DOM**: Leverage Shadow DOM for style encapsulation
 - **Custom Elements**: Define custom HTML elements for Sakai-specific functionality
 - **Integration**: Web components can be integrated into both new and existing tools
+- **Dom Queries**: Always use renderRoot for element queries in Lit components, not shadowRoot.
 
 ## Java Frameworks
 - **Legacy Frameworks**: The codebase contains multiple Java frameworks from different eras

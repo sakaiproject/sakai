@@ -2,6 +2,8 @@ import "../sakai-course-list.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import * as courseCardData from "../../sakai-course-card/test/data.js";
+import { dialogI18nUrl, dialogI18n } from "@sakai-ui/sakai-dialog/test-utils";
+import { imageEditorI18nUrl, imageEditorI18n } from "@sakai-ui/sakai-image-editor/test-utils";
 import fetchMock from "fetch-mock";
 describe("sakai-course-list tests", () => {
 
@@ -11,6 +13,8 @@ describe("sakai-course-list tests", () => {
       .get(data.i18nUrl, data.i18n)
       .get(data.courseListUrl, data.courseList, { name: "courses" })
       .get(courseCardData.i18nUrl, courseCardData.i18n)
+      .get(dialogI18nUrl, dialogI18n)
+      .get(imageEditorI18nUrl, imageEditorI18n)
       .get(courseCardData.toolnameMappingsUrl, courseCardData.toolnameMappings)
       .get("*", 500);
   });
