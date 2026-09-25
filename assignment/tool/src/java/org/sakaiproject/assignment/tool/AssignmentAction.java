@@ -17,6 +17,7 @@ package org.sakaiproject.assignment.tool;
 
 import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
+import static org.sakaiproject.assignment.tool.AssignmentSupplementItemForm.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -991,39 +992,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String VIEW_SUBMISSION_SEARCH = "view_submission_search";
     // search string for assignment list
     private static final String SEARCH_ASSIGNMENTS = "searchString";
-    /******** Model Answer ************/
-    private static final String MODELANSWER = "modelAnswer";
-    private static final String MODELANSWER_TEXT = "modelAnswer.text";
-    private static final String MODELANSWER_SHOWTO = "modelAnswer.showTo";
-    private static final String MODELANSWER_ATTACHMENTS = "modelanswer_attachments";
-    private static final String MODELANSWER_TO_DELETE = "modelanswer.toDelete";
-    /******** Note ***********/
-    private static final String NOTE = "note";
-    private static final String NOTE_TEXT = "note.text";
-    private static final String NOTE_SHAREWITH = "note.shareWith";
-    private static final String NOTE_TO_DELETE = "note.toDelete";
-    /******** AllPurpose *******/
-    private static final String ALLPURPOSE = "allPurpose";
-    private static final String ALLPURPOSE_TITLE = "allPurpose.title";
-    private static final String ALLPURPOSE_TEXT = "allPurpose.text";
-    private static final String ALLPURPOSE_HIDE = "allPurpose.hide";
-    private static final String ALLPURPOSE_SHOW_FROM = "allPurpose.show.from";
-    private static final String ALLPURPOSE_SHOW_TO = "allPurpose.show.to";
-    private static final String ALLPURPOSE_RELEASE_DATE = "allPurpose.releaseDate";
-    private static final String ALLPURPOSE_RETRACT_DATE = "allPurpose.retractDate";
-    private static final String ALLPURPOSE_ACCESS = "allPurpose.access";
-    private static final String ALLPURPOSE_ATTACHMENTS = "allPurpose_attachments";
-    private static final String ALLPURPOSE_RELEASE_YEAR = "all_purpose_release_year";
-    private static final String ALLPURPOSE_RELEASE_MONTH = "all_purpose_release_month";
-    private static final String ALLPURPOSE_RELEASE_DAY = "all_purpose_release_day";
-    private static final String ALLPURPOSE_RELEASE_HOUR = "all_purpose_release_hour";
-    private static final String ALLPURPOSE_RELEASE_MIN = "all_purpose_release_min";
-    private static final String ALLPURPOSE_RETRACT_YEAR = "all_purpose_retract_year";
-    private static final String ALLPURPOSE_RETRACT_MONTH = "all_purpose_retract_month";
-    private static final String ALLPURPOSE_RETRACT_DAY = "all_purpose_retract_day";
-    private static final String ALLPURPOSE_RETRACT_HOUR = "all_purpose_retract_hour";
-    private static final String ALLPURPOSE_RETRACT_MIN = "all_purpose_retract_min";
-    private static final String ALLPURPOSE_TO_DELETE = "allPurpose.toDelete";
     private static final String RETURNED_FEEDBACK = "feedback_returned_to_selected_users";
     private static final String OW_FEEDBACK = "feedback_overwritten";
     private static final String SAVED_FEEDBACK = "feedback_saved";
@@ -8697,38 +8665,20 @@ public class AssignmentAction extends PagedResourceActionII {
             state.removeAttribute(ALLPURPOSE_SHOW_TO);
         }
 
-        String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
-        List<String> accessList = new ArrayList<String>();
-        try {
-            AuthzGroup realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
-            Set<Role> roles = realm.getRoles();
-            for (Iterator iRoles = roles.iterator(); iRoles.hasNext(); ) {
-                // iterator through roles first
-                Role role = (Role) iRoles.next();
-                if (params.getString("allPurpose_" + role.getId()) != null) {
-                    accessList.add(role.getId());
-                } else {
-                    // if the role is not selected, iterate through the users with this role
-                    Set userIds = realm.getUsersHasRole(role.getId());
-                    for (Iterator iUserIds = userIds.iterator(); iUserIds.hasNext(); ) {
-                        String userId = (String) iUserIds.next();
-                        if (params.getString("allPurpose_" + userId) != null) {
-                            accessList.add(userId);
-                        }
-                    }
-                }
+        List<String> accessList = new ArrayList<>();
+        params.getNames().forEachRemaining(name -> {
+            if (name.startsWith("allPurpose_") && !"allPurpose_to_delete".equals(name)) {
+                accessList.add(name.substring("allPurpose_".length()));
             }
-        } catch (Exception e) {
-            log.warn(this + ":setNewAssignmentParameters" + e.toString() + "error finding authzGroup for = " + siteId);
-        }
+        });
         state.setAttribute(ALLPURPOSE_ACCESS, accessList);
 
-        if (allPurposeTitle != null || allPurposeText != null || (accessList != null && !accessList.isEmpty()) || state.getAttribute(ALLPURPOSE_ATTACHMENTS) != null) {
+        if (allPurposeTitle != null || allPurposeText != null || !accessList.isEmpty() || state.getAttribute(ALLPURPOSE_ATTACHMENTS) != null) {
             // there is allpupose item input
             state.setAttribute(ALLPURPOSE, Boolean.TRUE);
 
             if (validify && !"true".equalsIgnoreCase(allPurpose_to_delete)) {
-                if (accessList == null || accessList.isEmpty()) {
+                if (accessList.isEmpty()) {
                     // missing access choice
                     addAlert(state, rb.getString("allPurpose.alert.access"));
                 }
@@ -9369,7 +9319,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 } //if
 
                 // save supplement item information
-                saveAssignmentSupplementItem(state, params, siteId, a);
+                boolean allPurposeAccessLookupFailed = AssignmentSupplementItemForm.save(state, a.getId(), siteId,
+                        userDirectoryService.getCurrentUser().getId(),
+                        userTimeService.getLocalTimeZone().toZoneId(), assignmentSupplementItemService);
 
                 // set default sorting
                 setDefaultSort(state);
@@ -9446,6 +9398,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
                 }
+                if (allPurposeAccessLookupFailed) {
+                    addAlert(state, rb.getString("allPurpose.alert.accessUpdateFailed"));
+                }
             }
 
             if ((newAssignment && !a.getDraft()) || (!a.getDraft() && !newAssignment)) {
@@ -9459,165 +9414,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
         }
-    }
-
-    /**
-     * supplement item related information
-     *
-     * @param state
-     * @param params
-     * @param siteId
-     * @param assignment
-     */
-    private void saveAssignmentSupplementItem(SessionState state,
-                                              ParameterParser params, String siteId, Assignment assignment) {
-        // assignment supplement items
-        String aId = assignment.getId();
-        //model answer
-        if (state.getAttribute(MODELANSWER_TO_DELETE) != null && "true".equals((String) state.getAttribute(MODELANSWER_TO_DELETE))) {
-            // to delete the model answer
-            AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(aId);
-            if (mAnswer != null) {
-                assignmentSupplementItemService.cleanAttachment(mAnswer);
-                mAnswer.setAttachmentSet(new HashSet<>());
-                assignmentSupplementItemService.removeModelAnswer(mAnswer);
-            }
-        } else if (state.getAttribute(MODELANSWER_TEXT) != null) {
-            // edit/add model answer
-            AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(aId);
-            if (mAnswer == null) {
-                mAnswer = assignmentSupplementItemService.newModelAnswer();
-                mAnswer.setAssignmentId(aId);
-                assignmentSupplementItemService.saveModelAnswer(mAnswer);
-            }
-            mAnswer.setText((String) state.getAttribute(MODELANSWER_TEXT));
-            mAnswer.setShowTo(state.getAttribute(MODELANSWER_SHOWTO) != null ? Integer.parseInt((String) state.getAttribute(MODELANSWER_SHOWTO)) : 0);
-            mAnswer.setAttachmentSet(getAssignmentSupplementItemAttachment(state, mAnswer, MODELANSWER_ATTACHMENTS));
-            assignmentSupplementItemService.saveModelAnswer(mAnswer);
-        }
-        // note
-        if (state.getAttribute(NOTE_TO_DELETE) != null && "true".equals((String) state.getAttribute(NOTE_TO_DELETE))) {
-            // to remove note item
-            AssignmentNoteItem nNote = assignmentSupplementItemService.getNoteItem(aId);
-            if (nNote != null)
-                assignmentSupplementItemService.removeNoteItem(nNote);
-        } else if (state.getAttribute(NOTE_TEXT) != null) {
-            // edit/add private note
-            AssignmentNoteItem nNote = assignmentSupplementItemService.getNoteItem(aId);
-            if (nNote == null)
-                nNote = assignmentSupplementItemService.newNoteItem();
-            nNote.setAssignmentId(assignment.getId());
-            nNote.setNote((String) state.getAttribute(NOTE_TEXT));
-            nNote.setShareWith(state.getAttribute(NOTE_SHAREWITH) != null ? Integer.parseInt((String) state.getAttribute(NOTE_SHAREWITH)) : 0);
-            nNote.setCreatorId(userDirectoryService.getCurrentUser().getId());
-            assignmentSupplementItemService.saveNoteItem(nNote);
-        }
-        // all purpose
-        if (state.getAttribute(ALLPURPOSE_TO_DELETE) != null && "true".equals((String) state.getAttribute(ALLPURPOSE_TO_DELETE))) {
-            // to remove allPurpose item
-            AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(aId);
-            if (nAllPurpose != null) {
-                assignmentSupplementItemService.cleanAttachment(nAllPurpose);
-                nAllPurpose.setAttachmentSet(new HashSet<>());
-                assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
-                nAllPurpose.setAccessSet(new HashSet<>());
-                assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
-            }
-        } else if (state.getAttribute(ALLPURPOSE_TITLE) != null) {
-            // edit/add allPurpose item
-            AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(aId);
-            if (nAllPurpose == null) {
-                nAllPurpose = assignmentSupplementItemService.newAllPurposeItem();
-                nAllPurpose.setAssignmentId(assignment.getId());
-                nAllPurpose.setHide(false);//SAK-33681
-                assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
-            }
-            nAllPurpose.setTitle((String) state.getAttribute(ALLPURPOSE_TITLE));
-            nAllPurpose.setText((String) state.getAttribute(ALLPURPOSE_TEXT));
-
-            boolean allPurposeShowFrom = state.getAttribute(ALLPURPOSE_SHOW_FROM) != null ? (Boolean) state.getAttribute(ALLPURPOSE_SHOW_FROM) : false;
-            boolean allPurposeShowTo = state.getAttribute(ALLPURPOSE_SHOW_TO) != null ? (Boolean) state.getAttribute(ALLPURPOSE_SHOW_TO) : false;
-            boolean allPurposeHide = state.getAttribute(ALLPURPOSE_HIDE) != null ? (Boolean) state.getAttribute(ALLPURPOSE_HIDE) : false;
-            nAllPurpose.setHide(allPurposeHide);
-            // save the release and retract dates
-            if (allPurposeShowFrom && !allPurposeHide) {
-                // save release date
-                Instant releaseTime = getTimeFromState(state, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN);
-                nAllPurpose.setReleaseDate(Date.from(releaseTime));
-            } else {
-                nAllPurpose.setReleaseDate(null);
-            }
-            if (allPurposeShowTo && !allPurposeHide) {
-                // save retract date
-                Instant retractTime = getTimeFromState(state, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN);
-                nAllPurpose.setRetractDate(Date.from(retractTime));
-            } else {
-                nAllPurpose.setRetractDate(null);
-            }
-            nAllPurpose.setAttachmentSet(getAssignmentSupplementItemAttachment(state, nAllPurpose, ALLPURPOSE_ATTACHMENTS));
-
-            // clean the access list first
-            if (state.getAttribute(ALLPURPOSE_ACCESS) != null) {
-                // get the access settings
-                List<String> accessList = (List<String>) state.getAttribute(ALLPURPOSE_ACCESS);
-
-                assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
-                Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<AssignmentAllPurposeItemAccess>();
-                try {
-                    AuthzGroup realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
-                    Set<Role> roles = realm.getRoles();
-                    for (Iterator iRoles = roles.iterator(); iRoles.hasNext(); ) {
-                        // iterator through roles first
-                        Role r = (Role) iRoles.next();
-                        if (accessList.contains(r.getId())) {
-                            AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
-                            access.setAccess(r.getId());
-                            access.setAssignmentAllPurposeItem(nAllPurpose);
-                            assignmentSupplementItemService.saveAllPurposeItemAccess(access);
-                            accessSet.add(access);
-                        } else {
-                            // if the role is not selected, iterate through the users with this role
-                            Set userIds = realm.getUsersHasRole(r.getId());
-                            for (Iterator iUserIds = userIds.iterator(); iUserIds.hasNext(); ) {
-                                String userId = (String) iUserIds.next();
-                                if (accessList.contains(userId)) {
-                                    AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
-                                    access.setAccess(userId);
-                                    access.setAssignmentAllPurposeItem(nAllPurpose);
-                                    assignmentSupplementItemService.saveAllPurposeItemAccess(access);
-                                    accessSet.add(access);
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    log.warn(this + ":post_save_assignment " + e.toString() + "error finding authzGroup for = " + siteId);
-                }
-                nAllPurpose.setAccessSet(accessSet);
-            }
-            assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
-        }
-    }
-
-    private Set<AssignmentSupplementItemAttachment> getAssignmentSupplementItemAttachment(SessionState state, AssignmentSupplementItemWithAttachment mItem, String attachmentString) {
-        Set<AssignmentSupplementItemAttachment> sAttachments = new HashSet<AssignmentSupplementItemAttachment>();
-        List<String> attIdList = assignmentSupplementItemService.getAttachmentListForSupplementItem(mItem);
-        if (state.getAttribute(attachmentString) != null) {
-            List currentAttachments = (List) state.getAttribute(attachmentString);
-            for (Iterator aIterator = currentAttachments.iterator(); aIterator.hasNext(); ) {
-                Reference attRef = (Reference) aIterator.next();
-                String attRefId = attRef.getReference();
-                // if the attachment is not exist, add it into db
-                if (!attIdList.contains(attRefId)) {
-                    AssignmentSupplementItemAttachment mAttach = assignmentSupplementItemService.newAttachment();
-                    mAttach.setAssignmentSupplementItemWithAttachment(mItem);
-                    mAttach.setAttachmentId(attRefId);
-                    assignmentSupplementItemService.saveAttachment(mAttach);
-                    sAttachments.add(mAttach);
-                }
-            }
-        }
-        return sAttachments;
     }
 
     /**

@@ -23,7 +23,7 @@ package org.sakaiproject.assignment.impl;
 
 import java.time.Instant;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,7 +42,9 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -54,6 +56,131 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Transactional
 public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport implements AssignmentSupplementItemService {
+
+	@Override
+	public void updateModelAnswer(String assignmentId, String text, int showTo,
+			Set<String> attachmentIds) {
+		AssignmentModelAnswerItem item = getModelAnswer(assignmentId);
+		if (item == null) {
+			item = newModelAnswer();
+			item.setAssignmentId(assignmentId);
+			saveModelAnswer(item);
+		}
+		item.setText(text);
+		item.setShowTo(showTo);
+		updateAttachments(item, attachmentIds);
+		saveModelAnswer(item);
+	}
+
+	@Override
+	public void deleteModelAnswer(String assignmentId) {
+		AssignmentModelAnswerItem item = getModelAnswer(assignmentId);
+		if (item != null) {
+			cleanAttachment(item);
+			if (item.getAttachmentSet() != null) item.getAttachmentSet().clear();
+			removeModelAnswer(item);
+		}
+	}
+
+	@Override
+	public void updateNote(String assignmentId, String creatorId, String text, int shareWith) {
+		AssignmentNoteItem item = getNoteItem(assignmentId);
+		if (item == null) item = newNoteItem();
+		item.setAssignmentId(assignmentId);
+		item.setNote(text);
+		item.setShareWith(shareWith);
+		item.setCreatorId(creatorId);
+		saveNoteItem(item);
+	}
+
+	@Override
+	public void deleteNote(String assignmentId) {
+		AssignmentNoteItem item = getNoteItem(assignmentId);
+		if (item != null) removeNoteItem(item);
+	}
+
+	@Override
+	public boolean updateAllPurposeItem(String assignmentId, String siteId,
+			AssignmentAllPurposeItem values, Set<String> attachmentIds, Set<String> selectedAccess) {
+		Set<String> accessValues = null;
+		if (selectedAccess != null) {
+			try {
+				AuthzGroup realm = m_authzGroupService.getAuthzGroup(m_siteService.siteReference(siteId));
+				accessValues = selectedAllPurposeAccess(realm, selectedAccess);
+			} catch (Exception e) {
+				log.warn("Could not validate All Purpose Item access for site {}", siteId, e);
+				return false;
+			}
+			if (!selectedAccess.isEmpty() && accessValues.isEmpty()) return false;
+		}
+
+		AssignmentAllPurposeItem item = getAllPurposeItem(assignmentId);
+		if (item == null) {
+			item = newAllPurposeItem();
+			item.setAssignmentId(assignmentId);
+			item.setHide(false);
+			saveAllPurposeItem(item);
+		}
+		item.setTitle(values.getTitle());
+		item.setText(values.getText());
+		item.setHide(values.getHide());
+		item.setReleaseDate(values.getReleaseDate());
+		item.setRetractDate(values.getRetractDate());
+		updateAttachments(item, attachmentIds);
+		saveAllPurposeItem(item);
+		if (accessValues != null) {
+			saveAllPurposeItemWithAccess(item, accessValues);
+		}
+		return true;
+	}
+
+	@Override
+	public void deleteAllPurposeItem(String assignmentId) {
+		AssignmentAllPurposeItem item = getAllPurposeItem(assignmentId);
+		if (item != null) {
+			cleanAttachment(item);
+			if (item.getAttachmentSet() != null) item.getAttachmentSet().clear();
+			cleanAllPurposeItemAccess(item);
+			if (item.getAccessSet() != null) item.getAccessSet().clear();
+			removeAllPurposeItem(item);
+		}
+	}
+
+	private Set<String> selectedAllPurposeAccess(AuthzGroup realm, Set<String> selectedAccess) {
+		Set<String> accessValues = new HashSet<>();
+		for (Role role : realm.getRoles()) {
+			if (selectedAccess.contains(role.getId())) {
+				accessValues.add(role.getId());
+			} else {
+				for (String userId : realm.getUsersHasRole(role.getId())) {
+					if (selectedAccess.contains(userId)) accessValues.add(userId);
+				}
+			}
+		}
+		return accessValues;
+	}
+
+	private void updateAttachments(AssignmentSupplementItemWithAttachment item, Set<String> attachmentIds) {
+		Set<AssignmentSupplementItemAttachment> attachments = item.getAttachmentSet();
+		if (attachments == null) {
+			attachments = new HashSet<>();
+			item.setAttachmentSet(attachments);
+		}
+		attachments.removeIf(attachment -> !attachmentIds.contains(attachment.getAttachmentId()));
+		Set<String> existingIds = new HashSet<>();
+		for (AssignmentSupplementItemAttachment attachment : attachments) {
+			existingIds.add(attachment.getAttachmentId());
+		}
+		for (String id : attachmentIds) {
+			if (!existingIds.contains(id)) {
+				AssignmentSupplementItemAttachment attachment = newAttachment();
+				attachment.setAssignmentSupplementItemWithAttachment(item);
+				attachment.setAttachmentId(id);
+				saveAttachment(attachment);
+				attachments.add(attachment);
+			}
+		}
+	}
 
    /** Dependency: UserDirectoryService */
 	protected UserDirectoryService m_userDirectoryService = null;
@@ -157,9 +284,8 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		Set<AssignmentSupplementItemAttachment> attachmentSet = item.getAttachmentSet();
 		if (attachmentSet != null)
 		{
-			for (Iterator<AssignmentSupplementItemAttachment> iAttachmentSet = attachmentSet.iterator(); iAttachmentSet.hasNext();)
+			for (AssignmentSupplementItemAttachment attachment : attachmentSet)
 			{
-				AssignmentSupplementItemAttachment attachment = iAttachmentSet.next();
 				rv &= removeAttachment(attachment);
 			}
 		}
@@ -325,6 +451,31 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 			return false;
 		}
 	}
+
+	@Override
+	public void saveAllPurposeItemWithAccess(AssignmentAllPurposeItem item, Set<String> accessValues)
+	{
+		AssignmentAllPurposeItem managedItem = getHibernateTemplate().merge(item);
+		Set<AssignmentAllPurposeItemAccess> accessSet = managedItem.getAccessSet();
+		if (accessSet == null)
+		{
+			accessSet = new HashSet<>();
+			managedItem.setAccessSet(accessSet);
+		}
+
+		accessSet.removeIf(access -> !accessValues.contains(access.getAccess()));
+		Set<String> remainingAccess = new HashSet<>(accessValues);
+		accessSet.forEach(access -> remainingAccess.remove(access.getAccess()));
+
+		for (String value : remainingAccess)
+		{
+			AssignmentAllPurposeItemAccess access = new AssignmentAllPurposeItemAccess();
+			access.setAccess(value);
+			access.setAssignmentAllPurposeItem(managedItem);
+			getHibernateTemplate().save(access);
+			accessSet.add(access);
+		}
+	}
 	
 	/**
 	 * {@inheritDoc}}
@@ -353,9 +504,8 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		Set<AssignmentAllPurposeItemAccess> accessSet = mItem.getAccessSet();
 		if (accessSet != null)
 		{
-			for (Iterator<AssignmentAllPurposeItemAccess> iAccessSet = accessSet.iterator(); iAccessSet.hasNext();)
+			for (AssignmentAllPurposeItemAccess access : accessSet)
 			{
-				AssignmentAllPurposeItemAccess access = iAccessSet.next();
 				rv = removeAllPurposeItemAccess(access);
 			}
 		}
