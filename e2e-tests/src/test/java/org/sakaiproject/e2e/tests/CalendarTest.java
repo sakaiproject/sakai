@@ -156,9 +156,11 @@ class CalendarTest extends SakaiUiTestBase {
         Locator sameRole = page.locator("#same-role");
         if (sameRole.count() > 0 && sameRole.isVisible()) {
             sameRole.check(new Locator.CheckOptions().setForce(true));
-            Locator maintainChoice = page.locator("input[name=\"sameRoleChoice\"][value=\"maintain\"]");
-            if (maintainChoice.count() > 0 && maintainChoice.isVisible()) {
-                maintainChoice.check(new Locator.CheckOptions().setForce(true));
+            // "access" is the Student role for a course site; "maintain" is Instructor-level and
+            // would defeat the group-visibility test by giving these accounts full site rights.
+            Locator accessChoice = page.locator("input[name=\"sameRoleChoice\"][value=\"access\"]");
+            if (accessChoice.count() > 0 && accessChoice.isVisible()) {
+                accessChoice.check(new Locator.CheckOptions().setForce(true));
             }
             page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
             page.waitForLoadState();
