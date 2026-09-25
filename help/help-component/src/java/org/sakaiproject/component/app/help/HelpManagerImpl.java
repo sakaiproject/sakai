@@ -148,9 +148,9 @@ public class HelpManagerImpl implements HelpManager
 	 * Store resource
 	 * @see org.sakaiproject.api.app.help.HelpManager#storeResource(org.sakaiproject.api.app.help.Resource)
 	 */
-	public void storeResource(Resource resource)
+	public Resource storeResource(Resource resource)
 	{
-		sessionFactory.getCurrentSession().merge(resource);
+		return sessionFactory.getCurrentSession().merge(resource);
 	}
 
 	/**
@@ -364,7 +364,7 @@ public class HelpManagerImpl implements HelpManager
 				// if document is coming from corpus then get document name from xml and assign to resource
 				String resourceName = getRestConfiguration().getResourceNameFromCorpusDoc(sb.toString());
 				resource.setName(resourceName);
-				storeResource(resource);
+				resource = (ResourceBean) storeResource(resource);
 			}
 			else if (!"".equals(EXTERNAL_URL))
 			{
@@ -402,8 +402,6 @@ public class HelpManagerImpl implements HelpManager
 			doc.add(new TextField("location", resLocation, Field.Store.YES));
 		}
 
-
-		//doc.add(Field.Keyword("id", resource.getId().toString()));
 		doc.add(new TextField("id", resource.getId().toString(), Field.Store.YES));
 
 		if (getRestConfiguration().getOrganization().equals("sakai"))
@@ -1081,8 +1079,8 @@ public class HelpManagerImpl implements HelpManager
 					}
 
 					resource.setCategory(category);
+					resource = storeResource(resource);
 					category.getResources().add(resource);
-					storeResource(resource);
 
 					log.info("adding help resource: " + resource + " to category: "
 							+ category.getName());
@@ -1139,8 +1137,8 @@ public class HelpManagerImpl implements HelpManager
 				resource.setName(currentDocId);
 				Category homeCategory = getCategoryByName("Home");
 				resource.setCategory(homeCategory);
+				resource = storeResource(resource);
 				homeCategory.getResources().add(resource);
-				storeResource(resource);
 			}
 		}
 	}
