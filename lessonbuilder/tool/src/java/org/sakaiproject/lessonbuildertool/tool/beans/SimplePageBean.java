@@ -28,6 +28,7 @@ import com.opencsv.CSVParser;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -3681,13 +3682,21 @@ public class SimplePageBean {
 			return "failure";
 		} else {
 			try {
-			    LessonEntity selectedObject = bltiEntity.getEntity(selectedBlti);
-			    if (selectedObject == null)
+			    Map<String, LessonEntity> selectedObjects = getBltiEntities(bltiEntity, selectedBlti);
+			    if (MapUtils.isEmpty(selectedObjects)) {
 				return "failure";
-
+			    }
 			    SimplePageItem i;
 			    // editing existing item?
 			    if (itemId != null && itemId != -1) {
+				if (selectedObjects.size() != 1) {
+				    log.error("Replacing one LTI item with multiple LTI items not supported: {}", selectedBlti);
+				    return "failure";
+				}
+				Map.Entry<String, LessonEntity> onlyEntry = selectedObjects.entrySet().iterator().next();
+				String bltiRef = onlyEntry.getKey();
+				LessonEntity selectedObject = onlyEntry.getValue();
+
 				i = findItem(itemId);
 
 				// if no change, don't worry
@@ -3696,11 +3705,11 @@ public class SimplePageBean {
 				if (existing != null)
 				    ref = existing.getReference();
 				// if same item, nothing to do
-				if ((existing == null) || !ref.equals(selectedBlti)) {
+				if ((existing == null) || !ref.equals(bltiRef)) {
 				    // if access controlled, clear restriction from old assignment and add to new
 				    // group access not used for BLTI items, so don't need the setcontrolgroup
 				    // logic from other item types
-				    i.setSakaiId(selectedBlti);
+				    i.setSakaiId(bltiRef);
 				    i.setName(selectedObject.getTitle());
 				    if (StringUtils.isBlank(format))
 					i.setFormat("");
@@ -3718,27 +3727,35 @@ public class SimplePageBean {
 				    update(i);
 				}
 			    } else {
-				// no, add new item
-				i = appendItem(selectedBlti, selectedObject.getTitle(), SimplePageItem.BLTI);
+				for (Map.Entry<String, LessonEntity> entry : selectedObjects.entrySet()) {
+				    String bltiRef = entry.getKey();
+				    LessonEntity selectedObject = entry.getValue();
 
-				//Copy the LTI tool description to the item description.
-				if(StringUtils.isNotBlank(description)){
-					i.setDescription(description);
-				}
+				    // no, add new item
+				    i = appendItem(bltiRef, selectedObject.getTitle(), SimplePageItem.BLTI);
 
-				BltiInterface blti = (BltiInterface)bltiEntity.getEntity(selectedBlti);
-				if (blti != null) {
-				    int height = blti.frameSize();
-				    if (height > 0)
-					i.setHeight(Integer.toString(height));
-				    else
-					i.setHeight("");
-				    if (StringUtils.isBlank(format))
-					i.setFormat("");
-				    else
-					i.setFormat(format);
+				    //Copy the LTI tool description to the item description.
+				    if (StringUtils.isNotBlank(description)) {
+					    i.setDescription(description);
+				    }
+
+				    BltiInterface blti = (BltiInterface) bltiEntity.getEntity(bltiRef);
+				    if (blti != null) {
+					    int height = blti.frameSize();
+					    i.setHeight(height > 0 ? Integer.toString(height) : "");
+					    i.setFormat(StringUtils.isBlank(format) ? "" : format);
+				    }
+
+				    if (! saveItem(i)) {
+					    return "failure";
+				    }
+				    // Advance the insert-after anchor to preserve the returned LTI item order.
+				    if (addBefore != null && addBefore.startsWith("-")) {
+					addBefore = "-" + i.getId();
+				    }
+				    // Clear the cache so that the correct sequencing is applied to each item appended
+				    itemsCache.remove(getCurrentPage().getPageId());
 				}
-				saveItem(i);
 			    }
 			    return "success";
 			} catch (Exception ex) {
@@ -3749,6 +3766,23 @@ public class SimplePageBean {
 			}
 		}
 	}
+
+    private Map<String, LessonEntity> getBltiEntities(LessonEntity bltiEntity, String commaSeparatedReferences) {
+        // Use LinkedHashMap to preserve the order of insertion
+        LinkedHashMap<String, LessonEntity> result = new LinkedHashMap<>(); // preserve the order of insertion
+        String[] refs = StringUtils.split(commaSeparatedReferences, ",");
+        for (String ref : refs) {
+            LessonEntity le = bltiEntity.getEntity(ref);
+            if (le != null && le.objectExists()) {
+                result.put(ref, le);
+            } else {
+                log.warn("Invalid entity for ref: {}", ref);
+                return null;
+            }
+        }
+
+        return result;
+    }
 
     /// ShowPageProducers needs the item ID list anyway. So to avoid calling the underlying
     // code twice, we take that list and translate to titles, rather than calling
