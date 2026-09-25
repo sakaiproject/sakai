@@ -254,9 +254,9 @@ public class MainController {
 	 */
 	@GetMapping(value = {"/items"})
 	public String loadItems(
-			@RequestParam(required = false) String teamId,
-			@RequestParam(required = false) String itemId,
-			@RequestParam(defaultValue = "name:0") String sortBy,
+			@RequestParam(name = "teamId", required = false) String teamId,
+			@RequestParam(name = "itemId", required = false) String itemId,
+			@RequestParam(name = "sortBy", defaultValue = "name:0") String sortBy,
 			Model model
 	) throws MicrosoftGenericException {
 		
@@ -338,8 +338,8 @@ public class MainController {
 	
 	@GetMapping(value = {"/refresh/{teamId}"})
 	public String refreshTeam(
-			@PathVariable String teamId,
-			@RequestParam(defaultValue = "name:0") String sortBy,
+			@PathVariable("teamId") String teamId,
+			@RequestParam(name = "sortBy", defaultValue = "name:0") String sortBy,
 			Model model
 	) throws MicrosoftGenericException {
 		
@@ -365,10 +365,10 @@ public class MainController {
 	 */
 	@PostMapping(value = {"/addItem"}, consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
 	public String addItem(
-			@RequestParam String name,
-			@RequestParam MicrosoftDriveItem.TYPE type,
-			@RequestParam(required = false) String teamId,
-			@RequestParam(required = false) String itemId,
+			@RequestParam("name") String name,
+			@RequestParam("type") MicrosoftDriveItem.TYPE type,
+			@RequestParam(name = "teamId", required = false) String teamId,
+			@RequestParam(name = "itemId", required = false) String itemId,
 			Model model
 	) throws MicrosoftGenericException {
 		if((type == MicrosoftDriveItem.TYPE.FOLDER && !allowCreateFolders()) || (type != MicrosoftDriveItem.TYPE.FOLDER && !allowCreateFiles())) {
@@ -414,8 +414,8 @@ public class MainController {
 	 */
 	@GetMapping(value = "/deleteItem")
 	public String deleteItem(
-			@RequestParam String teamId,
-			@RequestParam String itemId,
+			@RequestParam("teamId") String teamId,
+			@RequestParam("itemId") String itemId,
 			Model model
 	) throws MicrosoftGenericException {
 		
@@ -453,8 +453,8 @@ public class MainController {
 	@PostMapping(value = "/file-upload")
 	public void uploadFile(
 			@RequestParam("file") MultipartFile file,
-			@RequestParam(required = false) String teamId,
-			@RequestParam(required = false) String itemId,
+			@RequestParam(name = "teamId", required = false) String teamId,
+			@RequestParam(name = "itemId", required = false) String itemId,
 			RedirectAttributes redirectAttributes
 	) throws MicrosoftGenericException {
 		

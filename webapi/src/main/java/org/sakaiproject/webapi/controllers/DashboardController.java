@@ -167,7 +167,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     }
 
     @GetMapping(value = "/users/{userId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
-    public DashboardRestBean getUserDashboard(@PathVariable String userId) throws UserNotDefinedException {
+    public DashboardRestBean getUserDashboard(@PathVariable("userId") String userId) throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
         String currentUserId = session.getUserId();
@@ -234,7 +234,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     }
 
     @PutMapping(value = "/users/{userId}/dashboard")
-    public void saveUserDashboard(@PathVariable String userId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
+    public void saveUserDashboard(@PathVariable("userId") String userId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
 
         String currentUserId = checkSakaiSession().getUserId();
         if (!securityService.isSuperUser() && (!StringUtils.isBlank(userId) && !StringUtils.equals(userId, currentUserId))) {
@@ -259,7 +259,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     }
 
     @GetMapping(value = "/sites/{siteId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
-    public DashboardRestBean getSiteDashboard(@PathVariable String siteId) throws UserNotDefinedException {
+    public DashboardRestBean getSiteDashboard(@PathVariable("siteId") String siteId) throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
 
@@ -311,7 +311,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     }
 
     @PutMapping(value = "/sites/{siteId}/dashboard")
-    public void saveSiteDashboard(@PathVariable String siteId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
+    public void saveSiteDashboard(@PathVariable("siteId") String siteId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
 

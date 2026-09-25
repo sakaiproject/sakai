@@ -56,7 +56,7 @@ public class ConversationsController {
 	}
 
 	@GetMapping(value = "/topics/{topicId}")
-    public String topic(Model model, @PathVariable String topicId, HttpServletRequest request) {
+    public String topic(Model model, @PathVariable("topicId") String topicId, HttpServletRequest request) {
 
         checkSakaiSession();
 
@@ -66,7 +66,7 @@ public class ConversationsController {
     }
 
 	@GetMapping(value = "/topics/{topicId}/posts/{postId}")
-    public String post(Model model, @PathVariable String topicId, @PathVariable String postId, HttpServletRequest request) {
+    public String post(Model model, @PathVariable("topicId") String topicId, @PathVariable("postId") String postId, HttpServletRequest request) {
 
         checkSakaiSession();
 
@@ -77,7 +77,7 @@ public class ConversationsController {
     }
 
 	@GetMapping(value = "/topics/{topicId}/posts/{postId}/comments/{commentId}")
-    public String comment(Model model, @PathVariable String topicId, @PathVariable String postId, @PathVariable String commentId, HttpServletRequest request) {
+    public String comment(Model model, @PathVariable("topicId") String topicId, @PathVariable("postId") String postId, @PathVariable("commentId") String commentId, HttpServletRequest request) {
 
         checkSakaiSession();
 
