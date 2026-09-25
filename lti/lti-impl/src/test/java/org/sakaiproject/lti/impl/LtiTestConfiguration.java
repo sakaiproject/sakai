@@ -30,6 +30,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.api.FormattedText;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,6 +100,12 @@ public class LtiTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.LocaleService")
     public LocaleService localeService() {
         return mock(LocaleService.class);
+    }
+
+    // The kernel exposes both services; TimeService also extends UserTimeService.
+    @Bean(name = "org.sakaiproject.time.api.TimeService")
+    public TimeService timeService() {
+        return mock(TimeService.class);
     }
 
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")

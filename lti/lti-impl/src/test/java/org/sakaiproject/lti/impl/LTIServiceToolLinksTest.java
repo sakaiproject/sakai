@@ -55,7 +55,7 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
     @Autowired private SiteService sites;
     @Autowired private SessionManager sessions;
     @Autowired private LocaleService locales;
-    @Autowired private UserTimeService times;
+    @Autowired @Qualifier("org.sakaiproject.time.api.UserTimeService") private UserTimeService times;
     @Autowired @Qualifier("toolLinksSiteA") private Site siteA;
     @Autowired @Qualifier("toolLinksSiteB") private Site siteB;
     @Autowired @Qualifier("toolLinksSiteProperties") private ResourceProperties properties;

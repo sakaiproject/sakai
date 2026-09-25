@@ -141,6 +141,7 @@ public class LTIServiceImpl implements LTIService {
 	private LocaleService localeService;
 
 	@Autowired
+	@Qualifier("org.sakaiproject.time.api.UserTimeService")
 	private UserTimeService userTimeService;
 
 	private Foorm foorm = new Foorm();
