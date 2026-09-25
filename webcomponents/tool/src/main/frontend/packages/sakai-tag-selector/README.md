@@ -12,6 +12,8 @@ in the standard `base.js` bundle.
 ```
 
 - `site-id`, `tool`, and `collection-id` select the existing Tags API endpoint.
+  API loading runs once for the rendered form; these identifiers are fixed for
+  that element. Failed loads can be retried with the Retry button.
 - `selected-temp` restores comma-separated IDs or unsaved labels. If empty,
   `item-id` loads existing associations when `add-new` is enabled.
 - `extra-options` adds comma-separated filter choices, such as assignment groups.

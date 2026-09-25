@@ -108,24 +108,24 @@ describe("sakai-tag-selector", () => {
     expect(el.selectedTags[0].name).to.equal("Algebra");
   });
 
-  it("does not let an old item response replace the current selection", async () => {
-    let finishOldItem;
-    fetchMock.get(`${url}/items/old`, () => new Promise(resolve => { finishOldItem = resolve; }));
-    fetchMock.get(`${url}/items/new`, [options[1]]);
+  it("does not restore saved tags after clearing while a request is pending", async () => {
+    let finishLoading;
+    fetchMock.get(`${url}/items/saved`, () => new Promise(resolve => { finishLoading = resolve; }));
     const form = await fixture(html`<form>
-      <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner" item-id="old"
+      <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner" item-id="saved"
           input-id="current-tags" add-new="true"></sakai-tag-selector>
-      <input type="hidden" id="current-tags" name="tags">
+      <input type="hidden" id="current-tags" name="tags" value="one">
     </form>`);
     const el = form.querySelector("sakai-tag-selector");
-    await waitUntil(() => finishOldItem);
-    el.itemId = "new";
-    await elementUpdated(el);
+    await waitUntil(() => finishLoading);
+    el.clear();
+    expect(new FormData(form).get("tags")).to.equal("");
+    finishLoading([options[0]]);
     await ready(el);
-    finishOldItem([options[0]]);
-    await fetchMock.callHistory.flush(true);
-    await elementUpdated(el);
-    expect(el.selectedTags).to.deep.equal([{ name: "Biology", code: "two" }]);
+    expect(el.selectedTags).to.deep.equal([]);
+    expect(new FormData(form).get("tags")).to.equal("");
+    await search(el, "Bio");
+    el.shadowRoot.querySelector("[role=option]").click();
     expect(new FormData(form).get("tags")).to.equal("two");
   });
 

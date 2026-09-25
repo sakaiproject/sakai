@@ -35,21 +35,8 @@ export class SakaiTagSelector extends SakaiShadowElement {
     this.loadTranslations("tag-selector");
   }
 
-  updated(changed) {
-    if (this.options !== undefined) { return; }
-    if (!this._request || [ "siteId", "tool", "collectionId", "itemId", "selectedTemp" ].some(p => changed.has(p))) {
-      this._initializeSelection();
-    }
-  }
-
-  connectedCallback() {
-    super.connectedCallback();
-    if (this._loading) { this._initializeSelection(); }
-  }
-
-  disconnectedCallback() {
-    this._request?.abort();
-    super.disconnectedCallback();
+  firstUpdated() {
+    if (this.options === undefined) { this._initializeSelection(); }
   }
 
   set selectedTags(tags) {
@@ -61,8 +48,7 @@ export class SakaiTagSelector extends SakaiShadowElement {
   }
 
   clear() {
-    this._request?.abort();
-    this._loading = false;
+    this._cleared = true;
     this._query = "";
     this._selectedTags = [];
     this._publish();
@@ -70,14 +56,12 @@ export class SakaiTagSelector extends SakaiShadowElement {
 
   async _initializeSelection() {
     if (!this.siteId || !this.tool || !this.collectionId) { return; }
-    this._request?.abort();
-    const request = this._request = new AbortController();
     this._loading = true;
     this._error = false;
     this._open = false;
     const url = `/api/sites/${encodeURIComponent(this.siteId)}/tools/${encodeURIComponent(this.tool)}/tags/${encodeURIComponent(this.collectionId)}`;
     const readTags = async path => {
-      const response = await fetch(path, { signal: request.signal });
+      const response = await fetch(path);
       if (!response.ok) { throw new Error(`Unable to load tags: ${response.status}`); }
       return (await response.json()).map(tag => ({ name: tag.tagLabel, code: tag.tagId }));
     };
@@ -87,20 +71,20 @@ export class SakaiTagSelector extends SakaiShadowElement {
         !this.selectedTemp && this.itemId && this.addNew
           ? readTags(`${url}/items/${encodeURIComponent(this.itemId)}`) : Promise.resolve([]),
       ]);
-      if (request.signal.aborted) { return; }
+      if (!this.isConnected) { return; }
       this._options = options;
-      this._selectedTags = this.selectedTemp
-        ? [ ...new Set(this.selectedTemp.split(",").filter(s => !!s.trim())) ]
-          .map(code => this._options.find(tag => tag.code === code) || { name: code, code })
-        : saved;
-      this._publish();
-    } catch (error) {
-      if (!request.signal.aborted) {
-        this._error = true;
-        console.error(error);
+      if (!this._cleared) {
+        this._selectedTags = this.selectedTemp
+          ? [ ...new Set(this.selectedTemp.split(",").filter(s => !!s.trim())) ]
+            .map(code => this._options.find(tag => tag.code === code) || { name: code, code })
+          : saved;
+        this._publish();
       }
+    } catch (error) {
+      this._error = true;
+      console.error(error);
     } finally {
-      if (!request.signal.aborted) { this._loading = false; }
+      this._loading = false;
     }
   }
 
