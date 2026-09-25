@@ -80,7 +80,7 @@ jobs:
       - name: Wait for Sakai
         run: |
           for i in {1..180}; do
-            if curl -fsS http://127.0.0.1:8080/portal/ > /dev/null; then
+            if curl -fsS http://localhost:8080/portal/ > /dev/null; then
               grep "Server startup in" tomcat/logs/catalina.out || true
               exit 0
             fi
@@ -115,7 +115,8 @@ jobs:
 
       - name: Run Playwright Java tests
         env:
-          PLAYWRIGHT_BASE_URL: http://127.0.0.1:8080
+          # Match Sakai's serverUrl so redirects preserve the browser's session cookie.
+          PLAYWRIGHT_BASE_URL: http://localhost:8080
         run: |
           set -o pipefail
           mkdir -p e2e-tests/target
