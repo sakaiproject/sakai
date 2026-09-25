@@ -35,6 +35,8 @@ export class CourseCardSettings extends SakaiDialog {
     if (!saved) {
       if (this._imageMode) {
         this.dispatchEvent(new CustomEvent("image-selected", { detail: { url: this.imageUrl } }));
+        this.dispatchEvent(new CustomEvent("foreground-color-changed", { detail: { "color": this.foregroundColor } }));
+        this.renderRoot.querySelector(`#foreground-${this.courseId}`).value = this.foregroundColor;
         const imageEditor = this.renderRoot.querySelector("sakai-image-editor");
         imageEditor.imageUrl = this.imageUrl;
         URL.revokeObjectURL(this._previewImageUrl);
@@ -91,12 +93,12 @@ export class CourseCardSettings extends SakaiDialog {
         fd.append("siteImage", blob);
       }
 
-      if (this.foregroundColor) {
+      if (this.newForegroundColor) {
         fd.append("foreground", this.newForegroundColor);
       }
-    } else if (this.newBackgroundColor || this.newForegroundColor) {
-      fd.append("background", this.newBackgroundColor);
-      fd.append("foreground", this.newForegroundColor);
+    } else {
+      fd.append("background", this.newBackgroundColor || this.backgroundColor || "#000000");
+      fd.append("foreground", this.newForegroundColor || this.foregroundColor || "#FFFFFF");
     }
 
     const url = `/api/sites/${this.courseId}/card-config`;
@@ -116,7 +118,7 @@ export class CourseCardSettings extends SakaiDialog {
 
       if (config.imageUrl) {
         this.imageUrl = `${config.imageUrl}?salt=${Math.random()}`;
-        this.foregroundColor = config.foreground;
+        this.foregroundColor = config.foreground || this.foregroundColor;
         URL.revokeObjectURL(this._previewImageUrl);
         this.dispatchEvent(new CustomEvent("image-selected", { detail: { url: this.imageUrl } }));
       } else {
