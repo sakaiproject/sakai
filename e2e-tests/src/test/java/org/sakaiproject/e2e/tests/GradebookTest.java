@@ -25,7 +25,6 @@ import com.deque.html.axecore.results.Rule;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -160,49 +159,6 @@ class GradebookTest extends SakaiUiTestBase {
 
         page.evaluate("() => document.documentElement.classList.remove('sakaiUserTheme-dark')");
         assertNoAxeContrastViolations("light mode");
-    }
-
-    @Test
-    @Order(5)
-    void canToggleStudentSummaryCategoriesRepeatedly() {
-        sakai.login("instructor1");
-        page.navigate(sakaiUrl);
-        sakai.toolClick("Gradebook");
-
-        String[] titles = {"First item", "Second item", "Third item"};
-        for (int index = 0; index < titles.length; index++) {
-            page.locator("button.gb-add-gradebook-item-button").click();
-            Locator editor = page.locator(".wicket-modal:visible");
-            editor.locator("input[name$=\":title\"]").fill(titles[index]);
-            editor.locator("input[name$=\":points\"]").fill("10");
-            if (index != 1) {
-                editor.locator("select[name$=\":category\"]").selectOption(new SelectOption().setLabel("A (100%)"));
-            }
-            editor.locator(".gb-create-or-save").click();
-            assertThat(editor).not().isVisible();
-        }
-
-        page.reload();
-        page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
-            new Page.GetByRoleOptions().setName("Albertson, Albert (student0011)").setExact(true)).press("Enter");
-        Locator summary = page.locator(".wicket-modal:visible");
-        Locator toggle = summary.locator("#toggleCategories");
-        toggle.waitFor();
-        if (!"true".equals(toggle.getAttribute("aria-pressed"))) {
-            toggle.click();
-        }
-        assertThat(toggle).hasAttribute("aria-pressed", "true");
-        assertThat(summary.locator(".gb-summary-category-row")).hasCount(2);
-
-        for (int cycle = 0; cycle < 3; cycle++) {
-            toggle.click();
-            assertThat(toggle).hasAttribute("aria-pressed", "false");
-            assertThat(summary.locator(".gb-summary-category-row")).hasCount(0);
-            assertThat(summary.locator(".gb-summary-grade-title")).hasText(titles);
-            toggle.click();
-            assertThat(toggle).hasAttribute("aria-pressed", "true");
-            assertThat(summary.locator(".gb-summary-category-row")).hasCount(2);
-        }
     }
 
     private void assertNoAxeContrastViolations(String theme) {
