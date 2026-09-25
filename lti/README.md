@@ -59,6 +59,8 @@ New actions supported :
 BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doSort&criteria=COLUMN_ID
 BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doChangePageSize&pagesize=[10,50,100,200]
 BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doChangePage&page_event=[next,prev,last,first]
+#doChangePage also accepts a zero-based row offset, used by DataTables
+BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doChangePage&start=50&pagesize=50
 #doChangePage also supports the 'pagesize' parameter
 BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doChangePage&page_event=[next,prev,last,first]&pagesize=[10,50,100,200]
 BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doSearch&field=COLUMN_ID&search=SEARCH_VALUE

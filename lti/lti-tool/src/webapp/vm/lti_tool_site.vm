@@ -12,36 +12,30 @@ ${includeLatestJQuery}
 
 		const headers = Array.from(table.tHead.rows[0].cells);
 		const sortedColumn = headers.findIndex(header => header.id === '$!LAST_SORTED_FIELD');
-		const start = $sortIndex - 1;
-		const pageLength = $sortPageSize;
 		const direction = #if ($ASCENDING_ORDER) 'asc' #else 'desc' #end;
 
 		new DataTable(table, {
 			titleRow: 0,
 			serverSide: true,
 			deferLoading: $count_contents,
-			displayStart: start,
-			pageLength,
+			displayStart: $sortIndex - 1,
+			pageLength: $sortPageSize,
 			lengthMenu: [10, 50, 100, 200],
 			searching: false,
 			language: { emptyTable: table.dataset.emptyMessage },
 			orderMulti: false,
 			order: sortedColumn < 0 ? [] : [[sortedColumn, direction]],
 			columnDefs: [{ targets: 'no-sort', orderable: false, searchable: false }],
-			layout: { bottomEnd: { paging: { type: 'full' } } },
 			// Keep database paging and sorting through the existing tool actions.
 			ajax: function(request) {
-				if (request.length !== pageLength) {
-					window.location.href = '#toolLinkParam("ToolSite" "doChangePageSize" "pagesize=#pageSize#")'
-						.replace(/&amp;/g, '&').replace('#pageSize#', request.length);
-				} else if (request.order.length && (request.order[0].column !== sortedColumn || request.order[0].dir !== direction)) {
+				const order = request.order[0];
+				if (order && (order.column !== sortedColumn || order.dir !== direction)) {
 					window.location.href = '#toolLinkParam("ToolSite" "doSort" "criteria=#criteria#")'
-						.replace(/&amp;/g, '&').replace('#criteria#', headers[request.order[0].column].id);
-				} else if (request.start !== start) {
-					const pageEvent = request.start === 0 ? 'first'
-						: request.start > start ? (request.start === start + pageLength ? 'next' : 'last') : 'prev';
-					window.location.href = '#toolLinkParam("ToolSite" "doChangePage" "page_event=#pageEvent#")'
-						.replace(/&amp;/g, '&').replace('#pageEvent#', pageEvent);
+						.replace(/&amp;/g, '&').replace('#criteria#', headers[order.column].id);
+				} else {
+					window.location.href = '#toolLinkParam("ToolSite" "doChangePage" "start=#start#&pagesize=#pageSize#")'
+						.replace(/&amp;/g, '&')
+						.replace('#start#', request.start).replace('#pageSize#', request.length);
 				}
 			},
 		});

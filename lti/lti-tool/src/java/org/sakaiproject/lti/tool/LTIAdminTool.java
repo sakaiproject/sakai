@@ -338,7 +338,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	 * Change page action : allow to move through pages
 	 *
 	 * Accepted parameters : page_event, (optional)pagesize Allowed events :
-	 * first, prev, next, last
+	 * first, prev, next, last. Alternatively, start supplies a zero-based row offset.
 	 *
 	 * @param data
 	 */
@@ -347,6 +347,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		doChangePageSize(data);
 
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		int start = data.getParameters().getInt("start", -1);
+		if (start >= 0) {
+			state.setAttribute(ATTR_SORT_INDEX, start);
+			return;
+		}
 
 		Integer index = (Integer) state.getAttribute(ATTR_SORT_INDEX);
 		try {
