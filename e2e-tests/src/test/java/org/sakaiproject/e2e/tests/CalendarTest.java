@@ -72,7 +72,7 @@ class CalendarTest extends SakaiUiTestBase {
         sakai.toolClick("Calendar");
 
         openEvent(EVENT_TITLE);
-        page.locator("input[name=\"eventSubmit_doRevise\"]").click(new Locator.ClickOptions().setForce(true));
+        page.locator("input[name=\"eventSubmit_doRevise\"]").click();
 
         page.locator("#activitytitle").fill(UPDATED_EVENT_TITLE);
         submitEventForm("eventSubmit_doUpdate");
@@ -90,8 +90,8 @@ class CalendarTest extends SakaiUiTestBase {
         sakai.toolClick("Calendar");
 
         openEvent(UPDATED_EVENT_TITLE);
-        page.locator("input[name=\"eventSubmit_doDelete\"]").click(new Locator.ClickOptions().setForce(true));
-        page.locator("input[name=\"eventSubmit_doConfirm\"]").click(new Locator.ClickOptions().setForce(true));
+        page.locator("input[name=\"eventSubmit_doDelete\"]").click();
+        page.locator("input[name=\"eventSubmit_doConfirm\"]").click();
 
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(UPDATED_EVENT_TITLE))).hasCount(0,
