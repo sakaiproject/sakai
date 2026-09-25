@@ -31,7 +31,7 @@ export function initializeToolLinks(table, language) {
         },
     };
 
-    new DataTable(table, {
+    const dataTable = new DataTable(table, {
         ajax: table.dataset.ajaxUrl,
         serverSide: true,
         processing: true,
@@ -66,4 +66,5 @@ export function initializeToolLinks(table, language) {
             });
         },
     });
+    document.getElementById("installed-tools-link").addEventListener("click", () => dataTable.state.clear());
 }

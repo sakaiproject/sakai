@@ -11,7 +11,7 @@
 
 <div class="portletBody">
 	<ul class="navIntraTool actionToolBar">
-		<li class="firstToolBarItem"><span><a href="" title="$tlang.getString("tool.in.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;"> $tlang.getString("tool.in.system")</a></span></li>
+		<li class="firstToolBarItem"><span><a id="installed-tools-link" href="$formattedText.escapeHtml($sakai_ActionURL.setPanel('ToolSystem'))" title="$tlang.getString("tool.in.system")"> $tlang.getString("tool.in.system")</a></span></li>
 		<li><span class="current">$tlang.getString("tool.in.site")</span></li>
 	</ul>
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
