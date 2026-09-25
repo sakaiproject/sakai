@@ -24,6 +24,12 @@ package org.sakaiproject.lti.impl;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,10 +73,14 @@ import org.sakaiproject.lti.api.model.LtiMembershipsJob;
 import org.sakaiproject.lti.api.model.LtiTool;
 import org.sakaiproject.lti.api.model.LtiToolSite;
 import org.sakaiproject.lti.api.repository.LtiContentRepository;
+import org.sakaiproject.lti.api.repository.LtiContentRepository.ToolLinkFilter;
 import org.sakaiproject.lti.api.repository.LtiMembershipsJobRepository;
 import org.sakaiproject.lti.api.repository.LtiToolRepository;
 import org.sakaiproject.lti.api.repository.LtiToolSiteRepository;
 import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolLinkPage;
+import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.lti.beans.LtiMembershipsJobBean;
 import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.lti.beans.LtiToolSiteBean;
@@ -126,6 +136,13 @@ public class LTIServiceImpl implements LTIService {
 
 	@Autowired
 	private SiteService siteService;
+
+	@Autowired
+	private LocaleService localeService;
+
+	@Autowired
+	@Qualifier("org.sakaiproject.time.api.UserTimeService")
+	private UserTimeService userTimeService;
 
 	private Foorm foorm = new Foorm();
 
@@ -1160,10 +1177,14 @@ public class LTIServiceImpl implements LTIService {
 	 */
 	private List<Map<String, Object>> buildContentMaps(String search, String siteId, boolean isAdminRole) {
 
+		return buildContentMaps(search, contentRepository.findVisibleContents(siteId, isAdminRole));
+	}
+
+	private List<Map<String, Object>> buildContentMaps(String search, List<LtiContent> contents) {
 		String propertyKey = serverConfigurationService.getString(LTI_SITE_ATTRIBUTION_PROPERTY_KEY, LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT);
 		List<Map<String, Object>> results = new ArrayList<>();
 
-		for (LtiContent content : contentRepository.findVisibleContents(siteId, isAdminRole)) {
+		for (LtiContent content : contents) {
 			Map<String, Object> map = ltiContentToMap(content);
 
 			// Tool-derived fields (LEFT JOIN semantics - null when there is no tool)
@@ -2008,6 +2029,70 @@ public class LTIServiceImpl implements LTIService {
 		return contentMaps.stream()
 				.map(LtiContentBean::of)
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public LtiToolLinkPage getToolLinks(String siteId, Long toolId, int start, int length,
+			String sortField, boolean ascending, Map<String, String> filters) {
+		if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())
+				|| StringUtils.isBlank(siteId) || !isMaintain(siteId)) {
+			throw new SecurityException("Tool Links requires site maintenance permission");
+		}
+		if (start < 0 || length < 1 || length > 200 || (toolId != null && toolId <= 0)) {
+			throw new IllegalArgumentException("Invalid Tool Links page or tool ID");
+		}
+		boolean admin = isAdmin(siteId);
+		Set<String> fields = admin
+				? Set.of("title", "searchURL", "created_at", "SITE_TITLE", "SITE_CONTACT_NAME", "SITE_CONTACT_EMAIL", "ATTRIBUTION")
+				: Set.of("title", "searchURL", "created_at");
+		if (!fields.contains(sortField) || !fields.containsAll(filters.keySet())) {
+			throw new IllegalArgumentException("Unsupported Tool Links column");
+		}
+
+		String propertyKey = serverConfigurationService.getString(LTI_SITE_ATTRIBUTION_PROPERTY_KEY, LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT);
+		ToolLinkFilter scope = new ToolLinkFilter(siteId, admin, toolId, Map.of(), null, '=', propertyKey);
+		int total = Math.toIntExact(contentRepository.countToolLinks(scope));
+		Locale locale = localeService.getLocaleForSiteAndUser(siteId, sessionManager.getCurrentSessionUserId());
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+				.withLocale(locale).withZone(userTimeService.getLocalTimeZone().toZoneId());
+		Map<String, String> textFilters = new HashMap<>(filters);
+		String dateFilter = textFilters.remove("created_at");
+		Instant date = null;
+		char operator = '=';
+		if (StringUtils.isNotEmpty(dateFilter)) {
+			if (dateFilter.charAt(0) == '<' || dateFilter.charAt(0) == '>') {
+				operator = dateFilter.charAt(0);
+				dateFilter = dateFilter.substring(1);
+			}
+			try {
+				date = Instant.from(dateFormat.parse(dateFilter));
+			} catch (DateTimeParseException e) {
+				return new LtiToolLinkPage(total, 0, List.of());
+			}
+		}
+		ToolLinkFilter query = new ToolLinkFilter(siteId, admin, toolId, textFilters, date, operator, propertyKey);
+		int filtered = filters.isEmpty() ? total : Math.toIntExact(contentRepository.countToolLinks(query));
+		List<LtiToolLinkPage.Link> links = new ArrayList<>();
+		if (start >= filtered) return new LtiToolLinkPage(total, filtered, links);
+		List<LtiContent> contents = contentRepository.findToolLinks(query, sortField, ascending, start, length);
+		for (Map<String, Object> row : buildContentMaps(null, contents)) {
+			Long id = (Long) row.get(LTI_ID);
+			String contentSite = (String) row.get(LTI_SITE_ID);
+			String launch = StringUtils.defaultIfEmpty((String) row.get(LTI_LAUNCH), (String) row.get("URL"));
+			String launchUrl = contentSite == null ? null
+					: LAUNCH_PREFIX + URLEncoder.encode(contentSite, StandardCharsets.UTF_8).replace("+", "%20") + "/content:" + id;
+			String siteUrl = admin && contentSite != null
+					? siteService.getOptionalSite(contentSite).map(Site::getUrl).orElse(null) : null;
+			Instant created = (Instant) row.get(LTI_CREATED_AT);
+			links.add(new LtiToolLinkPage.Link(id, (String) row.get(LTI_TITLE), StringUtils.defaultIfEmpty(launch, "-"), launchUrl,
+					created == null ? "" : dateFormat.format(created),
+					admin ? (String) row.get("SITE_TITLE") : null, siteUrl,
+					admin ? (String) row.get("SITE_CONTACT_NAME") : null,
+					admin ? (String) row.get("SITE_CONTACT_EMAIL") : null,
+					admin ? (String) row.get("ATTRIBUTION") : null));
+		}
+		return new LtiToolLinkPage(total, filtered, links);
 	}
 
 	@Override

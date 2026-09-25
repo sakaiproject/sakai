@@ -26,6 +26,11 @@ import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMapping
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.api.FormattedText;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,4 +96,29 @@ public class LtiTestConfiguration extends SakaiTestConfiguration {
     public UsageSessionService usageSessionService() {
         return mock(UsageSessionService.class);
     }
+
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public LocaleService localeService() {
+        return mock(LocaleService.class);
+    }
+
+    // The kernel exposes both services; TimeService also extends UserTimeService.
+    @Bean(name = "org.sakaiproject.time.api.TimeService")
+    public TimeService timeService() {
+        return mock(TimeService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.time.api.UserTimeService")
+    public UserTimeService userTimeService() {
+        return mock(UserTimeService.class);
+    }
+
+    @Bean(name = "toolLinksSiteA")
+    public Site toolLinksSiteA() { return mock(Site.class); }
+
+    @Bean(name = "toolLinksSiteB")
+    public Site toolLinksSiteB() { return mock(Site.class); }
+
+    @Bean(name = "toolLinksSiteProperties")
+    public ResourceProperties toolLinksSiteProperties() { return mock(ResourceProperties.class); }
 }

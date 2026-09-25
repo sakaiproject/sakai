@@ -16,6 +16,10 @@
 package org.sakaiproject.lti.impl.repository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.sql.Timestamp;
 import java.util.Optional;
 import java.time.Instant;
 
@@ -28,6 +32,9 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.hibernate.Session;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.dialect.Oracle8iDialect;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +45,105 @@ import org.sakaiproject.lti.api.repository.LtiContentRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class LtiContentRepositoryImpl extends SpringCrudRepositoryImpl<LtiContent, Long> implements LtiContentRepository {
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countToolLinks(ToolLinkFilter filter) {
+        return ((Number) toolLinksQuery(filter, "count(*)", null, true).uniqueResult()).longValue();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LtiContent> findToolLinks(ToolLinkFilter filter, String sortField, boolean ascending, int start, int length) {
+        if (start < 0 || length < 1 || length > 200) {
+            throw new IllegalArgumentException("Invalid Tool Links page");
+        }
+        return this.<LtiContent>toolLinksQuery(filter, "c.*", sortField, ascending).addEntity(LtiContent.class)
+                .setFirstResult(start).setMaxResults(length).list();
+    }
+
+    private <T> NativeQuery<T> toolLinksQuery(ToolLinkFilter filter, String select, String sortField, boolean ascending) {
+        StringBuilder sql = new StringBuilder("select ").append(select).append(" from lti_content c");
+        if ("searchURL".equals(sortField) || filter.text().containsKey("searchURL")) {
+            sql.append(" left join lti_tools t on t.id = c.tool_id");
+        }
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        if ("SITE_TITLE".equals(sortField) || filter.text().containsKey("SITE_TITLE")) {
+            sql.append(" left join SAKAI_SITE s on s.SITE_ID = c.SITE_ID");
+        }
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("SITE_CONTACT_NAME", "contact-name");
+        properties.put("SITE_CONTACT_EMAIL", "contact-email");
+        properties.put("ATTRIBUTION", filter.attributionProperty());
+        for (Map.Entry<String, String> property : properties.entrySet()) {
+            String field = property.getKey();
+            if (field.equals(sortField) || filter.text().containsKey(field)) {
+                sql.append(" left join SAKAI_SITE_PROPERTY ").append(field)
+                        .append(" on ").append(field).append(".SITE_ID = c.SITE_ID and ")
+                        .append(field).append(".NAME = :").append(field);
+                parameters.put(field, property.getValue());
+            }
+        }
+        sql.append(" where 1 = 1");
+        if (!filter.admin()) {
+            sql.append(" and (c.SITE_ID = :siteId or c.SITE_ID is null)");
+            parameters.put("siteId", filter.siteId());
+        }
+        if (filter.toolId() != null) {
+            sql.append(" and c.tool_id = :toolId");
+            parameters.put("toolId", filter.toolId());
+        }
+        for (Map.Entry<String, String> entry : filter.text().entrySet()) {
+            String value = entry.getValue();
+            if (value == null || value.isEmpty()) continue;
+            String parameter = "search" + parameters.size();
+            // Escape LIKE syntax so searches remain literal substring matches.
+            parameters.put(parameter, "%" + value.toLowerCase(Locale.ROOT)
+                    .replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%");
+            String like = " like :" + parameter + " escape '!'";
+            if ("searchURL".equals(entry.getKey())) {
+                sql.append(" and (lower(c.launch)").append(like).append(" or lower(t.launch)").append(like).append(")");
+            } else {
+                sql.append(" and lower(").append(toolLinkColumn(entry.getKey())).append(")").append(like);
+            }
+        }
+        if (filter.date() != null) {
+            parameters.put("created", Timestamp.from(filter.date()));
+            if (filter.dateOperator() == '<' || filter.dateOperator() == '>') {
+                sql.append(" and c.created_at ").append(filter.dateOperator()).append(" :created");
+            } else {
+                sql.append(" and c.created_at >= :created and c.created_at < :createdEnd");
+                parameters.put("createdEnd", Timestamp.from(filter.date().plusSeconds(1)));
+            }
+        }
+        if (sortField != null) {
+            String column = toolLinkColumn(sortField);
+            if (properties.containsKey(sortField)
+                    && sessionFactory.unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect() instanceof Oracle8iDialect) {
+                // Oracle cannot order CLOBs directly; property ordering uses the first 4000 characters.
+                column = "dbms_lob.substr(" + column + ", 4000, 1)";
+            }
+            String direction = ascending ? " asc" : " desc";
+            sql.append(" order by case when ").append(column).append(" is null then 1 else 0 end").append(direction)
+                    .append(", ").append("created_at".equals(sortField) ? column : "lower(" + column + ")")
+                    .append(direction).append(", c.id asc");
+        }
+        NativeQuery<T> query = sessionFactory.getCurrentSession().createNativeQuery(sql.toString());
+        query.addSynchronizedEntityClass(LtiContent.class).addSynchronizedEntityClass(LtiTool.class);
+        parameters.forEach(query::setParameter);
+        return query;
+    }
+
+    private String toolLinkColumn(String field) {
+        return switch (field) {
+            case "title" -> "c.title";
+            case "searchURL" -> "concat(coalesce(c.launch, ''), coalesce(t.launch, ''))";
+            case "created_at" -> "c.created_at";
+            case "SITE_TITLE" -> "s.TITLE";
+            case "SITE_CONTACT_NAME", "SITE_CONTACT_EMAIL", "ATTRIBUTION" -> field + ".VALUE";
+            default -> throw new IllegalArgumentException("Unsupported Tool Links column");
+        };
+    }
 
     @Transactional(readOnly = true)
     public Optional<LtiContent> findVisibleContent(Long id, String siteId, boolean isAdmin) {

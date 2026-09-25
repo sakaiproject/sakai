@@ -54,15 +54,6 @@ New Sakai properties added:
     > basiclti.tool.site.attribution.name=content.attribution
 
 
-New actions supported :
---------------------------------------------------------------------------------
-BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doSort&criteria=COLUMN_ID
-BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doChangePageSize&pagesize=[10,50,100,200]
-BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doChangePage&page_event=[next,prev,last,first]
-#doChangePage also supports the 'pagesize' parameter
-BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doChangePage&page_event=[next,prev,last,first]&pagesize=[10,50,100,200]
-BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doSearch&field=COLUMN_ID&search=SEARCH_VALUE
-
 New URLs used in export service :
 --------------------------------------------------------------------------------
 - CSV : BASE_URL/access/lti/site/SITE_ID/export:CSV
@@ -71,3 +62,18 @@ New URLs used in export service :
 You can also specify a filter with a TOOL_ID
 - CSV : BASE_URL/access/lti/site/SITE_ID/export:CSV:TOOL_ID
 - Excel : BASE_URL/access/lti/site/SITE_ID/export:EXCEL:TOOL_ID
+
+Tool Links JSON listing:
+-----------------------
+`GET /direct/lti/{siteId}/toolLinks.json` accepts DataTables `draw`, `start`, `length`,
+`order[0][column]`, `order[0][dir]`, and `columns[i][name]` / `columns[i][search][value]`
+parameters. Optional `toolId` scopes the listing and both counts to one installed tool.
+It requires an authenticated site maintainer; cross-site listings require maintenance
+permission in `!admin`. Page length is restricted to 1–200. Only the visible Tool Links
+fields may be searched or sorted. The response contains `draw`, `recordsTotal`,
+`recordsFiltered`, and `data`, with display fields only (no LTI credentials/configuration).
+
+Counts, column filtering, ordering, and pagination run in the database. Only the requested
+page is loaded and enriched with display metadata; no new tables are required. Site-property
+search/sort joins the existing site tables. On Oracle, property sorting uses the first 4000
+characters because its CLOB columns cannot be ordered directly; filtering uses the full value.
