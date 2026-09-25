@@ -110,6 +110,11 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
         assertEquals(3, filtered.getTotal());
         assertEquals(1, filtered.getFiltered());
         assertEquals("Alpha", filtered.getLinks().get(0).getTitle());
+        LtiToolLinkPage fallback = page("site-a", first.getId(), 0, 50, Map.of("searchURL", "FALLBACK"));
+        assertEquals(3, fallback.getFiltered());
+        assertEquals(List.of("Alpha", "Bravo", "Global"),
+                fallback.getLinks().stream().map(LtiToolLinkPage.Link::getTitle).toList());
+        assertEquals(0, page("site-a", first.getId(), 0, 50, Map.of("searchURL", "absent")).getFiltered());
         assertTrue(page("site-a", first.getId(), 100, 50, Map.of()).getLinks().isEmpty());
         assertEquals(0, page("site-a", first.getId(), 0, 50, Map.of("title", "absent")).getFiltered());
     }
@@ -120,8 +125,10 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
         content(tool, "site-a", "Alpha#|#one", "https://example.com/override");
         content(tool, "site-a", "Alpha", null);
         assertEquals(1, page("site-a", null, 0, 50, Map.of("title", "#|#")).getFiltered());
-        assertEquals(0, page("site-a", null, 0, 50,
+        assertEquals(1, page("site-a", null, 0, 50,
                 Map.of("title", "#|#", "searchURL", "fallback")).getFiltered());
+        assertEquals(0, page("site-a", null, 0, 50,
+                Map.of("title", "absent", "searchURL", "fallback")).getFiltered());
     }
 
     @Test

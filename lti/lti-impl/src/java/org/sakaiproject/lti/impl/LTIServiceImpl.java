@@ -2101,10 +2101,11 @@ public class LTIServiceImpl implements LTIService {
 			} catch (DateTimeParseException e) {
 				rows.clear();
 			}
+		} else if ("searchURL".equals(field)) {
+			rows.removeIf(row -> !StringUtils.containsIgnoreCase((String) row.get(LTI_LAUNCH), value)
+					&& !StringUtils.containsIgnoreCase((String) row.get("URL"), value));
 		} else {
-			rows.removeIf(row -> !StringUtils.containsIgnoreCase("searchURL".equals(field)
-					? StringUtils.defaultIfEmpty((String) row.get(LTI_LAUNCH), (String) row.get("URL"))
-					: (String) row.get(field), value));
+			rows.removeIf(row -> !StringUtils.containsIgnoreCase((String) row.get(field), value));
 		}
 	}
 
