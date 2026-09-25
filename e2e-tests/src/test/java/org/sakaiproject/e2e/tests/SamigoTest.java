@@ -355,19 +355,27 @@ class SamigoTest extends SakaiUiTestBase {
         clickFirstVisible(page.locator("a:has-text(\"Question Pools\")"));
         assertPoolTagRequest(() -> page.locator("#questionpool\\:add").click());
         page.locator("#questionpool\\:namefield").fill(poolName);
-        Locator tagInput = page.locator("#tag-selector .multiselect__input");
+        Locator tagInput = page.locator("#tag-selector").getByRole(AriaRole.COMBOBOX);
         tagInput.fill(tagLabel);
         tagInput.press("Enter");
-        assertThat(page.locator("#tag-selector .multiselect__tag")).containsText(tagLabel);
+        assertThat(page.locator("#tag-selector").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true))).isVisible();
         page.locator("#questionpool\\:submit").click();
         assertPoolTagRequest(() -> page.locator("#questionpool\\:TreeTable a")
             .filter(new Locator.FilterOptions().setHasText(poolName)).first().click());
-        assertThat(page.locator("#tag-selector .multiselect__tag")).containsText(tagLabel);
+        assertThat(page.locator("#tag-selector").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true))).isVisible();
         String secondTag = tagLabel + " edited";
         tagInput.fill(secondTag);
         tagInput.press("Enter");
         assertPoolTagRequest(() -> page.locator("#editform\\:Update").click());
-        assertThat(page.locator("#tag-selector")).containsText(secondTag);
+        assertThat(page.locator("#tag-selector").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Deselect: " + secondTag).setExact(true))).isVisible();
+        page.locator("#tag-selector").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true)).click();
+        assertPoolTagRequest(() -> page.locator("#editform\\:Update").click());
+        assertThat(page.locator("#tag-selector").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true))).hasCount(0);
 
         // A fresh login ensures the Question Pools navigation listener has not set ownerId.
         sakai.login("instructor1");
@@ -377,10 +385,10 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#authorIndexForm\\:title").fill("Pool Tags Assessment " + RUN_ID);
         page.locator("#authorIndexForm\\:createnew").click();
         assertPoolTagRequest(() -> selectQuestionType(Pattern.compile("(select|copy|import).*pool", Pattern.CASE_INSENSITIVE)));
-        Locator filterInput = page.locator("#tag-search .multiselect__input");
-        filterInput.fill(tagLabel);
-        page.locator("#tag-search .multiselect__option").filter(new Locator.FilterOptions()
-            .setHasText(Pattern.compile("^" + Pattern.quote(tagLabel) + "$"))).click();
+        Locator filterInput = page.locator("#tag-search").getByRole(AriaRole.COMBOBOX);
+        filterInput.fill(secondTag);
+        filterInput.press("ArrowDown");
+        filterInput.press("Enter");
         page.locator("#questionpool\\:searchByTags").click();
         assertThat(page.locator("#questionpool\\:TreeTable")).containsText(poolName);
     }

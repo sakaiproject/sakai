@@ -10,6 +10,7 @@ describe("sakai-topic-list tests", () => {
 
   beforeEach(() => {
     fetchMock.mockGlobal();
+    fetchMock.get(data.tagSelectorI18nUrl, data.tagSelectorI18n);
     fetchMock.get(data.i18nUrl, data.i18n);
   });
 
@@ -105,7 +106,7 @@ describe("sakai-topic-list tests", () => {
 
     const topic1 = { ...data.discussionTopic, id: "topic1", tags: [{ id: "1", label: "eggs" }] };
     const topic2 = { ...data.discussionTopic, id: "topic2", tags: [{ id: "2", label: "sports" }] };
-    const testData = { ...data.data, topics: [ topic1, topic2 ] };
+    const testData = { ...data.data, topics: [ topic1, topic2, { ...topic1, id: "both", tags: [...topic1.tags, ...topic2.tags] } ] };
 
     const el = await fixture(html`
       <sakai-topic-list
@@ -119,21 +120,25 @@ describe("sakai-topic-list tests", () => {
 
     await expect(el).to.be.accessible();
 
-    // Verify tag filter dropdown exists and has correct options
-    const tagSelect = el.querySelector("#topic-list-filters select");
-    expect(tagSelect).to.exist;
-    expect(tagSelect.options.length).to.equal(3); // "any" + 2 tags
-
-    // Select the first tag
-    tagSelect.value = "1";
-    tagSelect.dispatchEvent(new Event("change"));
+    const selector = el.querySelector("sakai-tag-selector");
+    await waitUntil(() => selector.shadowRoot.querySelector("input"));
+    const input = selector.shadowRoot.querySelector("input");
+    input.focus();
+    await elementUpdated(selector);
+    selector.shadowRoot.querySelector("[role=option]").click();
     await elementUpdated(el);
+    expect(el.topicIds).to.deep.equal(["topic1", "both"]);
 
+    input.click();
+    await elementUpdated(selector);
+    selector.shadowRoot.querySelectorAll("[role=option]")[1].click();
+    await elementUpdated(el);
+    expect(el.topicIds).to.deep.equal(["both"]);
     await expect(el).to.be.accessible();
 
-    // Should only show topic1
-    expect(el._filteredUnpinnedTopics.length).to.equal(1);
-    expect(el._filteredUnpinnedTopics[0].id).to.equal(topic1.id);
+    selector.clear();
+    await elementUpdated(el);
+    expect(el.topicIds).to.deep.equal(["topic1", "topic2", "both"]);
   });
 
   it("filters topics by type", async () => {
@@ -155,7 +160,7 @@ describe("sakai-topic-list tests", () => {
     await expect(el).to.be.accessible();
 
     // Verify filter dropdown exists
-    const filterSelect = el.querySelectorAll("#topic-list-filters select")[1];
+    const filterSelect = el.querySelector("#topic-list-filters select");
     expect(filterSelect).to.exist;
 
     // Filter by questions

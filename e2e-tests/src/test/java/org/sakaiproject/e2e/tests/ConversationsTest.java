@@ -144,7 +144,7 @@ class ConversationsTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void navigatesInFilteredOrderAndRetainsFilter() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
@@ -188,7 +188,7 @@ class ConversationsTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     void updatesTopicMenuActionsWithoutLeavingList() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
@@ -222,7 +222,7 @@ class ConversationsTest extends SakaiUiTestBase {
         assertThat(topic).hasCount(0);
     }
 
-    private void publishTopic(String title, String type) {
+    private void publishTopic(String title, String type, String... tags) {
         page.locator("#conv-add-topic").click();
         page.locator(".topic-type-toggle[data-type='" + type + "']").click();
         page.locator("#summary").fill(title);
@@ -230,29 +230,36 @@ class ConversationsTest extends SakaiUiTestBase {
             .locator("body[contenteditable='true']");
         editor.pressSequentially(TOPIC_BODY);
         editor.press("Tab");
+        for (String tag : tags) {
+            selectTag(page.locator("sakai-add-topic sakai-tag-selector"), tag);
+        }
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Publish").setExact(true)).click();
         assertThat(page.locator(".conversations-topic__title")).hasText(title);
         assertThat(page.locator(".topic-message")).containsText(TOPIC_BODY);
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     void createsAndDetachesSharedTag() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
         sakai.toolClick("Conversation");
-        page.locator(".conv-settings-link button:visible").click();
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Manage Tags").setExact(true)).click();
-
-        Locator manager = page.locator("sakai-conversations-tag-manager:visible");
+        page.locator("#conv-add-topic").click();
+        Locator inlineSelector = page.locator("sakai-add-topic sakai-tag-selector");
         String label = "Playwright shared tag " + System.currentTimeMillis();
-        manager.locator("#tag-creation-field").fill(label);
-        page.waitForResponse(response -> response.url().endsWith("/conversations/tags")
-                && response.request().method().equals("POST") && response.ok(),
-            () -> manager.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add New Tags").setExact(true)).click());
-        assertThat(manager).hasCount(0);
-
-        page.reload();
+        String secondLabel = "Second shared tag " + System.currentTimeMillis();
+        assertThat(page.locator("#conv-edit-tags-link-wrapper")).hasCount(0);
+        for (String newLabel : List.of(label, secondLabel)) {
+            inlineSelector.getByRole(AriaRole.COMBOBOX).fill(newLabel);
+            page.waitForResponse(response -> response.url().endsWith("/tools/conversations/tags")
+                    && response.request().method().equals("POST") && response.ok(),
+                () -> inlineSelector.getByRole(AriaRole.COMBOBOX).press("Enter"));
+            assertThat(inlineSelector.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Deselect: " + newLabel).setExact(true))).isVisible();
+        }
+        page.locator("sakai-add-topic").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+        Locator manager = page.locator("sakai-conversations-tag-manager:visible");
         page.locator(".conv-settings-link button:visible").click();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Manage Tags").setExact(true)).click();
         Locator row = manager.locator(".tag-row").filter(new Locator.FilterOptions().setHasText(label));
@@ -262,9 +269,8 @@ class ConversationsTest extends SakaiUiTestBase {
         page.reload();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true)).click();
         Locator composer = editCurrentTopic();
-        composer.locator("#tag-post-block select").selectOption(new SelectOption().setLabel(label));
-        composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
-        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(1);
+        selectTag(composer.locator("sakai-tag-selector"), label);
+        assertThat(composer.locator("sakai-tag-selector").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Deselect: " + label).setExact(true))).hasCount(1);
         composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Publish").setExact(true)).click();
         Locator topicTag = page.locator("sakai-topic:visible .topic-tags .tag")
             .filter(new Locator.FilterOptions().setHasText(label));
@@ -274,8 +280,8 @@ class ConversationsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true)).click();
         assertThat(topicTag).hasCount(1);
         composer = editCurrentTopic();
-        composer.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Remove " + label).setExact(true)).click();
-        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(0);
+        composer.locator("sakai-tag-selector").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Deselect: " + label).setExact(true)).click();
+        assertThat(composer.locator("sakai-tag-selector").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Deselect: " + label).setExact(true))).hasCount(0);
         composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Publish").setExact(true)).click();
         assertThat(page.locator("sakai-topic:visible")).isVisible();
         assertThat(topicTag).hasCount(0);
@@ -284,12 +290,35 @@ class ConversationsTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true)).click();
         assertThat(topicTag).hasCount(0);
         composer = editCurrentTopic();
-        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(0);
-        composer.locator("#tag-post-block select").selectOption(new SelectOption().setLabel(label));
-        composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
-        assertThat(composer.locator("#tags .tag").filter(new Locator.FilterOptions().setHasText(label))).hasCount(1);
+        assertThat(composer.locator("sakai-tag-selector").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Deselect: " + label).setExact(true))).hasCount(0);
+        selectTag(composer.locator("sakai-tag-selector"), label);
+        assertThat(composer.locator("sakai-tag-selector").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Deselect: " + label).setExact(true))).hasCount(1);
         composer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Publish").setExact(true)).click();
         assertThat(topicTag).hasCount(1);
+        page.reload();
+        String bothTitle = TOPIC_TITLE + " both tags";
+        publishTopic(bothTitle, "DISCUSSION", label, secondLabel);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Topics").setExact(true)).click();
+        Locator filter = page.locator("#topic-list-filters sakai-tag-selector");
+        selectTag(filter, label);
+        assertThat(page.locator(".topic-summary-title")).hasCount(2);
+        selectTag(filter, secondLabel);
+        assertThat(page.locator(".topic-summary-title")).hasText(bothTitle);
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(bothTitle).setExact(true)).click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Topics").setExact(true)).click();
+        assertThat(filter.getByRole(AriaRole.BUTTON)).hasCount(2);
+        assertThat(page.locator(".topic-summary-title")).hasText(bothTitle);
+        filter.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Deselect: " + secondLabel).setExact(true)).click();
+        assertThat(page.locator(".topic-summary-title")).hasCount(2);
+        filter.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Deselect: " + label).setExact(true)).click();
+        assertThat(page.locator(".topic-summary-title")).hasCount(2);
+    }
+
+    private void selectTag(Locator selector, String label) {
+        Locator input = selector.getByRole(AriaRole.COMBOBOX);
+        input.fill(label);
+        input.press("ArrowDown");
+        input.press("Enter");
     }
 
     private Locator editCurrentTopic() {

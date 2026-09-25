@@ -42,14 +42,6 @@ function textCounter(field, maxlimit) {
 		field.value = field.value.substring(0, maxlimit);
 }
 </script>
-<f:verbatim rendered="#{questionpool.showTags && questionpool.canManageTags}">
-	<script>
-		// Initialize input sync
-		window.addEventListener("load", () => {
-			window.syncTagSelectorInput("tag-selector", "questionpool:questionPoolTags");
-		});
-	</script>
-</f:verbatim>
 
 
  <h:form id="questionpool">
@@ -110,8 +102,9 @@ function textCounter(field, maxlimit) {
             <sakai-tag-selector
                 tool="samigo"
                 id="tag-selector"
+                input-id="questionpool:questionPoolTags"
                 class="b5 flex-grow-1"
-                selected-temp="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
+                selected-ids="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
                 collection-id="<h:outputText value='#{questionpool.currentPool.ownerId}'/>"
                 site-id="<h:outputText value='#{author.currentSiteId}'/>"
                 add-new="true"

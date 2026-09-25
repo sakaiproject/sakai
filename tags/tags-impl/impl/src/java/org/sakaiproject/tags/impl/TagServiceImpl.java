@@ -39,6 +39,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -71,6 +73,7 @@ public class TagServiceImpl implements TagService {
     private static final int TAG_MAX_LABEL = 255;
 
     @Setter private FunctionManager functionManager;
+    @Setter private SecurityService securityService;
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private TagAssociationRepository tagAssociationRepository;
 
@@ -286,6 +289,43 @@ public class TagServiceImpl implements TagService {
     @Override
     public Optional<TagCollection> getTagCollectionForExternalSourceName(String name) {
         return tagCollectionRepository.findByExternalSourceName(name);
+    }
+
+    @Override
+    @Transactional
+    public List<Tag> createSiteTags(String siteId, String tool, List<Tag> tags) {
+        if (StringUtils.isBlank(siteId)) {
+            throw new IllegalArgumentException("Site ID must not be blank");
+        }
+        String permission;
+        switch (StringUtils.defaultString(tool)) {
+            case "conversations": permission = "conversations.tag.create"; break;
+            case TOOL_ASSIGNMENTS:
+            case TOOL_PRIVATE_MESSAGES:
+            case "samigo": permission = TAGSERVICE_MANAGE_PERMISSION; break;
+            default: throw new IllegalArgumentException("Unsupported tagging tool: " + tool);
+        }
+        if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())
+                || !securityService.unlock(permission, SiteService.REFERENCE_ROOT + "/" + siteId)) {
+            throw new SecurityException("Current user cannot create tags in site " + siteId);
+        }
+        if (tags == null || tags.stream().anyMatch(tag -> tag == null
+                || StringUtils.isBlank(tag.getTagLabel()) || tag.getTagLabel().length() > TAG_MAX_LABEL
+                || StringUtils.isNotBlank(tag.getTagId()))) {
+            throw new IllegalArgumentException("New tags must have no ID and a label between 1 and 255 characters");
+        }
+        if (tags.isEmpty()) {
+            return Collections.emptyList();
+        }
+        ensureCollectionExists(siteId, true);
+        List<Tag> created = new ArrayList<>();
+        for (Tag input : tags) {
+            Tag tag = Tag.builder().tagCollectionId(siteId).tagLabel(input.getTagLabel())
+                .description(input.getDescription()).build();
+            tag.setTagId(createTag(tag));
+            created.add(tag);
+        }
+        return created;
     }
 
     @Override

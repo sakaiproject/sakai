@@ -9,6 +9,7 @@ describe("add-topic tests", () => {
 
   beforeEach(() => {
     fetchMock.mockGlobal();
+    fetchMock.get(data.tagSelectorI18nUrl, data.tagSelectorI18n);
     fetchMock
       .get(data.i18nUrl, data.i18n)
       .get(graderData.i18nUrl, graderData.i18n)
@@ -38,16 +39,99 @@ describe("add-topic tests", () => {
     await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
-    el.querySelector(`#tags [data-tag-id="${data.tags[0].id}"]`).click();
+    const selector = el.querySelector("sakai-tag-selector");
+    await waitUntil(() => selector.shadowRoot.querySelector("button.tag"));
+    selector.shadowRoot.querySelector("button.tag").click();
     await elementUpdated(el);
-    expect(el.querySelectorAll("#tags > .tag")).to.have.length(1);
-    expect(el.querySelector(`#tag-post-block option[value="${data.tags[0].id}"]`)).to.exist;
+    await elementUpdated(selector);
+    expect(selector.selectedTags).to.have.length(1);
+    expect(selector.options.map(tag => tag.code)).to.include(String(data.tags[0].id));
 
     const saved = oneEvent(el, "topic-saved");
     el.querySelector("#button-block input").click();
     const { detail } = await saved;
     expect(detail.topic.tags).to.deep.equal([data.tags[1]]);
     expect(data.tags).to.have.length(2);
+    expect(fetchMock.callHistory.calls(/conversations\/tags/)).to.have.length(0);
+  });
+
+  it("creates the first tag inline and saves its returned id with the topic", async () => {
+    const tag = { id: "new-tag-id", label: "New tag", siteId: data.siteId, description: "Tag description" };
+    let finishCreation;
+    fetchMock.post(`/api/sites/${data.siteId}/tools/conversations/tags`, () => new Promise(resolve => {
+      finishCreation = () => resolve([{ tagId: tag.id, tagLabel: tag.label, tagCollectionId: tag.siteId, description: tag.description }]);
+    }));
+    const topic = { ...data.questionTopic, tags: [] };
+    fetchMock.put(topic.url, ({ options }) => JSON.parse(options.body));
+    const el = await fixture(html`<sakai-add-topic .topic=${topic} .tags=${[]}
+        .groups=${data.groups} site-id=${data.siteId} can-edit-tags can-create-question></sakai-add-topic>`);
+    await waitUntil(() => el.querySelector("sakai-tag-selector"));
+    const selector = el.querySelector("sakai-tag-selector");
+    await waitUntil(() => selector.shadowRoot.querySelector("input"));
+    expect(el.querySelector("#conv-edit-tags-link-wrapper")).not.to.exist;
+    const input = selector.shadowRoot.querySelector("input");
+    input.value = tag.label;
+    input.dispatchEvent(new Event("input"));
+    await elementUpdated(selector);
+    selector.shadowRoot.querySelector("[role=option]").click();
+    await waitUntil(() => finishCreation);
+    await elementUpdated(el);
+    expect(selector.inert).to.be.true;
+    expect(el.querySelector("#button-block input").disabled).to.be.true;
+    const created = oneEvent(el, "tags-created");
+    finishCreation();
+    expect((await created).detail.tags).to.deep.equal([tag]);
+    await elementUpdated(el);
+    await elementUpdated(selector);
+    expect(selector.selectedTags).to.deep.equal([{ code: tag.id, name: tag.label }]);
+    expect(selector.inert).to.be.false;
+    const saved = oneEvent(el, "topic-saved");
+    el.querySelector("#button-block input").click();
+    expect((await saved).detail.topic.tags).to.deep.equal([tag]);
+  });
+
+  it("retains the previous selection after a failed creation and allows retry", async () => {
+    const url = `/api/sites/${data.siteId}/tools/conversations/tags`;
+    fetchMock.post(url, 403, { repeat: 1 });
+    const tag = { id: "retry-id", label: "Retry tag", siteId: data.siteId, description: "Tag description" };
+    fetchMock.post(url, [{ tagId: tag.id, tagLabel: tag.label, tagCollectionId: tag.siteId, description: tag.description }]);
+    const el = await fixture(html`<sakai-add-topic .topic=${{ ...data.questionTopic, tags: [data.tags[0]] }}
+        .tags=${data.tags} .groups=${data.groups} site-id=${data.siteId} can-edit-tags can-create-question></sakai-add-topic>`);
+    await waitUntil(() => el.querySelector("sakai-tag-selector"));
+    const selector = el.querySelector("sakai-tag-selector");
+    await waitUntil(() => selector.shadowRoot.querySelector("input"));
+    const addTag = async () => {
+      const input = selector.shadowRoot.querySelector("input");
+      input.value = tag.label;
+      input.dispatchEvent(new Event("input"));
+      await elementUpdated(selector);
+      selector.shadowRoot.querySelector("[role=option]").click();
+    };
+    await addTag();
+    await waitUntil(() => el.querySelector("[role=alert]"));
+    await elementUpdated(selector);
+    expect(selector.selectedTags.map(t => t.code)).to.deep.equal([String(data.tags[0].id)]);
+    expect(el.querySelector("#button-block input").disabled).to.be.false;
+    const created = oneEvent(el, "tags-created");
+    await addTag();
+    await created;
+    await elementUpdated(el);
+    expect(el.querySelector("[role=alert]")).not.to.exist;
+    expect(el.topic.tags).to.deep.equal([data.tags[0], tag]);
+  });
+
+  it("offers existing tags but no inline creation without permission", async () => {
+    const el = await fixture(html`<sakai-add-topic .topic=${{ ...data.questionTopic, tags: [] }}
+        .tags=${data.tags} .groups=${data.groups} site-id=${data.siteId} can-create-question></sakai-add-topic>`);
+    await waitUntil(() => el.querySelector("sakai-tag-selector"));
+    const selector = el.querySelector("sakai-tag-selector");
+    await waitUntil(() => selector.shadowRoot.querySelector("input"));
+    expect(selector.addNew).not.to.be.true;
+    const input = selector.shadowRoot.querySelector("input");
+    input.value = "Not an existing tag";
+    input.dispatchEvent(new Event("input"));
+    await elementUpdated(selector);
+    expect(selector.shadowRoot.querySelector("[role=option]")).not.to.exist;
     expect(fetchMock.callHistory.calls(/conversations\/tags/)).to.have.length(0);
   });
 
@@ -87,17 +171,18 @@ describe("add-topic tests", () => {
     ({ detail } = await oneEvent(el, "save-wip-topic"));
     expect(detail.topic.message).to.equal(message);
 
-    const tagSelector = el.querySelector("#tag-post-block select");
-    tagSelector.value = data.tags[0].id;
-    setTimeout(() => tagSelector.dispatchEvent(new Event("change")));
-
-    // Click add tag button
-    setTimeout(() => tagSelector.nextElementSibling.click());
-    ({ detail } = await oneEvent(el, "save-wip-topic"));
+    const tagSelector = el.querySelector("sakai-tag-selector");
+    await waitUntil(() => tagSelector.shadowRoot.querySelector("input"));
+    const tagInput = tagSelector.shadowRoot.querySelector("input");
+    tagInput.focus();
+    await elementUpdated(tagSelector);
+    const changed = oneEvent(el, "save-wip-topic");
+    tagSelector.shadowRoot.querySelector("[role=option]").click();
+    ({ detail } = await changed);
     expect(detail.topic.tags.find(t => t.id === data.tags[0].id)).to.exist;
     await elementUpdated(el);
     await expect(el).to.be.accessible();
-    expect(el.querySelectorAll("#tags > .tag").length).to.equal(1);
+    expect(tagSelector.selectedTags).to.have.length(1);
 
     // Pick a group
     expect(el.querySelector("#add-topic-groups-block")).to.not.exist;

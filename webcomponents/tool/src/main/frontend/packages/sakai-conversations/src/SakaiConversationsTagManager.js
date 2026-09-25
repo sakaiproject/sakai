@@ -1,4 +1,4 @@
-import { html, nothing } from "lit";
+import { html } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 
 export class SakaiConversationsTagManager extends SakaiElement {
@@ -7,7 +7,6 @@ export class SakaiConversationsTagManager extends SakaiElement {
 
     siteId: { attribute: "site-id", type: String },
     tags: { type: Array },
-    editingTopic: { attribute: "editing-topic", type: Boolean },
 
     _saveable: { state: true },
   };
@@ -54,9 +53,9 @@ export class SakaiConversationsTagManager extends SakaiElement {
       return;
     }
 
-    const tagsData = tagLabels.map(label => ({ label, siteId: this.siteId }));
+    const tagsData = tagLabels.map(label => ({ tagLabel: label }));
 
-    const url = `/api/sites/${this.siteId}/conversations/tags`;
+    const url = `/api/sites/${this.siteId}/tools/conversations/tags`;
     fetch(url, {
       method: "POST",
       credentials: "include",
@@ -84,10 +83,6 @@ export class SakaiConversationsTagManager extends SakaiElement {
     this._saveable = false;
   }
 
-  _continue() {
-    this.dispatchEvent(new CustomEvent("continue", { bubbles: true, composed: true }));
-  }
-
   _setSaveable() { this._saveable = true; }
 
   shouldUpdate() {
@@ -111,9 +106,6 @@ export class SakaiConversationsTagManager extends SakaiElement {
         <div class="act">
           <button type="button" class="btn btn-secondary" @click=${this._cancelTagsCreation} ?disabled=${!this._saveable}>${this._i18n.cancel}</button>
           <button type="button" class="btn btn-primary" @click=${this._createTags} ?disabled=${!this._saveable}>${this._i18n.add_new_tags}</button>
-          ${this.editingTopic ? html`
-            <button type="button" class="btn btn-secondary" @click=${this._continue}>${this._i18n.continue}</button>
-          ` : nothing }
         </div>
         <div id="current-tags">
           ${this.tags.map(tag => html`

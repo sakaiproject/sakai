@@ -10,6 +10,7 @@ describe("sakai-conversations tests", () => {
 
   beforeEach(() => {
     fetchMock.mockGlobal();
+    fetchMock.get(data.tagSelectorI18nUrl, data.tagSelectorI18n);
     fetchMock.get(data.i18nUrl, data.i18n);
   });
 
@@ -217,6 +218,8 @@ describe("sakai-conversations tests", () => {
 
     await waitUntil(() => el._i18n);
     await waitUntil(() => el._data);
+
+    await elementUpdated(el);
 
     // Check if search button is rendered when search is enabled
     expect(el._searchEnabled).to.be.true;

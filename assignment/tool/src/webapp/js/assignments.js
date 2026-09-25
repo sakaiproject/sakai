@@ -1172,14 +1172,9 @@ ASN.grab = function (selectedItem) {
     $(li).addClass("grab_cursor");
 }
 
-ASN.clearShadowTags = function () {
-    const tagSelector = document.getElementById('tag_selector');
-    const tagSelectorVue = document.querySelector("sakai-tag-selector").shadowRoot;
-    if (tagSelector && tagSelectorVue) {
-      tagSelector.value = '';
-      tagSelectorVue.querySelectorAll('input[name="tag[]"').forEach((elem) => elem.remove());
-    }
-}
+ASN.clearTags = function () {
+    document.querySelector("sakai-tag-selector")?.clear();
+};
 
 ASN.checkIframeTags = function () {
     if (inIframe()) {
