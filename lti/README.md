@@ -72,3 +72,8 @@ It requires an authenticated site maintainer; cross-site listings require mainte
 permission in `!admin`. Page length is restricted to 1–200. Only the visible Tool Links
 fields may be searched or sorted. The response contains `draw`, `recordsTotal`,
 `recordsFiltered`, and `data`, with display fields only (no LTI credentials/configuration).
+
+Counts, column filtering, ordering, and pagination run in the database. Only the requested
+page is loaded and enriched with display metadata; no new tables are required. Site-property
+search/sort joins the existing site tables. On Oracle, property sorting uses the first 4000
+characters because its CLOB columns cannot be ordered directly; filtering uses the full value.
