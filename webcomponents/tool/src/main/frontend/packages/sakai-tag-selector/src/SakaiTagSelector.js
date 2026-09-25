@@ -10,7 +10,6 @@ export class SakaiTagSelector extends SakaiShadowElement {
     siteId: { attribute: "site-id", type: String },
     tool: { type: String },
     collectionId: { attribute: "collection-id", type: String },
-    itemId: { attribute: "item-id", type: String },
     selectedIds: { attribute: "selected-ids", type: String },
     extraOptions: { attribute: "extra-options", type: String },
     inputId: { attribute: "input-id", type: String },
@@ -60,24 +59,17 @@ export class SakaiTagSelector extends SakaiShadowElement {
     this._error = false;
     this._open = false;
     const url = `/api/sites/${encodeURIComponent(this.siteId)}/tools/${encodeURIComponent(this.tool)}/tags/${encodeURIComponent(this.collectionId)}`;
-    const readTags = async path => {
-      const response = await fetch(path);
-      if (!response.ok) { throw new Error(`Unable to load tags: ${response.status}`); }
-      return (await response.json()).map(tag => ({ name: tag.tagLabel, code: tag.tagId }));
-    };
     try {
-      const [ options, saved ] = await Promise.all([
-        readTags(url),
-        !this.selectedIds && this.itemId && this.addNew
-          ? readTags(`${url}/items/${encodeURIComponent(this.itemId)}`) : Promise.resolve([]),
-      ]);
+      const response = await fetch(url);
+      if (!response.ok) { throw new Error(`Unable to load tags: ${response.status}`); }
+      const options = (await response.json()).map(tag => ({ name: tag.tagLabel, code: tag.tagId }));
       if (!this.isConnected) { return; }
       this._options = options;
       if (!this._cleared) {
         this._selectedTags = this.selectedIds
           ? [ ...new Set(this.selectedIds.split(",").filter(s => !!s.trim())) ]
             .map(code => this._options.find(tag => tag.code === code) || { name: code, code })
-          : saved;
+          : [];
         this._publish();
       }
     } catch (error) {

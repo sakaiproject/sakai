@@ -340,7 +340,6 @@
             input-id="pvtMsgForward:tag_selector"
             selected-ids='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
             collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
-            item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'
             site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
             tool='<h:outputText value="#{PrivateMessagesTool.getTagTool()}"/>'
             add-new="true"

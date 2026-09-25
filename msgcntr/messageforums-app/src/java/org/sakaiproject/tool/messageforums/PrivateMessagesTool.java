@@ -322,7 +322,9 @@ public class PrivateMessagesTool {
   public void setDetailMsg(PrivateMessageDecoratedBean detailMsg) {
     this.detailMsg = detailMsg;
     if (detailMsg == null || (!fromPreview && !detailMsg.getIsPreview() && !detailMsg.getIsPreviewReply() && !detailMsg.getIsPreviewReplyAll() && !detailMsg.getIsPreviewForward())) {
-      this.selectedTags = "";
+      this.selectedTags = detailMsg != null && detailMsg.getMsg().getId() != null && isCanUseTags()
+          ? String.join(",", tagService.getTagAssociationIds(getUserId(), String.valueOf(detailMsg.getMsg().getId())))
+          : "";
       fromPreview = false;
     } else if (detailMsg.getIsPreview() || detailMsg.getIsPreviewReply() || detailMsg.getIsPreviewReplyAll() || detailMsg.getIsPreviewForward()) {
       fromPreview = true;
@@ -1195,6 +1197,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
   
   private String processPvtMsgDraft(){
+	  setFromMainOrHp();
 	  //set up draft details:
 	  PrivateMessage draft = prtMsgManager.initMessageWithAttachmentsAndRecipients(getDetailMsg().getMsg());
 	  setDetailMsg(new PrivateMessageDecoratedBean(draft));
@@ -1228,7 +1231,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  }
 
 	  //go to compose page
-	  setFromMainOrHp();
 	  fromMain = (StringUtils.isEmpty(msgNavMode)) || ("privateMessages".equals(msgNavMode));
 	  log.debug("processPvtMsgDraft()");
 	  return PVTMSG_COMPOSE;

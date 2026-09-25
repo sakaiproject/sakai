@@ -81,12 +81,16 @@ describe("sakai-tag-selector", () => {
     expect(el.shadowRoot.querySelector("#options").hidden).to.equal(true);
   });
 
-  it("loads associated tags for an existing item", async () => {
-    fetchMock.get(`${url}/items/item`, [ options[1] ]);
-    const el = await fixture(html`<sakai-tag-selector site-id="site" tool="samigo" collection-id="owner"
-        item-id="item" add-new="true"></sakai-tag-selector>`);
+  it("preserves an explicitly empty server-rendered selection", async () => {
+    const form = await fixture(html`<form>
+      <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner"
+          selected-ids="" input-id="empty-tags" add-new="true"></sakai-tag-selector>
+      <input type="hidden" id="empty-tags" name="tags" value="">
+    </form>`);
+    const el = form.querySelector("sakai-tag-selector");
     await ready(el);
-    expect(el.selectedTags).to.deep.equal([ { name: "Biology", code: "two" } ]);
+    expect(el.selectedTags).to.deep.equal([]);
+    expect(new FormData(form).get("tags")).to.equal("");
   });
 
   it("does not overwrite a saved form value on failure and can retry", async () => {
@@ -110,9 +114,11 @@ describe("sakai-tag-selector", () => {
 
   it("does not restore saved tags after clearing while a request is pending", async () => {
     let finishLoading;
-    fetchMock.get(`${url}/items/saved`, () => new Promise(resolve => { finishLoading = resolve; }));
+    fetchMock.removeRoutes();
+    fetchMock.get(i18nUrl, i18n);
+    fetchMock.get(url, () => new Promise(resolve => { finishLoading = resolve; }));
     const form = await fixture(html`<form>
-      <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner" item-id="saved"
+      <sakai-tag-selector site-id="site" tool="samigo" collection-id="owner" selected-ids="one"
           input-id="current-tags" add-new="true"></sakai-tag-selector>
       <input type="hidden" id="current-tags" name="tags" value="one">
     </form>`);
@@ -120,7 +126,7 @@ describe("sakai-tag-selector", () => {
     await waitUntil(() => finishLoading);
     el.clear();
     expect(new FormData(form).get("tags")).to.equal("");
-    finishLoading([options[0]]);
+    finishLoading(options);
     await ready(el);
     expect(el.selectedTags).to.deep.equal([]);
     expect(new FormData(form).get("tags")).to.equal("");

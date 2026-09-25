@@ -14,8 +14,9 @@ in the standard `base.js` bundle.
 - `site-id`, `tool`, and `collection-id` select the existing Tags API endpoint.
   API loading runs once for the rendered form; these identifiers are fixed for
   that element. Failed loads can be retried with the Retry button.
-- `selected-ids` restores comma-separated IDs or unsaved labels. If empty,
-  `item-id` loads existing associations when `add-new` is enabled.
+- `selected-ids` restores comma-separated IDs or unsaved labels supplied by the
+  host form. An empty value means no selection. Forms must also render these
+  values in their hidden input so failed loads preserve existing associations.
 - `extra-options` adds comma-separated filter choices, such as assignment groups.
 - `add-new="false"` limits selection to available choices. New labels exclude
   commas because the existing form contract uses comma-separated values.

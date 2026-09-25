@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Route;
 import com.microsoft.playwright.options.AriaRole;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -44,11 +45,24 @@ class MessagesTest extends SakaiUiTestBase {
         assertThat(page.locator("#compose\\:tag_selector")).hasValue(tag);
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Draft").setExact(true)).click();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Draft").setExact(true)).click();
+        String tagRequests = "**/api/sites/*/tools/*/tags/*";
+        page.route(tagRequests, route -> route.fulfill(new Route.FulfillOptions().setStatus(503)));
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(subject).setExact(true)).click();
+        assertThat(selector.getByRole(AriaRole.ALERT)).isVisible();
+        String savedTagIds = selector.getAttribute("selected-ids");
+        assertTrue(savedTagIds != null && !savedTagIds.isBlank());
+        assertThat(page.locator("#compose\\:tag_selector")).hasValue(savedTagIds);
+        page.unroute(tagRequests);
+        selector.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Retry").setExact(true)).click();
         Locator remove = selector.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Deselect: " + tag).setExact(true));
         assertThat(remove).isVisible();
         assertTrue(sakai.typeFirstCkEditorIfPresent("<p>Updated draft.</p>"));
         remove.click();
+        assertThat(page.locator("#compose\\:tag_selector")).hasValue("");
+        // With no recipients, preview redisplays the form with a validation error.
+        page.locator("input[type=submit][value=Preview]").click();
+        assertThat(selector.getByRole(AriaRole.COMBOBOX)).isEnabled();
+        assertThat(remove).hasCount(0);
         assertThat(page.locator("#compose\\:tag_selector")).hasValue("");
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Draft").setExact(true)).click();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(subject).setExact(true)).click();
