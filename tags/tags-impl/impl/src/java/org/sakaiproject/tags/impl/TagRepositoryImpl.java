@@ -24,7 +24,7 @@ package org.sakaiproject.tags.impl;
 
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.TypedQuery;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagRepository;
