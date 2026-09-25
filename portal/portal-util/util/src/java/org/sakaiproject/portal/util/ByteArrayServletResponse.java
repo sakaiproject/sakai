@@ -149,7 +149,18 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	{
 		log.debug("reset()");
 		outStream = new ServletByteOutputStream();
-		writer = new PrintWriter(outStream);
+		writer = new PrintWriter(outStream)
+		{
+			@Override
+			public void close()
+			{
+				// Don't actually close: this writer is reused across multiple
+				// fragments (header/body/footer) during response buffering.
+				// Really closing it marks the internal StreamEncoder as closed,
+				// causing subsequent writes to be silently dropped.
+				flush();
+			}
+		};
 	}
 
 	/**
