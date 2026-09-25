@@ -24,9 +24,6 @@ package org.sakaiproject.calendar.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -68,7 +65,6 @@ import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -158,7 +154,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	
 	public static final String SAKAI = "Sakai";
 	
-	private Map<String, Calendar> cache = new ConcurrentHashMap<>();
+	private Map<String, Calendar> calendrCache = new ConcurrentHashMap<>();
 	
 	/**
 	 * Access this service from the inner classes.
@@ -278,11 +274,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			CalendarEdit cal = editCalendar(ref);
 			cal.setExportEnabled(enable);
 			commitCalendar(cal);
-			
-			//Update the cache object if exists
-			if(cache.containsKey(ref)) {
-				cache.put(ref,cal);
-			}
 		}
 		catch ( Exception e)
 		{
@@ -615,16 +606,17 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	protected Calendar findCalendar(String ref)
 	{
 		Calendar calendar = null;
-			
-		//check cache
-		if(cache.containsKey(ref)) {
-			calendar = cache.get(ref);
-		}
-		
-		//if calendar is still null, it's not in the cache, get it from storage and cache it
-		if(calendar == null) {
-			calendar = m_storage.getCalendar(ref);
-			cache.put(ref, calendar);
+
+		if (StringUtils.isNotBlank(ref)) {
+			// check cache
+			calendar = calendrCache.get(ref);
+
+			// if calendar is null, it's not in the cache, get it from storage and cache it
+			if (calendar == null) {
+				calendar = m_storage.getCalendar(ref);
+				// don't cache negative results
+				if (calendar != null) calendrCache.put(ref, calendar);
+			}
 		}
 		
 		return calendar;
@@ -2017,7 +2009,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		if (arg instanceof Event) {
 			Event event = (Event) arg;
 			if (EVENT_MODIFY_CALENDAR.equals(event.getEvent())) {
-				cache.remove(event.getResource());
+				calendrCache.remove(event.getResource());
 			}
 		}
 	}
