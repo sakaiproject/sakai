@@ -991,8 +991,22 @@ public interface GradingService extends EntityProducer {
      */
     public void updateGradeMapping(Long gradeMappingId, Map<String, Double> gradeMap);
 
-    public boolean isGradebookGroupEnabled(String siteId);
-    public List<Gradebook> getGradebookGroupInstances(String siteId);
+    /**
+     * Checks if the gradebook group functionality is enabled for the specified site.
+     *
+     * @param siteId the identifier of the site to check for gradebook group functionality
+     * @return true if the gradebook group functionality is enabled for the given site, false otherwise
+     */
+    boolean isGradebookGroupEnabled(String siteId);
+
+    /**
+     * Retrieves a list of gradebook group instances associated with the specified site.
+     *
+     * @param siteId the identifier of the site for which the gradebook group instances are to be retrieved
+     * @return a list of Gradebook objects representing the group gradebooks for the given site,
+     *         if group gradebooks are not configured then empty list is returned
+     */
+    List<Gradebook> getGradebookGroupInstances(String siteId);
     public List<String> getGradebookGroupInstancesIds(String siteId);
     public Assignment getAssignmentById(String siteId, Long assignmentId);
     public GradebookAssignment getGradebookAssigment(String siteId, Long assignmentId);

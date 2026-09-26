@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Objects;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Properties;
@@ -736,6 +737,16 @@ public abstract class BaseSiteService implements SiteService, Observer
 			log.debug("Site [{}] not found, {}", id, e.toString());
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public Collection<String> getToolPlacementPropertyValues(String siteId, String commonToolId, String propertyName) {
+		return getOptionalSite(siteId).stream()
+				.flatMap(s -> s.getTools(commonToolId).stream())
+				.map(ToolConfiguration::getPlacementConfig)
+				.map(pc -> pc.getProperty(propertyName))
+				.filter(Objects::nonNull)
+				.toList();
 	}
 
 	/**
