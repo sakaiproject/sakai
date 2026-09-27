@@ -47,7 +47,6 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ContextSession;
 import org.sakaiproject.tool.api.NonPortableSession;
-import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionAttributeListener;
 import org.sakaiproject.tool.api.SessionBindingEvent;
@@ -75,7 +74,7 @@ public class MySession implements Session, HttpSession, Serializable
 	private static final long serialVersionUID = 2L;
 	/**
 	 * The possible time this Session may be inactive and available for expiration.
-	 * This value is an optimization for Terracotta clustered environments, to avoid
+	 * This value is an optimization for clustered environments, to avoid
 	 * faulting object in, unless we have a best guess that it may be out of date.
 	 * We also choose not to use the m_accessed field directly, to avoid updating the
 	 * SHARED (on every box) data structure, except every inactive/2 period.
@@ -110,11 +109,9 @@ public class MySession implements Session, HttpSession, Serializable
 	private transient IdManager idManager;
 	private transient NonPortableSession m_nonPortalSession;
 	private transient SessionAttributeListener sessionListener;
-	private transient RebuildBreakdownService rebuildBreakdownService;
     public MySession(SessionManager sessionManager, String id, ThreadLocalManager threadLocalManager,
 					 IdManager idManager, SessionStore sessionStore, SessionAttributeListener sessionListener,
-					 int inactiveInterval, NonPortableSession nonPortableSession, MutableLong expirationTimeSuggestion,
-					 RebuildBreakdownService rebuildBreakdownService)
+					 int inactiveInterval, NonPortableSession nonPortableSession, MutableLong expirationTimeSuggestion)
 	{
 		this.sessionManager = sessionManager;
 		m_id = id;
@@ -128,7 +125,6 @@ public class MySession implements Session, HttpSession, Serializable
 		m_accessed = m_created;
 		this.expirationTimeSuggestion = expirationTimeSuggestion;
 		resetExpirationTimeSuggestion();
-		this.rebuildBreakdownService = rebuildBreakdownService;
 	}
 
     /**
@@ -257,12 +253,7 @@ public class MySession implements Session, HttpSession, Serializable
 	 */
 	public void invalidate()
 	{
-		String sessionId = getId();
 		destroy();
-		// ensure that the session cache is cleared when session is invalidated
-		if (rebuildBreakdownService != null) {
-		    rebuildBreakdownService.purgeSessionFromStorageById(sessionId);
-		}
 	}
 
     /**

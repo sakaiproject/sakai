@@ -86,8 +86,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messaging.api.MicrosoftMessage;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.site.api.AllowedJoinableAccount;
@@ -112,6 +110,8 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -417,7 +417,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	@Setter protected EventTrackingService eventTrackingService;
 	@Setter protected FunctionManager functionManager;
 	@Setter protected IdManager idManager;
-	@Setter protected MemoryService memoryService;
+	@Setter protected CacheManager cacheManager;
 	@Setter protected MicrosoftMessagingService microsoftMessagingService;
 	@Setter protected NotificationService notificationService;
 	@Setter protected SecurityService securityService;
@@ -463,18 +463,27 @@ public abstract class BaseSiteService implements SiteService, Observer
 			// <= 0 minutes indicates no caching desired
 			if (m_cacheSeconds > 0)
 			{
-				m_siteCache = new SiteCacheSafe(memoryService, eventTrackingService);
+				m_siteCache = new SiteCacheSafe(cacheManager, this);
 			}
 
 			// Register our user-site cache property
 			serverConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem(PROP_CACHE_USER_SITES, true, "org.sakaiproject.api.SiteService"));
 
-			// Get the user-site cache from the MemoryService for now -- maybe directly from cache manager or Spring later.
+			// Get the user-site cache from the CacheManager.
 			// Also register as an observer so we can catch site updates and invalidate.
 			if (serverConfigurationService.getBoolean(PROP_CACHE_USER_SITES, true))
 			{
-				m_userSiteCache = memoryService.newCache(USER_SITE_CACHE);
-				eventTrackingService.addObserver(this);
+				m_userSiteCache = cacheManager.getCache(USER_SITE_CACHE);
+				// Local-only is sufficient for update()'s cache-clearing branches, since
+				// m_userSiteCache (and m_siteCache) are Ignite-shared - the synchronous local
+				// notification on whichever node handles the mutation already evicts the shared
+				// cache entry cluster-wide. This also fixes a latent duplicate-notification bug
+				// in update()'s gradebook-notification branch: on the old cross-cluster tier, a
+				// single membership change fired notifySiteParticipant() once locally and then
+				// again on every other node when each independently replayed the same event
+				// from the DB poll; local-only fires it exactly once, on the node that actually
+				// handled the mutation.
+				eventTrackingService.addLocalObserver(this);
 			}
 
 			// register as an entity producer
@@ -1504,6 +1513,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// complete the edit
 		m_storage.remove(site);
 
+		// invalidate the site cache entry (and its tool/page/group satellite entries)
+		if (m_siteCache != null)
+		{
+			m_siteCache.remove(site.getReference());
+		}
+
 		// track it
 		eventTrackingService.post(eventTrackingService.newEvent(SECURE_REMOVE_SITE, site.getReference(), true));
 
@@ -2200,7 +2215,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	{
 		if (m_userSiteCache != null && userId != null)
 		{
-			m_userSiteCache.remove(userId);
+			m_userSiteCache.evict(userId);
 		}
 	}
 
@@ -2238,7 +2253,16 @@ public abstract class BaseSiteService implements SiteService, Observer
 		List<Site> userSites = null;
 		if (m_userSiteCache != null && userId != null)
 		{
-			userSites = (List<Site>) m_userSiteCache.get(userId);
+			List<Site> cached = m_userSiteCache.get(userId, List.class);
+			if (cached != null)
+			{
+				// return fresh copies with live services re-attached, same as getCachedSite()
+				userSites = new ArrayList<>(cached.size());
+				for (Site site : cached)
+				{
+					userSites.add(new BaseSite(this, site, true));
+				}
+			}
 		}
 		return userSites;
 	}
@@ -3506,7 +3530,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @param site
 		 *        The site for which pages are desired.
 		 */
-		public void readSitePages(Site site, ResourceVector pages);
+		public void readSitePages(Site site, List<SitePage> pages);
 
 		/**
 		 * Read site page tools from storage into the page's tools.
@@ -3514,7 +3538,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @param page
 		 *        The page for which tools are desired.
 		 */
-		public void readPageTools(SitePage page, ResourceVector tools);
+		public void readPageTools(SitePage page, List<ToolConfiguration> tools);
 
 		/**
 		 * Read tools for all pages from storage into the site's page's tools.

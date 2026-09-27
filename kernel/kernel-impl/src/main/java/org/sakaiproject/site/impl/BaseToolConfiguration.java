@@ -21,8 +21,10 @@
 
 package org.sakaiproject.site.impl;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Properties;
 import java.util.Stack;
 
@@ -58,8 +60,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	/** The layout hints. */
 	protected String m_layoutHints = null;
 
-	/** The SitePage I belong to. */
-	protected SitePage m_page = null;
+	/** The SitePage I belong to. Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	protected transient SitePage m_page = null;
 
 	/** The site id I belong to, in case I have no m_page. */
 	protected String m_siteId = null;
@@ -79,7 +81,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	/** Flag for custom title configuration */
 	protected boolean m_custom_title = false;
 
-	private BaseSiteService siteService;
+	/** Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	private transient BaseSiteService siteService;
 
 	/**
 	 * ReConstruct
@@ -477,7 +480,9 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 			return;
 		}
 
-		((ResourceVector) m_page.getTools()).moveUp(this);
+		List<ToolConfiguration> tools = m_page.getTools();
+		int pos = tools.indexOf(this);
+		if (pos > 0) Collections.swap(tools, pos, pos - 1);
 	}
 
 	/**
@@ -491,7 +496,9 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 			return;
 		}
 
-		((ResourceVector) m_page.getTools()).moveDown(this);
+		List<ToolConfiguration> tools = m_page.getTools();
+		int pos = tools.indexOf(this);
+		if (pos != -1 && pos < tools.size() - 1) Collections.swap(tools, pos, pos + 1);
 	}
 
 	/**

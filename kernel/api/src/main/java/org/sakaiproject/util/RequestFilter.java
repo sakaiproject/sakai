@@ -63,7 +63,6 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ClosingException;
-import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
@@ -264,13 +263,11 @@ public class RequestFilter implements Filter
     private ThreadLocalManager threadLocalManager;
     private SessionManager sessionManager;
     private ServerConfigurationService serverConfigurationService;
-	private RebuildBreakdownService rebuildBreakdownService;
 
 	public RequestFilter() {
 		threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
 		sessionManager = ComponentManager.get(SessionManager.class);
 		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-		rebuildBreakdownService = ComponentManager.get(RebuildBreakdownService.class);
 	}
 
 	/** Set the HttpOnly attribute on the cookie */
@@ -1221,18 +1218,6 @@ public class RequestFilter implements Filter
 				s.setActive();
 			}
 		}
-		if (s == null && sessionId != null) {
-			// check to see if this session has already been built.  If not, rebuild
-
-			if (rebuildBreakdownService != null) {
-				s = sessionManager.startSession(sessionId);
-				if (!rebuildBreakdownService.rebuildSession(s)) {
-					s.invalidate();
-					s = null;
-				}
-			}
-		}
-
 		// if missing, make one
 		if (s == null)
 		{
@@ -1404,20 +1389,6 @@ public class RequestFilter implements Filter
 	 */
 	protected void postProcessResponse(Session s, HttpServletRequest req, HttpServletResponse res)
 	{
-		if (rebuildBreakdownService != null) {
-		    rebuildBreakdownService.storeSession(s, req);
-		}
-	}
-
-	/**
-	 * isSessionClusteringEnabled() checks if session information is clustered.
-	 * Clustering through
-	 * RebuildBreakdownService session clustering
-	 * @return true if sessionClustering is enabled
-	 */
-	private boolean isSessionClusteringEnabled()
-	{
-	    return rebuildBreakdownService != null && rebuildBreakdownService.isSessionHandlingEnabled();
 	}
 
 	/**
@@ -1443,7 +1414,7 @@ public class RequestFilter implements Filter
 					// If the suffix passed in to this method is not null
 					// then only match the cookie if the end of the cookie
 					// value is equal to the suffix passed in.
-					if (isSessionClusteringEnabled() || ((suffix == null) || cookies[i].getValue().endsWith(suffix)))
+					if ((suffix == null) || cookies[i].getValue().endsWith(suffix))
 					{
 						return cookies[i];
 					}

@@ -33,6 +33,11 @@
         <property name="configuration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
     </bean>
 
+    <bean id="org.sakaiproject.ignite.api.CacheAdminService"
+          class="org.sakaiproject.ignite.CacheAdminServiceImpl">
+        <property name="sakaiIgnite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+    </bean>
+
     <!--
     Expiry policy to for when cache objects are considered expired (ttl)
     Default is 120 minutes from when object is created

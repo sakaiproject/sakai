@@ -59,7 +59,6 @@ import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.impl.report.ReportManagerImpl;
@@ -267,12 +266,6 @@ public class SiteStatsTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")
     public LinkMigrationHelper linkMigrationHelper() {
         return mock(LinkMigrationHelper.class);
-    }
-
-    @Bean(name = "org.sakaiproject.memory.api.MemoryService")
-    public MemoryService memoryService() {
-        MemoryService memoryService = new org.sakaiproject.memory.mock.MemoryService();
-        return memoryService;
     }
 
     @Bean(name = "org.sakaiproject.ignite.SakaiCacheManager")

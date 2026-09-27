@@ -34,7 +34,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
-import org.sakaiproject.memory.api.MemoryService;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.sakaiproject.site.api.SiteService;
@@ -126,11 +125,6 @@ public abstract class SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.authz.api.FunctionManager")
     public FunctionManager functionManager() {
         return mock(FunctionManager.class);
-    }
-
-    @Bean(name = "org.sakaiproject.memory.api.MemoryService")
-    public MemoryService memoryService() {
-        return mock(MemoryService.class);
     }
 
     @Bean(name = "org.sakaiproject.ignite.SakaiCacheManager")

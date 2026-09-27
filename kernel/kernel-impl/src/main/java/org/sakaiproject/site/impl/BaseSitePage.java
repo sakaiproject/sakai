@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.impl;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,7 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
  * </p>
  */
 @Slf4j
-public class BaseSitePage implements SitePage, Identifiable
+public class BaseSitePage implements SitePage, Identifiable, Serializable
 {
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;
@@ -69,7 +70,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	protected ResourcePropertiesEdit m_properties = null;
 
 	/** the list of tool configurations for this SitePage */
-	protected ResourceVector m_tools = null;
+	protected List<ToolConfiguration> m_tools = null;
 
 	/** false while the page's tools have not yet been read in. */
 	protected boolean m_toolsLazy = false;
@@ -77,16 +78,17 @@ public class BaseSitePage implements SitePage, Identifiable
 	/** Active flag. */
 	protected boolean m_active = false;
 
-	/** The site I belong to. */
-	protected Site m_site = null;
+	/** The site I belong to. Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	protected transient Site m_site = null;
 
 	/** The site id I belong to, in case I have no m_site. */
 	protected String m_siteId = null;
 
 	/** The site skin, in case I have no m_site. */
 	protected String m_skin = null;
-   
-	private BaseSiteService siteService;
+
+	/** Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	private transient BaseSiteService siteService;
 	
 	protected String[] SAKAI_DEFAULT_EXCEPTION_IDS = {"sakai.iframe","sakai.news"};
 	/** String array of default exception ids to not override the title */
@@ -115,7 +117,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		m_site = site;
 		m_id = siteService.idManager.createUuid();
 		m_properties = new BaseResourcePropertiesEdit();
-		m_tools = new ResourceVector();
+		m_tools = new ArrayList<>();
 	}
 
 	/**
@@ -142,7 +144,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		m_properties = new BaseResourcePropertiesEdit();
 		((BaseResourcePropertiesEdit) m_properties).setLazy(true);
 
-		m_tools = new ResourceVector();
+		m_tools = new ArrayList<>();
 		m_toolsLazy = true;
 
 		m_title = title;
@@ -188,7 +190,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		m_properties = new BaseResourcePropertiesEdit();
 		((BaseResourcePropertiesEdit) m_properties).setLazy(true);
 
-		m_tools = new ResourceVector();
+		m_tools = new ArrayList<>();
 		m_toolsLazy = true;
 
 		m_title = title;
@@ -267,7 +269,7 @@ public class BaseSitePage implements SitePage, Identifiable
 				.map(tool -> new BaseToolConfiguration(siteService, tool, this, exact))
 				.collect(Collectors.toList());
 
-        m_tools = new ResourceVector(copiedTools);
+        m_tools = new ArrayList<>(copiedTools);
 		m_toolsLazy = ((BaseSitePage) other).m_toolsLazy;
 
 		m_siteId = bOther.m_siteId;
@@ -292,7 +294,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		m_properties = new BaseResourcePropertiesEdit();
 
 		// setup for page list
-		m_tools = new ResourceVector();
+		m_tools = new ArrayList<>();
 
 		m_id = el.getAttribute("id");
 		m_title = StringUtils.trimToNull(el.getAttribute("title"));
@@ -524,7 +526,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	}
 
 	public void setTools(List tools){
-		this.m_tools = new ResourceVector(tools);
+		this.m_tools = new ArrayList<>(tools);
 	}
 
 	/**
@@ -532,7 +534,9 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public ToolConfiguration getTool(String id)
 	{
-		return (ToolConfiguration) ((ResourceVector) getTools()).getById(id);
+		return (ToolConfiguration) getTools().stream()
+				.filter(t -> ((Identifiable) t).getId().equals(id))
+				.findFirst().orElse(null);
 	}
 
 	/**
@@ -675,7 +679,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	public ToolConfiguration addTool()
 	{
 		BaseToolConfiguration tool = new BaseToolConfiguration(siteService, this);
-		((ResourceVector) getTools()).add(tool);
+		getTools().add(tool);
 
 		return tool;
 	}
@@ -686,7 +690,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	public ToolConfiguration addTool(Tool reg)
 	{
 		BaseToolConfiguration tool = new BaseToolConfiguration(siteService,reg, this);
-		((ResourceVector) getTools()).add(tool);
+		getTools().add(tool);
 
 		return tool;
 	}
@@ -697,7 +701,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	public ToolConfiguration addTool(String toolId)
 	{
 		BaseToolConfiguration tool = new BaseToolConfiguration(siteService, toolId, this);
-		((ResourceVector) getTools()).add(tool);
+		getTools().add(tool);
 
 		return tool;
 	}
@@ -707,7 +711,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public void removeTool(ToolConfiguration tool)
 	{
-		((ResourceVector) getTools()).remove(tool);
+		getTools().remove(tool);
 	}
 
 	/**
@@ -716,7 +720,9 @@ public class BaseSitePage implements SitePage, Identifiable
 	public void moveUp()
 	{
 		if (m_site == null) return;
-		((ResourceVector) m_site.getPages()).moveUp(this);
+		List<SitePage> pages = m_site.getPages();
+		int pos = pages.indexOf(this);
+		if (pos > 0) Collections.swap(pages, pos, pos - 1);
 	}
 
 	/**
@@ -731,7 +737,8 @@ public class BaseSitePage implements SitePage, Identifiable
 		if (pos >= pageSize) {
 			pos = pageSize - 1;
 		}
-		((ResourceVector) pageList).moveTo(this, pos);
+		pageList.remove(this);
+		pageList.add(pos, this);
 	}
 
 	/**
@@ -740,7 +747,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	public int getPosition()
 	{
 		if (m_site == null) return -1;
-		return ((ResourceVector) m_site.getPages()).indexOf(this);
+		return m_site.getPages().indexOf(this);
 	}
 
 	public void setupPageCategory(String toolId)
@@ -763,7 +770,9 @@ public class BaseSitePage implements SitePage, Identifiable
 	public void moveDown()
 	{
 		if (m_site == null) return;
-		((ResourceVector) m_site.getPages()).moveDown(this);
+		List<SitePage> pages = m_site.getPages();
+		int pos = pages.indexOf(this);
+		if (pos != -1 && pos < pages.size() - 1) Collections.swap(pages, pos, pos + 1);
 	}
 
 	/**

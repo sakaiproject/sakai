@@ -46,8 +46,6 @@ import org.sakaiproject.event.impl.ActivityServiceImpl;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.log.api.LogConfigurationManager;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.time.api.TimeService;
@@ -55,6 +53,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -149,11 +149,11 @@ public class LearningResourceTestConfiguration {
         return mock(UsageSessionService.class);
     }
     
-    @Bean(name = "org.sakaiproject.memory.api.MemoryService")
-    public MemoryService memoryService() {
-        MemoryService memoryService = mock(MemoryService.class);
-        when(memoryService.getCache(ActivityServiceImpl.USER_ACTIVITY_CACHE_NAME)).thenReturn(mock(Cache.class));
-        return memoryService;
+    @Bean(name = "org.sakaiproject.ignite.SakaiCacheManager")
+    public CacheManager cacheManager() {
+        CacheManager cacheManager = mock(CacheManager.class);
+        when(cacheManager.getCache(ActivityServiceImpl.USER_ACTIVITY_CACHE_NAME)).thenReturn(mock(Cache.class));
+        return cacheManager;
     }
     
     @Bean(name = "org.sakaiproject.event.api.NotificationService")
