@@ -36,7 +36,6 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.id.impl.UuidV4IdComponent;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
-import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.impl.SessionComponent;
