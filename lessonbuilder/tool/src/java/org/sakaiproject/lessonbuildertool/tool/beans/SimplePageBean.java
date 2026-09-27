@@ -5703,7 +5703,7 @@ public class SimplePageBean {
 			    break;
 			case SimplePageItem.ASSESSMENT:
 				entity = quizEntity.getEntity(item.getSakaiId(), this);
-				if (entity == null || entity.notPublished())
+				if (entity == null || !entity.objectExists() || entity.notPublished())
 				return false;
 			    break;
 			case SimplePageItem.SCORM:
