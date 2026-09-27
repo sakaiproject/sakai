@@ -8,7 +8,6 @@
 			init-method="init"
 			destroy-method="destroy">
 
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />

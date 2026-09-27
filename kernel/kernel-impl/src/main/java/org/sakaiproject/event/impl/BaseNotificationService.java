@@ -44,7 +44,6 @@ import org.sakaiproject.event.api.NotificationNotDefinedException;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
@@ -112,7 +111,6 @@ public abstract class BaseNotificationService implements NotificationService, Ob
     @Setter protected ApplicationContext applicationContext;
     @Setter protected EventTrackingService eventTrackingService;
     @Setter protected IdManager idManager;
-    @Setter protected MemoryService memoryService;
     @Setter protected ServerConfigurationService serverConfigurationService;
 
     /**
