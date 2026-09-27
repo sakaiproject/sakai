@@ -21,6 +21,7 @@
 
 package org.sakaiproject.user.impl;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -44,8 +45,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
@@ -58,6 +57,8 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StringUtil;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 /**
  * <p>
@@ -76,7 +77,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 	/** the cache for Preference objects **/
-	private Cache<String, BasePreferences> m_cache;
+	private Cache m_cache;
 
 	protected abstract Storage newStorage();
 
@@ -150,7 +151,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		}
 	}
 
-	@Setter protected MemoryService memoryService;
+	@Setter protected CacheManager cacheManager;
 	@Setter protected ServerConfigurationService serverConfigurationService;
 	@Setter protected EntityManager entityManager;
 	@Setter protected SecurityService securityService;
@@ -179,7 +180,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 
 			
 			//register a cache
-			m_cache = memoryService.getCache(BasePreferencesService.class.getName() +".preferences");
+			m_cache = cacheManager.getCache(BasePreferencesService.class.getName() +".preferences");
 			
 			log.info("init()");
 		}
@@ -310,8 +311,8 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			// addLiveUpdateProperties(user.getPropertiesEdit());
 			
 			//invalidate the cache
-			m_cache.remove(edit.getId());
-				
+			m_cache.evict(edit.getId());
+
 			// complete the edit
 			m_storage.commit(edit);
 		
@@ -379,8 +380,8 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 
 		// complete the edit
 		m_storage.remove(edit);
-		
-		m_cache.remove(edit.getId());
+
+		m_cache.evict(edit.getId());
 
 		// track it
 		eventTrackingService.post(eventTrackingService.newEvent(SECURE_REMOVE_PREFS, edit.getReference(), true));
@@ -403,7 +404,8 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		}
 
 		// Try the cache
-		BasePreferences prefs = m_cache.get(id);
+		PreferencesSnapshot snapshot = m_cache.get(id, PreferencesSnapshot.class);
+		BasePreferences prefs = snapshot != null ? fromSnapshot(snapshot) : null;
 
 		// Failing that, try the storage
 		if (prefs == null) {
@@ -411,9 +413,24 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		}
 
 		if (prefs != null) {
-			m_cache.put(id, prefs);
+			m_cache.put(id, prefs.toSnapshot());
 		}
-		
+
+		return prefs;
+	}
+
+	/**
+	 * Rebuild a (non-editable) BasePreferences from a cached snapshot. BasePreferences itself
+	 * can't be cached directly since it's a non-static inner class carrying an implicit
+	 * reference to this service.
+	 */
+	private BasePreferences fromSnapshot(PreferencesSnapshot snapshot)
+	{
+		BasePreferences prefs = new BasePreferences(snapshot.id);
+		prefs.m_properties = snapshot.properties;
+		Map<String, ResourcePropertiesEdit> props = new Hashtable<>();
+		props.putAll(snapshot.props);
+		prefs.m_props = props;
 		return prefs;
 	}
 
@@ -676,6 +693,26 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		public void remove(PreferencesEdit edit);
 	}
 
+	/**
+	 * A cacheable, static (no enclosing-instance reference) snapshot of a BasePreferences'
+	 * read-only state, for storing in the distributed cache in place of BasePreferences itself.
+	 */
+	static class PreferencesSnapshot implements Serializable
+	{
+		private static final long serialVersionUID = 1L;
+
+		final String id;
+		final BaseResourcePropertiesEdit properties;
+		final Map<String, BaseResourcePropertiesEdit> props;
+
+		PreferencesSnapshot(String id, BaseResourcePropertiesEdit properties, Map<String, BaseResourcePropertiesEdit> props)
+		{
+			this.id = id;
+			this.properties = properties;
+			this.props = props;
+		}
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Preferences implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -846,6 +883,19 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			// %%% is this deep enough? -ggolden
 			m_props = new Hashtable<>();
 			m_props.putAll(((BasePreferences) prefs).m_props);
+		}
+
+		/**
+		 * Capture this preferences' state as a cacheable snapshot (see PreferencesSnapshot).
+		 */
+		PreferencesSnapshot toSnapshot()
+		{
+			Map<String, BaseResourcePropertiesEdit> propsCopy = new HashMap<>();
+			for (Map.Entry<String, ResourcePropertiesEdit> entry : m_props.entrySet())
+			{
+				propsCopy.put(entry.getKey(), (BaseResourcePropertiesEdit) entry.getValue());
+			}
+			return new PreferencesSnapshot(m_id, (BaseResourcePropertiesEdit) m_properties, propsCopy);
 		}
 
 		@Override
