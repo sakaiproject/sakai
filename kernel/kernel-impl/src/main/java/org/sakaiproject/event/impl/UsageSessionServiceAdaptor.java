@@ -49,8 +49,8 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -76,7 +76,7 @@ public class UsageSessionServiceAdaptor implements UsageSessionService
 	@Setter protected AuthzGroupService authzGroupService;
 	@Setter protected EventTrackingService eventTrackingService;
 	@Setter protected IdManager idManager;
-	@Setter protected MemoryService memoryService;
+	@Setter protected CacheManager cacheManager;
 	@Setter protected ServerConfigurationService serverConfigurationService;
 	@Setter protected SessionManager sessionManager;
 	@Setter protected SqlService sqlService;
@@ -87,7 +87,7 @@ public class UsageSessionServiceAdaptor implements UsageSessionService
 	protected Storage m_storage = null;
 
 	/** A Cache of recently refreshed users. This is to prevent frequent authentications refreshing user data */
-	protected Cache<String, Boolean> m_recentUserRefresh = null;
+	protected Cache m_recentUserRefresh = null;
 
     /**
 	 * Construct storage for this service.
@@ -148,7 +148,7 @@ public class UsageSessionServiceAdaptor implements UsageSessionService
 			// open storage
 			m_storage.open();
 
-			m_recentUserRefresh = memoryService.getCache("org.sakaiproject.event.api.UsageSessionService.recentUserRefresh");
+			m_recentUserRefresh = cacheManager.getCache("org.sakaiproject.event.api.UsageSessionService.recentUserRefresh");
 			
 			log.info("init()");
 		}
@@ -384,7 +384,7 @@ public class UsageSessionServiceAdaptor implements UsageSessionService
 		sakaiSession.setUserEid(eid);
 
 		// update the user's externally provided realm definitions
-		if (m_recentUserRefresh != null && m_recentUserRefresh.get(uid) != null)
+		if (m_recentUserRefresh != null && m_recentUserRefresh.get(uid, Boolean.class) != null)
 		{
 			if (log.isDebugEnabled())
 			{

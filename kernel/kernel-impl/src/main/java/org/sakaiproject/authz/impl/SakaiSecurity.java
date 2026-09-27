@@ -32,8 +32,6 @@ import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -51,8 +49,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IllegalSecurityAdvisorException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -60,6 +56,9 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -123,7 +122,7 @@ public class SakaiSecurity implements SecurityService, Observer {
     @Setter protected AuthzGroupService authzGroupService;
     @Setter protected EntityManager entityManager;
     @Setter protected EventTrackingService eventTrackingService;
-    @Setter protected MemoryService memoryService;
+    @Setter protected CacheManager cacheManager;
     @Setter protected SessionManager sessionManager;
     @Setter protected ThreadLocalManager threadLocalManager;
     @Setter protected UserDirectoryService userDirectoryService;
@@ -132,9 +131,9 @@ public class SakaiSecurity implements SecurityService, Observer {
     @Setter protected SiteService siteService;
     @Setter protected ToolManager toolManager;
 
-    protected Cache<String, Boolean> m_callCache = null; // A cache of calls to the service and the results
-    private Cache<String, Boolean> m_contentCache; // holds the content authz check cached results
-    private Cache<String, Boolean> m_superCache; // holds the superuser check cached results
+    protected Cache m_callCache = null; // A cache of calls to the service and the results
+    private Cache m_contentCache; // holds the content authz check cached results
+    private Cache m_superCache; // holds the superuser check cached results
     protected int m_cacheMinutes = 3; // The # minutes to cache the security answers. 0 disables the cache
     boolean cacheDebug = false; // Enable cache debugging output in the logs [memory.SecurityService.debug=true]
     boolean cacheDebugDetailed = false; // Show extra details in the debugging including hits and misses, adds, ref conversions, all current entries data [memory.SecurityService.debugDetails=true]
@@ -158,9 +157,9 @@ public class SakaiSecurity implements SecurityService, Observer {
                 svRoles.add(externalRole.trim());
             }
 
-            m_callCache = memoryService.getCache("org.sakaiproject.authz.api.SecurityService.cache");
-            m_superCache = memoryService.getCache("org.sakaiproject.authz.api.SecurityService.superCache");
-            m_contentCache = memoryService.getCache("org.sakaiproject.authz.api.SecurityService.contentCache");
+            m_callCache = cacheManager.getCache("org.sakaiproject.authz.api.SecurityService.cache");
+            m_superCache = cacheManager.getCache("org.sakaiproject.authz.api.SecurityService.superCache");
+            m_contentCache = cacheManager.getCache("org.sakaiproject.authz.api.SecurityService.contentCache");
         }
         eventTrackingService.addObserver(this);
     }
@@ -185,12 +184,12 @@ public class SakaiSecurity implements SecurityService, Observer {
         Boolean result = null;
         if (m_callCache != null) {
             if (isSuper) {
-                result = m_superCache.get(key);
+                result = m_superCache.get(key, Boolean.class);
             } else {
                 if (key.contains("@/content")) {
-                    result = m_contentCache.get(key);
+                    result = m_contentCache.get(key, Boolean.class);
                 } else {
-                    result = m_callCache.get(key);
+                    result = m_callCache.get(key, Boolean.class);
                 }
             }
             // see the note below about forced cache expiration
@@ -227,7 +226,6 @@ public class SakaiSecurity implements SecurityService, Observer {
                     }
                 } else {
                     m_callCache.put(key, payload);
-                    if (cacheDebugDetailed) logCacheState("addToCache(" + key + ", " + payload + ")");
                 }
             }
             // see the note below about forced cache expiration
@@ -310,7 +308,9 @@ public class SakaiSecurity implements SecurityService, Observer {
      * Removes the specified users site visit permission from the call cache
      */
     protected void notifyMembersRemovedFromRealm(Set<String> userIds, String azgRef) {
-        m_callCache.removeAll(userIds.stream().map(uid -> makeCacheKey(uid, null, SiteService.SITE_VISIT, azgRef, false)).collect(Collectors.toSet()));
+        userIds.stream()
+                .map(uid -> makeCacheKey(uid, null, SiteService.SITE_VISIT, azgRef, false))
+                .forEach(m_callCache::evict);
     }
 
     /**
@@ -373,7 +373,7 @@ public class SakaiSecurity implements SecurityService, Observer {
             }
         }
 
-        m_callCache.removeAll(keysToInvalidate);
+        keysToInvalidate.forEach(m_callCache::evict);
 
         // now handle all the real users
         // clear both normal and swapped users
@@ -403,12 +403,10 @@ public class SakaiSecurity implements SecurityService, Observer {
                     }
                     // invalidate all keys (do this as a batch)
                     if (cacheDebug) log.info("SScache:changed {}:keys={}", azgRef, keysToInvalidate);
-                    m_callCache.removeAll(permKeysToInvalidate);
+                    permKeysToInvalidate.forEach(m_callCache::evict);
                 }
             }
         }
-        if (cacheDebug)
-            logCacheState("cacheRealmPermsChanged(" + realmRef + ", roles=" + roles + ", perms=" + permissions + ")");
     }
 
     /**
@@ -468,32 +466,8 @@ public class SakaiSecurity implements SecurityService, Observer {
         return "unlock@" + userId + "@" + role + "@" + function + "@" + reference;
     }
 
-    private void logCacheState(String operator) {
-        if (cacheDebug) {
-            String name = m_callCache.getName();
-            net.sf.ehcache.Ehcache ehcache = m_callCache.unwrap(Ehcache.class); // DEBUGGING ONLY
-            StringBuilder entriesSB = new StringBuilder();
-            List keys = ehcache.getKeysWithExpiryCheck(); // only current keys
-            entriesSB.append("   * keys(").append(keys.size()).append("):").append(new ArrayList<Object>(keys)).append("\n");
-            Collection<Element> entries = ehcache.getAll(keys).values();
-            int countMaps = 0;
-            for (Element element : entries) {
-                if (element == null) continue;
-                int count = 0;
-                countMaps += count;
-                if (cacheDebugDetailed) {
-                    entriesSB.append("   ").append(element.getObjectKey()).append(" => (").append(count).append(")").append(element.getObjectValue()).append("\n");
-                }
-            }
-            log.info("SScache:{}:: {} ::\n  entries(Ehcache[key => payload],{} + {} = {}):\n{}", name, operator, keys.size(), countMaps, keys.size() + countMaps, entriesSB);
-        }
-    }
-
     public void destroy() {
         log.info("destroy()");
-        if (m_callCache != null) m_callCache.close();
-        if (m_superCache != null) m_superCache.close();
-        if (m_contentCache != null) m_contentCache.close();
     }
 
     @Override
