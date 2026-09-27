@@ -43,7 +43,6 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ClosingException;
 import org.sakaiproject.tool.api.NonPortableSession;
-import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionAttributeListener;
 import org.sakaiproject.tool.api.SessionManager;
@@ -95,7 +94,6 @@ public class SessionComponent implements SessionManager, SessionStore
 	@Setter protected ToolManager toolManager;
 	@Setter protected ThreadLocalManager threadLocalManager;
 	@Setter protected IdManager idManager;
-	@Setter protected RebuildBreakdownService rebuildBreakdownService;
 	@Setter protected ClusterService clusterManager;
 
 	private SessionAttributeListener sessionListener;
@@ -359,7 +357,7 @@ public class SessionComponent implements SessionManager, SessionStore
 		MutableLong currentTime = currentTimeMutableLong();
 
 		// create a new session
-		Session s = new MySession(this, id, threadLocalManager, idManager, this, sessionListener, m_defaultInactiveInterval, nPS, currentTime, rebuildBreakdownService);
+		Session s = new MySession(this, id, threadLocalManager, idManager, this, sessionListener, m_defaultInactiveInterval, nPS, currentTime);
 
 		// Place session into the main Session Storage, capture any old id
 		Session old = m_sessions.put(s.getId(), s);
@@ -396,7 +394,7 @@ public class SessionComponent implements SessionManager, SessionStore
 			// create a non portable session object if this is a clustered environment
 			NonPortableSession nPS = new MyNonPortableSession();
 
-			rv = new MySession(this, id, threadLocalManager, idManager, this, sessionListener, m_defaultInactiveInterval, nPS, currentTimeMutableLong(), rebuildBreakdownService);
+			rv = new MySession(this, id, threadLocalManager, idManager, this, sessionListener, m_defaultInactiveInterval, nPS, currentTimeMutableLong());
 			setCurrentSession(rv);
 		}
 
