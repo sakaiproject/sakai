@@ -46,7 +46,6 @@ import org.sakaiproject.event.impl.ActivityServiceImpl;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.log.api.LogConfigurationManager;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.time.api.TimeService;
@@ -150,11 +149,6 @@ public class LearningResourceTestConfiguration {
         return mock(UsageSessionService.class);
     }
     
-    @Bean(name = "org.sakaiproject.memory.api.MemoryService")
-    public MemoryService memoryService() {
-        return mock(MemoryService.class);
-    }
-
     @Bean(name = "org.sakaiproject.ignite.SakaiCacheManager")
     public CacheManager cacheManager() {
         CacheManager cacheManager = mock(CacheManager.class);
