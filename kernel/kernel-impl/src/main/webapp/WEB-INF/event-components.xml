@@ -36,7 +36,6 @@
         <property name="schedulingService"          ref="org.sakaiproject.scheduling.api.SchedulingService"/>
         <property name="toolManager"                ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="entityManager"              ref="org.sakaiproject.entity.api.EntityManager"/>
-        <property name="memoryService"              ref="org.sakaiproject.memory.api.MemoryService"/>
         <property name="checkDb" value="true"/>
         <property name="autoDdl" value="${auto.ddl}"/>
         <property name="period" value="5"/>
