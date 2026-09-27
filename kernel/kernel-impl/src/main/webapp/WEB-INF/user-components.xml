@@ -88,7 +88,7 @@
     <bean id="org.sakaiproject.user.impl.AuthenticationCache"
         class="org.sakaiproject.user.impl.AuthenticationCache"
         init-method="init" destroy-method="destroy">
-        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
     </bean>
 
     <!-- Password service, create this as a named bean so it can be configured if required. -->
