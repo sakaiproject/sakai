@@ -60,7 +60,6 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="idManager"                  ref="org.sakaiproject.id.api.IdManager"/>
         <property name="sqlService"                 ref="org.sakaiproject.db.api.SqlService"/>
-        <property name="memoryService"              ref="org.sakaiproject.memory.api.MemoryService"/>
 
         <property name="tableName" value="SAKAI_NOTIFICATION"/>
         <property name="locksInDb" value="false"/>

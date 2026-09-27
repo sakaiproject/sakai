@@ -165,7 +165,6 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.exception.ZipFileNumberException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -311,9 +310,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	@Autowired
-	protected MemoryService memoryService;
 
  	@Autowired
  	protected SessionManager sessionManager;

@@ -143,8 +143,6 @@ import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.springframework.cache.CacheManager;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
@@ -814,7 +812,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final String GB_GROUP_PROPERTY = "gb-group";
 
-	private Cache m_userSiteCache;
 	private ImportService importService;
 	private List prefLocales;
 	private Locale dateFormattingLocale;
@@ -838,7 +835,6 @@ public class SiteAction extends PagedResourceActionII {
 	private LTIService ltiService;
 	private LinkMigrationHelper linkMigrationHelper;
 	private LocaleService localeService;
-	private MemoryService memoryService;
 	private CacheManager cacheManager;
 	private PreferencesService preferencesService;
 	private PrivacyManager privacyManager;
@@ -880,7 +876,6 @@ public class SiteAction extends PagedResourceActionII {
 		linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
 		localeService = ComponentManager.get(LocaleService.class);
 		ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		memoryService = ComponentManager.get(MemoryService.class);
 		cacheManager = (CacheManager) ComponentManager.get("org.sakaiproject.ignite.SakaiCacheManager");
 		preferencesService = ComponentManager.get(PreferencesService.class);
 		privacyManager = ComponentManager.get(PrivacyManager.class);
@@ -918,7 +913,6 @@ public class SiteAction extends PagedResourceActionII {
 		PRIVATE_SITE_TYPES_SAK_PROP = serverConfigurationService.getStrings("site.types.privateOnly");
 
 		showOrphanedMembers = serverConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
-		m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.siteService.userSiteCache");
 		if (cacheManager != null) {
 			org.springframework.cache.Cache gradebookGroupEnabledCacheOnInit = cacheManager.getCache("org.sakaiproject.tool.gradebook.group.enabled");
 			if (gradebookGroupEnabledCacheOnInit != null) gradebookGroupEnabledCacheOnInit.clear();
@@ -9613,12 +9607,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				}
 				authzGroupService.save(realmEdit);
 
-				// SAK-41181
-				usersDeleted.stream().map(ud -> ud.substring(4)).collect(Collectors.toList()).forEach(ud -> {
-					log.debug("Removing user uuid {} from the user site cache", ud);
-					m_userSiteCache.remove(ud);
-				});
-				
+				// SAK-41181 used to evict removed users' entries from a "user site list" cache
+				// here (m_userSiteCache, keyed under
+				// "org.sakaiproject.site.api.siteService.userSiteCache"), but that was never the
+				// same cache instance BaseSiteService actually reads from (USER_SITE_CACHE,
+				// "org.sakaiproject.site.api.SiteService.userSiteCache" - note the capitalization
+				// difference) and was never populated either, so it was a no-op against an empty,
+				// unrelated cache. BaseSiteService's own update() observer already documents this
+				// exact "membership drop" case as an accepted gap covered by the visit-denied path
+				// and TTL expiry (see comment above BaseSiteService.update()'s event switch), not
+				// something that needs an explicit eviction here.
+
 				// do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
 				// but seems to be a better solution than call this multiple time for every update
 				if (!userAuditList.isEmpty())
