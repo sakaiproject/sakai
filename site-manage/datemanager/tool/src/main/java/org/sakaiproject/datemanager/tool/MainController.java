@@ -120,7 +120,7 @@ public class MainController {
      * @return The name of the index view.
      */
     @GetMapping(value = {"/", "/index"})
-    public String showIndex(@RequestParam(required=false) String code, Model model, HttpServletRequest request, HttpServletResponse response) {
+    public String showIndex(@RequestParam(name = "code", required = false) String code, Model model, HttpServletRequest request, HttpServletResponse response) {
 		String siteId = dateManagerService.getCurrentSiteId();
 		model = getModelWithLocale(model, request, response);
 
