@@ -163,6 +163,62 @@
 						}
 						template.remove();
 					});
+					## A shadow root only inherits properties like font and color from the page -
+					## global stylesheet rules don't reach inside it. Messages built from the
+					## standard CKEditor templates rely on skin classes (alert, panel,
+					## sakai-colorize--*, fa), so each shadow root gets its own copy of the page's
+					## head stylesheets, ahead of the message's own markup so the message's
+					## embedded <style> still wins over the skin just as it would in the page.
+					## Skin rules anchored on the document root (e.g. the theme's generated
+					## ":root .sakai-colorize--*" and ":root.sakaiUserTheme-dark ..." classes) can
+					## never match inside a shadow tree, so those are re-emitted with the root
+					## part stripped, keeping only the ones whose root part matches this page.
+					## Selectors that also depend on the portal's Mrphs-* ancestor classes are
+					## dropped: they can't match inside a message either, and the skin's @extend
+					## of the colorize classes makes them the bulk (~95%) of these rules' size.
+					var motdPageStyles = document.head.querySelectorAll("link[rel~='stylesheet'], style");
+					var motdRootRulesText = function (rules) {
+						var text = "";
+						Array.prototype.forEach.call(rules, function (rule) {
+							if (rule.selectorText && rule.selectorText.indexOf(":root") !== -1) {
+								var selectors = rule.selectorText.split(",").map(function (selector) {
+									var match = selector.trim().match(/^(:root[^\s>+~]*)\s+(.+)/);
+									return match && match[2].indexOf("Mrphs-") === -1 && document.documentElement.matches(match[1]) ? match[2] : null;
+								}).filter(Boolean);
+								if (selectors.length) {
+									text += selectors.join(", ") + " {" + rule.style.cssText + "}\n";
+								}
+							} else if (rule.media && rule.cssRules) {
+								var inner = motdRootRulesText(rule.cssRules);
+								if (inner) {
+									text += "@media " + rule.media.mediaText + " {\n" + inner + "}\n";
+								}
+							}
+						});
+						return text;
+					};
+					var motdRootStyle = document.createElement("style");
+					Array.prototype.forEach.call(document.styleSheets, function (sheet) {
+						if (!sheet.ownerNode || !document.head.contains(sheet.ownerNode)) {
+							return;
+						}
+						try {
+							motdRootStyle.textContent += motdRootRulesText(sheet.cssRules);
+						} catch (e) {
+							## cssRules of a cross-origin stylesheet isn't readable; skip it
+						}
+					});
+					document.querySelectorAll("#motdCarousel .textPanel").forEach(function (host) {
+						if (!host.shadowRoot) {
+							return;
+						}
+						var styles = document.createDocumentFragment();
+						motdPageStyles.forEach(function (style) {
+							styles.appendChild(style.cloneNode(true));
+						});
+						styles.appendChild(motdRootStyle.cloneNode(true));
+						host.shadowRoot.insertBefore(styles, host.shadowRoot.firstChild);
+					});
 					## Each carousel slide can be a different height. The parent iframe is only
 					## auto-sized once, on body onload, so without this the frame is left at the
 					## first slide's height and later, taller slides get clipped with a scrollbar.
