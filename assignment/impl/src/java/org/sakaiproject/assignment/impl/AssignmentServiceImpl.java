@@ -3268,7 +3268,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         try {
             // return false only if the user is not allowed to submit and not allowed to add to the assignment
             if (!permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignment, userId) // check asn.submit for user on assignment consulting groups
-                    && !permissionCheck(SECURE_ADD_ASSIGNMENT, siteService.siteReference(assignment.getContext()), userId)) return false; // check asn.new for user in site not consulting groups
+                    && !permissionCheck(SECURE_ADD_ASSIGNMENT, siteService.siteReference(assignment.getContext()), userId)
+                    && !permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT, assignment, userId)) return false; // allow group instructors to submit on behalf
 
             // if user the user can access this assignment
             checkAssignmentAccessibleForUser(assignment, userId);

@@ -2573,6 +2573,43 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void canSubmitOnBehalfWithAssignmentGroupPermission() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String siteRef = "/site/" + context;
+        String groupRef = siteRef + "/group/assigned";
+        String otherGroupRef = siteRef + "/group/other";
+        String teachingAssistant = "teaching-assistant";
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setGroups(new HashSet<>(Set.of(groupRef)));
+        assignment.setDraft(false);
+        assignment.setOpenDate(Instant.now().minus(1, ChronoUnit.DAYS));
+        assignment.setCloseDate(Instant.now().plus(1, ChronoUnit.DAYS));
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        when(siteService.getSite(context)).thenReturn(site);
+        when(siteService.siteReference(context)).thenReturn(siteRef);
+        when(site.getGroups()).thenReturn(List.of(group));
+        when(group.getReference()).thenReturn(groupRef);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(teachingAssistant);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(teachingAssistant),
+                eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection())).thenReturn(Set.of(groupRef));
+
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+        when(securityService.unlock(teachingAssistant, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, otherGroupRef)).thenReturn(true);
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+        when(securityService.unlock(teachingAssistant, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, groupRef)).thenReturn(true);
+        Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+        assignment.setTypeOfAccess(Assignment.Access.SITE);
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+        when(securityService.unlock(teachingAssistant, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, siteRef)).thenReturn(true);
+        Assert.assertTrue(assignmentService.canSubmit(assignment));
+    }
+
+    @Test
     public void canSubmit() {
         String context = UUID.randomUUID().toString();
         Instant now = Instant.now();

@@ -5940,7 +5940,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 "&estimate=true";
         context.put("accessPointUrl", accessPointUrl);
 
-        Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(contextString);
+        Map<Assignment, List<String>> submittableAssignments = assignmentService.getSubmittableAssignmentsForContext(contextString);
+        Collection<Assignment> assignments = submittableAssignments.keySet();
+        Set<String> submitterIds = submittableAssignments.values().stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
 
         boolean hasAtLeastOneAnonAssigment = false;
         for (Assignment assignment : assignments) {
@@ -5972,6 +5976,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         Map<String, User> studentMembers = groupUsers.stream()
+                    .filter(submitterIds::contains)
                     .filter(isNonSubmitter)
                     .map(userDirectoryService::getOptionalUser)
                     .flatMap(Optional::stream)
@@ -5986,6 +5991,8 @@ public class AssignmentAction extends PagedResourceActionII {
             for (String userId : expandedStudents) {
                 Set<Assignment> userSubmittableAssignments = assignments.stream()
                         .filter(Predicate.not(assignmentService::assignmentUsesAnonymousGrading))
+                        .filter(a -> submittableAssignments.get(a).contains(userId))
+                        .filter(a -> assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()))
                         .collect(Collectors.toSet());
 
                 showStudentAssignments.put(studentMembers.get(userId), userSubmittableAssignments.iterator());
