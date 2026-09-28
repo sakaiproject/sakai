@@ -67,14 +67,6 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
 
     @Before
     public void setUp() {
-        // Kernel tables used by the repository joins; LTI entities use the real module mappings.
-        jdbcTemplate.execute("create table if not exists SAKAI_SITE (SITE_ID varchar(99) primary key, TITLE varchar(99))");
-        jdbcTemplate.execute("create table if not exists SAKAI_SITE_PROPERTY (SITE_ID varchar(99), NAME varchar(99), VALUE longvarchar, primary key (SITE_ID, NAME))");
-        jdbcTemplate.update("insert into SAKAI_SITE values (?, ?)", "site-a", "Course A");
-        jdbcTemplate.update("insert into SAKAI_SITE values (?, ?)", "site-b", "Course B");
-        jdbcTemplate.update("insert into SAKAI_SITE_PROPERTY values (?, ?, ?)", "site-a", "contact-name", "Contact A");
-        jdbcTemplate.update("insert into SAKAI_SITE_PROPERTY values (?, ?, ?)", "site-a", "contact-email", "contact@example.com");
-        jdbcTemplate.update("insert into SAKAI_SITE_PROPERTY values (?, ?, ?)", "site-a", "school", "School A");
         reset(sites, sessions, locales, times, siteA, siteB, properties);
         when(sessions.getCurrentSessionUserId()).thenReturn("instructor");
         when(sites.allowUpdateSite("site-a")).thenReturn(true);
@@ -87,6 +79,7 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
         when(siteA.getProperties()).thenReturn(properties);
         when(properties.getProperty("contact-name")).thenReturn("Contact A");
         when(properties.getProperty("contact-email")).thenReturn("contact@example.com");
+        when(properties.getProperty(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT)).thenReturn("School A");
         when(locales.getLocaleForSiteAndUser("site-a", "instructor")).thenReturn(Locale.FRANCE);
         when(locales.getLocaleForSiteAndUser(LTIService.ADMIN_SITE, "instructor")).thenReturn(Locale.FRANCE);
         when(times.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone("America/New_York"));
@@ -98,7 +91,7 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
         for (int i = 0; i < 60; i++) content(tool, "site-a", String.format("Link %03d", i), null);
         content(tool, "site-b", "Other site", null);
         LtiContentRepository.ToolLinkFilter filter = new LtiContentRepository.ToolLinkFilter(
-                "site-a", false, tool.getId(), Map.of(), null, '=', "attribution");
+                "site-a", false, tool.getId(), Map.of(), null, '=', null, null);
         sessionFactory.getCurrentSession().flush();
         sessionFactory.getCurrentSession().clear();
         assertEquals(60, contents.countToolLinks(filter));
@@ -107,29 +100,49 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
         assertEquals("Link 050", page.get(0).getTitle());
         assertEquals(10, sessionFactory.getCurrentSession().getStatistics().getEntityCount());
         LtiContentRepository.ToolLinkFilter search = new LtiContentRepository.ToolLinkFilter(
-                "site-a", false, tool.getId(), Map.of("title", "LINK 05", "searchURL", "EXAMPLE"), null, '=', "attribution");
+                "site-a", false, tool.getId(), Map.of("title", "LINK 05", "searchURL", "EXAMPLE"), null, '=', null, null);
         assertEquals(10, contents.countToolLinks(search));
         assertEquals("Link 059", contents.findToolLinks(search, "searchURL", true, 9, 1).get(0).getTitle());
     }
 
     @Test
-    public void repositoryFiltersAndOrdersBySiteMetadataBeforePaging() {
+    public void filtersAndOrdersBySiteServiceMetadataBeforePaging() {
+        when(sites.allowUpdateSite(LTIService.ADMIN_SITE)).thenReturn(true);
         LtiTool tool = tool("https://example.com");
         content(tool, "site-a", "Alpha", null);
         content(tool, "site-b", "Bravo", null);
-        LtiContentRepository.ToolLinkFilter scope = new LtiContentRepository.ToolLinkFilter(
-                LTIService.ADMIN_SITE, true, null, Map.of(), null, '=', "school");
-        assertEquals(2, contents.countToolLinks(scope));
-        assertEquals("Bravo", contents.findToolLinks(scope, "SITE_TITLE", false, 0, 1).get(0).getTitle());
+        content(tool, null, "Global", null);
+        content(tool, "deleted-site", "Missing", null);
+        LtiToolLinkPage sorted = ltiService.getToolLinks(LTIService.ADMIN_SITE, null, 1, 1, "SITE_TITLE", true, Map.of());
+        assertEquals(4, sorted.getFiltered());
+        assertEquals("Bravo", sorted.getLinks().get(0).getTitle());
         for (String field : List.of("SITE_CONTACT_NAME", "SITE_CONTACT_EMAIL", "ATTRIBUTION")) {
-            assertEquals("Alpha", contents.findToolLinks(scope, field, true, 0, 1).get(0).getTitle());
+            assertEquals("Alpha", ltiService.getToolLinks(LTIService.ADMIN_SITE, null, 0, 1, field, true, Map.of())
+                    .getLinks().get(0).getTitle());
         }
-        LtiContentRepository.ToolLinkFilter filter = new LtiContentRepository.ToolLinkFilter(
-                LTIService.ADMIN_SITE, true, null,
-                Map.of("SITE_TITLE", "course a", "SITE_CONTACT_NAME", "contact", "SITE_CONTACT_EMAIL", "@example", "ATTRIBUTION", "school"),
-                null, '=', "school");
-        assertEquals(1, contents.countToolLinks(filter));
-        assertEquals("Alpha", contents.findToolLinks(filter, "title", true, 0, 1).get(0).getTitle());
+        LtiToolLinkPage filtered = page(LTIService.ADMIN_SITE, null, 0, 50,
+                Map.of("SITE_TITLE", "course a", "SITE_CONTACT_NAME", "contact", "SITE_CONTACT_EMAIL", "@example", "ATTRIBUTION", "school"));
+        assertEquals(4, filtered.getTotal());
+        assertEquals(1, filtered.getFiltered());
+        assertEquals("Alpha", filtered.getLinks().get(0).getTitle());
+        assertEquals(0, page(LTIService.ADMIN_SITE, null, 0, 50, Map.of("SITE_TITLE", "absent")).getFiltered());
+        assertEquals(0, page(LTIService.ADMIN_SITE, null, 0, 50, Map.of("SITE_TITLE", "Course A", "title", "Bravo")).getFiltered());
+    }
+
+    @Test
+    public void siteOrderingPreservesContentIdTiesAndFullPropertyValues() {
+        when(sites.allowUpdateSite(LTIService.ADMIN_SITE)).thenReturn(true);
+        when(siteB.getTitle()).thenReturn("COURSE A");
+        LtiTool tool = tool("https://example.com");
+        content(tool, "site-b", "First", null);
+        content(tool, "site-a", "Second", null);
+        content(tool, "site-b", "Third", null);
+        for (boolean ascending : List.of(true, false)) {
+            LtiToolLinkPage sorted = ltiService.getToolLinks(LTIService.ADMIN_SITE, null, 1, 1, "SITE_TITLE", ascending, Map.of());
+            assertEquals("Second", sorted.getLinks().get(0).getTitle());
+        }
+        when(properties.getProperty("contact-name")).thenReturn("x".repeat(5000) + "needle");
+        assertEquals(1, page(LTIService.ADMIN_SITE, null, 0, 50, Map.of("SITE_CONTACT_NAME", "needle")).getFiltered());
     }
 
     @Test
@@ -152,6 +165,12 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
         assertEquals(50, page.getLinks().size());
         assertEquals("Link 099950", page.getLinks().get(0).getTitle());
         // Only the requested content and its shared tool may be hydrated.
+        assertEquals(51, sessionFactory.getCurrentSession().getStatistics().getEntityCount());
+        sessionFactory.getCurrentSession().clear();
+        LtiToolLinkPage bySite = ltiService.getToolLinks(LTIService.ADMIN_SITE, null, 99_950, 50, "SITE_TITLE", true, Map.of());
+        assertEquals(100_000, bySite.getFiltered());
+        assertEquals(50, bySite.getLinks().size());
+        assertEquals("Link 099950", bySite.getLinks().get(0).getTitle());
         assertEquals(51, sessionFactory.getCurrentSession().getStatistics().getEntityCount());
     }
 

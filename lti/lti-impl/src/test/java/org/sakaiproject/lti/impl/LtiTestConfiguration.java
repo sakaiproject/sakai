@@ -28,6 +28,9 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.lti.api.LTIService;
+import static org.mockito.Mockito.when;
 import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.time.api.TimeService;
@@ -55,6 +58,16 @@ public class LtiTestConfiguration extends SakaiTestConfiguration {
     @Override
     protected AdditionalHibernateMappings getAdditionalHibernateMappings() {
         return additionalHibernateMappings;
+    }
+
+    @Override
+    @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+    public ServerConfigurationService serverConfigurationService() {
+        ServerConfigurationService configuration = super.serverConfigurationService();
+        when(configuration.getString(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY,
+                LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT))
+                .thenReturn(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT);
+        return configuration;
     }
 
     @Bean(name = "org.sakaiproject.ignite.SakaiCacheManager")

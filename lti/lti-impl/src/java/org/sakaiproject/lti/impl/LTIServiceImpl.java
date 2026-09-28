@@ -2051,7 +2051,7 @@ public class LTIServiceImpl implements LTIService {
 		}
 
 		String propertyKey = serverConfigurationService.getString(LTI_SITE_ATTRIBUTION_PROPERTY_KEY, LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT);
-		ToolLinkFilter scope = new ToolLinkFilter(siteId, admin, toolId, Map.of(), null, '=', propertyKey);
+		ToolLinkFilter scope = new ToolLinkFilter(siteId, admin, toolId, Map.of(), null, '=', null, null);
 		int total = Math.toIntExact(contentRepository.countToolLinks(scope));
 		Locale locale = localeService.getLocaleForSiteAndUser(siteId, sessionManager.getCurrentSessionUserId());
 		DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
@@ -2071,7 +2071,41 @@ public class LTIServiceImpl implements LTIService {
 				return new LtiToolLinkPage(total, 0, List.of());
 			}
 		}
-		ToolLinkFilter query = new ToolLinkFilter(siteId, admin, toolId, textFilters, date, operator, propertyKey);
+		Map<String, String> siteFilters = new HashMap<>();
+		for (String field : List.of("SITE_TITLE", "SITE_CONTACT_NAME", "SITE_CONTACT_EMAIL", "ATTRIBUTION")) {
+			String value = textFilters.remove(field);
+			if (StringUtils.isNotEmpty(value)) siteFilters.put(field, value);
+		}
+		ToolLinkFilter query = new ToolLinkFilter(siteId, admin, toolId, textFilters, date, operator, null, null);
+		boolean sortBySite = sortField.startsWith("SITE_") || "ATTRIBUTION".equals(sortField);
+		if (sortBySite || !siteFilters.isEmpty()) {
+			List<String> matchingSites = new ArrayList<>();
+			Map<String, String> sortValues = new HashMap<>();
+			for (String candidate : contentRepository.findToolLinkSites(query)) {
+				Site site = candidate == null ? null : siteService.getOptionalSite(candidate).orElse(null);
+				boolean matches = siteFilters.entrySet().stream().allMatch(entry -> {
+					String value = toolLinkSiteValue(site, entry.getKey(), propertyKey);
+					return value != null && value.toLowerCase(Locale.ROOT).contains(entry.getValue().toLowerCase(Locale.ROOT));
+				});
+				if (matches) {
+					matchingSites.add(candidate);
+					if (sortBySite) sortValues.put(candidate, toolLinkSiteValue(site, sortField, propertyKey));
+				}
+			}
+			Map<String, Integer> siteOrder = null;
+			if (sortBySite && !sortValues.isEmpty()) {
+				List<String> values = sortValues.values().stream().map(value -> value == null ? null : value.toLowerCase(Locale.ROOT))
+						.distinct().sorted(Comparator.nullsLast(Comparator.naturalOrder())).collect(Collectors.toList());
+				Map<String, Integer> ranks = new HashMap<>();
+				for (int i = 0; i < values.size(); i++) ranks.put(values.get(i), i);
+				siteOrder = new HashMap<>();
+				for (Map.Entry<String, String> entry : sortValues.entrySet()) {
+					siteOrder.put(entry.getKey(), ranks.get(entry.getValue() == null ? null : entry.getValue().toLowerCase(Locale.ROOT)));
+				}
+			}
+			query = new ToolLinkFilter(siteId, admin, toolId, textFilters, date, operator,
+					siteFilters.isEmpty() ? null : matchingSites, siteOrder);
+		}
 		int filtered = filters.isEmpty() ? total : Math.toIntExact(contentRepository.countToolLinks(query));
 		List<LtiToolLinkPage.Link> links = new ArrayList<>();
 		if (start >= filtered) return new LtiToolLinkPage(total, filtered, links);
@@ -2093,6 +2127,20 @@ public class LTIServiceImpl implements LTIService {
 					admin ? (String) row.get("ATTRIBUTION") : null));
 		}
 		return new LtiToolLinkPage(total, filtered, links);
+	}
+
+	private String toolLinkSiteValue(Site site, String field, String attributionProperty) {
+		if (site == null) return null;
+		if ("SITE_TITLE".equals(field)) return site.getTitle();
+		if ("ATTRIBUTION".equals(field) && StringUtils.isEmpty(attributionProperty)) return null;
+		ResourceProperties properties = site.getProperties();
+		if (properties == null) return null;
+		return properties.getProperty(switch (field) {
+			case "SITE_CONTACT_NAME" -> "contact-name";
+			case "SITE_CONTACT_EMAIL" -> "contact-email";
+			case "ATTRIBUTION" -> attributionProperty;
+			default -> throw new IllegalArgumentException("Unsupported Tool Links site column");
+		});
 	}
 
 	@Override

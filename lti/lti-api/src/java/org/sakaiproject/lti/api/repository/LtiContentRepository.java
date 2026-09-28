@@ -25,11 +25,18 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface LtiContentRepository extends SpringCrudRepository<LtiContent, Long> {
 
-    /** Parsed query filters; authorization and date parsing belong to the service. */
+    /**
+     * Parsed query filters; authorization, date parsing, and site metadata belong to the service.
+     * A null matchingSites leaves sites unrestricted; an empty list matches none.
+     * Optional siteOrder ranks preserve equal metadata values and may include the null (global) site.
+     */
     record ToolLinkFilter(String siteId, boolean admin, Long toolId, Map<String, String> text,
-            Instant date, char dateOperator, String attributionProperty) {}
+            Instant date, char dateOperator, List<String> matchingSites, Map<String, Integer> siteOrder) {}
 
     long countToolLinks(ToolLinkFilter filter);
+
+    /** Distinct referenced site IDs, including null for global links, without loading content entities. */
+    List<String> findToolLinkSites(ToolLinkFilter filter);
 
     /** Filters and sorts before applying the database offset and limit. */
     List<LtiContent> findToolLinks(ToolLinkFilter filter, String sortField, boolean ascending, int start, int length);
