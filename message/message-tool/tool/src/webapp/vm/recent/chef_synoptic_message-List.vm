@@ -197,17 +197,7 @@
 						});
 						return text;
 					};
-					var motdRootStyle = document.createElement("style");
-					Array.prototype.forEach.call(document.styleSheets, function (sheet) {
-						if (!sheet.ownerNode || !document.head.contains(sheet.ownerNode)) {
-							return;
-						}
-						try {
-							motdRootStyle.textContent += motdRootRulesText(sheet.cssRules);
-						} catch (e) {
-							## cssRules of a cross-origin stylesheet isn't readable; skip it
-						}
-					});
+					var motdRootStyles = [];
 					document.querySelectorAll("#motdCarousel .textPanel").forEach(function (host) {
 						if (!host.shadowRoot) {
 							return;
@@ -216,9 +206,37 @@
 						motdPageStyles.forEach(function (style) {
 							styles.appendChild(style.cloneNode(true));
 						});
-						styles.appendChild(motdRootStyle.cloneNode(true));
+						var rootStyle = document.createElement("style");
+						motdRootStyles.push(rootStyle);
+						styles.appendChild(rootStyle);
 						host.shadowRoot.insertBefore(styles, host.shadowRoot.firstChild);
 					});
+					var motdRefreshRootStyles = function () {
+						var text = "";
+						Array.prototype.forEach.call(document.styleSheets, function (sheet) {
+							if (!sheet.ownerNode || !document.head.contains(sheet.ownerNode)) {
+								return;
+							}
+							try {
+								text += motdRootRulesText(sheet.cssRules);
+							} catch (e) {
+								## cssRules of a cross-origin stylesheet isn't readable; skip it
+							}
+						});
+						motdRootStyles.forEach(function (rootStyle) {
+							if (rootStyle.textContent !== text) {
+								rootStyle.textContent = text;
+							}
+						});
+					};
+					motdRefreshRootStyles();
+					## Which root rules apply depends on the theme class on <html>, which the
+					## portal changes on this frame's document after load (resolving
+					## sakaiUserTheme-notSet) and again whenever the user switches theme, without
+					## reloading the frame - so regenerate them whenever that class changes.
+					if (motdRootStyles.length && window.MutationObserver) {
+						new MutationObserver(motdRefreshRootStyles).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+					}
 					## Each carousel slide can be a different height. The parent iframe is only
 					## auto-sized once, on body onload, so without this the frame is left at the
 					## first slide's height and later, taller slides get clipped with a scrollbar.
