@@ -40,7 +40,7 @@
               <entry key="oracle" ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle" /></entry>
            </map>
         </property>
-        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
 	</bean>
 
 	<bean id="org.sakaiproject.authz.api.SecurityService"

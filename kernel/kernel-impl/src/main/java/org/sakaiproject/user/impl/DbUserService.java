@@ -215,7 +215,7 @@ public class DbUserService extends BaseUserDirectoryService
 		 */
 		public DbStorage()
 		{
-			super(m_tableName, m_idFieldName, m_fieldNames, m_propTableName, m_useExternalLocks, null, sqlService);
+			super(m_tableName, m_idFieldName, m_fieldNames, m_propTableName, m_useExternalLocks, null, sqlService, cacheManager);
 			setSortField(m_sortField1, m_sortField2);
 
 			m_reader = this;

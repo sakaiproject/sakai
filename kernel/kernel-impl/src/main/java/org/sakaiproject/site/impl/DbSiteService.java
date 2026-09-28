@@ -225,7 +225,7 @@ public class DbSiteService extends BaseSiteService {
 		 */
 		public DbStorage(BaseSiteService service)
 		{
-			super(m_siteTableName, m_siteIdFieldName, m_siteFieldNames, m_sitePropTableName, m_useExternalLocks, null, sqlService);
+			super(m_siteTableName, m_siteIdFieldName, m_siteFieldNames, m_sitePropTableName, m_useExternalLocks, null, sqlService, cacheManager);
 			m_reader = this;
 
 			m_service = service;
