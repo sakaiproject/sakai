@@ -237,8 +237,15 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 
 		try
 		{
-			// The observer will be notified whenever there are new events. Priority observers get notified first, before normal observers.
-			eventTrackingService.addPriorityObserver(this);
+			// Local-only is sufficient: update() is pure cache eviction now (authzUserGroupIdsCache/
+			// m_realmRoleGRCache/realmLocksCache are all Ignite-shared), so the synchronous local
+			// notification on whichever node handles the mutation already evicts the shared cache
+			// entries cluster-wide. Was previously a priority observer to run before regular
+			// observers of the same SECURE_*_AUTHZ_GROUP events on the same node; addLocalObserver
+			// has no separate priority tier, but no other observer of these events was found to
+			// read AuthzGroupService role/member data (checked ConversationsServiceImpl/
+			// roster2's SakaiProxyImpl, which only evict their own unrelated caches).
+			eventTrackingService.addLocalObserver(this);
 
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)

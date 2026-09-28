@@ -86,7 +86,10 @@ public class AuthnCacheWatcher implements Observer {
 		if (userCache == null) { // this is the user id->eid mapping cache
 			userCache = cacheManager.getCache("org.sakaiproject.user.api.UserDirectoryService");
 		}
-		eventTrackingService.addObserver(this);
+		// Local-only is sufficient: authenticationCache and userCache are both Ignite-shared,
+		// so the synchronous local notification on whichever node handles the mutation already
+		// evicts the one shared cache entry cluster-wide.
+		eventTrackingService.addLocalObserver(this);
 	}
 	
 	public void destroy() {

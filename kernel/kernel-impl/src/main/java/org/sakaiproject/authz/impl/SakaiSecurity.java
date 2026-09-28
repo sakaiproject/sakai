@@ -161,7 +161,10 @@ public class SakaiSecurity implements SecurityService, Observer {
             m_superCache = cacheManager.getCache("org.sakaiproject.authz.api.SecurityService.superCache");
             m_contentCache = cacheManager.getCache("org.sakaiproject.authz.api.SecurityService.contentCache");
         }
-        eventTrackingService.addObserver(this);
+        // Local-only is sufficient: m_callCache/m_superCache/m_contentCache are Ignite-shared,
+        // so the synchronous local notification on whichever node handles the mutation already
+        // evicts the one shared cache entry cluster-wide.
+        eventTrackingService.addLocalObserver(this);
     }
 
     /**
