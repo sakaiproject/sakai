@@ -796,9 +796,15 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
           + orderField + ", order:" + order + ")");
     }
 
+    // Strip legacy "message." prefix from sort column constants
+    String actualField = orderField.startsWith("message.")
+            ? orderField.substring("message.".length())
+            : orderField;
+
     Session session = sessionFactory.getCurrentSession();
     CriteriaBuilder cb = session.getCriteriaBuilder();
     CriteriaQuery<PrivateMessageImpl> cq = cb.createQuery(PrivateMessageImpl.class);
+
     Root<PrivateMessageImpl> root = cq.from(PrivateMessageImpl.class);
 
     Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient =
@@ -812,7 +818,7 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
         cb.equal(recipient.get("contextId"), getContextId())
     );
 
-    Path<?> orderPath = root.get(orderField);
+    Path<?> orderPath = root.get(actualField);
     if ("desc".equalsIgnoreCase(order)) {
         cq.orderBy(cb.desc(orderPath));
     } else {
