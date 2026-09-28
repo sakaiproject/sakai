@@ -18,6 +18,7 @@ package org.sakaiproject.samigo.impl.pdf;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -38,6 +40,7 @@ import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfPartModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfQuestionModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfImageMapRowModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfItemGradingModel;
+import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfPrintChoiceModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfPrintSettingsModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPrintPdfModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentStudentReportPdfModel;
@@ -51,6 +54,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
+import com.lowagie.text.Phrase;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPRow;
@@ -135,6 +139,29 @@ public class AssessmentPdfQuestionRendererTest {
         assertEquals(2, circles.size());
         assertEquals(2, circles.get(0).getSequence());
         assertEquals(1, circles.get(1).getSequence());
+    }
+
+    @Test
+    public void printableRenderShowsOptionFeedbackOnlyWhenAnswerKeyAndFeedbackAreEnabled() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.MULTIPLE_CHOICE)
+                .sequence("1")
+                .itemHtmlText("<p>Capital of France?</p>")
+                .itemScore(1.0)
+                .printChoices(List.of(new AssessmentPdfPrintChoiceModel("A", "Paris", "Correct city")))
+                .build();
+
+        TextCapturingDocument withFeedback = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, true, false));
+        assertTrue(withFeedback.text.toString().contains("Correct city"));
+
+        TextCapturingDocument keysWithoutFeedback = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, false, false));
+        assertFalse(keysWithoutFeedback.text.toString().contains("Correct city"));
+
+        TextCapturingDocument feedbackWithoutKeys = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(false, "3", false, true, false));
+        assertFalse(feedbackWithoutKeys.text.toString().contains("Correct city"));
     }
 
     @Test
@@ -240,7 +267,7 @@ public class AssessmentPdfQuestionRendererTest {
             AssessmentPdfPrintSettingsModel settings, ContentHostingService contentHostingService,
             boolean mathJaxEnabled) throws Exception {
         AssessmentPdfContentHelper helper = new AssessmentPdfContentHelper(contentHostingService);
-        AssessmentPrintPdfModel printModel = new AssessmentPrintPdfModel("Quiz", "", mathJaxEnabled, settings,
+        AssessmentPrintPdfModel printModel = new AssessmentPrintPdfModel("Quiz", "", mathJaxEnabled, Locale.US, settings,
                 List.of(new AssessmentPdfPartModel("Part 1", "", Collections.emptyList(), List.of(question))));
         return render(QuestionRenderContext.forPrint(question, 1, 1, printModel, helper), helper);
     }
@@ -249,7 +276,7 @@ public class AssessmentPdfQuestionRendererTest {
             ContentHostingService contentHostingService) throws Exception {
         AssessmentPdfContentHelper helper = new AssessmentPdfContentHelper(contentHostingService);
         AssessmentStudentReportPdfModel reportModel = new AssessmentStudentReportPdfModel(
-                "Student One", "Student", "student@example.com", null, "Quiz", "Site A", 1.0, 1.0, false,
+                "Student One", "Student", "student@example.com", null, "Quiz", "Site A", 1.0, 1.0, false, Locale.US,
                 List.of(new AssessmentPdfPartModel("Part 1", "", Collections.emptyList(), List.of(question), "1", 1, 0, 1.0, 1.0)));
         return render(QuestionRenderContext.forReport(question, 1, 1, reportModel, helper), helper);
     }
@@ -260,6 +287,20 @@ public class AssessmentPdfQuestionRendererTest {
         PdfWriter.getInstance(document, new ByteArrayOutputStream());
         document.open();
         new AssessmentPdfQuestionRenderer(helper).render(document, context);
+        document.close();
+        return document;
+    }
+
+    private static TextCapturingDocument renderPrintCapturingText(AssessmentPdfQuestionModel question,
+            AssessmentPdfPrintSettingsModel settings) throws Exception {
+        AssessmentPdfContentHelper helper = new AssessmentPdfContentHelper(mock(ContentHostingService.class));
+        AssessmentPrintPdfModel printModel = new AssessmentPrintPdfModel("Quiz", "", false, Locale.US, settings,
+                List.of(new AssessmentPdfPartModel("Part 1", "", Collections.emptyList(), List.of(question))));
+        TextCapturingDocument document = new TextCapturingDocument();
+        PdfWriter.getInstance(document, new ByteArrayOutputStream());
+        document.open();
+        new AssessmentPdfQuestionRenderer(helper).render(document,
+                QuestionRenderContext.forPrint(question, 1, 1, printModel, helper));
         document.close();
         return document;
     }
@@ -286,6 +327,47 @@ public class AssessmentPdfQuestionRendererTest {
                 for (PdfPCell cell : row.getCells()) {
                     if (cell != null && cell.getCellEvent() instanceof ImageMapQuestionCellEvent) {
                         overlays.add((ImageMapQuestionCellEvent) cell.getCellEvent());
+                    }
+                }
+            }
+        }
+    }
+
+    private static class TextCapturingDocument extends Document {
+        private final StringBuilder text = new StringBuilder();
+
+        @Override
+        public boolean add(Element element) throws DocumentException {
+            appendText(element);
+            return super.add(element);
+        }
+
+        private void appendText(Element element) {
+            if (element instanceof Phrase) {
+                text.append(((Phrase) element).getContent());
+                return;
+            }
+            if (element instanceof PdfPTable) {
+                PdfPTable table = (PdfPTable) element;
+                for (int i = 0; i < table.size(); i++) {
+                    PdfPRow row = table.getRow(i);
+                    if (row == null || row.getCells() == null) {
+                        continue;
+                    }
+                    for (PdfPCell cell : row.getCells()) {
+                        if (cell == null) {
+                            continue;
+                        }
+                        if (cell.getPhrase() != null) {
+                            text.append(cell.getPhrase().getContent());
+                        }
+                        if (cell.getCompositeElements() != null) {
+                            for (Object composite : cell.getCompositeElements()) {
+                                if (composite instanceof Element) {
+                                    appendText((Element) composite);
+                                }
+                            }
+                        }
                     }
                 }
             }

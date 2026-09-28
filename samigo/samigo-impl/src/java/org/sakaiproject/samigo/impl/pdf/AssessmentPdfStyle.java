@@ -16,6 +16,7 @@
 package org.sakaiproject.samigo.impl.pdf;
 
 import java.awt.Color;
+import java.util.Locale;
 
 import com.lowagie.text.Font;
 import com.lowagie.text.Rectangle;
@@ -53,19 +54,30 @@ public final class AssessmentPdfStyle {
     /**
      * Page size for the reader's locale: US Letter in the countries that use it, A4 otherwise.
      */
-    public static Rectangle pageSize() {
-        return AssessmentPdfLocaleSupport.pageSize();
+    public static Rectangle pageSize(Locale locale) {
+        return AssessmentPdfLocaleSupport.pageSize(locale);
     }
 
     /**
      * Tallest an embedded image may be drawn. Not a constant: it follows the page size resolved
      * for the reader's locale.
      */
-    public static float maxImageHeight() {
-        return AssessmentPdfLocaleSupport.maxImageHeight();
+    public static float maxImageHeight(Locale locale) {
+        return AssessmentPdfLocaleSupport.maxImageHeight(locale);
     }
 
     public static final float ELEMENT_SPACING = 12f;
+
+    /**
+     * Gap between stacked info boxes (answer key, feedback, comments) that share the same visual format.
+     */
+    public static final float INFO_BOX_SPACING = 4f;
+
+    /**
+     * Vertical gap between major section titles and the block that precedes them (cover title after
+     * the name/score lines, or a part title after previous content on the same page).
+     */
+    public static final float SECTION_SPACING = 8f;
 
     private AssessmentPdfStyle() {
     }

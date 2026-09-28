@@ -16,6 +16,7 @@
 package org.sakaiproject.samigo.impl.pdf;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Locale;
 import java.util.Base64;
 import java.util.Collections;
 
@@ -92,7 +93,7 @@ public class AssessmentPdfContentHelperTest {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         PdfWriter.getInstance(document, output);
         document.open();
-        helper.addAttachmentListToDocument(document, Collections.emptyList(), null, false);
+        helper.addAttachmentListToDocument(document, Collections.emptyList(), null, false, Locale.US);
         document.add(new com.lowagie.text.Paragraph(" "));
         document.close();
         assertTrue(output.size() > 0);
@@ -161,11 +162,24 @@ public class AssessmentPdfContentHelperTest {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         PdfWriter.getInstance(document, output);
         document.open();
-        helper.addAttachmentListToDocument(document, Collections.singletonList(attachment), null, false);
+        helper.addAttachmentListToDocument(document, Collections.singletonList(attachment), null, false, Locale.US);
         document.close();
 
         assertTrue(output.size() > 200);
         verify(contentHostingService).getResource("/group/site/photo.png");
+    }
+
+    @Test
+    public void populateCellWithHtmlKeepsExistingLabelForPlainText() throws Exception {
+        AssessmentPdfContentHelper helper = helperWithoutContentHosting();
+        com.lowagie.text.pdf.PdfPCell cell = helper.createInfoBoxCell(
+                AssessmentPdfStyle.BACKGROUND_GRAY, AssessmentPdfStyle.SECONDARY_COLOR);
+        cell.addElement(new com.lowagie.text.Paragraph("Correct Feedback: ", AssessmentPdfStyle.SMALL_BOLD_FONT));
+
+        helper.populateCellWithHtml(cell, "Well done", AssessmentPdfStyle.SMALL_FONT, false, null);
+
+        assertTrue(cell.getCompositeElements() != null);
+        assertTrue(cell.getCompositeElements().size() >= 2);
     }
 
     @Test

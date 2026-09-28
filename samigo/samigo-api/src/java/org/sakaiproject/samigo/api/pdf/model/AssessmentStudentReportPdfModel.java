@@ -18,6 +18,7 @@ package org.sakaiproject.samigo.api.pdf.model;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -37,9 +38,12 @@ public final class AssessmentStudentReportPdfModel implements Serializable {
     private final double currentScore;
     private final double maxScore;
     private final boolean mathJaxEnabled;
+    private final Locale locale;
     private final List<AssessmentPdfPartModel> parts;
 
-    public AssessmentStudentReportPdfModel(String studentName, String firstName, String email, String comments, String assessmentTitle, String siteTitle, double currentScore, double maxScore, boolean mathJaxEnabled, List<AssessmentPdfPartModel> parts) {
+    public AssessmentStudentReportPdfModel(String studentName, String firstName, String email, String comments,
+            String assessmentTitle, String siteTitle, double currentScore, double maxScore, boolean mathJaxEnabled,
+            Locale locale, List<AssessmentPdfPartModel> parts) {
         this.studentName = studentName;
         this.firstName = firstName;
         this.email = email;
@@ -49,6 +53,7 @@ public final class AssessmentStudentReportPdfModel implements Serializable {
         this.currentScore = currentScore;
         this.maxScore = maxScore;
         this.mathJaxEnabled = mathJaxEnabled;
+        this.locale = locale != null ? locale : Locale.getDefault();
         this.parts = parts == null ? Collections.emptyList() : List.copyOf(parts);
     }
 
@@ -86,6 +91,10 @@ public final class AssessmentStudentReportPdfModel implements Serializable {
 
     public boolean isMathJaxEnabled() {
         return mathJaxEnabled;
+    }
+
+    public Locale getLocale() {
+        return locale;
     }
 
     public List<AssessmentPdfPartModel> getParts() {

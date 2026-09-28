@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.samigo.impl.pdf;
 
+import java.util.Locale;
+
 /**
  * Converts survey answer keys to localized labels for PDF output.
  */
@@ -23,7 +25,7 @@ public final class AssessmentPdfSurveyText {
     private AssessmentPdfSurveyText() {
     }
 
-    public static String toDisplayText(String text) {
+    public static String toDisplayText(String text, Locale locale) {
         if (text == null) {
             return null;
         }
@@ -32,7 +34,7 @@ public final class AssessmentPdfSurveyText {
                 || text.equals("st_strongly_disagree") || text.equals("st_strongly_agree")
                 || text.equals("st_unacceptable") || text.equals("st_excellent")
                 || text.equals("st_yes") || text.equals("st_no")) {
-            return AssessmentPdfBundle.getAuthorString(text);
+            return AssessmentPdfBundle.getAuthorString(text, locale);
         }
         return text;
     }

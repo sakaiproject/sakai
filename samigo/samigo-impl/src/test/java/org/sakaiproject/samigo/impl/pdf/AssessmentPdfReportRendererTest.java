@@ -17,6 +17,10 @@ package org.sakaiproject.samigo.impl.pdf;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Collections;
+import java.util.Locale;
+
 import org.junit.Test;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentStudentReportPdfModel;
 
@@ -32,7 +36,7 @@ public class AssessmentPdfReportRendererTest {
     public void studentReportModelWithoutComments() {
         AssessmentStudentReportPdfModel model = new AssessmentStudentReportPdfModel(
                 "Student One", "Student", "student@example.com", null,
-                "Quiz 1", "Site A", 8.0, 10.0, false, java.util.Collections.emptyList());
+                "Quiz 1", "Site A", 8.0, 10.0, false, Locale.US, Collections.emptyList());
         assertFalse(model.hasComments());
     }
 }

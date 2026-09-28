@@ -80,6 +80,9 @@ public class PrintSettingsBean implements Serializable {
 	 */
 	public void setShowKeys(Boolean hasKeys) {
 		this.showKeys = hasKeys;
+		if (!Boolean.TRUE.equals(hasKeys)) {
+			this.showKeysFeedback = Boolean.FALSE;
+		}
 	}
 
 	/**
