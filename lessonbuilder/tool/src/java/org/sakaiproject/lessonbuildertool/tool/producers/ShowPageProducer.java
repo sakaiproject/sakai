@@ -168,8 +168,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	@Setter private Map<String,String> imageToMimeMap;
 	private DateFormat dateFormat;
 
-	public int majorVersion;
-	public String fullVersion;
+	@Setter public int majorVersion;
+	@Setter public String fullVersion;
 	public boolean useSakaiIcons;
 	public boolean allowSessionId;
 	public boolean allowCcExport;
