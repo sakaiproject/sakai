@@ -492,6 +492,17 @@ public interface AssignmentService extends EntityProducer {
     public Map<Assignment, List<String>> getSubmittableAssignmentsForContext(String context);
 
     /**
+     * Get eligible submitters visible to the current user and their gradable,
+     * non-anonymous assignments. Applies the site/group visibility rules and
+     * configured non-submitter permissions.
+     *
+     * @param context the site ID
+     * @param groupReference a group reference, or {@link AssignmentConstants#ALL} for all visible groups
+     * @return visible students mapped to their assignments; a student's list may be empty
+     */
+    Map<User, List<Assignment>> getAssignmentsByStudent(String context, String groupReference);
+
+    /**
      * Access a User's AssignmentSubmission to a particular Assignment.
      *
      * @param assignmentId -
