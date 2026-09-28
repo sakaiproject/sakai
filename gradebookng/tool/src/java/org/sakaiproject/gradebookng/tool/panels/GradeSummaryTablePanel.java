@@ -18,6 +18,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -186,6 +187,8 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 				} else {
 					categoryAssignments = new ArrayList<>();
 					categoryNamesToAssignments.values().forEach(categoryAssignments::addAll);
+					categoryAssignments.sort(Comparator.comparing(Assignment::getSortOrder,
+							Comparator.nullsLast(Comparator.naturalOrder())));
 				}
 
 				final WebMarkupContainer categoryRow = new WebMarkupContainer("categoryRow");
