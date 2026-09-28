@@ -443,7 +443,8 @@ class AssignmentTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName(title).setExact(true)).check();
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName("Use selected item").setExact(true)).click();
-        Locator lessonLink = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(title).setExact(true));
+        Locator lessonLink = page.locator("#content").getByRole(AriaRole.LINK)
+            .filter(new Locator.FilterOptions().setHasText(title));
         assertThat(lessonLink).isVisible();
 
         sakai.toolClick("Assignments");
