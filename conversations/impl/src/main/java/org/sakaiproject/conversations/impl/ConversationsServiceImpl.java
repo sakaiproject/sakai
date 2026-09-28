@@ -1906,7 +1906,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             }
         }
 
-        topicBean.url = "/api/sites/" + topicBean.siteId + "/topics/" + topicBean.id;
+        // New topics POST to the collection URL; Spring 6 does not match a trailing slash.
+        topicBean.url = "/api/sites/" + topicBean.siteId + "/topics"
+            + (StringUtils.isBlank(topicBean.id) ? "" : "/" + topicBean.id);
         getTopicPortalUrl(topicBean.id).ifPresent(portalUrl -> topicBean.portalUrl = portalUrl);
         topicBean.reference = ConversationsReferenceReckoner.reckoner().siteId(topicBean.siteId).type("t").id(topicBean.id).reckon().getReference();
 

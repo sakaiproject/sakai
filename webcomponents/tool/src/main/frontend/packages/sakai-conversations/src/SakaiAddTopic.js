@@ -211,9 +211,10 @@ export class SakaiAddTopic extends SakaiElement {
 
   _removeTag(e) {
 
-    const tagId = e.target.dataset.tagId;
+    const tagId = e.currentTarget.dataset.tagId;
     const existingIndex = this.topic.tags.findIndex(t => t.id == tagId);
-    this.topic.tags.splice(existingIndex, 1);
+    existingIndex !== -1 && this.topic.tags.splice(existingIndex, 1);
+    this._saveWip();
     this.requestUpdate();
   }
 
