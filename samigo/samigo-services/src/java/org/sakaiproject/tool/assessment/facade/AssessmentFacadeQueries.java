@@ -559,7 +559,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 			throw new Exception(e);
 		}
 		assessment.setSectionSet(new HashSet());
-		session.merge(assessment);
+		session.persist(assessment);
 
 		// register assessment with current site
 		registerWithSite(assessment.getAssessmentId().toString(), siteId);
@@ -623,7 +623,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 				.intValue();
 		while (retryCount > 0) {
 			try {
-				session.merge(assessment);
+				session.persist(assessment);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem saving assessment: " + e.getMessage());
