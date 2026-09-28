@@ -51,6 +51,7 @@ import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -77,8 +78,6 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
-import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.context.annotation.DeferredImportSelector.Group.Entry;
 import org.springframework.dao.DataAccessException;
@@ -1415,13 +1414,14 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		AgentFacade agent = null;
 		Long assessmentId;
 		String userId = AgentFacade.getAnonymousId();
-		GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+		boolean hasAllGroupsPrivilege = PersistenceService.getInstance().getAuthzQueriesFacade()
+			.hasPrivilege(SamigoConstants.AUTHZ_ASSESSMENT_ALL_GROUPS, siteAgentId);
 		Site site = null;
 		Collection<Group> siteGroups = new ArrayList<>();
 		Set<String> keysGroupIdsMap = new HashSet<>();
 		try {
 			site = siteService.getSite(siteAgentId);
-			if (service.isUserAbleToGradeAll(site.getId(), userId)) {
+			if (hasAllGroupsPrivilege) {
 				siteGroups = site.getGroups();
 			} else {
 				siteGroups = site.getGroupsWithMember(userId);
@@ -1454,7 +1454,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				Set<String> commonKeys = new HashSet<>(keysReleaseToGroups);
 				commonKeys.retainAll(keysGroupIdsMap);
 
-				if (!commonKeys.isEmpty() || (siteGroups.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId))) {
+				if (!commonKeys.isEmpty() || (siteGroups.isEmpty() && hasAllGroupsPrivilege)) {
 					PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
 							p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getRetractDate(), p.getStatus(), releaseToGroups, 
 							p.getLastModifiedDate(), lastModifiedBy, p.getLateHandling(), p.getUnlimitedSubmissions(), p.getSubmissionsAllowed());
