@@ -5117,4 +5117,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		    this.schedulerSendDateString = openDateISO8601;
 		}
 	}
+
+	public boolean isThreadedView() {
+		return "threaded".equals(selectView);
+	}
 }

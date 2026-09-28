@@ -175,7 +175,7 @@
 	  <mf:hierPvtMsgDataTable  styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0"  id="threaded_pvtmsgs" width="100%" 
 	  	value="#{PrivateMessagesTool.searchPvtMsgs}" 
 	  	var="rcvdItems" 
-	  	rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
+	  	rendered="#{PrivateMessagesTool.threadedView}"
 	  	expanded="true"
 		columnClasses="#{PrivateMessagesTool.calculateColumnClass()}">
 		  <h:column>

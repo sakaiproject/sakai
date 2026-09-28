@@ -253,11 +253,10 @@
 		  </h:column>
 		</h:dataTable>
 	  </h:panelGroup>
-	  <h:panelGroup layout="block" styleClass="table">
+	  <h:panelGroup layout="block" styleClass="table" rendered="#{PrivateMessagesTool.threadedView}">
 	  <mf:hierPvtMsgDataTable styleClass="table table-hover table-striped table-bordered" id="threaded_pvtmsgs" width="100%" 
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
-	  	                        rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
 								 columnClasses="#{PrivateMessagesTool.calculateColumnClass()}">
 		 	<h:column>
 		    <f:facet name="header">
