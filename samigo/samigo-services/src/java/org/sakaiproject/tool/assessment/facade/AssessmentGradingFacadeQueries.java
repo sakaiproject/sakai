@@ -2268,7 +2268,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                 cb.isTrue(aRoot.get("forGrade")),
                 cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
                 cb.equal(auRoot.get("agentIdString"), siteId),
-                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.equal(aRoot.get("publishedAssessmentId").as(String.class), auRoot.get("qualifierId")),
                 cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED)
             );
 
@@ -2329,7 +2329,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                 cb.isFalse(aRoot.get("forGrade")),
                 cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
                 cb.equal(auRoot.get("agentIdString"), siteId),
-                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.equal(aRoot.get("publishedAssessmentId").as(String.class), auRoot.get("qualifierId")),
                 cb.or(
                     cb.equal(aRoot.get("status"), AssessmentGradingData.IN_PROGRESS),
                     cb.equal(aRoot.get("status"), AssessmentGradingData.ASSESSMENT_UPDATED)
@@ -2422,7 +2422,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                 cb.isTrue(aRoot.get("forGrade")),
                 cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
                 cb.equal(auRoot.get("agentIdString"), siteId),
-                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.equal(aRoot.get("publishedAssessmentId").as(String.class), auRoot.get("qualifierId")),
                 cb.equal(aRoot.get("publishedAssessmentId"), sRoot.get("publishedAssessmentId")),
                 cb.equal(aRoot.get("agentId"), sRoot.get("agentId")),
                 cb.greaterThan(aRoot.get("submittedDate"), sRoot.get("createdDate")),
@@ -2584,7 +2584,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
               .where(
                   cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
                   cb.equal(auRoot.get("agentIdString"), siteId),
-                  cb.equal(sRoot.get("publishedAssessmentId"), auRoot.get("qualifierId"))
+                  cb.equal(sRoot.get("publishedAssessmentId").as(String.class), auRoot.get("qualifierId"))
               )
               .orderBy(
                   cb.asc(sRoot.get("publishedAssessmentId")),
@@ -3948,7 +3948,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     }
 
     public List getSiteNeedResubmitList(String siteId) {
-    	try {
+        try {
             Session session = sessionFactory.getCurrentSession();
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -3961,7 +3961,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             cq.where(
                 cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
                 cb.equal(auRoot.get("agentIdString"), siteId),
-                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.equal(aRoot.get("publishedAssessmentId").as(String.class), auRoot.get("qualifierId")),
                 cb.isFalse(aRoot.get("forGrade")),
                 cb.equal(aRoot.get("status"), AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT)
             );
