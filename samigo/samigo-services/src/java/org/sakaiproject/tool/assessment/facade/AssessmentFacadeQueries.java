@@ -2727,7 +2727,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 			aRoot.get("title"),
 			aRoot.get("lastModifiedDate")));
 		cq.where(
-			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+			cb.equal(aRoot.get("assessmentBaseId").as(String.class), zRoot.get("qualifierId")),
 			cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
 			cb.equal(zRoot.get("agentIdString"), siteAgentId),
 			cb.equal(aRoot.get("status"), AssessmentIfc.DEAD_STATUS));
