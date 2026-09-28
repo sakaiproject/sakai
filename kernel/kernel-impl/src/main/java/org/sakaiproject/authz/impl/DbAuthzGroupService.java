@@ -862,7 +862,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 				// KNL-1037 read the cached role and membership information
 				Map<String, Role> roles = new HashMap<String, Role>();
 				
-				// dehydrate to SimpleRoles, which can be stored in a distributed Terracotta cache
+				// dehydrate to SimpleRoles, which can be stored in a distributed cache
 				Map<String, SimpleRole> roleProperties = realmRoleGRCache.get(REALM_ROLES_CACHE);
 				for (java.util.Map.Entry<String, SimpleRole> mapEntry : roleProperties.entrySet()) {
 					roles.put(mapEntry.getKey(), new BaseRole(mapEntry.getValue()));
@@ -996,7 +996,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 			    });
 
 				Map<String, Map> payLoad = new HashMap<String, Map>();
-				// rehydrate from SimpleRole, which can be stored in a Terracotta cache
+				// rehydrate from SimpleRole, which can be stored in a distributed cache
 				Map<String, SimpleRole> roleProperties = new HashMap<String, SimpleRole>();
 				for (java.util.Map.Entry<String, BaseRole> entry : ((Map<String, BaseRole>) realm.m_roles).entrySet()) {
 					roleProperties.put(entry.getKey(), entry.getValue().exportToSimpleRole());

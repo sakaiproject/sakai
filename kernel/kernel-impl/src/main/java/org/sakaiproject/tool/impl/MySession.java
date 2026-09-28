@@ -76,7 +76,7 @@ public class MySession implements Session, HttpSession, Serializable
 	private static final long serialVersionUID = 2L;
 	/**
 	 * The possible time this Session may be inactive and available for expiration.
-	 * This value is an optimization for Terracotta clustered environments, to avoid
+	 * This value is an optimization for clustered environments, to avoid
 	 * faulting object in, unless we have a best guess that it may be out of date.
 	 * We also choose not to use the m_accessed field directly, to avoid updating the
 	 * SHARED (on every box) data structure, except every inactive/2 period.

@@ -339,8 +339,8 @@ public class BaseRole implements Role
 	
 	/**
 	 * exports the contents of BaseRole to a primitive Map, which can be Serialized
-	 * if necessary to support Terracotta cluster caching.  BaseRole cannot be serialized by
-	 * Terracotta because of classloader issues.
+	 * if necessary to support distributed (Ignite) cluster caching.  BaseRole cannot be
+	 * safely serialized directly for that purpose.
 	 * @return
 	 */
 	public SimpleRole exportToSimpleRole() {
