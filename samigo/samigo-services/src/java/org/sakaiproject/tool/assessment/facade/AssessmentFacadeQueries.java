@@ -1776,7 +1776,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		cq.select(aRoot);
 		cq.where(
 			cb.equal(aRoot.get("status"), 1),
-			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+			cb.equal(zRoot.get("qualifierId"), aRoot.get("assessmentBaseId").as(String.class)),
 			cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
 			cb.equal(zRoot.get("agentIdString"), siteAgentId));
 
