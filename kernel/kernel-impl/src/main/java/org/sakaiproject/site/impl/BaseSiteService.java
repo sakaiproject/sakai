@@ -463,7 +463,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			// <= 0 minutes indicates no caching desired
 			if (m_cacheSeconds > 0)
 			{
-				m_siteCache = new SiteCacheSafe(cacheManager);
+				m_siteCache = new SiteCacheSafe(cacheManager, this);
 			}
 
 			// Register our user-site cache property

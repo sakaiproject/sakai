@@ -68,15 +68,36 @@ public class SiteCacheSafe implements SiteCache
     protected Cache m_cacheGroups;
 
     /**
+     * The live service, needed to rehydrate a raw cache value's transient service references/
+     * back-pointers (siteService, m_site, m_page, etc.) before navigating into it - a cache
+     * read only deserializes a fresh, disconnected copy, it doesn't rebuild the object graph
+     * the way the BaseSite/BaseSitePage/BaseToolConfiguration copy-constructor chain does.
+     */
+    protected BaseSiteService m_siteService;
+
+    /**
      * Construct the Cache
      *
      * @param cacheManager the Spring/Ignite cache manager
+     * @param siteService the live SiteService, used to rehydrate cached Site objects before
+     *        navigating into them for a single tool/page/group
      */
-    public SiteCacheSafe(CacheManager cacheManager) {
+    public SiteCacheSafe(CacheManager cacheManager, BaseSiteService siteService) {
         m_cache = cacheManager.getCache(MAIN_CACHE_NAME);
         m_cacheTools = cacheManager.getCache(CACHE_PREFIX+"cacheTools");
         m_cachePages = cacheManager.getCache(CACHE_PREFIX+"cachePages");
         m_cacheGroups = cacheManager.getCache(CACHE_PREFIX+"cacheGroups");
+        m_siteService = siteService;
+    }
+
+    /**
+     * Rehydrate a raw cache value into a fully-reconstructed Site (live services/back-pointers
+     * re-attached throughout the page/tool/group graph), the same way getCachedSite() does.
+     * A raw Object straight out of the cache only has its plain-data fields populated - its
+     * transient fields (and everything nested under them) are null until this runs.
+     */
+    private Site rehydrate(Object obj) {
+        return (obj instanceof Site) ? new BaseSite(m_siteService, (Site) obj, true) : null;
     }
 
     @Override
@@ -121,9 +142,9 @@ public class SiteCacheSafe implements SiteCache
         ToolConfiguration toolConfiguration = null;
         String siteRef = m_cacheTools.get(toolId, String.class);
         if (siteRef != null) {
-            Object obj = get(siteRef);
-            if (obj instanceof Site) {
-                toolConfiguration = ((Site) obj).getTool(toolId);
+            Site site = rehydrate(get(siteRef));
+            if (site != null) {
+                toolConfiguration = site.getTool(toolId);
             }
         }
         return toolConfiguration;
@@ -134,9 +155,9 @@ public class SiteCacheSafe implements SiteCache
         SitePage sitePage = null;
         String siteRef = m_cachePages.get(pageId, String.class);
         if (siteRef != null) {
-            Object obj = get(siteRef);
-            if (obj instanceof Site) {
-                sitePage = ((Site) obj).getPage(pageId);
+            Site site = rehydrate(get(siteRef));
+            if (site != null) {
+                sitePage = site.getPage(pageId);
             }
         }
         return sitePage;
@@ -147,9 +168,9 @@ public class SiteCacheSafe implements SiteCache
         Group group = null;
         String siteRef = m_cacheGroups.get(groupId, String.class);
         if (siteRef != null) {
-            Object obj = get(siteRef);
-            if (obj instanceof Site) {
-                group = ((Site) obj).getGroup(groupId);
+            Site site = rehydrate(get(siteRef));
+            if (site != null) {
+                group = site.getGroup(groupId);
             }
         }
         return group;

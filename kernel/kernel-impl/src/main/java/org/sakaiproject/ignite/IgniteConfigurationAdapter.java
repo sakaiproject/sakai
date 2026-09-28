@@ -116,6 +116,12 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             igniteConfiguration.setConsistentId(node);
             igniteConfiguration.setIgniteInstanceName(name);
             igniteConfiguration.setDeploymentMode(DeploymentMode.CONTINUOUS);
+            // Use the kernel component's own classloader (which can also see Tomcat's shared/
+            // common classloader) so Ignite can resolve cached application classes - e.g.
+            // org.sakaiproject.site.impl.BaseSite - on deserialize. Without this, Ignite's
+            // default classloader resolution can miss classes confined to a component's own
+            // classloader, causing a ClassNotFoundException on cache reads (not writes).
+            igniteConfiguration.setClassLoader(IgniteConfigurationAdapter.class.getClassLoader());
 
             igniteConfiguration.setGridLogger(new Slf4jLogger());
 
