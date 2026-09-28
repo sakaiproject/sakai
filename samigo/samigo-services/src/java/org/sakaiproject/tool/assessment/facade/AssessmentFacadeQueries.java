@@ -1083,7 +1083,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 				.intValue();
 		while (retryCount > 0) {
 			try {
-				session.merge(section);
+				session.persist(section);
 				retryCount = 0;
 			} catch (Exception e) {
 				log
