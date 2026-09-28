@@ -798,7 +798,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				(AssessmentData) assessment.getData());
 
 		try {
-			saveOrUpdate(publishedAssessment);
+			publishedAssessment = saveOrUpdate(publishedAssessment);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -884,7 +884,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				(AssessmentData) assessment.getData());
 		publishedAssessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
 		try {
-			saveOrUpdate(publishedAssessment);
+			publishedAssessment = saveOrUpdate(publishedAssessment);
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 		}
@@ -1203,7 +1203,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				assessment.setLastModifiedDate(new Date());
 				assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
 				try {
-					saveOrUpdate(assessment);
+					assessment = saveOrUpdate(assessment);
 					RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
 					rubricsService.softDeleteRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 				} catch (Exception e) {
@@ -1272,7 +1272,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		}
 	}
 	
-	public void saveOrUpdate(PublishedAssessmentIfc assessment) throws Exception {
+	public PublishedAssessmentData saveOrUpdate(PublishedAssessmentIfc assessment) throws Exception {
 		PublishedAssessmentData data;
 		if (assessment instanceof PublishedAssessmentFacade) {
 			data = (PublishedAssessmentData) ((PublishedAssessmentFacade) assessment).getData();
@@ -1284,7 +1284,11 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
-				session.merge(data);
+				if (data.getPublishedAssessmentId() == null) {
+					session.persist(data);
+				} else {
+					data = session.merge(data);
+				}
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update assessment: {}", e.toString());
@@ -1294,6 +1298,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				}
 			}
 		}
+		return data;
 	}
 
 	public List<PublishedAssessmentFacade> getBasicInfoOfAllActivePublishedAssessments(String sortString, final String siteAgentId, boolean ascending) {
