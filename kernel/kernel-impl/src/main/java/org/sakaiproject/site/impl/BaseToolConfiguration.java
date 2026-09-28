@@ -21,8 +21,10 @@
 
 package org.sakaiproject.site.impl;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Properties;
 import java.util.Stack;
 
@@ -478,7 +480,9 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 			return;
 		}
 
-		((ResourceVector) m_page.getTools()).moveUp(this);
+		List<ToolConfiguration> tools = m_page.getTools();
+		int pos = tools.indexOf(this);
+		if (pos > 0) Collections.swap(tools, pos, pos - 1);
 	}
 
 	/**
@@ -492,7 +496,9 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 			return;
 		}
 
-		((ResourceVector) m_page.getTools()).moveDown(this);
+		List<ToolConfiguration> tools = m_page.getTools();
+		int pos = tools.indexOf(this);
+		if (pos != -1 && pos < tools.size() - 1) Collections.swap(tools, pos, pos + 1);
 	}
 
 	/**
