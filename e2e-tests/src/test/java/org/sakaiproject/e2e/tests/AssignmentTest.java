@@ -19,6 +19,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
@@ -45,7 +46,8 @@ class AssignmentTest extends SakaiUiTestBase {
         sakaiUrl = sakai.createCourse("instructor1", List.of(
             "sakai\\.rubrics",
             "sakai\\.assignment\\.grades",
-            "sakai\\.gradebookng"
+            "sakai\\.gradebookng",
+            "sakai\\.lessonbuildertool"
         ));
         return sakaiUrl;
     }
@@ -422,6 +424,37 @@ class AssignmentTest extends SakaiUiTestBase {
         }
 
         assertThat(titleInput).isVisible();
+    }
+
+    @Test
+    @Order(12)
+    void deletedAssignmentHasNoActiveLessonsLink() {
+        String courseUrl = ensureCourseUrl();
+        String title = "Deleted lesson assignment " + System.currentTimeMillis();
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        createSimpleAssignment(title);
+
+        sakai.toolClick("Lessons");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+        page.locator("#addContentDiv").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Link to an Assignment").setExact(true)).click();
+        page.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName(title).setExact(true)).check();
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Use selected item").setExact(true)).click();
+        Locator lessonLink = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(title).setExact(true));
+        assertThat(lessonLink).isVisible();
+
+        sakai.toolClick("Assignments");
+        page.locator("tr").filter(new Locator.FilterOptions().setHasText(title))
+            .locator("td[headers=remove] input[type=checkbox]").check();
+        page.locator("#btnRemove").click();
+        page.locator("input[name=eventSubmit_doDelete_assignment]").click();
+        sakai.toolClick("Lessons");
+        assertThat(page.locator(".fake-disabled").filter(new Locator.FilterOptions().setHasText(title))).isVisible();
+        assertThat(page.locator("#content")).containsText("*Deleted*");
+        assertThat(lessonLink).hasCount(0);
     }
 
     private void openReorderAssignments() {

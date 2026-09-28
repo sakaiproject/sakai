@@ -39,7 +39,7 @@ class ForumsTest extends SakaiUiTestBase {
     @Order(1)
     void createsSiteWithForums() {
         sakai.login("instructor1");
-        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.forums"));
+        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.forums", "sakai\\.lessonbuildertool"));
     }
 
     @Test
@@ -90,5 +90,32 @@ class ForumsTest extends SakaiUiTestBase {
         }
 
         assertThat(page.getByText(TOPIC_TITLE).first()).isVisible();
+    }
+
+    @Test
+    @Order(3)
+    void deletedTopicHasNoActiveLessonsLink() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Lessons");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+        page.locator("#addContentDiv").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Link to a Forum or Topic").setExact(true)).click();
+        page.getByRole(AriaRole.RADIO,
+            new Page.GetByRoleOptions().setName("Topic: " + TOPIC_TITLE).setExact(true)).check();
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Use selected item").setExact(true)).click();
+        Locator lessonLink = page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true));
+        assertThat(lessonLink).isVisible();
+
+        sakai.toolClick("Discussion");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(TOPIC_TITLE).setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Delete Topic").setExact(true)).click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Delete Topic").setExact(true)).click();
+        sakai.toolClick("Lessons");
+        assertThat(page.locator(".fake-disabled").filter(new Locator.FilterOptions().setHasText(TOPIC_TITLE))).isVisible();
+        assertThat(page.locator("#content")).containsText("*Deleted*");
+        assertThat(lessonLink).hasCount(0);
     }
 }
