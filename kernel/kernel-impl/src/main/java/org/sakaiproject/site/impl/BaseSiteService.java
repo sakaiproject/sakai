@@ -3530,7 +3530,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @param site
 		 *        The site for which pages are desired.
 		 */
-		public void readSitePages(Site site, ResourceVector pages);
+		public void readSitePages(Site site, List<SitePage> pages);
 
 		/**
 		 * Read site page tools from storage into the page's tools.
@@ -3538,7 +3538,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @param page
 		 *        The page for which tools are desired.
 		 */
-		public void readPageTools(SitePage page, ResourceVector tools);
+		public void readPageTools(SitePage page, List<ToolConfiguration> tools);
 
 		/**
 		 * Read tools for all pages from storage into the site's page's tools.

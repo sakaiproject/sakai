@@ -70,7 +70,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 	protected ResourcePropertiesEdit m_properties = null;
 
 	/** the list of tool configurations for this SitePage */
-	protected ResourceVector m_tools = null;
+	protected List<ToolConfiguration> m_tools = null;
 
 	/** false while the page's tools have not yet been read in. */
 	protected boolean m_toolsLazy = false;
@@ -117,7 +117,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 		m_site = site;
 		m_id = siteService.idManager.createUuid();
 		m_properties = new BaseResourcePropertiesEdit();
-		m_tools = new ResourceVector();
+		m_tools = new ArrayList<>();
 	}
 
 	/**
@@ -144,7 +144,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 		m_properties = new BaseResourcePropertiesEdit();
 		((BaseResourcePropertiesEdit) m_properties).setLazy(true);
 
-		m_tools = new ResourceVector();
+		m_tools = new ArrayList<>();
 		m_toolsLazy = true;
 
 		m_title = title;
@@ -190,7 +190,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 		m_properties = new BaseResourcePropertiesEdit();
 		((BaseResourcePropertiesEdit) m_properties).setLazy(true);
 
-		m_tools = new ResourceVector();
+		m_tools = new ArrayList<>();
 		m_toolsLazy = true;
 
 		m_title = title;
@@ -269,7 +269,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 				.map(tool -> new BaseToolConfiguration(siteService, tool, this, exact))
 				.collect(Collectors.toList());
 
-        m_tools = new ResourceVector(copiedTools);
+        m_tools = new ArrayList<>(copiedTools);
 		m_toolsLazy = ((BaseSitePage) other).m_toolsLazy;
 
 		m_siteId = bOther.m_siteId;
@@ -294,7 +294,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 		m_properties = new BaseResourcePropertiesEdit();
 
 		// setup for page list
-		m_tools = new ResourceVector();
+		m_tools = new ArrayList<>();
 
 		m_id = el.getAttribute("id");
 		m_title = StringUtils.trimToNull(el.getAttribute("title"));
@@ -526,7 +526,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 	}
 
 	public void setTools(List tools){
-		this.m_tools = new ResourceVector(tools);
+		this.m_tools = new ArrayList<>(tools);
 	}
 
 	/**
@@ -534,7 +534,9 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 	 */
 	public ToolConfiguration getTool(String id)
 	{
-		return (ToolConfiguration) ((ResourceVector) getTools()).getById(id);
+		return (ToolConfiguration) getTools().stream()
+				.filter(t -> ((Identifiable) t).getId().equals(id))
+				.findFirst().orElse(null);
 	}
 
 	/**
@@ -677,7 +679,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 	public ToolConfiguration addTool()
 	{
 		BaseToolConfiguration tool = new BaseToolConfiguration(siteService, this);
-		((ResourceVector) getTools()).add(tool);
+		getTools().add(tool);
 
 		return tool;
 	}
@@ -688,7 +690,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 	public ToolConfiguration addTool(Tool reg)
 	{
 		BaseToolConfiguration tool = new BaseToolConfiguration(siteService,reg, this);
-		((ResourceVector) getTools()).add(tool);
+		getTools().add(tool);
 
 		return tool;
 	}
@@ -699,7 +701,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 	public ToolConfiguration addTool(String toolId)
 	{
 		BaseToolConfiguration tool = new BaseToolConfiguration(siteService, toolId, this);
-		((ResourceVector) getTools()).add(tool);
+		getTools().add(tool);
 
 		return tool;
 	}
@@ -709,7 +711,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 	 */
 	public void removeTool(ToolConfiguration tool)
 	{
-		((ResourceVector) getTools()).remove(tool);
+		getTools().remove(tool);
 	}
 
 	/**
@@ -718,7 +720,9 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 	public void moveUp()
 	{
 		if (m_site == null) return;
-		((ResourceVector) m_site.getPages()).moveUp(this);
+		List<SitePage> pages = m_site.getPages();
+		int pos = pages.indexOf(this);
+		if (pos > 0) Collections.swap(pages, pos, pos - 1);
 	}
 
 	/**
@@ -733,7 +737,8 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 		if (pos >= pageSize) {
 			pos = pageSize - 1;
 		}
-		((ResourceVector) pageList).moveTo(this, pos);
+		pageList.remove(this);
+		pageList.add(pos, this);
 	}
 
 	/**
@@ -742,7 +747,7 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 	public int getPosition()
 	{
 		if (m_site == null) return -1;
-		return ((ResourceVector) m_site.getPages()).indexOf(this);
+		return m_site.getPages().indexOf(this);
 	}
 
 	public void setupPageCategory(String toolId)
@@ -765,7 +770,9 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 	public void moveDown()
 	{
 		if (m_site == null) return;
-		((ResourceVector) m_site.getPages()).moveDown(this);
+		List<SitePage> pages = m_site.getPages();
+		int pos = pages.indexOf(this);
+		if (pos != -1 && pos < pages.size() - 1) Collections.swap(pages, pos, pos + 1);
 	}
 
 	/**

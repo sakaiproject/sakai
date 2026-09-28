@@ -136,7 +136,7 @@ public class BaseSite implements Site, Serializable
 	protected ResourcePropertiesEdit m_properties = null;
 
 	/** The list of site pages for this site. */
-	protected ResourceVector m_pages = null;
+	protected List<SitePage> m_pages = null;
 
 	/** Set true while the pages have not yet been read in for a site. */
 	protected boolean m_pagesLazy = false;
@@ -163,7 +163,7 @@ public class BaseSite implements Site, Serializable
 	protected Instant m_lastModifiedTime = null;
 
 	/** The list of site groups for this site. */
-	protected ResourceVector m_groups = null;
+	protected List<Group> m_groups = null;
 
 	/** Set true while the groups have not yet been read in for a site. */
 	protected boolean m_groupsLazy = false;
@@ -216,10 +216,10 @@ public class BaseSite implements Site, Serializable
 		m_properties = new BaseResourcePropertiesEdit();
 
 		// set up the page list
-		m_pages = new ResourceVector();
+		m_pages = new ArrayList<>();
 
 		// set up the groups collection
-		m_groups = new ResourceVector();
+		m_groups = new ArrayList<>();
 
 		// if the id is not null (a new site, rather than a reconstruction)
 		// add the automatic (live) properties
@@ -270,10 +270,10 @@ public class BaseSite implements Site, Serializable
 		m_properties = new BaseResourcePropertiesEdit();
 
 		// setup for page list
-		m_pages = new ResourceVector();
+		m_pages = new ArrayList<>();
 
 		// setup for the groups list
-		m_groups = new ResourceVector();
+		m_groups = new ArrayList<>();
 
 		m_id = el.getAttribute("id");
 		m_title = StringUtils.trimToNull(el.getAttribute("title"));
@@ -527,10 +527,10 @@ public class BaseSite implements Site, Serializable
 		m_properties = new BaseResourcePropertiesEdit();
 
 		// set up the page list
-		m_pages = new ResourceVector();
+		m_pages = new ArrayList<>();
 
 		// set up the groups collection
-		m_groups = new ResourceVector();
+		m_groups = new ArrayList<>();
 
 		m_id = id;
 		m_title = title;
@@ -709,11 +709,11 @@ public class BaseSite implements Site, Serializable
 		for (BaseSitePage page : otherPages) {
 		    copiedPages.add(new BaseSitePage(siteService, page, this, exact));
 		}
-		m_pages = new ResourceVector(copiedPages);
+		m_pages = new ArrayList<>(copiedPages);
 		m_pagesLazy = other.m_pagesLazy;
 
 		// deep copy the groups, but avoid triggering fetching by passing false to getGroups
-		m_groups = new ResourceVector();
+		m_groups = new ArrayList<>();
 		for (Iterator iGroups = other.getGroups(false).iterator(); iGroups.hasNext();)
 		{
 			Group group = (Group) iGroups.next();
@@ -1252,7 +1252,9 @@ public class BaseSite implements Site, Serializable
 	 */
 	public SitePage getPage(String id)
 	{
-		return (SitePage) ((ResourceVector) getPages()).getById(id);
+		return (SitePage) getPages().stream()
+				.filter(p -> ((Identifiable) p).getId().equals(id))
+				.findFirst().orElse(null);
 	}
 
 	/**
@@ -1329,13 +1331,17 @@ public class BaseSite implements Site, Serializable
 					&& (SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
 					&& (m_id.equals(ref.getContainer())))
 			{
-				return (Group) ((ResourceVector) getGroups()).getById(ref.getId());
+				return (Group) getGroups().stream()
+						.filter(g -> ((Identifiable) g).getId().equals(ref.getId()))
+						.findFirst().orElse(null);
 			}
 
 			return null;
 		}
 
-		return (Group) ((ResourceVector) getGroups()).getById(id);
+		return (Group) getGroups().stream()
+				.filter(g -> ((Identifiable) g).getId().equals(id))
+				.findFirst().orElse(null);
 	}
 
 	/**
@@ -1711,7 +1717,7 @@ public class BaseSite implements Site, Serializable
 	public void regenerateIds()
 	{
 		// deep copy the pages
-		ResourceVector newPages = new ResourceVector();
+		List<SitePage> newPages = new ArrayList<>();
 		for (Iterator iPages = getPages().iterator(); iPages.hasNext();)
 		{
 			BaseSitePage page = (BaseSitePage) iPages.next();
