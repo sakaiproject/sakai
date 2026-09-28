@@ -3907,7 +3907,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                 cb.equal(aRoot.get("agentId"), agentId),
                 cb.equal(azRoot.get("agentIdString"), siteId),
                 cb.equal(azRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
-                cb.equal(azRoot.get("qualifierId"), aRoot.get("publishedAssessmentId")),
+                cb.equal(azRoot.get("qualifierId"), aRoot.get("publishedAssessmentId").as(String.class)),
                 cb.isFalse(aRoot.get("forGrade")),
                 cb.or(
                     cb.equal(aRoot.get("status"), AssessmentGradingData.ASSESSMENT_UPDATED),
