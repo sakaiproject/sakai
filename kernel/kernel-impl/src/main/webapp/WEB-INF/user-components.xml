@@ -10,7 +10,7 @@
     <bean id="org.sakaiproject.user.impl.UserServiceSqlOracle"    class="org.sakaiproject.user.impl.UserServiceSqlOracle"/>
 
 	<bean id="org.sakaiproject.user.api.UserDirectoryService"
-		  class="org.sakaiproject.user.impl.PrecachingDbUserService"
+		  class="org.sakaiproject.user.impl.DbUserService"
 		  init-method="init"
 		  destroy-method="destroy">
 
@@ -20,7 +20,7 @@
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
@@ -44,14 +44,7 @@
            </map>
         </property>
 
-        <property name="directDbAccess" ><ref bean="org.sakaiproject.user.api.UserDirectoryService.directDbAccess" /></property>
-
 	</bean>
-
-    <bean id="org.sakaiproject.user.api.UserDirectoryService.directDbAccess" 
-            class="org.sakaiproject.user.impl.DirectDbAccess">
-        <property name="dataSource" ref="javax.sql.DataSource" />
-    </bean>
 
 	<bean id="org.sakaiproject.user.api.AuthenticationManager"
 		  class="org.sakaiproject.user.impl.UserAuthnComponent"
@@ -111,7 +104,7 @@
 		<property name="authenticationCache" ref="org.sakaiproject.user.impl.AuthenticationCache"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
 	</bean>
 
 

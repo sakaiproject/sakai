@@ -40,7 +40,7 @@ public class BaseUserEqualsTest {
 		when(timeService.newTime()).thenReturn(Mockito.<Time>mock(Time.class));
 		final SessionManager sessionManager = mock(SessionManager.class);
 		when(sessionManager.getCurrentSessionUserId()).thenReturn("userId");
-		service = new PrecachingDbUserService();
+		service = new DbUserService();
 		service.setTimeService(timeService);
 		service.setSessionManager(sessionManager);
 	}

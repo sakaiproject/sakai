@@ -31,10 +31,10 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 
 /**
@@ -49,11 +49,11 @@ public class AuthnCacheWatcher implements Observer {
 	private UserDirectoryService userDirectoryService;
 	private EventTrackingService eventTrackingService;
 	private EntityManager entityManager;
-	private MemoryService memoryService;
+	private CacheManager cacheManager;
 	private Cache userCache = null;
-	
-	public void setMemoryService(MemoryService memoryService) {
-		this.memoryService = memoryService;
+
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 
 	public void setUserCache(Cache userCache) {
@@ -84,7 +84,7 @@ public class AuthnCacheWatcher implements Observer {
 	public void init() {
 		log.info("init()");
 		if (userCache == null) { // this is the user id->eid mapping cache
-			userCache = memoryService.getCache("org.sakaiproject.user.api.UserDirectoryService");
+			userCache = cacheManager.getCache("org.sakaiproject.user.api.UserDirectoryService");
 		}
 		eventTrackingService.addObserver(this);
 	}
@@ -117,8 +117,8 @@ public class AuthnCacheWatcher implements Observer {
 				String eid = userDirectoryService.getUserEid(refId);
 				log.debug("removing " + eid + " from cache");
 				authenticationCache.removeAuthentification(eid);
-				userCache.remove(UserDirectoryService.IDCACHE + eid);
-				userCache.remove(UserDirectoryService.EIDCACHE + refId);
+				userCache.evict(UserDirectoryService.IDCACHE + eid);
+				userCache.evict(UserDirectoryService.EIDCACHE + refId);
 			} catch (UserNotDefinedException e) {
 				//not sure how we'd end up here
 				log.warn(e.getMessage(), e);

@@ -28,8 +28,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -37,6 +35,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.impl.DbUserService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 /**
  * This is a white-box-ish test which uses inner knowledge of the current
@@ -66,7 +66,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 	// This is the implementation class because there's no way to inject the
 	// test provider or to clear the user cache through the official API.
 	private static DbUserService dbUserService;
-	private static Cache<String, User> callCache;
+	private static Cache callCache;
 	private static AuthzGroupService authzGroupService;
 	private static ThreadLocalManager threadLocalManager;
 	private static SessionManager sessionManager;
@@ -89,7 +89,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		dbUserService = (DbUserService)getService("org.sakaiproject.user.api.UserDirectoryService");
 		dbUserService.setProvider(userDirectoryProvider);
 		
-		callCache = ((MemoryService) getService("org.sakaiproject.memory.api.MemoryService")).getCache(
+		callCache = ((CacheManager) getService("org.sakaiproject.ignite.SakaiCacheManager")).getCache(
 				"org.sakaiproject.user.api.UserDirectoryService.callCache");
 
 		authzGroupService = getService(AuthzGroupService.class);
@@ -140,7 +140,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		dbUserService.getIdEidCache().clear();
 		String ref = "/user/" + userId;
 		threadLocalManager.set(ref, null);
-		if (callCache != null) { callCache.remove(ref); }
+		if (callCache != null) { callCache.evict(ref); }
 	}
 	
 	@Test
