@@ -2628,7 +2628,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   /**
    * Restrict displayed counts to the grading roster without changing assessment availability.
    */
-  public void restrictPublishedAssessmentCounts(List<PublishedAssessmentFacade> assessments, String siteId,
+  public void setDisplayedCountsForGradingRoster(List<PublishedAssessmentFacade> assessments, String siteId,
       Map<Long, Map<String, Integer>> submissionCounts, Map<Long, Map<String, Long>> inProgressCounts) {
     if (PersistenceService.getInstance().getAuthzQueriesFacade()
         .hasPrivilege(SamigoConstants.AUTHZ_ASSESSMENT_ALL_GROUPS, siteId)) {
