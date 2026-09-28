@@ -58,8 +58,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	/** The layout hints. */
 	protected String m_layoutHints = null;
 
-	/** The SitePage I belong to. */
-	protected SitePage m_page = null;
+	/** The SitePage I belong to. Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	protected transient SitePage m_page = null;
 
 	/** The site id I belong to, in case I have no m_page. */
 	protected String m_siteId = null;
@@ -79,7 +79,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	/** Flag for custom title configuration */
 	protected boolean m_custom_title = false;
 
-	private BaseSiteService siteService;
+	/** Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	private transient BaseSiteService siteService;
 
 	/**
 	 * ReConstruct
