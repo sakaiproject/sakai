@@ -474,7 +474,16 @@ public abstract class BaseSiteService implements SiteService, Observer
 			if (serverConfigurationService.getBoolean(PROP_CACHE_USER_SITES, true))
 			{
 				m_userSiteCache = cacheManager.getCache(USER_SITE_CACHE);
-				eventTrackingService.addObserver(this);
+				// Local-only is sufficient for update()'s cache-clearing branches, since
+				// m_userSiteCache (and m_siteCache) are Ignite-shared - the synchronous local
+				// notification on whichever node handles the mutation already evicts the shared
+				// cache entry cluster-wide. This also fixes a latent duplicate-notification bug
+				// in update()'s gradebook-notification branch: on the old cross-cluster tier, a
+				// single membership change fired notifySiteParticipant() once locally and then
+				// again on every other node when each independently replayed the same event
+				// from the DB poll; local-only fires it exactly once, on the node that actually
+				// handled the mutation.
+				eventTrackingService.addLocalObserver(this);
 			}
 
 			// register as an entity producer
