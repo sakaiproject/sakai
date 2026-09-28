@@ -2168,40 +2168,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             .map(this::toConversationTag).collect(Collectors.toList());
     }
 
-    private void validateTagLabel(TagTransferBean tag) {
-        if (StringUtils.isBlank(tag.getLabel()) || tag.getLabel().length() > 255) {
-            throw new IllegalArgumentException("Tag label must contain between 1 and 255 characters");
-        }
-    }
-
-    private TagTransferBean createTag(TagTransferBean tag) {
-        // The shared service creates the site's collection when necessary.
-        tagService.duplicateTags(tag.getSiteId(), true, Collections.emptyList(), null);
-        Tag sharedTag = Tag.builder().tagCollectionId(tag.getSiteId()).tagLabel(tag.getLabel())
-            .description(tag.getDescription()).build();
-        sharedTag.setTagId(tagService.createTag(sharedTag));
-        return toConversationTag(sharedTag);
-    }
-
-    public List<TagTransferBean> createTags(List<TagTransferBean> tags) throws ConversationsPermissionsException {
-        getCheckedCurrentUserId();
-        // Check every site before writing any tags, including calls outside the REST API.
-        for (TagTransferBean tag : tags) {
-            if (!securityService.unlock(Permissions.TAG_CREATE.label, siteService.siteReference(tag.getSiteId()))) {
-                throw new ConversationsPermissionsException("Current user cannot create tags");
-            }
-            validateTagLabel(tag);
-            if (StringUtils.isNotBlank(tag.getId())) {
-                throw new IllegalArgumentException("New tags must not have an id");
-            }
-        }
-        List<TagTransferBean> created = new ArrayList<>();
-        for (TagTransferBean tag : tags) {
-            created.add(createTag(tag));
-        }
-        return created;
-    }
-
     @Override
     @Transactional(readOnly = true)
     public List<TagTransferBean> getTagsForSite(String siteId) throws ConversationsPermissionsException {

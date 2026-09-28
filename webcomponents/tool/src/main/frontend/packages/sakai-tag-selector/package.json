@@ -1,0 +1,38 @@
+{
+  "name": "@sakai-ui/sakai-tag-selector",
+  "version": "3.0.6",
+  "description": "Shared Sakai tag selector",
+  "main": "index.js",
+  "module": "index.js",
+  "license": "ECL-2.0",
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "dependencies": {
+    "@sakai-ui/sakai-element": "3.0.6",
+    "lit": "^3.2.1"
+  },
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/sakai-tag-selector#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai",
+    "directory": "webcomponents/tool/src/main/frontend/packages/sakai-tag-selector"
+  },
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "wtr",
+    "analyze": "lit-analyzer --strict src/*.js"
+  },
+  "keywords": [
+    "Sakai"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./sakai-tag-selector.js": "./sakai-tag-selector.js"
+  }
+}

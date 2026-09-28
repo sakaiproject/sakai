@@ -1,3 +1,4 @@
+import "@sakai-ui/sakai-tag-selector/sakai-tag-selector.js";
 import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-editor/sakai-editor.js";
@@ -29,6 +30,8 @@ export class SakaiAddTopic extends SakaiElement {
     canEditTags: { attribute: "can-edit-tags", type: Boolean },
     topic: { type: Object },
 
+    _creatingTags: { state: true },
+    _tagCreationFailed: { state: true },
     _showShowDatePicker: { state: true },
     _showHideDatePicker: { state: true },
     _showLockDatePicker: { state: true },
@@ -84,14 +87,6 @@ export class SakaiAddTopic extends SakaiElement {
 
   get topic() { return this._topic; }
 
-  set tags(value) {
-
-    this._tags = value;
-    this.selectedTagId = this._tags.length ? this._tags[0].id : null;
-  }
-
-  get tags() { return this._tags; }
-
   _saveAsDraft() { this._save(true); }
 
   _saveWip() {
@@ -101,6 +96,8 @@ export class SakaiAddTopic extends SakaiElement {
   _publish() { this._save(false); }
 
   _save(draft) {
+
+    if (this._creatingTags) { return; }
 
     if (this.topic.title.length < 4) {
       const summaryInput = this.querySelector("#summary");
@@ -190,37 +187,41 @@ export class SakaiAddTopic extends SakaiElement {
     this._saveWip();
   }
 
-  _selectTag() {
+  async _tagsChanged(event) {
+    if (this._creatingTags) { return; }
+    const selected = event.detail.value;
+    const existing = new Map(this.tags.map(tag => [ String(tag.id), tag ]));
+    const newTags = selected.filter(tag => !existing.has(tag.code));
+    this._tagCreationFailed = false;
 
-    const tagId = this.selectedTagId;
-
-    this.topic.tags ??= [];
-
-    const existingIndex = this.topic.tags.findIndex(t => t?.id == tagId);
-    if (existingIndex !== -1) {
-      this.topic.tags.splice(existingIndex, 1);
-    } else {
-      const tag = this.tags.find(t => t?.id == tagId);
-      tag && this.topic.tags.push(tag);
+    try {
+      let created = [];
+      if (newTags.length) {
+        if (!this.canEditTags) { throw new Error("Tag creation is not permitted"); }
+        this._creatingTags = true;
+        const response = await fetch(`/api/sites/${this.siteId}/tools/conversations/tags`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newTags.map(tag => ({ tagLabel: tag.name }))),
+        });
+        if (!response.ok) { throw new Error(`Unable to create tags: ${response.status}`); }
+        created = (await response.json()).map(tag => ({
+          id: tag.tagId, label: tag.tagLabel, description: tag.description, siteId: tag.tagCollectionId,
+        }));
+        this.tags = [ ...this.tags, ...created ];
+        this.dispatchEvent(new CustomEvent("tags-created", {
+          detail: { tags: this.tags }, bubbles: true,
+        }));
+      }
+      this.topic.tags = selected.map(tag => existing.get(tag.code) || created.find(t => t.label === tag.name));
+      this._saveWip();
+    } catch (error) {
+      this._tagCreationFailed = true;
+      console.error(error);
+    } finally {
+      this._creatingTags = false;
+      this.requestUpdate();
     }
-
-    this._saveWip();
-
-    this.requestUpdate();
-  }
-
-  _removeTag(e) {
-
-    const tagId = e.target.dataset.tagId;
-    const existingIndex = this.topic.tags.findIndex(t => t.id == tagId);
-    this.topic.tags.splice(existingIndex, 1);
-    this.requestUpdate();
-  }
-
-  _editAvailableTags() {
-
-    this._saveWip();
-    this.dispatchEvent(new CustomEvent("edit-tags", { bubbles: true }));
   }
 
   _toggleGroup(e) {
@@ -395,8 +396,6 @@ export class SakaiAddTopic extends SakaiElement {
 
   _resetTitle() { this.titleError = false; }
 
-  _setSelectedTagId(e) { this.selectedTagId = e.target.value; }
-
   _setPinned(e) {
 
     this.topic.pinned = e.target.checked;
@@ -518,35 +517,15 @@ export class SakaiAddTopic extends SakaiElement {
         ${this.tags.length || this.canEditTags ? html`
         <div id="tag-post-block" class="add-topic-block">
           <div id="tag-post-label" class="add-topic-label">${this._i18n.tag_topic}</div>
-          ${this.tags.length > 0 ? html`
-          <select @change="${this._setSelectedTagId}" aria-labelledby="tag-post-label">
-            ${this.tags.map(tag => html`
-            <option value="${tag.id}">${tag.label}</option>
-            `)}
-          </select>
-          <input type="button" value="${this._i18n.add}" @click=${this._selectTag}>
-          ` : nothing}
-          ${this.canEditTags ? html`
-          <span id="conv-edit-tags-link-wrapper">
-            <button type="button"
-                class="btn btn-link"
-                @click=${this._editAvailableTags}>
-              ${this._i18n.add_new_tags}
-            </button>
-          </span>
-          ` : nothing}
-          <div id="tags">
-          ${this.topic.tags?.map(tag => html`
-            <div class="tag">
-              <div>${tag.label}</div>
-              <a href="javascript:;" data-tag-id="${tag.id}" @click=${this._removeTag} aria-label="${this._i18n.remove} ${tag.label}">
-                <div class="tag-remove-icon">
-                  <sakai-icon type="close" size="small"></sakai-icon>
-                </div>
-              </a>
-            </div>
-          `)}
-          </div>
+          <sakai-tag-selector
+              .options=${this.tags.map(tag => ({ code: String(tag.id), name: tag.label }))}
+              .selectedTags=${(this.topic.tags || []).map(tag => ({ code: String(tag.id), name: tag.label }))}
+              .addNew=${this.canEditTags}
+              ?inert=${this._creatingTags}
+              aria-busy=${Boolean(this._creatingTags)}
+              @tags-changed=${this._tagsChanged}>
+          </sakai-tag-selector>
+          ${this._tagCreationFailed ? html`<div role="alert" class="alert alert-danger">${this._i18n.tag_creation_failed}</div>` : nothing}
         </div>
         ` : nothing}
 
@@ -824,9 +803,9 @@ export class SakaiAddTopic extends SakaiElement {
         </div>
 
         <div id="button-block" class="act">
-          <input type="button" class="active" @click=${this._publish} value="${this._i18n.publish}">
-          <input type="button" @click=${this._saveAsDraft} value="${this._i18n.save_as_draft}">
-          <input type="button" @click=${this._cancel} value="${this._i18n.cancel}">
+          <input type="button" class="active" @click=${this._publish} ?disabled=${this._creatingTags} value="${this._i18n.publish}">
+          <input type="button" @click=${this._saveAsDraft} ?disabled=${this._creatingTags} value="${this._i18n.save_as_draft}">
+          <input type="button" @click=${this._cancel} ?disabled=${this._creatingTags} value="${this._i18n.cancel}">
         </div>
 
       </div>

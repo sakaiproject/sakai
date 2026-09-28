@@ -92,13 +92,6 @@ function addTagSelector(obj) {
   	}
 }
 
-function initTagSelector(view) {
-    const tagsInputId = view + ":tag_selector";
-    const tagSelectorId = "tag-selector";
-
-    window.syncTagSelectorInput(tagSelectorId, tagsInputId);
-}
-
 $(document).ready(function(){
 
     $("#prefs_pvt_form\\:pvtmsgs\\:checkAll, #prefs_pvt_form\\:threaded_pvtmsgs\\:checkAll").click(function () {

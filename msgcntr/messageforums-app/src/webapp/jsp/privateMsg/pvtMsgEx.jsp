@@ -26,9 +26,6 @@
 							menuLinkSpan.textContent = menuLink.textContent;
 						}
 
-						<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
-							initTagSelector("prefs_pvt_form");
-						</f:verbatim>
 
 						// Initialize DataTables for search results
 						const messagesTable = document.getElementById('prefs_pvt_form:pvtmsgs');

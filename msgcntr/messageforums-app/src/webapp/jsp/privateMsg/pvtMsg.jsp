@@ -122,9 +122,6 @@
                 });
             }
 
-            <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
-                initTagSelector("prefs_pvt_form");
-            </f:verbatim>
     });
     </script>
 

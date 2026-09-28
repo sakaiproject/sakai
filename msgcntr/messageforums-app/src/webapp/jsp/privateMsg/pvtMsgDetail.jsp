@@ -27,9 +27,6 @@
 					menuLinkSpan.addClass('current');
 					menuLinkSpan.html(menuLink.text());
 					
-					<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
-						initTagSelector("pvtMsgDetail");
-					</f:verbatim>
 				});
 			</script>
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
@@ -224,12 +221,12 @@
           <h:panelGroup styleClass="#{PrivateMessagesTool.detailMsg.isPreview || PrivateMessagesTool.detailMsg.isPreviewReply || PrivateMessagesTool.detailMsg.isPreviewReplyAll || PrivateMessagesTool.detailMsg.isPreviewForward ? 'DisableTags' : ''}">
             <sakai-tag-selector
               id="tag-selector"
+              input-id="pvtMsgDetail:tag_selector"
               <h:panelGroup rendered="#{PrivateMessagesTool.detailMsg.isPreview || PrivateMessagesTool.detailMsg.isPreviewReply || PrivateMessagesTool.detailMsg.isPreviewReplyAll || PrivateMessagesTool.detailMsg.isPreviewForward}">
                 tabindex="-1" 
               </h:panelGroup>
-              selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+              selected-ids='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
               collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
-              item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'
               site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
               tool='<h:outputText value="#{PrivateMessagesTool.getTagTool()}"/>'
               add-new="true"

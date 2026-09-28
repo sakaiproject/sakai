@@ -66,6 +66,7 @@ public class TagServiceTest {
     @Autowired private MeshTagsSyncJob meshImport;
     @Autowired private TagsExportedXMLSyncJob fullImport;
     @Autowired private TagService service;
+    @Autowired private org.sakaiproject.authz.api.SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private EventTrackingService events;
     @Autowired private DataSource dataSource;
@@ -78,7 +79,7 @@ public class TagServiceTest {
         jdbc.update("DELETE FROM tagservice_tagassociation");
         jdbc.update("DELETE FROM tagservice_tag");
         jdbc.update("DELETE FROM tagservice_collection");
-        reset(events);
+        reset(events, securityService);
         when(sessionManager.getCurrentSessionUserId()).thenReturn("creator");
         when(events.newEvent(anyString(), anyString(), eq(true))).thenAnswer(invocation -> {
             Event event = mock(Event.class);
@@ -86,6 +87,54 @@ public class TagServiceTest {
             when(event.getResource()).thenReturn(invocation.getArgument(1));
             return event;
         });
+    }
+
+    @Test
+    public void siteTagCreationUsesRequestedSiteAndOnlyCreationFields() {
+        when(securityService.unlock("conversations.tag.create", "/site/site1")).thenReturn(true);
+        Tag input = Tag.builder().tagLabel("Shared label").description("Description")
+            .tagCollectionId("another-site").createdBy("someone-else").externalCreation(true).build();
+        Tag saved = service.createSiteTags("site1", "conversations", Collections.singletonList(input)).get(0);
+        Tag stored = service.getTag(saved.getTagId()).get();
+        assertEquals("site1", stored.getTagCollectionId());
+        assertEquals("creator", stored.getCreatedBy());
+        assertEquals("Shared label", stored.getTagLabel());
+        assertEquals("Description", stored.getDescription());
+        assertTrue(service.getTagCollection("site1").isPresent());
+        assertFalse(service.getTagCollection("another-site").isPresent());
+    }
+
+    @Test
+    public void siteTagCreationPreservesToolPermissions() {
+        Tag tag = Tag.builder().tagLabel("Shared").build();
+        when(securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/site1")).thenReturn(true);
+        assertThrows(SecurityException.class,
+            () -> service.createSiteTags("site1", "conversations", Collections.singletonList(tag)));
+        service.createSiteTags("site1", "assignments", Collections.singletonList(tag));
+        when(securityService.unlock("conversations.tag.create", "/site/site1")).thenReturn(true);
+        service.createSiteTags("site1", "conversations", Collections.singletonList(tag));
+        assertThrows(SecurityException.class,
+            () -> service.createSiteTags("site2", "conversations", Collections.singletonList(tag)));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(null);
+        assertThrows(SecurityException.class,
+            () -> service.createSiteTags("site1", "conversations", Collections.singletonList(tag)));
+    }
+
+    @Test
+    public void siteTagCreationValidatesWholeBatchBeforeWriting() {
+        when(securityService.unlock("conversations.tag.create", "/site/site1")).thenReturn(true);
+        Tag valid = Tag.builder().tagLabel("Valid").build();
+        for (Tag invalid : Arrays.asList(null, Tag.builder().tagLabel(" ").build(),
+                Tag.builder().tagLabel("x".repeat(256)).build(),
+                Tag.builder().tagLabel("Existing").tagId("existing-id").build())) {
+            assertThrows(IllegalArgumentException.class,
+                () -> service.createSiteTags("site1", "conversations", Arrays.asList(valid, invalid)));
+            assertTrue(service.getTagsInCollection("site1").isEmpty());
+            assertFalse(service.getTagCollection("site1").isPresent());
+        }
+        assertThrows(IllegalArgumentException.class, () -> service.createSiteTags("site1", "conversations", null));
+        assertThrows(IllegalArgumentException.class, () -> service.createSiteTags("site1", "unknown", Collections.singletonList(valid)));
+        assertTrue(service.createSiteTags("site1", "conversations", Collections.emptyList()).isEmpty());
     }
 
     private TagCollection collection(String name) {

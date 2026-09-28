@@ -118,7 +118,8 @@
 				  <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector" />
 				  <sakai-tag-selector
 				      id="tag-selector"
-				      selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+				      input-id="prefs_pvt_form:tag_selector"
+				      selected-ids='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
 				      collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
 				      site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
 				      tool='<h:outputText value="#{PrivateMessagesTool.getTagTool()}"/>'

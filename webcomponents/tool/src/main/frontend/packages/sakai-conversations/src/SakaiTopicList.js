@@ -1,3 +1,4 @@
+import "@sakai-ui/sakai-tag-selector/sakai-tag-selector.js";
 import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "../sakai-topic-summary.js";
@@ -42,7 +43,7 @@ export class SakaiTopicList extends SakaiElement {
     this.BY_MODERATED = "by_moderated";
     this.BY_UNVIEWED = "by_unviewed";
 
-    this.filters = { filter: this.ANY, tag: this.ANY };
+    this.filters = { filter: this.ANY, tags: [] };
 
     this.loadTranslations("conversations");
   }
@@ -92,8 +93,9 @@ export class SakaiTopicList extends SakaiElement {
 
   willUpdate(changedProperties) {
     if ((changedProperties.has("filters") || changedProperties.has("data")) && this.data) {
-      if (this.filters.tag !== this.ANY && !this._tagsInUse.some(tag => String(tag.id) === this.filters.tag)) {
-        this._setFilters({ ...this.filters, tag: this.ANY });
+      const tags = this.filters.tags.filter(id => this._tagsInUse.some(tag => String(tag.id) === id));
+      if (tags.length !== this.filters.tags.length) {
+        this._setFilters({ ...this.filters, tags });
       }
       this._filter();
     }
@@ -168,8 +170,8 @@ export class SakaiTopicList extends SakaiElement {
         this._filteredUnpinnedTopics = this.unpinnedTopics;
     }
 
-    if (this.filters.tag !== this.ANY) {
-      this._filteredUnpinnedTopics = this._filteredUnpinnedTopics.filter(t => t.tags?.some(tag => String(tag.id) === this.filters.tag));
+    if (this.filters.tags.length) {
+      this._filteredUnpinnedTopics = this._filteredUnpinnedTopics.filter(t => this.filters.tags.every(id => t.tags?.some(tag => String(tag.id) === id)));
     }
   }
 
@@ -178,7 +180,7 @@ export class SakaiTopicList extends SakaiElement {
   }
 
   _tagSelected(e) {
-    this._setFilters({ ...this.filters, tag: e.target.value });
+    this._setFilters({ ...this.filters, tags: e.detail.value.map(tag => tag.code) });
   }
 
   _setFilters(filters) {
@@ -201,16 +203,12 @@ export class SakaiTopicList extends SakaiElement {
 
         <div id="topic-list-filters">
           <div>
-            <select @change=${this._tagSelected} aria-label="${this._i18n.filter_by_tag_tooltip}" ?disabled=${!this._tagsInUse?.length}>
-              ${!this._tagsInUse?.length ? html`
-                <option value="none">No tags in use</option>
-                ` : html`
-                <option value="${this.ANY}" ?selected=${this.filters.tag === this.ANY}>${this._i18n.tag_any}</option>
-                ${this._tagsInUse.map(tag => html`
-                  <option value="${tag.id}" ?selected=${this.filters.tag === String(tag.id)}>${this._i18n.tag} ${tag.label}</option>
-                `)}
-              `}
-            </select>
+            <sakai-tag-selector
+                .options=${this._tagsInUse.map(tag => ({ code: String(tag.id), name: tag.label }))}
+                .selectedTags=${this._tagsInUse.filter(tag => this.filters.tags.includes(String(tag.id)))
+                  .map(tag => ({ code: String(tag.id), name: tag.label }))}
+                @tags-changed=${this._tagSelected}>
+            </sakai-tag-selector>
           </div>
           <div>
             <select @change=${this._filterSelected} aria-label="${this._i18n.filter_by_various_tooltip}">

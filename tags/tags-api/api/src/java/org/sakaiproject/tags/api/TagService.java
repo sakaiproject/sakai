@@ -40,6 +40,13 @@ public interface TagService {
     public static final String TAGSERVICE_ENABLED_INTEGRATION_PROP = "tagservice.enable.integrations";
     public static final boolean TAGSERVICE_ENABLED_INTEGRATION_DEFAULT = true;
 
+    /**
+     * Create tags in a site's shared collection after checking the tool's creation permission.
+     * Only labels and descriptions are accepted; IDs must be absent. The entire batch is validated
+     * before writing. Throws SecurityException for unauthenticated or unauthorized callers.
+     */
+    List<Tag> createSiteTags(String siteId, String tool, List<Tag> tags);
+
     public void init();
 
     public String createTag(Tag tag);

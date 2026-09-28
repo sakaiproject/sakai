@@ -237,3 +237,5 @@ export const comment = {
   formattedCreatedDate: formattedCommentCreatedDate,
   message: commentMessage,
 };
+
+export { i18n as tagSelectorI18n, i18nUrl as tagSelectorI18nUrl } from "../../sakai-tag-selector/test/data.js";
