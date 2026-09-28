@@ -1983,7 +1983,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 				}
 			}
 		}
-		session.merge(newAssessmentData);
+		session.persist(newAssessmentData);
 	}
 
     private void updateTitleForCopy(AssessmentData assessmentData, String appendCopyTitle){
