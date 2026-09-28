@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Setter;
@@ -65,7 +66,9 @@ public class ExtendedTimeQueries implements ExtendedTimeQueriesAPI {
             CriteriaQuery<ExtendedTime> cq = cb.createQuery(ExtendedTime.class);
             Root<ExtendedTime> root = cq.from(ExtendedTime.class);
 
-            cq.select(root).where(cb.equal(root.get("assessmentId"), ass.getAssessmentBaseId()));
+            root.fetch("assessment", JoinType.INNER);
+            cq.select(root)
+              .where(cb.equal(root.get("assessment"), ass));
 
             return session.createQuery(cq).getResultList();
         } catch (DataAccessException e) {

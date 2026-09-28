@@ -1654,7 +1654,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 			List<Predicate> predicates = new ArrayList<>();
 			predicates.add(cb.equal(cRoot.get("assessment").get("publishedAssessmentId"), pRoot.get("publishedAssessmentId")));
-			predicates.add(cb.equal(zRoot.get("qualifierId"), pRoot.get("publishedAssessmentId")));
+			predicates.add(cb.equal(zRoot.get("qualifierId"), pRoot.get("publishedAssessmentId").as(String.class)));
 			predicates.add(cb.equal(zRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
 			predicates.add(cb.equal(zRoot.get("agentIdString"), siteAgentId));
 			predicates.add(cb.or(
