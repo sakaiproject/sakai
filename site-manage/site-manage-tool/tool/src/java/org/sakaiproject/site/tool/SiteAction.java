@@ -4701,8 +4701,9 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		// Check if the user has appropriate permissions
-		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+		// Same permissions MenuBuilder uses to show the Manage Groups entry
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		if (!siteService.allowUpdateSite(siteId) && !siteService.allowUpdateGroupMembership(siteId)) {
 			addAlert(state, rb.getString("java.notaccess"));
 			return;
 		}
@@ -8561,8 +8562,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	public void doMenu_siteInfo_manageParticipants(RunData data) {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		// Check if the user has appropriate permissions
-		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+		// Same permissions the participant list is built for: site.viewRoster alone gets a
+		// read-only list, editing still requires site.upd.site.mbrshp (see doUpdate_participant)
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		if (!siteService.allowUpdateSite(siteId) && !siteService.allowViewRoster(siteId)
+				&& !siteService.allowUpdateSiteMembership(siteId)) {
 			addAlert(state, rb.getString("java.notaccess"));
 			return;
 		}
