@@ -20,8 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.microsoft.playwright.Locator;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 class SiteInfoTest extends SakaiUiTestBase {
@@ -147,6 +150,56 @@ class SiteInfoTest extends SakaiUiTestBase {
         page.waitForLoadState();
 
         assertThat(page.locator("body")).containsText(Pattern.compile("Site Information|Site Info", Pattern.CASE_INSENSITIVE));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"merge", "replace"})
+    void canSearchImportSitesWithoutLosingSelection(String mode) {
+        sakai.login("instructor1");
+        // A different tool set gives this source its own site in the helper cache.
+        sakai.createProject("instructor1", List.of("sakai\\.resources"));
+        page.navigate(ensureCourseUrl());
+        sakai.toolClick("Site Info");
+        page.locator(".navIntraTool a").filter(new Locator.FilterOptions()
+            .setHasText("Import from Site")).click();
+        page.locator("a.siteimport-method-link").filter(new Locator.FilterOptions()
+            .setHasText("I would like to " + mode + " my data")).click();
+
+        Locator mySites = page.locator("#import-my-sites");
+        assertThat(mySites).hasAttribute("open", "");
+        assertThat(page.locator("#import-templates[open], #import-hidden-sites[open]")).hasCount(0);
+        Locator row = mySites.locator("[data-import-site]").first();
+        String title = row.locator("[data-import-title]").innerText();
+        Locator selection = row.locator("input[name=importSites]");
+        assertThat(selection).hasAttribute("type", "merge".equals(mode) ? "checkbox" : "radio");
+        selection.check();
+
+        Locator summary = mySites.locator("summary");
+        summary.focus();
+        summary.press("Space");
+        assertThat(row).not().isVisible();
+
+        Locator search = page.getByLabel("Search site titles");
+        search.fill("  " + title.toUpperCase(Locale.ROOT) + "  ");
+        assertThat(row).isVisible();
+        assertThat(selection).isChecked();
+        search.press("Enter");
+        assertThat(search).isVisible();
+
+        search.fill("no-site-matches-52645");
+        assertThat(row).not().isVisible();
+        assertThat(page.locator("#import-no-matches")).isVisible();
+        assertThat(selection).isChecked();
+        search.fill("");
+        assertThat(row).isVisible();
+        assertThat(page.locator("#import-no-matches")).not().isVisible();
+        assertThat(selection).isChecked();
+
+        // Continue while the selected row is filtered out: the source must still submit.
+        search.fill("no-site-matches-52645");
+        page.locator("input[name=eventSubmit_doContinue]").click();
+        assertThat(page.locator("form[name=importSitesForm]")).isVisible();
+        assertThat(page.locator("body")).containsText(title);
     }
 
     private String ensureCourseUrl() {

@@ -14,13 +14,19 @@
 
             <div class="sak-banner-info">$tlang.getString("sitinfimp.youcan")</div>
 
+            <div class="mb-3">
+                <label for="import-site-search" class="form-label">$tlang.getString("sitinfimp.search")</label>
+                <input type="search" id="import-site-search" class="form-control" />
+            </div>
+            <p id="import-no-matches" role="status" hidden>$tlang.getString("sitinfimp.search.empty")</p>
+
             #if ($!templateSites && $templateSites.size() > 0)
-                <div class="mb-4">
-                    <div class="fw-bold mb-2">$tlang.getString("sitinfimp.templatesites")</div>
+                <details id="import-templates" class="mb-4 border rounded-3 p-2" data-import-group>
+                    <summary class="fw-bold mb-2">$tlang.getString("sitinfimp.templatesites")</summary>
                     #foreach($templateSite in $templateSites)
                         #if ($!currentSite && ($templateSite.Id != $!currentSite.Id))
                         #set($templateDescription = $formattedText.stripHtmlFromText($!templateSite.description, true))
-                        <div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
+                        <div data-import-site class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
                             <label class="d-flex align-items-start gap-2 mb-0 w-100">
                                 <input class="form-check-input mt-1 flex-shrink-0" type="checkbox" name="importSites" value="$templateSite.getId()"
                                     #if ($!importSiteList.containsKey($!templateSite))
@@ -28,7 +34,7 @@
                                     #end
                                  />
                                 <span class="d-block flex-grow-1" style="min-width: 0;">
-                                    <span class="fw-medium d-block">$formattedText.escapeHtml($templateSite.getTitle())</span>
+                                    <span data-import-title class="fw-medium d-block">$formattedText.escapeHtml($templateSite.getTitle())</span>
                                     <span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($templateSite.getId())</span>
                                     #if("$!templateDescription" != "")
                                         <span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($templateDescription)">$formattedText.escapeHtml($templateDescription)</span>
@@ -38,17 +44,17 @@
                         </div>
                         #end
                     #end
-                </div>
+                </details>
             #end
 
             ## import is possible when use has maintain rights on at least one site other than the current one
             #if ($!sites && $sites.size()>1)
-                <div class="mb-4">
-                    <div class="fw-bold mb-2">$tlang.getString("sitinfimp.mysites")</div>
+                <details id="import-my-sites" class="mb-4 border rounded-3 p-2" data-import-group open>
+                    <summary class="fw-bold mb-2">$tlang.getString("sitinfimp.mysites")</summary>
                     #foreach($site in $sites)
                         #if ($!currentSite && ($site.Id != $!currentSite.Id))
                             #set($siteDescription = $formattedText.stripHtmlFromText($!site.description, true))
-                            <div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
+                            <div data-import-site class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
                                 <label class="d-flex align-items-start gap-2 mb-0 w-100">
                                     <input class="form-check-input mt-1 flex-shrink-0" type="checkbox" name="importSites" value="$site.getId()"
                                         #if ($!importSiteList.containsKey($!site))
@@ -56,7 +62,7 @@
                                         #end
                                      />
                                     <span class="d-block flex-grow-1" style="min-width: 0;">
-                                        <span class="fw-medium d-block">$formattedText.escapeHtml($site.getTitle())</span>
+                                        <span data-import-title class="fw-medium d-block">$formattedText.escapeHtml($site.getTitle())</span>
                                         <span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($site.getId())</span>
                                         #if("$!siteDescription" != "")
                                             <span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($siteDescription)">$formattedText.escapeHtml($siteDescription)</span>
@@ -66,22 +72,22 @@
                             </div>
                         #end
                     #end
-                </div>
+                </details>
             #end
 
             #if ($!hiddenSites && $hiddenSites.size() > 0)
                 <div class="mb-4">
-                    <details class="border rounded-3 p-2">
+                    <details id="import-hidden-sites" class="border rounded-3 p-2" data-import-group>
                         <summary class="fw-bold mb-2">$tlang.getString("sitinfimp.hiddensites")</summary>
                         <div class="pt-2">
                             #foreach($hiddenSite in $hiddenSites)
                                 #if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
                                     #set($hiddenSiteDescription = $formattedText.stripHtmlFromText($!hiddenSite.description, true))
-                                    <div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
+                                    <div data-import-site class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
                                         <label class="d-flex align-items-start gap-2 mb-0 w-100">
                                             <input class="form-check-input mt-1 flex-shrink-0" type="checkbox" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
                                             <span class="d-block flex-grow-1" style="min-width: 0;">
-                                                <span class="fw-medium d-block">$formattedText.escapeHtml($hiddenSite.getTitle())</span>
+                                                <span data-import-title class="fw-medium d-block">$formattedText.escapeHtml($hiddenSite.getTitle())</span>
                                                 <span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($hiddenSite.getId())</span>
                                                 #if("$!hiddenSiteDescription" != "")
                                                     <span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($hiddenSiteDescription)">$formattedText.escapeHtml($hiddenSiteDescription)</span>
@@ -118,3 +124,5 @@
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
+
+<script src="/sakai-site-manage-tool/js/site-import-search.js$!{portalCdnQuery}" defer></script>
