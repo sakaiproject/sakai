@@ -119,7 +119,7 @@ public class PollImportController {
     }
 
     @PostMapping(value = "/pollImport", consumes = "multipart/form-data")
-    public String importPolls(@RequestParam(required = false) String pollUploadedText,
+    public String importPolls(@RequestParam(value = "pollUploadedText", required = false) String pollUploadedText,
                               @RequestParam(value = "pollUploadFile", required = false) MultipartFile pollUploadFile,
                               RedirectAttributes redirectAttributes,
                               Locale locale,
