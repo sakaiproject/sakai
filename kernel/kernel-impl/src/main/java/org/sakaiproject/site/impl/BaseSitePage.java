@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.impl;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,7 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
  * </p>
  */
 @Slf4j
-public class BaseSitePage implements SitePage, Identifiable
+public class BaseSitePage implements SitePage, Identifiable, Serializable
 {
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;
@@ -77,16 +78,17 @@ public class BaseSitePage implements SitePage, Identifiable
 	/** Active flag. */
 	protected boolean m_active = false;
 
-	/** The site I belong to. */
-	protected Site m_site = null;
+	/** The site I belong to. Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	protected transient Site m_site = null;
 
 	/** The site id I belong to, in case I have no m_site. */
 	protected String m_siteId = null;
 
 	/** The site skin, in case I have no m_site. */
 	protected String m_skin = null;
-   
-	private BaseSiteService siteService;
+
+	/** Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	private transient BaseSiteService siteService;
 	
 	protected String[] SAKAI_DEFAULT_EXCEPTION_IDS = {"sakai.iframe","sakai.news"};
 	/** String array of default exception ids to not override the title */

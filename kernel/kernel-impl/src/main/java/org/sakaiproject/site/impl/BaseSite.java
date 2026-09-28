@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.impl;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -78,7 +79,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  */
 @Slf4j
-public class BaseSite implements Site
+public class BaseSite implements Site, Serializable
 {
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;
@@ -167,12 +168,13 @@ public class BaseSite implements Site
 	/** Set true while the groups have not yet been read in for a site. */
 	protected boolean m_groupsLazy = false;
 
-	/** The azg from the AuthzGroupService that is my AuthzGroup impl. */
-	protected AuthzGroup m_azg = null;
+	/** The azg from the AuthzGroupService that is my AuthzGroup impl. Lazily loaded, never copied. */
+	protected transient AuthzGroup m_azg = null;
 
-	private AuthzGroupService authzGroupService;
-	private MicrosoftMessagingService microsoftMessagingService;
-	private FormattedText formattedText;
+	/** Not cacheable directly; always re-supplied by setupServices()/the copy-constructor chain. */
+	private transient AuthzGroupService authzGroupService;
+	private transient MicrosoftMessagingService microsoftMessagingService;
+	private transient FormattedText formattedText;
 	/**
 	 * Set to true if we have changed our azg, so it need to be written back on
 	 * save.
@@ -185,11 +187,11 @@ public class BaseSite implements Site
 	 */
 	protected boolean m_customPageOrdered = false;
 
-	private BaseSiteService siteService;
+	private transient BaseSiteService siteService;
 
-	private SessionManager sessionManager;
+	private transient SessionManager sessionManager;
 
-	private UserDirectoryService userDirectoryService;
+	private transient UserDirectoryService userDirectoryService;
 
 	/** Softly deleted data */
 	protected boolean m_isSoftlyDeleted = false;
