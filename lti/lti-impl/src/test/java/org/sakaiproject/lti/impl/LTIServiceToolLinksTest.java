@@ -91,7 +91,7 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
         for (int i = 0; i < 60; i++) content(tool, "site-a", String.format("Link %03d", i), null);
         content(tool, "site-b", "Other site", null);
         LtiContentRepository.ToolLinkFilter filter = new LtiContentRepository.ToolLinkFilter(
-                "site-a", false, tool.getId(), Map.of(), null, '=', null, null);
+                "site-a", false, tool.getId(), Map.of(), null, '=', null);
         sessionFactory.getCurrentSession().flush();
         sessionFactory.getCurrentSession().clear();
         assertEquals(60, contents.countToolLinks(filter));
@@ -100,7 +100,7 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
         assertEquals("Link 050", page.get(0).getTitle());
         assertEquals(10, sessionFactory.getCurrentSession().getStatistics().getEntityCount());
         LtiContentRepository.ToolLinkFilter search = new LtiContentRepository.ToolLinkFilter(
-                "site-a", false, tool.getId(), Map.of("title", "LINK 05", "searchURL", "EXAMPLE"), null, '=', null, null);
+                "site-a", false, tool.getId(), Map.of("title", "LINK 05", "searchURL", "EXAMPLE"), null, '=', null);
         assertEquals(10, contents.countToolLinks(search));
         assertEquals("Link 059", contents.findToolLinks(search, "searchURL", true, 9, 1).get(0).getTitle());
     }

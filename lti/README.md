@@ -76,5 +76,6 @@ fields may be searched or sorted. The response contains `draw`, `recordsTotal`,
 Counts, LTI column filters, ordering, and pagination use JPA Criteria queries. Only the
 requested page of links is loaded. When searching or sorting site columns, the service
 resolves metadata through SiteService for the distinct sites referenced by matching links,
-then passes matching site IDs and sort ranks to the paged query. No native SQL, database-specific
+then pages through groups with equal sort values using per-site link counts. Site filters
+use bounded JPA IN predicates, and links within each group are ordered by content ID. No native SQL, database-specific
 branches, direct Kernel-table access, or new tables are required.

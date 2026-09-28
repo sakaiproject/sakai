@@ -74,6 +74,7 @@ import org.sakaiproject.lti.api.model.LtiTool;
 import org.sakaiproject.lti.api.model.LtiToolSite;
 import org.sakaiproject.lti.api.repository.LtiContentRepository;
 import org.sakaiproject.lti.api.repository.LtiContentRepository.ToolLinkFilter;
+import org.sakaiproject.lti.api.repository.LtiContentRepository.ToolLinkSiteCount;
 import org.sakaiproject.lti.api.repository.LtiMembershipsJobRepository;
 import org.sakaiproject.lti.api.repository.LtiToolRepository;
 import org.sakaiproject.lti.api.repository.LtiToolSiteRepository;
@@ -2051,7 +2052,7 @@ public class LTIServiceImpl implements LTIService {
 		}
 
 		String propertyKey = serverConfigurationService.getString(LTI_SITE_ATTRIBUTION_PROPERTY_KEY, LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT);
-		ToolLinkFilter scope = new ToolLinkFilter(siteId, admin, toolId, Map.of(), null, '=', null, null);
+		ToolLinkFilter scope = new ToolLinkFilter(siteId, admin, toolId, Map.of(), null, '=', null);
 		int total = Math.toIntExact(contentRepository.countToolLinks(scope));
 		Locale locale = localeService.getLocaleForSiteAndUser(siteId, sessionManager.getCurrentSessionUserId());
 		DateTimeFormatter dateFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
@@ -2076,40 +2077,35 @@ public class LTIServiceImpl implements LTIService {
 			String value = textFilters.remove(field);
 			if (StringUtils.isNotEmpty(value)) siteFilters.put(field, value);
 		}
-		ToolLinkFilter query = new ToolLinkFilter(siteId, admin, toolId, textFilters, date, operator, null, null);
+		ToolLinkFilter query = new ToolLinkFilter(siteId, admin, toolId, textFilters, date, operator, null);
 		boolean sortBySite = sortField.startsWith("SITE_") || "ATTRIBUTION".equals(sortField);
+		Comparator<String> siteComparator = Comparator.nullsLast(Comparator.naturalOrder());
+		Map<String, List<ToolLinkSiteCount>> siteGroups = new java.util.TreeMap<>(ascending ? siteComparator : siteComparator.reversed());
 		if (sortBySite || !siteFilters.isEmpty()) {
 			List<String> matchingSites = new ArrayList<>();
-			Map<String, String> sortValues = new HashMap<>();
-			for (String candidate : contentRepository.findToolLinkSites(query)) {
-				Site site = candidate == null ? null : siteService.getOptionalSite(candidate).orElse(null);
+			for (ToolLinkSiteCount candidate : contentRepository.countToolLinksBySite(query)) {
+				Site site = candidate.siteId() == null ? null : siteService.getOptionalSite(candidate.siteId()).orElse(null);
 				boolean matches = siteFilters.entrySet().stream().allMatch(entry -> {
 					String value = toolLinkSiteValue(site, entry.getKey(), propertyKey);
 					return value != null && value.toLowerCase(Locale.ROOT).contains(entry.getValue().toLowerCase(Locale.ROOT));
 				});
 				if (matches) {
-					matchingSites.add(candidate);
-					if (sortBySite) sortValues.put(candidate, toolLinkSiteValue(site, sortField, propertyKey));
+					matchingSites.add(candidate.siteId());
+					if (sortBySite) {
+						String value = toolLinkSiteValue(site, sortField, propertyKey);
+						String key = value == null ? null : value.toLowerCase(Locale.ROOT);
+						siteGroups.computeIfAbsent(key, ignored -> new ArrayList<>()).add(candidate);
+					}
 				}
 			}
-			Map<String, Integer> siteOrder = null;
-			if (sortBySite && !sortValues.isEmpty()) {
-				List<String> values = sortValues.values().stream().map(value -> value == null ? null : value.toLowerCase(Locale.ROOT))
-						.distinct().sorted(Comparator.nullsLast(Comparator.naturalOrder())).collect(Collectors.toList());
-				Map<String, Integer> ranks = new HashMap<>();
-				for (int i = 0; i < values.size(); i++) ranks.put(values.get(i), i);
-				siteOrder = new HashMap<>();
-				for (Map.Entry<String, String> entry : sortValues.entrySet()) {
-					siteOrder.put(entry.getKey(), ranks.get(entry.getValue() == null ? null : entry.getValue().toLowerCase(Locale.ROOT)));
-				}
-			}
-			query = new ToolLinkFilter(siteId, admin, toolId, textFilters, date, operator,
-					siteFilters.isEmpty() ? null : matchingSites, siteOrder);
+			query = new ToolLinkFilter(siteId, admin, toolId, textFilters, date, operator, matchingSites);
 		}
 		int filtered = filters.isEmpty() ? total : Math.toIntExact(contentRepository.countToolLinks(query));
 		List<LtiToolLinkPage.Link> links = new ArrayList<>();
 		if (start >= filtered) return new LtiToolLinkPage(total, filtered, links);
-		List<LtiContent> contents = contentRepository.findToolLinks(query, sortField, ascending, start, length);
+		List<LtiContent> contents = sortBySite
+				? pageToolLinksBySite(query, siteGroups, start, length)
+				: contentRepository.findToolLinks(query, sortField, ascending, start, length);
 		for (Map<String, Object> row : buildContentMaps(null, contents)) {
 			Long id = (Long) row.get(LTI_ID);
 			String contentSite = (String) row.get(LTI_SITE_ID);
@@ -2127,6 +2123,26 @@ public class LTIServiceImpl implements LTIService {
 					admin ? (String) row.get("ATTRIBUTION") : null));
 		}
 		return new LtiToolLinkPage(total, filtered, links);
+	}
+
+	private List<LtiContent> pageToolLinksBySite(ToolLinkFilter query,
+			Map<String, List<ToolLinkSiteCount>> groups, int start, int length) {
+		List<LtiContent> contents = new ArrayList<>();
+		long offset = start;
+		for (List<ToolLinkSiteCount> group : groups.values()) {
+			long count = group.stream().mapToLong(ToolLinkSiteCount::count).sum();
+			if (offset >= count) {
+				offset -= count;
+				continue;
+			}
+			List<String> sites = group.stream().map(ToolLinkSiteCount::siteId).collect(Collectors.toList());
+			ToolLinkFilter groupFilter = new ToolLinkFilter(query.siteId(), query.admin(), query.toolId(),
+					query.text(), query.date(), query.dateOperator(), sites);
+			contents.addAll(contentRepository.findToolLinks(groupFilter, "id", true, Math.toIntExact(offset), length - contents.size()));
+			if (contents.size() == length) break;
+			offset = 0;
+		}
+		return contents;
 	}
 
 	private String toolLinkSiteValue(Site site, String field, String attributionProperty) {

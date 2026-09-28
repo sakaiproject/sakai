@@ -56,11 +56,12 @@ public class LtiContentRepositoryImpl extends SpringCrudRepositoryImpl<LtiConten
 
     @Override
     @Transactional(readOnly = true)
-    public List<String> findToolLinkSites(ToolLinkFilter filter) {
+    public List<ToolLinkSiteCount> countToolLinksBySite(ToolLinkFilter filter) {
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
-        CriteriaQuery<String> query = cb.createQuery(String.class);
+        CriteriaQuery<ToolLinkSiteCount> query = cb.createQuery(ToolLinkSiteCount.class);
         Root<LtiContent> content = query.from(LtiContent.class);
-        query.select(content.get("siteId")).distinct(true).where(toolLinkPredicates(cb, content, filter));
+        query.select(cb.construct(ToolLinkSiteCount.class, content.get("siteId"), cb.count(content)))
+                .where(toolLinkPredicates(cb, content, filter)).groupBy(content.get("siteId"));
         return sessionFactory.getCurrentSession().createQuery(query).getResultList();
     }
 
@@ -74,21 +75,14 @@ public class LtiContentRepositoryImpl extends SpringCrudRepositoryImpl<LtiConten
         CriteriaQuery<LtiContent> query = cb.createQuery(LtiContent.class);
         Root<LtiContent> content = query.from(LtiContent.class);
         query.select(content).where(toolLinkPredicates(cb, content, filter));
-        Expression<?> sort;
-        if (filter.siteOrder() != null) {
-            CriteriaBuilder.Case<Integer> rank = cb.selectCase();
-            filter.siteOrder().forEach((site, value) -> rank.when(site == null
-                    ? cb.isNull(content.get("siteId")) : cb.equal(content.get("siteId"), site), value));
-            sort = rank.otherwise(filter.siteOrder().size());
-        } else {
-            sort = switch (sortField) {
-                case "title" -> cb.lower(content.get("title"));
-                case "created_at" -> content.get("createdAt");
-                case "searchURL" -> cb.lower(cb.concat(cb.coalesce(content.get("launch"), ""),
-                        cb.coalesce(content.join("tool", JoinType.LEFT).get("launch"), "")));
-                default -> throw new IllegalArgumentException("Unsupported Tool Links column");
-            };
-        }
+        Expression<?> sort = switch (sortField) {
+            case "id" -> content.get("id");
+            case "title" -> cb.lower(content.get("title"));
+            case "created_at" -> content.get("createdAt");
+            case "searchURL" -> cb.lower(cb.concat(cb.coalesce(content.get("launch"), ""),
+                    cb.coalesce(content.join("tool", JoinType.LEFT).get("launch"), "")));
+            default -> throw new IllegalArgumentException("Unsupported Tool Links column");
+        };
         Expression<Integer> missing = cb.<Integer>selectCase().when(cb.isNull(sort), 1).otherwise(0);
         query.orderBy(ascending ? cb.asc(missing) : cb.desc(missing),
                 ascending ? cb.asc(sort) : cb.desc(sort), cb.asc(content.get("id")));
@@ -105,7 +99,14 @@ public class LtiContentRepositoryImpl extends SpringCrudRepositoryImpl<LtiConten
             predicates.add(cb.equal(content.get("tool").get("id"), filter.toolId()));
         }
         if (filter.matchingSites() != null) {
-            predicates.add(filter.matchingSites().isEmpty() ? cb.disjunction() : content.get("siteId").in(filter.matchingSites()));
+            List<Predicate> sitePredicates = new ArrayList<>();
+            List<String> sites = new ArrayList<>(filter.matchingSites());
+            if (sites.remove(null)) sitePredicates.add(cb.isNull(content.get("siteId")));
+            // Bound each IN expression without dropping any matching sites.
+            for (int offset = 0; offset < sites.size(); offset += 500) {
+                sitePredicates.add(content.get("siteId").in(sites.subList(offset, Math.min(offset + 500, sites.size()))));
+            }
+            predicates.add(cb.or(sitePredicates.toArray(new Predicate[0])));
         }
         for (Map.Entry<String, String> entry : filter.text().entrySet()) {
             String value = entry.getValue();
