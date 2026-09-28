@@ -39,7 +39,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.UserTimeService;
@@ -74,7 +73,6 @@ public class SiteActionTest {
     @Mock private IdManager idManager;
     @Mock private LinkMigrationHelper linkMigrationHelper;
     @Mock private LTIService ltiService;
-    @Mock private MemoryService memoryService;
     @Mock private PreferencesService preferencesService;
     @Mock private SecurityService securityService;
     @Mock private ServerConfigurationService serverConfigurationService;
@@ -101,7 +99,6 @@ public class SiteActionTest {
         componentManagerMock.when(() -> ComponentManager.get(EventTrackingService.class)).thenReturn(eventTrackingService);
         componentManagerMock.when(() -> ComponentManager.get(FormattedText.class)).thenReturn(formattedText);
         componentManagerMock.when(() -> ComponentManager.get(IdManager.class)).thenReturn(idManager);
-        componentManagerMock.when(() -> ComponentManager.get(MemoryService.class)).thenReturn(memoryService);
         componentManagerMock.when(() -> ComponentManager.get(PreferencesService.class)).thenReturn(preferencesService);
         componentManagerMock.when(() -> ComponentManager.get(SecurityService.class)).thenReturn(securityService);
         componentManagerMock.when(() -> ComponentManager.get(ServerConfigurationService.class)).thenReturn(serverConfigurationService);

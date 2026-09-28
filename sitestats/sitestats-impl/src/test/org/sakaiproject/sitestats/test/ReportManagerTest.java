@@ -38,7 +38,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -67,7 +66,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired private DB db;
-	@Autowired private MemoryService memoryService;
 	@Autowired private ReportManager reportManager;
 	@Autowired private ResourceLoader resourceLoader;
 	@Autowired private SiteService siteService;
@@ -79,7 +77,6 @@ public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextT
 	@Before
 	public void onSetUp() throws Exception {
 		db.deleteAll();
-		memoryService.resetCachers();
 
 		FakeSite userSiteA = spy(FakeSite.class).set("~"+FakeData.USER_A_ID);
 		FakeSite userSiteB = spy(FakeSite.class).set("~"+FakeData.USER_B_ID);

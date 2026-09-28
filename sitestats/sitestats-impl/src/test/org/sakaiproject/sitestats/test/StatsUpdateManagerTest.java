@@ -51,7 +51,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -94,7 +93,6 @@ import java.time.ZoneId;
 public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired private DB db;
-	@Autowired private MemoryService memoryService;
 	@Autowired private ReportManager reportManager;
 	@Autowired private ResourceLoader resourceLoader;
 	@Autowired private SiteService siteService;
@@ -105,7 +103,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	@Before
 	public void onSetUp() throws Exception {
 		db.deleteAll();
-		memoryService.resetCachers();
 
 		FakeSite userSiteA = spy(FakeSite.class).set("~"+FakeData.USER_A_ID);
 		FakeSite userSiteB = spy(FakeSite.class).set("~"+FakeData.USER_B_ID);
