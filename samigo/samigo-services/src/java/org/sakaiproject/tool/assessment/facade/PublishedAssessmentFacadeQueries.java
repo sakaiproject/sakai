@@ -2168,7 +2168,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			predicates.add(cb.notEqual(aRoot.get("publishedAssessmentId"), assessmentBaseId));
 			predicates.add(cb.notEqual(aRoot.get("status"), 2));
 			predicates.add(cb.equal(zRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
-			predicates.add(cb.equal(aRoot.get("publishedAssessmentId"), zRoot.get("qualifierId")));
+			predicates.add(cb.equal(aRoot.get("publishedAssessmentId").as(String.class), zRoot.get("qualifierId")));
 			predicates.add(cb.equal(zRoot.get("agentIdString"), currentSiteId));
 
 			cq.where(predicates.toArray(new Predicate[0]));
