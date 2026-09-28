@@ -16,10 +16,10 @@ jobs:
       - name: Git Checkout
         uses: actions/checkout@v4
 
-      - name: JDK 17
+      - name: JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
 
       - name: Restore Maven local repository cache
