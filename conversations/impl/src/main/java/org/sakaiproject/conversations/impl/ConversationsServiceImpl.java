@@ -779,7 +779,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         Settings settings = getSettingsForSite(topic.getSiteId());
         topic = topicRepository.save(topic);
-        TopicTransferBean bean = decorateTopicBean(TopicTransferBean.of(topic), topic, currentUserId, settings);
+        TopicTransferBean bean = decorateTopicBean(toTopicTransferBean(topic), topic, currentUserId, settings);
         postsCache.evict(topicId);
         return bean;
     }
