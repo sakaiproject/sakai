@@ -53,7 +53,6 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingService;
 import org.springframework.cache.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -109,7 +108,6 @@ import org.junit.runner.RunWith;
 public class ConversationsServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired private AuthzGroupService authzGroupService;
-    @Autowired private MemoryService memoryService;
     @Autowired private ConversationsCommentRepository commentRepository;
     @Autowired private ConversationsService conversationsService;
     @Autowired private EventTrackingService eventTrackingService;
@@ -194,7 +192,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         // this is too late for the init method, I think.
         Cache postsCache = mock(Cache.class);
-        //when(memoryService.<String, Map<String, List<PostTransferBean>>>getCache(ConversationsService.POSTS_CACHE_NAME)).thenReturn(postsCache);
         ((ConversationsServiceImpl) AopTestUtils.getTargetObject(conversationsService)).setPostsCache(postsCache);
         ((ConversationsServiceImpl) AopTestUtils.getTargetObject(conversationsService)).setSortedStatsCache(postsCache);
         ((ConversationsServiceImpl) AopTestUtils.getTargetObject(conversationsService)).setResourceLoader(resourceLoader);

@@ -39,7 +39,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.memory.api.MemoryService;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -306,11 +305,6 @@ public class MsgcntrTestConfiguration {
     @Bean(name = "org.sakaiproject.api.privacy.PrivacyManager")
     public PrivacyManager privacyManager() {
         return mock(PrivacyManager.class);
-    }
-
-    @Bean(name = "org.sakaiproject.memory.api.MemoryService")
-    public MemoryService memoryService() {
-        return mock(MemoryService.class);
     }
 
     @Bean(name = "org.sakaiproject.ignite.SakaiCacheManager")
