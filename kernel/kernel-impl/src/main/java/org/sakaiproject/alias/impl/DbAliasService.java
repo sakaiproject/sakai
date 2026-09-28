@@ -42,6 +42,7 @@ import org.sakaiproject.util.BaseDbSingleStorage;
 import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StorageUtils;
 import org.sakaiproject.util.StringUtil;
+import org.springframework.cache.CacheManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +67,7 @@ public class DbAliasService extends BaseAliasService {
     protected boolean autoDdl = false; // to run the ddl on init or not
 
     @Setter protected SqlService sqlService;
+    @Setter protected CacheManager cacheManager;
 
     /**
      * Configuration: run the from-old conversion.
@@ -148,7 +150,7 @@ public class DbAliasService extends BaseAliasService {
          *        The StorageUser class to call back for the creation of Resource and Edit objects.
          */
         public DbStorage(SingleStorageUser user) {
-            super(tableName, idFieldName, fieldNames, propTableName, useExternalLocks, null, sqlService);
+            super(tableName, idFieldName, fieldNames, propTableName, useExternalLocks, null, sqlService, cacheManager);
             m_reader = this;
             setCaseInsensitivity(true);
 
