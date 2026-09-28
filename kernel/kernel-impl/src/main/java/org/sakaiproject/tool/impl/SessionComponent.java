@@ -73,7 +73,7 @@ public class SessionComponent implements SessionManager, SessionStore
 	protected Map<String, Session> m_sessions = new ConcurrentHashMap<String, Session>();
 	/**
 	 * The expected time sessions may be ready for expiration.  This is only an optimization
-	 * for when Terracotta is in use, to prevent faulting Session objects into the local
+	 * for a clustered session store, to prevent faulting Session objects into the local
 	 * JVM when it is not necessary. Session.isInactive() method remains the ultimate authority
 	 * to determine if a session is invalid or not.
 	 */
