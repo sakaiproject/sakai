@@ -86,7 +86,7 @@
 
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sakai.jdk.version>17</sakai.jdk.version>
+    <sakai.jdk.version>21</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
     <sakai.skip.webcomponents.tests>false</sakai.skip.webcomponents.tests>
@@ -2551,7 +2551,7 @@
           <configuration>
             <source>${sakai.jdk.version}</source>
             <links>
-              <link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>
+              <link>https://docs.oracle.com/en/java/javase/21/docs/api/</link>
               <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
               <link>https://commons.apache.org/proper/commons-collections/apidocs/</link>
               <link>https://commons.apache.org/proper/commons-io/javadocs/api-release/</link>
