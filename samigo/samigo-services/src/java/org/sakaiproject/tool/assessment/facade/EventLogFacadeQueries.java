@@ -166,10 +166,10 @@ public class EventLogFacadeQueries implements EventLogFacadeQueriesAPI {
 		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
 		Root<EventLogData> eld = cq.from(EventLogData.class);
 
-		cq.multiselect(cb.array(eld.get("assessmentId"), eld.get("title")))
-		.distinct(true)
-		.where(cb.equal(eld.get("siteId"), siteId))
-		.orderBy(cb.asc(cb.lower(eld.get("title"))));
+		cq.select(cb.tuple(eld.get("assessmentId"), eld.get("title")))
+			.distinct(true)
+			.where(cb.equal(eld.get("siteId"), siteId))
+			.orderBy(cb.asc(cb.lower(eld.get("title"))));
 
 		List<Tuple> tuples = session.createQuery(cq).getResultList();
 
