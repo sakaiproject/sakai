@@ -1072,7 +1072,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			commonPredicates.add(cb.isTrue(aRoot.get("forGrade")));
 			commonPredicates.add(cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED));
 			commonPredicates.add(cb.equal(azRoot.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
-			commonPredicates.add(cb.equal(aRoot.get("publishedAssessmentId"), azRoot.get("qualifierId")));
+			commonPredicates.add(cb.equal(aRoot.get("publishedAssessmentId").as(String.class), azRoot.get("qualifierId")));
 
 			Predicate sitePredicate = cb.equal(azRoot.get("agentIdString"), siteId);
 			Predicate groupPredicate = null;
@@ -1096,7 +1096,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		} catch (Exception e) {
 			log.warn("Error getting number of submissions for agent {} and site {}: {}", agentId, siteId, e.toString());
 			return new ArrayList<>();
-	    	}
+		}
 	}
 
 	public List<PublishedAssessmentFacade> getAllPublishedAssessments(String sortString) {
@@ -1311,7 +1311,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
 
 			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
-			Join<PublishedAssessmentData, PublishedAccessControl> cJoin = pRoot.join("accessControl");
+			Join<PublishedAssessmentData, PublishedAccessControl> cJoin = pRoot.join("assessmentAccessControl");
 			Join<PublishedAssessmentData, AuthorizationData> zJoin = pRoot.join("authorizations");
 
 			cq.select(cb.construct(PublishedAssessmentData.class,
@@ -1417,7 +1417,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			));
 
 			Predicate joinC = cb.equal(cRoot.get("assessment").get("publishedAssessmentId"), pRoot.get("publishedAssessmentId"));
-			Predicate joinZ = cb.equal(zRoot.get("qualifierId"), pRoot.get("publishedAssessmentId"));
+			Predicate joinZ = cb.equal(zRoot.get("qualifierId"), pRoot.get("publishedAssessmentId").as(String.class));
 
 			Predicate statusActive = cb.equal(pRoot.get("status"), 1);
 			Predicate dueDatePassed = cb.lessThanOrEqualTo(cRoot.get("dueDate"), new Date());
@@ -1583,7 +1583,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			List<Predicate> predicates = new ArrayList<>();
 			predicates.add(cb.or(cb.equal(pRoot.get("status"), 1), cb.equal(pRoot.get("status"), 3)));
 			predicates.add(cb.equal(azJoin.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
-			predicates.add(cb.equal(azJoin.get("qualifierId"), pRoot.get("publishedAssessmentId")));
+			predicates.add(cb.equal(azJoin.get("qualifierId"), pRoot.get("publishedAssessmentId").as(String.class)));
 	
 			Predicate sitePredicate = cb.equal(azJoin.get("agentIdString"), siteId);
 			Predicate groupPredicate = null;
@@ -2058,7 +2058,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			));
 
 			List<Predicate> predicates = new ArrayList<>();
-			predicates.add(cb.equal(azRoot.get("qualifierId"), pRoot.get("assessment").get("publishedAssessmentId")));
+			predicates.add(cb.equal(azRoot.get("qualifierId"), pRoot.get("assessment").get("publishedAssessmentId").as(String.class)));
 			predicates.add(azRoot.get("agentIdString").in(listAgentId));
 			predicates.add(cb.equal(azRoot.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
 
@@ -2569,7 +2569,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 					azRootLast.get("agentIdString").in(groupIds)
 				));
 				predicatesLast.add(cb.equal(azRootLast.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
-				predicatesLast.add(cb.equal(azRootLast.get("qualifierId"), pRootLast.get("publishedAssessmentId")));
+				predicatesLast.add(cb.equal(azRootLast.get("qualifierId"), pRootLast.get("publishedAssessmentId").as(String.class)));
 				predicatesLast.add(cb.or(
 					cb.equal(pRootLast.get("status"), 1),
 					cb.equal(pRootLast.get("status"), 3)
@@ -2607,7 +2607,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 					azRootHighest.get("agentIdString").in(groupIds)
 				));
 				predicatesHighest.add(cb.equal(azRootHighest.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
-				predicatesHighest.add(cb.equal(azRootHighest.get("qualifierId"), pRootHighest.get("publishedAssessmentId")));
+				predicatesHighest.add(cb.equal(azRootHighest.get("qualifierId"), pRootHighest.get("publishedAssessmentId").as(String.class)));
 				predicatesHighest.add(cb.or(
 					cb.equal(pRootHighest.get("status"), 1),
 					cb.equal(pRootHighest.get("status"), 3)
@@ -2643,7 +2643,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				predicatesLast.add(cb.equal(aRootLast.get("agentId"), agentId));
 				predicatesLast.add(cb.equal(azRootLast.get("agentIdString"), siteId));
 				predicatesLast.add(cb.equal(azRootLast.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
-				predicatesLast.add(cb.equal(azRootLast.get("qualifierId"), pRootLast.get("publishedAssessmentId")));
+				predicatesLast.add(cb.equal(azRootLast.get("qualifierId"), pRootLast.get("publishedAssessmentId").as(String.class)));
 
 				cqLast.where(predicatesLast.toArray(new Predicate[0]));
 				// sorted by submittedData DESC
@@ -2674,7 +2674,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				predicatesHighest.add(cb.equal(aRootHighest.get("agentId"), agentId));
 				predicatesHighest.add(cb.equal(azRootHighest.get("agentIdString"), siteId));
 				predicatesHighest.add(cb.equal(azRootHighest.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
-				predicatesHighest.add(cb.equal(azRootHighest.get("qualifierId"), pRootHighest.get("publishedAssessmentId")));
+				predicatesHighest.add(cb.equal(azRootHighest.get("qualifierId"), pRootHighest.get("publishedAssessmentId").as(String.class)));
 
 				cqHighest.where(predicatesHighest.toArray(new Predicate[0]));
 				// sorted by finalScore DESC
@@ -2699,7 +2699,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 			List<Predicate> predicatesEval = new ArrayList<>();
 			predicatesEval.add(cb.equal(eRoot.get("assessment").get("publishedAssessmentId"), acRoot.get("assessment").get("publishedAssessmentId")));
-			predicatesEval.add(cb.equal(azRootEval.get("qualifierId"), acRoot.get("assessment").get("publishedAssessmentId")));
+			predicatesEval.add(cb.equal(azRootEval.get("qualifierId"), acRoot.get("assessment").get("publishedAssessmentId").as(String.class)));
 			predicatesEval.add(azRootEval.get("agentIdString").in(groupIds));
 			predicatesEval.add(cb.equal(azRootEval.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
 
@@ -3457,7 +3457,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 			List<Predicate> predicates = new ArrayList<>();
 			predicates.add(cb.equal(aRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
-			predicates.add(cb.equal(emRoot.get("assessment").get("publishedAssessmentId"), aRoot.get("qualifierId")));
+			predicates.add(cb.equal(emRoot.get("assessment").get("publishedAssessmentId").as(String.class), aRoot.get("qualifierId")));
 			predicates.add(cb.or(
 				cb.equal(emRoot.get("toGradeBook"), "1"),
 				cb.equal(emRoot.get("toGradeBook"), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())
@@ -3496,7 +3496,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			predicates.add(cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED));
 			predicates.add(cb.equal(azRoot.get("agentIdString"), siteId));
 			predicates.add(cb.equal(azRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
-			predicates.add(cb.equal(azRoot.get("qualifierId"), aRoot.get("publishedAssessmentId")));
+			predicates.add(cb.equal(azRoot.get("qualifierId"), aRoot.get("publishedAssessmentId").as(String.class)));
 
 			cq.where(predicates.toArray(new Predicate[0]));
 
@@ -3703,7 +3703,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			));
 
 			List<Predicate> predicates = new ArrayList<>();
-			predicates.add(cb.equal(pRoot.get("publishedAssessmentId"), zRoot.get("qualifierId")));
+			predicates.add(cb.equal(pRoot.get("publishedAssessmentId").as(String.class), zRoot.get("qualifierId")));
 			predicates.add(cb.equal(zRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
 			predicates.add(cb.equal(zRoot.get("agentIdString"), siteAgentId));
 			predicates.add(cb.equal(pRoot.get("status"), AssessmentIfc.DEAD_STATUS));
