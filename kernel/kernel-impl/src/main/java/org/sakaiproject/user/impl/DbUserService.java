@@ -35,11 +35,11 @@ import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.BaseDbFlatStorage;
+import org.springframework.cache.Cache;
 
 /**
  * <p>
@@ -47,7 +47,7 @@ import org.sakaiproject.util.BaseDbFlatStorage;
  * </p>
  */
 @Slf4j
-public abstract class DbUserService extends BaseUserDirectoryService
+public class DbUserService extends BaseUserDirectoryService
 {
 	/** Table name for users. */
 	protected String m_tableName = "SAKAI_USER";
@@ -159,7 +159,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			setUserServiceSql(sqlService.getVendor());
 
 			log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks);
-			cache = memoryService.getCache("org.sakaiproject.user.api.UserDirectoryService"); // user id/eid mapping cache
+			cache = cacheManager.getCache("org.sakaiproject.user.api.UserDirectoryService"); // user id/eid mapping cache
 			log.info("User ID/EID mapping Cache [" + cache.getName() +"]");
 
 		}
@@ -546,11 +546,11 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (!m_separateIdEid) return;
 
 			// clear both sides of the cache
-			String eid = (String) cache.get(EIDCACHE+id);
+			String eid = cache.get(EIDCACHE+id, String.class);
 			if ( eid != null ) {
-				cache.remove(IDCACHE+eid);
+				cache.evict(IDCACHE+eid);
 			}
-			cache.remove(EIDCACHE+id);
+			cache.evict(EIDCACHE+id);
 
 			String statement = userServiceSql.getDeleteUserIdSql();
 
@@ -573,7 +573,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (!m_separateIdEid) return id;
 
 			{
-				String e = (String) cache.get(EIDCACHE+id);
+				String e = cache.get(EIDCACHE+id, String.class);
 				if ( e != null ) {
 					return e;
 				}
@@ -634,7 +634,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			// if we are not doing separate id/eid, do nothing
 			if (!m_separateIdEid) return eid;
 
-			String e = (String) cache.get(IDCACHE+eid);
+			String e = cache.get(IDCACHE+eid, String.class);
 			if ( e != null )
 			{
 				return e;
