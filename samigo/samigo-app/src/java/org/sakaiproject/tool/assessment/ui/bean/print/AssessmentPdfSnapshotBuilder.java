@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.faces.model.SelectItem;
@@ -27,6 +28,8 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfAttachmentModel;
@@ -132,6 +135,7 @@ public final class AssessmentPdfSnapshotBuilder {
                 deliveryBean.getAssessmentTitle(),
                 buildIntroHtml(),
                 deliveryBean.getIsMathJaxEnabled(),
+                resolveLocale(),
                 settingsModel,
                 parts);
     }
@@ -194,7 +198,27 @@ public final class AssessmentPdfSnapshotBuilder {
                 deliveryBean.getTableOfContents().getCurrentScore(),
                 deliveryBean.getTableOfContents().getMaxScore(),
                 deliveryBean.getIsMathJaxEnabled(),
+                resolveLocale(),
                 parts);
+    }
+
+    private Locale resolveLocale() {
+        requireDeliveryBean();
+        try {
+            String siteId = deliveryBean.getSiteId();
+            LocaleService localeService = ComponentManager.get(LocaleService.class);
+            if (localeService == null) {
+                return Locale.getDefault();
+            }
+            SessionManager sessionManager = ComponentManager.get(SessionManager.class);
+            String userId = sessionManager != null ? sessionManager.getCurrentSessionUserId() : null;
+            if (StringUtils.isNotBlank(siteId)) {
+                return localeService.getLocaleForSiteAndUser(siteId, userId);
+            }
+            return localeService.getLocaleForCurrentSiteAndUser();
+        } catch (RuntimeException ex) {
+            return Locale.getDefault();
+        }
     }
 
     private void requireDeliveryBean() {

@@ -18,6 +18,7 @@ package org.sakaiproject.samigo.impl.pdf;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfAttachmentModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfFillInRowModel;
@@ -106,6 +107,7 @@ public final class AssessmentPdfTestDataFactory {
                 "Sample Quiz",
                 "<p>Intro with <img src=\"/samigo/group/site/intro.png\" /></p>",
                 false,
+                Locale.US,
                 defaultPrintSettings(),
                 Collections.singletonList(partWithAttachments()));
     }
@@ -131,6 +133,7 @@ public final class AssessmentPdfTestDataFactory {
                 1.0,
                 1.0,
                 false,
+                Locale.US,
                 Collections.singletonList(part));
     }
 }

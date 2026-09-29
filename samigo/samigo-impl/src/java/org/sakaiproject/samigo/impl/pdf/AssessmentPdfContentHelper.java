@@ -19,6 +19,7 @@ import java.awt.Color;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -272,7 +273,7 @@ public class AssessmentPdfContentHelper {
     /**
      * Renders Samigo attachment metadata and inline images into the PDF document.
      */
-    public void addAttachmentListToDocument(Document document, List<?> attachmentList, String fontSizeSetting, boolean mathJaxEnabled) throws Exception {
+    public void addAttachmentListToDocument(Document document, List<?> attachmentList, String fontSizeSetting, boolean mathJaxEnabled, Locale locale) throws Exception {
         if (attachmentList == null || attachmentList.isEmpty()) {
             return;
         }
@@ -288,7 +289,7 @@ public class AssessmentPdfContentHelper {
         attachmentTable.setSpacingBefore(8f);
         configureSplittableTable(attachmentTable);
 
-        PdfPCell labelCell = new PdfPCell(new Paragraph(AssessmentPdfBundle.getPrintString("attachments"), labelFont));
+        PdfPCell labelCell = new PdfPCell(new Paragraph(AssessmentPdfBundle.getPrintString("attachments", locale), labelFont));
         labelCell.setBorder(Rectangle.NO_BORDER);
         labelCell.setPadding(0f);
         labelCell.setPaddingBottom(4f);
@@ -316,7 +317,7 @@ public class AssessmentPdfContentHelper {
             if (StringUtils.isBlank(filename) && StringUtils.isBlank(resourceId)) {
                 continue;
             }
-            PdfPCell attachmentCell = createAttachmentCell(filename, mimeType, resourceId, nameFont, urlFont);
+            PdfPCell attachmentCell = createAttachmentCell(filename, mimeType, resourceId, nameFont, urlFont, locale);
             configureSplittableCell(attachmentCell);
             attachmentTable.addCell(attachmentCell);
             hasRenderableAttachment = true;
@@ -407,7 +408,7 @@ public class AssessmentPdfContentHelper {
         }
     }
 
-    private PdfPCell createAttachmentCell(String filename, String mimeType, String resourceId, Font nameFont, Font urlFont)
+    private PdfPCell createAttachmentCell(String filename, String mimeType, String resourceId, Font nameFont, Font urlFont, Locale locale)
             throws Exception {
         String displayName = StringUtils.defaultIfBlank(filename, resourceId);
         String accessUrl = buildContentAccessUrl(resourceId);
@@ -418,7 +419,7 @@ public class AssessmentPdfContentHelper {
             Optional<Image> image = loadContentImage(contentResourceId);
             if (image.isPresent()) {
                 Image loadedImage = image.get();
-                scaleImageForPage(loadedImage);
+                scaleImageForPage(loadedImage, locale);
                 loadedImage.setSpacingBefore(6f);
                 cell.addElement(loadedImage);
             }
@@ -512,7 +513,7 @@ public class AssessmentPdfContentHelper {
                     continue;
                 }
                 Image loadedImage = image.get();
-                scaleImageForPage(loadedImage);
+                scaleImageForPage(loadedImage, null);
                 PdfPCell imageCell = new PdfPCell(loadedImage);
                 imageCell.setBorderWidth(0);
                 imageCell.setPaddingTop(4f);
@@ -595,13 +596,15 @@ public class AssessmentPdfContentHelper {
     /**
      * Scales an image to fit within the assessment PDF maximum dimensions.
      */
-    public void scaleImageForPage(Image image) {
+    public void scaleImageForPage(Image image, Locale locale) {
         float originalWidth = image.getWidth();
         float originalHeight = image.getHeight();
         if (originalWidth <= 0 || originalHeight <= 0) {
             return;
         }
-        float maxImageHeight = AssessmentPdfStyle.maxImageHeight();
+        float maxImageHeight = locale != null
+                ? AssessmentPdfStyle.maxImageHeight(locale)
+                : com.lowagie.text.PageSize.A4.getHeight() * 0.16f;
         if (originalHeight > maxImageHeight) {
             float scale = maxImageHeight / originalHeight;
             image.scaleAbsolute(originalWidth * scale, originalHeight * scale);
@@ -618,7 +621,7 @@ public class AssessmentPdfContentHelper {
                 cell.addElement(titleTable);
             }
         } else if (StringUtils.isNotBlank(html)) {
-            cell.setPhrase(createLatexParagraph(html, font, mathJaxEnabled));
+            cell.addElement(createLatexParagraph(html, font, mathJaxEnabled));
         }
     }
 
@@ -662,7 +665,7 @@ public class AssessmentPdfContentHelper {
         cell.setPaddingTop(10f);
         cell.setPaddingBottom(10f);
         cell.setBorder(Rectangle.NO_BORDER);
-        cell.setBorderWidthTop(1.5f);
+        cell.setBorderWidthTop(0.5f);
         cell.setBorderColorTop(TEXT_PRIMARY);
         if (rightAlign) {
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -689,7 +692,8 @@ public class AssessmentPdfContentHelper {
     public void addInfoBox(Document document, Color backgroundColor, Color leftBorderColor, Paragraph content) throws Exception {
         PdfPTable table = new PdfPTable(1);
         table.setWidthPercentage(100f);
-        table.setSpacingBefore(12f);
+        table.setSpacingBefore(AssessmentPdfStyle.INFO_BOX_SPACING);
+        table.setSpacingAfter(0f);
         configureSplittableTable(table);
         PdfPCell cell = createInfoBoxCell(backgroundColor, leftBorderColor);
         configureSplittableCell(cell);
@@ -698,13 +702,13 @@ public class AssessmentPdfContentHelper {
         document.add(table);
     }
 
-    public void addCorrectResponseBox(Document document, String value) throws Exception {
+    public void addCorrectResponseBox(Document document, String value, Locale locale) throws Exception {
         if (StringUtils.isBlank(value)) {
             return;
         }
         Paragraph paragraph = new Paragraph();
         paragraph.setLeading(0f, 1.2f);
-        paragraph.add(new Chunk(AssessmentPdfBundle.getEvaluationString("correct_responses") + ": ", fontWithColor(SMALL_BOLD_FONT, SECONDARY_COLOR)));
+        paragraph.add(new Chunk(AssessmentPdfBundle.getEvaluationString("correct_responses", locale) + ": ", fontWithColor(SMALL_BOLD_FONT, SECONDARY_COLOR)));
         paragraph.add(new Chunk(value, fontWithColor(SMALL_FONT, TEXT_PRIMARY)));
         addInfoBox(document, BACKGROUND_GRAY, SECONDARY_COLOR, paragraph);
     }
@@ -712,7 +716,7 @@ public class AssessmentPdfContentHelper {
     /**
      * Renders a fill-in-the-blank or numeric question and its response cells.
      */
-    public void processFillInQuestion(Document document, List<AssessmentPdfFillInRowModel> fillInArray, boolean numeric, boolean mathJaxEnabled) throws Exception {
+    public void processFillInQuestion(Document document, List<AssessmentPdfFillInRowModel> fillInArray, boolean numeric, boolean mathJaxEnabled, Locale locale) throws Exception {
         PdfPTable fillInTable = new PdfPTable(1);
         fillInTable.setWidthPercentage(100f);
         fillInTable.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
@@ -722,7 +726,7 @@ public class AssessmentPdfContentHelper {
         for (AssessmentPdfFillInRowModel fillInRow : fillInArray) {
             if (i + 1 != fillInArray.size()) {
                 questionText.append(fillInRow.getText()).append(" (").append(++i).append(") ");
-                PdfPCell fillInCell = createFillInCell(i, fillInRow.getResponse(), fillInRow.getCorrect());
+                PdfPCell fillInCell = createFillInCell(i, fillInRow.getResponse(), fillInRow.getCorrect(), locale);
                 fillInCell.setPaddingBottom(6f);
                 fillInTable.addCell(fillInCell);
             } else {
@@ -735,8 +739,8 @@ public class AssessmentPdfContentHelper {
         document.add(fillInTable);
     }
 
-    public PdfPCell createFillInCell(int position, String response, Boolean isCorrect) {
-        String responseText = StringUtils.isEmpty(response) ? AssessmentPdfBundle.getAuthorString("no_answer.text") : response;
+    public PdfPCell createFillInCell(int position, String response, Boolean isCorrect, Locale locale) {
+        String responseText = StringUtils.isEmpty(response) ? AssessmentPdfBundle.getAuthorString("no_answer.text", locale) : response;
         PdfPCell fillInCell = new PdfPCell(new Phrase("(" + position + ") " + responseText, fontWithColor(BODY_FONT, TEXT_PRIMARY)));
         fillInCell.setPaddingBottom(2f);
         fillInCell.setPaddingLeft(2f);

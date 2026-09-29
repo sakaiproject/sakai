@@ -26,31 +26,45 @@ public final class AssessmentPdfBundle {
     private static final String COMMON = "org.sakaiproject.tool.assessment.bundle.CommonMessages";
     private static final String DELIVERY = "org.sakaiproject.tool.assessment.bundle.DeliveryMessages";
 
+    private static final ResourceBundle.Control NO_DEFAULT_FALLBACK = new ResourceBundle.Control() {
+        @Override
+        public Locale getFallbackLocale(String baseName, Locale locale) {
+            return null;
+        }
+    };
+
     private AssessmentPdfBundle() {
     }
 
-    public static String getAuthorString(String key) {
-        return getString(AUTHOR, key);
+    public static String getAuthorString(String key, Locale locale) {
+        return getString(AUTHOR, key, locale);
     }
 
-    public static String getEvaluationString(String key) {
-        return getString(EVALUATION, key);
+    public static String getEvaluationString(String key, Locale locale) {
+        return getString(EVALUATION, key, locale);
     }
 
-    public static String getPrintString(String key) {
-        return getString(PRINT, key);
+    public static String getPrintString(String key, Locale locale) {
+        return getString(PRINT, key, locale);
     }
 
-    public static String getCommonString(String key) {
-        return getString(COMMON, key);
+    public static String getCommonString(String key, Locale locale) {
+        return getString(COMMON, key, locale);
     }
 
-    public static String getDeliveryString(String key) {
-        return getString(DELIVERY, key);
+    public static String getDeliveryString(String key, Locale locale) {
+        return getString(DELIVERY, key, locale);
     }
 
-    private static String getString(String baseName, String key) {
-        Locale locale = AssessmentPdfLocaleSupport.effectiveLocale();
-        return ResourceBundle.getBundle(baseName, locale).getString(key);
+    private static String getString(String baseName, String key, Locale locale) {
+        return ResourceBundle.getBundle(baseName, bundleLocale(locale), NO_DEFAULT_FALLBACK).getString(key);
+    }
+
+    static Locale bundleLocale(Locale locale) {
+        Locale effective = AssessmentPdfLocaleSupport.orDefault(locale);
+        if ("en".equals(effective.getLanguage())) {
+            return Locale.ROOT;
+        }
+        return effective;
     }
 }

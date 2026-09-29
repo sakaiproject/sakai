@@ -16,6 +16,7 @@
 package org.sakaiproject.samigo.impl.pdf;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfPrintSettingsModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfQuestionModel;
@@ -69,8 +70,18 @@ public class QuestionRenderContext {
         return question.getTypeId();
     }
 
+    public Locale getLocale() {
+        if (reportModel != null) {
+            return reportModel.getLocale();
+        }
+        if (printModel != null) {
+            return printModel.getLocale();
+        }
+        return Locale.getDefault();
+    }
+
     public DecimalFormat getScoreFormat() {
-        return reportModel != null ? AssessmentPdfLocaleSupport.scoreFormat() : null;
+        return reportModel != null ? AssessmentPdfLocaleSupport.scoreFormat(getLocale()) : null;
     }
 
     public AssessmentPdfPrintSettingsModel getPrintSettings() {

@@ -16,6 +16,7 @@
 package org.sakaiproject.samigo.impl;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Locale;
 
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.samigo.api.pdf.AssessmentPdfService;
@@ -50,17 +51,17 @@ public class AssessmentPdfServiceImpl implements AssessmentPdfService {
 
     @Override
     public byte[] buildPrintable(AssessmentPrintPdfModel model) {
-        return buildPdf(document -> documentRenderer.renderPrintable(document, model), 45, 45, 45, 45);
+        return buildPdf(model.getLocale(), document -> documentRenderer.renderPrintable(document, model), 45, 45, 45, 45);
     }
 
     @Override
     public byte[] buildStudentReport(AssessmentStudentReportPdfModel model) {
-        return buildPdf(document -> documentRenderer.renderStudentReport(document, model), 45, 45, 45, 45);
+        return buildPdf(model.getLocale(), document -> documentRenderer.renderStudentReport(document, model), 45, 45, 45, 45);
     }
 
-    private byte[] buildPdf(DocumentConsumer consumer, float marginLeft, float marginRight, float marginTop, float marginBottom) {
+    private byte[] buildPdf(Locale locale, DocumentConsumer consumer, float marginLeft, float marginRight, float marginTop, float marginBottom) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try (Document document = new Document(AssessmentPdfStyle.pageSize(), marginLeft, marginRight, marginTop, marginBottom)) {
+        try (Document document = new Document(AssessmentPdfStyle.pageSize(locale), marginLeft, marginRight, marginTop, marginBottom)) {
             PdfWriter.getInstance(document, output);
             document.open();
             consumer.accept(document);

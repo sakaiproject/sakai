@@ -18,6 +18,7 @@ package org.sakaiproject.samigo.api.pdf.model;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Immutable request model for blank printable assessment PDFs.
@@ -29,13 +30,16 @@ public final class AssessmentPrintPdfModel implements Serializable {
     private final String title;
     private final String introHtml;
     private final boolean mathJaxEnabled;
+    private final Locale locale;
     private final AssessmentPdfValueTypes.AssessmentPdfPrintSettingsModel printSettings;
     private final List<AssessmentPdfPartModel> parts;
 
-    public AssessmentPrintPdfModel(String title, String introHtml, boolean mathJaxEnabled, AssessmentPdfValueTypes.AssessmentPdfPrintSettingsModel printSettings, List<AssessmentPdfPartModel> parts) {
+    public AssessmentPrintPdfModel(String title, String introHtml, boolean mathJaxEnabled, Locale locale,
+            AssessmentPdfValueTypes.AssessmentPdfPrintSettingsModel printSettings, List<AssessmentPdfPartModel> parts) {
         this.title = title;
         this.introHtml = introHtml;
         this.mathJaxEnabled = mathJaxEnabled;
+        this.locale = locale != null ? locale : Locale.getDefault();
         this.printSettings = printSettings != null ? printSettings : AssessmentPdfValueTypes.AssessmentPdfPrintSettingsModel.defaults();
         this.parts = parts == null ? Collections.emptyList() : List.copyOf(parts);
     }
@@ -50,6 +54,10 @@ public final class AssessmentPrintPdfModel implements Serializable {
 
     public boolean isMathJaxEnabled() {
         return mathJaxEnabled;
+    }
+
+    public Locale getLocale() {
+        return locale;
     }
 
     public AssessmentPdfValueTypes.AssessmentPdfPrintSettingsModel getPrintSettings() {
