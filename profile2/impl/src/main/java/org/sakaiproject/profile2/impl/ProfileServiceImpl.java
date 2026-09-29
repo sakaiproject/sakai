@@ -503,8 +503,8 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         return sakaiProxy.getServerUrl()
                 + "/api/users/"
                 + StringUtils.defaultIfBlank(userId, ProfileConstants.BLANK)
-                + "/profile/image/"
-                + (size == ProfileConstants.PROFILE_IMAGE_THUMBNAIL ? "thumb/" : "");
+                + "/profile/image"
+                + (size == ProfileConstants.PROFILE_IMAGE_THUMBNAIL ? "/thumb" : "");
     }
 
     /**
