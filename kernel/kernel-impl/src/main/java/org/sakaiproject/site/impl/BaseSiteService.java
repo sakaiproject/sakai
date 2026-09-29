@@ -646,6 +646,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 	}
 
 	/**
+	 * Evict a site from the site cache, including its tool/page/group satellite entries.
+	 * Placement-only saves write the tool row without going through {@link #doSave}, so
+	 * the cached Site still holds the previous placement config. Evict so the next
+	 * {@link #findTool(String)} / {@link #getSite(String)} reloads from storage.
+	 *
+	 * @param siteId the site id to evict; ignored when null or caching is disabled
+	 */
+	protected void invalidateCachedSite(String siteId)
+	{
+		if (m_siteCache != null && siteId != null)
+		{
+			m_siteCache.remove(siteReference(siteId));
+		}
+	}
+
+	/**
 	 * Access an already defined site object.
 	 * 
 	 * @param id
@@ -660,13 +676,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		Site rv = getCachedSite(id);
 
-		// Return the site from cache only if it is a BaseSite and is fully loaded.
-		//
-		// Note that getCachedSite always returns a BaseSite instance now, so
-		// this instanceof check is not strictly necessary, but paranoid. If
-		// the cast would fail, we have to retrieve the site. This is slightly
-		// kludgy because the caching and lazy-loading are somewhat bolted on.
-		if ( rv != null && rv instanceof BaseSite && ((BaseSite)rv).isFullyLoaded()) return rv;
+		// Return the site from cache only if it is a BaseSite, marked fully loaded,
+		// and its page collection is not still lazy. A stale fullyLoaded flag with
+		// lazy/empty pages is what makes Site Info Manage Tools look tool-less.
+		if ( rv != null && rv instanceof BaseSite)
+		{
+			BaseSite cached = (BaseSite) rv;
+			if (cached.isFullyLoaded() && !cached.hasLazyPages()) return rv;
+		}
 
 		// Get the whole site, including the description.
 		rv = m_storage.get(id);
@@ -1026,7 +1043,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 			}
 		}
 
-		site.setFullyLoaded(true);
+		// Never cache a skeleton site as fully loaded. doSave used to force this
+		// flag even when pages/tools were still lazy; after Ignite that copy is
+		// what getSite() returns, so Site Info Manage Tools sees an empty tool list.
+		if (!site.isFullyLoaded())
+		{
+			site.loadAll();
+		}
 
 		// complete the edit
 		m_storage.save(site);

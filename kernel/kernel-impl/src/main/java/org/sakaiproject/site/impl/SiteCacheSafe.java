@@ -131,8 +131,9 @@ public class SiteCacheSafe implements SiteCache
     public boolean remove(String key) {
         Object old = get(key);
         m_cache.evict(key);
-        if (old instanceof Site) {
-            notifyCacheRemove((Site) old);
+        Site site = rehydrate(old);
+        if (site != null) {
+            notifyCacheRemove(site);
         }
         return old != null;
     }
