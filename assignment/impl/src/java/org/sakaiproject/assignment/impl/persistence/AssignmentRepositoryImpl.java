@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
+import javax.persistence.LockModeType;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
@@ -65,6 +66,27 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     public Assignment findAssignment(String id) {
         return findOne(id);
+    }
+
+    @Override
+    @Transactional
+    public Assignment findAssignmentForUpdate(String id) {
+        Assignment assignment = findOne(id);
+        if (assignment != null) {
+            geCurrentSession().flush();
+            // Refresh as well as lock: a caller may have loaded it before another transaction deleted it.
+            geCurrentSession().refresh(assignment, LockModeType.PESSIMISTIC_WRITE);
+        }
+        return assignment;
+    }
+
+    @Override
+    public boolean hasSubmissionRecords(String assignmentId) {
+        return !geCurrentSession().createQuery(
+                "select s.id from AssignmentSubmission s where s.assignment.id = :assignmentId", String.class)
+                .setParameter("assignmentId", assignmentId)
+                .setMaxResults(1)
+                .getResultList().isEmpty();
     }
 
     @Override

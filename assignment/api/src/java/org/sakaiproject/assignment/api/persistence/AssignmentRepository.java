@@ -34,6 +34,12 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     Assignment findAssignment(String id);
 
+    /** Load the current assignment and lock it until the calling transaction completes. */
+    Assignment findAssignmentForUpdate(String id);
+
+    /** Includes unsubmitted drafts and instructor-created submission records. */
+    boolean hasSubmissionRecords(String assignmentId);
+
     List<Assignment> findAssignmentsBySite(String siteId);
 
     List<Assignment> findDeletedAssignmentsBySite(String siteId);

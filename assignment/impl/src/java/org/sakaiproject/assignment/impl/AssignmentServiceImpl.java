@@ -1360,7 +1360,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = PermissionException.class)
     public void softDeleteAssignment(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
         // we don't actually want to delete assignments just mark them as deleted "soft delete feature"
@@ -1371,20 +1371,78 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
         }
 
+        assignment = assignmentRepository.findAssignmentForUpdate(assignment.getId());
+        boolean releaseGroupLocks = canReleaseGroupLocks(assignment);
         taskService.removeTaskByReference(reference);
 
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
         assignmentRepository.softDeleteAssignment(assignment.getId());
 
+        if (releaseGroupLocks) {
+            releaseAssignmentGroupLocks(assignment, reference);
+        }
+
         // we post the same event as remove assignment
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean canReleaseGroupLocks(Assignment assignment) {
+        return Boolean.TRUE.equals(assignment.getIsGroup())
+                && assignment.getTypeOfAccess() == GROUP
+                && !assignmentRepository.hasSubmissionRecords(assignment.getId());
+    }
+
+    private void releaseAssignmentGroupLocks(Assignment assignment, String reference) throws PermissionException {
+        for (String groupReference : assignment.getGroups()) {
+            try {
+                AuthzGroup group = authzGroupService.getAuthzGroup(groupReference);
+                group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                authzGroupService.save(group);
+            } catch (GroupNotDefinedException e) {
+                log.debug("Group {} no longer exists while releasing assignment {} locks", groupReference, assignment.getId());
+            } catch (AuthzPermissionException e) {
+                log.warn("Unable to release group {} lock for assignment {}", groupReference, assignment.getId(), e);
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, groupReference);
+            }
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {PermissionException.class, IdUnusedException.class})
+    public Assignment restoreAssignment(String assignmentId) throws IdUnusedException, PermissionException {
+        Assignment assignment = getAssignment(assignmentId);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        if (!allowUpdateAssignment(reference)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, reference);
+        }
+        assignment = assignmentRepository.findAssignmentForUpdate(assignmentId);
+        if (!Boolean.TRUE.equals(assignment.getDeleted())) {
+            return assignment;
+        }
+        if (canReleaseGroupLocks(assignment)) {
+            Site site = siteService.getSite(assignment.getContext());
+            releaseAssignmentGroupLocks(assignment, reference);
+            assignment.getGroups().removeIf(groupReference -> site.getGroup(groupReference) == null);
+            assignment.setDraft(true);
+            // Deletion removed the Gradebook item. Recreate it only when the reviewed draft is published.
+            if (GRADEBOOK_INTEGRATION_ASSOCIATE.equals(assignment.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
+                assignment.getProperties().remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                assignment.getProperties().put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+            }
+        }
+        assignment.setDeleted(false);
+        assignment.setSoftRemovedDate(null);
+        updateAssignment(assignment);
+        return assignment;
     }
 
     // TODO removing related content from other tools shouldn't be the concern for assignments service
     // it should post an event and let those tools take action.
     // * Unless a transaction is required
     @Override
-    @Transactional
+    @Transactional(rollbackFor = PermissionException.class)
     public void deleteAssignmentAndAllReferences(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
         log.debug("Removing all associated reference to assignment with id = {}", assignment.getId());
@@ -1483,6 +1541,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 if (!(allowAddSubmission(a.getContext()) || allowGradeSubmission(assignmentReference))) {
                     throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
                 }
+            }
+
+            // Serialize the first submission with soft deletion before deciding whether group locks can be released.
+            a = assignmentRepository.findAssignmentForUpdate(assignmentId);
+            if (Boolean.TRUE.equals(a.getDeleted())) {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
             }
 
             // Prevent users from having more than one submission, currently assignments expects groups or users to
@@ -1611,7 +1675,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // on Lessons, a group assignment or one with prereq. will be managed through a single (access) group
                 Group anAssignedGroup = site.getGroup(currentAssignedGroupRefs.stream().findFirst().orElse(null));
                 // we can infer it is an ACCESS group if it has the following property
-                boolean accessGroupAssigned = StringUtils.isNotBlank(anAssignedGroup.getProperties().getProperty("lessonbuilder_ref"));
+                boolean accessGroupAssigned = anAssignedGroup != null
+                        && StringUtils.isNotBlank(anAssignedGroup.getProperties().getProperty("lessonbuilder_ref"));
 
                 // If the assigned group is not an ACCESS group...
                 if (accessGroupAssigned == false) {
