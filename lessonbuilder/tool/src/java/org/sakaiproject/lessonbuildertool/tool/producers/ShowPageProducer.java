@@ -70,6 +70,7 @@ import org.sakaiproject.lessonbuildertool.service.BltiInterface;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
@@ -188,6 +189,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static LessonEntity forumEntity;
 	private static LessonEntity quizEntity;
 	private static LessonEntity assignmentEntity;
+	private static LessonEntity videoTrainingEntity;
 	private static LessonEntity bltiEntity;
 	private static LessonEntity scormEntity;
 	public MessageLocator messageLocator;
@@ -1463,6 +1465,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    case SimplePageItem.SCORM:
 						itemicon.decorate(new UIStyleDecorator("si si-sakai-scorm-tool"));
 						break;
+						case SimplePageItem.VIDEO_TRAINING:
+							itemicon.decorate(new UIStyleDecorator("si si-sakai-video-training"));
+							break;
 						case SimplePageItem.BLTI:
 							String bltiIcon = "fa-globe";
 							if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
@@ -4006,6 +4011,34 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
             }
 		}
+		else if (i.getType() == SimplePageItem.VIDEO_TRAINING) {
+		    if (usable && i.isPrerequisite()) {
+		        simplePageBean.checkItemPermissions(i, true);
+		    }
+			VideoTrainingEntity vtEntity = null;
+		    LessonEntity lessonEntity = videoTrainingEntity.getEntity(i.getSakaiId(), simplePageBean);
+			if (lessonEntity instanceof VideoTrainingEntity) {
+                vtEntity = (VideoTrainingEntity) lessonEntity;
+            }
+		    if (usable && vtEntity != null && (canEditPage || !vtEntity.notPublished())) {
+		        if (i.isPrerequisite()) {
+		            simplePageBean.checkItemPermissions(i, true);
+		        }
+		        GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+		        view.setSendingPage(currentPage.getPageId());
+		        view.setItemId(i.getId());
+		        UILink link = UIInternalLink.make(container, "link", view);
+		        link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				link.decorate(new UIFreeAttributeDecorator("data-full-url", vtEntity.getPortalUrl()));
+		        if (! available)
+		            fakeDisableLink(link, messageLocator);
+		    } else {
+		        if (i.isPrerequisite()) {
+		            simplePageBean.checkItemPermissions(i, false);
+		        }
+		        fake = true; // need to set this in case it's available for missing entity
+		    }
+		}
 
 		String note = null;
 		if (status == Status.COMPLETED) {
@@ -4232,6 +4265,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			scormEntity = e;
 	}
 
+	public void setVideoTrainingEntity(LessonEntity e) {
+		if (videoTrainingEntity == null)
+			videoTrainingEntity = e;
+	}
+
 	//Create a latest forum conversations dialog where user can enter other settings for the forum summary div
 	private void createForumSummaryDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "add-forum-summary-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.forumSummaryLinkText")));
@@ -4341,6 +4379,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "scorm-li");
 			createToolBarLink(ScormPickerProducer.VIEW_ID, tofill, "add-scorm", "simplepage.scorm-descrip", currentPage, "simplepage.scorm");
 		    }
+
+		    UIOutput.make(tofill, "video-training-li");
+		    createToolBarLink(VideoTrainingPickerProducer.VIEW_ID, tofill, "add-video-training", "simplepage.video-training.descrip", currentPage, "simplepage.video-training.tooltip");
 
 		    //Adding 'Embed forum conversations' component
 		    UIOutput.make(tofill, "forum-summary-li");

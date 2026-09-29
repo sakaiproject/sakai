@@ -59,6 +59,8 @@ simplePageBean.addCommentsSection,
 simplePageBean.addForum,
 simplePageBean.addLayout,
 simplePageBean.addMultimedia,
+simplePageBean.addVideoTraining,
+simplePageBean.cancelVideoTraining,
 simplePageBean.addOldPage,
 simplePageBean.addPageLayout,
 simplePageBean.addPages,
@@ -302,6 +304,22 @@ simplePageBean.addForumSummary,
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
   </bean>
+
+	<bean id="org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity"
+		class="org.sakaiproject.lessonbuildertool.service.VideoTrainingEntity"
+		lazy-init="true"
+				init-method="init"
+				destroy-method="destroy">
+		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+				<property name="videoTrainingService" ref="org.sakaiproject.videotraining.api.service.VideoTrainingService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+	</bean>
+
+	<bean id="org.sakaiproject.videotraining.api.util.ContentResourceHelper"
+	class="org.sakaiproject.videotraining.api.util.ContentResourceHelper">
+	<constructor-arg ref="org.sakaiproject.content.api.ContentHostingService"/>
+	</bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.GradebookIfc"
 	class="org.sakaiproject.lessonbuildertool.service.GradebookIfc">
