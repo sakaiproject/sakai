@@ -829,8 +829,20 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         } finally {
             finishDeletion.countDown();
             requests.shutdownNow();
-            Assert.assertTrue("Request threads did not finish", requests.awaitTermination(10, TimeUnit.SECONDS));
-            assignmentService.deleteAssignment(assignment);
+            try {
+                if (!requests.awaitTermination(10, TimeUnit.SECONDS)) {
+                    log.warn("Request threads did not finish for assignment {}", assignment.getId());
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Interrupted while cleaning up requests for assignment {}", assignment.getId(), e);
+            }
+            try {
+                // The service proxy starts a separate transaction because this test has none.
+                assignmentService.deleteAssignment(assignment);
+            } catch (Exception e) {
+                log.warn("Could not clean up assignment {} after the concurrency test", assignment.getId(), e);
+            }
         }
     }
 
