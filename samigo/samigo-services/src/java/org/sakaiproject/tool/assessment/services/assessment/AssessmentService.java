@@ -1468,7 +1468,7 @@ public class AssessmentService {
 		StringBuilder markupText = new StringBuilder(); 
 		int nQuestion = 1;
 		
-		for (Object sectionObj : assessment.getSectionArray()) {
+		for (Object sectionObj : assessment.getSectionArraySorted()) {
 			SectionFacade section = (SectionFacade)sectionObj;
 			List<ItemDataIfc> items = null;
 			boolean hasRandomPartScore = false;
