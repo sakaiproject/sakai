@@ -473,6 +473,7 @@ public class ListItem
 
 	protected String quota;
 	private boolean quotaIsInvalid;
+	private String submittedQuotaInGigabytes;
 
 	protected boolean nameIsMissing = false;
 
@@ -1733,6 +1734,7 @@ public class ListItem
 	protected void captureQuota(ParameterParser params, String index) 
 	{
 		this.quotaIsInvalid = false;
+		this.submittedQuotaInGigabytes = null;
 		String setQuota = params.getString("setQuota" + index);
 		if(setQuota != null)
 		{
@@ -1740,6 +1742,7 @@ public class ListItem
 			if(this.hasQuota)
 			{
 				String quota = params.getString("quota" + index);
+				this.submittedQuotaInGigabytes = quota;
 				if(quota != null && quota.trim().matches("^\\d+(\\.\\d+)?$"))
 				{
 					try
@@ -3663,6 +3666,10 @@ public class ListItem
 
 	public String getQuotaInGigabytes()
 	{
+		if (quotaIsInvalid)
+		{
+			return submittedQuotaInGigabytes;
+		}
 		return quota == null ? null : new BigDecimal(quota).divide(BigDecimal.valueOf(1024L * 1024L)).stripTrailingZeros().toPlainString();
 	}
 

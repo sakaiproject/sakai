@@ -50,11 +50,13 @@ class ResourcesQuotaTest extends SakaiUiTestBase {
         assertThat(enabled).isChecked();
         assertThat(quota).hasValue("2");
 
-        for (String invalidQuota : List.of("", "not-a-number", "-1", "1.00000001", "8796093022208")) {
+        for (String invalidQuota : List.of("", "  not-a-number  ", "-1", "1.00000001", "8796093022208",
+                "\"/><span id=\"quota-injected\">&amp;'</span>")) {
             quota.fill(invalidQuota);
             page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update").setExact(true)).click();
             assertThat(page.locator("#resourceAlert")).containsText("Enter a valid quota in GB");
-            assertThat(quota).isVisible();
+            assertThat(quota).hasValue(invalidQuota);
+            assertThat(page.locator("#quota-injected")).hasCount(0);
             quota.fill("2");
             saveAndReopen();
             assertThat(quota).hasValue("2");
