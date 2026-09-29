@@ -90,7 +90,7 @@ public class RWikiPropertyDaoImpl implements RWikiPropertyDao {
 	@Transactional
 	public void update(RWikiProperty property)
 	{
-		sessionFactory.getCurrentSession().saveOrUpdate(property);
+		sessionFactory.getCurrentSession().merge(property);
 	}
 
 	/**

@@ -126,9 +126,9 @@ public class SeedSitesAndUsersJob implements Job {
 	private final Faker faker = new Faker();
 	private final Random randomGenerator = new Random();
 
-	private Map<String, User> students;
-	private Map<String, User> instructors;
-	private Map<String, Site> sites;
+	private Map<String, User> students = new HashMap<>();
+	private Map<String, User> instructors = new HashMap<>();
+	private Map<String, Site> sites = new HashMap<>();
 
 	public void init() {
 		numberOfSites = serverConfigurationService.getInt("site.seed.create.sites", 5);
@@ -390,9 +390,9 @@ public class SeedSitesAndUsersJob implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		log.info("SeedSitesAndUsersJob started.");
 		
-		Map<String, User> students = new HashMap<>();
-		Map<String, User> instructors = new HashMap<>();
-		Map<String, Site> sites = new HashMap<>();
+		this.students = new HashMap<>();
+		this.instructors = new HashMap<>();
+		this.sites = new HashMap<>();
 
 		Session session = sessionManager.getCurrentSession();
 		String originalUserId = session.getUserId();

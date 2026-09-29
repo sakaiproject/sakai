@@ -222,7 +222,12 @@ public class PagePresenceDaoImpl implements
 	@Transactional
 	public void update(Object o)
 	{
-		sessionFactory.getCurrentSession().saveOrUpdate(o);
+		Session session = sessionFactory.getCurrentSession();
+		if (o instanceof PagePresenceImpl presence && presence.getId() == null) {
+			session.persist(presence);
+		} else {
+			o = session.merge(o);
+		}
 	}
 
 	/*

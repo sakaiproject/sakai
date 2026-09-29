@@ -467,7 +467,7 @@ public class AssignmentSupplementItemServiceImpl implements AssignmentSupplement
 	@Override
 	public void saveAllPurposeItemWithAccess(AssignmentAllPurposeItem item, Set<String> accessValues)
 	{
-		AssignmentAllPurposeItem managedItem = getHibernateTemplate().merge(item);
+		AssignmentAllPurposeItem managedItem = sessionFactory.getCurrentSession().merge(item);
 		Set<AssignmentAllPurposeItemAccess> accessSet = managedItem.getAccessSet();
 		if (accessSet == null)
 		{
@@ -484,7 +484,7 @@ public class AssignmentSupplementItemServiceImpl implements AssignmentSupplement
 			AssignmentAllPurposeItemAccess access = new AssignmentAllPurposeItemAccess();
 			access.setAccess(value);
 			access.setAssignmentAllPurposeItem(managedItem);
-			getHibernateTemplate().save(access);
+			sessionFactory.getCurrentSession().persist(access);
 			accessSet.add(access);
 		}
 	}

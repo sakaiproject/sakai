@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 /** Shares an immutable permission snapshot across dispatch and JSF phases of one request. */
 public final class SamigoJsfPermissions {

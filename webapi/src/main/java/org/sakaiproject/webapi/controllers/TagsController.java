@@ -46,7 +46,7 @@ public class TagsController extends AbstractSakaiApiController {
 	private SecurityService securityService;
 
 	@PostMapping(value = "/sites/{siteId}/tools/{tool}/tags", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Tag> createTags(@PathVariable String siteId, @PathVariable String tool, @RequestBody List<Tag> tags) {
+	public List<Tag> createTags(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @RequestBody List<Tag> tags) {
 		checkSakaiSession();
 		return tagService.createSiteTags(siteId, tool, tags);
 	}

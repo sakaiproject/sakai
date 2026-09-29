@@ -81,7 +81,7 @@ class GradebookTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Gradebook");
 
-        Locator dialog = page.locator("dialog:visible, div[role=\"dialog\"]:visible, .wicket-modal:visible, .modal:visible").first();
+        Locator dialog = page.locator(".gb-modal-dialog:visible, dialog:visible, div[role=\"dialog\"]:visible, .wicket-modal:visible, .modal:visible").first();
         Locator addButton = page.locator("button.gb-add-gradebook-item-button").first();
 
         page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);

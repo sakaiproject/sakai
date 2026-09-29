@@ -15,7 +15,7 @@
 			</tr>
 			#foreach ($currSession in $servers.get("$serverName"))
 				<tr class="highLightRow">
-					<th rowspan="5">$velocityCount</th>
+					<th rowspan="5">$foreach.count</th>
 					<td>$tlang.getString("presence.session.session")</td>
 					<td><h5>$formattedText.escapeHtml($currSession.Id)</h5></td>
 				</tr>

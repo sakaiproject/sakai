@@ -1875,6 +1875,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("homeToolId", TOOL_ID_HOME);
 			context.put("toolsByGroup", (LinkedHashMap<String,List>) state.getAttribute(STATE_TOOL_GROUP_LIST));
+			context.put(STATE_TOOL_REGISTRATION_SELECTED_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST));
 			
 			context.put("toolGroupMultiples", getToolGroupMultiples(state, (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST)));
 			
@@ -6600,6 +6601,18 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// If this is a new site add these selected tools as the default
 		List<String> selectedTools = toolGroup.values().stream().flatMap(list -> list.stream().filter(MyTool::getSelected).map(MyTool::getId)).collect(Collectors.toList());
 		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, selectedTools);
+		toolRegistrationSelectedList = selectedTools;
+	}
+	// siteToolsIntoState already recorded the site's current tools. Apply that
+	// onto the catalog so Manage Tools checkboxes render as checked.
+	if (toolRegistrationSelectedList != null) {
+		for (List<MyTool> tools : toolGroup.values()) {
+			for (MyTool tool : tools) {
+				if (toolRegistrationSelectedList.contains(tool.getId())) {
+					tool.selected = true;
+				}
+			}
+		}
 	}
 	return toolGroup;
 }

@@ -1550,67 +1550,74 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			Session session = sessionFactory.getCurrentSession();
 			CriteriaBuilder cb = session.getCriteriaBuilder();
 			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
-	
-			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
-			Join<PublishedAssessmentData, PublishedAccessControl> cJoin = pRoot.join("accessControl");
-			Join<PublishedAssessmentData, PublishedFeedback> fJoin = pRoot.join("feedback");
-			Join<PublishedAssessmentData, PublishedEvaluationModel> emJoin = pRoot.join("evaluationModel");
-			Join<PublishedAssessmentData, AuthorizationData> azJoin = pRoot.join("authorizations");
-	
+			cq.distinct(true);
+
+			Root<PublishedAssessmentData> pRoot  = cq.from(PublishedAssessmentData.class);
+			Root<PublishedAccessControl> cRoot   = cq.from(PublishedAccessControl.class);
+			Root<PublishedFeedback> fRoot        = cq.from(PublishedFeedback.class);
+			Root<AuthorizationData> azRoot       = cq.from(AuthorizationData.class);
+			Root<PublishedEvaluationModel> emRoot = cq.from(PublishedEvaluationModel.class);
+
 			cq.select(cb.construct(PublishedAssessmentData.class,
 				pRoot.get("publishedAssessmentId"),
 				pRoot.get("title"),
-				cJoin.get("releaseTo"),
-				cJoin.get("startDate"),
-				cJoin.get("dueDate"),
-				cJoin.get("retractDate"),
-				cJoin.get("feedbackDate"),
-				fJoin.get("feedbackDelivery"),
-				fJoin.get("feedbackComponentOption"),
-				fJoin.get("feedbackAuthoring"),
-				cJoin.get("lateHandling"),
-				cJoin.get("unlimitedSubmissions"),
-				cJoin.get("submissionsAllowed"),
-				emJoin.get("scoringType"),
+				cRoot.get("releaseTo"),
+				cRoot.get("startDate"),
+				cRoot.get("dueDate"),
+				cRoot.get("retractDate"),
+				cRoot.get("feedbackDate"),
+				fRoot.get("feedbackDelivery"),
+				fRoot.get("feedbackComponentOption"),
+				fRoot.get("feedbackAuthoring"),
+				cRoot.get("lateHandling"),
+				cRoot.get("unlimitedSubmissions"),
+				cRoot.get("submissionsAllowed"),
+				emRoot.get("scoringType"),
 				pRoot.get("status"),
 				pRoot.get("lastModifiedDate"),
-				cJoin.get("timeLimit"),
-				cJoin.get("feedbackEndDate"),
-				cJoin.get("feedbackScoreThreshold")
+				cRoot.get("timeLimit"),
+				cRoot.get("feedbackEndDate"),
+				cRoot.get("feedbackScoreThreshold")
 			));
-	
+
 			List<Predicate> predicates = new ArrayList<>();
-			predicates.add(cb.or(cb.equal(pRoot.get("status"), 1), cb.equal(pRoot.get("status"), 3)));
-			predicates.add(cb.equal(azJoin.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
-			predicates.add(cb.equal(azJoin.get("qualifierId"), pRoot.get("publishedAssessmentId").as(String.class)));
-	
-			Predicate sitePredicate = cb.equal(azJoin.get("agentIdString"), siteId);
-			Predicate groupPredicate = null;
+
+			predicates.add(cb.equal(
+				cRoot.get("assessment").get("publishedAssessmentId"),
+				pRoot.get("publishedAssessmentId")));
+			predicates.add(cb.equal(
+				fRoot.get("assessment").get("publishedAssessmentId"),
+				pRoot.get("publishedAssessmentId")));
+			predicates.add(cb.equal(
+				emRoot.get("assessment").get("publishedAssessmentId"),
+				pRoot.get("publishedAssessmentId")));
+
+			predicates.add(cb.or(
+				cb.equal(pRoot.get("status"), 1),
+				cb.equal(pRoot.get("status"), 3)));
+
+			predicates.add(cb.equal(azRoot.get("functionId"), "TAKE_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(azRoot.get("qualifierId"), pRoot.get("publishedAssessmentId").as(String.class)));
+
+			Predicate sitePredicate = cb.equal(azRoot.get("agentIdString"), siteId);
 			if (groupIds != null && !groupIds.isEmpty()) {
-				groupPredicate = azJoin.get("agentIdString").in(groupIds);
-			}
-			if (groupPredicate != null) {
-				predicates.add(cb.or(sitePredicate, groupPredicate));
+				predicates.add(cb.or(sitePredicate, azRoot.get("agentIdString").in(groupIds)));
 			} else {
 				predicates.add(sitePredicate);
 			}
-	
+
 			cq.where(predicates.toArray(new Predicate[0]));
-	
-			if (orderField != null && !orderField.isEmpty()) {
+
+			if (orderBy != null && !orderBy.isEmpty()) {
 				Path<Object> orderPath;
-				if (orderField.equals("dueDate")) {
-					orderPath = cJoin.get(orderField);
+				if (orderBy.equals("dueDate")) {
+					orderPath = cRoot.get(orderBy);
 				} else {
-					orderPath = pRoot.get(orderField);
+					orderPath = pRoot.get(orderBy);
 				}
-				if (ascendingOrder) {
-					cq.orderBy(cb.asc(orderPath));
-				} else {
-					cq.orderBy(cb.desc(orderPath));
-				}
+				cq.orderBy(ascending ? cb.asc(orderPath) : cb.desc(orderPath));
 			}
-	
+
 			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
 			List<PublishedAssessmentFacade> pubList = new ArrayList<>();
 				for (PublishedAssessmentData p : list) {
@@ -1670,7 +1677,10 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			cq.where(predicates.toArray(new Predicate[0]));
 
 			if (orderBy != null && !orderBy.isEmpty()) {
-				Path<Object> orderPath = pRoot.get(orderBy);
+				Path<?> orderPath = pRoot;
+				for (String part : orderBy.split("\\.")) {
+					orderPath = orderPath.get(part);
+				}
 				if (ascending) {
 					cq.orderBy(cb.asc(orderPath));
 				} else {
@@ -2490,22 +2500,26 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	public boolean isFixedRandomDrawPart(final Long publishedAssessmentId, final Long sectionId) {
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
-
+		final String valueMultiple = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
 		try {
 			Session session = sessionFactory.getCurrentSession();
 			CriteriaBuilder cb = session.getCriteriaBuilder();
 			CriteriaQuery<PublishedSectionData> cq = cb.createQuery(PublishedSectionData.class);
 
 			Root<PublishedSectionData> sRoot = cq.from(PublishedSectionData.class);
-			Join<PublishedSectionData, PublishedSectionMetaData> mJoin = sRoot.join("section");
+			Root<PublishedSectionMetaData> mRoot = cq.from(PublishedSectionMetaData.class);
 
 			cq.select(sRoot);
 
 			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(sRoot, mRoot.get("section")));
 			predicates.add(cb.equal(sRoot.get("assessment").get("publishedAssessmentId"), publishedAssessmentId));
 			predicates.add(cb.equal(sRoot.get("id"), sectionId));
-			predicates.add(cb.equal(mJoin.get("label"), key));
-			predicates.add(cb.equal(mJoin.get("entry"), value));
+			predicates.add(cb.equal(mRoot.get("label"), key));
+			predicates.add(cb.or(
+				cb.equal(mRoot.get("entry"), value),
+				cb.equal(mRoot.get("entry"), valueMultiple)
+			));
 
 			cq.where(predicates.toArray(new Predicate[0]));
 
