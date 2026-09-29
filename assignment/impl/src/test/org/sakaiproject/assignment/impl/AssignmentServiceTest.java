@@ -56,6 +56,12 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -162,6 +168,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Autowired private AssignmentService assignmentService;
     @Autowired private org.hibernate.SessionFactory sessionFactory;
+    @Autowired private org.springframework.orm.hibernate5.HibernateTransactionManager transactionManager;
     @Autowired private AuthzGroupService authzGroupService;
     @Resource(name = "org.sakaiproject.calendar.api.CalendarService")
     private CalendarService calendarService;
@@ -755,6 +762,76 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertThrows(PermissionException.class,
                 () -> assignmentService.addSubmission(assignment.getId(), "student"));
         Assert.assertTrue(assignmentService.canReleaseGroupLocks(assignment));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void deletionBlocksFirstSubmissionFromAnAlreadyOpenRequest() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment assignment = transaction.execute(status -> {
+            try {
+                return createPublishedGroupAssignment();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String groupReference = assignment.getGroups().iterator().next();
+        String groupId = groupReference.substring(groupReference.lastIndexOf('/') + 1);
+        Group group = siteService.getSite(assignment.getContext()).getGroup(groupReference);
+        when(siteService.getSite(assignment.getContext()).getGroup(groupId)).thenReturn(group);
+        Member member = buildGroupMember(UUID.randomUUID().toString());
+        when(group.getMembers()).thenReturn(Set.of(member));
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+
+        CountDownLatch assignmentRead = new CountDownLatch(1);
+        CountDownLatch deletionLocked = new CountDownLatch(1);
+        CountDownLatch submissionAttempted = new CountDownLatch(1);
+        CountDownLatch finishDeletion = new CountDownLatch(1);
+        Mockito.doAnswer(invocation -> {
+            deletionLocked.countDown();
+            Assert.assertTrue("Deletion was not released", finishDeletion.await(10, TimeUnit.SECONDS));
+            return null;
+        }).when(taskService).removeTaskByReference(reference);
+
+        ExecutorService requests = Executors.newFixedThreadPool(2);
+        try {
+            Future<Boolean> submissionRejected = requests.submit(() -> transaction.execute(status -> {
+                try {
+                    // Keep the pre-deletion entity in this request's Hibernate session.
+                    assignmentService.getAssignment(assignment.getId());
+                    assignmentRead.countDown();
+                    Assert.assertTrue("Deletion did not acquire its lock", deletionLocked.await(10, TimeUnit.SECONDS));
+                    submissionAttempted.countDown();
+                    try {
+                        assignmentService.addSubmission(assignment.getId(), groupId);
+                        return false;
+                    } catch (PermissionException expected) {
+                        return true;
+                    }
+                } catch (IdUnusedException | PermissionException | InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }));
+            Assert.assertTrue("Submission request did not load the assignment", assignmentRead.await(10, TimeUnit.SECONDS));
+            Future<?> deletion = requests.submit(() -> {
+                assignmentService.softDeleteAssignment(assignment);
+                return null;
+            });
+            Assert.assertTrue("Submission request did not reach the locked assignment", submissionAttempted.await(10, TimeUnit.SECONDS));
+            Assert.assertThrows(TimeoutException.class, () -> submissionRejected.get(200, TimeUnit.MILLISECONDS));
+            finishDeletion.countDown();
+            deletion.get(10, TimeUnit.SECONDS);
+            Assert.assertTrue("The stale request must not create a submission", submissionRejected.get(10, TimeUnit.SECONDS));
+            Assert.assertTrue(transaction.execute(status -> assignmentService.canReleaseGroupLocks(assignment)));
+            verify(authzGroupService.getAuthzGroup(groupReference))
+                    .setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+        } finally {
+            finishDeletion.countDown();
+            requests.shutdownNow();
+            Assert.assertTrue("Request threads did not finish", requests.awaitTermination(10, TimeUnit.SECONDS));
+            assignmentService.deleteAssignment(assignment);
+        }
     }
 
     @Test

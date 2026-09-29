@@ -37,8 +37,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -69,12 +67,12 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    @Transactional
     public Assignment findAssignmentForUpdate(String id) {
         Assignment assignment = findOne(id);
         if (assignment != null) {
+            // Persist a newly created assignment before locking its row in the same transaction.
             geCurrentSession().flush();
-            // Refresh as well as lock: a caller may have loaded it before another transaction deleted it.
+            // Reload the deleted flag too, in case this request loaded the assignment before deletion.
             geCurrentSession().refresh(assignment, LockModeType.PESSIMISTIC_WRITE);
         }
         return assignment;
@@ -200,10 +198,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     public AssignmentSubmission newSubmission(String assignmentId, Optional<String> groupId, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
         Assignment assignment = findAssignment(assignmentId);
         if (assignment != null) {
-            // Since this transaction is going to add a submission to the assignment we lock the assignment
-            // the lock is freed once transaction is committed or rolled back
-            geCurrentSession().buildLockRequest(LockOptions.UPGRADE).setLockMode(LockMode.PESSIMISTIC_WRITE).lock(assignment);
-
             AssignmentSubmission submission = new AssignmentSubmission();
             submission.setDateCreated(Instant.now());
             submitters.ifPresent(submission::setSubmitters);

@@ -1387,7 +1387,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    @Transactional(readOnly = true)
     public boolean canReleaseGroupLocks(Assignment assignment) {
         return Boolean.TRUE.equals(assignment.getIsGroup())
                 && assignment.getTypeOfAccess() == GROUP
