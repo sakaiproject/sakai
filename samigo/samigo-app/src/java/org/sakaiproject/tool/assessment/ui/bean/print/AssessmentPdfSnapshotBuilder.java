@@ -204,17 +204,21 @@ public final class AssessmentPdfSnapshotBuilder {
 
     private Locale resolveLocale() {
         requireDeliveryBean();
-        String siteId = deliveryBean.getSiteId();
-        LocaleService localeService = ComponentManager.get(LocaleService.class);
-        if (localeService == null) {
+        try {
+            String siteId = deliveryBean.getSiteId();
+            LocaleService localeService = ComponentManager.get(LocaleService.class);
+            if (localeService == null) {
+                return Locale.getDefault();
+            }
+            SessionManager sessionManager = ComponentManager.get(SessionManager.class);
+            String userId = sessionManager != null ? sessionManager.getCurrentSessionUserId() : null;
+            if (StringUtils.isNotBlank(siteId)) {
+                return localeService.getLocaleForSiteAndUser(siteId, userId);
+            }
+            return localeService.getLocaleForCurrentSiteAndUser();
+        } catch (RuntimeException ex) {
             return Locale.getDefault();
         }
-        SessionManager sessionManager = ComponentManager.get(SessionManager.class);
-        String userId = sessionManager != null ? sessionManager.getCurrentSessionUserId() : null;
-        if (StringUtils.isNotBlank(siteId)) {
-            return localeService.getLocaleForSiteAndUser(siteId, userId);
-        }
-        return localeService.getLocaleForCurrentSiteAndUser();
     }
 
     private void requireDeliveryBean() {
