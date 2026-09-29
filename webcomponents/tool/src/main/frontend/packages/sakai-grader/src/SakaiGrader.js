@@ -519,8 +519,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       }
 
       rubricPromise
-        .catch(error => console.error("Failed to save rubric before grading submit", error))
-        .then(() => this._submitGradingData(formData, e.bannerTimout));
+        .then(() => this._submitGradingData(formData, e.bannerTimout))
+        .catch(error => {
+          console.error("Failed to save rubric before grading submit", error);
+          this._saveFailed = true;
+          setTimeout(() => this._saveFailed = false, 2000);
+        });
     }
   }
 
