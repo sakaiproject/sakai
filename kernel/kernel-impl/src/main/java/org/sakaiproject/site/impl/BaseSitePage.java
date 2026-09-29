@@ -461,6 +461,10 @@ public class BaseSitePage implements SitePage, Identifiable, Serializable
 
 	@Override
 	public List<ToolConfiguration> getTools() {
+		if (m_tools == null)
+		{
+			m_tools = new ArrayList<>();
+		}
 		if (m_toolsLazy) {
 			siteService.storage().readPageTools(this, m_tools);
 			m_toolsLazy = false;

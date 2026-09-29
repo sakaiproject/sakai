@@ -2060,6 +2060,16 @@ public class BaseSite implements Site, Serializable
 		return m_fullyLoaded;
 	}
 
+	/**
+	 * True when the page collection still needs to be fetched from storage.
+	 * A site can be marked fully loaded incorrectly; callers that trust the
+	 * cache must also check this before skipping loadAll().
+	 */
+	boolean hasLazyPages()
+	{
+		return m_pagesLazy;
+	}
+
 	public void setFullyLoaded(boolean flag) {
 		m_fullyLoaded = flag;
 	}

@@ -36,6 +36,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.impl.BaseSitePage;
 import org.sakaiproject.site.impl.BaseSiteService;
 import org.sakaiproject.test.SakaiKernelTestBase;
@@ -231,5 +232,38 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		assertEquals(0, page2.getPosition());
 		assertEquals(1, page3.getPosition());
 
+	}
+
+	/**
+	 * Placement-only save (the JSR-168 / Pluto path) must be visible on the next findTool()
+	 * and getSite(), not hidden by a stale site-cache entry.
+	 */
+	@Test
+	public void testToolConfigSaveVisibleOnNextFindTool() throws Exception {
+		SiteService siteService = getService(SiteService.class);
+		workAsAdmin();
+
+		Site site = siteService.addSite("toolConfigSaveSite", "test");
+		SitePage page = site.addPage();
+		ToolConfiguration tool = page.addTool("sakai.iframe");
+		tool.getPlacementConfig().setProperty("source", "https://example.com/original");
+		siteService.save(site);
+
+		String toolId = tool.getId();
+
+		// Prime the site cache with the original placement config
+		siteService.getSite("toolConfigSaveSite");
+
+		ToolConfiguration found = siteService.findTool(toolId);
+		Assert.assertNotNull(found);
+		found.getPlacementConfig().setProperty("source", "https://example.com/updated");
+		found.save();
+
+		ToolConfiguration reloaded = siteService.findTool(toolId);
+		Assert.assertEquals("https://example.com/updated", reloaded.getPlacementConfig().getProperty("source"));
+
+		Site reloadedSite = siteService.getSite("toolConfigSaveSite");
+		ToolConfiguration fromSite = reloadedSite.getTool(toolId);
+		Assert.assertEquals("https://example.com/updated", fromSite.getPlacementConfig().getProperty("source"));
 	}
 }
