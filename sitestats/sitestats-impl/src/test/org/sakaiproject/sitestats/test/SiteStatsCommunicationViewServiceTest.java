@@ -77,6 +77,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsTableColumn;
+import org.sakaiproject.sitestats.api.view.SiteStatsTableRow;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidget;
 import org.sakaiproject.sitestats.api.view.SiteStatsWidgetMetric;
@@ -286,15 +287,22 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 	}
 
 	@Test
-	public void dateFilterExcludesOlderPosts() {
+	public void metricsCountSinceSiteCreationWhileTabsHonorDateFilter() {
 		Message oldThread = forumMessage(1L, USER_A_ID, null, Date.from(Instant.parse("2026-06-15T12:00:00Z")));
 		when(messageForumsMessageManager.getAllMessagesInSite(SITE_ID)).thenReturn(Collections.singletonList(oldThread));
 
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setDate(ReportManager.WHEN_LAST7DAYS);
 
-		assertEquals("0", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_AUTHORED, request).getPrimary());
-		assertEquals("0", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_UNANSWERED, request).getPrimary());
+		assertEquals("1", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_AUTHORED, request).getPrimary());
+		assertEquals("1", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_UNANSWERED, request).getPrimary());
+
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_COMMUNICATION, TAB_BY_USER, request);
+		int authored = 0;
+		for (SiteStatsTableRow row : view.getTable().getRows()) {
+			authored += ((Number) row.getCells().get("authored").getRaw()).intValue();
+		}
+		assertEquals(0, authored);
 	}
 
 	@Test
