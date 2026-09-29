@@ -364,6 +364,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     })
     .catch(error => {
       console.error(error);
+      throw error;
     })
     .finally(async () => {
       this._savingPromise = null;
