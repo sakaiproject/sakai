@@ -742,55 +742,59 @@ ASN.enableSubmitUnlessNoFile = function(checkForFile)
 
 ASN.submitForm = function( formID, option, submissionID, view, focusId )
 {
-    // Handle rubric defer-save before form submission
-    ASN.handleRubricSaveBeforeSubmit(option);
-
-    // Get the form
-    var form = document.getElementById( formID );
-    if( form !== null )
-    {
-        // Apply the submission ID to the form's action if one is supplied
-        if( submissionID !== null )
-        {
-            form.action = ASN.updateQueryStringParameter(form.action,"submissionId",submissionID);
-        }
-
-        if(focusId){
-            form.action = form.action + '#' + focusId;
-        }
-
-        // Do the onsubmit() if the form has one
-        if( form && form.onsubmit )
-        {
-            form.onsubmit();
-        }
-
-        // If an option was given, apply it to the element
-        if( option !== null )
-        {
-            var optionElement = document.getElementById( "option" );
-            if( optionElement !== null )
+    // Persist or discard deferred rubric edits before the form navigates away
+    return ASN.handleRubricSaveBeforeSubmit(option)
+        .catch(function(error) {
+            console.error("Failed to handle rubric before form submit", error);
+        })
+        .then(function() {
+            // Get the form
+            var form = document.getElementById( formID );
+            if( form !== null )
             {
-                optionElement.value = option;
-            }
-        }
+                // Apply the submission ID to the form's action if one is supplied
+                if( submissionID !== null )
+                {
+                    form.action = ASN.updateQueryStringParameter(form.action,"submissionId",submissionID);
+                }
 
-        // If a view was given, apply it to the element
-        if( view !== null )
-        {
-            var viewElement = document.getElementById( "view" );
-            if( viewElement !== null )
-            {
-                viewElement.value = view;
-            }
-        }
+                if(focusId){
+                    form.action = form.action + '#' + focusId;
+                }
 
-        // Do the submit() if the form has one
-        if( form && form.submit )
-        {
-            form.submit();
-        }
-    }
+                // Do the onsubmit() if the form has one
+                if( form && form.onsubmit )
+                {
+                    form.onsubmit();
+                }
+
+                // If an option was given, apply it to the element
+                if( option !== null )
+                {
+                    var optionElement = document.getElementById( "option" );
+                    if( optionElement !== null )
+                    {
+                        optionElement.value = option;
+                    }
+                }
+
+                // If a view was given, apply it to the element
+                if( view !== null )
+                {
+                    var viewElement = document.getElementById( "view" );
+                    if( viewElement !== null )
+                    {
+                        viewElement.value = view;
+                    }
+                }
+
+                // Do the submit() if the form has one
+                if( form && form.submit )
+                {
+                    form.submit();
+                }
+            }
+        });
 };
 
 ASN.doStudentViewSubmissionAction = function( formID, option, attachmentID, focusId )
@@ -1114,14 +1118,19 @@ $(document).ready(() => {
   const infoLink = document.getElementById("infoImg");
   infoLink && (new bootstrap.Popover(document.getElementById("infoImg")));
 
-  const saveRubric = e => {
-    [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. save());
+  // Legacy auto-save rubrics only. defer-save rubrics are handled in ASN.handleRubricSaveBeforeSubmit.
+  const nonDeferredRubrics = () =>
+    [...document.getElementsByTagName("sakai-rubric-grading")]
+      .filter(r => !r.hasAttribute("defer-save"));
+
+  const saveRubric = () => {
+    nonDeferredRubrics().forEach(r => r.save());
   };
   const saveButton = document.getElementById("save");
   saveButton && saveButton.addEventListener("click", saveRubric);
 
-  const releaseRubric = e => {
-    [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. release());
+  const releaseRubric = () => {
+    nonDeferredRubrics().forEach(r => r.release());
   };
   const returnButton = document.getElementById("save-and-return");
   returnButton && returnButton.addEventListener("click", releaseRubric);
@@ -1145,9 +1154,12 @@ $(document).ready(() => {
   const postButton = document.getElementById("post");
   postButton && postButton.addEventListener("click", saveRubric);
 
-  // If grade is released, rubric must be released too
+  // Legacy auto-save: if grade is released, rubric must be released on navigation too.
+  // defer-save pages save as DRAFT on navigation instead (see ASN.handleRubricSaveBeforeSubmit).
   const gradeIsReleasedInput = document.getElementById("grade-is-released");
-  if (gradeIsReleasedInput && gradeIsReleasedInput.value === 'true') {
+  const hasDeferSaveRubric = [...document.getElementsByTagName("sakai-rubric-grading")]
+    .some(r => r.hasAttribute("defer-save"));
+  if (gradeIsReleasedInput && gradeIsReleasedInput.value === 'true' && !hasDeferSaveRubric) {
     const buttons = document.querySelectorAll(".prevsubmission, .prevUngraded, .nextsubmission, .nextUngraded");
     buttons && buttons.forEach(button => button.addEventListener("click", releaseRubric));
   }
@@ -1155,42 +1167,74 @@ $(document).ready(() => {
 
 ASN.cancelGradeSubmission = function () {
 
-  [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. cancel());
-
   SPNR.disableControlsAndSpin( this, null );
   ASN.submitForm( 'gradeForm', 'cancelgrade', null, null );
   return false;
 };
 
 /**
- * Handle rubric defer-save before form submission
+ * Options that release (publish) deferred rubric evaluations.
+ */
+ASN.RUBRIC_RELEASE_OPTIONS = new Set([ "returngrade" ]);
+
+/**
+ * Options that persist deferred rubric edits as DRAFT.
+ * Includes navigation and return-to-list: backend saves the grade and UI says changes will be saved.
+ */
+ASN.RUBRIC_SAVE_OPTIONS = new Set([
+  "savegrade",
+  "savegrade_review",
+  "submitgrade_review",
+  "previewgrade",
+  "prevsubmission",
+  "nextsubmission",
+  "prevUngraded",
+  "nextUngraded",
+  "cancelgradesubmission",
+  "prevsubmission_review",
+  "nextsubmission_review",
+  "cancelgradesubmission_review",
+  "attach",
+  "toggleremove_review",
+]);
+
+/**
+ * Options that discard deferred rubric edits.
+ */
+ASN.RUBRIC_CANCEL_OPTIONS = new Set([ "cancelgrade", "cancelgrade_review" ]);
+
+/**
+ * Handle defer-save rubrics before form submission. Returns a Promise that resolves
+ * when any needed rubric persist/cancel has finished (so form.submit does not abort the fetch).
  */
 ASN.handleRubricSaveBeforeSubmit = function(option) {
-  const rubricGradingElements = document.getElementsByTagName("sakai-rubric-grading");
+  const rubrics = [...document.getElementsByTagName("sakai-rubric-grading")]
+    .filter(r => r.hasAttribute("defer-save"));
 
-  for (let i = 0; i < rubricGradingElements.length; i++) {
-    const rubric = rubricGradingElements[i];
-
-    // Check if this rubric has defer-save enabled
-    if (rubric.hasAttribute('defer-save')) {
-
-      if (option === 'returngrade') {
-        // For return grade (release), publish the rubric
-        if (rubric.release) {
-          rubric.release();
-        }
-      } else {
-        // For save grade, force save as DRAFT if there are pending changes
-        if (rubric.hasPendingChanges && rubric.hasPendingChanges()) {
-          if (rubric.forceSave) {
-            rubric.forceSave(1); // Save as DRAFT
-          }
-        } else if (rubric.save) {
-          rubric.save();
-        }
-      }
-    }
+  if (!rubrics.length) {
+    return Promise.resolve();
   }
+
+  const promises = rubrics.map(rubric => {
+    if (ASN.RUBRIC_CANCEL_OPTIONS.has(option)) {
+      return Promise.resolve(rubric.cancel && rubric.cancel());
+    }
+
+    if (ASN.RUBRIC_RELEASE_OPTIONS.has(option)) {
+      return Promise.resolve(rubric.release && rubric.release());
+    }
+
+    if (ASN.RUBRIC_SAVE_OPTIONS.has(option)) {
+      if (rubric.hasPendingChanges && rubric.hasPendingChanges() && rubric.forceSave) {
+        return Promise.resolve(rubric.forceSave(1));
+      }
+      return Promise.resolve();
+    }
+
+    return Promise.resolve();
+  });
+
+  return Promise.all(promises);
 };
 
 // SAK-43911 (grab_cursor for reordering items)

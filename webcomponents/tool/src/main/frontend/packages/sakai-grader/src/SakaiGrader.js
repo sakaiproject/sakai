@@ -507,26 +507,21 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     if (formData.valid) {
       formData.set("gradeOption", release ? "return" : "retract");
-      this._submitGradingData(formData, e.bannerTimout);
+
       const rubricGrading = this.querySelector("sakai-rubric-grading");
+      let rubricPromise = Promise.resolve();
       if (rubricGrading) {
         if (release) {
-          rubricGrading.release();
+          rubricPromise = Promise.resolve(rubricGrading.release());
         } else if (rubricGrading.hasPendingChanges && rubricGrading.hasPendingChanges()) {
-          rubricGrading.forceSave(1);
-        } else {
-          rubricGrading.save();
+          rubricPromise = Promise.resolve(rubricGrading.forceSave(1));
         }
       }
-    }
-  }
 
-  /**
-   * Check if rubric has unsaved changes
-   */
-  _hasUnsavedRubricChanges() {
-    const rubricGrading = this.querySelector("sakai-rubric-grading");
-    return rubricGrading && rubricGrading.hasPendingChanges && rubricGrading.hasPendingChanges();
+      rubricPromise
+        .catch(error => console.error("Failed to save rubric before grading submit", error))
+        .then(() => this._submitGradingData(formData, e.bannerTimout));
+    }
   }
 
   _submitGradingData(formData, bannerTimout = 1000) {
