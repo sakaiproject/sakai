@@ -82,7 +82,9 @@ public class SakaiHelper {
 
         page.context().clearCookies();
         page.navigate("about:blank");
-        gotoPath("/portal/");
+        // Go straight to the login form: /portal/ shows a guest landing page instead of the
+        // form when guest access is enabled, which would otherwise leave the session anonymous.
+        gotoPath("/portal/xlogin");
 
         Locator usernameInput = page.locator("input[name=\"eid\"], #eid").first();
         if (waitForVisible(usernameInput, 5000)) {
