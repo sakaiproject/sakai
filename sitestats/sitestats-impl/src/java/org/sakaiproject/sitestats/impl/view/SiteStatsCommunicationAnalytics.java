@@ -116,22 +116,22 @@ public class SiteStatsCommunicationAnalytics {
 	}
 
 	WidgetMetricValue authoredValue(String siteId, String userId, SiteStatsReportRequest request) {
-		CommunicationSnapshot snapshot = snapshot(siteId, request, userId);
+		CommunicationSnapshot snapshot = snapshot(siteId, allTime(request), userId);
 		return WidgetMetricValue.of(String.valueOf(snapshot.authored));
 	}
 
 	WidgetMetricValue repliedValue(String siteId, String userId, SiteStatsReportRequest request) {
-		CommunicationSnapshot snapshot = snapshot(siteId, request, userId);
+		CommunicationSnapshot snapshot = snapshot(siteId, allTime(request), userId);
 		return WidgetMetricValue.of(String.valueOf(snapshot.replied));
 	}
 
 	WidgetMetricValue unansweredValue(String siteId, String userId, SiteStatsReportRequest request) {
-		CommunicationSnapshot snapshot = snapshot(siteId, request, userId);
+		CommunicationSnapshot snapshot = snapshot(siteId, allTime(request), userId);
 		return WidgetMetricValue.of(String.valueOf(snapshot.unanswered));
 	}
 
 	WidgetMetricValue mostActiveValue(String siteId, String userId, SiteStatsReportRequest request) {
-		CommunicationSnapshot snapshot = snapshot(siteId, request, userId);
+		CommunicationSnapshot snapshot = snapshot(siteId, allTime(request), userId);
 		UserTotals best = mostActive(snapshot);
 		if (best == null) {
 			return WidgetMetricValue.of("-");
@@ -141,7 +141,7 @@ public class SiteStatsCommunicationAnalytics {
 	}
 
 	SiteStatsChart shareChart(String siteId, String userId, SiteStatsReportRequest request) {
-		CommunicationSnapshot snapshot = snapshot(siteId, request, userId);
+		CommunicationSnapshot snapshot = snapshot(siteId, allTime(request), userId);
 		if (snapshot.authored == 0 && snapshot.replied == 0) {
 			return null;
 		}
@@ -748,6 +748,14 @@ public class SiteStatsCommunicationAnalytics {
 		view.setTitle(message(titleKey));
 		view.setPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
 		return view;
+	}
+
+	private SiteStatsReportRequest allTime(SiteStatsReportRequest request) {
+		SiteStatsReportRequest allTime = SiteStatsReportRequest.normalized(request);
+		allTime.setDate(ReportManager.WHEN_ALL);
+		allTime.setWhenFrom(null);
+		allTime.setWhenTo(null);
+		return allTime;
 	}
 
 	private String message(String key) {
