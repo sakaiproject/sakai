@@ -472,6 +472,7 @@ public class ListItem
 	private Boolean allowHtmlInlineInherited;
 
 	protected String quota;
+	private boolean quotaIsInvalid;
 
 	protected boolean nameIsMissing = false;
 
@@ -1731,6 +1732,7 @@ public class ListItem
 
 	protected void captureQuota(ParameterParser params, String index) 
 	{
+		this.quotaIsInvalid = false;
 		String setQuota = params.getString("setQuota" + index);
 		if(setQuota != null)
 		{
@@ -1747,8 +1749,14 @@ public class ListItem
 					}
 					catch (ArithmeticException e)
 					{
-						log.debug("Quota must fit in a long and represent a whole number of KB");
+						this.quotaIsInvalid = true;
+						log.warn("Cannot set quota for {}: GB value must convert to whole KB within the supported range", this.id);
 					}
+				}
+				else
+				{
+					this.quotaIsInvalid = true;
+					log.warn("Cannot set quota for {}: a non-negative number in GB is required", this.id);
 				}
 			}
 			else
@@ -3822,6 +3830,10 @@ public class ListItem
 	public List<String> checkRequiredProperties()
     {
 		List<String> alerts = new ArrayList<String>();
+		if (quotaIsInvalid)
+		{
+			alerts.add(trb.getString("edit.quota.invalid"));
+		}
 		String name = getName();
 		if(name == null || name.trim().equals(""))
 		{

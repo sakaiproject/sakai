@@ -50,6 +50,16 @@ class ResourcesQuotaTest extends SakaiUiTestBase {
         assertThat(enabled).isChecked();
         assertThat(quota).hasValue("2");
 
+        for (String invalidQuota : List.of("", "not-a-number", "-1", "1.00000001", "8796093022208")) {
+            quota.fill(invalidQuota);
+            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update").setExact(true)).click();
+            assertThat(page.locator("#resourceAlert")).containsText("Enter a valid quota in GB");
+            assertThat(quota).isVisible();
+            quota.fill("2");
+            saveAndReopen();
+            assertThat(quota).hasValue("2");
+        }
+
         quota.fill("1.5");
         saveAndReopen();
         assertThat(quota).hasValue("1.5");
@@ -64,6 +74,9 @@ class ResourcesQuotaTest extends SakaiUiTestBase {
         assertThat(enabled).isChecked();
         assertThat(quota).hasValue("0");
 
+        quota.fill("invalid");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update").setExact(true)).click();
+        assertThat(page.locator("#resourceAlert")).containsText("Enter a valid quota in GB");
         enabled.uncheck();
         saveAndReopen();
         assertThat(enabled).not().isChecked();
