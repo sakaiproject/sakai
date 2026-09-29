@@ -73,7 +73,7 @@ public class ImportController {
     }
 
     @PostMapping(value = "/importGroups", consumes = "multipart/form-data")
-    public String showImportGroups(@RequestParam(required=false) String groupUploadedText, Model model, HttpServletRequest req) {
+    public String showImportGroups(@RequestParam(value = "groupUploadedText", required = false) String groupUploadedText, Model model, HttpServletRequest req) {
         log.debug("showImportGroups called with value {}", groupUploadedText);
 
         // Variable definition
