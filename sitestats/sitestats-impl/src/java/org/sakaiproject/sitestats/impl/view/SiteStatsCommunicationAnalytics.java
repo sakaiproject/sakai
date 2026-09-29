@@ -20,6 +20,12 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.CHART_COLOR
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.CHART_COLOR_SUCCESS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.CHART_COLOR_WARNING;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.GROUP_ALL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_COMMUNICATION_AUTHORED;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_COMMUNICATION_MOST_ACTIVE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_COMMUNICATION_REPLIED;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_COMMUNICATION_UNANSWERED;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_COMMUNICATION_AUTHORED;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_STUDENT_COMMUNICATION_REPLIED;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -42,13 +48,16 @@ import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.commons.api.CommonsConstants;
 import org.sakaiproject.commons.api.CommonsManager;
 import org.sakaiproject.commons.api.QueryBean;
 import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
 import org.sakaiproject.conversations.api.ConversationsService;
+import org.sakaiproject.conversations.api.Permissions;
 import org.sakaiproject.conversations.api.beans.CommentTransferBean;
 import org.sakaiproject.conversations.api.beans.PostTransferBean;
 import org.sakaiproject.conversations.api.beans.TopicTransferBean;
@@ -79,13 +88,15 @@ public class SiteStatsCommunicationAnalytics {
 	private static final String COL_REPLIED = "replied";
 	private static final String COL_UNANSWERED = "unanswered";
 	private static final String COL_TOTAL = "total";
-	private static final int CONVERSATIONS_PAGE_SIZE = 10;
+	private static final int DEFAULT_CONVERSATIONS_PAGE_SIZE = 10;
 
 	@Setter private MessageForumsMessageManager messageForumsMessageManager;
 	@Setter private PrivateMessageManager privateMessageManager;
 	@Setter private MessageForumsTypeManager messageForumsTypeManager;
 	@Setter private ConversationsService conversationsService;
 	@Setter private CommonsManager commonsManager;
+	@Setter private SecurityService securityService;
+	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private SiteStatsWidgetContext context;
 	@Setter private WidgetFilterCatalog filterCatalog;
 	@Setter private WidgetMetricSupport metricSupport;
@@ -116,22 +127,48 @@ public class SiteStatsCommunicationAnalytics {
 	}
 
 	WidgetMetricValue authoredValue(String siteId, String userId, SiteStatsReportRequest request) {
-		CommunicationSnapshot snapshot = snapshot(siteId, allTime(request), userId);
-		return WidgetMetricValue.of(String.valueOf(snapshot.authored));
+		return authoredValue(snapshot(siteId, allTime(request), userId));
 	}
 
 	WidgetMetricValue repliedValue(String siteId, String userId, SiteStatsReportRequest request) {
-		CommunicationSnapshot snapshot = snapshot(siteId, allTime(request), userId);
-		return WidgetMetricValue.of(String.valueOf(snapshot.replied));
+		return repliedValue(snapshot(siteId, allTime(request), userId));
 	}
 
 	WidgetMetricValue unansweredValue(String siteId, String userId, SiteStatsReportRequest request) {
-		CommunicationSnapshot snapshot = snapshot(siteId, allTime(request), userId);
-		return WidgetMetricValue.of(String.valueOf(snapshot.unanswered));
+		return unansweredValue(snapshot(siteId, allTime(request), userId));
 	}
 
 	WidgetMetricValue mostActiveValue(String siteId, String userId, SiteStatsReportRequest request) {
+		return mostActiveValue(snapshot(siteId, allTime(request), userId));
+	}
+
+	Map<String, WidgetMetricValue> metricValues(String siteId, String userId, SiteStatsReportRequest request) {
 		CommunicationSnapshot snapshot = snapshot(siteId, allTime(request), userId);
+		WidgetMetricValue authored = authoredValue(snapshot);
+		WidgetMetricValue replied = repliedValue(snapshot);
+		Map<String, WidgetMetricValue> values = new LinkedHashMap<String, WidgetMetricValue>();
+		values.put(METRIC_COMMUNICATION_AUTHORED, authored);
+		values.put(METRIC_STUDENT_COMMUNICATION_AUTHORED, authored);
+		values.put(METRIC_COMMUNICATION_REPLIED, replied);
+		values.put(METRIC_STUDENT_COMMUNICATION_REPLIED, replied);
+		values.put(METRIC_COMMUNICATION_UNANSWERED, unansweredValue(snapshot));
+		values.put(METRIC_COMMUNICATION_MOST_ACTIVE, mostActiveValue(snapshot));
+		return values;
+	}
+
+	private WidgetMetricValue authoredValue(CommunicationSnapshot snapshot) {
+		return WidgetMetricValue.of(String.valueOf(snapshot.authored));
+	}
+
+	private WidgetMetricValue repliedValue(CommunicationSnapshot snapshot) {
+		return WidgetMetricValue.of(String.valueOf(snapshot.replied));
+	}
+
+	private WidgetMetricValue unansweredValue(CommunicationSnapshot snapshot) {
+		return WidgetMetricValue.of(String.valueOf(snapshot.unanswered));
+	}
+
+	private WidgetMetricValue mostActiveValue(CommunicationSnapshot snapshot) {
 		UserTotals best = mostActive(snapshot);
 		if (best == null) {
 			return WidgetMetricValue.of("-");
@@ -272,53 +309,62 @@ public class SiteStatsCommunicationAnalytics {
 		if (topics == null || topics.isEmpty()) {
 			return;
 		}
+		boolean canViewAnonymous = canViewAnonymousAuthors(siteId);
+		String currentUserId = context == null ? null : context.currentUserId();
 		for (TopicTransferBean topic : topics) {
 			if (topic == null || topic.draft) {
 				continue;
 			}
 			String topicId = StringUtils.trimToNull(topic.id);
 			String threadId = topicId == null ? null : ConversationsService.TOOL_ID + ":" + topicId;
-			if (includeContribution(topic.creator, users) && createdInRange(topic.created, request)) {
-				snapshot.add(new Contribution(topic.creator, ConversationsService.TOOL_ID, true, true, threadId, null));
-			}
+			addConversationContribution(snapshot, request, users, topic.creator, topic.anonymous, true, threadId, null,
+					topic.created, canViewAnonymous, currentUserId);
 			if (topicId == null) {
 				continue;
 			}
 			List<PostTransferBean> posts = conversationPosts(siteId, topicId);
 			for (PostTransferBean post : posts) {
-				collectConversationPost(snapshot, request, users, threadId, post);
+				collectConversationPost(snapshot, request, users, threadId, post, canViewAnonymous, currentUserId);
 			}
 		}
 	}
 
 	private void collectConversationPost(CommunicationSnapshot snapshot, SiteStatsReportRequest request,
-			Set<String> users, String threadId, PostTransferBean post) {
+			Set<String> users, String threadId, PostTransferBean post, boolean canViewAnonymous, String currentUserId) {
 		if (post == null || post.draft) {
 			return;
 		}
-		if (includeContribution(post.creator, users) && createdInRange(post.created, request)) {
-			snapshot.add(new Contribution(post.creator, ConversationsService.TOOL_ID, false, true, null, threadId));
-		}
+		addConversationContribution(snapshot, request, users, post.creator, post.anonymous, false, null, threadId,
+				post.created, canViewAnonymous, currentUserId);
 		if (post.comments != null) {
 			for (CommentTransferBean comment : post.comments) {
 				if (comment == null) {
 					continue;
 				}
-				if (includeContribution(comment.creator, users) && createdInRange(comment.created, request)) {
-					snapshot.add(new Contribution(comment.creator, ConversationsService.TOOL_ID, false, true, null,
-							threadId));
-				}
+				addConversationContribution(snapshot, request, users, comment.creator, false, false, null, threadId,
+						comment.created, canViewAnonymous, currentUserId);
 			}
 		}
 		if (post.posts != null) {
 			for (PostTransferBean nested : post.posts) {
-				collectConversationPost(snapshot, request, users, threadId, nested);
+				collectConversationPost(snapshot, request, users, threadId, nested, canViewAnonymous, currentUserId);
 			}
 		}
 	}
 
+	private void addConversationContribution(CommunicationSnapshot snapshot, SiteStatsReportRequest request,
+			Set<String> users, String creator, boolean anonymous, boolean authored, String threadId, String parentId,
+			Instant created, boolean canViewAnonymous, String currentUserId) {
+		if (!includeContribution(creator, users) || !createdInRange(created, request)) {
+			return;
+		}
+		String userId = hideAnonymousAuthor(anonymous, creator, canViewAnonymous, currentUserId) ? null : creator;
+		snapshot.add(new Contribution(userId, ConversationsService.TOOL_ID, authored, true, threadId, parentId));
+	}
+
 	private List<PostTransferBean> conversationPosts(String siteId, String topicId) {
 		List<PostTransferBean> posts = new ArrayList<PostTransferBean>();
+		int pageSize = conversationPageSize();
 		int page = 0;
 		while (true) {
 			Collection<PostTransferBean> pagePosts;
@@ -332,11 +378,33 @@ public class SiteStatsCommunicationAnalytics {
 				return posts;
 			}
 			posts.addAll(pagePosts);
-			if (pagePosts.size() < CONVERSATIONS_PAGE_SIZE) {
+			if (pagePosts.size() < pageSize) {
 				return posts;
 			}
 			page++;
 		}
+	}
+
+	private int conversationPageSize() {
+		int pageSize = DEFAULT_CONVERSATIONS_PAGE_SIZE;
+		if (serverConfigurationService != null) {
+			pageSize = serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE,
+					DEFAULT_CONVERSATIONS_PAGE_SIZE);
+		}
+		return pageSize < 1 ? DEFAULT_CONVERSATIONS_PAGE_SIZE : pageSize;
+	}
+
+	private boolean canViewAnonymousAuthors(String siteId) {
+		if (securityService == null || context == null || context.getSiteService() == null) {
+			return false;
+		}
+		String siteRef = context.getSiteService().siteReference(siteId);
+		return StringUtils.isNotBlank(siteRef) && securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef);
+	}
+
+	private boolean hideAnonymousAuthor(boolean anonymous, String creator, boolean canViewAnonymous,
+			String currentUserId) {
+		return anonymous && !canViewAnonymous && (currentUserId == null || !currentUserId.equals(creator));
 	}
 
 	private void collectCommons(CommunicationSnapshot snapshot, String siteId, SiteStatsReportRequest request,
@@ -865,7 +933,9 @@ public class SiteStatsCommunicationAnalytics {
 			}
 			Set<String> unansweredThreads = new HashSet<String>();
 			for (Contribution contribution : contributions) {
-				user(contribution.userId).add(contribution);
+				if (StringUtils.isNotBlank(contribution.userId)) {
+					user(contribution.userId).add(contribution);
+				}
 				tool(contribution.toolId).add(contribution);
 				if (contribution.authored) {
 					authored++;
