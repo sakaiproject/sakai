@@ -26,6 +26,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_DATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_GROUP;
@@ -63,7 +65,10 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.commons.api.CommonsManager;
 import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.ConversationsService;
+import org.sakaiproject.conversations.api.Permissions;
+import org.sakaiproject.conversations.api.beans.CommentTransferBean;
 import org.sakaiproject.conversations.api.beans.PostTransferBean;
 import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.site.api.Site;
@@ -76,6 +81,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsFilter;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
+import org.sakaiproject.sitestats.api.view.SiteStatsTableCell;
 import org.sakaiproject.sitestats.api.view.SiteStatsTableColumn;
 import org.sakaiproject.sitestats.api.view.SiteStatsTableRow;
 import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
@@ -110,6 +116,7 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 	@Autowired private ConversationsService conversationsService;
 	@Autowired private CommonsManager commonsManager;
 	@Autowired private SecurityService securityService;
+	@Autowired private ServerConfigurationService serverConfigurationService;
 	@Autowired private SessionManager sessionManager;
 	@Autowired private UserDirectoryService userDirectoryService;
 	@Autowired private SiteService siteService;
@@ -156,6 +163,8 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 		when(conversationsService.getTopicsForSite(anyString())).thenReturn(Collections.emptyList());
 		when(conversationsService.getPostsByTopicId(anyString(), anyString(), any(), any(), any()))
 				.thenReturn(Collections.emptyList());
+		when(serverConfigurationService.getInt(eq(ConversationsService.PROP_THREADS_PAGE_SIZE), eq(10)))
+				.thenReturn(10);
 		when(commonsManager.getPosts(any())).thenReturn(Collections.emptyList());
 
 		PrefsData prefsData = new PrefsData();
@@ -356,6 +365,82 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 		assertEquals("-", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_MOST_ACTIVE).getPrimary());
 	}
 
+	@Test
+	public void widgetMetricsScanCommunicationSourcesOnce() throws Exception {
+		TopicTransferBean topic = conversationTopic("topic-1", USER_A_ID, Instant.now());
+		when(conversationsService.getTopicsForSite(SITE_ID)).thenReturn(Collections.singletonList(topic));
+
+		service.getWidgetMetrics(SITE_ID, WIDGET_COMMUNICATION);
+
+		verify(messageForumsMessageManager, times(1)).getAllMessagesInSite(SITE_ID);
+		verify(conversationsService, times(1)).getTopicsForSite(SITE_ID);
+		verify(commonsManager, times(1)).getPosts(any());
+	}
+
+	@Test
+	public void conversationPostsUseConfiguredPageSize() throws Exception {
+		when(serverConfigurationService.getInt(eq(ConversationsService.PROP_THREADS_PAGE_SIZE), eq(10)))
+				.thenReturn(2);
+		TopicTransferBean topic = conversationTopic("topic-1", USER_A_ID, Instant.now());
+		when(conversationsService.getTopicsForSite(SITE_ID)).thenReturn(Collections.singletonList(topic));
+		when(conversationsService.getPostsByTopicId(eq(SITE_ID), eq("topic-1"), eq(Integer.valueOf(0)), any(), any()))
+				.thenReturn(Arrays.asList(conversationPost("post-1", USER_B_ID, Instant.now()),
+						conversationPost("post-2", USER_B_ID, Instant.now())));
+		when(conversationsService.getPostsByTopicId(eq(SITE_ID), eq("topic-1"), eq(Integer.valueOf(1)), any(), any()))
+				.thenReturn(Collections.singletonList(conversationPost("post-3", USER_B_ID, Instant.now())));
+
+		assertEquals("3", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_REPLIED).getPrimary());
+		verify(conversationsService, times(1)).getPostsByTopicId(eq(SITE_ID), eq("topic-1"), eq(Integer.valueOf(0)), any(), any());
+		verify(conversationsService, times(1)).getPostsByTopicId(eq(SITE_ID), eq("topic-1"), eq(Integer.valueOf(1)), any(), any());
+	}
+
+	@Test
+	public void anonymousConversationAuthorsAreHiddenWithoutViewPermission() throws Exception {
+		TopicTransferBean topic = conversationTopic("topic-1", USER_A_ID, Instant.now());
+		PostTransferBean anonymousPost = conversationPost("post-1", USER_B_ID, Instant.now());
+		anonymousPost.anonymous = true;
+		CommentTransferBean comment = new CommentTransferBean();
+		comment.creator = USER_A_ID;
+		comment.created = Instant.now();
+		anonymousPost.comments = Collections.singletonList(comment);
+		when(conversationsService.getTopicsForSite(SITE_ID)).thenReturn(Collections.singletonList(topic));
+		when(conversationsService.getPostsByTopicId(eq(SITE_ID), eq("topic-1"), any(), any(), any()))
+				.thenReturn(Collections.singletonList(anonymousPost));
+
+		assertEquals("1", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_AUTHORED).getPrimary());
+		assertEquals("2", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_REPLIED).getPrimary());
+		assertEquals("User A", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_MOST_ACTIVE).getPrimary());
+
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_ALL);
+		SiteStatsReportView view = service.getWidgetReport(SITE_ID, WIDGET_COMMUNICATION, TAB_BY_USER, request);
+		assertEquals(Integer.valueOf(1), userCell(view, USER_A_ID, "authored"));
+		assertEquals(Integer.valueOf(1), userCell(view, USER_A_ID, "replied"));
+		assertEquals(Integer.valueOf(0), userCell(view, USER_B_ID, "authored"));
+		assertEquals(Integer.valueOf(0), userCell(view, USER_B_ID, "replied"));
+	}
+
+	@Test
+	public void anonymousConversationAuthorsAreVisibleWithViewPermission() throws Exception {
+		when(securityService.unlock(Permissions.VIEW_ANONYMOUS.label, SITE_REF)).thenReturn(true);
+		TopicTransferBean topic = conversationTopic("topic-1", USER_B_ID, Instant.now());
+		topic.anonymous = true;
+		when(conversationsService.getTopicsForSite(SITE_ID)).thenReturn(Collections.singletonList(topic));
+
+		assertEquals("1", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_AUTHORED).getPrimary());
+		assertEquals("User B", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_MOST_ACTIVE).getPrimary());
+	}
+
+	@Test
+	public void studentMetricsKeepOwnAnonymousConversationPosts() throws Exception {
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
+		TopicTransferBean topic = conversationTopic("topic-1", USER_A_ID, Instant.now());
+		topic.anonymous = true;
+		when(conversationsService.getTopicsForSite(SITE_ID)).thenReturn(Collections.singletonList(topic));
+
+		assertEquals("1", snapshot(WIDGET_STUDENT_COMMUNICATION, METRIC_STUDENT_COMMUNICATION_AUTHORED).getPrimary());
+	}
+
 	private Message forumMessage(Long id, String authorId, Message inReplyTo, Date created) {
 		Message message = mock(Message.class);
 		when(message.getId()).thenReturn(id);
@@ -376,6 +461,25 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 		topic.numberOfPosts = 0;
 		topic.siteId = SITE_ID;
 		return topic;
+	}
+
+	private PostTransferBean conversationPost(String id, String creator, Instant created) {
+		PostTransferBean post = new PostTransferBean();
+		post.id = id;
+		post.creator = creator;
+		post.created = created;
+		post.draft = false;
+		return post;
+	}
+
+	private Object userCell(SiteStatsReportView view, String userId, String column) {
+		for (SiteStatsTableRow row : view.getTable().getRows()) {
+			SiteStatsTableCell user = row.getCells().get("user");
+			if (user != null && userId.equals(user.getRaw())) {
+				return row.getCells().get(column).getRaw();
+			}
+		}
+		throw new AssertionError("Missing user row " + userId);
 	}
 
 	private SiteStatsFilter filterById(SiteStatsWidgetTab tab, String id) {
