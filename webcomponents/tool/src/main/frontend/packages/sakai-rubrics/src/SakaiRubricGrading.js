@@ -4,7 +4,6 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "../sakai-rubric-grading-comment.js";
 import "../sakai-rubric-pdf.js";
 import "../sakai-rubric-summary.js";
-import "@sakai-ui/sakai-icon";
 import { getUserId } from "@sakai-ui/sakai-portal-utils";
 import { rubricsApiMixin } from "./SakaiRubricsApiMixin.js";
 import { GRADING_RUBRIC, CRITERIA_SUMMARY, STUDENT_SUMMARY } from "./sakai-rubrics-constants.js";
@@ -279,20 +278,30 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   release() {
 
-    if (this._evaluation.criterionOutcomes.length || this._pendingChanges) {
-      // We only want to inform the enclosing tool about ratings changes
-      // for an existing evaluation or pending changes
-      this.dispatchRatingChanged(this._criteria, 2);
+    if (this._deferAutoSave && this._pendingChanges) {
+      return this._savePendingChanges(2);
     }
+
+    if (this._evaluation?.criterionOutcomes?.length) {
+      // We only want to inform the enclosing tool about ratings changes
+      // for an existing evaluation
+      return this.dispatchRatingChanged(this._criteria, 2);
+    }
+
+    return Promise.resolve();
   }
 
   save() {
-    this.dispatchRatingChanged(this._criteria, 1);
-    if (this._deferAutoSave && this._pendingChanges) {
-      // Force save pending changes with DRAFT status
-      return this._savePendingChanges(1);
+
+    if (this._deferAutoSave) {
+      this.dispatchRatingChanged(this._criteria, 1);
+      if (this._pendingChanges) {
+        return this._savePendingChanges(1);
+      }
+      return Promise.resolve();
     }
 
+    return this.dispatchRatingChanged(this._criteria, 1);
   }
 
   /**
@@ -359,7 +368,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     })
     .then(data => {
       this._evaluation = data;
-      this._pendingChanges = null;
+      // Keep newer pending edits queued while this save was in flight
+      if (!this._saveAgain) {
+        this._pendingChanges = null;
+      }
       this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
     })
     .catch(error => {
@@ -370,8 +382,9 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       this._savingPromise = null;
 
       if (this._saveAgain && this._pendingChanges) {
+        const againStatus = this._pendingChanges.status || 1;
         this._saveAgain = false;
-        await this._savePendingChanges(1);
+        await this._savePendingChanges(againStatus);
       } else {
         this._saveAgain = false;
       }
@@ -498,7 +511,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     // Normal behavior: save immediately to server
     let url = `/api/sites/${this.siteId}/rubric-evaluations`;
     if (this._evaluation?.id) url += `/${this._evaluation.id}`;
-    fetch(url, {
+    return fetch(url, {
       body: JSON.stringify(evaluation),
       headers: { "Content-Type": "application/json" },
       method: this._evaluation?.id ? "PUT" : "POST",
@@ -517,9 +530,12 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       this._evaluation = data;
       // Clear pending changes since we've saved successfully
       this._pendingChanges = null;
-      return Promise.resolve(this._evaluation);
+      return this._evaluation;
     })
-    .catch(error => console.error(error));
+    .catch(error => {
+      console.error(error);
+      throw error;
+    });
   }
 
   getOverriddenClass(ovrdvl, selected) {
