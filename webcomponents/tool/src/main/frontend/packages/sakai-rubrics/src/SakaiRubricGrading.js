@@ -49,6 +49,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this._pendingChanges = null;
     this._savingPromise = null;
     this._saveAgain = false;
+    this._pendingSaveStatus = null;
   }
 
   set entityId(value) {
@@ -60,6 +61,12 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   get entityId() { return this._entityId; }
 
   set evaluatedItemId(value) {
+
+    if (value !== this._evaluatedItemId) {
+      this._pendingChanges = null;
+      this._saveAgain = false;
+      this._pendingSaveStatus = null;
+    }
 
     this._evaluatedItemId = value;
     this._getAssociation();
@@ -326,19 +333,23 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   _savePendingChanges(status) {
+
+    // Retain the highest status requested while a save is in flight (DRAFT=1, RETURNED=2)
+    if (status) {
+      this._pendingSaveStatus = Math.max(this._pendingSaveStatus || 0, status);
+    }
+
     if (this._savingPromise) {
       this._saveAgain = true;
       return this._savingPromise;
     }
 
     if (!this._pendingChanges) {
+      this._pendingSaveStatus = null;
       return Promise.resolve();
     }
 
-    // Update status if provided
-    if (status) {
-      this._pendingChanges.status = status;
-    }
+    this._pendingChanges.status = this._pendingSaveStatus || status || 1;
 
     if (this._evaluation?.id && !this._pendingChanges.id) {
       this._pendingChanges.id = this._evaluation.id;
@@ -382,11 +393,13 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       this._savingPromise = null;
 
       if (this._saveAgain && this._pendingChanges) {
-        const againStatus = this._pendingChanges.status || 1;
+        const againStatus = this._pendingSaveStatus || this._pendingChanges.status || 1;
         this._saveAgain = false;
+        this._pendingSaveStatus = null;
         await this._savePendingChanges(againStatus);
       } else {
         this._saveAgain = false;
+        this._pendingSaveStatus = null;
       }
     });
 
@@ -653,6 +666,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     // In defer-save mode, just clear pending changes and restore state
     if (this._deferAutoSave) {
       this._pendingChanges = null;
+      this._saveAgain = false;
+      this._pendingSaveStatus = null;
       // Clear any ratings and restore original state
       this._criteria.forEach(c => {
         c.ratings.forEach(r => r.selected = false);
