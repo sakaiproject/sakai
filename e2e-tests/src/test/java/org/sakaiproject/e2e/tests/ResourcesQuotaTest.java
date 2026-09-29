@@ -27,7 +27,7 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class ResourcesQuotaTest extends SakaiUiTestBase {
 
     @Test
-    void adminCanSetSpecialQuotaInMegabytes() {
+    void adminCanSetSpecialQuotaInGigabytes() {
         sakai.login("instructor1");
         String sitePath = sakai.createCourse("instructor1", List.of("sakai\\.resources"));
         String siteUrl = java.net.URI.create(page.url()).resolve(sitePath).toString();
@@ -37,22 +37,27 @@ class ResourcesQuotaTest extends SakaiUiTestBase {
         sakai.toolClick("Resources");
 
         openRootProperties();
-        assertThat(page.locator("label[for^='hasQuota']")).containsText("MB");
+        assertThat(page.locator("label[for^='hasQuota']")).containsText("GB");
         Locator enabled = page.locator("input[name^='hasQuota']");
         Locator quota = page.locator("input[name^='quota']");
         enabled.check();
-        quota.fill("2048");
+        quota.fill("2");
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update").setExact(true)).click();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Check Quota").setExact(true)).click();
         assertThat(page.locator(".highlightPanel")).containsText("2 GB");
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
         openRootProperties();
         assertThat(enabled).isChecked();
-        assertThat(quota).hasValue("2048");
+        assertThat(quota).hasValue("2");
 
-        quota.fill("0.0009765625");
+        quota.fill("1.5");
         saveAndReopen();
-        assertThat(quota).hasValue("0.0009765625");
+        assertThat(quota).hasValue("1.5");
+
+        // Preserve the smallest existing quota: 1 KB expressed in GB.
+        quota.fill("0.00000095367431640625");
+        saveAndReopen();
+        assertThat(quota).hasValue("0.00000095367431640625");
 
         quota.fill("0");
         saveAndReopen();

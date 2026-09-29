@@ -1742,8 +1742,8 @@ public class ListItem
 				{
 					try
 					{
-						// The form uses MB; the content service stores whole KB.
-						this.quota = Long.toString(new BigDecimal(quota.trim()).multiply(BigDecimal.valueOf(1024)).longValueExact());
+						// The form uses GB; the content service stores whole KB.
+						this.quota = Long.toString(new BigDecimal(quota.trim()).multiply(BigDecimal.valueOf(1024L * 1024L)).longValueExact());
 					}
 					catch (ArithmeticException e)
 					{
@@ -3653,9 +3653,9 @@ public class ListItem
 		return hasQuota;
 	}
 
-	public String getQuotaInMegabytes()
+	public String getQuotaInGigabytes()
 	{
-		return quota == null ? null : new BigDecimal(quota).divide(BigDecimal.valueOf(1024)).stripTrailingZeros().toPlainString();
+		return quota == null ? null : new BigDecimal(quota).divide(BigDecimal.valueOf(1024L * 1024L)).stripTrailingZeros().toPlainString();
 	}
 
 	public String getQuota() 
