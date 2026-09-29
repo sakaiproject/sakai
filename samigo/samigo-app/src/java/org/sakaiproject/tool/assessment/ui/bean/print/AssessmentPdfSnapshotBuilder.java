@@ -203,22 +203,11 @@ public final class AssessmentPdfSnapshotBuilder {
     }
 
     private Locale resolveLocale() {
-        requireDeliveryBean();
-        try {
-            String siteId = deliveryBean.getSiteId();
-            LocaleService localeService = ComponentManager.get(LocaleService.class);
-            if (localeService == null) {
-                return Locale.getDefault();
-            }
-            SessionManager sessionManager = ComponentManager.get(SessionManager.class);
-            String userId = sessionManager != null ? sessionManager.getCurrentSessionUserId() : null;
-            if (StringUtils.isNotBlank(siteId)) {
-                return localeService.getLocaleForSiteAndUser(siteId, userId);
-            }
-            return localeService.getLocaleForCurrentSiteAndUser();
-        } catch (RuntimeException ex) {
-            return Locale.getDefault();
-        }
+        return ComponentManager.get(LocaleService.class)
+                .getLocaleForSiteAndUser(
+                        deliveryBean.getSiteId(),
+                        ComponentManager.get(SessionManager.class)
+                                .getCurrentSessionUserId());
     }
 
     private void requireDeliveryBean() {
