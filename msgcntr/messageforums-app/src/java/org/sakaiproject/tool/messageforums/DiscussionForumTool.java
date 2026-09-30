@@ -673,6 +673,7 @@ public class DiscussionForumTool {
         //Code to get the gradebook service from ComponentManager
         GradingService gradingService = getGradingService();
 
+        if (gradingService.isUserAbleToViewAssignments(toolManager.getCurrentPlacement().getContext())) {
         for (Assignment thisAssign : gradingService.getAssignments(toolManager.getCurrentPlacement().getContext())) {
           if (!thisAssign.getExternallyMaintained()) {
             try {
@@ -681,6 +682,7 @@ public class DiscussionForumTool {
               log.error("DiscussionForumTool - processDfMsgGrd:" + e);
             }
           }
+        }
         }
       } catch (SecurityException se) {
           log.debug("SecurityException caught while getting assignments.", se);
