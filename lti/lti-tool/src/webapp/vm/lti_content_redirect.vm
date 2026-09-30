@@ -1,20 +1,41 @@
 <div class="portletBody">
+#if ( $returnUrl || $forwardUrl )
+<div id="lti-redirect-error" class="sak-banner-error" role="alert" hidden>$tlang.getString("error.redirect")</div>
+#end
 #if ( $returnUrl ) 
-<script type="text/javascript"><!--
-parent.location = "$returnUrl";
-// -->
+<span id="lti-return-url" data-url="$formattedText.escapeHtml($returnUrl, false)" hidden></span>
+<script>
+(() => {
+    const returnUrl = URL.parse(document.getElementById('lti-return-url').dataset.url, window.location.href);
+    if (returnUrl && (returnUrl.protocol === 'http:' || returnUrl.protocol === 'https:')) {
+        parent.location = returnUrl.href;
+    } else {
+        document.getElementById('lti-redirect-error').hidden = false;
+    }
+})();
 </script>
 #else
 #if ( $forwardUrl ) 
-<script type="text/javascript">
-// The CKEDITOR has a bit of code that collapses our enclosing frame down in Chrome SAK-45044 - so we put it back up right before we redirect
-try { window.frameElement.style.height= '450px'; } catch(e) { };
+<span id="lti-forward-url" data-url="$formattedText.escapeHtml($forwardUrl, false)" hidden></span>
+<script>
+(() => {
+    const frame = window.frameElement;
+    if (frame) {
+        // The CKEDITOR has a bit of code that collapses our enclosing frame down in Chrome SAK-45044 - so we put it back up right before we redirect
+        frame.style.height = '450px';
 #if ( $forceLight )
-try { if (window.frameElement) window.frameElement.classList.add('sakai-iframe-force-light'); } catch(e) { };
+        frame.classList.add('sakai-iframe-force-light');
 #else
-try { if (window.frameElement) window.frameElement.classList.remove('sakai-iframe-force-light'); } catch(e) { };
+        frame.classList.remove('sakai-iframe-force-light');
 #end
-setTimeout(function(){ location.href="$forwardUrl"} , 500);
+    }
+    const forwardUrl = URL.parse(document.getElementById('lti-forward-url').dataset.url, window.location.href);
+    if (forwardUrl && (forwardUrl.protocol === 'http:' || forwardUrl.protocol === 'https:')) {
+        setTimeout(function(){ location.href = forwardUrl.href; }, 500);
+    } else {
+        document.getElementById('lti-redirect-error').hidden = false;
+    }
+})();
 setMainFrameHeight = function () { console.log('setMainFrameHeight suppressed'); };
 </script>
 #else

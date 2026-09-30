@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -50,12 +51,11 @@ public class LTI11AnonymousServlet extends HttpServlet {
         "   \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
         "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n" +
         "<body>\n" +
-        "<script language=\"javascript\">\n" +
-        "$message = '<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\"><p>MESSAGE</p>';\n" +
-        "$closeText = '<p>CLOSETEXT</p>'\n" +
-        "document.write($message);\n" +
+        "<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\"><p>MESSAGE</p>\n" +
+        "<p id=\"lti-close-text\" hidden>CLOSETEXT</p>\n" +
+        "<script>\n" +
         "if(self.location==top.location) {\n" +
-        "  document.write($closeText);\n" +
+        "  document.getElementById('lti-close-text').hidden = false;\n" +
         "}\n" +
         "</script>\n" +
         "</div></body>\n" +
@@ -116,9 +116,9 @@ public class LTI11AnonymousServlet extends HttpServlet {
         }
 
         String output = returnHTML;
-        output = output.replace("MESSAGE",message);
-        output = output.replace("CLOSETEXT",rb.getString("outcome.tool.close.window"));
-        response.setContentType("text/html");
+        output = output.replace("CLOSETEXT", FormattedText.escapeHtml(rb.getString("outcome.tool.close.window"), false));
+        output = output.replace("MESSAGE", FormattedText.escapeHtml(message, false));
+        response.setContentType("text/html; charset=UTF-8");
         PrintWriter out = response.getWriter();
         out.println(output);
     }

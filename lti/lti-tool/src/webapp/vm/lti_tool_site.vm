@@ -1,11 +1,6 @@
 
 <!-- lti_tool_site.vm -->
 
-${includeLatestJQuery}
-
-<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
-
 	<script id="js">document.addEventListener("DOMContentLoaded", function() {
 
 		document.querySelectorAll("#tools_site thead tr th").forEach(function(elem) {
@@ -30,7 +25,7 @@ ${includeLatestJQuery}
 				});
 
 				#if($!LAST_SORTED_FIELD)
-				if(elemId == "$!LAST_SORTED_FIELD") {
+				if(elemId == "$formattedText.escapeJsQuoted($!LAST_SORTED_FIELD)") {
 					elem.classList.add(($!ASCENDING_ORDER) ? 'tablesorter-headerSortDown' : 'tablesorter-headerSortUp');
 				}
 				#end
@@ -111,7 +106,7 @@ ${includeLatestJQuery}
 		});
 
 		#if($!SEARCH_LAST_FIELD)
-			document.getElementById("input_$!SEARCH_LAST_FIELD")?.focus();
+			document.getElementById("input_$formattedText.escapeJsQuoted($!SEARCH_LAST_FIELD)")?.focus();
 		#end
 
 	});
@@ -175,17 +170,17 @@ ${includeLatestJQuery}
 				<th id="action" width="25%" class="filter-false">$tlang.getString("bl_action")</th>
 			</tr>
             <tr class="tablesorter-filter tablesorter-filter-row tablesorter-ignoreRow">
-                <td><input class="tablesorter-filter" id="input_title" #if($search_map && $search_map.get('title')) value="$search_map.get('title')" #end /></td>
-                <td><input class="tablesorter-filter" id="input_URL" #if($search_map && $search_map.get('URL')) value="$search_map.get('URL')" #end /></td>
+                <td><input class="tablesorter-filter" id="input_title" #if($search_map && $search_map.get('title')) value="$formattedText.escapeHtml($search_map.get('title'), false)" #end /></td>
+                <td><input class="tablesorter-filter" id="input_URL" #if($search_map && $search_map.get('URL')) value="$formattedText.escapeHtml($search_map.get('URL'), false)" #end /></td>
                 #if ($isAdmin)
-                    <td><input class="tablesorter-filter" id="input_SITE_TITLE" #if($search_map && $search_map.get('SITE_TITLE')) value="$search_map.get('SITE_TITLE')" #end /></td>
+                    <td><input class="tablesorter-filter" id="input_SITE_TITLE" #if($search_map && $search_map.get('SITE_TITLE')) value="$formattedText.escapeHtml($search_map.get('SITE_TITLE'), false)" #end /></td>
                 #end
-                    <td><input class="tablesorter-filter" id="input_created_at" #if($search_map && $search_map.get('created_at')) value="$search_map.get('created_at')" #end /></td>
+                    <td><input class="tablesorter-filter" id="input_created_at" #if($search_map && $search_map.get('created_at')) value="$formattedText.escapeHtml($search_map.get('created_at'), false)" #end /></td>
                 #if ($isAdmin)
-                    <td><input class="tablesorter-filter" id="input_SITE_CONTACT_NAME" #if($search_map && $search_map.get('SITE_CONTACT_NAME')) value="$search_map.get('SITE_CONTACT_NAME')" #end /></td>
-                    <td><input class="tablesorter-filter" id="input_SITE_CONTACT_EMAIL" #if($search_map && $search_map.get('SITE_CONTACT_EMAIL')) value="$search_map.get('SITE_CONTACT_EMAIL')" #end /></td>
+                    <td><input class="tablesorter-filter" id="input_SITE_CONTACT_NAME" #if($search_map && $search_map.get('SITE_CONTACT_NAME')) value="$formattedText.escapeHtml($search_map.get('SITE_CONTACT_NAME'), false)" #end /></td>
+                    <td><input class="tablesorter-filter" id="input_SITE_CONTACT_EMAIL" #if($search_map && $search_map.get('SITE_CONTACT_EMAIL')) value="$formattedText.escapeHtml($search_map.get('SITE_CONTACT_EMAIL'), false)" #end /></td>
                     #if ($attribution_name)
-                    <td><input class="tablesorter-filter" id="input_ATTRIBUTION" #if($search_map && $search_map.get('ATTRIBUTION')) value="$search_map.get('ATTRIBUTION')" #end /></td>
+                    <td><input class="tablesorter-filter" id="input_ATTRIBUTION" #if($search_map && $search_map.get('ATTRIBUTION')) value="$formattedText.escapeHtml($search_map.get('ATTRIBUTION'), false)" #end /></td>
                     #end
                 #end
                 <td></td>
@@ -244,10 +239,10 @@ ${includeLatestJQuery}
 	#end
 #if ( ! $isAdmin ) 
 <script>
-$(document).ready( function() {
+document.addEventListener('DOMContentLoaded', () => {
 	## Does nothing if we are not in a frame of the right name
 	setMainFrameHeight('sakai-lti-admin-iframe'); 
-	$(window).resize( function() {
+	window.addEventListener('resize', () => {
 		setMainFrameHeight('sakai-lti-admin-iframe');
 	});
 });
