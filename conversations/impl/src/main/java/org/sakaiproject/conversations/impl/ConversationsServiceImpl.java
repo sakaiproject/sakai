@@ -2090,10 +2090,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvent.POST_UPVOTED.label, ref, siteId, true, NotificationService.NOTI_OPTIONAL));
         }
 
-        if (StringUtils.isNotBlank(post.getParentThreadId())) {
+        if (!alreadyUpvoted && StringUtils.isNotBlank(post.getParentThreadId())) {
             postRepository.findById(post.getParentThreadId()).ifPresent(thread -> {
 
-                thread.setNumberOfThreadUpvotes(thread.getNumberOfThreadUpvotes() - 1);
+                thread.setNumberOfThreadUpvotes(thread.getNumberOfThreadUpvotes() + 1);
                 updatePostHowActiveScore(thread);
             });
         } else {
