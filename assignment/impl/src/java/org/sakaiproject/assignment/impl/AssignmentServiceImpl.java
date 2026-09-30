@@ -199,6 +199,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -1393,9 +1394,24 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             return false;
         }
         List<AssignmentSubmission> submissions = assignmentRepository.findSubmissions(Collections.singleton(assignment.getId()));
-        // Rubric evaluations are saved separately. Preserve their submission identities.
-        return submissions.isEmpty() || (submissions.stream().noneMatch(this::hasSubmissionWork)
-                && rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId()).isEmpty());
+        if (submissions.isEmpty()) {
+            return true;
+        }
+        if (submissions.stream().anyMatch(this::hasSubmissionWork)) {
+            return false;
+        }
+        // Isolate lookup failures so deletion/restore can continue while retaining the locks.
+        TransactionTemplate rubricRead = new TransactionTemplate(transactionTemplate.getTransactionManager());
+        rubricRead.setReadOnly(true);
+        rubricRead.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        try {
+            // Rubric evaluations are saved separately. Preserve their submission identities.
+            return Boolean.TRUE.equals(rubricRead.execute(status ->
+                    rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId()).isEmpty()));
+        } catch (RuntimeException e) {
+            log.warn("Unable to check rubric association for assignment {}; retaining group locks", assignment.getId(), e);
+            return false;
+        }
     }
 
     private boolean hasSubmissionWork(AssignmentSubmission submission) {

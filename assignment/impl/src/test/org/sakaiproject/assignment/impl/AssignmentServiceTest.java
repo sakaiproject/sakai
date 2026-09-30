@@ -147,6 +147,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -822,6 +823,31 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             ToolItemRubricAssociation association = new ToolItemRubricAssociation();
             when(rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, submission.getAssignment().getId()))
                     .thenReturn(Optional.of(association));
+        });
+    }
+
+    @Test
+    public void rubricLookupFailureRetainsLocksWithoutRollingBackAssignmentChanges() throws Exception {
+        org.hibernate.Session assignmentSession = sessionFactory.getCurrentSession();
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        transaction.executeWithoutResult(assignmentStatus -> {
+            try {
+                assertGroupSubmissionLocksRetained(submission -> {
+                    Mockito.doAnswer(invocation -> {
+                        Assert.assertTrue(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
+                        Assert.assertNotSame(assignmentSession, sessionFactory.getCurrentSession());
+                        // Simulate a failing rubric service that marks its participating transaction for rollback.
+                        return transaction.execute(rubricStatus -> {
+                            rubricStatus.setRollbackOnly();
+                            throw new org.springframework.dao.DataAccessResourceFailureException("Rubric lookup unavailable");
+                        });
+                    }).when(rubricsService).getRubricAssociation(AssignmentConstants.TOOL_ID, submission.getAssignment().getId());
+                });
+                Assert.assertSame(assignmentSession, sessionFactory.getCurrentSession());
+                Assert.assertFalse("Rubric failure must not mark assignment changes for rollback", assignmentStatus.isRollbackOnly());
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
         });
     }
 
