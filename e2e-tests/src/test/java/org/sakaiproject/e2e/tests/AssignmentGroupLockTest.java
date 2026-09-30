@@ -37,7 +37,10 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
 
         openGroups(courseUrl);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
-        page.locator("#groupTitle").pressSequentially(groupTitle);
+        page.locator("#groupTitle").fill(groupTitle);
+        // Group creation enables its submit button on keyup.
+        page.locator("#groupTitle").press("End");
+        assertThat(page.locator("#groupTitle")).hasValue(groupTitle);
         String member = page.locator("#groupMembers option").last().getAttribute("value");
         page.locator("#groupMembers").selectOption(member);
         assertThat(page.locator("#create-group-submit-button")).isEnabled();
