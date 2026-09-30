@@ -35,6 +35,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.ignite.api.CacheAdminService;
 import org.sakaiproject.lti.api.SakaiAccessTokenService;
 import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -220,6 +221,11 @@ public class EntityRestTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.ignite.SakaiIgnite")
     public IgniteSpringBean sakaiIgnite() {
         return mock(IgniteSpringBean.class);
+    }
+
+    @Bean(name = "org.sakaiproject.ignite.api.CacheAdminService")
+    public CacheAdminService cacheAdminService() {
+        return mock(CacheAdminService.class);
     }
 
     @Bean(name = "org.sakaiproject.lti.api.SakaiAccessTokenService")
