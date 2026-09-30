@@ -36,7 +36,8 @@ export class CourseCardSettings extends SakaiDialog {
       if (this._imageMode) {
         this.dispatchEvent(new CustomEvent("image-selected", { detail: { url: this.imageUrl } }));
         this.dispatchEvent(new CustomEvent("foreground-color-changed", { detail: { "color": this.foregroundColor } }));
-        this.renderRoot.querySelector(`#foreground-${this.courseId}`).value = this.foregroundColor;
+        this.newForegroundColor = undefined;
+        this.renderRoot.querySelector(`#image-foreground-${this.courseId}`).value = this.foregroundColor;
         const imageEditor = this.renderRoot.querySelector("sakai-image-editor");
         imageEditor.imageUrl = this.imageUrl;
         URL.revokeObjectURL(this._previewImageUrl);
