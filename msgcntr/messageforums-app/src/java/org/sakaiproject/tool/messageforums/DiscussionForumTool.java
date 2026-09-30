@@ -691,12 +691,14 @@ public class DiscussionForumTool {
         //Code to get the gradebook service from ComponentManager
         GradingService gradingService = getGradingService();
         
-		for (Assignment thisAssign : gradingService.getAssignments(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE)) {
-			if (!thisAssign.getExternallyMaintained()) {
-				try {
-					assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
-				} catch (Exception e) {
-					log.error("DiscussionForumTool - processDfMsgGrd:" + e);
+		if (gradingService.isUserAbleToViewAssignments(toolManager.getCurrentPlacement().getContext())) {
+			for (Assignment thisAssign : gradingService.getAssignments(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE)) {
+				if (!thisAssign.getExternallyMaintained()) {
+					try {
+						assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
+					} catch (Exception e) {
+						log.error("DiscussionForumTool - processDfMsgGrd:" + e);
+					}
 				}
 			}
 		}
