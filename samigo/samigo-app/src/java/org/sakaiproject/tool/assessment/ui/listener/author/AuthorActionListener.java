@@ -331,6 +331,7 @@ public class AuthorActionListener
 			  log.warn("Unable to format date: " + ex.getMessage());
 			}
 	  }
+	  gradingService.setDisplayedCountsForGradingRoster(assessmentList, siteId, submissionCountHash, inProgressCountHash);
 	  list.add(activeList);
 	  list.add(inActiveList);
 	  return list;

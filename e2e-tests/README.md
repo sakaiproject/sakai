@@ -74,3 +74,40 @@ mvn -Pe2e -pl e2e-tests -Dsakai.test.samigoTags=true \
 This verifies tag loading on pool creation/editing, tag persistence, and filtering
 when entering Question Pools directly from a new assessment in a fresh session.
 It checks the actual tag API URL and HTTP response without mocking requests.
+
+## Samigo group-access regression (SAK-52287)
+
+`SamigoGroupAccessTest` uses a prepared site because the default demo course does
+not provide a TA, controlled group membership, or submissions in distinct states.
+It is opt-in and does not change memberships, permissions, or grades.
+
+Prepare an English-language site with Tests & Quizzes and these members:
+
+- An instructor with `assessment.all.groups`, also a member of Group A.
+- A TA with grading permission but without `assessment.all.groups`, in Group A
+  and an empty Group C, but not Group B.
+- Two students in Group A and two different students in Group B.
+
+Publish these assessments, with availability dates that keep them active:
+
+| Exact title | Release to | Student activity |
+| --- | --- | --- |
+| SAK-52287 Site | Entire site | One submission and one in-progress attempt per group |
+| SAK-52287 Both Groups | A and B | One submission and one in-progress attempt per group |
+| SAK-52287 Own Group | A | One submission and one in-progress attempt |
+| SAK-52287 Other Group | B | One submission and one in-progress attempt |
+| SAK-52287 Empty Group | C | None |
+
+Use the demo-account password configured by `SakaiHelper`. Run against a server
+with the fix deployed:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://sakai.example mvn -P e2e test \
+  -Dtest=SamigoGroupAccessTest \
+  -Dsamigo.groupAccess.siteUrl=https://sakai.example/portal/site/SITE_ID \
+  -Dsamigo.groupAccess.instructor=instructor1 \
+  -Dsamigo.groupAccess.ta=ta1
+```
+
+The tests check instructor access, hidden unrelated group quizzes, both displayed
+counts for site and group releases, empty-group visibility, and a TA page reload.
