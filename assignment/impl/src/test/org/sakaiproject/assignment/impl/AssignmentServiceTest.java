@@ -102,6 +102,8 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
@@ -177,6 +179,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     private EventTrackingService eventTrackingService;
     @Autowired private FormattedText formattedText;
     @Autowired private GradingService gradingService;
+    @Autowired private RubricsService rubricsService;
     @Autowired private ScheduledInvocationManager scheduledInvocationManager;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -753,6 +756,76 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void gradingPlaceholdersUnlockAndRestoreWithCurrentMembers() throws Exception {
+        Assignment assignment = createPublishedGroupAssignment();
+        String groupReference = assignment.getGroups().iterator().next();
+        String groupId = groupReference.substring(groupReference.lastIndexOf('/') + 1);
+        Site site = siteService.getSite(assignment.getContext());
+        Group group = site.getGroup(groupReference);
+        when(group.getId()).thenReturn(groupId);
+        when(site.getGroup(groupId)).thenReturn(group);
+        Member oldMember = buildGroupMember("old-student");
+        when(group.getMembers()).thenReturn(Set.of(oldMember));
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "2");
+        assignmentService.updateAssignment(assignment);
+
+        // This is the service call made by the group grading screen.
+        assignmentService.getSubmitterGroupList(null, groupId, null, assignment.getId(), assignment.getContext());
+        AssignmentSubmission placeholder = assignmentService.getSubmissions(assignment).iterator().next();
+        String placeholderId = placeholder.getId();
+        Assert.assertTrue(placeholder.getSubmitted());
+        Assert.assertFalse(placeholder.getUserSubmission());
+        Assert.assertTrue(assignmentService.canReleaseGroupLocks(assignment));
+        assignmentService.softDeleteAssignment(assignment);
+        verify(authzGroupService.getAuthzGroup(groupReference)).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+
+        Member newMember = buildGroupMember("new-student");
+        when(group.getMembers()).thenReturn(Set.of(newMember));
+        Assignment restored = assignmentService.restoreAssignment(assignment.getId());
+        sessionFactory.getCurrentSession().flush();
+        Assert.assertTrue(restored.getDraft());
+        Assert.assertTrue(assignmentService.getSubmissions(restored).isEmpty());
+        Assert.assertNull(sessionFactory.getCurrentSession().get(AssignmentSubmission.class, placeholderId));
+        restored.setDraft(false);
+        assignmentService.updateAssignment(restored);
+        AssignmentSubmission recreated = assignmentService.addSubmission(restored.getId(), groupId);
+        Assert.assertEquals(Set.of("new-student"), recreated.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void softDeleteAndRestoreProtectsWorkOnGradingPlaceholders() throws Exception {
+        List<Consumer<AssignmentSubmission>> work = Arrays.asList(
+                submission -> submission.setUserSubmission(true),
+                submission -> submission.setGrade("0"),
+                submission -> submission.setFeedbackComment("Feedback only"),
+                submission -> submission.setPrivateNotes("Instructor notes"),
+                submission -> submission.getAttachments().add("/content/student-draft"),
+                submission -> submission.getFeedbackAttachments().add("/content/feedback"),
+                submission -> submission.getSubmitters().iterator().next().setGrade("0"),
+                submission -> submission.getSubmitters().iterator().next().setFeedback("Individual feedback"),
+                submission -> submission.getProperties().put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, "Earlier work"));
+        for (Consumer<AssignmentSubmission> populate : work) {
+            assertGroupSubmissionLocksRetained(submission -> {
+                submission.setSubmitted(true);
+                submission.setUserSubmission(false);
+                populate.accept(submission);
+            });
+        }
+    }
+
+    @Test
+    public void rubricLinkedSubmissionRecordsKeepTheirLocks() throws Exception {
+        assertGroupSubmissionLocksRetained(submission -> {
+            ToolItemRubricAssociation association = new ToolItemRubricAssociation();
+            when(rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, submission.getAssignment().getId()))
+                    .thenReturn(Optional.of(association));
+        });
+    }
+
+    @Test
     public void cannotAddFirstSubmissionToDeletedGroupAssignment() throws Exception {
         Assignment assignment = createPublishedGroupAssignment();
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
@@ -767,6 +840,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void deletionBlocksFirstSubmissionFromAnAlreadyOpenRequest() throws Exception {
+        assertDeletionBlocksSubmission(false);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void deletionBlocksGradingFromAnAlreadyOpenRequest() throws Exception {
+        assertDeletionBlocksSubmission(true);
+    }
+
+    private void assertDeletionBlocksSubmission(boolean existingPlaceholder) throws Exception {
         TransactionTemplate transaction = new TransactionTemplate(transactionManager);
         Assignment assignment = transaction.execute(status -> {
             try {
@@ -784,6 +867,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(group.getMembers()).thenReturn(Set.of(member));
         when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
 
+        String submissionId = existingPlaceholder ? assignmentService.addSubmission(assignment.getId(), groupId).getId() : null;
+        if (existingPlaceholder) {
+            String submissionReference = AssignmentReferenceReckoner.reckoner().context(assignment.getContext())
+                    .container(assignment.getId()).id(submissionId).subtype("s").reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        }
         CountDownLatch assignmentRead = new CountDownLatch(1);
         CountDownLatch deletionLocked = new CountDownLatch(1);
         CountDownLatch submissionAttempted = new CountDownLatch(1);
@@ -800,13 +889,21 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                 try {
                     // Keep the pre-deletion entity in this request's Hibernate session.
                     assignmentService.getAssignment(assignment.getId());
+                    AssignmentSubmission placeholder = existingPlaceholder
+                            ? assignmentService.getSubmission(submissionId) : null;
                     assignmentRead.countDown();
                     Assert.assertTrue("Deletion did not acquire its lock", deletionLocked.await(10, TimeUnit.SECONDS));
                     submissionAttempted.countDown();
                     try {
-                        assignmentService.addSubmission(assignment.getId(), groupId);
+                        if (existingPlaceholder) {
+                            placeholder.setGrade("0");
+                            assignmentService.updateSubmission(placeholder);
+                        } else {
+                            assignmentService.addSubmission(assignment.getId(), groupId);
+                        }
                         return false;
                     } catch (PermissionException expected) {
+                        status.setRollbackOnly();
                         return true;
                     }
                 } catch (IdUnusedException | PermissionException | InterruptedException e) {
@@ -822,7 +919,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertThrows(TimeoutException.class, () -> submissionRejected.get(200, TimeUnit.MILLISECONDS));
             finishDeletion.countDown();
             deletion.get(10, TimeUnit.SECONDS);
-            Assert.assertTrue("The stale request must not create a submission", submissionRejected.get(10, TimeUnit.SECONDS));
+            Assert.assertTrue("The stale request must not save submission work", submissionRejected.get(10, TimeUnit.SECONDS));
             Assert.assertTrue(transaction.execute(status -> assignmentService.canReleaseGroupLocks(assignment)));
             verify(authzGroupService.getAuthzGroup(groupReference))
                     .setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);

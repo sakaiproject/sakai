@@ -36,6 +36,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
@@ -79,12 +80,13 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public boolean hasSubmissionRecords(String assignmentId) {
-        return !geCurrentSession().createQuery(
-                "select s.id from AssignmentSubmission s where s.assignment.id = :assignmentId", String.class)
+    public boolean isAssignmentDeletedForUpdate(String assignmentId) {
+        return Boolean.TRUE.equals(geCurrentSession().createQuery(
+                "select a.deleted from Assignment a where a.id = :assignmentId", Boolean.class)
                 .setParameter("assignmentId", assignmentId)
-                .setMaxResults(1)
-                .getResultList().isEmpty();
+                .setHibernateFlushMode(FlushMode.COMMIT)
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .getSingleResult());
     }
 
     @Override

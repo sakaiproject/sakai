@@ -17,6 +17,7 @@ package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+import com.microsoft.playwright.Dialog;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
@@ -58,6 +59,11 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         page.locator(".act input[name=post]").click();
         assertThat(assignmentRow(assignmentTitle)).isVisible();
 
+        // Opening the grading screen creates empty submission placeholders.
+        assignmentRow(assignmentTitle).getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("View Submissions " + assignmentTitle).setExact(true)).click();
+        assertThat(page.locator("body")).containsText(groupTitle);
+
         openGroups(courseUrl);
         assertThat(groupRow(groupTitle).getByRole(AriaRole.LINK,
                 new Locator.GetByRoleOptions().setName(groupTitle).setExact(true))).hasCount(0);
@@ -83,6 +89,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         Locator deletedAssignment = assignmentRow(assignmentTitle);
         assertThat(deletedAssignment).containsText("Restores as a draft.");
         deletedAssignment.locator("input[name=selectedAssignments]").check();
+        page.onceDialog(Dialog::accept);
         page.locator("#btnRestore").click();
         assertThat(assignmentRow(assignmentTitle)).containsText("Draft");
         assertThat(page.locator(".sak-banner-error")).hasCount(0);

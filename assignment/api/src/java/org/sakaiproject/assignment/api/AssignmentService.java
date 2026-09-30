@@ -340,8 +340,8 @@ public interface AssignmentService extends EntityProducer {
     public void softDeleteAssignment(Assignment assignment) throws PermissionException;
 
     /**
-     * Whether deleting this group assignment can release its locks. Any submission record,
-     * including an unsubmitted draft or instructor grading record, keeps the locks in place.
+     * Whether deleting this group assignment can release its locks. Student work and grading
+     * keep the locks in place; empty grading placeholders do not, unless linked to a rubric.
      */
     boolean canReleaseGroupLocks(Assignment assignment);
 

@@ -1387,10 +1387,39 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean canReleaseGroupLocks(Assignment assignment) {
-        return Boolean.TRUE.equals(assignment.getIsGroup())
-                && assignment.getTypeOfAccess() == GROUP
-                && !assignmentRepository.hasSubmissionRecords(assignment.getId());
+        if (!Boolean.TRUE.equals(assignment.getIsGroup()) || assignment.getTypeOfAccess() != GROUP) {
+            return false;
+        }
+        List<AssignmentSubmission> submissions = assignmentRepository.findSubmissions(Collections.singleton(assignment.getId()));
+        // Rubric evaluations are saved separately. Preserve their submission identities.
+        return submissions.isEmpty() || (submissions.stream().noneMatch(this::hasSubmissionWork)
+                && rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId()).isEmpty());
+    }
+
+    private boolean hasSubmissionWork(AssignmentSubmission submission) {
+        // Grading placeholders can be marked submitted and even have a submitted date.
+        return Boolean.TRUE.equals(submission.getUserSubmission())
+                || Boolean.TRUE.equals(submission.getGraded())
+                || Boolean.TRUE.equals(submission.getReturned())
+                || Boolean.TRUE.equals(submission.getGradeReleased())
+                || StringUtils.isNotBlank(submission.getSubmittedText())
+                || !submission.getAttachments().isEmpty()
+                || StringUtils.isNotBlank(submission.getGrade())
+                || StringUtils.isNotBlank(submission.getFeedbackText())
+                || StringUtils.isNotBlank(submission.getFeedbackComment())
+                || !submission.getFeedbackAttachments().isEmpty()
+                || StringUtils.isNotBlank(submission.getPrivateNotes())
+                || submission.getSubmitters().stream().anyMatch(submitter ->
+                        StringUtils.isNotBlank(submitter.getGrade())
+                        || StringUtils.isNotBlank(submitter.getFeedback())
+                        || StringUtils.isNotBlank(submitter.getTimeSpent()))
+                // Placeholders inherit resubmission settings; preserve other saved metadata/history.
+                || submission.getProperties().entrySet().stream().anyMatch(property ->
+                        !AssignmentConstants.ALLOW_RESUBMIT_NUMBER.equals(property.getKey())
+                        && !AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME.equals(property.getKey())
+                        && StringUtils.isNotBlank(property.getValue()));
     }
 
     private void releaseAssignmentGroupLocks(Assignment assignment, String reference) throws PermissionException {
@@ -1424,6 +1453,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             Site site = siteService.getSite(assignment.getContext());
             releaseAssignmentGroupLocks(assignment, reference);
             assignment.getGroups().removeIf(groupReference -> site.getGroup(groupReference) == null);
+            // Empty placeholders contain the old roster. Recreate them from current groups when needed.
+            assignment.getSubmissions().clear();
             assignment.setDraft(true);
             // Deletion removed the Gradebook item. Recreate it only when the reviewed draft is published.
             if (GRADEBOOK_INTEGRATION_ASSOCIATE.equals(assignment.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
@@ -2237,7 +2268,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = PermissionException.class)
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException {
         Assert.notNull(submission, "Submission cannot be null");
         Assert.notNull(submission.getId(), "Submission doesn't appear to have been persisted yet");
@@ -2247,6 +2278,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // TODO these permissions checks should coincide with the changes that are being made for the submission
         if (!(allowUpdateSubmission(reference) || allowGradeSubmission(assignmentReference))) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
+        }
+
+        if (Boolean.TRUE.equals(submission.getAssignment().getIsGroup())
+                && assignmentRepository.isAssignmentDeletedForUpdate(submission.getAssignment().getId())) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
 
