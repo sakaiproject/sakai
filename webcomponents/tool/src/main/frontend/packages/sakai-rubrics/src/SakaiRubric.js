@@ -149,7 +149,7 @@ export class SakaiRubric extends RubricsElement {
               <p class="mb-1">${this.tr("locked_usage_help")}</p>
               ${Object.keys(this.rubric.lockedBy || {}).length ? html`
                 <ul class="mb-0">
-                  ${Object.entries(this.rubric.lockedBy).map(([toolId, titles]) => html`
+                  ${Object.entries(this.rubric.lockedBy).map(([ toolId, titles ]) => html`
                     <li>
                       ${this._i18n[`locked_tool_${toolId}`] || this.tr("locked_tool_other")}
                       <ul>${titles.map(title => html`<li>${title}</li>`)}</ul>
