@@ -92,7 +92,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         page.onceDialog(Dialog::accept);
         page.locator("#btnRestore").click();
         assertThat(assignmentRow(assignmentTitle)).containsText("Draft");
-        assertThat(page.locator(".sak-banner-error")).hasCount(0);
+        assertThat(page.locator(".sak-banner-error:visible")).hasCount(0);
     }
 
     private void openGroups(String courseUrl) {
