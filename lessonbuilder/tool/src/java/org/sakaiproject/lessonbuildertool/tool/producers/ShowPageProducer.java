@@ -3805,7 +3805,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    simplePageBean.checkItemPermissions(i, true);
 			}
 			LessonEntity lessonEntity = assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
-			if (usable && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
+			if (usable && lessonEntity != null && lessonEntity.objectExists() && (canEditPage || !lessonEntity.notPublished())) {
 
 				GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				params.setSendingPage(currentPage.getPageId());
@@ -3909,7 +3909,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    simplePageBean.checkItemPermissions(i, true);
 			}
 			LessonEntity lessonEntity = forumEntity.getEntity(i.getSakaiId());
-			if (usable && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
+			if (usable && lessonEntity != null && lessonEntity.objectExists() && (canEditPage || !lessonEntity.notPublished())) {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, true);
 				}
