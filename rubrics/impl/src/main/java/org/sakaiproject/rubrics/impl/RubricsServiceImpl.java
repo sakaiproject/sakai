@@ -294,7 +294,22 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         return rubricRepository.findByOwnerId(siteId).stream()
             .filter(r -> r.getAdhoc() == null || !r.getAdhoc())
-            .map(r -> decorateRubricBean(new RubricTransferBean(r))).collect(Collectors.toList());
+            .map(r -> {
+                RubricTransferBean bean = decorateRubricBean(new RubricTransferBean(r));
+                if (Boolean.TRUE.equals(r.getLocked())) {
+                    for (ToolItemRubricAssociation association : r.getAssociations()) {
+                        // Only disclose usage in this site, and include inactive associations that still hold evaluations.
+                        evaluationRepository.findByAssociationId(association.getId()).stream()
+                            .filter(evaluation -> siteId.equals(evaluation.getOwnerId()))
+                            .findFirst()
+                            .ifPresent(evaluation -> bean.getLockedBy()
+                                .computeIfAbsent(association.getToolId(), key -> new LinkedHashSet<>())
+                                .add(getAssociatedName(evaluation, siteId)
+                                    .orElse(resourceLoader.getString("locked_item_unavailable"))));
+                    }
+                }
+                return bean;
+            }).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
