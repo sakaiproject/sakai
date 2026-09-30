@@ -2282,7 +2282,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         if (Boolean.TRUE.equals(submission.getAssignment().getIsGroup())
-                && assignmentRepository.isAssignmentDeletedForUpdate(submission.getAssignment().getId())) {
+                && assignmentRepository.lockAssignmentAndCheckDeleted(submission.getAssignment().getId())) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
 

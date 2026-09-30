@@ -38,7 +38,7 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
     Assignment findAssignmentForUpdate(String id);
 
     /** Lock the assignment and read its deleted flag without flushing pending submission edits. */
-    boolean isAssignmentDeletedForUpdate(String assignmentId);
+    boolean lockAssignmentAndCheckDeleted(String assignmentId);
 
     List<Assignment> findAssignmentsBySite(String siteId);
 

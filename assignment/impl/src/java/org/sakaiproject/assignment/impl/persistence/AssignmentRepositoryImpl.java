@@ -80,7 +80,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public boolean isAssignmentDeletedForUpdate(String assignmentId) {
+    public boolean lockAssignmentAndCheckDeleted(String assignmentId) {
         return Boolean.TRUE.equals(geCurrentSession().createQuery(
                 "select a.deleted from Assignment a where a.id = :assignmentId", Boolean.class)
                 .setParameter("assignmentId", assignmentId)
