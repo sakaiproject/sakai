@@ -61,6 +61,7 @@ import org.apache.commons.math3.util.Precision;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -92,6 +93,8 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
+import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
@@ -2621,6 +2624,37 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return results;
   }
   
+  /**
+   * Restrict displayed counts to the grading roster without changing assessment availability.
+   */
+  public void setDisplayedCountsForGradingRoster(List<PublishedAssessmentFacade> assessments, String siteId,
+      Map<Long, Map<String, Integer>> submissionCounts, Map<Long, Map<String, Long>> inProgressCounts) {
+    if (PersistenceService.getInstance().getAuthzQueriesFacade()
+        .hasPrivilege(SamigoConstants.AUTHZ_ASSESSMENT_ALL_GROUPS, siteId)) {
+      return;
+    }
+
+    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    String userId = AgentFacade.getAgentString();
+    List<EnrollmentRecord> siteEnrollments = service.getAllGroupsReleaseEnrollments(siteId, userId, null);
+    for (PublishedAssessmentFacade assessment : assessments) {
+      if (assessment.getReleaseTo() == null || assessment.getReleaseTo().contains(AssessmentAccessControlIfc.ANONYMOUS_USERS)) {
+        continue;
+      }
+      Long assessmentId = assessment.getPublishedAssessmentId();
+      List<EnrollmentRecord> enrollments = AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(assessment.getReleaseTo())
+          ? service.getGroupReleaseEnrollments(siteId, userId, assessmentId.toString()) : siteEnrollments;
+      Set<String> studentIds = enrollments.stream()
+          .map(enrollment -> enrollment.getUser().getUserUid()).collect(Collectors.toSet());
+      Map<String, Integer> submitted = submissionCounts.getOrDefault(assessmentId, Collections.emptyMap());
+      Map<String, Long> inProgress = inProgressCounts.getOrDefault(assessmentId, Collections.emptyMap());
+      assessment.setSubmittedCount((int) studentIds.stream()
+          .filter(studentId -> submitted.getOrDefault(studentId, 0) > 0).count());
+      assessment.setInProgressCount((int) studentIds.stream()
+          .filter(studentId -> inProgress.getOrDefault(studentId, 0L) > 0).count());
+    }
+  }
+
   public Map<Long, Map<String, Integer>> getSiteSubmissionCountHash(String siteId) {
 	    Map<Long, Map<String, Integer>> results = new HashMap<>();
 	    try {
