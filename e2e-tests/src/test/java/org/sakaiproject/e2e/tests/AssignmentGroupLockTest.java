@@ -36,9 +36,10 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
 
         openGroups(courseUrl);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
-        page.locator("#groupTitle").fill(groupTitle);
+        page.locator("#groupTitle").pressSequentially(groupTitle);
         String member = page.locator("#groupMembers option").last().getAttribute("value");
         page.locator("#groupMembers").selectOption(member);
+        assertThat(page.locator("#create-group-submit-button")).isEnabled();
         page.locator("#create-group-submit-button").click();
         assertThat(groupRow(groupTitle).getByRole(AriaRole.LINK,
                 new Locator.GetByRoleOptions().setName(groupTitle).setExact(true))).isVisible();
@@ -48,6 +49,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         page.locator(".navIntraTool").getByRole(AriaRole.LINK,
                 new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
         page.locator("#new_assignment_title").fill(assignmentTitle);
+        page.locator("#gradeAssignment").uncheck();
         sakai.typeCkEditorIfPresent("new_assignment_instructions", "<p>Group restore regression.</p>");
         page.locator("#groupAssignment").check();
         String groupId = page.locator("#selectedGroups option")
