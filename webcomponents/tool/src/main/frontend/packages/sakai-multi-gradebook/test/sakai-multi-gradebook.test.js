@@ -31,6 +31,17 @@ describe("sakai-multi-gradebook", () => {
 
   afterEach(() => fetchMock.hardReset());
 
+  it("loads item selectors without app-name using the compatible default endpoint", async () => {
+    fetchMock.get("/api/sites/site/items/undefined", groups);
+    const el = await fixture(html`<sakai-multi-gradebook site-id="site" selected-temp="a1"></sakai-multi-gradebook>`);
+    const child = await picker(el);
+    expect(fetchMock.callHistory.calls("/api/sites/site/items/undefined")).to.have.length(1);
+    expect(child.selectedTags.map(tag => tag.code)).to.deep.equal([ "a1" ]);
+    expect(el.renderRoot.querySelector("[role=status]")).not.to.exist;
+    await select(el, "Group A - Quiz");
+    expect(child.selectedTags.map(tag => tag.code)).to.deep.equal([ "a2" ]);
+  });
+
   it("restores selections and submits at most one item per gradebook", async () => {
     const form = await fixture(html`<form>
       <input type="hidden" id="gradebooks" name="gradebooks" value="a1">

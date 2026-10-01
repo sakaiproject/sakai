@@ -12,7 +12,7 @@ describe("sakai-timer-bar", () => {
   beforeEach(() => {
     fetchMock.mockGlobal();
     mockTranslations(fetchMock);
-    clock = sinon.useFakeTimers({ toFake: [ "setInterval", "clearInterval" ] });
+    clock = sinon.useFakeTimers({ toFake: [ "Date", "setInterval", "clearInterval" ] });
     messages = [];
     window.addEventListener("message", onMessage);
   });
@@ -46,15 +46,38 @@ describe("sakai-timer-bar", () => {
     await waitUntil(() => messages.includes("SAVE"));
     await elementUpdated(el);
     expect(el.renderRoot.querySelector(".time-value").textContent).to.equal("00:00:02");
+    clock.tick(1000);
+    await elementUpdated(el);
+    expect(el.renderRoot.querySelector(".time-value").textContent).to.equal("00:00:01");
     el.remove();
     clock.tick(60000);
     expect(messages).not.to.include("END");
     expect(fetchMock.callHistory.calls("/timerinfo")).to.have.length(1);
   });
 
+  it("accounts for delayed callbacks and expires at its deadline", async () => {
+    const el = await fixture(html`<sakai-timer-bar id="timer" time-limit="8"></sakai-timer-bar>`);
+    await waitUntil(() => el.renderRoot.querySelector(".time-value"));
+    // Advance wall time without delivering interval callbacks, then deliver one.
+    clock.setSystemTime(Date.now() + 2500);
+    clock.tick(1000);
+    await waitUntil(() => messages.includes("SAVE"));
+    await elementUpdated(el);
+    expect(el.renderRoot.querySelector(".time-value").textContent).to.equal("00:00:05");
+    clock.setSystemTime(Date.now() + 5000);
+    clock.tick(1000);
+    await waitUntil(() => messages.includes("END"));
+    await elementUpdated(el);
+    expect(el.renderRoot.querySelector(".time-value").textContent).to.equal("00:00:00");
+    clock.tick(10000);
+    expect(messages).to.deep.equal([ "SAVE", "END" ]);
+  });
+
   it("can hide, show and dismiss the warning without submitting the host form", async () => {
     const el = await fixture(html`<sakai-timer-bar time-limit="100" time-elapsed="95"></sakai-timer-bar>`);
     await waitUntil(() => el.renderRoot.querySelector("button"));
+    expect(el.renderRoot.querySelector(".time-value").closest('[aria-hidden="true"]')).to.be.null;
+    expect(el.renderRoot.querySelector(".progress").getAttribute("aria-hidden")).to.equal("true");
     el.renderRoot.querySelector(".show-hide").click();
     await elementUpdated(el);
     expect(el.renderRoot.querySelector("#remaining").hidden).to.be.true;

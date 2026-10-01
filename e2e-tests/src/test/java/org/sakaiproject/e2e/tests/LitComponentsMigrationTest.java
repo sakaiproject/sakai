@@ -165,7 +165,7 @@ class LitComponentsMigrationTest {
     void gradebookSelectionUpdatesTheToolFormWithOneItemPerGradebook() {
         openFixture("""
             <form><input type="hidden" id="selected" name="gradebooks" value="a1">
-              <sakai-multi-gradebook site-id="site" app-name="sakai.samigo"
+              <sakai-multi-gradebook site-id="site"
                   selected-temp="a1" input-id="selected"></sakai-multi-gradebook>
             </form>
             """);
@@ -246,6 +246,9 @@ class LitComponentsMigrationTest {
             <sakai-timer-bar id="timer" time-limit="6"></sakai-timer-bar>
             """);
         Locator timer = page.locator("sakai-timer-bar");
+        assertThat(timer.locator(".time-value")).isVisible();
+        assertEquals(0, timer.locator("[aria-hidden=true] .time-value").count());
+        assertThat(timer.locator(".progress")).hasAttribute("aria-hidden", "true");
         timer.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Hide Time Remaining")).click();
         assertThat(timer.locator("#remaining")).isHidden();
         page.waitForFunction("window.timerMessages.includes('SAVE')");

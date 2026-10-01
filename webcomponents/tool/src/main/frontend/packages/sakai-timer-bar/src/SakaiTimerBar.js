@@ -37,6 +37,7 @@ export class SakaiTimerBar extends SakaiShadowElement {
   updated(changed) {
     if (changed.has("timeLimit") || changed.has("timeElapsed")) {
       this._remaining = Math.max(this.timeLimit - this.timeElapsed, 0);
+      this._deadline = Date.now() + this._remaining * 1000;
       this._saved = false;
       this._ended = false;
       this._closedWarning = false;
@@ -49,12 +50,9 @@ export class SakaiTimerBar extends SakaiShadowElement {
   _start() {
     this._stop();
     if (!this.isConnected || !this.timeLimit || this._ended) { return; }
-    this._checkRemaining();
+    this._updateRemaining();
     if (this._ended) { return; }
-    this._tick = setInterval(() => {
-      this._remaining = Math.max(this._remaining - 1, 0);
-      this._checkRemaining();
-    }, 1000);
+    this._tick = setInterval(() => { this._updateRemaining(); }, 1000);
     if (this.syncCall) {
       this._sync = setInterval(() => { this._synchronize(); }, 60000);
     }
@@ -64,6 +62,11 @@ export class SakaiTimerBar extends SakaiShadowElement {
     clearInterval(this._tick);
     clearInterval(this._sync);
     this._syncRequest?.abort();
+  }
+
+  _updateRemaining() {
+    this._remaining = Math.max(Math.ceil((this._deadline - Date.now()) / 1000), 0);
+    this._checkRemaining();
   }
 
   _checkRemaining() {
@@ -93,6 +96,7 @@ export class SakaiTimerBar extends SakaiShadowElement {
       if (!request.signal.aborted && this.isConnected && String(data.id) === this.id
           && Number.isFinite(data.timeElapsed) && data.timeElapsed > 0) {
         this._remaining = Math.max(this.timeLimit - data.timeElapsed, 0);
+        this._deadline = Date.now() + this._remaining * 1000;
         this._checkRemaining();
       }
     } catch (error) {
@@ -112,9 +116,9 @@ export class SakaiTimerBar extends SakaiShadowElement {
       <div class="timer-block">
         <div id="remaining" ?hidden=${!this._showProgress}>
           ${this.text ? html`<div class="timer-title">${this.text}</div>` : nothing}
-          <div class="progress-wrapper" aria-hidden="true">
+          <div class="progress-wrapper">
             <span class="time-value">${time}</span>
-            <div class="progress"><div class="progress-bar ${color}" style="width: ${progress}%"></div></div>
+            <div class="progress" aria-hidden="true"><div class="progress-bar ${color}" style="width: ${progress}%"></div></div>
           </div>
         </div>
         ${!this._closedWarning && !this._showProgress && progress < 10 ? html`

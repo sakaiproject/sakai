@@ -49,13 +49,13 @@ export class SakaiMultiGradebook extends SakaiShadowElement {
 
   async _loadItems() {
     this._request?.abort();
-    if (!this.siteId || (!this.isCategory && !this.appName)) { return; }
+    if (!this.siteId) { return; }
     const request = new AbortController();
     this._request = request;
     this._loading = true;
     this._error = false;
     const parts = [ "api", "sites", this.siteId, this.isCategory ? "categories" : "items" ];
-    if (!this.isCategory) { parts.push(this.appName); }
+    if (!this.isCategory) { parts.push(this.appName || "undefined"); }
     if (this.userId) { parts.push(this.userId); }
     if (this.groupId?.trim()) { parts.push(this.groupId); }
     try {
