@@ -21,6 +21,8 @@
 
 package org.sakaiproject.content.tool;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -471,6 +473,8 @@ public class ListItem
 	private Boolean allowHtmlInlineInherited;
 
 	protected String quota;
+	private boolean quotaIsInvalid;
+	private String submittedQuotaInGigabytes;
 
 	protected boolean nameIsMissing = false;
 
@@ -1730,6 +1734,8 @@ public class ListItem
 
 	protected void captureQuota(ParameterParser params, String index) 
 	{
+		this.quotaIsInvalid = false;
+		this.submittedQuotaInGigabytes = null;
 		String setQuota = params.getString("setQuota" + index);
 		if(setQuota != null)
 		{
@@ -1737,9 +1743,41 @@ public class ListItem
 			if(this.hasQuota)
 			{
 				String quota = params.getString("quota" + index);
-				if(quota != null && quota.trim().matches("^\\d+$"))
+				this.submittedQuotaInGigabytes = quota;
+				// Keep the exact stored KB quota when its rounded GB display is unchanged.
+				if (this.quota != null && quota != null && quota.trim().equals(getQuotaInGigabytes()))
 				{
-					this.quota = quota.trim();
+					return;
+				}
+				if(quota != null && !quota.isBlank())
+				{
+					try
+					{
+						BigDecimal gigabytes = new BigDecimal(quota.trim());
+						BigDecimal kilobytes = gigabytes.multiply(BigDecimal.valueOf(1024L * 1024L));
+						if (kilobytes.signum() < 0 || kilobytes.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)
+						{
+							this.quotaIsInvalid = true;
+						}
+						else
+						{
+							// Round GB up to two decimal places before converting to whole KB.
+							BigDecimal roundedGigabytes = gigabytes.signum() == 0 ? BigDecimal.ZERO
+									: gigabytes.max(BigDecimal.valueOf(1L, 2)).setScale(2, RoundingMode.CEILING);
+							this.quota = Long.toString(roundedGigabytes.multiply(BigDecimal.valueOf(1024L * 1024L))
+									.setScale(0, RoundingMode.CEILING).longValueExact());
+						}
+					}
+					catch (NumberFormatException | ArithmeticException e)
+					{
+						this.quotaIsInvalid = true;
+						log.warn("Cannot set quota for {}: a number in GB within the supported range is required", this.id);
+					}
+				}
+				else
+				{
+					this.quotaIsInvalid = true;
+					log.warn("Cannot set quota for {}: a non-negative number in GB is required", this.id);
 				}
 			}
 			else
@@ -3644,6 +3682,22 @@ public class ListItem
 		return hasQuota;
 	}
 
+	public String getQuotaInGigabytes()
+	{
+		if (quotaIsInvalid)
+		{
+			return submittedQuotaInGigabytes;
+		}
+		if (quota == null)
+		{
+			return null;
+		}
+		BigDecimal gigabytes = new BigDecimal(quota).divide(BigDecimal.valueOf(1024L * 1024L));
+		BigDecimal rounded = gigabytes.setScale(2, RoundingMode.HALF_UP);
+		// Existing positive quotas smaller than 0.01 GB must not display as unlimited (0).
+		return (gigabytes.signum() > 0 ? rounded.max(BigDecimal.valueOf(1L, 2)) : rounded).stripTrailingZeros().toPlainString();
+	}
+
 	public String getQuota() 
 	{
 		return quota;
@@ -3808,6 +3862,10 @@ public class ListItem
 	public List<String> checkRequiredProperties()
     {
 		List<String> alerts = new ArrayList<String>();
+		if (quotaIsInvalid)
+		{
+			alerts.add(trb.getString("edit.quota.invalid"));
+		}
 		String name = getName();
 		if(name == null || name.trim().equals(""))
 		{

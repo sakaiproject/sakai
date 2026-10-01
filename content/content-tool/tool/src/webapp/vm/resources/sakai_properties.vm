@@ -209,34 +209,33 @@ button.btn.btn-default.multiselect-clear-filter{
 </p>
 
 #if($model.canSetQuota())
-	<p class="shorttext">
-		<label for="hasQuota${DOT}$i">
-			$tlang.getString("edit.quota")
-		</label>
-		<span>
-			<input type="hidden" name="setQuota${DOT}$i" value="true" />
-			<input type="checkbox" class="form-check-input" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" value="true"#if($model.hasQuota()) checked #end />
-			<input type="text" size="10" name="quota${DOT}$i" id="quota${DOT}$i" value="$!model.quota" />
-		</span>
-	</p>
+	<div class="form-group">
+		<input type="hidden" name="setQuota${DOT}$i" value="true" />
+		<div class="form-check">
+			<input type="checkbox" class="form-check-input" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" aria-controls="quota${DOT}$i" value="true"#if($model.hasQuota()) checked #end />
+			<label class="form-check-label" for="hasQuota${DOT}$i" id="quota-label${DOT}$i">
+				$tlang.getString("edit.quota")
+			</label>
+			<div class="mt-2">
+				<input type="number" class="form-control" min="0" step="any" style="width: 10em; max-width: 100%;" name="quota${DOT}$i" id="quota${DOT}$i" aria-labelledby="quota-label${DOT}$i" value="$formattedText.escapeHtml("$!model.quotaInGigabytes", false)"#if(!$model.hasQuota()) disabled #end />
+			</div>
+		</div>
+	</div>
 #end
 
 #if ($model.isAdmin())
 	<div class="form-group">
-		<label for="allowHtmlInline${DOT}$i">
-			$tlang.getString("edit.renderHtml")
-		</label>
-		<span>
+		<div class="form-check">
 			#if ($model.isAllowHtmlInlineInherited())
 				## if the value of this property is inherited from the collection, we need to display a static value so it doesn't get unintentionally persisted with a new value.
 				<input
 					type="hidden"
-					id="allowHtmlInline${DOT}$i"
+					id="allowHtmlInlineInherited${DOT}$i"
 					name="allowHtmlInline${DOT}$i"
 					#if ($model.isAllowHtmlInline()) value="true" #else value="false" #end />
 
 				## display a disabled checkbox to indicate to the user that inline html is allowed, but it cannot be changed because it is inherited
-				<input type="checkbox" class="form-check-input" aria-label="$tlang.getString("edit.renderHtml")" disabled checked />
+				<input type="checkbox" class="form-check-input" id="allowHtmlInline${DOT}$i" aria-describedby="allow-html-help${DOT}$i" disabled checked />
 
 			#else
 				<input
@@ -244,12 +243,16 @@ button.btn.btn-default.multiselect-clear-filter{
 					class="form-check-input"
 					name="allowHtmlInline${DOT}$i"
 					id="allowHtmlInline${DOT}$i"
+					aria-describedby="allow-html-help${DOT}$i"
 					value="true"
 					#if ($model.isAllowHtmlInline()) checked="checked" #end
 					 />
 			#end
-			<span class="textPanelFooter">$tlang.getString("edit.renderHtml.explanation")</span>
-		</span>
+			<label class="form-check-label" for="allowHtmlInline${DOT}$i">
+				$tlang.getString("edit.renderHtml")
+			</label>
+			<div class="form-text" id="allow-html-help${DOT}$i">$tlang.getString("edit.renderHtml.explanation")</div>
+		</div>
 	</div>
 #end
 
