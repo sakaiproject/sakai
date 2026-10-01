@@ -320,6 +320,10 @@ public class TagServiceServlet extends HttpServlet {
 
                     paginationInfoMap = this.makePaginationInfoMap(canGoPrevious, canGoNext, currentPageNumber, firstPageIdx, displayedLastPage, previousIdx,
                             nextIdx);
+                    paginationInfoMap.put("canGoPreviousPage", currentPageNumber > 1);
+                    paginationInfoMap.put("previousPageIdx", currentPageNumber - 1);
+                    paginationInfoMap.put("canGoNextPage", currentPageNumber < totalPageCount);
+                    paginationInfoMap.put("nextPageIdx", currentPageNumber + 1);
 
                 } catch (Exception e) {
                     log.warn(e.getMessage());
