@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 
 import jakarta.faces.bean.SessionScoped;
-import jakarta.faces.annotation.ManagedProperty;
+import jakarta.faces.bean.ManagedProperty;
 import jakarta.faces.bean.ManagedBean;
 
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
