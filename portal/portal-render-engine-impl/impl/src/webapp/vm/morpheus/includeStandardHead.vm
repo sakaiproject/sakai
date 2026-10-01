@@ -70,7 +70,6 @@
         <script src="${pageWebjarsPath}popper.js/2.9.3/umd/popper.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}bootstrap/5.2.0/js/bootstrap.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}dompurify/3.4.6/dist/purify.min.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/vuecomponents/js/sakai.min.js$!{portalCDNQuery}"></script>
         <script src="/library/js/trimpath-template-latest.js$!{portalCDNQuery}"></script>
         <script>
             moment.locale(window.portal.locale);
