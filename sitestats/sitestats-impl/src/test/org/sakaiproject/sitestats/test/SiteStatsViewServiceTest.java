@@ -92,11 +92,13 @@ import org.sakaiproject.sitestats.api.view.SiteStatsWidgetTab;
 import org.sakaiproject.sitestats.impl.view.SiteStatsTableMapperImpl;
 import org.sakaiproject.sitestats.impl.view.ViewFactoryFixtureWidgetDefinition;
 import org.sakaiproject.sitestats.test.data.FakeData;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -120,6 +122,7 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 	@Autowired private SiteStatsViewService service;
 	@Autowired private SessionManager sessionManager;
 	@Autowired private UserDirectoryService userDirectoryService;
+	@Autowired @Qualifier("org.sakaiproject.time.api.UserTimeService") private UserTimeService userTimeService;
 
 	@Before
 	public void setUp() throws Exception {
@@ -390,7 +393,9 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 				snapshot(WIDGET_VISITS, METRIC_VISITS_USERS_WITH_VISITS).getPercentage());
 		assertTrue(widget(overview, WIDGET_VISITS).getHighlights().isEmpty());
 
-		db.insertObject(visitStat(SITE_ID, Date.valueOf(java.time.LocalDate.now()), 2, 1));
+		// Keep the visit inside the reporting window when server and user dates differ.
+		LocalDate yesterday = LocalDate.now(userTimeService.getLocalTimeZone().toZoneId()).minusDays(1);
+		db.insertObject(visitStat(SITE_ID, Date.valueOf(yesterday), 2, 1));
 		overview = service.getOverview(SITE_ID);
 		assertEquals(1, widget(overview, WIDGET_VISITS).getHighlights().size());
 		assertEquals(30, widget(overview, WIDGET_VISITS).getHighlights().get(0).getDatasets().get(0).getPoints().size());
