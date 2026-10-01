@@ -1553,8 +1553,8 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			CriteriaQuery<PublishedAssessmentData> cq = cb.createQuery(PublishedAssessmentData.class);
 	
 			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
-			Join<PublishedAssessmentData, PublishedAccessControl> cJoin = pRoot.join("accessControl");
-			Join<PublishedAssessmentData, PublishedFeedback> fJoin = pRoot.join("feedback");
+			Join<PublishedAssessmentData, PublishedAccessControl> cJoin = pRoot.join("assessmentAccessControl");
+			Join<PublishedAssessmentData, PublishedFeedback> fJoin = pRoot.join("assessmentFeedback");
 			Join<PublishedAssessmentData, PublishedEvaluationModel> emJoin = pRoot.join("evaluationModel");
 			Join<PublishedAssessmentData, AuthorizationData> azJoin = pRoot.join("authorizations");
 	
