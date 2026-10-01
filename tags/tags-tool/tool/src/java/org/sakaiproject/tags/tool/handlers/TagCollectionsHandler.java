@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.tool.forms.TagCollectionForm;
+import org.sakaiproject.tags.tool.service.TagManagementService;
 
 /**
  * A handler for creating and updating Tag collections in the Tags Service administration tool.
@@ -44,9 +45,13 @@ import org.sakaiproject.tags.tool.forms.TagCollectionForm;
 public class TagCollectionsHandler extends CrudHandler {
 
     private final TagService tagService;
+    private final TagManagementService tagManagementService;
+    private final String siteId;
 
-    public TagCollectionsHandler(TagService tagservice) {
+    public TagCollectionsHandler(TagService tagservice, TagManagementService tagManagementService, String siteId) {
         this.tagService = tagservice;
+        this.tagManagementService = tagManagementService;
+        this.siteId = siteId;
     }
 
     @Override
@@ -54,6 +59,7 @@ public class TagCollectionsHandler extends CrudHandler {
         if (request.getPathInfo().contains("/preview") && isGet(request)) {
             handlePreview(request, response, context);
         } else {
+            tagManagementService.checkCollectionAdministration();
             super.handle(request, response, context);
         }
     }
@@ -61,7 +67,7 @@ public class TagCollectionsHandler extends CrudHandler {
     @Override
     protected void handleDelete(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
-        tagService.deleteTagCollection(uuid);
+        tagManagementService.deleteCollection(uuid);
 
         flash("info", "tagcollection_deleted");
         sendRedirect("");
@@ -72,7 +78,7 @@ public class TagCollectionsHandler extends CrudHandler {
 
         context.put("layout", false);
         try {
-            Optional<TagCollection> tagCollection = tagService.getTagCollection(uuid);
+            Optional<TagCollection> tagCollection = tagManagementService.getCollection(siteId, uuid);
 
             if (tagCollection.isPresent()) {
                 // Don't let the portal buffering hijack our response.
@@ -144,10 +150,10 @@ public class TagCollectionsHandler extends CrudHandler {
         }
 
         if (CrudMode.CREATE.equals(mode)) {
-            tagService.createTagCollection(tagCollectionForm.toTagCollection());
+            tagManagementService.createCollection(tagCollectionForm.toTagCollection());
             flash("info", "tagcollection_created");
         } else {
-            tagService.updateTagCollection(tagCollectionForm.toTagCollection());
+            tagManagementService.updateCollection(tagCollectionForm.toTagCollection());
             flash("info", "tagcollection_updated");
         }
 
