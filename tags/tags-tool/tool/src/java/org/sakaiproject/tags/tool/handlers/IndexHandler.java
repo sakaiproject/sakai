@@ -51,7 +51,6 @@ public class IndexHandler extends BaseHandler {
     private final SessionManager sessionManager;
     private final ToolManager toolManager;
     private final int defaultPaginationSize = 10;
-    private final int countPerPageGroup = 10;
 
     public IndexHandler(TagService tagservice, SessionManager sessionManager, SecurityService securityService, ToolManager toolManager) {
         this.tagService = tagservice;
@@ -93,7 +92,6 @@ public class IndexHandler extends BaseHandler {
         context.put("pageSize", pageSize);
         context.put("pageNum", pageNum);
         context.put("totalPages", totalPages);
-        context.put("countPerPageGroup", countPerPageGroup);
         
         context.put("showPagination", totalTagCollections > 0 && totalPages > 1);
         

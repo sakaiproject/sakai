@@ -88,41 +88,10 @@
     </table>
   {{/if}}
 
-    <!--pagination param ==> kkkkk currentPage:{{pageNum}} totalPageCount:{{totalPages}} countPerPageGroup:{{countPerPageGroup}}-->
     {{#if showPagination}}
-        {{#pagination this pageNum totalPages countPerPageGroup}}
-            <div class="paging_bootstrap">
-                <ul class="pagination">
-                    {{#if canGoPrevious}}
-                        <li class="page-item prev"><a class="page-link" href="{{actionURLPaginated this 'index' "0" "manage" previousIdx pageSize}}"><i class="icon-double-angle-left">&Lt;</i></a></li>
-                    {{else}}
-                        <li class="page-item prev disabled"><a class="page-link" href="#"><i class="icon-double-angle-left">&Lt;</i></a></li>
-                    {{/if}}
-
-                    {{#if canGoPreviousPage}}
-                        <li class="page-item"><a class="page-link" href="{{actionURLPaginated this 'index' "0" "manage" previousPageIdx pageSize}}" aria-label="{{t this "previous_page"}}"><span aria-hidden="true">&lt;</span></a></li>
-                    {{else}}
-                        <li class="page-item disabled"><span class="page-link" aria-label="{{t this "previous_page"}}" aria-disabled="true"><span aria-hidden="true">&lt;</span></span></li>
-                    {{/if}}
-
-                    {{#each pages}}
-                        <li {{#if isCurrent}}class="page-item active"{{/if}}><a class="page-link" href="{{actionURLPaginated this 'index' "0" "manage" pageInt pageSize}}">{{page}}</a></li>
-                    {{/each}}
-
-                    {{#if canGoNextPage}}
-                        <li class="page-item"><a class="page-link" href="{{actionURLPaginated this 'index' "0" "manage" nextPageIdx pageSize}}" aria-label="{{t this "next_page"}}"><span aria-hidden="true">&gt;</span></a></li>
-                    {{else}}
-                        <li class="page-item disabled"><span class="page-link" aria-label="{{t this "next_page"}}" aria-disabled="true"><span aria-hidden="true">&gt;</span></span></li>
-                    {{/if}}
-
-                    {{#if canGoNext}}
-                        <li class="page-item next"><a class="page-link" href="{{actionURLPaginated this 'index' "0" "manage" nextIdx pageSize}}"><i class="icon-double-angle-right">&Gt;</i></a></li>
-                    {{else}}
-                        <li class="page-item next disabled"><a class="page-link" href="#"><i class="icon-double-angle-right">&Gt;</i></a></li>
-                    {{/if}}
-                </ul>
-            </div>
-        {{/pagination}}
+        <sakai-pager current="{{pageNum}}" count="{{totalPages}}"
+            data-page-base="{{actionURL this 'index' "0" "manage"}}/"
+            data-page-size="{{pageSize}}"></sakai-pager>
     {{/if}}
 
 

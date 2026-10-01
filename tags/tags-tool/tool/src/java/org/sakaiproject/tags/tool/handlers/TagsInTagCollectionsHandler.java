@@ -41,7 +41,6 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
 
     private final TagService tagService;
     private final int defaultPaginationSize = 10;
-    private final int countPerPageGroup = 10;
 
     public TagsInTagCollectionsHandler(TagService tagservice) {
         this.tagService = tagservice;
@@ -62,7 +61,6 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
         context.put("pageSize", pageSize);
         context.put("pageNum", pageNum);
         context.put("totalPages", totalPages);
-        context.put("countPerPageGroup", countPerPageGroup);
         
         context.put("showPagination", totalTags > 0 && totalPages > 1);
 
