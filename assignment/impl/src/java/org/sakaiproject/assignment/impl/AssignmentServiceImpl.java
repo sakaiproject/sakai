@@ -2310,6 +2310,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     .map(Member::getUserId)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
+            // Only a posting group member should change who's flagged submittee; other callers
+            // (an LTI score post, an instructor) must leave it alone.
+            String currentUserId = sessionManager.getCurrentSessionUserId();
+            boolean currentUserIsSubmitter = submitterIds.contains(currentUserId);
+
+            // When a student posts, one current group member must resolve as the submittee. A
+            // grading user may update on behalf of the group without being one of the submitters.
+            if (!currentUserIsSubmitter && !allowGradeSubmission(assignmentReference)) {
+                throw new PermissionException(currentUserId, SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference);
+            }
+
             Map<String, AssignmentSubmissionSubmitter> existingSubmitters = new HashMap<>();
             for (Iterator<AssignmentSubmissionSubmitter> iterator = submission.getSubmitters().iterator(); iterator.hasNext();) {
                 AssignmentSubmissionSubmitter existingSubmitter = iterator.next();
@@ -2323,11 +2334,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     continue;
                 }
 
-                existingSubmitter.setSubmittee(false);
+                if (currentUserIsSubmitter) {
+                    existingSubmitter.setSubmittee(false);
+                }
                 existingSubmitters.put(existingSubmitter.getSubmitter(), existingSubmitter);
             }
 
-            String currentUserId = sessionManager.getCurrentSessionUserId();
             for (String submitterId : submitterIds) {
                 AssignmentSubmissionSubmitter submissionSubmitter = existingSubmitters.get(submitterId);
                 if (submissionSubmitter == null) {
@@ -2341,13 +2353,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 if (StringUtils.equals(submitterId, currentUserId)) {
                     submissionSubmitter.setSubmittee(true);
                 }
-            }
-
-            // When a student posts, one current group member must resolve as the submittee. A
-            // grading user may update on behalf of the group without being one of the submitters.
-            if (submission.getSubmitters().stream().noneMatch(AssignmentSubmissionSubmitter::getSubmittee)
-                    && !allowGradeSubmission(assignmentReference)) {
-                throw new PermissionException(currentUserId, SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionReference);
             }
         } catch (IdUnusedException iue) {
             log.warn("Cannot reconcile submitters for submission {} because site {} was not found", submission.getId(),
