@@ -40,17 +40,21 @@ import org.sakaiproject.tags.api.TagService;
 public class TagsInTagCollectionsHandler extends BaseHandler {
 
     private final TagService tagService;
+    private final String siteId;
     private final int defaultPaginationSize = 10;
     private final int countPerPageGroup = 10;
 
-    public TagsInTagCollectionsHandler(TagService tagservice) {
+    public TagsInTagCollectionsHandler(TagService tagservice, String siteId) {
         this.tagService = tagservice;
+        this.siteId = siteId;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, Map<String, Object> context) {
 
         String uuid = extractId(request);
+        tagService.checkCollectionAccess(siteId, uuid);
+        context.put("canManage", tagService.canManageCollection(siteId, uuid));
 
         int pageNum = extractPageNum(request);
         int pageSize = extractPageSize(request);

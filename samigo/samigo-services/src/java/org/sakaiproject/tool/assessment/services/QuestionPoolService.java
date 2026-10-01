@@ -36,6 +36,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTag;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
@@ -467,6 +468,22 @@ import lombok.extern.slf4j.Slf4j;
       log.error("Exception in exportQuestion", e);
       return null;
     }
+  }
+
+  /** Pool catalogs follow the pool owner, including when the pool is shared across sites. */
+  public List<TagSummary> getAvailableTags(Long poolId) {
+    String userId = AgentFacade.getAgentString();
+    if (StringUtils.isBlank(userId)) {
+      throw new SecurityException("A user is required to select pool tags");
+    }
+    String ownerId = userId;
+    if (poolId != null && poolId > 0) {
+      if (!canExportPool(poolId.toString(), userId)) {
+        throw new SecurityException("Current user cannot access pool " + poolId);
+      }
+      ownerId = getPool(poolId, userId).getOwnerId();
+    }
+    return ComponentManager.get(TagService.class).getTagsForSite("~" + ownerId);
   }
 
   /**

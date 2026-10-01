@@ -929,6 +929,7 @@ public class ItemAddListener implements ActionListener {
 			  if (!found) {  //If it is not in the list... we need to add it.
 				  if (tagService.getTag(s).isPresent()) {
 					  Tag tag = tagService.getTag(s).get();
+                      tagService.checkCollectionAccess(AgentFacade.getCurrentSiteId(), tag.getTagCollectionId());
 					  item.addItemTag(s, tag.getTagLabel(), tag.getTagCollectionId(), tag.getCollectionName());
 				  }
 
