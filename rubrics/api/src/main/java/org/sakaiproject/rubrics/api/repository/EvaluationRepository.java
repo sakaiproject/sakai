@@ -31,6 +31,7 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 public interface EvaluationRepository extends SpringCrudRepository<Evaluation, Long> {
 
     List<Evaluation> findByAssociationId(Long associationId);
+    Optional<Evaluation> findFirstByAssociationIdAndOwnerId(Long associationId, String ownerId);
     Optional<Evaluation> findByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId);
     Optional<Evaluation> findByAssociationIdAndEvaluatedItemIdAndOwner(Long associationId, String evaluatedItemId, String evaluatedItemOwnerId);
     Optional<Evaluation> findByAssociationIdAndUserId(Long associationId, String userId);

@@ -299,9 +299,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 if (Boolean.TRUE.equals(r.getLocked())) {
                     for (ToolItemRubricAssociation association : r.getAssociations()) {
                         // Only disclose usage in this site, and include inactive associations that still hold evaluations.
-                        evaluationRepository.findByAssociationId(association.getId()).stream()
-                            .filter(evaluation -> siteId.equals(evaluation.getOwnerId()))
-                            .findFirst()
+                        evaluationRepository.findFirstByAssociationIdAndOwnerId(association.getId(), siteId)
                             .ifPresent(evaluation -> bean.getLockedBy()
                                 .computeIfAbsent(association.getToolId(), key -> new LinkedHashSet<>())
                                 .add(getAssociatedName(evaluation, siteId)
