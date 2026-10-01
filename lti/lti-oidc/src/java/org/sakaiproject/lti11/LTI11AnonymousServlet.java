@@ -46,21 +46,27 @@ public class LTI11AnonymousServlet extends HttpServlet {
 
 	private static ResourceLoader rb = new ResourceLoader("lti11");
 
-    private final String returnHTML =
-        "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
-        "   \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
-        "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n" +
-        "<body>\n" +
-        "<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\"><p>MESSAGE</p>\n" +
-        "<p id=\"lti-close-text\" hidden>CLOSETEXT</p>\n" +
-        "<script>\n" +
-        "if(self.location==top.location) {\n" +
-        "  document.getElementById('lti-close-text').hidden = false;\n" +
-        "}\n" +
-        "</script>\n" +
-        "</div></body>\n" +
-        "</html>\n";
-
+    private static final String RETURN_HTML = """
+        <!doctype html>
+        <html lang="LANGUAGE">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>TITLE</title>
+        </head>
+        <body>
+            <main style="width:80%;margin:5px auto 0;border:1px solid gray;padding:.5em;font:.8em Verdana,Arial,Helvetica,sans-serif">
+                <p>MESSAGE</p>
+                <p id="lti-close-text" hidden>CLOSETEXT</p>
+            </main>
+            <script>
+                if (window.self === window.top) {
+                    document.getElementById('lti-close-text').hidden = false;
+                }
+            </script>
+        </body>
+        </html>
+        """;
 
 
 	@Override
@@ -115,7 +121,9 @@ public class LTI11AnonymousServlet extends HttpServlet {
             message = rb.getString("outcome.tool.lti_errormsg") + " " + lti_errormsg;
         }
 
-        String output = returnHTML;
+        String output = RETURN_HTML;
+        output = output.replace("LANGUAGE", FormattedText.escapeHtml(rb.getLocale().toLanguageTag(), false));
+        output = output.replace("TITLE", FormattedText.escapeHtml(rb.getString("outcome.tool.finished"), false));
         output = output.replace("CLOSETEXT", FormattedText.escapeHtml(rb.getString("outcome.tool.close.window"), false));
         output = output.replace("MESSAGE", FormattedText.escapeHtml(message, false));
         response.setContentType("text/html; charset=UTF-8");
