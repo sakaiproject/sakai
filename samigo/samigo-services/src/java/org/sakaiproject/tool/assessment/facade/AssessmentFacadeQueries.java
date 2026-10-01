@@ -833,7 +833,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		
 		cq.where(
 			cb.equal(aRoot.get("status"), 1),
-			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+			cb.equal(aRoot.get("assessmentBaseId").as(String.class), zRoot.get("qualifierId")),
 			cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
 			cb.equal(zRoot.get("agentIdString"), siteAgentId));
 		cq.orderBy(cb.asc(aRoot.get(orderBy)));
@@ -1942,7 +1942,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
 		AssessmentData newAssessmentData = prepareAssessment(assessmentData, ServerConfigurationService.getServerUrl(), AgentFacade.getCurrentSiteId(), false);
 		updateTitleForCopy(newAssessmentData, appendCopyTitle);
-		session.merge(newAssessmentData);
+		session.persist(newAssessmentData);
 		
 		// authorization
 		PersistenceService.getInstance().getAuthzQueriesFacade()
@@ -1983,7 +1983,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 				}
 			}
 		}
-		session.persist(newAssessmentData);
+		session.merge(newAssessmentData);
 	}
 
     private void updateTitleForCopy(AssessmentData assessmentData, String appendCopyTitle){
@@ -2017,7 +2017,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
     	cq.where(
     		cb.like(aRoot.get("title"), titlef),
     		cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
-    		cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+    		cb.equal(aRoot.get("assessmentBaseId").as(String.class), zRoot.get("qualifierId")),
     		cb.equal(zRoot.get("agentIdString"), currentSiteId));
 
     	List<String> list = session.createQuery(cq).list();
@@ -2654,7 +2654,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		cq.select(aRoot.get("title"));
 		cq.where(
 			cb.equal(aRoot.get("status"), 1),
-			cb.equal(aRoot.get("assessmentBaseId"), zRoot.get("qualifierId")),
+			cb.equal(aRoot.get("assessmentBaseId").as(String.class), zRoot.get("qualifierId")),
 			cb.equal(zRoot.get("functionId"), "EDIT_ASSESSMENT"),
 			cb.equal(zRoot.get("agentIdString"), siteId));
 
