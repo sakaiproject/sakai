@@ -5470,12 +5470,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         nAllPurposeItem.setReleaseDate(null);
                         nAllPurposeItem.setRetractDate(null);
 
-                        Set<AssignmentSupplementItemAttachment> oAllPurposeItemAttachments = oAllPurposeItem.getAttachmentSet();
+                        assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
                         Set<AssignmentSupplementItemAttachment> nAllPurposeItemAttachments = new HashSet<>();
-                        for (AssignmentSupplementItemAttachment oAttachment : oAllPurposeItemAttachments) {
+                        List<String> attachmentIDs = assignmentSupplementItemService.getAttachmentListForSupplementItem(oAllPurposeItem);
+                        for (String attachmentID : attachmentIDs) {
                             AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
                             // New attachment creation
-                            String nAttachId = transferAttachment(fromContext, toContext, oAttachment.getAttachmentId(), null);
+                            Reference oRef = entityManager.newReference(attachmentID);
+                            String cleanResourceId = oRef.getId(); 
+                            String nAttachId = transferAttachment(fromContext, toContext, cleanResourceId, null);
                             if (StringUtils.isNotEmpty(nAttachId)) {
                                 nAttachment.setAssignmentSupplementItemWithAttachment(nAllPurposeItem);
                                 nAttachment.setAttachmentId(nAttachId);
