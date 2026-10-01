@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.tags.api.TagCollection;
+import org.sakaiproject.tags.tool.service.TagManagementService;
 
 /**
  * A handler for creating and updating Tag collections in the Tags Service administration tool.
@@ -40,17 +42,24 @@ import org.sakaiproject.tags.api.TagService;
 public class TagsInTagCollectionsHandler extends BaseHandler {
 
     private final TagService tagService;
+    private final TagManagementService tagManagementService;
+    private final String siteId;
     private final int defaultPaginationSize = 10;
     private final int countPerPageGroup = 10;
 
-    public TagsInTagCollectionsHandler(TagService tagservice) {
+    public TagsInTagCollectionsHandler(TagService tagservice, TagManagementService tagManagementService, String siteId) {
         this.tagService = tagservice;
+        this.tagManagementService = tagManagementService;
+        this.siteId = siteId;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, Map<String, Object> context) {
 
         String uuid = extractId(request);
+
+        TagCollection collection = tagManagementService.getCollection(siteId, uuid)
+            .orElseThrow(() -> new IllegalArgumentException("No matching tag collection"));
 
         int pageNum = extractPageNum(request);
         int pageSize = extractPageSize(request);
@@ -69,15 +78,8 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
         context.put("subpage", "tagsintagcollection");
         context.put("tagsintagcollection", tagService.getTagsPaginatedInCollection(pageNum, pageSize, uuid));
         context.put("tagserviceactive", tagService.getServiceActive());
-        String actualcollectionname="";
-        Boolean isExternallyCreated=false;
-        try {
-            if  (tagService.getTagCollection(uuid).isPresent()) {
-                actualcollectionname = tagService.getTagCollection(uuid).get().getName();
-                isExternallyCreated = Boolean.TRUE.equals(tagService.getTagCollection(uuid).get().getExternalCreation());
-            }
-        }catch(Exception e){
-        }
+        String actualcollectionname = collection.getName();
+        boolean isExternallyCreated = Boolean.TRUE.equals(collection.getExternalCreation());
         if (isExternallyCreated){
             context.put("isExternallyCreated","style=display:none");
             context.put("editLabel","Preview");
