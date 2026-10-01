@@ -26,7 +26,10 @@ import jakarta.faces.application.Application;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.MethodExpressionActionListener;
+import jakarta.faces.event.MethodExpressionValueChangeListener;
 import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.validator.MethodExpressionValidator;
 import jakarta.faces.webapp.UIComponentTag;
 
 /**
@@ -230,8 +233,20 @@ public class TagUtil
         {
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
-            MethodExpression mb = app.getExpressionFactory().createMethodExpression(context.getELContext(), value, Object.class, paramTypes);
-            component.getAttributes().put(name, mb);
+            MethodExpression mb = app.getExpressionFactory().createMethodExpression(
+                    context.getELContext(), value, Void.class, paramTypes);
+
+            Object toStore;
+            if ("valueChangeListener".equals(name)) {
+                toStore = new jakarta.faces.event.MethodExpressionValueChangeListener(mb);
+            } else if ("actionListener".equals(name)) {
+                toStore = new jakarta.faces.event.MethodExpressionActionListener(mb);
+            } else if ("validator".equals(name)) {
+                toStore = new jakarta.faces.validator.MethodExpressionValidator(mb);
+            } else {
+                toStore = mb;
+            }
+            component.getAttributes().put(name, toStore);
         }
     }
 
