@@ -39,6 +39,7 @@ import org.junit.runner.RunWith;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -137,9 +138,137 @@ public class TagServiceTest {
         assertTrue(service.createSiteTags("site1", "conversations", Collections.emptyList()).isEmpty());
     }
 
+    @Test
+    public void siteCatalogIncludesGlobalAndEveryLocalCollection() {
+        TagCollection global = collection("Global");
+        jdbc.update("UPDATE tagservice_collection SET siteid = NULL WHERE tagcollectionid = ?", global.getTagCollectionId());
+        Tag globalTag = tag(global, "Global label");
+        when(securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/site1")).thenReturn(true);
+        TagCollection local = TagCollection.builder().name("Local").siteId("forged-site").build();
+        local.setTagCollectionId(service.saveTagCollection("site1", local));
+        Tag localTag = tag(local, "Local label");
+        Tag otherTag = tag(collection("site2"), "Other label");
+        List<String> visible = service.getTagsForSite("site1").stream().map(TagSummary::getTagId).collect(java.util.stream.Collectors.toList());
+        assertTrue(visible.contains(globalTag.getTagId()));
+        assertTrue(visible.contains(localTag.getTagId()));
+        assertFalse(visible.contains(otherTag.getTagId()));
+        assertEquals("site1", service.getTagCollection(local.getTagCollectionId()).get().getSiteId());
+        assertEquals(2, service.getTagCollectionsForSite("site1").size());
+    }
+
+    @Test
+    public void instructorsCannotEditGlobalOrOtherSitesCollections() {
+        TagCollection global = collection("Global");
+        jdbc.update("UPDATE tagservice_collection SET siteid = NULL WHERE tagcollectionid = ?", global.getTagCollectionId());
+        Tag globalTag = tag(global, "Controlled label");
+        TagCollection other = collection("site2");
+        when(securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/site1")).thenReturn(true);
+        assertFalse(service.canManageCollection("site1", global.getTagCollectionId()));
+        assertThrows(SecurityException.class, () -> service.saveTag("site1", globalTag.toBuilder().tagLabel("Changed").build()));
+        assertThrows(SecurityException.class, () -> service.deleteTag("site1", globalTag.getTagId()));
+        assertThrows(SecurityException.class, () -> service.deleteTagCollection("site1", global.getTagCollectionId()));
+        assertThrows(SecurityException.class, () -> service.saveTagCollection("site1", global.toBuilder().name("Changed").build()));
+        assertThrows(SecurityException.class, () -> service.checkCollectionAccess("site1", other.getTagCollectionId()));
+        service.checkCollectionAccess("site1", global.getTagCollectionId());
+        assertEquals("Controlled label", service.getTag(globalTag.getTagId()).get().getTagLabel());
+    }
+
+    @Test
+    public void adminWorkspaceCreatesGlobalCollectionsAndAdminsCanEditThem() {
+        when(securityService.isSuperUser()).thenReturn(true);
+        String id = service.saveTagCollection("!admin", TagCollection.builder().name("Competencies").siteId("forged").build());
+        assertNull(service.getTagCollection(id).get().getSiteId());
+        assertTrue(service.canManageCollection("!admin", id));
+        String tagId = service.saveTag("!admin", Tag.builder().tagCollectionId(id).tagLabel("Communication").build());
+        service.saveTag("!admin", service.getTag(tagId).get().toBuilder().tagLabel("Written communication").build());
+        assertEquals("Written communication", service.getTag(tagId).get().getTagLabel());
+    }
+
+    @Test
+    public void collectionManagementRequiresAnAuthenticatedUser() {
+        TagCollection local = collection("site1");
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(null);
+        when(securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/site1")).thenReturn(true);
+        assertFalse(service.canManageCollection("site1", local.getTagCollectionId()));
+        assertThrows(SecurityException.class, () -> service.saveTagCollection("site1", TagCollection.builder().name("New").build()));
+    }
+
+    @Test
+    public void instructorCannotCreateAGlobalCollectionEvenWithAnAdminSitePermission() {
+        when(securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/!admin")).thenReturn(true);
+        assertThrows(SecurityException.class, () -> service.saveTagCollection("!admin", TagCollection.builder().name("Global").build()));
+    }
+
+    @Test
+    public void collectionNamesAreUniqueWithinTheirScope() {
+        when(securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/site1")).thenReturn(true);
+        when(securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/site2")).thenReturn(true);
+        service.saveTagCollection("site1", TagCollection.builder().name("Learning objectives").build());
+        service.saveTagCollection("site2", TagCollection.builder().name("Learning objectives").build());
+        assertThrows(IllegalArgumentException.class,
+            () -> service.saveTagCollection("site1", TagCollection.builder().name("Learning objectives").build()));
+    }
+
+    @Test
+    public void globalAndLocalAssociationsCanBeReadAndRemovedTogether() {
+        TagCollection global = collection("Global");
+        jdbc.update("UPDATE tagservice_collection SET siteid = NULL WHERE tagcollectionid = ?", global.getTagCollectionId());
+        Tag globalTag = tag(global, "Global label");
+        TagCollection local = collection("Local");
+        jdbc.update("UPDATE tagservice_collection SET siteid = ? WHERE tagcollectionid = ?", "site1", local.getTagCollectionId());
+        Tag localTag = tag(local, "Local label");
+        service.updateTagAssociations("site1", "assignment", Arrays.asList(globalTag.getTagId(), localTag.getTagId()), true);
+        assertEquals(2, service.getAssociatedTagsForItem("site1", "assignment").size());
+        service.updateTagAssociations("site1", "assignment", Collections.emptyList(), true);
+        assertTrue(service.getTagAssociationIds("site1", "assignment").isEmpty());
+    }
+
+    @Test
+    public void anotherSitesTagCannotBeSubmittedAsASelection() {
+        Tag other = tag(collection("site2"), "Private label");
+        assertThrows(SecurityException.class,
+            () -> service.updateTagAssociations("site1", "assignment", Collections.singletonList(other.getTagId()), true));
+        assertTrue(service.getTagAssociationIds("site1", "assignment").isEmpty());
+    }
+
+    @Test
+    public void copyingGlobalTagsRetainsTheirIdentityAndAdministration() {
+        TagCollection global = collection("Global");
+        jdbc.update("UPDATE tagservice_collection SET siteid = NULL WHERE tagcollectionid = ?", global.getTagCollectionId());
+        Tag globalTag = tag(global, "Competency");
+        List<Tag> copied = service.duplicateTags("site2", true, Collections.singletonList(globalTag.getTagId()), "copied-item");
+        assertEquals(globalTag.getTagId(), copied.get(0).getTagId());
+        assertEquals(Collections.singletonList(globalTag.getTagId()), service.getTagAssociationIds("site2", "copied-item"));
+        assertTrue(service.getTagsInCollection("site2").isEmpty());
+    }
+
+    @Test
+    public void poolTagsStayPrivateAndCanBeSelectedAlongsideGlobalTags() {
+        TagCollection global = collection("Global");
+        jdbc.update("UPDATE tagservice_collection SET siteid = NULL WHERE tagcollectionid = ?", global.getTagCollectionId());
+        Tag globalTag = tag(global, "Global competency");
+        service.updateTagAssociations("creator", "/samigo/pool/1", Arrays.asList("Personal label", globalTag.getTagId()), false);
+        assertEquals("~creator", service.getTagCollection("creator").get().getSiteId());
+        assertEquals(2, service.getAssociatedTagsForItem("creator", "/samigo/pool/1").size());
+        assertEquals(2, service.getTagsForSite("~creator").size());
+        assertEquals(Collections.singletonList(globalTag.getTagId()), service.getTagsForSite("site1").stream()
+            .map(TagSummary::getTagId).collect(java.util.stream.Collectors.toList()));
+        service.updateTagAssociations("creator", "/samigo/pool/1", Collections.emptyList(), false);
+        assertTrue(service.getTagAssociationIds("creator", "/samigo/pool/1").isEmpty());
+    }
+
+    @Test
+    public void personalCollectionsSupportTheMaximumUserIdLength() {
+        String ownerId = String.join("", Collections.nCopies(99, "u"));
+        service.updateTagAssociations(ownerId, "/samigo/pool/1", Collections.singletonList("Personal"), false);
+        assertEquals("~" + ownerId, service.getTagCollection(ownerId).get().getSiteId());
+        assertEquals("Personal", service.getTagsForSite("~" + ownerId).get(0).getTagLabel());
+    }
+
     private TagCollection collection(String name) {
         TagCollection collection = TagCollection.builder()
             .name(name)
+            .siteId(name)
             .description("Description")
             .createdBy("ignored")
             .creationDate(1L)

@@ -45,12 +45,14 @@ import org.sakaiproject.tags.tool.forms.TagCollectionForm;
 public class TagCollectionsHandler extends CrudHandler {
 
     private final TagService tagService;
+    private final String siteId;
 
     private final FormattedText formattedText;
 
-    public TagCollectionsHandler(TagService tagservice, FormattedText formattedText) {
+    public TagCollectionsHandler(TagService tagservice, FormattedText formattedText, String siteId) {
         this.tagService = tagservice;
         this.formattedText = formattedText;
+        this.siteId = siteId;
     }
 
     @Override
@@ -65,7 +67,7 @@ public class TagCollectionsHandler extends CrudHandler {
     @Override
     protected void handleDelete(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
-        tagService.deleteTagCollection(uuid);
+        tagService.deleteTagCollection(siteId, uuid);
 
         flash("info", "tagcollection_deleted");
         sendRedirect("");
@@ -73,6 +75,7 @@ public class TagCollectionsHandler extends CrudHandler {
 
     private void handlePreview(HttpServletRequest request, HttpServletResponse response, Map<String, Object> context) {
         String uuid = extractId(request);
+        tagService.checkCollectionAccess(siteId, uuid);
 
         context.put("layout", false);
         try {
@@ -95,6 +98,9 @@ public class TagCollectionsHandler extends CrudHandler {
     @Override
     protected void handleEdit(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
+        if (!tagService.canManageCollection(siteId, uuid)) {
+            throw new SecurityException("Cannot edit collection " + uuid);
+        }
         context.put("subpage", "tagcollection_form");
         Optional<TagCollection> tagCollection = tagService.getTagCollection(uuid);
 
@@ -122,7 +128,7 @@ public class TagCollectionsHandler extends CrudHandler {
             if (tagService.getTagCollectionForExternalSourceName(tagCollectionForm.toTagCollection().getExternalSourceName()).isPresent()){
                 this.addError("externalsourcename","error_unique_externalsource");
             }
-            if (tagService.getTagCollectionForName(tagCollectionForm.toTagCollection().getName()).isPresent()){
+            if (nameExistsInScope(tagCollectionForm.getName(), null)){
                 this.addError("name","error_unique_name");
             }
         }else{
@@ -136,7 +142,7 @@ public class TagCollectionsHandler extends CrudHandler {
                 }
             }
             if (!(actualName.equals(futureName))) {
-                if (tagService.getTagCollectionForName(futureName).isPresent()) {
+                if (nameExistsInScope(futureName, uuid)) {
                     this.addError("name", "error_unique_name");
                 }
             }
@@ -148,14 +154,22 @@ public class TagCollectionsHandler extends CrudHandler {
         }
 
         if (CrudMode.CREATE.equals(mode)) {
-            tagService.createTagCollection(tagCollectionForm.toTagCollection());
+            tagService.saveTagCollection(siteId, tagCollectionForm.toTagCollection().toBuilder().tagCollectionId(null).build());
             flash("info", "tagcollection_created");
         } else {
-            tagService.updateTagCollection(tagCollectionForm.toTagCollection());
+            tagService.saveTagCollection(siteId, tagCollectionForm.toTagCollection());
             flash("info", "tagcollection_updated");
         }
 
         sendRedirect("");
+    }
+
+    private boolean nameExistsInScope(String name, String collectionId) {
+        String scope = collectionId == null ? ("!admin".equals(siteId) ? null : siteId)
+            : tagService.getTagCollection(collectionId).get().getSiteId();
+        return tagService.getTagCollectionsForSite(siteId).stream().anyMatch(collection ->
+            java.util.Objects.equals(scope, collection.getSiteId()) && java.util.Objects.equals(name, collection.getName())
+                && !java.util.Objects.equals(collectionId, collection.getTagCollectionId()));
     }
 
     private void showEditForm(TagCollectionForm tagCollectionForm, Map<String, Object> context, CrudMode mode) {

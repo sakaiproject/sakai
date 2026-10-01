@@ -137,8 +137,8 @@ describe("sakai-tag-selector", () => {
 
   it("keeps catalog labels when fallback options have the same code", async () => {
     const el = await fixture(html`<sakai-tag-selector
-        .options=${[{ code: "one", name: "Current label" }]}
-        .selectedTags=${[{ code: "one", name: "Old label" }]}
+        .options=${[ { code: "one", name: "Current label" } ]}
+        .selectedTags=${[ { code: "one", name: "Old label" } ]}
         extra-options="one"></sakai-tag-selector>`);
     await search(el, "");
     const choices = el.shadowRoot.querySelectorAll("[role=option]");
@@ -189,6 +189,21 @@ describe("sakai-tag-selector", () => {
     expect(input.value).to.equal("日本語");
     key(input, "Enter");
     expect(el.selectedTags).to.deep.equal([ { name: "日本語", code: "日本語" } ]);
+  });
+
+  it("searches large global catalogs without rendering every tag", async () => {
+    const tags = Array.from({ length: 200 }, (_, index) => ({ code: `tag-${index}`, name: `Competency ${index}` }));
+    const el = await fixture(html`<sakai-tag-selector .options=${tags}></sakai-tag-selector>`);
+    await el.updateComplete;
+    expect(el.shadowRoot.querySelectorAll("[role=option]")).to.have.length(50);
+    const input = el.shadowRoot.querySelector("input");
+    input.value = "Competency 199";
+    input.dispatchEvent(new Event("input"));
+    await el.updateComplete;
+    expect(el.shadowRoot.querySelectorAll("[role=option]")).to.have.length(1);
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    await el.updateComplete;
+    expect(el.selectedTags).to.deep.equal([ tags[199] ]);
   });
 
   it("accepts caller-owned options and selection without fetching or emitting changes", async () => {

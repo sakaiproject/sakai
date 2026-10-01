@@ -100,13 +100,13 @@ public class TagServiceServlet extends HttpServlet {
         }
 
         if (path.contains("/tagsintagcollection/")) {
-            return new TagsInTagCollectionsHandler(tagService);
+            return new TagsInTagCollectionsHandler(tagService, toolManager.getCurrentPlacement().getContext());
         } else if (path.contains("/tagcollections/")) {
-            return new TagCollectionsHandler(tagService, formattedText);
+            return new TagCollectionsHandler(tagService, formattedText, toolManager.getCurrentPlacement().getContext());
         } else if (path.contains("/tags/")) {
-            return new TagsHandler(tagService, formattedText);
+            return new TagsHandler(tagService, formattedText, toolManager.getCurrentPlacement().getContext());
         } else {
-            return new IndexHandler(tagService, sessionManager, securityService, toolManager);
+            return new IndexHandler(tagService, securityService, toolManager);
         }
     }
 
@@ -152,6 +152,8 @@ public class TagServiceServlet extends HttpServlet {
                     response.getWriter().write(template.apply(context));
                 }
             }
+        } catch (SecurityException e) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } catch (IOException e) {
             log.warn("Write failed", e);
         }
