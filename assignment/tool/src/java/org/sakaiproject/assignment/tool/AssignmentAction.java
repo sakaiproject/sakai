@@ -75,7 +75,6 @@ import java.util.UUID;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1878,8 +1877,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_ASSIGNMENT_INPUT_ADD_TIME_SPENT", ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
         context.put("value_ASSIGNMENT_INPUT_ADD_TIME_SPENT", state.getAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT));
 
-        // SAK-21525 - Groups were not being queried for authz
-        boolean allowSubmit = assignmentService.allowAddSubmissionCheckGroups(assignment);
+        boolean allowSubmit = assignmentService.canSubmit(assignment);
         if (!allowSubmit) {
             addAlert(state, rb.getString("not_allowed_to_submit"));
         }
@@ -5922,13 +5920,6 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(RESET_TABLE_STATE, false);
 
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-        Site site;
-        try {
-            site = siteService.getSite(contextString);
-        } catch (IdUnusedException e) {
-            throw new IllegalStateException("Can not build context for invalid site with id [" + contextString + "]");
-        }
-
         initViewSubmissionListOption(state);
         String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
         Boolean searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
@@ -5952,44 +5943,19 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         context.put("hasAtLeastOneAnonAssignment", hasAtLeastOneAnonAssigment);
 
-        List<String> nonSubmitterPermissions = serverConfigurationService.getStringList(AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS,
-                AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT);
-
-        Predicate<String> isNonSubmitter = (userId) -> nonSubmitterPermissions.stream()
-                .filter(permission -> securityService.unlock(userId, permission, site.getReference()))
-                .findAny()
-                .isEmpty();
-
-        Set<String> groupUsers = Collections.emptySet();
-
-        if (StringUtils.isBlank(allOrOneGroup) || AssignmentConstants.ALL.equals(allOrOneGroup)) {
-            if (securityService.unlock(userDirectoryService.getCurrentUser(), SECURE_ALL_GROUPS, siteService.siteReference(site.getId()))){
-                groupUsers = site.getUsers();
-            } else {
-                groupUsers = site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId()).stream().map(Group::getUsers).flatMap(Set::stream).collect(Collectors.toSet());
-            }
-        } else {
-            groupUsers = site.getGroup(allOrOneGroup).getUsers();
-        }
-
-        Map<String, User> studentMembers = groupUsers.stream()
-                    .filter(isNonSubmitter)
-                    .map(userDirectoryService::getOptionalUser)
-                    .flatMap(Optional::stream)
-                    .collect(Collectors.toMap(User::getId, Function.identity()));
-
-        Comparator<Assignment> assignmentComparator = new AssignmentComparator(state, SORTED_BY_DEFAULT, Boolean.TRUE.toString());
+        Map<User, List<Assignment>> assignmentsByStudent = assignmentService.getAssignmentsByStudent(contextString, allOrOneGroup);
+        Map<String, User> studentMembers = assignmentsByStudent.keySet().stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
 
         Map<User, Iterator<Assignment>> showStudentAssignments = new HashMap<>();
         Set<String> expandedStudents = (Set<String>) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
         if (expandedStudents != null) {
             context.put("studentListShowSet", expandedStudents);
             for (String userId : expandedStudents) {
-                Set<Assignment> userSubmittableAssignments = assignments.stream()
-                        .filter(Predicate.not(assignmentService::assignmentUsesAnonymousGrading))
-                        .collect(Collectors.toSet());
-
-                showStudentAssignments.put(studentMembers.get(userId), userSubmittableAssignments.iterator());
+                User student = studentMembers.get(userId);
+                if (student != null) {
+                    showStudentAssignments.put(student, assignmentsByStudent.get(student).iterator());
+                }
             }
         }
 

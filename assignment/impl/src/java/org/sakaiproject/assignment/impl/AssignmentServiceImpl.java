@@ -2511,6 +2511,59 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    public Map<User, List<Assignment>> getAssignmentsByStudent(String context, String groupReference) {
+        Map<Assignment, List<String>> submittableAssignments = getSubmittableAssignmentsForContext(context);
+        if (submittableAssignments.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        try {
+            Site site = siteService.getSite(context);
+            String currentUserId = sessionManager.getCurrentSessionUserId();
+            Collection<Group> visibleGroups = allowAllGroups(context)
+                    ? site.getGroups() : site.getGroupsWithMember(currentUserId);
+            Set<String> visibleUserIds;
+            if (StringUtils.isBlank(groupReference) || AssignmentConstants.ALL.equals(groupReference)) {
+                visibleUserIds = allowAllGroups(context) ? site.getUsers()
+                        : visibleGroups.stream().flatMap(group -> group.getUsers().stream()).collect(Collectors.toSet());
+            } else {
+                visibleUserIds = visibleGroups.stream()
+                        .filter(group -> groupReference.equals(group.getReference()))
+                        .flatMap(group -> group.getUsers().stream())
+                        .collect(Collectors.toSet());
+            }
+
+            List<String> nonSubmitterPermissions = serverConfigurationService.getStringList(
+                    AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS,
+                    AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT);
+            Map<String, List<Assignment>> assignmentsByStudentId = new HashMap<>();
+            submittableAssignments.forEach((assignment, submitterIds) -> {
+                boolean gradable = !assignmentUsesAnonymousGrading(assignment)
+                        && allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+                for (String userId : submitterIds) {
+                    if (visibleUserIds.contains(userId)) {
+                        List<Assignment> studentAssignments = assignmentsByStudentId.computeIfAbsent(userId, key -> new ArrayList<>());
+                        if (gradable) {
+                            studentAssignments.add(assignment);
+                        }
+                    }
+                }
+            });
+
+            Map<User, List<Assignment>> assignmentsByStudent = new HashMap<>();
+            assignmentsByStudentId.forEach((userId, assignments) -> {
+                if (nonSubmitterPermissions.stream().noneMatch(permission -> securityService.unlock(userId, permission, site.getReference()))) {
+                    userDirectoryService.getOptionalUser(userId).ifPresent(user -> assignmentsByStudent.put(user, assignments));
+                }
+            });
+            return assignmentsByStudent;
+        } catch (IdUnusedException e) {
+            log.warn("Cannot find site {} when listing assignments by student", context, e);
+            return Collections.emptyMap();
+        }
+    }
+
+    @Override
     public AssignmentSubmission getSubmission(String submissionId) throws PermissionException {
         if (StringUtils.isNotBlank(submissionId)) {
             AssignmentSubmission submission = assignmentRepository.findSubmission(submissionId);
@@ -3268,7 +3321,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         try {
             // return false only if the user is not allowed to submit and not allowed to add to the assignment
             if (!permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignment, userId) // check asn.submit for user on assignment consulting groups
-                    && !permissionCheck(SECURE_ADD_ASSIGNMENT, siteService.siteReference(assignment.getContext()), userId)) return false; // check asn.new for user in site not consulting groups
+                    && !permissionCheck(SECURE_ADD_ASSIGNMENT, siteService.siteReference(assignment.getContext()), userId)
+                    && !permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT, assignment, userId)) return false; // allow group instructors to submit on behalf
 
             // if user the user can access this assignment
             checkAssignmentAccessibleForUser(assignment, userId);
