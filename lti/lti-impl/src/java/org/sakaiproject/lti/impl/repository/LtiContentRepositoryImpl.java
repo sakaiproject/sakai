@@ -16,12 +16,17 @@
 package org.sakaiproject.lti.impl.repository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Optional;
 import java.time.Instant;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -38,6 +43,97 @@ import org.sakaiproject.lti.api.repository.LtiContentRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class LtiContentRepositoryImpl extends SpringCrudRepositoryImpl<LtiContent, Long> implements LtiContentRepository {
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countToolLinks(ToolLinkFilter filter) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<LtiContent> content = query.from(LtiContent.class);
+        query.select(cb.count(content)).where(toolLinkPredicates(cb, content, filter));
+        return sessionFactory.getCurrentSession().createQuery(query).getSingleResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ToolLinkSiteCount> countToolLinksBySite(ToolLinkFilter filter) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<ToolLinkSiteCount> query = cb.createQuery(ToolLinkSiteCount.class);
+        Root<LtiContent> content = query.from(LtiContent.class);
+        query.select(cb.construct(ToolLinkSiteCount.class, content.get("siteId"), cb.count(content)))
+                .where(toolLinkPredicates(cb, content, filter)).groupBy(content.get("siteId"));
+        return sessionFactory.getCurrentSession().createQuery(query).getResultList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LtiContent> findToolLinks(ToolLinkFilter filter, String sortField, boolean ascending, int start, int length) {
+        if (start < 0 || length < 1 || length > 200) {
+            throw new IllegalArgumentException("Invalid Tool Links page");
+        }
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<LtiContent> query = cb.createQuery(LtiContent.class);
+        Root<LtiContent> content = query.from(LtiContent.class);
+        query.select(content).where(toolLinkPredicates(cb, content, filter));
+        Expression<?> sort = switch (sortField) {
+            case "id" -> content.get("id");
+            case "title" -> cb.lower(content.get("title"));
+            case "created_at" -> content.get("createdAt");
+            case "searchURL" -> cb.lower(cb.concat(cb.coalesce(content.get("launch"), ""),
+                    cb.coalesce(content.join("tool", JoinType.LEFT).get("launch"), "")));
+            default -> throw new IllegalArgumentException("Unsupported Tool Links column");
+        };
+        Expression<Integer> missing = cb.<Integer>selectCase().when(cb.isNull(sort), 1).otherwise(0);
+        query.orderBy(ascending ? cb.asc(missing) : cb.desc(missing),
+                ascending ? cb.asc(sort) : cb.desc(sort), cb.asc(content.get("id")));
+        return sessionFactory.getCurrentSession().createQuery(query)
+                .setFirstResult(start).setMaxResults(length).getResultList();
+    }
+
+    private Predicate[] toolLinkPredicates(CriteriaBuilder cb, Root<LtiContent> content, ToolLinkFilter filter) {
+        List<Predicate> predicates = new ArrayList<>();
+        if (!filter.admin()) {
+            predicates.add(cb.or(cb.equal(content.get("siteId"), filter.siteId()), cb.isNull(content.get("siteId"))));
+        }
+        if (filter.toolId() != null) {
+            predicates.add(cb.equal(content.get("tool").get("id"), filter.toolId()));
+        }
+        if (filter.matchingSites() != null) {
+            List<Predicate> sitePredicates = new ArrayList<>();
+            List<String> sites = new ArrayList<>(filter.matchingSites());
+            if (sites.remove(null)) sitePredicates.add(cb.isNull(content.get("siteId")));
+            // Bound each IN expression without dropping any matching sites.
+            for (int offset = 0; offset < sites.size(); offset += 500) {
+                sitePredicates.add(content.get("siteId").in(sites.subList(offset, Math.min(offset + 500, sites.size()))));
+            }
+            predicates.add(cb.or(sitePredicates.toArray(new Predicate[0])));
+        }
+        for (Map.Entry<String, String> entry : filter.text().entrySet()) {
+            String value = entry.getValue();
+            if (value == null || value.isEmpty()) continue;
+            String pattern = "%" + value.toLowerCase(Locale.ROOT)
+                    .replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
+            switch (entry.getKey()) {
+                case "title" -> predicates.add(cb.like(cb.lower(content.get("title")), pattern, '!'));
+                case "searchURL" -> {
+                    Join<LtiContent, LtiTool> tool = content.join("tool", JoinType.LEFT);
+                    predicates.add(cb.or(cb.like(cb.lower(content.get("launch")), pattern, '!'),
+                            cb.like(cb.lower(tool.get("launch")), pattern, '!')));
+                }
+                default -> throw new IllegalArgumentException("Unsupported Tool Links filter");
+            }
+        }
+        if (filter.date() != null) {
+            Expression<Instant> created = content.get("createdAt");
+            predicates.add(switch (filter.dateOperator()) {
+                case '<' -> cb.lessThan(created, filter.date());
+                case '>' -> cb.greaterThan(created, filter.date());
+                default -> cb.and(cb.greaterThanOrEqualTo(created, filter.date()),
+                        cb.lessThan(created, filter.date().plusSeconds(1)));
+            });
+        }
+        return predicates.toArray(new Predicate[0]);
+    }
 
     @Transactional(readOnly = true)
     public Optional<LtiContent> findVisibleContent(Long id, String siteId, boolean isAdmin) {
