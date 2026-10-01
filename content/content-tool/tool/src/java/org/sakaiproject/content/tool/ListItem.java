@@ -1744,6 +1744,11 @@ public class ListItem
 			{
 				String quota = params.getString("quota" + index);
 				this.submittedQuotaInGigabytes = quota;
+				// Keep the exact stored KB quota when its rounded GB display is unchanged.
+				if (this.quota != null && quota != null && quota.trim().equals(getQuotaInGigabytes()))
+				{
+					return;
+				}
 				if(quota != null && !quota.isBlank())
 				{
 					try
