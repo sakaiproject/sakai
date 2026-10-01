@@ -23,6 +23,7 @@ import com.microsoft.playwright.options.AriaRole;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
@@ -106,6 +107,55 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
 
         sakai.toolClick("Announcements");
         assertThat(page.locator("body")).containsText(ASSIGNMENT_TITLE);
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "sakai.test.duplicateSite", matches = "true")
+    void duplicateSiteImportsPublishedAssignmentAsDraft() {
+        String assignmentTitle = "SAK-52920 Assignment " + sakai.randomId();
+        String duplicateSiteId = "sak-52920-" + sakai.randomId();
+        sakai.login("instructor1");
+        String sourceSite = sakai.createProject("instructor1", List.of("sakai\\.assignment\\.grades"));
+        page.navigate(sourceSite);
+        sakai.toolClick("Assignments");
+        openAddAssignmentForm();
+        page.locator("#new_assignment_title").fill(assignmentTitle);
+        Locator gradeAssignment = page.locator("#gradeAssignment").first();
+        if (gradeAssignment.count() > 0 && gradeAssignment.isChecked()) {
+            gradeAssignment.uncheck(new Locator.UncheckOptions().setForce(true));
+        }
+        fillAssignmentInstructions("<p>Duplicate site publication regression.</p>");
+        submitAssignmentForm();
+        Locator sourceRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(assignmentTitle));
+        assertThat(sourceRow).hasCount(1);
+        assertThat(sourceRow).not().containsText(Pattern.compile("\\bDraft\\b", Pattern.CASE_INSENSITIVE));
+
+        // Admin can assign a known destination ID; the content import is shared with instructor duplication.
+        sakai.login("admin");
+        page.navigate(sourceSite);
+        sakai.toolClick("Site Info");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Duplicate Site").setExact(true)).click();
+        page.locator("#title").fill("SAK-52920 Duplicate " + duplicateSiteId);
+        page.locator("#newSiteId").fill(duplicateSiteId);
+        page.locator("#duplicateSite").click();
+        assertThat(page.locator("body")).containsText("has been created");
+
+        String duplicateSite = sourceSite.replace(sakai.siteIdFromUrl(sourceSite), duplicateSiteId);
+        page.navigate(duplicateSite);
+        sakai.toolClick("Assignments");
+        // The import runs in the background, so reload until its assignment appears.
+        page.waitForCondition(() -> {
+            page.reload();
+            return page.locator("tr").filter(new Locator.FilterOptions().setHasText(assignmentTitle)).count() == 1;
+        }, new Page.WaitForConditionOptions().setTimeout(60_000));
+        Locator importedRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(assignmentTitle));
+        assertThat(importedRow).containsText(Pattern.compile("\\bDraft\\b", Pattern.CASE_INSENSITIVE));
+
+        page.navigate(sourceSite);
+        sakai.toolClick("Assignments");
+        sourceRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(assignmentTitle));
+        assertThat(sourceRow).hasCount(1);
+        assertThat(sourceRow).not().containsText(Pattern.compile("\\bDraft\\b", Pattern.CASE_INSENSITIVE));
     }
 
     private void openAddAssignmentForm() {

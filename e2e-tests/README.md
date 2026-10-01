@@ -111,3 +111,18 @@ PLAYWRIGHT_BASE_URL=https://sakai.example mvn -P e2e test \
 
 The tests check instructor access, hidden unrelated group quizzes, both displayed
 counts for site and group releases, empty-group visibility, and a TA page reload.
+
+## Duplicate-site assignment regression (SAK-52920)
+
+On a deployed server with `site.setup.allowDuplicateSite=true` and the default
+assignment import-as-draft configuration, run:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://sakai.example mvn -Pe2e -pl e2e-tests \
+  -Dsakai.test.duplicateSite=true \
+  '-Dtest=AssignmentImportAnnouncementTest#duplicateSiteImportsPublishedAssignmentAsDraft' test
+```
+
+The test creates a published assignment as an instructor, duplicates the site
+as admin with a known destination ID, and checks that the imported assignment
+is a draft while the source remains published.
