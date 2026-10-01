@@ -52,6 +52,20 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         return session.createQuery(query).list();
     }
 
+    @Override
+    public Optional<Evaluation> findFirstByAssociationIdAndOwnerId(Long associationId, String ownerId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> eval = query.from(Evaluation.class);
+        query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
+                            cb.equal(eval.get("ownerId"), ownerId)));
+
+        return session.createQuery(query).setMaxResults(1).uniqueResultOptional();
+    }
+
     public Optional<Evaluation> findByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId) {
 
         Session session = sessionFactory.getCurrentSession();

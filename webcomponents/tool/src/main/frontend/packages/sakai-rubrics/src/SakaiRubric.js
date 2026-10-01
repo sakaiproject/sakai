@@ -211,6 +211,26 @@ export class SakaiRubric extends RubricsElement {
             </div>`
           : nothing}
         </div>
+        ${this.rubric.locked ? html`
+          <details class="rubric-usage">
+            <summary><span>${this.tr("locked_usage")}</span></summary>
+            <p class="rubric-usage-help">${this.tr("locked_usage_help")}</p>
+            ${Object.keys(this.rubric.lockedBy || {}).length ? html`
+              <dl class="rubric-usage-groups">
+                ${Object.entries(this.rubric.lockedBy).map(([ toolId, titles ]) => html`
+                  <dt>
+                    ${this._i18n[`locked_tool_${toolId}`] || this.tr("locked_tool_other")}
+                  </dt>
+                  <dd>
+                    <ul class="rubric-usage-items ${titles.length === 1 ? "list-unstyled" : ""}">
+                      ${titles.map(title => html`<li>${title}</li>`)}
+                    </ul>
+                  </dd>
+                `)}
+              </dl>
+            ` : html`<p class="rubric-usage-unavailable">${this.tr("locked_usage_unavailable")}</p>`}
+          </details>
+        ` : nothing}
       </div>
 
       <div class="collapse" id="rubric-collapse-${this.rubric.id}">
