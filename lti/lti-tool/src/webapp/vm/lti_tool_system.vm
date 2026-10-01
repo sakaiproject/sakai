@@ -8,9 +8,6 @@ ${includeLatestJQuery}
 <link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
 
     <script>includeWebjarLibrary('datatables');</script>
-    <!-- Tablesorter: required -->
-    <script>includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.blue.min.css');</script>
-    <script>includeWebjarLibrary('jquery.tablesorter');</script>
 
 	<script id="js">
 		document.addEventListener('DOMContentLoaded', function() {

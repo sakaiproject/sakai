@@ -2573,6 +2573,120 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void assignmentsByStudentAppliesSubmitterAndGradingPermissions() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String siteRef = "/site/" + context;
+        String groupRef = siteRef + "/group/assigned";
+        String otherGroupRef = siteRef + "/group/other";
+        String teachingAssistant = "teaching-assistant";
+        User student = mock(User.class);
+        User otherStudent = mock(User.class);
+        when(student.getId()).thenReturn("student");
+        when(otherStudent.getId()).thenReturn("other-student");
+        when(userDirectoryService.getOptionalUser("student")).thenReturn(Optional.of(student));
+        when(userDirectoryService.getOptionalUser("other-student")).thenReturn(Optional.of(otherStudent));
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        Group otherGroup = mock(Group.class);
+        Member studentMember = mock(Member.class);
+        Member taMember = mock(Member.class);
+        Role studentRole = mock(Role.class);
+        Role taRole = mock(Role.class);
+        when(studentMember.getUserId()).thenReturn("student");
+        when(studentMember.getRole()).thenReturn(studentRole);
+        when(taMember.getUserId()).thenReturn(teachingAssistant);
+        when(taMember.getRole()).thenReturn(taRole);
+        when(studentRole.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+        when(siteService.getSite(context)).thenReturn(site);
+        when(siteService.siteReference(context)).thenReturn(siteRef);
+        when(site.getReference()).thenReturn(siteRef);
+        when(site.getUsers()).thenReturn(Set.of("student", "other-student", teachingAssistant));
+        when(site.getGroups()).thenReturn(List.of(group, otherGroup));
+        when(site.getGroupsWithMember(teachingAssistant)).thenReturn(List.of(group));
+        when(group.getReference()).thenReturn(groupRef);
+        when(group.getUsers()).thenReturn(Set.of("student", teachingAssistant));
+        when(group.getMembers()).thenReturn(Set.of(studentMember, taMember));
+        when(otherGroup.getReference()).thenReturn(otherGroupRef);
+        when(otherGroup.getUsers()).thenReturn(Set.of("other-student"));
+        when(authzGroupService.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION,
+                List.of(siteRef))).thenReturn(Set.of("student", "other-student"));
+        when(serverConfigurationService.getStringList(AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS,
+                AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT)).thenReturn(List.of(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT));
+
+        Assignment siteAssignment = createNewAssignment(context);
+        siteAssignment.setDraft(false);
+        Assignment groupAssignment = createNewAssignment(context);
+        groupAssignment.setDraft(false);
+        groupAssignment.setTypeOfAccess(Assignment.Access.GROUP);
+        groupAssignment.setGroups(new HashSet<>(Set.of(groupRef)));
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(teachingAssistant);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(teachingAssistant),
+                eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection())).thenReturn(Set.of(groupRef));
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, groupRef)).thenReturn(true);
+        String groupAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(groupAssignment).reckon().getReference();
+        String siteAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(siteAssignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, groupAssignmentRef)).thenReturn(true);
+
+        Map<User, List<Assignment>> taAssignments = assignmentService.getAssignmentsByStudent(context, AssignmentConstants.ALL);
+        Assert.assertEquals(Set.of(student), taAssignments.keySet());
+        Assert.assertEquals(List.of(groupAssignment), taAssignments.get(student));
+        Assert.assertEquals(taAssignments, assignmentService.getAssignmentsByStudent(context, groupRef));
+        Assert.assertTrue(assignmentService.getAssignmentsByStudent(context, otherGroupRef).isEmpty());
+        Assert.assertTrue(assignmentService.getAssignmentsByStudent(context, "missing-group").isEmpty());
+
+        groupAssignment.getProperties().put(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, "true");
+        Assert.assertTrue(assignmentService.getAssignmentsByStudent(context, AssignmentConstants.ALL).get(student).isEmpty());
+        groupAssignment.getProperties().remove(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ALL_GROUPS, siteRef)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, siteAssignmentRef)).thenReturn(true);
+        Map<User, List<Assignment>> instructorAssignments = assignmentService.getAssignmentsByStudent(context, AssignmentConstants.ALL);
+        Assert.assertEquals(Set.of(student, otherStudent), instructorAssignments.keySet());
+        Assert.assertEquals(Set.of(siteAssignment, groupAssignment), new HashSet<>(instructorAssignments.get(student)));
+        Assert.assertEquals(List.of(siteAssignment), instructorAssignments.get(otherStudent));
+
+        when(securityService.unlock("student", AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, siteRef)).thenReturn(true);
+        Assert.assertEquals(Set.of(otherStudent), assignmentService.getAssignmentsByStudent(context, AssignmentConstants.ALL).keySet());
+    }
+
+    @Test
+    public void canSubmitOnBehalfWithAssignmentGroupPermission() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String siteRef = "/site/" + context;
+        String groupRef = siteRef + "/group/assigned";
+        String otherGroupRef = siteRef + "/group/other";
+        String teachingAssistant = "teaching-assistant";
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setGroups(new HashSet<>(Set.of(groupRef)));
+        assignment.setDraft(false);
+        assignment.setOpenDate(Instant.now().minus(1, ChronoUnit.DAYS));
+        assignment.setCloseDate(Instant.now().plus(1, ChronoUnit.DAYS));
+
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        when(siteService.getSite(context)).thenReturn(site);
+        when(siteService.siteReference(context)).thenReturn(siteRef);
+        when(site.getGroups()).thenReturn(List.of(group));
+        when(group.getReference()).thenReturn(groupRef);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(teachingAssistant);
+        when(authzGroupService.getAuthzGroupsIsAllowed(eq(teachingAssistant),
+                eq(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT), anyCollection())).thenReturn(Set.of(groupRef));
+
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+        when(securityService.unlock(teachingAssistant, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, otherGroupRef)).thenReturn(true);
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+        when(securityService.unlock(teachingAssistant, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, groupRef)).thenReturn(true);
+        Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+        assignment.setTypeOfAccess(Assignment.Access.SITE);
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+        when(securityService.unlock(teachingAssistant, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, siteRef)).thenReturn(true);
+        Assert.assertTrue(assignmentService.canSubmit(assignment));
+    }
+
+    @Test
     public void canSubmit() {
         String context = UUID.randomUUID().toString();
         Instant now = Instant.now();

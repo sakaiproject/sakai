@@ -31,6 +31,7 @@ import org.w3c.dom.Element;
 
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolLinkPage;
 import org.sakaiproject.lti.beans.LtiMembershipsJobBean;
 import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.lti.beans.LtiToolSiteBean;
@@ -832,6 +833,15 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @return List of LtiContentBean objects
      */
     List<LtiContentBean> getContentsAsBeans(String search, String order, int first, int last, String siteId);
+
+    /**
+     * Lists Tool Links for a site maintainer, or all sites in the authorized admin context.
+     * Only displayable columns may be sorted/filtered; page length must be between 1 and 200.
+     * The optional tool ID limits both counts and rows to that tool.
+     */
+    LtiToolLinkPage getToolLinks(String siteId, Long toolId, int start, int length,
+            String sortField, boolean ascending, Map<String, String> filters);
+
 
     List<LtiContentBean> getContentsForToolAndSite(Long toolId, String siteId);
 

@@ -285,16 +285,16 @@ export class SakaiRubric extends RubricsElement {
 
       this.dispatchEvent(new SharingChangeEvent());
 
-      const successBanner = this.querySelector(".sak-banner-success");
-      successBanner.classList.remove("d-none");
+      const successBanner = this.renderRoot.querySelector(".sak-banner-success");
+      successBanner?.classList.remove("d-none");
 
-      setTimeout(() => successBanner.classList.add("d-none"), 5000);
+      setTimeout(() => successBanner?.classList.add("d-none"), 5000);
     }).catch(() => {
 
-      const errorBanner = this.querySelector(".sak-banner-error");
-      errorBanner.classList.remove("d-none");
+      const errorBanner = this.renderRoot.querySelector(".sak-banner-error");
+      errorBanner?.classList.remove("d-none");
 
-      setTimeout(() => errorBanner.classList.add("d-none"), 5000);
+      setTimeout(() => errorBanner?.classList.add("d-none"), 5000);
     });
 
     return all;

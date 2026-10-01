@@ -16,12 +16,32 @@
 package org.sakaiproject.lti.api.repository;
 
 import java.util.List;
+import java.util.Map;
+import java.time.Instant;
 import java.util.Optional;
 
 import org.sakaiproject.lti.api.model.LtiContent;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface LtiContentRepository extends SpringCrudRepository<LtiContent, Long> {
+
+    /**
+     * Parsed query filters; authorization, date parsing, and site metadata belong to the service.
+     * A null matchingSites leaves sites unrestricted; an empty list matches none.
+     * matchingSites may include null for global links.
+     */
+    record ToolLinkFilter(String siteId, boolean admin, Long toolId, Map<String, String> text,
+            Instant date, char dateOperator, List<String> matchingSites) {}
+
+    long countToolLinks(ToolLinkFilter filter);
+
+    record ToolLinkSiteCount(String siteId, long count) {}
+
+    /** Matching link counts per site, including null for global links, without loading entities. */
+    List<ToolLinkSiteCount> countToolLinksBySite(ToolLinkFilter filter);
+
+    /** Filters and sorts before applying the database offset and limit. */
+    List<LtiContent> findToolLinks(ToolLinkFilter filter, String sortField, boolean ascending, int start, int length);
 
     /**
      * Finds all content items visible to the requester, eagerly fetching the associated tool so
