@@ -93,7 +93,8 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
                         delay: 500,
                         data: function (params) {
                             return {
-                                prefix: params.term, // search term
+                                siteId: "<h:outputText value='#{author.currentSiteId}'/>",
+                            prefix: params.term || "", // search term
                                 page:params.page
                             };
                         },

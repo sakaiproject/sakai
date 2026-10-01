@@ -47,10 +47,12 @@ public class TagsHandler extends CrudHandler {
 
     private static final int TAGSERVICE_URL_TAGSINTAGCOLLECTION_PREFIX_LENGTH = 20;
     private final TagService tagService;
+    private final String siteId;
     private final FormattedText formattedText;
 
-    public TagsHandler(TagService tagService, FormattedText formattedText) {
+    public TagsHandler(TagService tagService, FormattedText formattedText, String siteId) {
         this.tagService = tagService;
+        this.siteId = siteId;
         this.formattedText = formattedText;
     }
 
@@ -77,7 +79,7 @@ public class TagsHandler extends CrudHandler {
     @Override
     protected void handleDelete(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
-        tagService.deleteTag(uuid);
+        tagService.deleteTag(siteId, uuid);
 
         flash("info", "tag_deleted");
         sendRedirect("tagsintagcollection/" + context.get("actualtagcollection") + "/manage");
@@ -92,6 +94,7 @@ public class TagsHandler extends CrudHandler {
             Optional<Tag> tag = tagService.getTag(uuid);
 
             if (tag.isPresent()) {
+                tagService.checkCollectionAccess(siteId, tag.get().getTagCollectionId());
                 // Don't let the portal buffering hijack our response.
                 // Include enough content to count as having returned a
                 // body.
@@ -111,6 +114,9 @@ public class TagsHandler extends CrudHandler {
         context.put("subpage", "tag_form");
         Optional<Tag> tag = tagService.getTag(uuid);
         if (tag.isPresent()) {
+            if (!tagService.canManageCollection(siteId, tag.get().getTagCollectionId())) {
+                throw new SecurityException("Cannot edit tag " + uuid);
+            }
             Optional<TagCollection> tagCollection = tagService.getTagCollection(tag.get().getTagCollectionId());
             if (Boolean.TRUE.equals(tagCollection.get().getExternalCreation())){
                 context.put("externalcreation", " readonly ");
@@ -149,10 +155,10 @@ public class TagsHandler extends CrudHandler {
         }
 
         if (CrudMode.CREATE.equals(mode)) {
-            tagService.createTag(tagForm.toTag());
+            tagService.saveTag(siteId, tagForm.toTag().toBuilder().tagId(null).build());
             flash("info", "tag_created");
         } else {
-            tagService.updateTag(tagForm.toTag());
+            tagService.saveTag(siteId, tagForm.toTag());
             flash("info", "tag_updated");
         }
         sendRedirect("tagsintagcollection/" + tagForm.toTag().getTagCollectionId() + "/manage");

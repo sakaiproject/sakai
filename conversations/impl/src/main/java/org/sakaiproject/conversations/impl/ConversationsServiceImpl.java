@@ -86,6 +86,7 @@ import org.sakaiproject.conversations.api.repository.PostReactionTotalRepository
 import org.sakaiproject.conversations.api.repository.PostStatusRepository;
 import org.sakaiproject.conversations.api.repository.SettingsRepository;
 import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.conversations.api.repository.TopicReactionRepository;
 import org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository;
@@ -534,7 +535,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         List<String> tagIds = topicBean.tags.stream().map(TagTransferBean::getId).collect(Collectors.toList());
         for (String tagId : tagIds) {
-            requireSiteTag(topicBean.siteId, tagId);
+            checkTagAccess(topicBean.siteId, tagId);
         }
         List<String> previousTagIds = isNew ? Collections.emptyList()
             : tagService.getTagAssociationIds(topicBean.siteId, topicBean.id);
@@ -2148,18 +2149,26 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         return PostTransferBean.of(postRepository.save(post));
     }
 
-    private Tag requireSiteTag(String siteId, String tagId) {
-        return tagService.getTag(tagId)
-            .filter(tag -> siteId.equals(tag.getTagCollectionId()))
-            .orElseThrow(() -> new IllegalArgumentException("No tag in site " + siteId + " with id " + tagId));
+    private void checkTagAccess(String siteId, String tagId) {
+        Tag tag = tagService.getTag(tagId)
+            .orElseThrow(() -> new IllegalArgumentException("No tag with id " + tagId));
+        tagService.checkCollectionAccess(siteId, tag.getTagCollectionId());
     }
 
     private TagTransferBean toConversationTag(Tag sharedTag) {
+        return toConversationTag(sharedTag.getTagId(), sharedTag.getTagCollectionId(), sharedTag.getTagLabel(), sharedTag.getDescription());
+    }
+
+    private TagTransferBean toConversationTag(TagSummary sharedTag) {
+        return toConversationTag(sharedTag.getTagId(), sharedTag.getTagCollectionId(), sharedTag.getTagLabel(), sharedTag.getDescription());
+    }
+
+    private TagTransferBean toConversationTag(String id, String collectionId, String label, String description) {
         TagTransferBean tag = new TagTransferBean();
-        tag.setId(sharedTag.getTagId());
-        tag.setSiteId(sharedTag.getTagCollectionId());
-        tag.setLabel(sharedTag.getTagLabel());
-        tag.setDescription(sharedTag.getDescription());
+        tag.setId(id);
+        tag.setSiteId(collectionId);
+        tag.setLabel(label);
+        tag.setDescription(description);
         return tag;
     }
 
@@ -2175,7 +2184,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (!securityService.unlock(Permissions.TOPIC_TAG.label, siteService.siteReference(siteId))) {
             return Collections.emptyList();
         }
-        return tagService.getTagsInCollection(siteId).stream()
+        return tagService.getTagsForSite(siteId).stream()
             .map(this::toConversationTag)
             .sorted(Comparator.comparing(TagTransferBean::getLabel, new AlphaNumericComparator()))
             .collect(Collectors.toList());

@@ -8,7 +8,9 @@
     <header class="tagservice-section-header">
         <h3>{{{t this "tagsintagcollection"}}} : {{actualtagcollectionname}}</span></h3>
         <div class="btn-toolbar float-end">
+            {{#if canManage}}
             <a href="{{{newURL this 'tags' 'new'}}}" class="btn btn-primary btn-sm pull-right" {{isExternallyCreated}}>{{{t this "Create Tag"}}}</a>
+            {{/if}}
             <a href="{{baseURL}}" class="btn btn-primary btn-sm pull-right" >{{{t this "Return"}}}</a>
         </div>
     </header>
@@ -28,8 +30,10 @@
                     <td>{{this.tagLabel}}</td>
                     <td>{{this.description}}</td>
                     <td class="actions">
+                        {{#if ../canManage}}
                         <a href="{{{actionURL this 'tags' this.tagId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tag" {{isExternallyCreated}} aria-label="{{{t this "Delete Tag"}}}" title="{{{t this "Delete Tag"}}}"><span class="fa fa-trash" aria-hidden="true"></span></a>
                         <a href="{{{actionURL this 'tags' this.tagId "edit"}}}" class="btn btn-primary btn-xs">{{{t this editLabel}}}</a>
+                        {{/if}}
                     </td>
                 </tr>
             {{/each}}

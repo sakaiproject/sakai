@@ -15,7 +15,8 @@
                     delay: 500,
                     data: function (params) {
                         return {
-                            prefix: params.term, // search term
+                            siteId: "<h:outputText value='#{author.currentSiteId}'/>",
+                            prefix: params.term || "", // search term
                             page: params.page
                         };
                     },
@@ -136,7 +137,8 @@
                     delay: 500,
                     data: function (params) {
                         return {
-                            prefix: params.term, // search term
+                            siteId: "<h:outputText value='#{author.currentSiteId}'/>",
+                            prefix: params.term || "", // search term
                             page: params.page
                         };
                     },

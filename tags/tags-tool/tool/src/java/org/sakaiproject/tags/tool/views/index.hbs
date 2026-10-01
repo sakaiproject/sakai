@@ -14,7 +14,6 @@
     </div>
   </header>
 
-  {{#if canCreate}}
     <table class="tagservice-table table table-striped table-hover table-condensed">
       <thead>
         <tr>
@@ -29,14 +28,16 @@
         {{#if tagcollections.length}}
           {{#each tagcollections}}
           <tr>
-            <td>{{this.name}}</td>
-            <td>{{this.description}}</td>
-            <td>{{this.externalSourceName}}</td>
-            <td>{{this.externalSourceDescription}}</td>
+            <td>{{this.collection.name}}<br><small>{{{t this scopeLabel}}}</small></td>
+            <td>{{this.collection.description}}</td>
+            <td>{{this.collection.externalSourceName}}</td>
+            <td>{{this.collection.externalSourceDescription}}</td>
             <td class="actions">
-              <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "edit"}}}" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</a>           
-              <a href="{{{actionURL this 'tagsintagcollection' this.tagCollectionId "manage"}}}" class="btn btn-primary btn-xs">{{{t this "Manage Tags"}}}</a>
-              <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tagcollection" aria-label="{{{t this "Delete Tag Collection"}}}" title="{{{t this "Delete Tag Collection"}}}"><span class="fa fa-trash" aria-hidden="true"></span></a>
+              {{#if canManage}}
+              <a href="{{{actionURL this 'tagcollections' this.collection.tagCollectionId "edit"}}}" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</a>
+              <a href="{{{actionURL this 'tagcollections' this.collection.tagCollectionId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tagcollection" aria-label="{{{t this "Delete Tag Collection"}}}" title="{{{t this "Delete Tag Collection"}}}"><span class="fa fa-trash" aria-hidden="true"></span></a>
+              {{/if}}
+              <a href="{{{actionURL this 'tagsintagcollection' this.collection.tagCollectionId "manage"}}}" class="btn btn-primary btn-xs">{{{t this "View Tags"}}}</a>
             </td>
           </tr>
           {{/each}}
@@ -51,42 +52,6 @@
         {{/if}}
       </tbody>
     </table>
-  {{else}}
-    <table class="tagservice-table table table-striped table-hover table-condensed">
-      <thead>
-        <tr>
-          <th class="tags-collections-percent-small">{{{t this "name"}}}</th>
-          <th class="tags-collections-percent-big">{{{t this "description"}}}</th>
-          <th class="tags-collections-percent-small">{{{t this "externalSourceName"}}}</th>
-          <th class="tags-collections-percent-big">{{{t this "externalSourceDescription"}}}</th>
-          <th><!-- actions --></th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#if tagcollections.length}}
-          {{#each tagcollections}}
-          <tr>
-            <td>{{this.name}}</td>
-            <td>{{this.description}}</td>
-            <td>{{this.externalSourceName}}</td>
-            <td>{{this.externalSourceDescription}}</td>
-            <td class="actions">          
-              <a href="{{{actionURL this 'tagsintagcollection' this.tagCollectionId "manage"}}}" class="btn btn-primary btn-xs">{{{t this "Manage Tags"}}}</a>
-            </td>
-          </tr>
-          {{/each}}
-        {{else}}
-          <tr>
-            <td colspan="5" class="text-center">
-              <div class="alert alert-info" style="margin-top: 15px;">
-                {{{t this "no_tags_in_collection"}}}
-              </div>
-            </td>
-          </tr>
-        {{/if}}
-      </tbody>
-    </table>
-  {{/if}}
 
     <!--pagination param ==> kkkkk currentPage:{{pageNum}} totalPageCount:{{totalPages}} countPerPageGroup:{{countPerPageGroup}}-->
     {{#if showPagination}}

@@ -22,6 +22,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,6 +31,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagSummary;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -58,11 +61,12 @@ public class TagsControllerTests {
     @Autowired private TagsController controller;
     @Autowired private TagService tagService;
     @Autowired private SessionManager sessionManager;
+    @Autowired private SecurityService securityService;
     private MockMvc mockMvc;
 
     @Before
     public void setup() {
-        reset(tagService, sessionManager);
+        reset(tagService, sessionManager, securityService);
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("user1");
         when(sessionManager.getCurrentSession()).thenReturn(session);
@@ -91,4 +95,27 @@ public class TagsControllerTests {
                 .contentType(MediaType.APPLICATION_JSON).content("[]"))
             .andExpect(status().isForbidden());
     }
+    @Test
+    public void selectorUsesTheSharedSiteCatalogForEverySiteTool() throws Exception {
+        when(securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/site1")).thenReturn(true);
+        when(tagService.getTagsForSite("site1")).thenReturn(Collections.singletonList(
+            new TagSummary("global", "admin-collection", "Competency", "Objectives", null)));
+        mockMvc.perform(get("/sites/site1/tools/assignments/tags/site1"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$[0].tagId").value("global"));
+        verify(tagService).getTagsForSite("site1");
+    }
+
+    @Test
+    public void conversationTagPermissionAllowsReadingTheSharedCatalog() throws Exception {
+        when(securityService.unlock("conversations.topic.tag", "/site/site1")).thenReturn(true);
+        mockMvc.perform(get("/sites/site1/tools/conversations/tags/site1")).andExpect(status().isOk());
+        verify(tagService).getTagsForSite("site1");
+    }
+
+    @Test
+    public void sitePermissionsDoNotExposeAnotherUsersPrivatePoolCatalog() throws Exception {
+        when(securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/site1")).thenReturn(true);
+        mockMvc.perform(get("/sites/site1/tools/samigo/tags/another-user")).andExpect(status().isForbidden());
+    }
+
 }

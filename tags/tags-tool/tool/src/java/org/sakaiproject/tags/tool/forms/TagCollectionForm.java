@@ -27,6 +27,7 @@ package org.sakaiproject.tags.tool.forms;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -103,7 +104,7 @@ public class TagCollectionForm extends BaseForm {
         String description= request.getParameter("description");
         String createdBy= request.getParameter("createdBy");
         Long creationDate = parseNullableLong(request.getParameter("creationDate"));
-        String externalSourceName= request.getParameter("externalSourceName");
+        String externalSourceName = StringUtils.trimToNull(request.getParameter("externalSourceName"));
         String externalSourceDescription= request.getParameter("externalSourceDescription");
         String lastModifiedBy= request.getParameter("lastModifiedBy");
         Long lastModificationDate = parseNullableLong(request.getParameter("lastModificationDate"));
@@ -122,11 +123,12 @@ public class TagCollectionForm extends BaseForm {
     }
 
     public TagCollection toTagCollection() {
-        return new TagCollection(uuid, name,
-                description, createdBy, creationDate,
-                externalSourceName, externalSourceDescription,
-                lastModifiedBy, lastModificationDate, externalUpdate, externalCreation,
-                lastSynchronizationDate, lastUpdateDateInExternalSystem);
+        return TagCollection.builder().tagCollectionId(uuid).name(name).description(description)
+                .createdBy(createdBy).creationDate(creationDate).externalSourceName(externalSourceName)
+                .externalSourceDescription(externalSourceDescription).lastModifiedBy(lastModifiedBy)
+                .lastModificationDate(lastModificationDate).externalUpdate(externalUpdate).externalCreation(externalCreation)
+                .lastSynchronizationDate(lastSynchronizationDate).lastUpdateDateInExternalSystem(lastUpdateDateInExternalSystem)
+                .build();
     }
 
 }

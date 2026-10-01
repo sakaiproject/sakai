@@ -100,16 +100,21 @@ function textCounter(field, maxlimit) {
         </label>
         <div class="col-sm-6">
             <sakai-tag-selector
-                tool="samigo"
                 id="tag-selector"
                 input-id="questionpool:questionPoolTags"
                 class="b5 flex-grow-1"
                 selected-ids="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
-                collection-id="<h:outputText value='#{questionpool.currentPool.ownerId}'/>"
-                site-id="<h:outputText value='#{author.currentSiteId}'/>"
                 add-new="true"
             ></sakai-tag-selector>
             <h:inputHidden id="questionPoolTags" value="#{questionpool.currentPool.tags.tagIdsCsv}" />
+            <h:outputText id="tagOptions" value="#{questionpool.tagOptionsJson}" style="display: none" />
+            <script>
+                customElements.whenDefined("sakai-tag-selector").then(() => {
+                    const selector = document.getElementById("tag-selector");
+                    selector.options = JSON.parse(document.getElementById("questionpool:tagOptions").textContent);
+                    selector.selectedTags = selector.options.filter(tag => selector.selectedIds.split(",").includes(tag.code));
+                });
+            </script>
         </div>
     </h:panelGroup>
 
@@ -131,6 +136,4 @@ function textCounter(field, maxlimit) {
       </body>
     </html>
   </f:view>
-
-
 
