@@ -97,6 +97,14 @@
 			{
 				tag.oninput = checkWebLinksForEnableSubmit;
 			}
+			else if(tag.id && tag.id.match(/^hasQuota${DOT}\d+$/))
+			{
+				const quotaInput = document.getElementById(tag.getAttribute("aria-controls"));
+				quotaInput.disabled = !tag.checked;
+				tag.onchange = ({ currentTarget }) => {
+					document.getElementById(currentTarget.getAttribute("aria-controls")).disabled = !currentTarget.checked;
+				};
+			}
 			else if(tag.id && tag.id.match(/^changeMimetype${DOT}\d+$/))
 			{
 				tag.onclick = handleMimetypeChange;

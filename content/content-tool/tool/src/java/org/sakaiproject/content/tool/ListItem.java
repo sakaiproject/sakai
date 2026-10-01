@@ -22,6 +22,7 @@
 package org.sakaiproject.content.tool;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -1743,17 +1744,29 @@ public class ListItem
 			{
 				String quota = params.getString("quota" + index);
 				this.submittedQuotaInGigabytes = quota;
-				if(quota != null && quota.trim().matches("^\\d+(\\.\\d+)?$"))
+				if(quota != null && !quota.isBlank())
 				{
 					try
 					{
-						// The form uses GB; the content service stores whole KB.
-						this.quota = Long.toString(new BigDecimal(quota.trim()).multiply(BigDecimal.valueOf(1024L * 1024L)).longValueExact());
+						BigDecimal gigabytes = new BigDecimal(quota.trim());
+						BigDecimal kilobytes = gigabytes.multiply(BigDecimal.valueOf(1024L * 1024L));
+						if (kilobytes.signum() < 0 || kilobytes.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)
+						{
+							this.quotaIsInvalid = true;
+						}
+						else
+						{
+							// Round GB up to two decimal places before converting to whole KB.
+							BigDecimal roundedGigabytes = gigabytes.signum() == 0 ? BigDecimal.ZERO
+									: gigabytes.max(BigDecimal.valueOf(1L, 2)).setScale(2, RoundingMode.CEILING);
+							this.quota = Long.toString(roundedGigabytes.multiply(BigDecimal.valueOf(1024L * 1024L))
+									.setScale(0, RoundingMode.CEILING).longValueExact());
+						}
 					}
-					catch (ArithmeticException e)
+					catch (NumberFormatException | ArithmeticException e)
 					{
 						this.quotaIsInvalid = true;
-						log.warn("Cannot set quota for {}: GB value must convert to whole KB within the supported range", this.id);
+						log.warn("Cannot set quota for {}: a number in GB within the supported range is required", this.id);
 					}
 				}
 				else
@@ -3670,7 +3683,14 @@ public class ListItem
 		{
 			return submittedQuotaInGigabytes;
 		}
-		return quota == null ? null : new BigDecimal(quota).divide(BigDecimal.valueOf(1024L * 1024L)).stripTrailingZeros().toPlainString();
+		if (quota == null)
+		{
+			return null;
+		}
+		BigDecimal gigabytes = new BigDecimal(quota).divide(BigDecimal.valueOf(1024L * 1024L));
+		BigDecimal rounded = gigabytes.setScale(2, RoundingMode.HALF_UP);
+		// Existing positive quotas smaller than 0.01 GB must not display as unlimited (0).
+		return (gigabytes.signum() > 0 ? rounded.max(BigDecimal.valueOf(1L, 2)) : rounded).stripTrailingZeros().toPlainString();
 	}
 
 	public String getQuota() 
