@@ -49,6 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.tool.assessment.util.TagJson;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -389,24 +390,14 @@ public class ItemAddListener implements ActionListener {
 
 	private String convertTagSelectOptionsToJson(String[] tagsFromForm){
 
-		String tagsListToJson = "[";
-		if (tagsFromForm!=null) {
-			Boolean more = false;
-			for (String s:tagsFromForm) {
-				if (more) {
-					tagsListToJson += ",";
-				}
-				if (tagService.getTag(s).isPresent()) {
-					Tag tag = tagService.getTag(s).get();
-					String tagLabel = tag.getTagLabel();
-					String tagCollectionName = tag.getCollectionName();
-					tagsListToJson += "{\"tagId\":\"" + s + "\",\"tagLabel\":\"" + tagLabel + "\",\"tagCollectionName\":\"" + tagCollectionName + "\"}";
-					more = true;
-				}
+		List<TagJson> tags = new ArrayList<>();
+		if (tagsFromForm != null) {
+			for (String id : tagsFromForm) {
+				tagService.getTag(id).ifPresent(tag ->
+					tags.add(new TagJson(id, tag.getTagLabel(), tag.getCollectionName())));
 			}
 		}
-		tagsListToJson += "]";
-		return tagsListToJson;
+		return TagJson.serialize(tags);
 	}
 
 	public int isErrorMarkersFIB() {

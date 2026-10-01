@@ -49,6 +49,9 @@ public interface TagService {
 
     public void init();
 
+    /** Validate a literal, plain-text tag label without changing its contents. */
+    Errors validateTag(Tag tag);
+
     public String createTag(Tag tag);
 
     /** Apply submitted values to the tag within a transaction, preserving creation metadata.

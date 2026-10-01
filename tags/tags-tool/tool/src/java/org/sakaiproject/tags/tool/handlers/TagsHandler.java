@@ -45,7 +45,6 @@ import org.sakaiproject.util.api.FormattedText;
 @Slf4j
 public class TagsHandler extends CrudHandler {
 
-    private static final int TAGSERVICE_URL_TAGSINTAGCOLLECTION_PREFIX_LENGTH = 20;
     private final TagService tagService;
     private final FormattedText formattedText;
 
@@ -56,16 +55,15 @@ public class TagsHandler extends CrudHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, Map<String, Object> context) {
-        String referer =  request.getHeader("referer");
-        context.put("returnpath", referer);
-        try {
-            context.put("actualtagcollection", referer.substring(referer.indexOf("tagsintagcollection/") + TAGSERVICE_URL_TAGSINTAGCOLLECTION_PREFIX_LENGTH, referer.indexOf("/manage")));
-            context.put("tagcollectionidreadonly", "readonly hidden");
-            context.put("actualtagcollectionname", tagService.getTagCollection(context.get("actualtagcollection").toString()).get().getName());
-        }catch (Exception e){
-            context.put("actualtagcollection", "");
-            context.put("tagcollectionidreadonly", "");
-            context.put("actualtagcollectionname", "");
+        String collectionId = request.getParameter("tagCollectionId");
+        if (!request.getPathInfo().contains("/new")) {
+            collectionId = tagService.getTag(extractId(request)).map(Tag::getTagCollectionId).orElse(null);
+        }
+        context.put("actualtagcollection", collectionId);
+        context.put("tagcollectionidreadonly", "readonly hidden");
+        if (collectionId != null) {
+            tagService.getTagCollection(collectionId).ifPresent(collection ->
+                context.put("actualtagcollectionname", collection.getName()));
         }
         if (request.getPathInfo().contains("/preview") && isGet(request)) {
             handlePreview(request, response, context);
@@ -141,7 +139,7 @@ public class TagsHandler extends CrudHandler {
         String uuid = extractId(request);
         TagForm tagForm = TagForm.fromRequest(uuid, request);
 
-        this.addErrors(tagForm.validate(formattedText, mode));
+        this.addErrors(tagForm.validate(tagService));
 
         if (hasErrors()) {
             showEditForm(tagForm, context, mode);
@@ -163,20 +161,17 @@ public class TagsHandler extends CrudHandler {
 
         context.put("subpage", "tag_form");
         context.put("mode", "new");
-        String actualCollection = context.getOrDefault("actualtagcollection","none").toString();
-        if (!actualCollection.equals("none")){
-
-            Optional<TagCollection> tagCollection = tagService.getTagCollection(actualCollection);
-            if (tagCollection.isPresent()){
-                if (Boolean.TRUE.equals(tagCollection.get().getExternalCreation())) {
-                    context.put("externalcreation", " readonly ");
-                }
-            }
-
-        }else{
-            context.put("externalcreation", "");
+        String collectionId = (String) context.get("actualtagcollection");
+        Optional<TagCollection> collection = collectionId == null
+            ? Optional.empty() : tagService.getTagCollection(collectionId);
+        if (collection.isEmpty()) {
+            flash("danger", "uuid_missing");
+            sendRedirect("");
+            return;
         }
-
+        if (Boolean.TRUE.equals(collection.get().getExternalCreation())) {
+            context.put("externalcreation", " readonly ");
+        }
     }
 
 }
