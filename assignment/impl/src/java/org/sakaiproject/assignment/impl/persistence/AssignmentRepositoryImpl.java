@@ -406,13 +406,13 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             Root<AssignmentAllPurposeItem> root = cq.from(AssignmentAllPurposeItem.class);
 
             cq.select(root)
-           .where(cb.equal(root.get("assignmentId"), assignmentId));
+             .where(cb.equal(root.get("assignmentId"), assignmentId));
 
             AssignmentAllPurposeItem apItem = sessionFactory.getCurrentSession().createQuery(cq).uniqueResult();
 
             if (apItem != null){
                 log.info("delete AssignmentAllPurposeItem for assignment: {}", assignmentId);
-                sessionFactory.getCurrentSession().delete(apItem);
+                sessionFactory.getCurrentSession().remove(apItem);
             }
 
 
@@ -421,29 +421,29 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             CriteriaQuery<AssignmentModelAnswerItem> cq2 = cb.createQuery(AssignmentModelAnswerItem.class);
             Root<AssignmentModelAnswerItem> root2 = cq2.from(AssignmentModelAnswerItem.class);
             cq2.select(root2)
-            .where(cb.equal(root.get("assignmentId"), assignmentId));
+              .where(cb.equal(root2.get("assignmentId"), assignmentId));
 
             AssignmentModelAnswerItem maItem = sessionFactory.getCurrentSession().createQuery(cq2).uniqueResult();
 
             if(maItem != null){
                 log.info("delete AssignmentModelAnswerItem for assignment: {}", assignmentId);
-                sessionFactory.getCurrentSession().delete(maItem);
+                sessionFactory.getCurrentSession().remove(maItem);
             }
 
 
             // only one per assignment
             cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
             CriteriaQuery<AssignmentNoteItem> cq3 = cb.createQuery(AssignmentNoteItem.class);
-            Root<AssignmentNoteItem> root3 = cq.from(AssignmentNoteItem.class);
+            Root<AssignmentNoteItem> root3 = cq3.from(AssignmentNoteItem.class);
 
             cq3.select(root3)
-            .where(cb.equal(root.get("assignmentId"), assignmentId));
+              .where(cb.equal(root3.get("assignmentId"), assignmentId));
 
             AssignmentNoteItem noteItem = sessionFactory.getCurrentSession().createQuery(cq3).uniqueResult();
 
             if (noteItem != null) {
                 log.info("delete AssignmentNoteItem for assignment: {}", assignmentId);
-                sessionFactory.getCurrentSession().delete(noteItem);
+                sessionFactory.getCurrentSession().remove(noteItem);
             }
 
             // multiple possible per assignment
@@ -452,7 +452,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             Root<PeerAssessmentItem> root4 = cq4.from(PeerAssessmentItem.class);
 
             cq4.select(root4)
-            .where(cb.equal(root.get("assignmentId"), assignmentId));
+              .where(cb.equal(root4.get("assignmentId"), assignmentId));
 
             List<PeerAssessmentItem> peerAssessmentItems = sessionFactory.getCurrentSession().createQuery(cq4).getResultList();
 
@@ -461,7 +461,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                     //get submissionId and assessor_user_id for deletion of PeerAssessmentAttachment
                     String submissionId = item.getId().getSubmissionId();
                     String assessorUserId = item.getId().getAssessorUserId();
-                    sessionFactory.getCurrentSession().delete(item);
+                    sessionFactory.getCurrentSession().remove(item);
 
                     cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
                     CriteriaQuery<PeerAssessmentAttachment> cq5 = cb.createQuery(PeerAssessmentAttachment.class);
@@ -470,15 +470,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                     cq5.select(root5)
                         .where(
                             cb.and(
-                                cb.equal(root.get("submissionId"), submissionId),
-                                cb.equal(root.get("assessorUserId"), assessorUserId)
+                                cb.equal(root5.get("submissionId"), submissionId),
+                                cb.equal(root5.get("assessorUserId"), assessorUserId)
                             )
                         );
 
                     List<PeerAssessmentAttachment> peerAssessmentItemAttach = sessionFactory.getCurrentSession().createQuery(cq5).getResultList();
                     if(peerAssessmentItemAttach.size() !=  0){
                         for(PeerAssessmentAttachment attach: peerAssessmentItemAttach)
-                            sessionFactory.getCurrentSession().delete(attach);
+                            sessionFactory.getCurrentSession().remove(attach);
                     }
                 }
             }
