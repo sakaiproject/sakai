@@ -15,6 +15,24 @@
  */
 package org.sakaiproject.tool.assessment.ui.security;
 
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_CREATE_ASSESSMENT;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_DELETE_ASSESSMENT_ANY;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_DELETE_ASSESSMENT_OWN;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_GRADE_ASSESSMENT_OWN;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_PUBLISH_ASSESSMENT_ANY;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_PUBLISH_ASSESSMENT_OWN;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_QUESTIONPOOL_COPY_OWN;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_QUESTIONPOOL_CREATE;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_QUESTIONPOOL_DELETE_OWN;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_QUESTIONPOOL_EDIT_OWN;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_TEMPLATE_CREATE;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_TEMPLATE_DELETE_OWN;
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_TEMPLATE_EDIT_OWN;
+import static org.sakaiproject.site.api.SiteService.SECURE_UPDATE_SITE;
+
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -22,16 +40,16 @@ import java.util.function.Predicate;
 public final class SamigoJsfViewAccess {
 
     private static final Set<String> ASSESSMENT = Set.of(
-        "assessment.createAssessment", "assessment.editAssessment.any", "assessment.editAssessment.own",
-        "assessment.deleteAssessment.any", "assessment.deleteAssessment.own",
-        "assessment.publishAssessment.any", "assessment.publishAssessment.own",
-        "assessment.gradeAssessment.any", "assessment.gradeAssessment.own");
-    private static final Set<String> EDIT = Set.of("assessment.editAssessment.any", "assessment.editAssessment.own");
-    private static final Set<String> GRADE = Set.of("assessment.gradeAssessment.any", "assessment.gradeAssessment.own");
-    private static final Set<String> POOL = Set.of("assessment.questionpool.create", "assessment.questionpool.edit.own",
-        "assessment.questionpool.delete.own", "assessment.questionpool.copy.own");
-    private static final Set<String> TEMPLATE = Set.of("assessment.template.create", "assessment.template.edit.own",
-        "assessment.template.delete.own");
+        AUTHZ_CREATE_ASSESSMENT, AUTHZ_EDIT_ASSESSMENT_ANY, AUTHZ_EDIT_ASSESSMENT_OWN,
+        AUTHZ_DELETE_ASSESSMENT_ANY, AUTHZ_DELETE_ASSESSMENT_OWN,
+        AUTHZ_PUBLISH_ASSESSMENT_ANY, AUTHZ_PUBLISH_ASSESSMENT_OWN,
+        AUTHZ_GRADE_ASSESSMENT_ANY, AUTHZ_GRADE_ASSESSMENT_OWN);
+    private static final Set<String> EDIT = Set.of(AUTHZ_EDIT_ASSESSMENT_ANY, AUTHZ_EDIT_ASSESSMENT_OWN);
+    private static final Set<String> GRADE = Set.of(AUTHZ_GRADE_ASSESSMENT_ANY, AUTHZ_GRADE_ASSESSMENT_OWN);
+    private static final Set<String> POOL = Set.of(AUTHZ_QUESTIONPOOL_CREATE, AUTHZ_QUESTIONPOOL_EDIT_OWN,
+        AUTHZ_QUESTIONPOOL_DELETE_OWN, AUTHZ_QUESTIONPOOL_COPY_OWN);
+    private static final Set<String> TEMPLATE = Set.of(AUTHZ_TEMPLATE_CREATE, AUTHZ_TEMPLATE_EDIT_OWN,
+        AUTHZ_TEMPLATE_DELETE_OWN);
 
     private SamigoJsfViewAccess() {
     }
@@ -55,15 +73,15 @@ public final class SamigoJsfViewAccess {
         }
         if (view.equals("/jsf/author/permissions") || view.equals("/jsf/author/permissionsHeadings")
                 || view.equals("/jsf/author/permissionsNav")) {
-            return hasPermission.test("site.upd");
+            return hasPermission.test(SECURE_UPDATE_SITE);
         }
         if (view.equals("/jsf/qti/importAssessment") || view.equals("/jsf/qti/importAssessmentFromRespondus")
                 || view.startsWith("/jsf/samlite/")
                 || view.equals("/jsf/author/createAssessment_title")) {
-            return hasPermission.test("assessment.createAssessment");
+            return hasPermission.test(AUTHZ_CREATE_ASSESSMENT);
         }
         if (view.equals("/jsf/qti/importPool") || view.equals("/jsf/questionpool/addPool")) {
-            return hasPermission.test("assessment.questionpool.create");
+            return hasPermission.test(AUTHZ_QUESTIONPOOL_CREATE);
         }
         if (view.equals("/jsf/qti/choosePoolExportType") || view.equals("/jsf/qti/exportPool")
                 || view.equals("/jsf/qti/xmlPoolDisplay")) {
