@@ -121,7 +121,16 @@ public class ExtractionHelperAttachmentPathTest {
   @Test
   public void rejectsSymlinkThatLeavesPackage() throws IOException {
     Files.createSymbolicLink(root.resolve("images/linked.txt"), outside);
-    assertNull(helper().resolveImportedAttachmentPath("images/linked.txt"));
+    ExtractionHelper helper = helper();
+    assertNull(helper.resolveImportedAttachmentPath("images/linked.txt"));
+    assertNull(helper.resolveImportedAttachmentPath("IMAGES/LINKED.TXT"));
+  }
+
+  @Test
+  public void resolvesSymlinkWhoseTargetStaysInsidePackage() throws IOException {
+    Path target = root.resolve("images/inside.txt");
+    Files.createSymbolicLink(root.resolve("images/linked.txt"), target);
+    assertEquals(target.toRealPath().toString(), helper().resolveImportedAttachmentPath("images/linked.txt"));
   }
 
   @Test

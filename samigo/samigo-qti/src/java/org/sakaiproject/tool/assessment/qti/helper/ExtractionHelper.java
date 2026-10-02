@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1333,14 +1334,13 @@ public class ExtractionHelper
       return null;
     }
 
-    String unzipRootCanonicalPath;
+    Path unzipRootRealPath;
     try {
-      unzipRootCanonicalPath = unzipRoot.getCanonicalPath();
+      unzipRootRealPath = unzipRoot.toPath().toRealPath();
     } catch (IOException e) {
       log.warn("QTI Import - Could not resolve ZIP root path {}", unzipRoot.getPath(), e);
       return null;
     }
-    String unzipRootCanonicalPrefix = unzipRootCanonicalPath + File.separator;
 
     String decodedResourceId = decodeImportedAttachmentPath(resourceId);
     String[] candidatePaths = new String[] {
@@ -1357,9 +1357,9 @@ public class ExtractionHelper
       File candidateFile = new File(unzipRoot, candidatePath);
       if (candidateFile.isFile()) {
         try {
-          String candidateCanonicalPath = candidateFile.getCanonicalPath();
-          if (isWithinUnzipRoot(unzipRootCanonicalPath, unzipRootCanonicalPrefix, candidateCanonicalPath)) {
-            return candidateCanonicalPath;
+          Path candidateRealPath = candidateFile.toPath().toRealPath();
+          if (candidateRealPath.startsWith(unzipRootRealPath)) {
+            return candidateRealPath.toString();
           }
         } catch (IOException e) {
           log.warn("QTI Import - Could not resolve candidate attachment path {}", candidateFile.getPath(), e);
@@ -1375,9 +1375,9 @@ public class ExtractionHelper
       File indexedMatch = getImportedAttachmentIndex().get(candidatePath);
       if (indexedMatch != null) {
         try {
-          String indexedCanonicalPath = indexedMatch.getCanonicalPath();
-          if (isWithinUnzipRoot(unzipRootCanonicalPath, unzipRootCanonicalPrefix, indexedCanonicalPath)) {
-            return indexedCanonicalPath;
+          Path indexedRealPath = indexedMatch.toPath().toRealPath();
+          if (indexedRealPath.startsWith(unzipRootRealPath)) {
+            return indexedRealPath.toString();
           }
         } catch (IOException e) {
           log.warn("QTI Import - Could not resolve indexed attachment path {}", indexedMatch.getPath(), e);
@@ -1386,11 +1386,6 @@ public class ExtractionHelper
     }
 
     return null;
-  }
-
-  private boolean isWithinUnzipRoot(String unzipRootCanonicalPath, String unzipRootCanonicalPrefix, String candidateCanonicalPath)
-  {
-    return candidateCanonicalPath != null && (candidateCanonicalPath.equals(unzipRootCanonicalPath) || candidateCanonicalPath.startsWith(unzipRootCanonicalPrefix));
   }
 
   private Map<String, File> getImportedAttachmentIndex()
