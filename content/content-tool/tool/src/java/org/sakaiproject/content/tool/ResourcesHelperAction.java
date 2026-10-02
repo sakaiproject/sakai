@@ -42,10 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
 import org.apache.commons.fileupload2.core.FileUploadException;
 import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletRequestContext;
@@ -101,6 +98,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -2039,7 +2039,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			org.apache.commons.fileupload2.core.FileItem uploadFile = null;
 
 			if (JakartaServletFileUpload.isMultipartContent(request)) {
-				JakartaServletFileUpload upload = new JakartaServletFileUpload();
+				DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
+				JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
 				JakartaServletRequestContext context = new JakartaServletRequestContext(request);
 
 				try {
