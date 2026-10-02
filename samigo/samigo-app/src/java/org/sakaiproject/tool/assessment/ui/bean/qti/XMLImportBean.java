@@ -184,7 +184,7 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
       if (isCP) {
         ImportService importService = new ImportService(serverConfigurationService, AgentFacade.getAgentString());
         unzipLocation = importService.unzipImportFile(uploadFile);
-        filename = unzipLocation + "/" + importService.getQtiFilename();
+        filename = Path.of(unzipLocation).resolve(importService.getQtiFilename()).toString();
       }
       processFile(filename, uploadFile, isRespondus);
     }
@@ -566,7 +566,7 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
         if (isCP) {
             ImportService importService = new ImportService(serverConfigurationService, AgentFacade.getAgentString());
             unzipLocation = importService.unzipImportFile(uploadFile);
-            fileName = unzipLocation + File.separator + importService.getQtiFilename();
+            fileName = Path.of(unzipLocation).resolve(importService.getQtiFilename()).toString();
         }
         processPoolFile(fileName, uploadFile, isRespondus);
     } catch (FileNotFoundException fnfex) {
