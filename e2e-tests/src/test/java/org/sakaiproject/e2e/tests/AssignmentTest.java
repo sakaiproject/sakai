@@ -458,6 +458,34 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(lessonLink).hasCount(0);
     }
 
+    @Test
+    void displaysSavedTagMarkupAsLiteralText() {
+        String courseUrl = ensureCourseUrl();
+        String title = "Literal tag " + System.currentTimeMillis();
+        String label = "<img src=x onerror=alert(1)> & \"literal\"";
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        openAddAssignmentForm();
+        page.locator("#new_assignment_title").fill(title);
+        Locator gradeAssignment = page.locator("#gradeAssignment").first();
+        if (gradeAssignment.count() > 0 && gradeAssignment.isChecked()) {
+            gradeAssignment.uncheck();
+        }
+        fillAssignmentInstructions("<p>Literal tag regression.</p>");
+        Locator selector = page.locator("sakai-tag-selector");
+        selector.getByRole(AriaRole.COMBOBOX).fill(label);
+        selector.getByRole(AriaRole.COMBOBOX).press("Enter");
+        submitAssignmentForm();
+        goToAssignmentsList();
+        Locator row = page.locator("tr").filter(new Locator.FilterOptions().setHasText(title));
+        assertThat(row.locator(".tag-header")).containsText(label);
+        assertThat(row.locator(".tag-header img")).hasCount(0);
+        editAssignment(title);
+        assertThat(selector.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Deselect: " + label).setExact(true))).isVisible();
+    }
+
     private void openReorderAssignments() {
         goToAssignmentsList();
 

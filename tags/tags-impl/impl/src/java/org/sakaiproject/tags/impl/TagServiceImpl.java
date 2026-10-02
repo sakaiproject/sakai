@@ -44,6 +44,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.tags.api.Errors;
 import org.sakaiproject.tags.api.I18n;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagAssociation;
@@ -309,8 +310,7 @@ public class TagServiceImpl implements TagService {
                 || !securityService.unlock(permission, SiteService.REFERENCE_ROOT + "/" + siteId)) {
             throw new SecurityException("Current user cannot create tags in site " + siteId);
         }
-        if (tags == null || tags.stream().anyMatch(tag -> tag == null
-                || StringUtils.isBlank(tag.getTagLabel()) || tag.getTagLabel().length() > TAG_MAX_LABEL
+        if (tags == null || tags.stream().anyMatch(tag -> validateTag(tag).hasErrors()
                 || StringUtils.isNotBlank(tag.getTagId()))) {
             throw new IllegalArgumentException("New tags must have no ID and a label between 1 and 255 characters");
         }
@@ -329,11 +329,27 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public Errors validateTag(Tag tag) {
+        Errors errors = new Errors();
+        if (tag == null || StringUtils.isBlank(tag.getTagLabel())) {
+            errors.addError("tagLabel", "tag_label_required");
+        } else if (tag.getTagLabel().length() > TAG_MAX_LABEL) {
+            errors.addError("tagLabel", "tag_label_too_long");
+        }
+        return errors;
+    }
+
+    private void requireValidTag(Tag tag) {
+        Errors errors = validateTag(tag);
+        if (errors.hasErrors()) {
+            throw new IllegalArgumentException("Invalid tag: " + errors.toMap());
+        }
+    }
+
+    @Override
     @Transactional
     public String createTag(Tag tag) {
-        if (StringUtils.isBlank(tag.getTagLabel())) {
-            throw new IllegalArgumentException("Tag label must not be blank");
-        }
+        requireValidTag(tag);
         requireTagCollection(tag.getTagCollectionId());
         tag.setTagId(null);
         tag.setCreatedBy(sessionManager.getCurrentSessionUserId());
@@ -366,9 +382,7 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public void updateTag(Tag tag) {
-        if (StringUtils.isBlank(tag.getTagLabel())) {
-            throw new IllegalArgumentException("Tag label must not be blank");
-        }
+        requireValidTag(tag);
         Tag original = tagRepository.findById(tag.getTagId())
             .orElseThrow(() -> new TagServiceException("No tag with id " + tag.getTagId()));
         requireTagCollection(tag.getTagCollectionId());

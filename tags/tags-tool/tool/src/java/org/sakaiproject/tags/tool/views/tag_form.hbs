@@ -56,7 +56,7 @@
 
   <div class="col-sm-offset-2 col-sm-10">
     <input class="btn btn-primary" type="submit" name="create" value="{{{t this "Save Tag"}}}" {{isExternallyUpdated}}>
-    <input class="btn btn-primary tagservice-cancel-btn" data-target="{{returnpath}}" type="button" name="cancel" value="{{{t this "Cancel"}}}">
+    <input class="btn btn-primary tagservice-cancel-btn" data-target="{{actionURL this 'tagsintagcollection' actualtagcollection 'manage'}}" type="button" name="cancel" value="{{{t this "Cancel"}}}">
   </div>
 </form>
 </div>

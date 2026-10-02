@@ -290,10 +290,10 @@ public class TagServiceTest {
     }
 
     @Test
-    public void rejectsBlankTagLabelsBeforeCreatingOrUpdating() {
+    public void rejectsInvalidTagLabelsBeforeCreatingOrUpdating() {
         Tag original = tag(collection("Validation"), "Original");
         clearInvocations(events);
-        for (String label : new String[] { null, "", " \t\n" }) {
+        for (String label : new String[] { null, "", " \t\n", "x".repeat(256) }) {
             Tag proposed = original.toBuilder().tagLabel(label).build();
             assertThrows(IllegalArgumentException.class, () -> service.createTag(proposed));
             assertEquals(original.getTagId(), proposed.getTagId());
@@ -302,6 +302,21 @@ public class TagServiceTest {
         assertEquals(1, service.getTags().size());
         assertEquals("Original", service.getTag(original.getTagId()).get().getTagLabel());
         verify(events, never()).post(any());
+    }
+
+    @Test
+    public void preservesLiteralLabelsAcrossCreationUpdateAssociationAndCopy() {
+        String label = "<script>alert('test')</script> & \"日本語\"";
+        TagCollection source = collection("Literal labels");
+        Tag saved = tag(source, label);
+        assertFalse(service.validateTag(saved).hasErrors());
+        assertEquals(label, service.getTag(saved.getTagId()).get().getTagLabel());
+        service.updateTag(saved.toBuilder().tagLabel(label + " updated").build());
+        assertEquals(label + " updated", service.getTag(saved.getTagId()).get().getTagLabel());
+        service.updateTagAssociations(source.getTagCollectionId(), "assignment", List.of(label), true);
+        assertEquals(label, service.getAssociatedTagsForItem(source.getTagCollectionId(), "assignment").get(0).getTagLabel());
+        assertEquals(label + " updated", service.duplicateTags("copied-site", true,
+            List.of(saved.getTagId()), "copied-assignment").get(0).getTagLabel());
     }
 
     @Test

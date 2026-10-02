@@ -27,6 +27,8 @@ package org.sakaiproject.tags.tool;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -100,7 +102,7 @@ public class TagServiceServlet extends HttpServlet {
         if (path.contains("/tagsintagcollection/")) {
             return new TagsInTagCollectionsHandler(tagService);
         } else if (path.contains("/tagcollections/")) {
-            return new TagCollectionsHandler(tagService);
+            return new TagCollectionsHandler(tagService, formattedText);
         } else if (path.contains("/tags/")) {
             return new TagsHandler(tagService, formattedText);
         } else {
@@ -246,7 +248,11 @@ public class TagServiceServlet extends HttpServlet {
                 String action = options.param(1);
 
                 try {
-                    return new URL(baseURL, type + "/" + action).toString();
+                    String url = new URL(baseURL, type + "/" + action).toString();
+                    if (options.params.length > 2) {
+                        url += "?tagCollectionId=" + URLEncoder.encode(options.<String>param(2), StandardCharsets.UTF_8);
+                    }
+                    return url;
                 } catch (MalformedURLException e) {
                     throw new TagServiceException("Failed while building newURL", e);
                 }

@@ -64,6 +64,7 @@ public class Tag implements PersistableEntity<String> {
     private String tagId;
     @Column(name = "tagcollectionid", length = 99, nullable = false)
     private String tagCollectionId;
+    /** Plain text; escape for the output context when displaying this label. */
     @Column(name = "taglabel", length = 255)
     private String tagLabel;
     @Lob
