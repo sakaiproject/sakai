@@ -75,6 +75,10 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
             }
             window.onload = initPage;
+        </script>
+
+        <script type="module">
+            import { tagLabel } from "/samigo-app/js/tag-display.js";
 
 
             $(document).ready(function() {
@@ -134,15 +138,15 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
             });
 
             function formatRepo (repo) {
-                var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+                var $tag_formatted = $(tagLabel(repo.text, repo.collection));
                 return $tag_formatted;
             }
 
             function formatRepoSelection (repo) {
                 if (typeof repo.collection != 'undefined') {
-                    var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+                    var $tag_formatted = $(tagLabel(repo.text, repo.collection));
                 }else{
-                    var $tag_formatted = $("<span>" + repo.text + "</span>");
+                    var $tag_formatted = $(tagLabel(repo.text));
                 }
                 return $tag_formatted;
             }

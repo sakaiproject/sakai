@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tags.tool.forms.TagCollectionForm;
 
 /**
@@ -45,8 +46,11 @@ public class TagCollectionsHandler extends CrudHandler {
 
     private final TagService tagService;
 
-    public TagCollectionsHandler(TagService tagservice) {
+    private final FormattedText formattedText;
+
+    public TagCollectionsHandler(TagService tagservice, FormattedText formattedText) {
         this.tagService = tagservice;
+        this.formattedText = formattedText;
     }
 
     @Override
@@ -78,7 +82,7 @@ public class TagCollectionsHandler extends CrudHandler {
                 // Don't let the portal buffering hijack our response.
                 // Include enough content to count as having returned a
                 // body.
-                response.getWriter().write(tagCollection.get().getName());
+                response.getWriter().write(formattedText.escapeHtml(tagCollection.get().getName()));
             }else{
 
                 response.getWriter().write("     ");
