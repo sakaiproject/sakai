@@ -38,9 +38,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.util.Xml;
 
 /** Operation-scoped QTI content-package extraction. */
@@ -49,10 +47,6 @@ public class ImportService {
     private final ServerConfigurationService serverConfigurationService;
     private final String agentId;
     private String qtiFilename;
-
-    public ImportService() {
-        this(ComponentManager.get(ServerConfigurationService.class), AgentFacade.getAgentString());
-    }
 
     public ImportService(ServerConfigurationService serverConfigurationService, String agentId) {
         this.serverConfigurationService = serverConfigurationService;

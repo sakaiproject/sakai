@@ -42,8 +42,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -69,6 +68,9 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,7 +80,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ManagedBean(name="xmlImport")
 @SessionScoped
-public class XMLImportBean implements Serializable {
+public class XMLImportBean extends SpringBeanAutowiringSupport implements Serializable {
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
 	  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
@@ -87,6 +89,12 @@ public class XMLImportBean implements Serializable {
   private String uploadFileName;
   private String importType;
   private String pathToData;
+  @Autowired
+  @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+  private ServerConfigurationService serverConfigurationService;
+  @Autowired
+  @Qualifier("org.sakaiproject.util.api.FormattedText")
+  private FormattedText formattedText;
   @ManagedProperty(value="#{author}")
   private AuthorBean authorBean;
   @ManagedProperty(value="#{assessmentBean}")
@@ -123,7 +131,7 @@ public class XMLImportBean implements Serializable {
 	  String uploadFile = (String) e.getNewValue();
 
 	  if (uploadFile!= null && uploadFile.startsWith("SizeTooBig:")) {
-		  Long sizeMax = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "20480"));
+		  Long sizeMax = Long.valueOf(serverConfigurationService.getString("samigo.sizeMax", "20480"));
 		  String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), Math.round(sizeMax.floatValue()/1024));
 	      FacesMessage message = new FacesMessage(sizeTooBigMessage);
 	      FacesContext.getCurrentInstance().addMessage(null, message);
@@ -174,7 +182,7 @@ public class XMLImportBean implements Serializable {
     try
     {
       if (isCP) {
-        ImportService importService = new ImportService();
+        ImportService importService = new ImportService(serverConfigurationService, AgentFacade.getAgentString());
         unzipLocation = importService.unzipImportFile(uploadFile);
         filename = unzipLocation + "/" + importService.getQtiFilename();
       }
@@ -372,7 +380,7 @@ public class XMLImportBean implements Serializable {
     Iterator iter = list.iterator();
 	while (iter.hasNext()) {
 		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-		assessmentFacade.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+		assessmentFacade.setTitle(formattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 		try {
 			String lastModifiedDateDisplay = tu.getDateTimeWithTimezoneConversion(assessmentFacade.getLastModifiedDate());
 			assessmentFacade.setLastModifiedDateForDisplay(lastModifiedDateDisplay);  
@@ -508,7 +516,7 @@ public class XMLImportBean implements Serializable {
     String uploadFile = (String) e.getNewValue();
 
     if (StringUtils.isNotBlank(uploadFile) && StringUtils.startsWith(uploadFile, "SizeTooBig:")) {
-        Long sizeMax = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "20480"));
+        Long sizeMax = Long.valueOf(serverConfigurationService.getString("samigo.sizeMax", "20480"));
         String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), Math.round(sizeMax.floatValue()/1024));
         FacesMessage message = new FacesMessage(sizeTooBigMessage);
         FacesContext.getCurrentInstance().addMessage(null, message);
@@ -556,7 +564,7 @@ public class XMLImportBean implements Serializable {
     boolean fileNotFound = false;
     try {
         if (isCP) {
-            ImportService importService = new ImportService();
+            ImportService importService = new ImportService(serverConfigurationService, AgentFacade.getAgentString());
             unzipLocation = importService.unzipImportFile(uploadFile);
             fileName = unzipLocation + File.separator + importService.getQtiFilename();
         }
