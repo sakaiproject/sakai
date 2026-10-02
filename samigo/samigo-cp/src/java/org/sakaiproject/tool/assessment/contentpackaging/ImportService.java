@@ -33,6 +33,9 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.xml.parsers.DocumentBuilder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -43,15 +46,12 @@ import org.sakaiproject.util.Xml;
 
 /** Operation-scoped QTI content-package extraction. */
 @Slf4j
+@RequiredArgsConstructor
 public class ImportService {
     private final ServerConfigurationService serverConfigurationService;
     private final String agentId;
+    @Getter @Setter
     private String qtiFilename;
-
-    public ImportService(ServerConfigurationService serverConfigurationService, String agentId) {
-        this.serverConfigurationService = serverConfigurationService;
-        this.agentId = agentId;
-    }
 
     public String unzipImportFile(String filename) throws IOException {
         String repositoryPath = serverConfigurationService.getString("samigo.answerUploadRepositoryPath",
@@ -132,11 +132,4 @@ public class ImportService {
         return destination;
     }
 
-    public String getQtiFilename() {
-        return qtiFilename;
-    }
-
-    public void setQtiFilename(String qtiFilename) {
-        this.qtiFilename = qtiFilename;
-    }
 }
