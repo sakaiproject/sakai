@@ -66,7 +66,7 @@ public class ImportServiceTest {
         entries.put("assessment/images/example.txt", "attachment");
         Path root = Path.of(service.unzipImportFile(archive(entries).toString()));
         assertTrue(root.startsWith(repository));
-        assertEquals("assessment/exportAssessment.xml", service.getQtiFilename());
+        assertEquals(Path.of("assessment", "exportAssessment.xml"), Path.of(service.getQtiFilename()));
         assertEquals("attachment", Files.readString(root.resolve("assessment/images/example.txt")));
     }
 
