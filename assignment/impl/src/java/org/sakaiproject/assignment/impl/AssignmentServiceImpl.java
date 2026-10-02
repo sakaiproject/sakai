@@ -199,6 +199,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -1360,7 +1361,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = PermissionException.class)
     public void softDeleteAssignment(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
         // we don't actually want to delete assignments just mark them as deleted "soft delete feature"
@@ -1371,20 +1372,123 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
         }
 
+        assignment = assignmentRepository.findAssignmentForUpdate(assignment.getId());
+        boolean releaseGroupLocks = canReleaseGroupLocks(assignment);
         taskService.removeTaskByReference(reference);
 
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
         assignmentRepository.softDeleteAssignment(assignment.getId());
 
+        if (releaseGroupLocks) {
+            releaseAssignmentGroupLocks(assignment, reference);
+        }
+
         // we post the same event as remove assignment
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean canReleaseGroupLocks(Assignment assignment) {
+        if (!Boolean.TRUE.equals(assignment.getIsGroup()) || assignment.getTypeOfAccess() != GROUP) {
+            return false;
+        }
+        List<AssignmentSubmission> submissions = assignmentRepository.findSubmissions(Collections.singleton(assignment.getId()));
+        if (submissions.isEmpty()) {
+            return true;
+        }
+        if (submissions.stream().anyMatch(this::hasSubmissionWork)) {
+            return false;
+        }
+        // Isolate lookup failures so deletion/restore can continue while retaining the locks.
+        TransactionTemplate rubricRead = new TransactionTemplate(transactionTemplate.getTransactionManager());
+        rubricRead.setReadOnly(true);
+        rubricRead.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        try {
+            // Rubric evaluations are saved separately. Preserve their submission identities.
+            return Boolean.TRUE.equals(rubricRead.execute(status ->
+                    rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId()).isEmpty()));
+        } catch (RuntimeException e) {
+            log.warn("Unable to check rubric association for assignment {}; retaining group locks", assignment.getId(), e);
+            return false;
+        }
+    }
+
+    private boolean hasSubmissionWork(AssignmentSubmission submission) {
+        // Grading placeholders can be marked submitted and even have a submitted date.
+        return Boolean.TRUE.equals(submission.getUserSubmission())
+                || Boolean.TRUE.equals(submission.getGraded())
+                || Boolean.TRUE.equals(submission.getReturned())
+                || Boolean.TRUE.equals(submission.getGradeReleased())
+                || StringUtils.isNotBlank(submission.getSubmittedText())
+                || !submission.getAttachments().isEmpty()
+                || StringUtils.isNotBlank(submission.getGrade())
+                || StringUtils.isNotBlank(submission.getFeedbackText())
+                || StringUtils.isNotBlank(submission.getFeedbackComment())
+                || !submission.getFeedbackAttachments().isEmpty()
+                || StringUtils.isNotBlank(submission.getPrivateNotes())
+                || submission.getSubmitters().stream().anyMatch(submitter ->
+                        StringUtils.isNotBlank(submitter.getGrade())
+                        || StringUtils.isNotBlank(submitter.getFeedback())
+                        || StringUtils.isNotBlank(submitter.getTimeSpent()))
+                // Placeholders inherit resubmission settings; preserve other saved metadata/history.
+                || submission.getProperties().entrySet().stream().anyMatch(property ->
+                        !AssignmentConstants.ALLOW_RESUBMIT_NUMBER.equals(property.getKey())
+                        && !AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME.equals(property.getKey())
+                        && StringUtils.isNotBlank(property.getValue()));
+    }
+
+    private void releaseAssignmentGroupLocks(Assignment assignment, String reference) throws PermissionException {
+        for (String groupReference : assignment.getGroups()) {
+            try {
+                AuthzGroup group = authzGroupService.getAuthzGroup(groupReference);
+                group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                authzGroupService.save(group);
+            } catch (GroupNotDefinedException e) {
+                log.debug("Group {} no longer exists while releasing assignment {} locks", groupReference, assignment.getId());
+            } catch (AuthzPermissionException e) {
+                log.warn("Unable to release group {} lock for assignment {}", groupReference, assignment.getId(), e);
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, groupReference);
+            }
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {PermissionException.class, IdUnusedException.class})
+    public Assignment restoreAssignment(String assignmentId) throws IdUnusedException, PermissionException {
+        Assignment assignment = getAssignment(assignmentId);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        if (!allowUpdateAssignment(reference)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, reference);
+        }
+        assignment = assignmentRepository.findAssignmentForUpdate(assignmentId);
+        if (!Boolean.TRUE.equals(assignment.getDeleted())) {
+            return assignment;
+        }
+        if (canReleaseGroupLocks(assignment)) {
+            Site site = siteService.getSite(assignment.getContext());
+            releaseAssignmentGroupLocks(assignment, reference);
+            assignment.getGroups().removeIf(groupReference -> site.getGroup(groupReference) == null);
+            // Empty placeholders contain the old roster. Recreate them from current groups when needed.
+            assignment.getSubmissions().clear();
+            assignment.setDraft(true);
+            // Deletion removed the Gradebook item. Recreate it only when the reviewed draft is published.
+            if (GRADEBOOK_INTEGRATION_ASSOCIATE.equals(assignment.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
+                assignment.getProperties().remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                assignment.getProperties().put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+            }
+        }
+        assignment.setDeleted(false);
+        assignment.setSoftRemovedDate(null);
+        updateAssignment(assignment);
+        return assignment;
     }
 
     // TODO removing related content from other tools shouldn't be the concern for assignments service
     // it should post an event and let those tools take action.
     // * Unless a transaction is required
     @Override
-    @Transactional
+    @Transactional(rollbackFor = PermissionException.class)
     public void deleteAssignmentAndAllReferences(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
         log.debug("Removing all associated reference to assignment with id = {}", assignment.getId());
@@ -1483,6 +1587,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 if (!(allowAddSubmission(a.getContext()) || allowGradeSubmission(assignmentReference))) {
                     throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
                 }
+            }
+
+            // Serialize the first submission with soft deletion before deciding whether group locks can be released.
+            a = assignmentRepository.findAssignmentForUpdate(assignmentId);
+            if (Boolean.TRUE.equals(a.getDeleted())) {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
             }
 
             // Prevent users from having more than one submission, currently assignments expects groups or users to
@@ -1611,7 +1721,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // on Lessons, a group assignment or one with prereq. will be managed through a single (access) group
                 Group anAssignedGroup = site.getGroup(currentAssignedGroupRefs.stream().findFirst().orElse(null));
                 // we can infer it is an ACCESS group if it has the following property
-                boolean accessGroupAssigned = StringUtils.isNotBlank(anAssignedGroup.getProperties().getProperty("lessonbuilder_ref"));
+                boolean accessGroupAssigned = anAssignedGroup != null
+                        && StringUtils.isNotBlank(anAssignedGroup.getProperties().getProperty("lessonbuilder_ref"));
 
                 // If the assigned group is not an ACCESS group...
                 if (accessGroupAssigned == false) {
@@ -2173,7 +2284,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = PermissionException.class)
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException {
         Assert.notNull(submission, "Submission cannot be null");
         Assert.notNull(submission.getId(), "Submission doesn't appear to have been persisted yet");
@@ -2183,6 +2294,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // TODO these permissions checks should coincide with the changes that are being made for the submission
         if (!(allowUpdateSubmission(reference) || allowGradeSubmission(assignmentReference))) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
+        }
+
+        if (Boolean.TRUE.equals(submission.getAssignment().getIsGroup())
+                && assignmentRepository.lockAssignmentAndCheckDeleted(submission.getAssignment().getId())) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
 

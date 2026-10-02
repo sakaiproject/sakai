@@ -30,7 +30,17 @@
 							#if ($assignment.draft)
 								<span class="highlight">$tlang.getString("gen.dra2") </span>
 							#end
-							$formattedText.escapeHtml($assignment.Title)</td>
+							$formattedText.escapeHtml($assignment.Title)
+							#if ($showGroupLockConsequences && $assignment.isGroup)
+								<p class="instruction">
+									#if ($service.canReleaseGroupLocks($assignment))
+										$tlang.getString("group.locks.delete.release")
+									#else
+										$tlang.getString("group.locks.delete.retain")
+										#end
+								</p>
+							#end
+						</td>
 						<td headers="duedate">$!service.getUsersLocalDateTimeString($assignment.DueDate)</td>
 						##<td headers="section">$assignment.Section</td>
 						<td headers="status">

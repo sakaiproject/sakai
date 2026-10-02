@@ -237,6 +237,7 @@ public class MainController {
         model.addAttribute("lockedForDeletionGroupList", lockedForDeletionGroupList);
         model.addAttribute("anyGroupLocked", anyGroupLocked);
         model.addAttribute("lockedGroupsEntityMap", lockedGroupsEntityMap);
+        model.addAttribute("assignmentTrashUrl", sakaiService.getAssignmentTrashUrl(site));
         model.addAttribute("groupMemberMap", groupMemberMap);
         model.addAttribute("groupJoinableSetMap", groupJoinableSetMap);
         model.addAttribute("joinableSetOpenDateMap", joinableSetOpenDateMap);
