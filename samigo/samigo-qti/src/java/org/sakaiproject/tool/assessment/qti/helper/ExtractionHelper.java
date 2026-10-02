@@ -1115,18 +1115,19 @@ public class ExtractionHelper
     AssessmentAttachmentIfc assessmentAttachment;
     String[] attachmentArray = attachment.split("\\n");
     Set<AssessmentAttachmentIfc> set = new HashSet<AssessmentAttachmentIfc>();
-	AttachmentHelper attachmentHelper = new AttachmentHelper();
-	AssessmentService assessmentService = new AssessmentService();
+    AssessmentService assessmentService = null;
     for (int i = 0; i < attachmentArray.length; i++) {
     	String[] attachmentInfo = attachmentArray[i].split("\\|");
-    	String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
     	String filename = attachmentInfo[1];
-    	ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
+        ContentResource contentResource = createImportedAttachment(attachmentInfo[0], filename, attachmentInfo[2]);
     	if (contentResource == null) {
     	  log.warn("QTI Import - Physical file not found in ZIP package for assessment attachment {}. Migration of this resource will be skipped.", attachmentInfo[0]);
     	  recordSkippedAttachment(attachmentInfo[0]);
     	  continue;
     	}
+        if (assessmentService == null) {
+          assessmentService = new AssessmentService();
+        }
     	assessmentAttachment = assessmentService.createAssessmentAttachment(assessment, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
     	assessmentAttachment.setAssessment((AssessmentIfc)assessment.getData());
     	set.add(assessmentAttachment);
@@ -1155,18 +1156,19 @@ public class ExtractionHelper
     SectionAttachmentIfc sectionAttachment;
     String[] attachmentArray = attachment.split("\\n");
     Set<SectionAttachmentIfc> set = new HashSet<SectionAttachmentIfc>();
-	AttachmentHelper attachmentHelper = new AttachmentHelper();
-	AssessmentService assessmentService = new AssessmentService();
+    AssessmentService assessmentService = null;
     for (int i = 0; i < attachmentArray.length; i++) {
     	String[] attachmentInfo = attachmentArray[i].split("\\|");
-    	String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
     	String filename = attachmentInfo[1];
-    	ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
+        ContentResource contentResource = createImportedAttachment(attachmentInfo[0], filename, attachmentInfo[2]);
     	if (contentResource == null) {
     	  log.warn("QTI Import - Physical file not found in ZIP package for section attachment {}. Migration of this resource will be skipped.", attachmentInfo[0]);
     	  recordSkippedAttachment(attachmentInfo[0]);
     	  continue;
     	}
+        if (assessmentService == null) {
+          assessmentService = new AssessmentService();
+        }
     	sectionAttachment = assessmentService.createSectionAttachment(section, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
     	sectionAttachment.setSection(section.getData());
     	set.add(sectionAttachment);
@@ -1196,29 +1198,30 @@ public class ExtractionHelper
 
 	  ItemAttachmentIfc itemAttachment;
 	  String[] attachmentArray = attachment.split("\\n");
-	  AttachmentHelper attachmentHelper = new AttachmentHelper();
-	  AssessmentService assessmentService = new AssessmentService();
+	  AssessmentService assessmentService = null;
 	  for (int i = 0; i < attachmentArray.length; i++) {
 		  String[] attachmentInfo = attachmentArray[i].split("\\|");
 		  String filename = attachmentInfo[1];
+		  ContentResource contentResource;
 		  if (mcx != null) {
 			  String attachmentImportRef = attachmentInfo[0];
-			  ContentResource contentResource = transferAttachment(siteId, attachmentImportRef, mcx);
+			  contentResource = transferAttachment(siteId, attachmentImportRef, mcx);
 			  if ( contentResource == null ) {
 				  log.warn("Unable to create contentResource for {} {}", siteId, attachmentImportRef);
 				  continue;
 			  }
-			  itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
 		  } else {
-			  String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
-			  ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
+			  contentResource = createImportedAttachment(attachmentInfo[0], filename, attachmentInfo[2]);
 			  if (contentResource == null) {
 			    log.warn("QTI Import - Physical file not found in ZIP package for item attachment {}. Migration of this resource will be skipped.", attachmentInfo[0]);
 			    recordSkippedAttachment(attachmentInfo[0]);
 			    continue;
 			  }
-			  itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
 		  }
+		  if (assessmentService == null) {
+		    assessmentService = new AssessmentService();
+		  }
+		  itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
 		  itemAttachment.setItem(item.getData());
 		  set.add(itemAttachment);
 	  }
@@ -1243,7 +1246,6 @@ public class ExtractionHelper
 	  String referenceRoot = AssessmentService.getContentHostingService().REFERENCE_ROOT;
 	  String prependString = accessURL + referenceRoot;
 	  StringBuffer updatedText = null;
-	  AttachmentHelper attachmentHelper = new AttachmentHelper();
 	  String resourceId = null;
 		  String importedPrependString = getImportedPrependString(processedText);
 		  if (importedPrependString == null) {
@@ -1267,7 +1269,6 @@ public class ExtractionHelper
 		  int endIndex = 0;
 		  String filename = null;
 		  String contentType = null;
-		  String fullFilePath = null;
 		  String oldResourceId = null;
 
 		  updatedText = new StringBuffer(splittedString[0]);
@@ -1287,12 +1288,10 @@ public class ExtractionHelper
 			  String decodedResourceId = decodeImportedAttachmentPath(oldResourceId);
 			  String[] oldSplittedResourceId = decodedResourceId.split("/");
 			  filename = oldSplittedResourceId[oldSplittedResourceId.length - 1];
-			  fullFilePath = resolveImportedAttachmentPath(oldResourceId);
-			  if (fullFilePath != null) {
-			    MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
-			    contentType = mimetypesFileTypeMap.getContentType(filename);
-			    contentResource = attachmentHelper.createContentResource(fullFilePath, filename, contentType);
-			  } else {
+			  MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
+			  contentType = mimetypesFileTypeMap.getContentType(filename);
+			  contentResource = createImportedAttachment(oldResourceId, filename, contentType);
+			  if (contentResource == null) {
 			    log.warn("QTI Import - Physical file not found in ZIP package for resource {}. Migration of this resource will be skipped.", oldResourceId);
 			    recordSkippedAttachment(oldResourceId);
 			  }
@@ -1312,7 +1311,18 @@ public class ExtractionHelper
 		  return updatedText.toString();	  
   }
 
-  private String resolveImportedAttachmentPath(String resourceId)
+  private ContentResource createImportedAttachment(String relativePath, String filename, String mimeType) {
+    if ("text/url".equalsIgnoreCase(mimeType)) {
+      return new AttachmentHelper().createContentResource(relativePath, filename, mimeType);
+    }
+    String fullFilePath = resolveImportedAttachmentPath(relativePath);
+    if (fullFilePath == null) {
+      return null;
+    }
+    return new AttachmentHelper().createContentResource(fullFilePath, filename, mimeType);
+  }
+
+  String resolveImportedAttachmentPath(String resourceId)
   {
     if (unzipLocation == null || resourceId == null) {
       return null;
@@ -1332,11 +1342,12 @@ public class ExtractionHelper
     }
     String unzipRootCanonicalPrefix = unzipRootCanonicalPath + File.separator;
 
+    String decodedResourceId = decodeImportedAttachmentPath(resourceId);
     String[] candidatePaths = new String[] {
       stripLeadingSlash(resourceId),
-      stripLeadingSlash(decodeImportedAttachmentPath(resourceId)),
-      normalizeImportedAttachmentPath(resourceId),
-      normalizeImportedAttachmentPathWithoutSpaces(resourceId)
+      stripLeadingSlash(decodedResourceId),
+      normalizeImportedAttachmentPath(decodedResourceId),
+      normalizeImportedAttachmentPathWithoutSpaces(decodedResourceId)
     };
 
     for (String candidatePath : candidatePaths) {
@@ -1354,7 +1365,13 @@ public class ExtractionHelper
           log.warn("QTI Import - Could not resolve candidate attachment path {}", candidateFile.getPath(), e);
         }
       }
+    }
 
+    // Prefer exact filenames before trying the normalized package index.
+    for (String candidatePath : candidatePaths) {
+      if (StringUtils.isBlank(candidatePath)) {
+        continue;
+      }
       File indexedMatch = getImportedAttachmentIndex().get(candidatePath);
       if (indexedMatch != null) {
         try {
@@ -1436,7 +1453,7 @@ public class ExtractionHelper
 
     try {
       return URLDecoder.decode(resourceId, StandardCharsets.UTF_8.name());
-    } catch (java.io.UnsupportedEncodingException e) {
+    } catch (java.io.UnsupportedEncodingException | IllegalArgumentException e) {
       log.warn("QTI Import - Could not decode resource URL: {}", resourceId);
       return resourceId;
     }
@@ -1450,13 +1467,14 @@ public class ExtractionHelper
     return path.startsWith("/") ? path.substring(1) : path;
   }
 
-  private String normalizeImportedAttachmentPath(String resourceId)
+  // Archive filenames are filesystem names, not URL-encoded references.
+  private String normalizeImportedAttachmentPath(String path)
   {
-    String decodedPath = stripLeadingSlash(decodeImportedAttachmentPath(resourceId));
-    if (decodedPath == null) {
+    String relativePath = stripLeadingSlash(path);
+    if (relativePath == null) {
       return null;
     }
-    return normalizePathSeparators(decodedPath);
+    return normalizePathSeparators(relativePath);
   }
 
   private String normalizeImportedAttachmentPathWithoutSpaces(String resourceId)
@@ -1616,15 +1634,9 @@ public class ExtractionHelper
   }
   
   private ContentResource makeContentResource(String filename) {
-	  AttachmentHelper attachmentHelper = new AttachmentHelper();
-	  StringBuffer fullFilePath = new StringBuffer(unzipLocation);
-	  fullFilePath.append("/");
-	  fullFilePath.append(filename);
 	  MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
 	  String contentType = mimetypesFileTypeMap.getContentType(filename);
-	  ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath.toString(), filename, contentType);
-	  
-	  return contentResource;
+	  return createImportedAttachment(filename, filename, contentType);
   }
   
   public String makeFCKAttachment(List respondueTextList) {
@@ -1636,12 +1648,10 @@ public class ExtractionHelper
 	  String referenceRoot = AssessmentService.getContentHostingService().REFERENCE_ROOT;
 	  String prependString = accessURL + referenceRoot;
 	  ContentResource contentResource = null;
-	  AttachmentHelper attachmentHelper = new AttachmentHelper();
 	  String resourceId = null;
 
 	  String contentType = "";
 	  String filename = "";
-	  StringBuffer fullFilePath = null;
 
 	  Iterator iter = respondueTextList.iterator();
 	  String itemText = "";
@@ -1660,10 +1670,7 @@ public class ExtractionHelper
 		  else if ("matimage".equals(splittedText[0])) {
 			  contentType = splittedText[1];
 			  filename = splittedText[2];
-			  fullFilePath = new StringBuffer(unzipLocation);
-			  fullFilePath.append("/");
-			  fullFilePath.append(filename);
-			  contentResource = attachmentHelper.createContentResource(fullFilePath.toString(), filename, contentType);
+			  contentResource = createImportedAttachment(filename, filename, contentType);
 			  if (contentResource != null) {
 				  resourceId = contentResource.getId();
 				  updatedText.append("<img src=\"");

@@ -31,6 +31,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdInvalidException;
@@ -39,13 +41,22 @@ import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.api.ToolManager;
 
 @Slf4j
 public class AttachmentHelper {
+
+	private final ContentHostingService contentHostingService;
+	private final ToolManager toolManager;
+
+	public AttachmentHelper() {
+		this(ComponentManager.get(ContentHostingService.class), ComponentManager.get(ToolManager.class));
+	}
+
+	public AttachmentHelper(ContentHostingService contentHostingService, ToolManager toolManager) {
+		this.contentHostingService = contentHostingService;
+		this.toolManager = toolManager;
+	}
 
 	public ContentResource createContentResource(String fullFilePath, String filename, String mimeType) {
 		ContentResource contentResource = null;
@@ -60,10 +71,9 @@ public class AttachmentHelper {
 			
 		try {
 			try{
-				fullFilePath = URLDecoder.decode(fullFilePath, "UTF-8");
 				filename = URLDecoder.decode(filename, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				log.error(e.getMessage());
+			} catch (UnsupportedEncodingException | IllegalArgumentException e) {
+				log.warn("Could not decode attachment filename {}; using the original name", filename);
 			}
 			
 			if (mimeType.equalsIgnoreCase("text/url")) {
@@ -81,14 +91,14 @@ public class AttachmentHelper {
 				content = byteArrayOutputStream.toByteArray();
 			}
 			
-			ResourcePropertiesEdit props = AssessmentService.getContentHostingService().newResourceProperties();
+			ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
 			// Maybe we need to put in some properties?
 			// props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 			// props.addProperty(ResourceProperties.PROP_DESCRIPTION, name);
 
-			contentResource = AssessmentService.getContentHostingService().addAttachmentResource(
-						filename, ToolManager.getCurrentPlacement().getContext(), 
-						ToolManager.getTool("sakai.samigo").getTitle(), mimeType, content, props);
+			contentResource = contentHostingService.addAttachmentResource(
+						filename, toolManager.getCurrentPlacement().getContext(),
+						toolManager.getTool("sakai.samigo").getTitle(), mimeType, content, props);
 		} catch (IdInvalidException e) {
 			log.error("IdInvalidException:" + e.getMessage());
 		} catch (PermissionException e) {
