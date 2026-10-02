@@ -1,0 +1,15 @@
+{
+  "name": "@sakai-ui/sakai-multi-gradebook",
+  "version": "3.0.6",
+  "description": "Sakai multi gradebook components",
+  "main": "index.js",
+  "license": "ECL-2.0",
+  "scripts": {
+    "test": "wtr"
+  },
+  "dependencies": {
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "lit": "^3.2.1",
+    "@sakai-ui/sakai-tag-selector": "file:../sakai-tag-selector"
+  }
+}

@@ -17,7 +17,7 @@
 	<script src="/messageforums-tool/js/messages.js"></script>
 	<script src="/messageforums-tool/js/permissions_header.js"></script>
 	<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-	<script type="module" src="/vuecomponents/js/sakai.min.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+	<script type="module" src="/webcomponents/bundles/multi-gradebook.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	<%
@@ -36,11 +36,6 @@
 		var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
 	
 	$(document).ready(function() {
-		var forumGradingExists = document.getElementById("revise:forum_grading") !== null;
-		if (isGradebookGroupEnabled && forumGradingExists) {
-			window.syncGbSelectorInput("gb-selector", "revise:group_view:forum_assignments");
-		}
-
 		const radioButtonRestrictedAvailability = document.getElementById('revise:availabilityRestricted:1');
 		if (radioButtonRestrictedAvailability.checked && $(".calWidget")[0].style['display'] === 'none') {
 			setDatesEnabled(radioButtonRestrictedAvailability);
@@ -396,7 +391,7 @@
 							    </f:subview>
 							    <f:subview id="group_view" rendered="#{ForumTool.gradebookGroupEnabled}">
 									<sakai-multi-gradebook
-											id="gb-selector"
+											id="gb-selector" input-id="revise:group_view:forum_assignments"
 											app-name="sakai.forums"
 											site-id='<h:outputText value="#{ForumTool.siteId}" />'
 											user-id='<h:outputText value="#{ForumTool.userId}" />'
