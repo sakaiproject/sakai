@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -95,7 +96,6 @@ public class DashboardController extends AbstractSakaiApiController implements E
     private SecurityService securityService;
 
     @Autowired
-    @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
     private ServerConfigurationService serverConfigurationService;
 
     @Autowired
@@ -114,6 +114,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     private List<String> homeWidgets = new ArrayList<>();
 
     private List<String> defaultHomeLayout = new ArrayList<>();
+
     private int maxNumberMotd = 1;
 
     /** This will be the map of the default widget layouts, one entry for each template */

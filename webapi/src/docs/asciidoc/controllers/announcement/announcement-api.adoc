@@ -19,7 +19,7 @@ include::{snippets}/get-user-announcements/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns an announcements object containing a list of announcement entries.
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response
@@ -42,7 +42,7 @@ include::{snippets}/get-site-announcements/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns an announcements object containing a list of announcement entries for the site.
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response

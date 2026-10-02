@@ -10,8 +10,12 @@ include::controllers/announcement/announcement-api.adoc[]
 
 include::controllers/calendar/calendar-api.adoc[]
 
+include::controllers/dashboard/dashboard-api.adoc[]
+
 include::controllers/grades/grades-api.adoc[]
 
 include::controllers/tasks/tasks-api.adoc[]
+
+include::controllers/notifications/notifications-api.adoc[]
 
 include::controllers/scorm/scorm-api.adoc[]

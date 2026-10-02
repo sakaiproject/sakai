@@ -28,17 +28,13 @@ import java.util.Random;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.restdocs.JUnitRestDocumentation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
@@ -52,79 +48,58 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.controllers.AnnouncementsController;
 
 import static org.mockito.Mockito.*;
 
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 import com.github.javafaker.Faker;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { WebApiTestConfiguration.class })
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, AnnouncementsController.class })
 public class AnnouncementsControllerTests extends BaseControllerTests {
 
-    private MockMvc mockMvc;
-
-    @Mock
+    @Autowired
     private ContentHostingService contentHostingService;
 
-    @Mock
+    @Autowired
     private AnnouncementService announcementService;
 
-    @Mock
+    @Autowired
     private EntityManager entityManager;
 
-    @Mock
+    @Autowired
     private PortalService portalService;
 
-    @Mock
-    private SessionManager sessionManager;
-
-    @Mock
+    @Autowired
     private SiteService siteService;
 
-    @Mock
+    @Autowired
     private UserDirectoryService userDirectoryService;
 
-    private AutoCloseable mocks;
+    @Autowired
+    private AnnouncementsController controller;
 
     private Faker faker;
 
     @Before
-	public void setup() {
-
-        mocks = MockitoAnnotations.openMocks(this);
+    public void setup() {
 
         faker = new Faker(new Random(24));
 
-        reset(announcementService);
-
-        AnnouncementsController controller = new AnnouncementsController();
+        reset(announcementService, sessionManager);
 
         var session = mock(Session.class);
         when(session.getUserId()).thenReturn("user3");
         when(sessionManager.getCurrentSession()).thenReturn(session);
-        controller.setSessionManager(sessionManager);
 
-        controller.setAnnouncementService(announcementService);
-        controller.setPortalService(portalService);
-        controller.setSiteService(siteService);
-        controller.setEntityManager(entityManager);
+        buildMockMvc(controller);
+	  }
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
-	}
-
-    @After
-    public void tearDown() throws Exception {
-
-        if (mocks != null) {
-            mocks.close();
-        }
+    @Test
+    public void testMissingSession() throws Exception {
+        testMissingSession("/users/me/announcements");
     }
 
     @Test
