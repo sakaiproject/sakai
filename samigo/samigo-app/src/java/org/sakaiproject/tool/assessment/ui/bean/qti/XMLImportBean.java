@@ -48,6 +48,7 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
@@ -164,16 +165,19 @@ public class XMLImportBean implements Serializable {
   
   public void importAssessment(String uploadFile, boolean isCP, boolean isRespondus)
   {
+	if (!authorizationBean.isUserAllowedToCreateAssessment()) {
+		throw new SecurityException("Assessment import requires assessment.createAssessment");
+	}
 	String filename = uploadFile;
 	String unzipLocation = null;
 	boolean fileNotFound = false;
-	if (isCP) {
-		ImportService importService = new ImportService();
-		unzipLocation = importService.unzipImportFile(uploadFile);
-		filename = unzipLocation + "/" + importService.getQtiFilename();
-	}
     try
     {
+      if (isCP) {
+        ImportService importService = new ImportService();
+        unzipLocation = importService.unzipImportFile(uploadFile);
+        filename = unzipLocation + "/" + importService.getQtiFilename();
+      }
       processFile(filename, uploadFile, isRespondus);
     }
     catch (FileNotFoundException fnfex)
@@ -184,13 +188,14 @@ public class XMLImportBean implements Serializable {
     }
     catch (Exception ex)
     {
+      log.warn("QTI assessment import failed for user {}", AgentFacade.getAgentString(), ex);
       FacesMessage message = new FacesMessage( rb.getString("import_err") );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
     finally {
       boolean success = false;    	
       // remove unsuccessful file
-      if (!fileNotFound) {
+      if (!fileNotFound && (!isCP || unzipLocation != null)) {
         log.debug("****Clean up file: "+filename);
         File f1 = new File(filename);
         success = f1.delete();
@@ -204,8 +209,9 @@ public class XMLImportBean implements Serializable {
           if (!success) {
         	  log.error ("Failed to delete file " + uploadFile);
           }
-    	  File f3 = new File(unzipLocation);
-    	  deleteDirectory(f3);
+          if (unzipLocation != null) {
+            deleteDirectory(new File(unzipLocation));
+          }
       }
     }
   }
@@ -540,30 +546,34 @@ public class XMLImportBean implements Serializable {
    */
   private void importPool(String uploadFile, boolean isCP, boolean isRespondus) {
 
+    if (!authorizationBean.getCreateQuestionPool()) {
+        throw new SecurityException("Question pool import requires assessment.questionpool.create");
+    }
+
     // Get the file name
     String fileName = uploadFile;
     String unzipLocation = null;
     boolean fileNotFound = false;
-    if (isCP) {
-        ImportService importService = new ImportService();
-        unzipLocation = importService.unzipImportFile(uploadFile);
-        fileName = unzipLocation + File.separator + importService.getQtiFilename();
-    }
-
     try {
+        if (isCP) {
+            ImportService importService = new ImportService();
+            unzipLocation = importService.unzipImportFile(uploadFile);
+            fileName = unzipLocation + File.separator + importService.getQtiFilename();
+        }
         processPoolFile(fileName, uploadFile, isRespondus);
     } catch (FileNotFoundException fnfex) {
         fileNotFound = true;
         FacesMessage message = new FacesMessage( rb.getString("import_qti_not_found") );
         FacesContext.getCurrentInstance().addMessage(null, message);
     } catch (Exception ex) {
+        log.warn("QTI question pool import failed for user {}", AgentFacade.getAgentString(), ex);
         FacesMessage message = new FacesMessage( rb.getString("import_err") );
         FacesContext.getCurrentInstance().addMessage(null, message);
     }
     finally {
         boolean success = false;
         // remove unsuccessful file
-        if (!fileNotFound) {
+        if (!fileNotFound && (!isCP || unzipLocation != null)) {
           log.debug("****Clean up file: {}", fileName);
           File f1 = new File(fileName);
           success = f1.delete();
@@ -577,8 +587,9 @@ public class XMLImportBean implements Serializable {
             if (!success) {
                 log.warn("Failed to delete file {}", uploadFile);
             }
-            File f3 = new File(unzipLocation);
-            deleteDirectory(f3);
+            if (unzipLocation != null) {
+                deleteDirectory(new File(unzipLocation));
+            }
         }
     }
   }
