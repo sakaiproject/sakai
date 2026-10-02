@@ -16,15 +16,18 @@
 package org.sakaiproject.tool.assessment.ui.security;
 
 import java.io.IOException;
+import java.util.Set;
 import javax.faces.FacesException;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /** Enforces view permissions before postback actions and after JSF navigation. */
 public class SamigoJsfAuthorizationListener implements PhaseListener {
@@ -60,9 +63,14 @@ public class SamigoJsfAuthorizationListener implements PhaseListener {
         }
         boolean allowed = false;
         if (ToolManager.getCurrentPlacement() != null) {
-            AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-            authorization.addAllPrivilege(ToolManager.getCurrentPlacement().getContext());
-            allowed = SamigoJsfViewAccess.isAllowed(viewId, authorization::getPrivilege);
+            String siteId = ToolManager.getCurrentPlacement().getContext();
+            Set<String> permissions = SamigoJsfPermissions.get((ServletRequest) context.getExternalContext().getRequest(),
+                SessionManager.getCurrentSessionUserId(), siteId, () -> {
+                    AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+                    authorization.addAllPrivilege(siteId);
+                    return authorization.getAuthzMap();
+                });
+            allowed = SamigoJsfViewAccess.isAllowed(viewId, permissions::contains);
         }
         if (!allowed) {
             try {

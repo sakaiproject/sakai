@@ -24,6 +24,7 @@ package org.sakaiproject.jsf.util;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -60,6 +61,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.security.SamigoJsfViewAccess;
+import org.sakaiproject.tool.assessment.ui.security.SamigoJsfPermissions;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavListener;
 
@@ -130,9 +132,13 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
               res.sendError(HttpServletResponse.SC_FORBIDDEN);
               return;
           }
-          AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
-          authorization.addAllPrivilege(ToolManager.getCurrentPlacement().getContext());
-          if (!SamigoJsfViewAccess.isAllowed(authorizationTarget, authorization::getPrivilege)) {
+          String siteId = ToolManager.getCurrentPlacement().getContext();
+          Set<String> permissions = SamigoJsfPermissions.get(req, SessionManager.getCurrentSessionUserId(), siteId, () -> {
+              AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
+              authorization.addAllPrivilege(siteId);
+              return authorization.getAuthzMap();
+          });
+          if (!SamigoJsfViewAccess.isAllowed(authorizationTarget, permissions::contains)) {
               res.sendError(HttpServletResponse.SC_FORBIDDEN);
               return;
           }
