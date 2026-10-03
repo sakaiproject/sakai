@@ -480,22 +480,6 @@ public class ExtractionHelper
     makeAssessmentFeedback(assessment);
     applyImportedFeedbackDates(assessment);
 
-    // Respondus Locked Browser
-    // To-do: To retain the value, need to re-organize SamigoApiFactory to samigo-api.
-    /* 
-    if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel("REQUIRE_LOCKED_BROWSER")))
-    {
-    	SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-        assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
-        if (assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD") != null || 
-        		!((String) assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD")).trim().equals("") ) {
-        	String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD"));
-        	assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, encryptedPassword);
-        }
-    	
-        assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.TITLE_DECORATION, assessment.getTitle());
-    }
-    */
   }
 
   /**

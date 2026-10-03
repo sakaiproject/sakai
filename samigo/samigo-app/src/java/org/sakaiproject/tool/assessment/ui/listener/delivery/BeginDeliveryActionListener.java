@@ -40,7 +40,6 @@ import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -76,6 +75,9 @@ import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>
@@ -85,8 +87,13 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class BeginDeliveryActionListener implements ActionListener
+public class BeginDeliveryActionListener extends SpringBeanAutowiringSupport implements ActionListener
 {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
   private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
   private ToolManager toolManager = Objects.requireNonNull(ComponentManager.get(ToolManager.class));
@@ -107,7 +114,7 @@ public class BeginDeliveryActionListener implements ActionListener
     String actionString = ContextUtil.lookupParam("actionString");
     String publishedId = ContextUtil.lookupParam("publishedId");
     String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
 
     if (StringUtils.isNotBlank(actionString)) {
       // if actionString is null, likely that action & actionString has been set already, 

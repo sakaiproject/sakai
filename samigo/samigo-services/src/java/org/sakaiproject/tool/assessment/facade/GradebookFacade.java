@@ -23,25 +23,26 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.io.Serializable;
 
-import org.sakaiproject.spring.SpringBeanLocator;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * <p>Description: Implements the internal gradebook information.
- * Uses Sakai services through the gradebook helper.</p>
+ * Resolves the Sakai site ID used by Gradebook.</p>
  * <p>Sakai Project Copyright (c) 2005</p>
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
  *
  */
+@Slf4j
 public class GradebookFacade implements Serializable
 {
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-  private static final GradebookHelper helper =
-      (GradebookHelper) SpringBeanLocator.getInstance().getBean("gradebookHelper");
 
   /**
    * Get current gradebook uid.
@@ -49,7 +50,17 @@ public class GradebookFacade implements Serializable
    */
   public static String getGradebookUId(String siteId)
   {
-    return helper.getGradebookUId(siteId);
+    Placement placement = null;
+    try {
+      placement = ToolManager.getCurrentPlacement();
+    } catch (Exception e) {
+      log.warn("Unable to resolve current tool placement for gradebook", e);
+    }
+    if (placement != null) {
+      return placement.getContext();
+    }
+    log.warn("No tool placement available for gradebook; using site ID {}", siteId);
+    return siteId;
   }
   
   public static String getGradebookUId()

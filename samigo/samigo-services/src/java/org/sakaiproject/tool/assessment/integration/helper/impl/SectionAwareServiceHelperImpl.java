@@ -53,7 +53,10 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * on the shared Section Awareness API.
  */
 @Slf4j
-public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implements SectionAwareServiceHelper {
+public class SectionAwareServiceHelperImpl implements SectionAwareServiceHelper {
+
+	@Setter
+	private SectionAwareness sectionAwareness;
 
 	@Setter
 	SiteService siteService;
@@ -62,25 +65,25 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 
 	public boolean isUserAbleToGrade(String siteid, String userUid) {
 		return 
-				getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || 
-				getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.TA) ||
+				sectionAwareness.isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) ||
+				sectionAwareness.isSiteMemberInRole(siteid, userUid, Role.TA) ||
 				securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
 	}
 
 	public boolean isUserAbleToGradeAll(String siteid, String userUid) {
-		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
+		return sectionAwareness.isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
 	}
 
 	public boolean isUserAbleToGradeSection(String sectionUid, String userUid) {
-		return getSectionAwareness().isSectionMemberInRole(sectionUid, userUid, Role.TA);
+		return sectionAwareness.isSectionMemberInRole(sectionUid, userUid, Role.TA);
 	}
 
 	public boolean isUserAbleToEdit(String siteid, String userUid) {
-		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
+		return sectionAwareness.isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
 	}
 
 	public boolean isUserGradable(String siteid, String userUid) {
-		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.STUDENT);
+		return sectionAwareness.isSiteMemberInRole(siteid, userUid, Role.STUDENT);
 	}
 
 	/**
@@ -88,7 +91,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	public List<EnrollmentRecord> getAvailableEnrollments(String siteid, String userUid) {
 		List<EnrollmentRecord> enrollments;
 		if ("-1".equals(userUid) || isUserAbleToGradeAll(siteid, userUid)) {
-			enrollments = getSectionAwareness().getSiteMembersInRole(siteid, Role.STUDENT);
+			enrollments = sectionAwareness.getSiteMembersInRole(siteid, Role.STUDENT);
 		} else {
 			// We use a map because we may have duplicate students among the section
 			// participation records.
@@ -176,7 +179,6 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	@Override
 	public List<CourseSection> getAvailableSections(String siteid, String userUid) {
 		List<CourseSection> availableSections = new ArrayList<>();
-		SectionAwareness sectionAwareness = getSectionAwareness();
 		if (sectionAwareness != null) {
 			List<CourseSection> sections = sectionAwareness.getSections(siteid);
 			for (CourseSection section : sections) {
@@ -195,7 +197,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	}
 	
 	private List getSectionEnrollmentsTrusted(String sectionUid, String userUid) {
-		return getSectionAwareness().getSectionMembersInRole(sectionUid, Role.STUDENT);
+		return sectionAwareness.getSectionMembersInRole(sectionUid, Role.STUDENT);
 	}
 
 	public List getSectionEnrollments(String siteid, String sectionUid, String userUid) {
@@ -212,7 +214,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	@Override
     public List<EnrollmentRecord> findMatchingEnrollments(String siteid, String searchString, String optionalSectionUid, String userUid) {
 		List<EnrollmentRecord> enrollments;
-        List allEnrollmentsFilteredBySearch = getSectionAwareness().findSiteMembersInRole(siteid, Role.STUDENT, searchString);
+        List allEnrollmentsFilteredBySearch = sectionAwareness.findSiteMembersInRole(siteid, Role.STUDENT, searchString);
 
 		if (allEnrollmentsFilteredBySearch.isEmpty() ||
 			((optionalSectionUid == null) && isUserAbleToGradeAll(siteid, userUid))) {
@@ -224,7 +226,9 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 				// The user has selected a particular section.
 				enrollments = getSectionEnrollments(siteid, optionalSectionUid, userUid);
 			}
-			Set<String> availableStudentUids = FacadeUtils.getStudentUids(enrollments);
+			Set<String> availableStudentUids = enrollments.stream()
+					.map(enrollment -> enrollment.getUser().getUserUid())
+					.collect(Collectors.toSet());
 			enrollments = new ArrayList<>();
             for (Object enrollmentsFilteredBySearch : allEnrollmentsFilteredBySearch) {
                 EnrollmentRecord enr = (EnrollmentRecord) enrollmentsFilteredBySearch;
@@ -239,7 +243,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 
 
         public boolean isSectionMemberInRoleStudent(String sectionId, String studentId) {
-                return getSectionAwareness().isSectionMemberInRole(sectionId, studentId, Role.STUDENT);
+                return sectionAwareness.isSectionMemberInRole(sectionId, studentId, Role.STUDENT);
         }
 
 }

@@ -41,7 +41,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -118,7 +117,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     	  }
           
           // #3. secure delivery START phase
-          SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+          SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
           if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(id))) {
               String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
               if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {

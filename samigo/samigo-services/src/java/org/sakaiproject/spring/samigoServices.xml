@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="AssessmentServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.impl.assessment.AssessmentServiceImpl">
+  </bean>
+  <bean id="PublishedAssessmentServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.impl.assessment.PublishedAssessmentServiceImpl">
+  </bean>
+  <bean id="GradingServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.impl.grading.GradingServiceImpl">
+  </bean>
+  <bean id="QTIServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.impl.qti.QTIServiceImpl">
+  </bean>
+  <bean id="QuestionPoolServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl">
+  </bean>
+  <bean id="SecureDeliveryServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.impl.assessment.SecureDeliveryServiceImpl"
+    init-method="init">
+  </bean>
+  <bean id="ldbSecurityModule" class="org.sakaiproject.tool.assessment.services.assessment.SecureDeliveryProctorio" />
+</beans>

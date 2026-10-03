@@ -66,7 +66,6 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -116,12 +115,19 @@ import org.sakaiproject.util.ResourceLoader;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /* For delivery: Delivery backing bean */
 @Slf4j
 @ManagedBean(name="delivery")
 @SessionScoped
-public class DeliveryBean implements Serializable {
+public class DeliveryBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
 
   public static final String LINEAR_ACCESS = "1";
   public static final int TAKE_ASSESSMENT = 1;
@@ -880,7 +886,7 @@ public class DeliveryBean implements Serializable {
 	  // finish secure delivery
 	  setSecureDeliveryHTMLFragment( "" );
 	  setBlockDelivery( false );
-	  SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+	  SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
 	  if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(assessmentId))) {
 		  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
 		  if (moduleExists(moduleId)) {
@@ -1361,8 +1367,6 @@ public class DeliveryBean implements Serializable {
   public void validateSecureDeliveryPhase(Phase phase) {
     String moduleId = getSecureDeliveryModuleId();
 
-    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-
     if (moduleId != null) {
       HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 
@@ -1375,8 +1379,6 @@ public class DeliveryBean implements Serializable {
 
   private String getSecureDeliveryModuleId() {
     String moduleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
-
-    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
 
     boolean isSecureDeliveryAvailable = secureDeliveryService.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId());
     boolean moduleExists = moduleExists(moduleId);
@@ -1564,7 +1566,7 @@ public class DeliveryBean implements Serializable {
             messageKey = "secure_delivery_error_take_message";
     }
 
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
     String moduleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
 
     if (moduleExists(moduleId))
@@ -1633,7 +1635,7 @@ public class DeliveryBean implements Serializable {
   }
 
   public boolean isSebActive() {
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
     return secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(assessmentId))
         && StringUtils.equals(SecureDeliverySeb.MODULE_NAME, publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY));
   }

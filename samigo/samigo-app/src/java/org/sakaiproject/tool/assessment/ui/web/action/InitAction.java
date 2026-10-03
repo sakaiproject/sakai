@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServlet;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
@@ -42,16 +41,6 @@ import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueriesA
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.assessment.SectionServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.common.MediaServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.common.TypeServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradebookServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 
 @Slf4j
 public class InitAction extends HttpServlet{
@@ -117,39 +106,6 @@ public class InitAction extends HttpServlet{
     // authorization facade
     AuthzQueriesFacadeAPI authzQueriesFacade = PersistenceService.getInstance().getAuthzQueriesFacade();
     log.debug("*****#11  InitAction: authzQueriesFacade ="+authzQueriesFacade);
-
-    log.debug("*** LOADING EXTERNAL API ***");
-    log.debug("*****#12  InitAction: SamigoApiFactory.getInstance()=" + SamigoApiFactory.getInstance());
-
-    AssessmentServiceAPI assessmentServiceAPI = SamigoApiFactory.getInstance().getAssessmentServiceAPI();
-    log.debug("AssessmentServiceAPI: " + assessmentServiceAPI);
-
-    GradebookServiceAPI gradebookServiceAPI = SamigoApiFactory.getInstance().getGradebookServiceAPI();
-    log.debug("GradebookServiceAPI: " + gradebookServiceAPI);
-
-    GradingServiceAPI gradingServiceAPI = SamigoApiFactory.getInstance().getGradingServiceAPI();
-    log.debug("gradingServiceAPI: " + gradingServiceAPI);
-
-    ItemServiceAPI itemServiceAPI = SamigoApiFactory.getInstance().getItemServiceAPI();
-    log.debug("ItemServiceAPI: " + itemServiceAPI);
-
-    MediaServiceAPI mediaServiceAPI = SamigoApiFactory.getInstance().getMediaServiceAPI();
-    log.debug("MediaServiceAPI: " + mediaServiceAPI);
-
-    PublishedAssessmentServiceAPI publishedAssessmentServiceAPI = SamigoApiFactory.getInstance().getPublishedAssessmentServiceAPI();
-    log.debug("PublishedAssessmentServiceAPI: " + publishedAssessmentServiceAPI);
-
-    QTIServiceAPI qtiServiceAPI = SamigoApiFactory.getInstance().getQtiServiceAPI();
-    log.debug("QtiServiceAPI: " + qtiServiceAPI);
-
-    QuestionPoolServiceAPI questionPoolServiceAPI = SamigoApiFactory.getInstance().getQuestionPoolServiceAPI();
-    log.debug("QuestionPoolServiceAPI: " + questionPoolServiceAPI);
-
-    SectionServiceAPI sectionServiceAPI = SamigoApiFactory.getInstance().getSectionServiceAPI();
-    log.debug("SectionServiceAPI: " + sectionServiceAPI);
-
-    TypeServiceAPI typeServiceAPI = SamigoApiFactory.getInstance().getTypeServiceAPI();
-    log.debug("TypeServiceAPI: " + typeServiceAPI);
 
     AssessmentEntityProducer producer = (AssessmentEntityProducer) ComponentManager.get("org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer");
     log.debug("AssessmentEntityProducer: "+producer);

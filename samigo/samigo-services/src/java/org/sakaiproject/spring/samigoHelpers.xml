@@ -8,16 +8,13 @@
      class="org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl">
 </bean>
 
-<bean name="gradebookHelper"
-     class="org.sakaiproject.tool.assessment.integration.helper.impl.GradebookHelperImpl">
-</bean>
-
 <bean name="gradebookServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.impl.GradebookServiceHelperImpl">
 </bean>
 
 <bean name="sectionAwareServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.impl.SectionAwareServiceHelperImpl">
+     <property name="sectionAwareness" ref="org.sakaiproject.section.api.SectionAwareness"/>
      <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
      <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 </bean>

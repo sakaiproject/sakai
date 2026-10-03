@@ -69,7 +69,6 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
@@ -119,6 +118,11 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="assessmentSettings")
 @SessionScoped
 public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
     private static final GradebookServiceHelper gbsHelper =
       (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
     private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
@@ -522,7 +526,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       this.attachmentList = assessment.getAssessmentAttachmentList();
       
       // secure delivery
-      SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
       this.secureDeliveryAvailable = secureDeliveryService.isSecureDeliveryAvaliable();
       this.secureDeliveryModuleSelections = getSecureDeliverModuleSelections();
       this.secureDeliveryModule = (String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
@@ -1862,7 +1865,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
   public SelectItem[] getSecureDeliverModuleSelections() {
 	  
-	  SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
 	  Set<RegisteredSecureDeliveryModuleIfc> modules = secureDeliveryService.getSecureDeliveryModules( new ResourceLoader().getLocale() );
  
 	  List<SelectItem> selections = new ArrayList<>();

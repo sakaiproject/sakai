@@ -42,7 +42,6 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig.ConfigMode;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
@@ -65,6 +64,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>2
@@ -73,8 +75,12 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class SaveAssessmentSettings
+public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
 {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
 
   private static final String EXTENDED_TIME_KEY = "extendedTime";
 
@@ -372,7 +378,6 @@ public class SaveAssessmentSettings
     assessment.setSecuredIPAddressSet(ipSet);
     
     // kk. secure delivery settings
-    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
     String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, encryptedPassword);

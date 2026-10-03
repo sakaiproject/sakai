@@ -65,7 +65,6 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
@@ -100,6 +99,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.springframework.web.client.HttpClientErrorException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>2
@@ -108,8 +110,12 @@ import lombok.extern.slf4j.Slf4j;
  * @version $Id$
  */
 @Slf4j
-public class PublishAssessmentListener
+public class PublishAssessmentListener extends SpringBeanAutowiringSupport
     implements ActionListener {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
 
   private static final GradebookServiceHelper gbsHelper =
       (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
@@ -422,7 +428,6 @@ public class PublishAssessmentListener
     }
 
     // Execute ASSESSMENT_PUBLISH pre-delivery phase for secure delivery module if available
-    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
     PublishedAssessmentIfc publishedAssessment = pub.getData();
 
     if (secureDeliveryService.isSecureDeliveryAvaliable()) {

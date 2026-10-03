@@ -49,7 +49,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
@@ -85,6 +84,9 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>
@@ -98,9 +100,14 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
  */
 
 @Slf4j
- public class TotalScoreListener
+ public class TotalScoreListener extends SpringBeanAutowiringSupport
   implements ActionListener, ValueChangeListener
 {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
   private BeanSort bs;
 
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
@@ -572,7 +579,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 	TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	Map agentResultsByAssessmentGradingIdMap = new HashMap();
 
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
     String moduleId = null;
     if ( secureDelivery.isSecureDeliveryAvaliable() ) {
         moduleId = p.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );

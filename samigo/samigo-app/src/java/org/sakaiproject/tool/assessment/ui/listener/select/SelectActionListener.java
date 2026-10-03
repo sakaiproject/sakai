@@ -37,7 +37,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
@@ -61,6 +60,9 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>
@@ -70,7 +72,12 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class SelectActionListener implements ActionListener {
+public class SelectActionListener extends SpringBeanAutowiringSupport implements ActionListener {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
   private static final String AVG_SCORE = EvaluationModelIfc.AVERAGE_SCORE.toString();
   private static final String HIGH_SCORE = EvaluationModelIfc.HIGHEST_SCORE.toString();
   private static final String LAST_SCORE = EvaluationModelIfc.LAST_SCORE.toString();
@@ -384,7 +391,7 @@ public class SelectActionListener implements ActionListener {
       Collections.reverse(submittedAssessmentGradingList);
     }
 
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
 
     if (secureDelivery != null && secureDelivery.isSecureDeliveryAvaliable()) {
       HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();

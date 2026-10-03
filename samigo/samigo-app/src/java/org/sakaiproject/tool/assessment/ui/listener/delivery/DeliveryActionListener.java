@@ -57,7 +57,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -109,6 +108,9 @@ import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.EncryptionUtilityService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * Handles delivery actions for published assessments including taking, reviewing, previewing, and grading.
@@ -136,7 +138,11 @@ import org.sakaiproject.util.api.EncryptionUtilityService;
  * @see BeginDeliveryActionListener
  */
 @Slf4j
-public class DeliveryActionListener implements ActionListener {
+public class DeliveryActionListener extends SpringBeanAutowiringSupport implements ActionListener {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  protected SecureDeliveryServiceAPI secureDeliveryService;
 
   private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -272,7 +278,7 @@ public class DeliveryActionListener implements ActionListener {
       Map itemGradingHash = new HashMap();
       PublishedAssessmentService pubService = new PublishedAssessmentService();
       AssessmentGradingData ag = null;
-      SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+      SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
       boolean isFirstTimeBegin = false;
       StringBuffer eventRef; 
       Event event;

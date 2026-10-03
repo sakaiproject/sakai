@@ -64,7 +64,6 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig.ConfigMode;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -106,6 +105,9 @@ import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>2
@@ -114,9 +116,14 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class SavePublishedSettingsListener
+public class SavePublishedSettingsListener extends SpringBeanAutowiringSupport
 implements ActionListener
 {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
 	private static final GradebookServiceHelper gbsHelper =
 		(GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
 	private CalendarServiceHelper calendarService = (CalendarServiceHelper) SpringBeanLocator.getInstance().getBean("calendarServiceHelper");
@@ -224,7 +231,6 @@ implements ActionListener
 	    assessment.setSecuredIPAddressSet(ipSet);
 	    
 	    // k. secure delivery settings
-	    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
 	    String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, encryptedPassword);

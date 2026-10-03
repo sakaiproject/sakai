@@ -72,7 +72,6 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
@@ -117,6 +116,11 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="publishedSettings")
 @SessionScoped
 public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
   private static final GradebookServiceHelper gbsHelper =
       (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
 
@@ -489,7 +493,6 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
       this.publishedUrl = generatePublishedURL(assessment);
 
       // secure delivery
-      SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
       this.secureDeliveryAvailable = secureDeliveryService.isSecureDeliveryAvaliable();
       this.secureDeliveryModuleSelections = getSecureDeliverModuleSelections();
       this.secureDeliveryModule = (String) values.get( SecureDeliveryServiceAPI.MODULE_KEY );
@@ -1777,7 +1780,6 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
 	public SelectItem[] getSecureDeliverModuleSelections() {
 		
-		SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
 		Set<RegisteredSecureDeliveryModuleIfc> modules = secureDeliveryService.getSecureDeliveryModules( new ResourceLoader().getLocale() );
  		  
 		List<SelectItem> selections = new ArrayList<>();
