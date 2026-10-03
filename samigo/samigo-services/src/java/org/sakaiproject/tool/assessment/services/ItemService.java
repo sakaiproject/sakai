@@ -47,6 +47,11 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemHistoricalIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
@@ -73,6 +78,37 @@ public class ItemService
   {
     rubricsService = ComponentManager.get(RubricsService.class);
     tagService = ComponentManager.get(TagService.class);
+  }
+
+  /** Checks assessment editing or pool export access before exporting an individual question. */
+  public boolean canExportItem(Long itemId, String siteId) {
+    if (siteId == null) {
+      return false;
+    }
+    String userId = AgentFacade.getAgentString();
+    ItemFacade item = getItem(itemId, userId);
+    if (item == null) {
+      return false;
+    }
+    if (item.getSection() != null && item.getSection().getAssessment() != null) {
+      AssessmentIfc assessment = item.getSection().getAssessment();
+      AuthzQueriesFacadeAPI authorization = PersistenceService.getInstance().getAuthzQueriesFacade();
+      List<AuthorizationData> sites = authorization.getAuthorizationByFunctionAndQualifier(
+          "EDIT_ASSESSMENT", assessment.getAssessmentId().toString());
+      if (sites.stream().noneMatch(site -> siteId.equals(site.getAgentIdString()))) {
+        return false;
+      }
+      return authorization.hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId)
+          || (authorization.hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN, siteId)
+              && userId.equals(assessment.getCreatedBy()));
+    }
+    QuestionPoolService pools = new QuestionPoolService();
+    for (Object poolId : pools.getPoolIdsByItem(itemId)) {
+      if (pools.canExportPool(poolId.toString(), userId)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 

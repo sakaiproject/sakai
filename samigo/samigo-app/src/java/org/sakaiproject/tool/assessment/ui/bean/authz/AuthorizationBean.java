@@ -147,6 +147,7 @@ public class AuthorizationBean implements Serializable {
 
     adminPrivilege = adminAssessmentPrivilege || adminQuestionPoolPrivilege || adminTemplatePrivilege;
     addAdminPrivilege(adminPrivilege, "admin.privilege", siteId);
+    initializedPerm = true;
   }
 
   public boolean canTakeAssessment(String siteId)
