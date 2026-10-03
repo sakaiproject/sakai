@@ -220,7 +220,7 @@ public class DownloadCPServlet extends HttpServlet {
 		String exportPoolZip = "exportPool.zip";
 		String xmlFileName = "exportAssessment.xml";
 		String manifestFileName = "imsmanifest.xml";
-		XMLController xmlController = (XMLController) ContextUtil.lookupBeanFromExternalServlet("xmlController", req, res);
+		XMLController xmlController = (XMLController) ContextUtil.lookupBeanFromExternalServlet("xmlController", req, res, getServletContext());
 
 		res.setContentType(contentType);
 		String zipFilename = (isAssessment) ? exportAssessmentZip : exportPoolZip;
@@ -303,7 +303,7 @@ public class DownloadCPServlet extends HttpServlet {
 		String agentIdString = AgentFacade.getAgentString();
 		if (agentIdString == null || agentIdString.equals("")) { // try this
 			PersonBean person = (PersonBean) ContextUtil
-					.lookupBeanFromExternalServlet("person", req, res);
+					.lookupBeanFromExternalServlet("person", req, res, getServletContext());
 			agentIdString = person.getAnonymousId();
 		}
 		return agentIdString;

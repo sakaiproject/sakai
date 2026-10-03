@@ -164,14 +164,14 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res, getServletContext());
         delivery.setSiteId(siteId);
 
         delivery.setAccessByUrlAndAuthorized(true);
 
         String assessmentId = publishedAssessment.getPublishedAssessmentId().toString();
 
-        SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBeanFromExternalServlet("select", req, res);
+        SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBeanFromExternalServlet("select", req, res, getServletContext());
         // Set to 3 to initiate the right view
         select.setDisplayAllAssessments("3");
         select.setReviewAssessmentId(assessmentId);
@@ -188,11 +188,11 @@ public class LoginServlet extends HttpServlet {
 
         HttpSession httpSession = req.getSession(true);
         httpSession.setMaxInactiveInterval(3600); // one hour
-        PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet("person", req, res);
+        PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet("person", req, res, getServletContext());
         // we are going to use the delivery bean to flag that this access is via url
         // this is the flag that we will use in deliverAssessment.jsp to decide what
         // button to display - daisyf
-        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res, getServletContext());
         // For SAK-7132. 
         // As this class is only used for taking assessment via URL, 
         // there should not be any assessment grading data at this point

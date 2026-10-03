@@ -249,14 +249,6 @@
   <!-- initialization servlets -->
   <servlet>
    	<!--  Ordering change required - PAFH 9/7/2006 -->
-    <description>This servlet initializes the servlet context for JSF helpers.</description>
-    <servlet-name>initializeServletContext</servlet-name>
-    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.InitializeServletContext</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet>
-   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <description>This servlet initializes assessment types and the entity producer.</description>
     <servlet-name>initAction</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.web.action.InitAction</servlet-class>

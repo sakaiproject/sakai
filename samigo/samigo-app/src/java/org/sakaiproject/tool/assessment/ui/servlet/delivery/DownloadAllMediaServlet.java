@@ -106,7 +106,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
     // get assessment's ownerId
     String assessmentCreatedBy = req.getParameter("createdBy");
     
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res, getServletContext());
     if (authzBean.isUserAllowedToGradeAssessment(publishedId, assessmentCreatedBy, true, currentSiteId)) {
     	accessDenied = false;
     }
@@ -194,7 +194,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 	  log.debug("mediaList.size() = " + mediaList.size());
 		  
 	  QuestionScoresBean questionScoresBean = (QuestionScoresBean) ContextUtil.lookupBeanFromExternalServlet(
-			   "questionScores", req, res);
+			   "questionScores", req, res, getServletContext());
 	  Map userIdMap = questionScoresBean.getUserIdMap();
 	  
 	  String agentId;
@@ -409,7 +409,7 @@ private FileInputStream getFileStream(String mediaLocation){
     String agentIdString = AgentFacade.getAgentString();
     if (agentIdString == null || agentIdString.equals("")){ // try this
       PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
-			   "person", req, res);
+			   "person", req, res, getServletContext());
       agentIdString = person.getAnonymousId();
     }
     return agentIdString;

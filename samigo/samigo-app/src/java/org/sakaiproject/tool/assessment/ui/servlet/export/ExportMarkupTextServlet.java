@@ -109,7 +109,7 @@ public class ExportMarkupTextServlet extends HttpServlet {
 		String agentIdString = AgentFacade.getAgentString();
 		if (StringUtils.isEmpty(agentIdString)) { // try this
 			PersonBean person = (PersonBean) ContextUtil
-					.lookupBeanFromExternalServlet("person", req, res);
+					.lookupBeanFromExternalServlet("person", req, res, getServletContext());
 			agentIdString = person.getAnonymousId();
 		}
 		return agentIdString;

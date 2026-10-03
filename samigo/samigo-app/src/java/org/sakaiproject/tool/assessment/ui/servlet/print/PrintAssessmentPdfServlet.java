@@ -50,9 +50,9 @@ public class PrintAssessmentPdfServlet extends SamigoBaseServlet {
         byte[] pdfBytes;
         String filename;
         try {
-            PDFAssessmentBean pdfAssessmentBean = (PDFAssessmentBean) ContextUtil.lookupBeanFromExternalServlet("pdfAssessment", request, response);
-            DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", request, response);
-            PrintSettingsBean printSettings = (PrintSettingsBean) ContextUtil.lookupBeanFromExternalServlet("printSettings", request, response);
+            PDFAssessmentBean pdfAssessmentBean = (PDFAssessmentBean) ContextUtil.lookupBeanFromExternalServlet("pdfAssessment", request, response, getServletContext());
+            DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", request, response, getServletContext());
+            PrintSettingsBean printSettings = (PrintSettingsBean) ContextUtil.lookupBeanFromExternalServlet("printSettings", request, response, getServletContext());
 
             pdfBytes = pdfAssessmentBean.generatePrintablePdf(deliveryBean, printSettings);
             filename = pdfAssessmentBean.generateFilename();
