@@ -34,13 +34,11 @@ import javax.faces.event.ActionListener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -54,7 +52,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
@@ -76,6 +73,9 @@ import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>
@@ -85,11 +85,24 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class BeginDeliveryActionListener implements ActionListener
+public class BeginDeliveryActionListener extends SpringBeanAutowiringSupport implements ActionListener
 {
+
+  @Autowired
+  @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+  private ServerConfigurationService serverConfigurationService;
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
   private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
-  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
-  private ToolManager toolManager = Objects.requireNonNull(ComponentManager.get(ToolManager.class));
+  @Autowired
+  @Qualifier("org.sakaiproject.rubrics.api.RubricsService")
+  private RubricsService rubricsService;
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.ToolManager")
+  private ToolManager toolManager;
 
   /**
    * ACTION.
@@ -107,7 +120,7 @@ public class BeginDeliveryActionListener implements ActionListener
     String actionString = ContextUtil.lookupParam("actionString");
     String publishedId = ContextUtil.lookupParam("publishedId");
     String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
 
     if (StringUtils.isNotBlank(actionString)) {
       // if actionString is null, likely that action & actionString has been set already, 
@@ -189,7 +202,6 @@ public class BeginDeliveryActionListener implements ActionListener
     // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
     delivery.setProtocol(ContextUtil.getProtocol());
 
-    ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
     Long sizeMax = Long.valueOf(serverConfigurationService.getInt("samigo.sizeMax", 20480));
     delivery.setFileUploadSizeMax(Math.round(sizeMax.floatValue()/1024));
     delivery.setPublishedAssessment(pub);

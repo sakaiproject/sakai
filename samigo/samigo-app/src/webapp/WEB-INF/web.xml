@@ -30,8 +30,8 @@
 	<context-param>
 	  <param-name>contextConfigLocation</param-name>
 	  <param-value>
-	  	classpath:/org/sakaiproject/spring/integrationContext.xml,
-	    classpath:/org/sakaiproject/spring/samigoApi.xml,
+	    classpath:/org/sakaiproject/spring/samigoHelpers.xml,
+	    classpath:/org/sakaiproject/spring/samigoServices.xml,
 	    /WEB-INF/applicationContext.xml
     </param-value>
 	</context-param>
@@ -249,25 +249,9 @@
   <!-- initialization servlets -->
   <servlet>
    	<!--  Ordering change required - PAFH 9/7/2006 -->
-    <description>This servlet stores the Spring application context in memory.</description>
-    <servlet-name>storeApplicationContext</servlet-name>
-    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.StoreApplicationContext</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet>
-   	<!--  Ordering change required - PAFH 9/7/2006 -->
-    <description>This servlet loads the Facade Queries in memory.</description>
+    <description>This servlet initializes assessment types and the entity producer.</description>
     <servlet-name>initAction</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.web.action.InitAction</servlet-class>
-    <load-on-startup>2</load-on-startup>
-  </servlet>
-
-  <servlet>
-   	<!--  Ordering change required - PAFH 9/7/2006 -->
-    <description>Set Mime Types File Type Map in memory.</description>
-    <servlet-name>initMimeTypes</servlet-name>
-    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.InitMimeTypes</servlet-class>
     <load-on-startup>2</load-on-startup>
   </servlet>
 

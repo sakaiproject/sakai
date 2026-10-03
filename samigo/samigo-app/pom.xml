@@ -56,13 +56,11 @@
             <groupId>org.sakaiproject.jsf2</groupId>
             <artifactId>jsf2-app</artifactId>
         </dependency>
-        <!-- remove the default api/imp 1.1_02 version from JSF prject with new 1.2 version  -->
         <dependency>
             <groupId>org.sakaiproject.jsf2</groupId>
             <artifactId>jsf2-widgets-sun-depend</artifactId>
             <type>pom</type>
         </dependency>
-		<!-- end of JSF related version issue -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>

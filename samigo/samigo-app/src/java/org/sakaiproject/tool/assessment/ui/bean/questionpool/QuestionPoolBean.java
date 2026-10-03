@@ -58,10 +58,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.osid.shared.SharedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -121,6 +121,10 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="questionpool")
 @SessionScoped
 public class QuestionPoolBean implements Serializable {
+
+  @Autowired
+  @Qualifier("org.sakaiproject.util.api.FormattedText")
+  private FormattedText formattedText;
 	
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
@@ -1334,7 +1338,7 @@ public String getAddOrEdit()
 			fbean.setText((String) texts.get(0).toArray()[i++]);
 			fbean.setHasInput(Boolean.TRUE); // input box
 			fbean.setItemGradingData(data);
-			fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
+			fbean.setResponse(formattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
 			fbean.setIsCorrect(true);
 			fins.add(fbean);
 		}
@@ -2032,14 +2036,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 	return "importPool";
   }
 
-  public String importQuestion(){
-	return "importQuestion";
-  }
-
-  public String exportQuestion(){
-	return "exportQuestion";
-  }
-
   public String returnToAuthoring(){
 	return "author";
   }
@@ -2672,7 +2668,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 		List<ItemContentsBean>itemBeans = this.getItemsBean();
 		
 		int questionNumber = 1;
-		FormattedText formattedText = ComponentManager.get(FormattedText.class);
 		for ( ItemContentsBean itemBean : itemBeans) {
 			ItemFacade item = new ItemFacade(itemBean.getItemData());
 				

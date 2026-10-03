@@ -92,7 +92,6 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
 /**
  * The AssessmentService calls the service locator to reach the manager on the
@@ -1205,7 +1204,6 @@ public class AssessmentService {
 	 */
 	private void linkGradebookCategory(String fromContext, String toContext, Map<String, String> transversalMap) {
 		if (transversalMap == null || transversalMap.isEmpty()
-				|| !IntegrationContextFactory.getInstance().isIntegrated()
 				|| gradingService.isGradebookGroupEnabled(fromContext)
 				|| gradingService.isGradebookGroupEnabled(toContext)
 		) {

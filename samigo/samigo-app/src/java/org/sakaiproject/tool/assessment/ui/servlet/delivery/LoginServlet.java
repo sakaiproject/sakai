@@ -46,8 +46,8 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean;
@@ -59,6 +59,7 @@ import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +84,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class LoginServlet extends HttpServlet {
+
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
 
     private static final String PARAM_ID = "id";
     private static final String PARAM_ACTION = "action";
@@ -150,8 +155,7 @@ public class LoginServlet extends HttpServlet {
 
         String siteId = publishedAssessment.getOwnerSiteId();
         setSkinFolder(req, siteId);
-        boolean isInstructor = PersistenceService.getInstance()
-                .getAuthzQueriesFacade()
+        boolean isInstructor = authzQueriesFacade
                 .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
 
         // If this is called by an instructor or user is not authenticated, handle redirect in doTakeAssignment
@@ -160,14 +164,14 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res, getServletContext());
         delivery.setSiteId(siteId);
 
         delivery.setAccessByUrlAndAuthorized(true);
 
         String assessmentId = publishedAssessment.getPublishedAssessmentId().toString();
 
-        SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBeanFromExternalServlet("select", req, res);
+        SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBeanFromExternalServlet("select", req, res, getServletContext());
         // Set to 3 to initiate the right view
         select.setDisplayAllAssessments("3");
         select.setReviewAssessmentId(assessmentId);
@@ -184,11 +188,11 @@ public class LoginServlet extends HttpServlet {
 
         HttpSession httpSession = req.getSession(true);
         httpSession.setMaxInactiveInterval(3600); // one hour
-        PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet("person", req, res);
+        PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet("person", req, res, getServletContext());
         // we are going to use the delivery bean to flag that this access is via url
         // this is the flag that we will use in deliverAssessment.jsp to decide what
         // button to display - daisyf
-        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res, getServletContext());
         // For SAK-7132. 
         // As this class is only used for taking assessment via URL, 
         // there should not be any assessment grading data at this point
@@ -205,8 +209,7 @@ public class LoginServlet extends HttpServlet {
         String siteId = pub.getOwnerSiteId();
         setSkinFolder(req, siteId);
 
-        boolean isInstructor = PersistenceService.getInstance()
-                .getAuthzQueriesFacade()
+        boolean isInstructor = authzQueriesFacade
                 .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
 
         if (isInstructor) {
@@ -335,12 +338,12 @@ public class LoginServlet extends HttpServlet {
     private boolean checkMembership(PublishedAssessmentFacade pub) {
         boolean isMember = false;
         // get list of site that this published assessment has been released to
-        List<AuthorizationData> l = PersistenceService.getInstance().getAuthzQueriesFacade().
+        List<AuthorizationData> l = authzQueriesFacade.
                 getAuthorizationByFunctionAndQualifier("VIEW_PUBLISHED_ASSESSMENT",
                         pub.getPublishedAssessmentId().toString());
         for (AuthorizationData authorizationData : l) {
             String siteId = authorizationData.getAgentIdString();
-            isMember = PersistenceService.getInstance().getAuthzQueriesFacade().checkMembership(siteId);
+            isMember = authzQueriesFacade.checkMembership(siteId);
             if (isMember) break;
         }
         return isMember;
@@ -349,7 +352,7 @@ public class LoginServlet extends HttpServlet {
     private boolean checkMembershipForGroupRelease(PublishedAssessmentFacade pub) {
         boolean isMember = false;
         // get the site that owns the published assessment
-        List<AuthorizationData> aData = PersistenceService.getInstance().getAuthzQueriesFacade().
+        List<AuthorizationData> aData = authzQueriesFacade.
                 getAuthorizationByFunctionAndQualifier("OWN_PUBLISHED_ASSESSMENT",
                         pub.getPublishedAssessmentId().toString());
         if (aData == null || aData.isEmpty()) return false;
@@ -360,7 +363,7 @@ public class LoginServlet extends HttpServlet {
         Collection<Group> siteGroupsContainingUser = siteService.getOptionalSite(siteId).map(s -> s.getGroupsWithMember(currentUserId)).orElse(Collections.emptyList());
 
         // get a list of groups that this published assessment has been released to
-        aData = PersistenceService.getInstance().getAuthzQueriesFacade().
+        aData = authzQueriesFacade.
                 getAuthorizationByFunctionAndQualifier("TAKE_PUBLISHED_ASSESSMENT", pub.getPublishedAssessmentId().toString());
         for (AuthorizationData aDatum : aData) {
             String groupId = aDatum.getAgentIdString();

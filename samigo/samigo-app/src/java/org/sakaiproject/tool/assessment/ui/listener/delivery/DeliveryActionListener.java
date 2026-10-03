@@ -51,13 +51,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Precision;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -109,6 +107,9 @@ import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.EncryptionUtilityService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * Handles delivery actions for published assessments including taking, reviewing, previewing, and grading.
@@ -136,27 +137,37 @@ import org.sakaiproject.util.api.EncryptionUtilityService;
  * @see BeginDeliveryActionListener
  */
 @Slf4j
-public class DeliveryActionListener implements ActionListener {
+public class DeliveryActionListener extends SpringBeanAutowiringSupport implements ActionListener {
+
+  @Autowired
+  @Qualifier("org.sakaiproject.util.api.FormattedText")
+  protected FormattedText formattedText;
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  protected SecureDeliveryServiceAPI secureDeliveryService;
 
   private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-  private final EncryptionUtilityService encryptionUtilityService;
-  private final EventTrackingService eventTrackingService;
+  @Autowired
+  @Qualifier("org.sakaiproject.util.api.EncryptionUtilityService")
+  private EncryptionUtilityService encryptionUtilityService;
+  @Autowired
+  @Qualifier("org.sakaiproject.event.api.EventTrackingService")
+  protected EventTrackingService eventTrackingService;
   private final GradingService gradingService;
   private final ResourceLoader ra;
   private final ResourceLoader rb;
-  private final SessionManager sessionManager;
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.SessionManager")
+  private SessionManager sessionManager;
 
   private boolean resetPageContents = true;
 
     public DeliveryActionListener() {
-        this(
-                ComponentManager.get(EncryptionUtilityService.class),
-                ComponentManager.get(EventTrackingService.class),
-                new GradingService(),
-                new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages"),
-                new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages"),
-                ComponentManager.get(SessionManager.class));
+        gradingService = new GradingService();
+        ra = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+        rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
     }
 
     public DeliveryActionListener(
@@ -272,7 +283,7 @@ public class DeliveryActionListener implements ActionListener {
       Map itemGradingHash = new HashMap();
       PublishedAssessmentService pubService = new PublishedAssessmentService();
       AssessmentGradingData ag = null;
-      SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+      SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
       boolean isFirstTimeBegin = false;
       StringBuffer eventRef; 
       Event event;
@@ -492,7 +503,7 @@ public class DeliveryActionListener implements ActionListener {
                   eventLogData.setAssessmentId(Long.valueOf(id));
                   eventLogData.setProcessId(delivery.getAssessmentGradingId());
                   eventLogData.setStartDate(new Date());
-                  eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+                  eventLogData.setTitle(formattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
                   eventLogData.setUserEid(agentEid); 
                   String site_id = AgentFacade.getCurrentSiteId();
                   //take assessment via url
@@ -629,7 +640,7 @@ public class DeliveryActionListener implements ActionListener {
     		eventLogData.setAssessmentId(Long.valueOf(id));
     		eventLogData.setProcessId(delivery.getAssessmentGradingId());
     		eventLogData.setStartDate(new Date());
-    		eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+            eventLogData.setTitle(formattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
     		eventLogData.setUserEid(agentEid); 
     		String site_id =AgentFacade.getCurrentSiteId();
     		//take assessment via url
@@ -2211,7 +2222,7 @@ public class DeliveryActionListener implements ActionListener {
           {
         	  
             fbean.setItemGradingData(data);
-            fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
+            fbean.setResponse(formattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
             if (answer.getText() == null)
             {
               answer.setText("");
@@ -2416,7 +2427,7 @@ public class DeliveryActionListener implements ActionListener {
                   if ((data.getPublishedAnswerId()!=null) && (data.getPublishedAnswerId().equals(answer.getId())))
                   {
                       fbean.setItemGradingData(data);
-                      fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
+                      fbean.setResponse(formattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
                       if (answer.getText() == null)
                       {
                           answer.setText("");

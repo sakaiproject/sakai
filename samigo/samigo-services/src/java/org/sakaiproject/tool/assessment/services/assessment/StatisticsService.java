@@ -50,9 +50,9 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc.TypeId;
 import org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import lombok.NonNull;
@@ -261,6 +261,8 @@ public class StatisticsService {
 
     private QuestionPoolService questionPoolService;
 
+    @Autowired
+    @Qualifier("StatisticsFacadeQueries")
     private StatisticsFacadeQueriesAPI statisticsFacadeQueries;
 
     private Cache<String, QuestionPoolStatistics> questionPoolStatisticsCache;
@@ -268,7 +270,6 @@ public class StatisticsService {
 
     public StatisticsService() {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        statisticsFacadeQueries = PersistenceService.getInstance().getStatisticsFacadeQueries();
 
         gradingService = new GradingService();
         questionPoolService = new QuestionPoolService();

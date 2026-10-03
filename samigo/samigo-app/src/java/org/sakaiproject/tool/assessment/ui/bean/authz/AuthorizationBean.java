@@ -34,17 +34,25 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.cover.ToolManager;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /* For authorization */
 @Slf4j
 @ManagedBean(name="authorization")
 @SessionScoped
-public class AuthorizationBean implements Serializable {
+public class AuthorizationBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
 
 	private static final long serialVersionUID = -2782949557257727817L;
 
@@ -246,7 +254,7 @@ public class AuthorizationBean implements Serializable {
 
 
   public boolean addPrivilege(String functionName, String siteId){
-     boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
+     boolean privilege = authzQueriesFacade.hasPrivilege(functionName);
      map.put(functionName+"_"+siteId, Boolean.valueOf(privilege));
      return privilege;
   }
@@ -460,7 +468,8 @@ public class AuthorizationBean implements Serializable {
         }
     }
     // get list of site that this published assessment has been released to
-    List<AuthorizationData> l = PersistenceService.getInstance().getAuthzQueriesFacade().getAuthorizationByFunctionAndQualifier(published ? "OWN_PUBLISHED_ASSESSMENT" : "EDIT_ASSESSMENT", assessmentId);
+    AuthzQueriesFacadeAPI authzQueriesFacade = (AuthzQueriesFacadeAPI) ComponentManager.get("AuthzQueriesFacade");
+    List<AuthorizationData> l = authzQueriesFacade.getAuthorizationByFunctionAndQualifier(published ? "OWN_PUBLISHED_ASSESSMENT" : "EDIT_ASSESSMENT", assessmentId);
 
     for (int i=0; i < l.size(); i++) {
       String assessmentSiteId = (l.get(i)).getAgentIdString();

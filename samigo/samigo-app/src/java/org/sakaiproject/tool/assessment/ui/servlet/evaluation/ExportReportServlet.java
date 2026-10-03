@@ -229,14 +229,14 @@ public class ExportReportServlet extends SamigoBaseServlet {
         histogramScoresBean.setAllSubmissions(scope);
 
         // Prepare totalScoresBean
-        TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBeanFromExternalServlet("totalScores", request, response);
+        TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBeanFromExternalServlet("totalScores", request, response, getServletContext());
         totalScoresBean.setAllSubmissions(scope);
         totalScoresBean.setReleaseToAnonymous(false);
         totalScoresBean.setPublishedId(assessmentId);
         totalScoresBean.setPublishedAssessment(assessment);
 
         // Prepare questionScoresBean
-        QuestionScoresBean questionScoresBean = (QuestionScoresBean) ContextUtil.lookupBeanFromExternalServlet("questionScores", request, response);
+        QuestionScoresBean questionScoresBean = (QuestionScoresBean) ContextUtil.lookupBeanFromExternalServlet("questionScores", request, response, getServletContext());
         questionScoresBean.setAllSubmissions(scope);
 
         // Process listener logic

@@ -249,7 +249,6 @@ public class AssessmentBean  implements Serializable {
    * @param list
    */
   public void setSectionList(List<? extends SectionDataIfc> list){
-    //this.assessmentTemplateIter = new AssessmentTemplateIteratorFacade(list);
     this.sectionList = new ArrayList<SelectItem>();
     try{
       for (int i=0; i<list.size();i++){

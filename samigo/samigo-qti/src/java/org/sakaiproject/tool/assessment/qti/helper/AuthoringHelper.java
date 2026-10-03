@@ -72,7 +72,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
+import org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.asi.Section;
@@ -273,23 +273,6 @@ public class AuthoringHelper
                                              assessmentAccessControl);
       }
       
-      // Respondus Locked Browser
-      // To-do: To retain the value, need to re-organize SamigoApiFactory to samigo-api. 
-      /*
-      if (assessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY) == null ||
-    		  SecureDeliveryServiceAPI.NONE_ID.equals(assessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY))) {
-
-    	  assessmentXml.setFieldentry("REQUIRE_LOCKED_BROWSER", "True");
-
-    	  if (assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.EXITPWD_KEY ) != null)
-    	  {
-    		  SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-    		  String exitPassword = secureDeliveryService.decryptPassword((String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY ), 
-    				  (String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.EXITPWD_KEY ) );
-    		  assessmentXml.setFieldentry("EXIT_PASSWARD", exitPassword);
-    	  }
-      }
-      */
       
       Set securedIPAddressSet = (Set) assessment.getSecuredIPAddressSet();
       if (securedIPAddressSet != null)
