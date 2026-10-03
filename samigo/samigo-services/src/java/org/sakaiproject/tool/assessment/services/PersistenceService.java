@@ -56,7 +56,6 @@ public class PersistenceService{
 	private PersistenceHelper persistenceHelper;
 	private ExtendedTimeFacade extendedTimeFacade;
 	private EventLogFacadeQueriesAPI eventLogFacadeQueries;  
-	private SecureDeliveryFacadeQueriesAPI secureDeliveryFacadeQueries;  
 	@Getter @Setter
 	private SebValidationFacadeQueriesAPI sebValidationFacadeQueries;
 	@Getter @Setter
@@ -250,14 +249,6 @@ public class PersistenceService{
 
 	public ExtendedTimeFacade getExtendedTimeFacade() {
 		return extendedTimeFacade;
-	}
-
-	public void setSecureDeliveryFacadeQueries(SecureDeliveryFacadeQueriesAPI secureDeliveryFacadeQueries) {
-		this.secureDeliveryFacadeQueries = secureDeliveryFacadeQueries;
-	}
-
-	public SecureDeliveryFacadeQueriesAPI getSecureDeliveryFacadeQueries() {
-		return secureDeliveryFacadeQueries;
 	}
 }
 

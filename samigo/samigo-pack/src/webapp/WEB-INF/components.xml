@@ -64,7 +64,6 @@
      <property name="sectionAwareness" ><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
      <property name="eventLogFacadeQueries" ><ref bean="EventLogFacadeQueries"/></property>
      <property name="extendedTimeFacade" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade" />
-     <property name="secureDeliveryFacadeQueries" ><ref bean="SecureDeliveryFacadeQueries"/></property>
      <property name="sebValidationFacadeQueries" ><ref bean="SebValidationFacadeQueries"/></property>
      <property name="statisticsFacadeQueries"><ref bean="StatisticsFacadeQueries" /></property>
    </bean>
@@ -109,11 +108,6 @@
         <property name="persistenceHelper" ref="persistenceHelper"/>
           <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
-
-    <bean id="SecureDeliveryFacadeQueries"
-          class="org.sakaiproject.tool.assessment.facade.SecureDeliveryFacadeQueries">
-        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-    </bean>
 
     <bean id="StatisticsFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueries">

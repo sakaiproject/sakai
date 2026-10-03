@@ -333,10 +333,6 @@
       <from-outcome>removeError</from-outcome>
       <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
     </navigation-case>
-    <navigation-case>
-      <from-outcome>sortCore</from-outcome>
-      <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
-    </navigation-case>
 	<navigation-case>
       <from-outcome>poolUpdateError</from-outcome>
       <to-view-id>/jsf/author/poolUpdateError.jsp</to-view-id>
@@ -378,11 +374,6 @@
     <navigation-case>
       <from-outcome>passwordAccessError</from-outcome>
       <to-view-id>/jsf/delivery/passwordAccessError.jsp</to-view-id>
-    </navigation-case>
-    <!--Added another page for remove submissions before delete assessment SAM-2587 -->
-    <navigation-case>
-      <from-outcome>requireRemoveSubmissions</from-outcome>
-      <to-view-id>/jsf/author/requireRemoveSubmissions.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>timeout</from-outcome>
