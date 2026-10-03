@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.api.ToolSession; 
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
 /**
  * <p>
@@ -73,9 +72,6 @@ public class SessionUtil {
    * @see org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean
    */
   public static void setSessionTimeout(FacesContext context, DeliveryBean delivery, boolean beginAssessment){
-    if (!IntegrationContextFactory.getInstance().isIntegrated()) {
-        return;
-    }
 
     ExternalContext exContext = context.getExternalContext();
     HttpSession session = (HttpSession) exContext.getSession(false);

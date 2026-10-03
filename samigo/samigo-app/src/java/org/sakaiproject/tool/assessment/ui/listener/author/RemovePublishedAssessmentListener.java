@@ -32,6 +32,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
@@ -41,7 +42,6 @@ import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -59,7 +59,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class RemovePublishedAssessmentListener
     implements ActionListener
 {
-  private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+  private CalendarServiceHelper calendarService = (CalendarServiceHelper) SpringBeanLocator.getInstance().getBean("calendarServiceHelper");
   private TaskService taskService;
   private SamigoAvailableNotificationService samigoAvailableNotificationService;
   

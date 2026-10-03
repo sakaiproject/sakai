@@ -38,6 +38,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.NotificationService;
@@ -55,7 +56,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -73,7 +73,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 @Slf4j
 public class RemoveAssessmentListener implements ActionListener
 {
-    private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+    private CalendarServiceHelper calendarService = (CalendarServiceHelper) SpringBeanLocator.getInstance().getBean("calendarServiceHelper");
     private SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
     private SiteService siteService = ComponentManager.get(SiteService.class);
     private ToolManager toolManager = ComponentManager.get(ToolManager.class);

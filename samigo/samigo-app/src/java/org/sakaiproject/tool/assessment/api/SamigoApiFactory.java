@@ -22,10 +22,7 @@
 
 package org.sakaiproject.tool.assessment.api;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.tool.assessment.api.spring.FactoryUtil;
-
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI;
@@ -46,32 +43,15 @@ import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServ
  * @author Ed Smiley <esmiley@stanford.edu>
  *
  */
-@Slf4j
 public abstract class SamigoApiFactory
 {
-  private static SamigoApiFactory instance = null;
-
   /**
-   * Static method returning an implementation instance of this factory.
-   * @return the factory singleton
+   * Return the Samigo API bean from the Sakai tool's Spring context.
+   * @return the configured API factory
    */
   public static SamigoApiFactory getInstance()
   {
-    log.debug("SamigoApiFactory.getInstance()");
-    if (instance==null)
-    {
-      try
-      {
-        FactoryUtil.setUseLocator(true);
-        instance = FactoryUtil.lookup();
-      }
-      catch (Exception ex)
-      {
-        log.error("Unable to read integration context: " + ex);
-      }
-    }
-    log.debug("instance="+instance);
-    return instance;
+    return (SamigoApiFactory) SpringBeanLocator.getInstance().getBean("samigoApiFactory");
   }
 
   // the factory api

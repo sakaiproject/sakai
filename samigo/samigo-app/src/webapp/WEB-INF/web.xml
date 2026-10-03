@@ -30,7 +30,7 @@
 	<context-param>
 	  <param-name>contextConfigLocation</param-name>
 	  <param-value>
-	  	classpath:/org/sakaiproject/spring/integrationContext.xml,
+	    classpath:/org/sakaiproject/spring/samigoHelpers.xml,
 	    classpath:/org/sakaiproject/spring/samigoApi.xml,
 	    /WEB-INF/applicationContext.xml
     </param-value>

@@ -30,6 +30,7 @@ import javax.faces.model.SelectItem;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -42,7 +43,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentD
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
@@ -70,7 +70,7 @@ public class RepublishAssessmentListener implements ActionListener {
 
     public RepublishAssessmentListener() {
         // Prefer fetching services in the constructor to avoid initialization in a static-like context
-        this.calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+        this.calendarService = (CalendarServiceHelper) SpringBeanLocator.getInstance().getBean("calendarServiceHelper");
         this.taskService = ComponentManager.get(TaskService.class);
         this.samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
         this.eventTrackingService = ComponentManager.get(EventTrackingService.class);

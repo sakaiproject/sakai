@@ -58,7 +58,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -72,8 +71,7 @@ import org.sakaiproject.util.api.FormattedText;
 @Slf4j
 public class RestoreAssessmentsBean implements Serializable {
 
-    private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-    private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+    private static final GradebookServiceHelper gbsHelper = (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
 
     List<DataAssessment> deletedAssessmentList;
     private SamigoAvailableNotificationService samigoAvailableNotificationService;
@@ -141,10 +139,7 @@ public class RestoreAssessmentsBean implements Serializable {
 
     private void updateGB(Long id) {
         try {
-            org.sakaiproject.grading.api.GradingService g = null;
-            if (integrated) {
-                g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.grading.api.GradingService");
-            }
+            org.sakaiproject.grading.api.GradingService g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.grading.api.GradingService");
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(String.valueOf(id));
             PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();

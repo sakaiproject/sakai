@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.integration.helper.integrated;
+package org.sakaiproject.tool.assessment.integration.helper.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +33,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.ExternalAssignmentProvider;
@@ -47,7 +48,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -70,7 +70,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     public void init() {
         log.info("INIT and Register Samigo AssessmentGradeInfoProvider");
         gradingService.registerExternalAssignmentProvider(this);
-        pubAssessmentCache = memoryService.getCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.pubAssessmentCache");
+        pubAssessmentCache = memoryService.getCache("org.sakaiproject.tool.assessment.integration.helper.impl.AssessmentGradeInfoProvider.pubAssessmentCache");
     }
 
     public void destroy() {
@@ -113,7 +113,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
             return false;
     	    }
 
-    	    GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+        GradebookServiceHelper gbsHelper = (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
     	    String toolName = gbsHelper.getAppName();
     	    if (!StringUtils.equals(externalAppName, getAppKey()) && !StringUtils.equals(externalAppName, toolName)) {
     	    	    return false;

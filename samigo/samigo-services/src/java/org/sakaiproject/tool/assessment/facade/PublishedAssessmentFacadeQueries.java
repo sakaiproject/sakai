@@ -73,7 +73,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -778,20 +777,13 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		if (publishedAssessment.getEvaluationModel() != null) {
 			String toGradebook = publishedAssessment.getEvaluationModel()
 					.getToGradeBook();
-
-			boolean integrated = IntegrationContextFactory.getInstance()
-					.isIntegrated();
-			org.sakaiproject.grading.api.GradingService g = null;
-			if (integrated) {
-				g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
-						"org.sakaiproject.grading.api.GradingService");
-			}
+			org.sakaiproject.grading.api.GradingService g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
+					"org.sakaiproject.grading.api.GradingService");
 
 			// write authorization
 			createAuthorization(publishedAssessment);
 
-			GradebookServiceHelper gbsHelper = IntegrationContextFactory
-					.getInstance().getGradebookServiceHelper();
+			GradebookServiceHelper gbsHelper = (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
 
 			if (toGradebook != null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 				try {

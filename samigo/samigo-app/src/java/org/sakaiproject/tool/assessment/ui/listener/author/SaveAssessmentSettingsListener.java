@@ -68,8 +68,6 @@ public class SaveAssessmentSettingsListener
 {
 
 	private GradingService gradingService;
-  //private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-  //private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
 
   public SaveAssessmentSettingsListener()
   {

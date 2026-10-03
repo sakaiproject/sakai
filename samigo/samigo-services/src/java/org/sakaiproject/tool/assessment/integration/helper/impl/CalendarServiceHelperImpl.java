@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.tool.assessment.integration.helper.integrated;
+package org.sakaiproject.tool.assessment.integration.helper.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;

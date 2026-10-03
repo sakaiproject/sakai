@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.integration.helper.integrated;
+package org.sakaiproject.tool.assessment.integration.helper.impl;
 
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.tool.assessment.services.PersistenceService;

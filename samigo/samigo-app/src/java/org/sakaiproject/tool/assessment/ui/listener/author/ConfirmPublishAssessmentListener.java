@@ -51,7 +51,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
@@ -80,9 +79,7 @@ public class ConfirmPublishAssessmentListener
 
   //private static ContextUtil cu;
   private static final GradebookServiceHelper gbsHelper =
-      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-  private static final boolean integrated =
-      IntegrationContextFactory.getInstance().isIntegrated();
+      (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
   private boolean isFromActionSelect = false;
 
   public ConfirmPublishAssessmentListener() {
@@ -384,11 +381,8 @@ public class ConfirmPublishAssessmentListener
     }
 
     //#2b - check if gradebook exist, if so, if assessment title already exists in GB
-    org.sakaiproject.grading.api.GradingService g = null;
-    if (integrated){
-      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-            getBean("org.sakaiproject.grading.api.GradingService");
-    }
+    org.sakaiproject.grading.api.GradingService g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+          getBean("org.sakaiproject.grading.api.GradingService");
     try{
 	if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(assessmentSettings.getToDefaultGradebook()) && gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)){
         String gbConflict_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "gbConflict_error");

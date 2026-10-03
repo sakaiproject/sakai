@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.facade.authz.integrated;
+package org.sakaiproject.tool.assessment.facade.authz;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,11 +46,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.*;
 import javax.persistence.PersistenceException;
 /**
- * <p>Description: Facade for AuthZ queries, standalone version.
+ * <p>Description: Facade for Sakai authorization queries.
  * <p>Sakai Project Copyright (c) 2005</p>
  * @author cwen
  * @author Rachel Gollub <rgollub@stanford.edu>
- * @author Ed Smiley <esmiley@stanford.edu> split integrated, standlaone.
+ * @author Ed Smiley <esmiley@stanford.edu>
  */
 @Slf4j
 @Transactional

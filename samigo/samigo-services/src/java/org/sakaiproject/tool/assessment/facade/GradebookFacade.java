@@ -23,12 +23,12 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.io.Serializable;
 
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
 
 /**
  * <p>Description: Implements the internal gradebook information.
- * Uses helper to determine integration context impelmentation.</p>
+ * Uses Sakai services through the gradebook helper.</p>
  * <p>Sakai Project Copyright (c) 2005</p>
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
@@ -41,9 +41,7 @@ public class GradebookFacade implements Serializable
 	 */
 	private static final long serialVersionUID = 1L;
   private static final GradebookHelper helper =
-      IntegrationContextFactory.getInstance().getGradebookHelper();
-  private static final boolean integrated =
-    IntegrationContextFactory.getInstance().isIntegrated();
+      (GradebookHelper) SpringBeanLocator.getInstance().getBean("gradebookHelper");
 
   /**
    * Get current gradebook uid.

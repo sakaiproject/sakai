@@ -88,7 +88,6 @@ import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -119,10 +118,8 @@ public class SavePublishedSettingsListener
 implements ActionListener
 {
 	private static final GradebookServiceHelper gbsHelper =
-		IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-	private static final boolean integrated =
-		IntegrationContextFactory.getInstance().isIntegrated();
-	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+		(GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
+	private CalendarServiceHelper calendarService = (CalendarServiceHelper) SpringBeanLocator.getInstance().getBean("calendarServiceHelper");
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
 	private EventTrackingService eventTrackingService;
@@ -947,10 +944,7 @@ implements ActionListener
         // b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
         //    exception are indication that the assessment is already in the Gradebook or there is nothing
         //    to remove.
-        org.sakaiproject.grading.api.GradingService gradingServiceApi = null;
-        if (integrated) {
-            gradingServiceApi = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.grading.api.GradingService");
-        }
+        org.sakaiproject.grading.api.GradingService gradingServiceApi = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.grading.api.GradingService");
 
         PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
 

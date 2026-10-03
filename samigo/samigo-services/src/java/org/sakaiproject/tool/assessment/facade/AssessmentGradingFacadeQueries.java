@@ -100,7 +100,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -3194,7 +3193,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
-        boolean updateGrades = IntegrationContextFactory.getInstance() != null;
         AutoSubmitFacadeQueriesAPI autoSubmitFacade = PersistenceService.getInstance().getAutoSubmitFacadeQueries();
         int failures = 0;
         
@@ -3208,7 +3206,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 }
 
                 // this call happens in a separate transaction, so a rollback only affects this iteration
-                boolean success = autoSubmitFacade.processAttempt(adata, updateGrades, this, assessment, currentTime, lastAgentId, lastPublishedAssessmentId, sectionSetMap);
+                boolean success = autoSubmitFacade.processAttempt(adata, this, assessment, currentTime, lastAgentId, lastPublishedAssessmentId, sectionSetMap);
                 if (!success) {
                     ++failures;
                 }

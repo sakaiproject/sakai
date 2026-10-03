@@ -23,9 +23,9 @@
 package org.sakaiproject.tool.assessment.shared.impl.grading;
 
 import java.util.List;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 
@@ -38,7 +38,7 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareSe
 public class GradingSectionAwareServiceImpl implements GradingSectionAwareServiceAPI
 {
   private static final SectionAwareServiceHelper helper =
-    IntegrationContextFactory.getInstance().getSectionAwareServiceHelper();
+    (SectionAwareServiceHelper) SpringBeanLocator.getInstance().getBean("sectionAwareServiceHelper");
 
 //  private static final SectionAwareServiceHelper  helper= new SectionAwareServiceHelperImpl();
 

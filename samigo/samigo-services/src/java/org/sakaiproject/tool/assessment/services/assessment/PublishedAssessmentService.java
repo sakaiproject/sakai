@@ -58,7 +58,6 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
@@ -277,15 +276,10 @@ public class PublishedAssessmentService extends AssessmentService{
     removeAssessment(assessmentId, "remove");
 
     try {
-      IntegrationContextFactory integrationContext = IntegrationContextFactory.getInstance();
-      if (integrationContext == null || !integrationContext.isIntegrated()) {
-        return;
-      }
-
       org.sakaiproject.grading.api.GradingService gradingService
           = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
               "org.sakaiproject.grading.api.GradingService");
-      GradebookServiceHelper gradebookServiceHelper = integrationContext.getGradebookServiceHelper();
+      GradebookServiceHelper gradebookServiceHelper = (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
 
       if (!gradebookServiceHelper.removeExternalAssessment(gradebookUid, assessmentId, gradingService)) {
         log.debug("Published assessment {} was not linked to gradebook {}, nothing to remove",
@@ -777,12 +771,8 @@ public class PublishedAssessmentService extends AssessmentService{
     // a. if Gradebook does not exists, do nothing
     // b. if Gradebook exists, just call removeExternal first to clean up all data. And call addExternal to create
     // a new record. At the end, populate the scores by calling updateExternalAssessmentScores
-    org.sakaiproject.grading.api.GradingService gradingService = null;
-    boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-    if (integrated) {
-      gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
-          "org.sakaiproject.grading.api.GradingService");
-    }
+    org.sakaiproject.grading.api.GradingService gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
+        "org.sakaiproject.grading.api.GradingService");
 
     PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
     if (evaluation == null) {
@@ -790,7 +780,7 @@ public class PublishedAssessmentService extends AssessmentService{
       evaluation.setAssessmentBase(assessment);
     }
 
-    GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+    GradebookServiceHelper gbsHelper = (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
 
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade assessmentFacade = publishedAssessmentService.getPublishedAssessment(

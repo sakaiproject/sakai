@@ -27,15 +27,15 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 
 /**
  * <p>Description: Facade for agent.
- * Uses helper to determine integration context implementation.</p>
+ * Uses Sakai services through the agent helper.</p>
  * <p>Sakai Project Copyright (c) 2005</p>
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
@@ -51,9 +51,7 @@ public class AgentFacade implements Serializable, AgentDataIfc
 	private static final long serialVersionUID = 1L;
 
   private static final AgentHelper helper =
-    IntegrationContextFactory.getInstance().getAgentHelper();
-  private static final boolean integrated =
-    IntegrationContextFactory.getInstance().isIntegrated();
+    (AgentHelper) SpringBeanLocator.getInstance().getBean("agentHelper");
 
   private AgentImpl agent;
   private String agentString;
@@ -278,15 +276,6 @@ log.debug("agentfacade.getEid(agentS) agentString = " + agentString);
   {
     AgentFacade facade = new AgentFacade();
     return helper.createAnonymous(facade);
-  }
-
-  /**
-   * Is this an integrated environment?
-   * @return true, in this implementation
-   */
-  public static boolean isIntegratedEnvironment()
-  {
-    return integrated;
   }
 
 //  /**

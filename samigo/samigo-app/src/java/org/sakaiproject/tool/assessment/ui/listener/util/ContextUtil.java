@@ -262,7 +262,7 @@ public static ArrayList paramArrayValueLike(String paramPart)
     FacesContextFactory fcFactory = (FacesContextFactory)
         FactoryFinder.getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
 
-    // in the integrated environment, we can't get the ServletContext from the
+    // in Sakai, we can't get the ServletContext from the
     // HttpSession of the request - because the HttpSession is webcontainer-wide,
     // its not tied to a particular servlet.
     ServletContext servletContext = M_servletContext;

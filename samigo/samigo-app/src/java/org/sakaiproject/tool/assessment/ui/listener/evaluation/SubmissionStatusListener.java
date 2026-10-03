@@ -40,6 +40,7 @@ import javax.faces.event.ValueChangeListener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
@@ -56,7 +57,6 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
 /**
  * <p>Description: Action Listener for displaying Submission Status for anonymnous grading</p>
@@ -182,7 +182,7 @@ public class SubmissionStatusListener
 
 
       List agentUserIds = totalScorelistener.getAgentIds(useridMap);
-      AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
+      AgentHelper helper = (AgentHelper) SpringBeanLocator.getInstance().getBean("agentHelper");
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
 
 

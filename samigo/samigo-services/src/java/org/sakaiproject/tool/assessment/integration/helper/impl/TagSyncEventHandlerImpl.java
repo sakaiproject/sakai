@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.tool.assessment.integration.helper.integrated;
+package org.sakaiproject.tool.assessment.integration.helper.impl;
 
 import java.util.Optional;
 

@@ -78,7 +78,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -113,13 +112,11 @@ public class PublishAssessmentListener
     implements ActionListener {
 
   private static final GradebookServiceHelper gbsHelper =
-      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-  private static final boolean integrated =
-      IntegrationContextFactory.getInstance().isIntegrated();
+      (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
   private static final Lock repeatedPublishLock = new ReentrantLock();
   private static boolean repeatedPublish = false;
 
-  private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+  private CalendarServiceHelper calendarService = (CalendarServiceHelper) SpringBeanLocator.getInstance().getBean("calendarServiceHelper");
   private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
   private RubricsService rubricsService;
@@ -474,11 +471,8 @@ public class PublishAssessmentListener
     }
 
     //#b - check if gradebook exist, if so, if assessment title already exists in GB
-    org.sakaiproject.grading.api.GradingService g = null;
-    if (integrated){
-      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-           getBean("org.sakaiproject.grading.api.GradingService");
-    }
+    org.sakaiproject.grading.api.GradingService g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+         getBean("org.sakaiproject.grading.api.GradingService");
     String toGradebook = assessment.getEvaluationModel().getToGradeBook();
     try{
       if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&

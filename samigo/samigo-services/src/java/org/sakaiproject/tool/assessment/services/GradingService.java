@@ -92,7 +92,6 @@ import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -1686,16 +1685,11 @@ public class GradingService
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
-    org.sakaiproject.grading.api.GradingService gradingService = null;
-    boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-    if (integrated)
-    {
-      gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-        getBean("org.sakaiproject.grading.api.GradingService");
-    }
+    org.sakaiproject.grading.api.GradingService gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+      getBean("org.sakaiproject.grading.api.GradingService");
 
     GradebookServiceHelper gbsHelper =
-      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+      (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
 
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(pub.getPublishedAssessmentId().toString());

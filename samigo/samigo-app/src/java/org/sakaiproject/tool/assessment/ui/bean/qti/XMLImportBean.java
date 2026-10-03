@@ -51,7 +51,6 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
@@ -100,9 +99,7 @@ public class XMLImportBean implements Serializable {
   private String importType2;
   
   private static final GradebookServiceHelper gbsHelper =
-      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-  private static final boolean integrated =
-      IntegrationContextFactory.getInstance().isIntegrated();
+      (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
 
 
   public XMLImportBean()
@@ -328,11 +325,8 @@ public class XMLImportBean implements Serializable {
     
     // change grading book settings if there is no gradebook in the site
     boolean hasGradebook = false;
-    org.sakaiproject.grading.api.GradingService g = null;
-   if (integrated){
-     g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-          getBean("org.sakaiproject.grading.api.GradingService");
-   }
+    org.sakaiproject.grading.api.GradingService g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+        getBean("org.sakaiproject.grading.api.GradingService");
    try{
      if (gbsHelper.isAssignmentDefined(assessment.getTitle(), g)){
    	  hasGradebook= true;

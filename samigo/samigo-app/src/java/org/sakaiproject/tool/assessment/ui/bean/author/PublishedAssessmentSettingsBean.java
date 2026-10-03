@@ -47,6 +47,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -89,7 +90,6 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -117,11 +117,8 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="publishedSettings")
 @SessionScoped
 public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
-
-  private static final IntegrationContextFactory integrationContextFactory =
-    IntegrationContextFactory.getInstance();
   private static final GradebookServiceHelper gbsHelper =
-      integrationContextFactory.getGradebookServiceHelper();
+      (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
 
   private String displayDateFormat;
   private SimpleDateFormat displayFormat;

@@ -15,7 +15,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.integration.helper.integrated;
+package org.sakaiproject.tool.assessment.integration.helper.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,17 +56,7 @@ import org.sakaiproject.util.api.LocaleService;
 import org.springframework.context.annotation.DeferredImportSelector.Group.Entry;
 /**
  *
- * <p>Description:
- * This is an integrated context implementation helper delegate class for
- * the GradebookService class.
- * "Integrated" means that Samigo (Tests and Quizzes)
- * is running within the context of the Sakai portal and authentication
- * mechanisms, and therefore makes calls on Sakai for things it needs.</p>
- * <p>Note: To customize behavior you can add your own helper class to the
- * Spring injection via the integrationContext.xml for your context.
- * The particular integrationContext.xml to be used is selected by the
- * build process.
- * </p>
+ * <p>Description: Synchronizes Samigo assessments and scores with the Sakai Gradebook.</p>
  * <p>Sakai Project Copyright (c) 2005</p>
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>

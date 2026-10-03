@@ -20,7 +20,7 @@
  **********************************************************************************/
 
 
-package org.sakaiproject.tool.assessment.integration.helper.integrated;
+package org.sakaiproject.tool.assessment.integration.helper.impl;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,17 +30,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  *
- * <p>Description:
- * This is an integrated context implementation helper delegate class for
- * the GradebookFacade class.
- * "Integrated" means that Samigo (Tests and Quizzes)
- * is running within the context of the Sakai portal and authentication
- * mechanisms, and therefore makes calls on Sakai for things it needs.</p>
- * <p>Note: To customize behavior you can add your own helper class to the
- * Spring injection via the integrationContext.xml for your context.
- * The particular integrationContext.xml to be used is selected by the
- * build process.
- * </p>
+ * <p>Description: Resolves the current Sakai gradebook ID for Samigo.</p>
  * <p>Sakai Project Copyright (c) 2005</p>
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
@@ -52,7 +42,7 @@ public class GradebookHelperImpl implements GradebookHelper
 
   /**
    * Get current gradebook uid.
-   * This will *fail* unless called from an integrated Sakai context!
+   * Requires a current Sakai tool placement when no site ID is supplied.
    * @return the current gradebook uid.
    */
   public String getGradebookUId(String siteId) {

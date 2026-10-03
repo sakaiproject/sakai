@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.integration.helper.integrated;
+package org.sakaiproject.tool.assessment.integration.helper.impl;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,16 +44,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  *
- * <p>Description:
- * This is an integrated context implementation helper delegate class for
- * the AgentFacade class.  "Integrated" means that Samigo (Tests and Quizzes)
- * is running within the context of the Sakai portal and authentication
- * mechanisms, and therefore makes calls on Sakai for things it needs.</p>
- * <p>Note: To customize behavior you can add your own helper class to the
- * Spring injection via the integrationContext.xml for your context.
- * The particular integrationContext.xml to be used is selected by the
- * build process.
- * </p>
+ * <p>Description: Provides Samigo access to Sakai users and site roles.</p>
  * <p>Sakai Project Copyright (c) 2005</p>
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
@@ -269,7 +260,7 @@ log.debug("getEidById agentString s = " + s);
   }
 
   /**
-   * Called by AgentFacade from an instance.  In integrated just wrap the above.
+   * Called by AgentFacade from an instance to wrap the current Sakai user.
    * @param agentString the agent string for current AgentFacade instance
    * @return role string
    */
@@ -372,13 +363,6 @@ log.debug("getEidById agentString s = " + s);
     return name;
   }
 
-  /**
-   * Is this an integrated environment?
-   * @return true, in this implementation
-   */
-  public boolean isIntegratedEnvironment(){
-    return true;
-  }
 
   /**
    * Set the agent id string.

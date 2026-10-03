@@ -47,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -63,7 +64,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -401,7 +401,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
       //#3 - Collect a list of all the users in the scores list
       List agentUserIds = getAgentIds(useridMap);
-      AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
+      AgentHelper helper = (AgentHelper) SpringBeanLocator.getInstance().getBean("agentHelper");
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
       //#4 - prepare agentResult list
       prepareAgentResult(p, scores.iterator(), agents, userRoles);

@@ -37,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements AutoSubmitFacadeQueriesAPI
 {
 	@Override
-	public boolean processAttempt(AssessmentGradingData adata, boolean updateGrades, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
+	public boolean processAttempt(AssessmentGradingData adata, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
 			Date currentTime, String lastAgentId, Long lastPublishedAssessmentId, Map<Long, Set<PublishedSectionData>> sectionSetMap)
 	{
 		boolean autoSubmitCurrent = false;
@@ -120,9 +120,7 @@ public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements Auto
 
 		if (autoSubmitCurrent) {
 			GradingService gs = new GradingService();
-			if (updateGrades) {
-				gs.notifyGradebookByScoringType(adata, assessment); // this may throw runtime exceptions triggering a rollback
-			}
+			gs.notifyGradebookByScoringType(adata, assessment); // this may throw runtime exceptions triggering a rollback
 
 			// if we get this far, the processing of this attempt was successful so it is now safe to
 			// update the log and email the student (triggered by the same method)

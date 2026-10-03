@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.assessment.integration.helper.integrated;
+package org.sakaiproject.assessment.integration.helper.impl;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -35,7 +35,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
-import org.sakaiproject.tool.assessment.integration.helper.integrated.TagSyncEventHandlerImpl;
+import org.sakaiproject.tool.assessment.integration.helper.impl.TagSyncEventHandlerImpl;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import java.util.Optional;
