@@ -50,7 +50,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
@@ -63,15 +62,23 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
 import org.sakaiproject.util.api.FormattedText;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 @ManagedBean(name = "restoreAssessmentsBean", eager = true)
 @SessionScoped
 @Data
 @Slf4j
-public class RestoreAssessmentsBean implements Serializable {
+public class RestoreAssessmentsBean extends SpringBeanAutowiringSupport implements Serializable {
 
-    private static final GradebookServiceHelper gbsHelper = (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
+    @Autowired
+    @Qualifier("gradebookServiceHelper")
+    private GradebookServiceHelper gbsHelper;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.grading.api.GradingService")
+    private org.sakaiproject.grading.api.GradingService gradebookService;
 
     List<DataAssessment> deletedAssessmentList;
     private SamigoAvailableNotificationService samigoAvailableNotificationService;
@@ -139,7 +146,7 @@ public class RestoreAssessmentsBean implements Serializable {
 
     private void updateGB(Long id) {
         try {
-            org.sakaiproject.grading.api.GradingService g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.grading.api.GradingService");
+            org.sakaiproject.grading.api.GradingService g = gradebookService;
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(String.valueOf(id));
             PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();

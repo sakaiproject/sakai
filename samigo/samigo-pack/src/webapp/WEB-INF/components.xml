@@ -91,6 +91,7 @@
 
     <bean id="AssessmentFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries">
+        <property name="sectionAwareServiceHelper" ref="sectionAwareServiceHelper"/>
         <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
         <property name="pagingUtilQueries" ref="PagingUtilQueries"/>
         <property name="authzQueriesFacade" ref="AuthzQueriesFacade"/>
@@ -502,5 +503,24 @@
           class="org.sakaiproject.samigo.impl.messaging.SamigoUserNotificationHandler">
         <property name="extendedTimeFacade" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade"/>
     </bean>
+
+  <!-- Samigo helpers backed by Sakai services -->
+  <bean name="agentHelper"
+        class="org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl">
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+  </bean>
+
+  <bean name="sectionAwareServiceHelper"
+        class="org.sakaiproject.tool.assessment.integration.helper.impl.SectionAwareServiceHelperImpl">
+    <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries"/>
+    <property name="sectionAwareness" ref="org.sakaiproject.section.api.SectionAwareness"/>
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+  </bean>
+
+  <bean name="calendarServiceHelper"
+        class="org.sakaiproject.tool.assessment.integration.helper.impl.CalendarServiceHelperImpl">
+    <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+  </bean>
 
 </beans>

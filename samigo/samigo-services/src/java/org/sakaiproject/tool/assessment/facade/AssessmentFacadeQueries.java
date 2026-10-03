@@ -107,12 +107,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.entity.api.ItemEntityProvider;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
-import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -124,6 +123,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 public class AssessmentFacadeQueries extends HibernateDaoSupport implements AssessmentFacadeQueriesAPI {
+
+  @Setter
+  private SectionAwareServiceHelper sectionAwareServiceHelper;
 
   @Setter
   private RubricsService rubricsService;
@@ -709,7 +711,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		List<AssessmentFacade> assessmentList = new ArrayList<>();
 		Long assessmentId;
 		String userId = AgentFacade.getAnonymousId();
-		GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+		SectionAwareServiceHelper service = sectionAwareServiceHelper;
 		Site site = null;
 		Collection<Group> siteGroups = new ArrayList<>();
 		Set<String> keysGroupIdsMap = new HashSet<>();

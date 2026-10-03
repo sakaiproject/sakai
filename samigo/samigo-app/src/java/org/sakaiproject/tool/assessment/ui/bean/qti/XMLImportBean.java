@@ -44,7 +44,6 @@ import javax.faces.event.ValueChangeEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -69,6 +68,9 @@ import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Bean for QTI Import Data</p>
@@ -76,7 +78,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ManagedBean(name="xmlImport")
 @SessionScoped
-public class XMLImportBean implements Serializable {
+public class XMLImportBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("gradebookServiceHelper")
+  private GradebookServiceHelper gbsHelper;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.grading.api.GradingService")
+  private org.sakaiproject.grading.api.GradingService gradebookService;
+
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
 	  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
@@ -98,8 +109,6 @@ public class XMLImportBean implements Serializable {
   private boolean isCP;
   private String importType2;
   
-  private static final GradebookServiceHelper gbsHelper =
-      (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
 
 
   public XMLImportBean()
@@ -325,8 +334,7 @@ public class XMLImportBean implements Serializable {
     
     // change grading book settings if there is no gradebook in the site
     boolean hasGradebook = false;
-    org.sakaiproject.grading.api.GradingService g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-        getBean("org.sakaiproject.grading.api.GradingService");
+    org.sakaiproject.grading.api.GradingService g = gradebookService;
    try{
      if (gbsHelper.isAssignmentDefined(assessment.getTitle(), g)){
    	  hasGradebook= true;

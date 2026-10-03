@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
@@ -277,9 +277,8 @@ public class PublishedAssessmentService extends AssessmentService{
 
     try {
       org.sakaiproject.grading.api.GradingService gradingService
-          = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
-              "org.sakaiproject.grading.api.GradingService");
-      GradebookServiceHelper gradebookServiceHelper = (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
+          = ComponentManager.get(org.sakaiproject.grading.api.GradingService.class);
+      GradebookServiceHelper gradebookServiceHelper = (GradebookServiceHelper) ComponentManager.get("gradebookServiceHelper");
 
       if (!gradebookServiceHelper.removeExternalAssessment(gradebookUid, assessmentId, gradingService)) {
         log.debug("Published assessment {} was not linked to gradebook {}, nothing to remove",
@@ -771,8 +770,7 @@ public class PublishedAssessmentService extends AssessmentService{
     // a. if Gradebook does not exists, do nothing
     // b. if Gradebook exists, just call removeExternal first to clean up all data. And call addExternal to create
     // a new record. At the end, populate the scores by calling updateExternalAssessmentScores
-    org.sakaiproject.grading.api.GradingService gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
-        "org.sakaiproject.grading.api.GradingService");
+    org.sakaiproject.grading.api.GradingService gradingService = ComponentManager.get(org.sakaiproject.grading.api.GradingService.class);
 
     PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
     if (evaluation == null) {
@@ -780,7 +778,7 @@ public class PublishedAssessmentService extends AssessmentService{
       evaluation.setAssessmentBase(assessment);
     }
 
-    GradebookServiceHelper gbsHelper = (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
+    GradebookServiceHelper gbsHelper = (GradebookServiceHelper) ComponentManager.get("gradebookServiceHelper");
 
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade assessmentFacade = publishedAssessmentService.getPublishedAssessment(

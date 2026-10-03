@@ -32,7 +32,6 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
@@ -49,6 +48,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -56,10 +58,14 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 @Slf4j
-public class RemovePublishedAssessmentListener
+public class RemovePublishedAssessmentListener extends SpringBeanAutowiringSupport
     implements ActionListener
 {
-  private CalendarServiceHelper calendarService = (CalendarServiceHelper) SpringBeanLocator.getInstance().getBean("calendarServiceHelper");
+
+  @Autowired
+  @Qualifier("calendarServiceHelper")
+  private CalendarServiceHelper calendarService;
+
   private TaskService taskService;
   private SamigoAvailableNotificationService samigoAvailableNotificationService;
   

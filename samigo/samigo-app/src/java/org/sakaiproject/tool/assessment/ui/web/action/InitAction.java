@@ -23,91 +23,24 @@ package org.sakaiproject.tool.assessment.ui.web.action;
 
 import javax.servlet.http.HttpServlet;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
-import org.sakaiproject.tool.assessment.facade.ItemFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.PublishedSectionFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.SectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 
-@Slf4j
-public class InitAction extends HttpServlet{
+public class InitAction extends HttpServlet {
 
-  /**
-	 * 
-	 */
-	private static final long serialVersionUID = 8101462284850616249L;
+  private static final long serialVersionUID = 8101462284850616249L;
 
-  public void init(){
-    // store all types in memory
+  @Override
+  public void init() {
     TypeFacadeQueriesAPI typeFacadeQueries = PersistenceService.getInstance().getTypeFacadeQueries();
-    log.debug("*****#1 InitAction: "+PersistenceService.getInstance());
-    log.debug("*****#2 InitAction: typeFacadeQueries ="+typeFacadeQueries);
-    if ( typeFacadeQueries != null ){
+    if (typeFacadeQueries != null) {
       typeFacadeQueries.setTypeFacadeMap();
       typeFacadeQueries.setFacadeItemTypes();
     }
 
-    // questionpool facade
-    QuestionPoolFacadeQueriesAPI questionpoolFacadeQueries = PersistenceService.getInstance().getQuestionPoolFacadeQueries();
-    log.debug("*****#3  InitAction: questionpoolFacadeQueries ="+questionpoolFacadeQueries);
-
-    // assessment facade
-    AssessmentFacadeQueriesAPI assessmentFacadeQueries = PersistenceService.getInstance().getAssessmentFacadeQueries();
-    log.debug("*****#4  InitAction: assessmentFacadeQueries ="+assessmentFacadeQueries);
-
-    // item facade
-    ItemFacadeQueriesAPI itemFacadeQueries = PersistenceService.getInstance().getItemFacadeQueries();
-    log.debug("*****#5  InitAction: itemFacadeQueries ="+itemFacadeQueries);
-
-    // section facade
-    SectionFacadeQueriesAPI sectionFacadeQueries = PersistenceService.getInstance().getSectionFacadeQueries();
-    log.debug("*****#6  InitAction: sectionFacadeQueries ="+sectionFacadeQueries);
-
-    // published assessment facade
-    PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries();
-    log.debug("*****#7  InitAction: publishedAssessmentFacadeQueries ="+publishedAssessmentFacadeQueries);
-
-    // published item facade
-    PublishedItemFacadeQueriesAPI publishedItemFacadeQueries = PersistenceService.getInstance().getPublishedItemFacadeQueries();
-    log.debug("*****#5  InitAction: publishedItemFacadeQueries ="+publishedItemFacadeQueries);
-
-    // published section facade
-    PublishedSectionFacadeQueriesAPI publishedSectionFacadeQueries = PersistenceService.getInstance().getPublishedSectionFacadeQueries();
-    log.debug("*****#6  InitAction: publishedSectionFacadeQueries ="+publishedSectionFacadeQueries);
-
-    // assessment grading facade
-    AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries = PersistenceService.getInstance().getAssessmentGradingFacadeQueries();
-    log.debug("*****#8  InitAction: assessmentGradingFacadeQueries ="+assessmentGradingFacadeQueries);
-
-    // authorization facade
-    AuthorizationFacadeQueriesAPI authorizationFacadeQueries = PersistenceService.getInstance().getAuthorizationFacadeQueries();
-    log.debug("*****#9  InitAction: authorizationFacadeQueries ="+authorizationFacadeQueries);
-
-    // PagingUtil
-    PagingUtilQueriesAPI pagingUtilQueries = PersistenceService.getInstance().getPagingUtilQueries();
-    log.debug("*****#10  InitAction: pagingUtilQueries ="+pagingUtilQueries);
-
-    FavoriteColChoicesFacadeQueriesAPI favoriteColChoicesQueries = PersistenceService.getInstance().getFavoriteColChoicesFacadeQueries();
-    log.debug("*****#13  InitAction: favoriteColChoicesQueries ="+favoriteColChoicesQueries);
-
-    // authorization facade
-    AuthzQueriesFacadeAPI authzQueriesFacade = PersistenceService.getInstance().getAuthzQueriesFacade();
-    log.debug("*****#11  InitAction: authzQueriesFacade ="+authzQueriesFacade);
-
-    AssessmentEntityProducer producer = (AssessmentEntityProducer) ComponentManager.get("org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer");
-    log.debug("AssessmentEntityProducer: "+producer);
+    // Initialize and register the entity producer even when components are loaded lazily.
+    ComponentManager.get(AssessmentEntityProducer.class);
   }
 }

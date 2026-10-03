@@ -3,24 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<!-- Samigo helpers backed by Sakai services -->
-<bean name="agentHelper"
-     class="org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl">
-        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-</bean>
 
-<bean name="sectionAwareServiceHelper"
-     class="org.sakaiproject.tool.assessment.integration.helper.impl.SectionAwareServiceHelperImpl">
-        <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries"/>
-     <property name="sectionAwareness" ref="org.sakaiproject.section.api.SectionAwareness"/>
-     <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
-     <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
-</bean>
-
-<bean name="calendarServiceHelper"
-     class="org.sakaiproject.tool.assessment.integration.helper.impl.CalendarServiceHelperImpl">
-     <property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
-</bean>
 
 <!-- External Assignment Provider -->
 <!-- This advises Gradebook on information like group access of assessments -->

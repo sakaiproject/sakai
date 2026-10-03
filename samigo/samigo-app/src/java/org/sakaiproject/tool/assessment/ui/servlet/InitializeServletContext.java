@@ -22,34 +22,15 @@
 package org.sakaiproject.tool.assessment.ui.servlet;
 
 import javax.servlet.http.HttpServlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
-@Slf4j
-public class StoreApplicationContext extends HttpServlet{
+public class InitializeServletContext extends HttpServlet {
 
-  /**
-	 * 
-	 */
-	private static final long serialVersionUID = -930231313808212406L;
-  private WebApplicationContext ctx = null;
+  private static final long serialVersionUID = -930231313808212406L;
 
-  public void init (ServletConfig config) throws ServletException {
-    super.init(config);
-    if (ctx == null){
-      ctx = WebApplicationContextUtils
-	 .getRequiredWebApplicationContext(config.getServletContext());
-      SpringBeanLocator.setApplicationContext(ctx);
-
-      ContextUtil.setServletContext(config.getServletContext());
-    }
+  @Override
+  public void init() {
+    ContextUtil.setServletContext(getServletContext());
   }
-
 }

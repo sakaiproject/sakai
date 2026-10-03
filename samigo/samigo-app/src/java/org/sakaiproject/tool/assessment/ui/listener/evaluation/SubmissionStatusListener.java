@@ -40,7 +40,6 @@ import javax.faces.event.ValueChangeListener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
@@ -57,6 +56,9 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Description: Action Listener for displaying Submission Status for anonymnous grading</p>
@@ -64,9 +66,14 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
  */
 
 @Slf4j
-public class SubmissionStatusListener
+public class SubmissionStatusListener extends SpringBeanAutowiringSupport
   implements ActionListener, ValueChangeListener
 {
+
+  @Autowired
+  @Qualifier("agentHelper")
+  private AgentHelper agentHelper;
+
   //private static EvaluationListenerUtil util;
   private BeanSort bs;
   //private static ContextUtil cu;
@@ -182,7 +189,7 @@ public class SubmissionStatusListener
 
 
       List agentUserIds = totalScorelistener.getAgentIds(useridMap);
-      AgentHelper helper = (AgentHelper) SpringBeanLocator.getInstance().getBean("agentHelper");
+      AgentHelper helper = agentHelper;
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
 
 

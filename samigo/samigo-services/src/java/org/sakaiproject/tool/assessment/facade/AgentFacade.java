@@ -27,7 +27,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
@@ -51,7 +51,7 @@ public class AgentFacade implements Serializable, AgentDataIfc
 	private static final long serialVersionUID = 1L;
 
   private static final AgentHelper helper =
-    (AgentHelper) SpringBeanLocator.getInstance().getBean("agentHelper");
+    (AgentHelper) ComponentManager.get("agentHelper");
 
   private AgentImpl agent;
   private String agentString;

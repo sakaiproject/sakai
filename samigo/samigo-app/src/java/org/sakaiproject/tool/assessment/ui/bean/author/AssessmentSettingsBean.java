@@ -88,11 +88,10 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
-import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
@@ -116,6 +115,11 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="assessmentSettings")
 @SessionScoped
 public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("sectionAwareServiceHelper")
+  private SectionAwareServiceHelper sectionAwareServiceHelper;
+
 
   @Autowired
   @Qualifier("org.sakaiproject.section.api.SectionAwareness")
@@ -1719,7 +1723,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       String userId = AgentFacade.getAnonymousId();
       try {
           Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
-          GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+          SectionAwareServiceHelper service = sectionAwareServiceHelper;
           if (service.isUserAbleToGradeAll(site.getId(), userId)) {
               return getGroupsForSite();
           }
