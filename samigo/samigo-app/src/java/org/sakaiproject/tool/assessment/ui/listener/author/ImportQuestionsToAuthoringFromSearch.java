@@ -38,7 +38,6 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.SectionService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -48,10 +47,18 @@ import org.sakaiproject.tool.assessment.ui.bean.author.SearchQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 @Slf4j
-public class ImportQuestionsToAuthoringFromSearch implements ActionListener
+public class ImportQuestionsToAuthoringFromSearch extends SpringBeanAutowiringSupport implements ActionListener
 {
+
+  @Autowired
+  @Qualifier("AssessmentFacadeQueries")
+  private AssessmentFacadeQueriesAPI assessmentFacadeQueries;
   private static final ServerConfigurationService serverConfigurationService= (ServerConfigurationService) ComponentManager.get( ServerConfigurationService.class );
 
 
@@ -92,9 +99,9 @@ public class ImportQuestionsToAuthoringFromSearch implements ActionListener
             ItemData clonedItem = delegate.cloneItem(resultItemFacade.getData());
             clonedItem.setItemId(Long.valueOf(0));
             clonedItem.setItemIdString("0");
-              Set newItemTextSet = PersistenceService.getInstance().getAssessmentFacadeQueries().prepareItemTextSet(clonedItem, clonedItem
+              Set newItemTextSet = assessmentFacadeQueries.prepareItemTextSet(clonedItem, clonedItem
                       .getItemTextSet(), protocol, toContext);
-              Set newItemAttachmentSet = PersistenceService.getInstance().getAssessmentFacadeQueries().prepareItemAttachmentSet(clonedItem, clonedItem
+              Set newItemAttachmentSet = assessmentFacadeQueries.prepareItemAttachmentSet(clonedItem, clonedItem
                       .getItemAttachmentSet(), protocol, toContext);
               clonedItem.setItemTextSet(newItemTextSet);
               clonedItem.setItemAttachmentSet(newItemAttachmentSet);
@@ -178,9 +185,9 @@ public class ImportQuestionsToAuthoringFromSearch implements ActionListener
             ItemData clonedItem = delegate.cloneItem(resultItemFacade.getData());
             clonedItem.setItemId(Long.valueOf(0));
             clonedItem.setItemIdString("0");
-            Set newItemTextSet = PersistenceService.getInstance().getAssessmentFacadeQueries().prepareItemTextSet(clonedItem, clonedItem
+            Set newItemTextSet = assessmentFacadeQueries.prepareItemTextSet(clonedItem, clonedItem
                     .getItemTextSet(), protocol, toContext);
-            Set newItemAttachmentSet = PersistenceService.getInstance().getAssessmentFacadeQueries().prepareItemAttachmentSet(clonedItem, clonedItem
+            Set newItemAttachmentSet = assessmentFacadeQueries.prepareItemAttachmentSet(clonedItem, clonedItem
                     .getItemAttachmentSet(), protocol, toContext);
             clonedItem.setItemTextSet(newItemTextSet);
             clonedItem.setItemAttachmentSet(newItemAttachmentSet);

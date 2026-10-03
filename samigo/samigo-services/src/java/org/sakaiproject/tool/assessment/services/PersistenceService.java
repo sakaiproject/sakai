@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.tool.assessment.facade.*;
-import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 
 /**
@@ -50,7 +49,6 @@ public class PersistenceService{
 	private PublishedItemFacadeQueriesAPI publishedItemFacadeQueries;
 	private AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries;
 	private AutoSubmitFacadeQueriesAPI autoSubmitFacadeQueries;
-	private AuthorizationFacadeQueriesAPI authorizationFacadeQueries;
 	private PagingUtilQueriesAPI pagingUtilQueries;
 	private AuthzQueriesFacadeAPI authzQueriesFacade;
 	private SectionAwareness sectionAwareness;
@@ -177,13 +175,6 @@ public class PersistenceService{
 	public void setAutoSubmitFacadeQueries(AutoSubmitFacadeQueriesAPI autoSubmitFacadeQueries){
 	    this.autoSubmitFacadeQueries = autoSubmitFacadeQueries;
 	}
-        public AuthorizationFacadeQueriesAPI getAuthorizationFacadeQueries(){
-	  return authorizationFacadeQueries;
-        }
-
-        public void setAuthorizationFacadeQueries(AuthorizationFacadeQueriesAPI authorizationFacadeQueries){
-	  this.authorizationFacadeQueries = authorizationFacadeQueries;
-        }
 
         public PagingUtilQueriesAPI getPagingUtilQueries(){
 	  return pagingUtilQueries;

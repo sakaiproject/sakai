@@ -78,7 +78,6 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.StatisticsService;
 import org.sakaiproject.tool.assessment.services.assessment.StatisticsService.SubmissionOutcome;
@@ -90,12 +89,17 @@ import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 
 /* For evaluation: Total Scores backing bean. */
 @Slf4j
 @ManagedBean(name="totalScores")
 @SessionScoped
 public class TotalScoresBean extends SpringBeanAutowiringSupport implements Serializable, PhaseAware {
+
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
 
   @Autowired
   @Qualifier("sectionAwareServiceHelper")
@@ -1003,8 +1007,7 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
     List enrollments;
     
     // Check if current user has privilege to assess all groups - if so, they should see all student submissions regardless of group restrictions
-    boolean hasAllGroupsPrivilege = PersistenceService.getInstance()
-        .getAuthzQueriesFacade()
+    boolean hasAllGroupsPrivilege = authzQueriesFacade
         .hasPrivilege(SamigoConstants.AUTHZ_ASSESSMENT_ALL_GROUPS, siteId);
     
     if (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER_STUDENT){

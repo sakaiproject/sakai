@@ -58,7 +58,6 @@
      <property name="publishedItemFacadeQueries"><ref bean="PublishedItemFacadeQueries" /></property>
      <property name="assessmentGradingFacadeQueries"><ref bean="AssessmentGradingFacadeQueries" /></property>
      <property name="autoSubmitFacadeQueries"><ref bean="AutoSubmitFacadeQueries" /></property>
-     <property name="authorizationFacadeQueries"><ref bean="AuthorizationFacadeQueries" /></property>
      <property name="pagingUtilQueries"><ref bean="PagingUtilQueries" /></property>
      <property name="authzQueriesFacade"><ref bean="AuthzQueriesFacade" /></property>
      <property name="favoriteColChoicesFacadeQueries"><ref bean ="FavoriteColChoicesFacadeQueries"/></property>
@@ -187,12 +186,6 @@
 
     <bean id="AutoSubmitFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.AutoSubmitFacadeQueries">
-        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-    </bean>
-
-    <bean id="AuthorizationFacadeQueries"
-          class="org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueries">
-        <property name="persistenceHelper" ref="persistenceHelper"/>
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
