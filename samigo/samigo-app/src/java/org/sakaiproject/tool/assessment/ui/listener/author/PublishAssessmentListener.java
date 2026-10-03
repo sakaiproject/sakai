@@ -46,7 +46,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -61,7 +60,6 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
@@ -80,7 +78,6 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -114,28 +111,40 @@ public class PublishAssessmentListener extends SpringBeanAutowiringSupport
     implements ActionListener {
 
   @Autowired
+  @Qualifier("org.sakaiproject.grading.api.GradingService")
+  private org.sakaiproject.grading.api.GradingService gradebookService;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade")
+  private ExtendedTimeFacade extendedTimeFacade;
+
+  @Autowired
   @Qualifier("SecureDeliveryServiceAPI")
   private SecureDeliveryServiceAPI secureDeliveryService;
 
-  private static final GradebookServiceHelper gbsHelper =
-      (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
+  @Autowired
+  @Qualifier("gradebookServiceHelper")
+  private GradebookServiceHelper gbsHelper;
   private static final Lock repeatedPublishLock = new ReentrantLock();
   private static boolean repeatedPublish = false;
 
-  private CalendarServiceHelper calendarService = (CalendarServiceHelper) SpringBeanLocator.getInstance().getBean("calendarServiceHelper");
+  @Autowired
+  @Qualifier("calendarServiceHelper")
+  private CalendarServiceHelper calendarService;
   private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
+  @Autowired
+  @Qualifier("org.sakaiproject.rubrics.api.RubricsService")
   private RubricsService rubricsService;
+  @Autowired
+  @Qualifier("org.sakaiproject.tasks.api.TaskService")
   private TaskService taskService;
+  @Autowired
+  @Qualifier("org.sakaiproject.samigo.api.SamigoAvailableNotificationService")
   private SamigoAvailableNotificationService samigoAvailableNotificationService;
+  @Autowired
+  @Qualifier("org.sakaiproject.event.api.EventTrackingService")
   private EventTrackingService eventTrackingService;
-
-  public PublishAssessmentListener() {
-    rubricsService = ComponentManager.get(RubricsService.class);
-    taskService = ComponentManager.get(TaskService.class);
-	samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
-	eventTrackingService = ComponentManager.get(EventTrackingService.class);
-  }
 
   @Override
   public void processAction(ActionEvent ae) throws AbortProcessingException {
@@ -302,7 +311,6 @@ public class PublishAssessmentListener extends SpringBeanAutowiringSupport
                                                             assessmentSettings.getFeedbackEndDateInClientTimezoneString(), assessmentSettings.getFeedbackScoreThreshold(),
                                                             assessmentSettings.getAutoSubmit(), assessmentSettings.getLateHandling(), assessmentSettings.getRetractDateString());
 
-      ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
       extendedTimeFacade.copyEntriesToPub(pub.getData(), assessmentSettings.getExtendedTimes());
 
       eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_PUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId() + ", sendNotification=" + sendEmailNotification, true));
@@ -476,8 +484,7 @@ public class PublishAssessmentListener extends SpringBeanAutowiringSupport
     }
 
     //#b - check if gradebook exist, if so, if assessment title already exists in GB
-    org.sakaiproject.grading.api.GradingService g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-         getBean("org.sakaiproject.grading.api.GradingService");
+    org.sakaiproject.grading.api.GradingService g = gradebookService;
     String toGradebook = assessment.getEvaluationModel().getToGradeBook();
     try{
       if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&

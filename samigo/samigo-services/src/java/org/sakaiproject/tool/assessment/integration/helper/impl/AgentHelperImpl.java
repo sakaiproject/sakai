@@ -25,12 +25,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
@@ -57,11 +57,9 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 {
   AgentImpl agent;
 
+  @Setter
   private AuthzGroupService authzGroupService;
 
-  public AgentHelperImpl() {
-    authzGroupService = ComponentManager.get(AuthzGroupService.class);
-  }
 
   /**
    * Get an osid Agent implementation class instance.

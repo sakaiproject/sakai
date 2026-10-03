@@ -30,16 +30,21 @@ import org.sakaiproject.tool.assessment.data.dao.authz.QualifierData;
 import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIfc;
 import org.sakaiproject.tool.assessment.data.ifc.authz.QualifierIfc;
 import org.sakaiproject.tool.assessment.facade.DataFacadeException;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
 public class AuthorizationFacadeQueries extends HibernateDaoSupport implements AuthorizationFacadeQueriesAPI{
+
+  @Setter
+  private PersistenceHelper persistenceHelper;
+
 
   public AuthorizationFacadeQueries() {
   }
@@ -89,7 +94,7 @@ public class AuthorizationFacadeQueries extends HibernateDaoSupport implements A
     else
       data = (AuthorizationData)a;
 
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
        getHibernateTemplate().save(data);
@@ -97,7 +102,7 @@ public class AuthorizationFacadeQueries extends HibernateDaoSupport implements A
       }
       catch (Exception e) {
         log.warn("problem adding authorization: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
   }
@@ -109,7 +114,7 @@ public class AuthorizationFacadeQueries extends HibernateDaoSupport implements A
     else
       data = (QualifierData) q;
 
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().save(data);
@@ -117,7 +122,7 @@ public class AuthorizationFacadeQueries extends HibernateDaoSupport implements A
       }
       catch (Exception e) {
         log.warn("problem adding Qualifier: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
   }

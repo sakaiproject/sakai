@@ -44,8 +44,8 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 
 /**
@@ -54,6 +54,9 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  */
 @Slf4j
 public class SectionAwareServiceHelperImpl implements SectionAwareServiceHelper {
+
+  @Setter
+  private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
 
 	@Setter
 	private SectionAwareness sectionAwareness;
@@ -116,7 +119,7 @@ public class SectionAwareServiceHelperImpl implements SectionAwareServiceHelper 
 
 		HashSet<String> membersInReleaseGroups = new HashSet<>(0);
 		try {
-			List<String> releaseGroupIds = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
+			List<String> releaseGroupIds = publishedAssessmentFacadeQueries.getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
 			Set<String> releaseGroupIdsSet = new HashSet<>(releaseGroupIds);
 			Site site = siteService.getSite(siteid); // this follows the way the service is already written but it is a bad practice
 			boolean canSeeAllReleaseGroups = securityService.unlock(SamigoConstants.AUTHZ_ASSESSMENT_ALL_GROUPS, "/site/" + siteid);

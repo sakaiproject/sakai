@@ -28,10 +28,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 
 @Slf4j
 public class SamigoObserver implements Observer {
+
+  @Setter
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
 
     public void init() {
         log.info("init()");
@@ -67,7 +70,7 @@ public class SamigoObserver implements Observer {
             Map<String, Object> notiValues = stringToHashMap(hashMapString);
             samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD, notiValues, event);
         } else if (SamigoConstants.AUTHZ_GROUP_DELETED.equals(eventType)) {
-            PersistenceService.getInstance().getAuthzQueriesFacade().hardDeleteAuthzData(event.getResource());
+            authzQueriesFacade.hardDeleteAuthzData(event.getResource());
         }
     }
 

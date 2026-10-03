@@ -58,7 +58,6 @@ import org.hibernate.query.Query;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -111,13 +110,19 @@ import org.sakaiproject.util.comparator.SakaiCollators;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Transactional
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI {
+
+  @Setter
+  private LocaleService localeService;
+
+  @Setter
+  private AutoSubmitFacadeQueriesAPI autoSubmitFacadeQueries;
 
     /**
      * Default empty Constructor
@@ -2659,7 +2664,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
         }
         Collator collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(
-                ComponentManager.get(LocaleService.class).getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
+                localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
         Collections.sort(dataList, new CellComparator(anonymous, collator));
 
         Map<ExportSection, List<List<CellValue<?>>>> result = new EnumMap<>(ExportSection.class);
@@ -3193,7 +3198,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
-        AutoSubmitFacadeQueriesAPI autoSubmitFacade = PersistenceService.getInstance().getAutoSubmitFacadeQueries();
+        AutoSubmitFacadeQueriesAPI autoSubmitFacade = autoSubmitFacadeQueries;
         int failures = 0;
         
         while (iter.hasNext()) {

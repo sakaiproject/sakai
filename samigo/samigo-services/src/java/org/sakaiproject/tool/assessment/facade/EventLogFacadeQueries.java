@@ -30,16 +30,20 @@ import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
 public class EventLogFacadeQueries extends HibernateDaoSupport implements EventLogFacadeQueriesAPI {
 
+  @Setter
+  private PersistenceService persistenceService;
+
 	public void saveOrUpdateEventLog(EventLogFacade eventLog){
 		EventLogData data = (EventLogData)  eventLog.getData();
 
-		int retryCount = PersistenceService.getInstance().getRetryCount();
+		int retryCount = persistenceService.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				getHibernateTemplate().saveOrUpdate(data);
@@ -48,7 +52,7 @@ public class EventLogFacadeQueries extends HibernateDaoSupport implements EventL
 				log
 				.warn("problem save or update eventLog: "
 						+ e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = persistenceService.retryDeadlock(e,
 						retryCount);
 			}
 		}

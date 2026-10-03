@@ -52,7 +52,6 @@ import org.jsoup.nodes.Document;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.portal.util.PortalUtils;
@@ -81,12 +80,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.DataException;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.SaLengthException;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -126,6 +125,10 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 public class DeliveryBean extends SpringBeanAutowiringSupport implements Serializable {
 
   @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
+
+  @Autowired
   @Qualifier("SecureDeliveryServiceAPI")
   private SecureDeliveryServiceAPI secureDeliveryService;
 
@@ -138,21 +141,37 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
 
   private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
 
-  private final EventTrackingService eventTrackingService;
-  private final FormattedText formattedText;
-  private final PreferencesService preferencesService;
-  private final ServerConfigurationService serverConfigurationService;
-  private final SessionManager sessionManager;
-  private final SiteService siteService;
-  private final ToolManager toolManager;
-  private final UserTimeService userTimeService;
+  @Autowired
+  @Qualifier("org.sakaiproject.event.api.EventTrackingService")
+  private EventTrackingService eventTrackingService;
+  @Autowired
+  @Qualifier("org.sakaiproject.util.api.FormattedText")
+  private FormattedText formattedText;
+  @Autowired
+  @Qualifier("org.sakaiproject.user.api.PreferencesService")
+  private PreferencesService preferencesService;
+  @Autowired
+  @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+  private ServerConfigurationService serverConfigurationService;
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.SessionManager")
+  private SessionManager sessionManager;
+  @Autowired
+  @Qualifier("org.sakaiproject.site.api.SiteService")
+  private SiteService siteService;
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.ToolManager")
+  private ToolManager toolManager;
+  @Autowired
+  @Qualifier("org.sakaiproject.time.api.UserTimeService")
+  private UserTimeService userTimeService;
 
-  private final String questionProgressUnansweredPath;
-  private final String questionProgressAnsweredPath;
-  private final String questionProgressMardPath;
-  private final String accessbase;
-  private final String mathjaxSrcPath;
-  private final String recPath;
+  private String questionProgressUnansweredPath;
+  private String questionProgressAnsweredPath;
+  private String questionProgressMardPath;
+  private String accessbase;
+  private String mathjaxSrcPath;
+  private String recPath;
 
   @Getter @Setter
   private String assessmentId;
@@ -550,14 +569,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
   private String sebLaunchLink;
 
   public DeliveryBean() {
-    this(ComponentManager.get(EventTrackingService.class),
-         ComponentManager.get(FormattedText.class),
-         ComponentManager.get(PreferencesService.class),
-         ComponentManager.get(ServerConfigurationService.class),
-         ComponentManager.get(SessionManager.class),
-         ComponentManager.get(SiteService.class),
-         ComponentManager.get(ToolManager.class),
-         ComponentManager.get(UserTimeService.class));
+    initialize();
   }
 
   public DeliveryBean(EventTrackingService eventTrackingService,
@@ -577,6 +589,10 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
     this.toolManager = toolManager;
     this.userTimeService = userTimeService;
 
+    initialize();
+  }
+
+  private void initialize() {
     accessbase = serverConfigurationService.getAccessUrl();
     recPath = serverConfigurationService.getString("samigo.recommendations.path");
     mathjaxSrcPath = serverConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP);
@@ -2407,8 +2423,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
     }
 
     String siteId = fromUrl ? publishedAssessment.getOwnerSiteId() : AgentFacade.getCurrentSiteId();
-    return PersistenceService.getInstance()
-        .getAuthzQueriesFacade()
+    return authzQueriesFacade
         .hasPrivilege(SamigoConstants.AUTHZ_TAKE_ASSESSMENT, siteId);
   }
 

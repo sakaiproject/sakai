@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.ExternalAssignmentProvider;
@@ -47,9 +47,10 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
@@ -59,6 +60,15 @@ import org.sakaiproject.user.api.UserDirectoryService;
  */
 @Slf4j
 public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, ExternalAssignmentProviderCompat {
+
+  @Setter
+  private GradebookServiceHelper gbsHelper;
+
+  @Setter
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
+
+  @Setter
+  private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
 
     private GradingService gradingService;
     private UserDirectoryService userDirectoryService;
@@ -113,7 +123,6 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
             return false;
     	    }
 
-        GradebookServiceHelper gbsHelper = (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
     	    String toolName = gbsHelper.getAppName();
     	    if (!StringUtils.equals(externalAppName, getAppKey()) && !StringUtils.equals(externalAppName, toolName)) {
     	    	    return false;
@@ -124,10 +133,9 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     	    }
 
     	    Long longId = Long.parseLong(id);
-    	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().isPublishedAssessmentIdValid(longId);
+            return publishedAssessmentFacadeQueries.isPublishedAssessmentIdValid(longId);
     }
 
-    
     @Override
     public boolean isAssignmentGrouped(String id) {
         // SAM-3068 avoid looking up another tool's id
@@ -183,7 +191,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     }
 
     public List<String> getExternalAssignmentsForCurrentUser(String gradebookUid) {
-        List all = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+        List all = publishedAssessmentFacadeQueries.
             getBasicInfoOfAllPublishedAssessments("title", true, gradebookUid);
 
         ArrayList<String> externalIds = new ArrayList<String>();
@@ -194,7 +202,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     }
 
     public List<String> getAllExternalAssignments(String gradebookUid) {
-        List allPublished = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+        List allPublished = publishedAssessmentFacadeQueries.
             getBasicInfoOfAllPublishedAssessments2("title", true, gradebookUid);
 
         List<String> allExternals = new ArrayList<String>();
@@ -206,7 +214,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     }
 
     public Map<String, List<String>> getAllExternalAssignments(String gradebookUid, Collection<String> studentIds) {
-        List allPublished = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+        List allPublished = publishedAssessmentFacadeQueries.
             getBasicInfoOfAllPublishedAssessments2("title", true, gradebookUid);
 
         //TODO: Update PublishedAssessmentFacadeQueriesAPI to return a list of group IDs
@@ -265,7 +273,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     }
 
     private Set<String> getAuthorizedGroups(String assessmentId) {
-        List authorizations = PersistenceService.getInstance().getAuthzQueriesFacade()
+        List authorizations = authzQueriesFacade
             .getAuthorizationByFunctionAndQualifier("TAKE_PUBLISHED_ASSESSMENT", assessmentId);
         Set<String> authorizedGroups = new HashSet<String>();
         if (authorizations != null && authorizations.size()>0) {
@@ -334,7 +342,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     private boolean checkMembership(PublishedAssessmentIfc pub, String userId){
         boolean isMember=false;
         // get list of site that this published assessment has been released to
-        List l = PersistenceService.getInstance().getAuthzQueriesFacade().
+        List l = authzQueriesFacade.
         getAuthorizationByFunctionAndQualifier("VIEW_PUBLISHED_ASSESSMENT",
                 pub.getPublishedAssessmentId().toString());
         for (int i=0;i<l.size();i++){
@@ -355,7 +363,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     private boolean checkMembershipForGroupRelease(PublishedAssessmentIfc pub, String userId){
         boolean isMember=false;
         // get the site that owns the published assessment
-        List l =PersistenceService.getInstance().getAuthzQueriesFacade().
+        List l =authzQueriesFacade.
         getAuthorizationByFunctionAndQualifier("OWN_PUBLISHED_ASSESSMENT",
                 pub.getPublishedAssessmentId().toString());
         if (l == null || l.isEmpty()) {
@@ -371,7 +379,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         }
 
         // get list of groups that this published assessment has been released to
-        l =PersistenceService.getInstance().getAuthzQueriesFacade().
+        l =authzQueriesFacade.
         getAuthorizationByFunctionAndQualifier("TAKE_PUBLISHED_ASSESSMENT",
                 pub.getPublishedAssessmentId().toString());
         for (int i=0;i<l.size();i++){

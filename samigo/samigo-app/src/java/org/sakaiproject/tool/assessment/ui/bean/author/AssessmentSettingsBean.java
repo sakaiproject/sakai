@@ -44,7 +44,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -89,7 +88,6 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
@@ -120,11 +118,24 @@ import lombok.extern.slf4j.Slf4j;
 public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
 
   @Autowired
+  @Qualifier("org.sakaiproject.section.api.SectionAwareness")
+  private SectionAwareness sectionAwareness;
+
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade")
+  private ExtendedTimeFacade extendedTimeFacade;
+
+  @Autowired
   @Qualifier("SecureDeliveryServiceAPI")
   private SecureDeliveryServiceAPI secureDeliveryService;
 
-    private static final GradebookServiceHelper gbsHelper =
-      (GradebookServiceHelper) SpringBeanLocator.getInstance().getBean("gradebookServiceHelper");
+    @Autowired
+    @Qualifier("gradebookServiceHelper")
+    private GradebookServiceHelper gbsHelper;
     private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
   /** Use serialVersionUID for interoperability. */
@@ -325,6 +336,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   public AssessmentSettingsBean() {
   }
 
+
+
     public void setAssessment(AssessmentFacade assessment) {
     try {
       // Clear cached gradebook items when loading a new assessment
@@ -377,7 +390,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
             this.bgImageSelect=null;
 	    this.bgColorSelect="1";
 	}
-        ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
         this.extendedTimes = extendedTimeFacade.getEntriesForAss(assessment.getData());
 
         resetExtendedTime();
@@ -1772,7 +1784,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 	 if (noGroupSelectedError || groupsAuthorized != null) {
 		 return groupsAuthorized;
 	 }
-	 AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+	 AuthzQueriesFacadeAPI authz = authzQueriesFacade;
 	 if (authz!=null){
 		 List authorizations = authz.getAuthorizationByFunctionAndQualifier("TAKE_ASSESSMENT", getAssessmentId().toString());
 		 if (authorizations != null && authorizations.size()>0) {
@@ -1983,7 +1995,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
 		try {
 			site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
-			SectionAwareness sectionAwareness = PersistenceService.getInstance().getSectionAwareness();
 			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
 			Map<String, String> studentTargets = new HashMap<>();
 			Map<String, String> orderedStudents = new HashMap<>();

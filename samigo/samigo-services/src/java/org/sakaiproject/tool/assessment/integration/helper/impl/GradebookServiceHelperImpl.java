@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +34,6 @@ import org.apache.commons.math3.util.Precision;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.Gradebook;
@@ -47,10 +47,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.context.annotation.DeferredImportSelector.Group.Entry;
@@ -65,8 +65,13 @@ import org.springframework.context.annotation.DeferredImportSelector.Group.Entry
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
 
-	private SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
-	private LocaleService localeService = (LocaleService) ComponentManager.get(LocaleService.class);
+  @Setter
+  private AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries;
+
+	@Setter
+	private SecurityService securityService;
+	@Setter
+	private LocaleService localeService;
 	
    /**
     * Remove a published assessment from the gradebook, if it is linked to one.
@@ -407,7 +412,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 						if(ag.getStatus() ==5) {
 							ag.setFinalScore(ag.getFinalScore());
 						} else {
-							Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+							Double averageScore = assessmentGradingFacadeQueries.
 							getAverageSubmittedAssessmentGrading(assessment.getPublishedAssessmentId(), ag.getAgentId());
 							ag.setFinalScore(averageScore);
 						}

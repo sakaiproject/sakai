@@ -6,14 +6,12 @@
 <!-- Samigo helpers backed by Sakai services -->
 <bean name="agentHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl">
-</bean>
-
-<bean name="gradebookServiceHelper"
-     class="org.sakaiproject.tool.assessment.integration.helper.impl.GradebookServiceHelperImpl">
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 </bean>
 
 <bean name="sectionAwareServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.impl.SectionAwareServiceHelperImpl">
+        <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries"/>
      <property name="sectionAwareness" ref="org.sakaiproject.section.api.SectionAwareness"/>
      <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
      <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
@@ -30,6 +28,9 @@
 <bean name="assessmentGradeInfoProvider"
       class="org.sakaiproject.tool.assessment.integration.helper.impl.AssessmentGradeInfoProvider"
       lazy-init="false" init-method="init" destroy-method="destroy">
+        <property name="gbsHelper" ref="gradebookServiceHelper"/>
+        <property name="authzQueriesFacade" ref="AuthzQueriesFacade"/>
+        <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries"/>
       <property name="gradingService"><ref bean="org.sakaiproject.grading.api.GradingService"/></property>
       <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
       <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>

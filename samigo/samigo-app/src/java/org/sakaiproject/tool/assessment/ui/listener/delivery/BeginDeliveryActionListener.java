@@ -34,7 +34,6 @@ import javax.faces.event.ActionListener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -53,7 +52,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
@@ -91,12 +89,20 @@ public class BeginDeliveryActionListener extends SpringBeanAutowiringSupport imp
 {
 
   @Autowired
+  @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+  private ServerConfigurationService serverConfigurationService;
+
+  @Autowired
   @Qualifier("SecureDeliveryServiceAPI")
   private SecureDeliveryServiceAPI secureDeliveryService;
 
   private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
-  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
-  private ToolManager toolManager = Objects.requireNonNull(ComponentManager.get(ToolManager.class));
+  @Autowired
+  @Qualifier("org.sakaiproject.rubrics.api.RubricsService")
+  private RubricsService rubricsService;
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.ToolManager")
+  private ToolManager toolManager;
 
   /**
    * ACTION.
@@ -196,7 +202,6 @@ public class BeginDeliveryActionListener extends SpringBeanAutowiringSupport imp
     // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
     delivery.setProtocol(ContextUtil.getProtocol());
 
-    ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
     Long sizeMax = Long.valueOf(serverConfigurationService.getInt("samigo.sizeMax", 20480));
     delivery.setFileUploadSizeMax(Math.round(sizeMax.floatValue()/1024));
     delivery.setPublishedAssessment(pub);

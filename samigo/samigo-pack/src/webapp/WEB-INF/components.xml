@@ -32,6 +32,13 @@
     </property>
   </bean>
   
+  <bean name="gradebookServiceHelper"
+       class="org.sakaiproject.tool.assessment.integration.helper.impl.GradebookServiceHelperImpl">
+        <property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="assessmentGradingFacadeQueries" ref="AssessmentGradingFacadeQueries"/>
+  </bean>
+
   <bean id="persistenceHelper" class="org.sakaiproject.tool.assessment.services.PersistenceHelper">
   	<property name="deadlockInterval"><value>3500</value></property>
   	<property name="retryCount"><value>5</value></property>
@@ -70,6 +77,9 @@
 
     <bean id="QuestionPoolFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueries">
+        <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="persistenceHelper" ref="persistenceHelper"/>
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
@@ -81,16 +91,22 @@
 
     <bean id="AssessmentFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries">
+        <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
+        <property name="pagingUtilQueries" ref="PagingUtilQueries"/>
+        <property name="authzQueriesFacade" ref="AuthzQueriesFacade"/>
+        <property name="persistenceHelper" ref="persistenceHelper"/>
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="EventLogFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.EventLogFacadeQueries">
+        <property name="persistenceService" ref="PersistenceService"/>
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="SectionFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.SectionFacadeQueries">
+        <property name="persistenceHelper" ref="persistenceHelper"/>
           <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
 
@@ -111,6 +127,13 @@
 
     <bean id="PublishedAssessmentFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries">
+        <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
+        <property name="gbsHelper" ref="gradebookServiceHelper"/>
+        <property name="gradebookService" ref="org.sakaiproject.grading.api.GradingService"/>
+        <property name="extendedTimeFacade" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade"/>
+        <property name="persistenceHelper" ref="persistenceHelper"/>
+        <property name="pagingUtilQueries" ref="PagingUtilQueries"/>
+        <property name="authzQueriesFacade" ref="AuthzQueriesFacade"/>
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
@@ -124,6 +147,7 @@
 
     <bean id="PublishedItemFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueries">
+        <property name="persistenceHelper" ref="persistenceHelper"/>
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
         <property name="itemHashUtil" ref="org.sakaiproject.tool.assessment.facade.ItemHashUtil"/>
     </bean>
@@ -151,6 +175,8 @@
 
     <bean id="AssessmentGradingFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
+        <property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
+        <property name="autoSubmitFacadeQueries" ref="AutoSubmitFacadeQueries"/>
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
@@ -165,6 +191,7 @@
 
     <bean id="AuthorizationFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueries">
+        <property name="persistenceHelper" ref="persistenceHelper"/>
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
@@ -181,6 +208,7 @@
 
     <bean id="FavoriteColChoicesFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueries">
+        <property name="persistenceHelper" ref="persistenceHelper"/>
           <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
 
@@ -360,6 +388,7 @@
     <bean id="org.sakaiproject.samigo.impl.SamigoObserver"
           class="org.sakaiproject.samigo.impl.SamigoObserver"
           init-method="init">
+        <property name="authzQueriesFacade" ref="AuthzQueriesFacade"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
         <property name="samigoETSProvider" ref="org.sakaiproject.samigo.api.SamigoETSProvider" />
     </bean>
@@ -367,6 +396,7 @@
     <bean id="org.sakaiproject.samigo.api.SamigoAvailableNotificationService"
           class="org.sakaiproject.samigo.impl.SamigoAvailableNotificationServiceImpl"
           init-method="init">
+        <property name="extendedTimeFacade" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade"/>
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
         <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
@@ -469,6 +499,8 @@
     </bean>
 
     <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.samigo"
-          class="org.sakaiproject.samigo.impl.messaging.SamigoUserNotificationHandler"/>
+          class="org.sakaiproject.samigo.impl.messaging.SamigoUserNotificationHandler">
+        <property name="extendedTimeFacade" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade"/>
+    </bean>
 
 </beans>

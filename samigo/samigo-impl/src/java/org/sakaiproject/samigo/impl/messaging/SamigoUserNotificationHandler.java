@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
@@ -39,7 +40,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -52,6 +52,9 @@ import static org.sakaiproject.samigo.util.SamigoConstants.*;
 
 @Slf4j
 public class SamigoUserNotificationHandler extends AbstractUserNotificationHandler {
+
+  @Setter
+  private ExtendedTimeFacade extendedTimeFacade;
 
     public static Pattern idPattern = Pattern.compile("siteId=(\\S*),\\s*\\S*\\s*publishedAssessmentId=(\\S*)", Pattern.CASE_INSENSITIVE);
     private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
@@ -70,7 +73,6 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
     public List<String> getHandledEvents() {
         return Arrays.asList(EVENT_ASSESSMENT_AVAILABLE, EVENT_PUBLISHED_ASSESSMENT_RETRACTED, EVENT_ASSESSMENT_UPDATE_AVAILABLE,EVENT_ASSESSMENT_DELETE, EVENT_PUBLISHED_ASSESSMENT_REMOVE);
     }
-
 
     @Override
     public Optional<List<UserNotificationData>> handleEvent(Event e) {
@@ -91,7 +93,6 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
         }
         String releaseTo = pub.getAssessmentAccessControl().getReleaseTo();
 
-        ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
         List<ExtendedTime> extendedTimes = extendedTimeFacade.getEntriesForPub(pub.getData());
 
         Map<String, String> selectedGroups = pub.getReleaseToGroups();

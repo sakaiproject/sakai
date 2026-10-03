@@ -47,8 +47,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.spring.SpringBeanLocator;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
@@ -62,10 +60,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
@@ -105,13 +104,33 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 {
 
   @Autowired
+  @Qualifier("org.sakaiproject.util.api.FormattedText")
+  private FormattedText formattedText;
+
+  @Autowired
+  @Qualifier("agentHelper")
+  private AgentHelper agentHelper;
+
+  @Autowired
+  @Qualifier("AssessmentGradingFacadeQueries")
+  private AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries;
+
+  @Autowired
+  @Qualifier("PublishedAssessmentFacadeQueries")
+  private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
+
+  @Autowired
   @Qualifier("SecureDeliveryServiceAPI")
   private SecureDeliveryServiceAPI secureDeliveryService;
 
   private BeanSort bs;
 
-  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
-  private LocaleService localeService = ComponentManager.get(LocaleService.class);
+  @Autowired
+  @Qualifier("org.sakaiproject.rubrics.api.RubricsService")
+  private RubricsService rubricsService;
+  @Autowired
+  @Qualifier("org.sakaiproject.util.api.LocaleService")
+  private LocaleService localeService;
 
   //private SectionAwareness sectionAwareness;
   // private List availableSections;
@@ -356,7 +375,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
       // need not be executed everytime
       if (firstTime){
         // if section set is null, initialize it - daisyf , 01/31/05
-        Set sectionSet = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(p);
+        Set sectionSet = publishedAssessmentFacadeQueries.getSectionSetForAssessment(p);
         p.setSectionSet(sectionSet);
         Iterator sectionIter = sectionSet.iterator();
         boolean isAutoScored = true;
@@ -408,7 +427,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
       //#3 - Collect a list of all the users in the scores list
       List agentUserIds = getAgentIds(useridMap);
-      AgentHelper helper = (AgentHelper) SpringBeanLocator.getInstance().getBean("agentHelper");
+      AgentHelper helper = agentHelper;
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
       //#4 - prepare agentResult list
       prepareAgentResult(p, scores.iterator(), agents, userRoles);
@@ -466,8 +485,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
         log.debug("****h.size "+h.size());
     // 1. get list of publishedItemId
-    List list =PersistenceService.getInstance().
-      getPublishedAssessmentFacadeQueries().getPublishedItemIds(pub.getPublishedAssessmentId());
+    List list =publishedAssessmentFacadeQueries.getPublishedItemIds(pub.getPublishedAssessmentId());
 
         log.debug("***list .size "+list.size());
     // 2. build a HashMap (Long publishedItemId, ArrayList assessmentGradingIds)
@@ -499,13 +517,11 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
   }
 
   public boolean hasRandomPart(PublishedAssessmentData pub){
-    return PersistenceService.getInstance().
-          getPublishedAssessmentFacadeQueries().hasRandomPart(pub.getPublishedAssessmentId());
+    return publishedAssessmentFacadeQueries.hasRandomPart(pub.getPublishedAssessmentId());
   }
 
   public String getFirstItem(PublishedAssessmentData pub){
-    PublishedItemData item = PersistenceService.getInstance().
-          getPublishedAssessmentFacadeQueries().getFirstPublishedItem(pub.getPublishedAssessmentId());
+    PublishedItemData item = publishedAssessmentFacadeQueries.getFirstPublishedItem(pub.getPublishedAssessmentId());
     if (item!=null)
       return item.getItemId().toString();
     else
@@ -641,7 +657,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       else
         results.setTimeElapsed(Integer.valueOf(0));      
       
-      results.setComments(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(gdata.getComments()));
+      results.setComments(formattedText.convertFormattedTextToPlaintext(gdata.getComments()));
       
       results.setIsLate(gdata.getIsLate());
       
@@ -920,19 +936,16 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     Map<Long, List<Long>> publishedItemIdHash;
     Integer scoringType = getScoringType(pub);
     if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
-	publishedItemIdHash = PersistenceService.getInstance().
-            getAssessmentGradingFacadeQueries().
+	publishedItemIdHash = assessmentGradingFacadeQueries.
             getHighestAssessmentGradingByPublishedItem(
             pub.getPublishedAssessmentId());
     }
     else if ((scoringType).equals(EvaluationModelIfc.AVERAGE_SCORE)){
 
-    	publishedItemIdHash = PersistenceService.getInstance().
-    	getAssessmentGradingFacadeQueries().getAverageAssessmentGradingByPublishedItem( pub.getPublishedAssessmentId());
+        publishedItemIdHash = assessmentGradingFacadeQueries.getAverageAssessmentGradingByPublishedItem( pub.getPublishedAssessmentId());
     }
     else{
-	publishedItemIdHash = PersistenceService.getInstance().
-            getAssessmentGradingFacadeQueries().
+	publishedItemIdHash = assessmentGradingFacadeQueries.
             getLastAssessmentGradingByPublishedItem(
             pub.getPublishedAssessmentId());
     }

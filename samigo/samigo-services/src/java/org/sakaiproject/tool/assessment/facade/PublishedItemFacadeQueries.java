@@ -28,7 +28,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
@@ -41,6 +41,9 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		PublishedItemFacadeQueriesAPI {
+
+  @Setter
+  private PersistenceHelper persistenceHelper;
 
 	@Setter private ItemHashUtil itemHashUtil;
 
@@ -201,7 +204,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
  	public void removeItemAttachment(Long itemAttachmentId) {
 		PublishedItemAttachment itemAttachment = getHibernateTemplate().get(PublishedItemAttachment.class, itemAttachmentId);
 		ItemDataIfc item = itemAttachment.getItem();
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				if (item != null) {
@@ -212,7 +215,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 				}
 			} catch (Exception e) {
 				log.warn("Error while trying to delete PublishedItemAttachment: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 	}
