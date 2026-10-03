@@ -17,6 +17,7 @@ package org.sakaiproject.tool.assessment.qti.helper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assume.assumeNoException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -120,7 +121,7 @@ public class ExtractionHelperAttachmentPathTest {
 
   @Test
   public void rejectsSymlinkThatLeavesPackage() throws IOException {
-    Files.createSymbolicLink(root.resolve("images/linked.txt"), outside);
+    createSymbolicLink(root.resolve("images/linked.txt"), outside);
     ExtractionHelper helper = helper();
     assertNull(helper.resolveImportedAttachmentPath("images/linked.txt"));
     assertNull(helper.resolveImportedAttachmentPath("IMAGES/LINKED.TXT"));
@@ -129,8 +130,16 @@ public class ExtractionHelperAttachmentPathTest {
   @Test
   public void resolvesSymlinkWhoseTargetStaysInsidePackage() throws IOException {
     Path target = root.resolve("images/inside.txt");
-    Files.createSymbolicLink(root.resolve("images/linked.txt"), target);
+    createSymbolicLink(root.resolve("images/linked.txt"), target);
     assertEquals(target.toRealPath().toString(), helper().resolveImportedAttachmentPath("images/linked.txt"));
+  }
+
+  private void createSymbolicLink(Path link, Path target) {
+    try {
+      Files.createSymbolicLink(link, target);
+    } catch (UnsupportedOperationException | IOException e) {
+      assumeNoException("Filesystem does not support creating symbolic links", e);
+    }
   }
 
   @Test

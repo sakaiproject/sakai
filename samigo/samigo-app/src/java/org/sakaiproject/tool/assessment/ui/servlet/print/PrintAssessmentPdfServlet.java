@@ -31,6 +31,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.servlet.SamigoBaseServlet;
 import org.sakaiproject.tool.assessment.ui.security.SamigoJsfViewAccess;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -50,8 +52,12 @@ public class PrintAssessmentPdfServlet extends SamigoBaseServlet {
             return;
         }
 
-        Placement placement = ToolManager.getCurrentPlacement();
-        if (placement == null || !SamigoJsfViewAccess.isAllowed("/jsf/print/printAssessment.jsp",
+        // RequestFilter binds the tool session for direct servlet requests, but not the current placement.
+        String placementId = StringUtils.trimToNull(request.getParameter(Tool.PLACEMENT_ID));
+        Placement placement = placementId == null ? ToolManager.getCurrentPlacement()
+            : getToolPlacement(placementId).orElse(null);
+        if (placement == null || !SamigoConstants.TOOL_ID.equals(placement.getToolId())
+                || !SamigoJsfViewAccess.isAllowed("/jsf/print/printAssessment.jsp",
                 permission -> hasPrivilege(permission, placement.getContext()))) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;

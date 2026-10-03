@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.e2e.tests;
 
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
@@ -33,6 +36,7 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 import com.microsoft.playwright.ElementHandle;
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
@@ -446,6 +450,27 @@ class SamigoTest extends SakaiUiTestBase {
             + "const url = document.getElementById('pdf-preview-url');"
             + "return iframe && url && url.textContent.trim().length > 0;"
             + "}", null, new com.microsoft.playwright.Page.WaitForFunctionOptions().setTimeout(30_000));
+
+        String viewerUrl = page.locator("#pdf-preview-url").textContent().trim();
+        String pdfPath = URLDecoder.decode(URI.create(viewerUrl).getRawQuery().substring("file=".length()), StandardCharsets.UTF_8);
+        APIResponse pdfResponse = page.context().request().get(URI.create(page.url()).resolve(pdfPath).toString());
+        try {
+            assertEquals(200, pdfResponse.status());
+            assertTrue(pdfResponse.headers().get("content-type").startsWith("application/pdf"));
+            assertEquals("%PDF-", new String(pdfResponse.body(), 0, 5, StandardCharsets.US_ASCII));
+        } finally {
+            pdfResponse.dispose();
+        }
+
+        String pdfEndpoint = URI.create(page.url()).resolve(URI.create(pdfPath).getPath()).toString();
+        for (String rejectedUrl : new String[] {pdfEndpoint, pdfEndpoint + "?sakai.tool.placement.id=missing-placement"}) {
+            APIResponse rejectedResponse = page.context().request().get(rejectedUrl);
+            try {
+                assertEquals(403, rejectedResponse.status());
+            } finally {
+                rejectedResponse.dispose();
+            }
+        }
 
         Locator showAnswerKey = page.locator("#assessmentForm\\:showKeys");
         if (isVisible(showAnswerKey, 5_000)) {

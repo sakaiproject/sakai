@@ -55,6 +55,8 @@ public class ImportServiceTest {
         repository = temporary.newFolder("repository").toPath().toRealPath();
         when(configuration.getString(eq("samigo.answerUploadRepositoryPath"), anyString()))
             .thenReturn(repository.toString());
+        when(configuration.getInt("samigo.qtiImport.maxEntries", 10000)).thenReturn(10000);
+        when(configuration.getLong("samigo.qtiImport.maxExpandedBytes", 536870912L)).thenReturn(536870912L);
     }
 
     @Test
@@ -113,6 +115,51 @@ public class ImportServiceTest {
         Path second = Path.of(service.unzipImportFile(archive(Map.of("exportAssessment.xml", "<questestinterop/>")).toString()));
         assertFalse(first.equals(second));
         assertEquals("exportAssessment.xml", service.getQtiFilename());
+    }
+
+    @Test
+    public void rejectsEntryCountLimitAndRemovesPartialExtraction() throws IOException {
+        when(configuration.getInt("samigo.qtiImport.maxEntries", 10000)).thenReturn(2);
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("exportAssessment.xml", "<questestinterop/>");
+        entries.put("images/", "");
+        entries.put("images/attachment.txt", "attachment");
+        IOException failure = assertThrows(IOException.class,
+            () -> service.unzipImportFile(archive(entries).toString()));
+        assertEquals("QTI content package exceeds the entry limit", failure.getMessage());
+        assertNoExtractedFiles();
+    }
+
+    @Test
+    public void rejectsCumulativeExpandedBytesAndRemovesPartialExtraction() throws IOException {
+        when(configuration.getLong("samigo.qtiImport.maxExpandedBytes", 536870912L)).thenReturn(4096L);
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("exportAssessment.xml", "<questestinterop/>");
+        entries.put("first.txt", "x".repeat(3000));
+        entries.put("second.txt", "x".repeat(3000));
+        IOException failure = assertThrows(IOException.class,
+            () -> service.unzipImportFile(archive(entries).toString()));
+        assertEquals("QTI content package exceeds the expanded byte limit", failure.getMessage());
+        assertNoExtractedFiles();
+    }
+
+    @Test
+    public void acceptsPackageAtConfiguredLimits() throws IOException {
+        String qti = "<questestinterop/>";
+        when(configuration.getInt("samigo.qtiImport.maxEntries", 10000)).thenReturn(1);
+        when(configuration.getLong("samigo.qtiImport.maxExpandedBytes", 536870912L))
+            .thenReturn((long) qti.getBytes(StandardCharsets.UTF_8).length);
+        Path root = Path.of(service.unzipImportFile(archive(Map.of("exportAssessment.xml", qti)).toString()));
+        assertEquals(qti, Files.readString(root.resolve("exportAssessment.xml")));
+    }
+
+    @Test
+    public void directoryPayloadCannotBypassExpandedByteLimit() throws IOException {
+        when(configuration.getLong("samigo.qtiImport.maxExpandedBytes", 536870912L)).thenReturn(1024L);
+        IOException failure = assertThrows(IOException.class,
+            () -> service.unzipImportFile(archive(Map.of("images/", "x".repeat(2048))).toString()));
+        assertEquals("QTI content package exceeds the expanded byte limit", failure.getMessage());
+        assertNoExtractedFiles();
     }
 
     private Path archive(Map<String, String> entries) throws IOException {

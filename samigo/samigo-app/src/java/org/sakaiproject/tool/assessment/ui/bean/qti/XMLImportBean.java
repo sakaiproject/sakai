@@ -91,10 +91,10 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
   private String pathToData;
   @Autowired
   @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
-  private ServerConfigurationService serverConfigurationService;
+  private transient ServerConfigurationService serverConfigurationService;
   @Autowired
   @Qualifier("org.sakaiproject.util.api.FormattedText")
-  private FormattedText formattedText;
+  private transient FormattedText formattedText;
   @ManagedProperty(value="#{author}")
   private AuthorBean authorBean;
   @ManagedProperty(value="#{assessmentBean}")

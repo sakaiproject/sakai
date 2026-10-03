@@ -127,7 +127,8 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       if (authorizationTarget != null && authorizationTarget.startsWith(RESET_ASSESSMENT_BEAN)) {
           authorizationTarget = authorizationTarget.substring(RESET_ASSESSMENT_BEAN.length());
       }
-      if (authorizationTarget != null && authorizationTarget.startsWith("/jsf/")) {
+      if (authorizationTarget != null && authorizationTarget.startsWith("/jsf/")
+              && !SamigoJsfViewAccess.isAllowed(authorizationTarget, permission -> false)) {
           if (ToolManager.getCurrentPlacement() == null) {
               res.sendError(HttpServletResponse.SC_FORBIDDEN);
               return;

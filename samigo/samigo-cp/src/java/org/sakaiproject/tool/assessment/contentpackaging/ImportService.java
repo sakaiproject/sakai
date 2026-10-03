@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.contentpackaging;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -54,6 +55,11 @@ public class ImportService {
     private String qtiFilename;
 
     public String unzipImportFile(String filename) throws IOException {
+        int maxEntries = serverConfigurationService.getInt("samigo.qtiImport.maxEntries", 10000);
+        long maxExpandedBytes = serverConfigurationService.getLong("samigo.qtiImport.maxExpandedBytes", 536870912L);
+        if (maxEntries <= 0 || maxExpandedBytes <= 0) {
+            throw new IOException("QTI import limits must be positive");
+        }
         String repositoryPath = serverConfigurationService.getString("samigo.answerUploadRepositoryPath",
             "${sakai.home}/samigo/answerUploadRepositoryPath/");
         Path parent = Path.of(repositoryPath, "jsf", "upload_tmp", "qti_imports", agentId, "unzip_files");
@@ -64,16 +70,29 @@ public class ImportService {
         try (ZipInputStream zipStream = new ZipInputStream(new FileInputStream(filename))) {
             String tmpName = new File(filename).getName();
             List<String> xmlFilenames = new ArrayList<>();
+            long entryCount = 0;
+            long expandedBytes = 0;
+            byte[] buffer = new byte[8192];
             ZipEntry entry;
             while ((entry = zipStream.getNextEntry()) != null) {
+                if (++entryCount > maxEntries) {
+                    throw new IOException("QTI content package exceeds the entry limit");
+                }
                 String entryName = entry.getName();
                 Path destination = resolveImportPath(root, entryName);
                 if (entry.isDirectory()) {
                     Files.createDirectories(destination);
                 } else {
                     Files.createDirectories(destination.getParent());
-                    try (java.io.OutputStream output = Files.newOutputStream(destination)) {
-                        zipStream.transferTo(output);
+                }
+                try (OutputStream output = entry.isDirectory() ? OutputStream.nullOutputStream() : Files.newOutputStream(destination)) {
+                    int bytesRead;
+                    while ((bytesRead = zipStream.read(buffer)) != -1) {
+                        if (bytesRead > maxExpandedBytes - expandedBytes) {
+                            throw new IOException("QTI content package exceeds the expanded byte limit");
+                        }
+                        output.write(buffer, 0, bytesRead);
+                        expandedBytes += bytesRead;
                     }
                 }
 
