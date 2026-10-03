@@ -326,10 +326,6 @@
       <to-view-id>/jsf/select/selectIndex.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>view</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>author</from-outcome>
       <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
     </navigation-case>
@@ -343,7 +339,7 @@
     </navigation-case>
 	<navigation-case>
       <from-outcome>poolUpdateError</from-outcome>
-      <to-view-id>/jsf/delivery/poolUpdateError.jsp</to-view-id>
+      <to-view-id>/jsf/author/poolUpdateError.jsp</to-view-id>
     </navigation-case>
 
   <!-- DELIVERY -->
@@ -426,10 +422,6 @@
       <from-outcome>importAssessment</from-outcome>
       <to-view-id>/jsf/qti/importAssessment.jsp</to-view-id>
     </navigation-case>
-	<navigation-case>
-      <from-outcome>importAssessmentFromRespondus</from-outcome>
-      <to-view-id>/jsf/qti/importAssessmentFromRespondus.jsp</to-view-id>
-    </navigation-case>
     <navigation-case>
       <from-outcome>samLiteEntry</from-outcome>
       <to-view-id>/jsf/samlite/samLiteEntry.jsp</to-view-id>
@@ -487,10 +479,6 @@
       <to-view-id>/jsf/author/editPart.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>authorQuestions</from-outcome>
-      <to-view-id>/jsf/author/authorQuestions.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>authorSettings</from-outcome>
       <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
     </navigation-case>
@@ -523,41 +511,9 @@
       <to-view-id>/jsf/shared/removeMedia.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>addMatchItem</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>addMatchItemMatch</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>moveQuestionRemovePart</from-outcome>
-      <to-view-id>/jsf/assessment/editAssessment.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>myQuestions</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>removeAnswer</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>removeAssessment</from-outcome>
       <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
       <redirect/>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>removeMatchItem</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>removeMatchItemMatch</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>removeQuestionConfirm</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>saveSettings</from-outcome>
@@ -717,18 +673,6 @@
       <to-view-id>/jsf/qti/importPool.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>exportPool</from-outcome>
-      <to-view-id>/jsf/questionpool/exportPool.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>importQuestion</from-outcome>
-      <to-view-id>/jsf/questionpool/importQuestion.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>exportQuestion</from-outcome>
-      <to-view-id>/jsf/questionpool/exportQuestion.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>selectQuestionType</from-outcome>
       <to-view-id>/jsf/questionpool/selectQuestionType.jsp</to-view-id>
     </navigation-case>
@@ -739,10 +683,6 @@
     <navigation-case>
       <from-outcome>solution</from-outcome>
       <to-view-id>/jsf/questionpool/solution.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>debug</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>exit</from-outcome>
@@ -757,10 +697,6 @@
     <navigation-case>
       <from-outcome>template</from-outcome>
       <to-view-id>/jsf/template/templateIndex.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>template1</from-outcome>
-      <to-view-id>/jsf/template/templateIndex1.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>editTemplate</from-outcome>
@@ -828,10 +764,6 @@
       <to-view-id>/jsf/evaluation/downloadFileSubmissions.jsp</to-view-id>
     </navigation-case>
     
-    <navigation-case>
-      <from-outcome>exportZip</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
-    </navigation-case>
   	<navigation-case>
       <from-outcome>confirmRetake</from-outcome>
       <to-view-id>/jsf/evaluation/confirmRetake.jsp</to-view-id>
@@ -841,14 +773,6 @@
     <navigation-case>
       <from-outcome>xmlDisplay</from-outcome>
       <to-view-id>/jsf/qti/xmlDisplay.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>xmlPublished</from-outcome>
-      <to-view-id>/jsf/qti/xmlPublished.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>xmlTemplates</from-outcome>
-      <to-view-id>/jsf/qti/xmlTemplates.jsp</to-view-id>
     </navigation-case>
   </navigation-rule>
 
@@ -945,12 +869,6 @@
       <renderer-type>SakaiRichTextEditArea</renderer-type>
       <renderer-class>org.sakaiproject.jsf.renderer.RichTextEditArea</renderer-class>
     </renderer>
-    <!-- links, obsolete  -->
-    <renderer>
-       <component-family>javax.faces.Output</component-family>
-       <renderer-type>NavigationMap</renderer-type>
-       <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.NavigationMapRenderer</renderer-class>
-    </renderer>
     <!-- timer bar -->
     <renderer>
        <component-family>javax.faces.Output</component-family>
@@ -992,16 +910,5 @@
  		<validator-id>finQuestionValidator</validator-id>
  		<validator-class>org.sakaiproject.tool.assessment.jsf.validator.FinQuestionValidator</validator-class>
 	</validator>
-
-  <!-- Add these navigation rules -->
-  <navigation-rule>
-    <from-view-id>/delivery/beginAssessment.jsp</from-view-id>
-    <navigation-case>
-        <from-outcome>takeAssessment</from-outcome>
-        <to-view-id>/delivery/takeAssessment.jsp</to-view-id>
-        <redirect/>
-    </navigation-case>
-    <!-- Add other navigation cases based on possible return values from validate() -->
-  </navigation-rule>
 
 </faces-config>

@@ -168,7 +168,7 @@ public class ExportMarkupTextServlet extends HttpServlet {
 		String fileName = "exportAssessment.txt";
 		String errorPoolSizeTooLarge = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "update_pool_error_size_too_large");
 		String errorPoolUpdateUnknown = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
-		String pathUpdateError = "/jsf/qti/poolUpdateError.faces";
+		String pathUpdateError = "/jsf/author/poolUpdateError.faces";
 
 		if (success != AssessmentService.UPDATE_SUCCESS) {
 			if (success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){

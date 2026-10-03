@@ -2036,14 +2036,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 	return "importPool";
   }
 
-  public String importQuestion(){
-	return "importQuestion";
-  }
-
-  public String exportQuestion(){
-	return "exportQuestion";
-  }
-
   public String returnToAuthoring(){
 	return "author";
   }
