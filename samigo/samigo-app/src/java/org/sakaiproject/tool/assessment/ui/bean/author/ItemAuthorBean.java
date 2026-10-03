@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.activation.FileTypeMap;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -99,17 +100,23 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /* For author: Item Author backing bean. */
 @Slf4j
 @ManagedBean(name="itemauthor")
 @SessionScoped
-public class ItemAuthorBean implements Serializable {
+public class ItemAuthorBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("samigoMimeTypes")
+  private FileTypeMap mimeTypes;
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 8266438770394956874L;
@@ -1421,7 +1428,7 @@ public class ItemAuthorBean implements Serializable {
 			});
 			File media = new File(mediaLocation);
 			byte[] mediaByte = getMediaStream(mediaLocation);
-			String mimeType = MimeTypesLocator.getInstance().getContentType(media);
+			String mimeType = mimeTypes.getContentType(media);
 			
 			String fullname = media.getName().trim();
 			String collectionId = getPrivateCollection();

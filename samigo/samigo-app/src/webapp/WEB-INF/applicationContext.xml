@@ -12,6 +12,12 @@
 		<property name="basename" value="classpath:org/sakaiproject/tool/assessment/bundle/DeliveryMessages"/>
 	</bean>
 
+  <bean id="samigoMimeTypes"
+        class="org.springframework.mail.javamail.ConfigurableMimeFileTypeMap"
+        lazy-init="false">
+    <property name="mappingLocation" value="/WEB-INF/mime.types"/>
+  </bean>
+
 	<context:component-scan base-package="org.sakaiproject.tool.assessment"/>
 </beans>
  

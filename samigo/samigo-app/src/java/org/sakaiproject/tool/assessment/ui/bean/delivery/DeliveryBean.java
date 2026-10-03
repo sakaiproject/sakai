@@ -39,6 +39,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.activation.FileTypeMap;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -106,7 +107,6 @@ import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGrading
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
-import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -123,6 +123,10 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 @ManagedBean(name="delivery")
 @SessionScoped
 public class DeliveryBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("samigoMimeTypes")
+  private FileTypeMap mimeTypes;
 
   @Autowired
   @Qualifier("AuthzQueriesFacade")
@@ -1793,7 +1797,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
                         GradingService gradingService){
     // 1. create a media record
     File media = new File(mediaLocation);
-    String mimeType = MimeTypesLocator.getInstance().getContentType(media);
+    String mimeType = mimeTypes.getContentType(media);
     MediaData mediaData;
     log.debug("***6a. addMediaToItemGrading, itemGradinDataId={}", itemGradingData.getItemGradingId());
     // 1b. get filename

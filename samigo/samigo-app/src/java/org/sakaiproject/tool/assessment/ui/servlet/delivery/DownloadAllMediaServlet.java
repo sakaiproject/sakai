@@ -53,7 +53,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.shared.impl.assessment.PublishedAssessmentServiceImpl;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentServiceException;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
@@ -417,8 +417,12 @@ private FileInputStream getFileStream(String mediaLocation){
   
   private String getPartNumAndQuestionNum(String itemId){
 	  log.debug("itemId = " + itemId);
-	  PublishedAssessmentServiceImpl pubAssessmentServiceImpl = new PublishedAssessmentServiceImpl();
-	  ItemDataIfc item = pubAssessmentServiceImpl.loadPublishedItem(itemId);
+	  ItemDataIfc item;
+	  try {
+	      item = new PublishedAssessmentService().loadPublishedItem(itemId);
+	  } catch (Exception ex) {
+	      throw new AssessmentServiceException(ex);
+	  }
 	  Integer partNum = item.getSection().getSequence();
 	  log.debug("partNum = " + partNum);
 	  Integer questionNum = item.getSequence();

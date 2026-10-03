@@ -263,14 +263,6 @@
     <load-on-startup>2</load-on-startup>
   </servlet>
 
-  <servlet>
-   	<!--  Ordering change required - PAFH 9/7/2006 -->
-    <description>Set Mime Types File Type Map in memory.</description>
-    <servlet-name>initMimeTypes</servlet-name>
-    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.InitMimeTypes</servlet-class>
-    <load-on-startup>2</load-on-startup>
-  </servlet>
-
   <!-- BEGIN FACES SERVLET SECTION-->
 
   <!-- Faces Servlet -->
