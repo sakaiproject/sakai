@@ -52,8 +52,6 @@ import org.jsoup.nodes.Document;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.portal.util.PortalUtils;
@@ -1794,8 +1792,6 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
                         GradingService gradingService){
     // 1. create a media record
     File media = new File(mediaLocation);
-    String mimeType = ComponentManager.get(ContentTypeImageService.class).getContentType(
-            org.sakaiproject.util.Validator.getFileExtension(media.getName()));
     MediaData mediaData;
     log.debug("***6a. addMediaToItemGrading, itemGradinDataId={}", itemGradingData.getItemGradingId());
     // 1b. get filename
@@ -1815,7 +1811,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
       byte[] mediaByte = getMediaStream(mediaLocation);
       mediaData = new MediaData(itemGradingData, mediaByte,
                                 Long.valueOf(mediaByte.length + ""),
-                                mimeType, "description", null,
+                                null, "description", null,
                                 updatedFilename, false, 1,
                                 agent, new Date(),
                                 agent, new Date(), null);
