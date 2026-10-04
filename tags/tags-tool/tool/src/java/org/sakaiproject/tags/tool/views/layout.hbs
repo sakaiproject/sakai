@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="{{locale}}" data-localize-lang="{{locale}}">
     <head>
         <meta charset="utf-8" />
         <link rel="stylesheet" type="text/css" href="{{{skinRepo}}}/tool_base.css" />
@@ -34,5 +34,8 @@
         <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
         <script type="text/javascript" src="/tags-tool/scripts/tagservice-tool.js"></script>
+        {{#if showPagination}}
+            <script type="module" src="/tags-tool/scripts/tagservice-pager.js"></script>
+        {{/if}}
     </body>
 </html>

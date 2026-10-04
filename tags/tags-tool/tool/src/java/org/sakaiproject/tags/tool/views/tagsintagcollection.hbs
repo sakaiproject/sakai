@@ -46,29 +46,10 @@
     </table>
 
 
-    <!--pagination param ==> currentPage:{{pageNum}} totalPageCount:{{totalPages}} countPerPageGroup:{{countPerPageGroup}}-->
     {{#if showPagination}}
-        {{#pagination this pageNum totalPages countPerPageGroup}}
-            <div class="paging_bootstrap">
-                <ul class="pagination">
-                    {{#if canGoPrevious}}
-                        <li class="page-item prev"><a class="page-link" href="{{actionURLPaginated this 'tagsintagcollection' uuid "manage" previousIdx pageSize}}"><i class="icon-double-angle-left">&Lt;</i></a></li>
-                    {{else}}
-                        <li class="page-item prev disabled"><a class="page-link" href="#"><i class="icon-double-angle-left">&Lt;</i></a></li>
-                    {{/if}}
-
-                    {{#each pages}}
-                        <li {{#if isCurrent}}class="page-item active"{{/if}}><a class="page-link" href="{{actionURLPaginated this 'tagsintagcollection' uuid "manage" pageInt pageSize}}">{{page}}</a></li>
-                    {{/each}}
-
-                    {{#if canGoNext}}
-                        <li class="page-item next"><a class="page-link" href="{{actionURLPaginated this 'tagsintagcollection' uuid "manage" nextIdx pageSize}}"><i class="icon-double-angle-right">&Gt;</i></a></li>
-                    {{else}}
-                        <li class="page-item next disabled"><a class="page-link" href="#"><i class="icon-double-angle-right">&Gt;</i></a></li>
-                    {{/if}}
-                </ul>
-            </div>
-        {{/pagination}}
+        <sakai-pager current="{{pageNum}}" count="{{totalPages}}"
+            data-page-base="{{actionURL this 'tagsintagcollection' uuid "manage"}}/"
+            data-page-size="{{pageSize}}"></sakai-pager>
     {{/if}}
 </section>
 
