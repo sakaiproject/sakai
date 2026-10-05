@@ -41,7 +41,7 @@ class PollTest extends SakaiUiTestBase {
     private static final String POLL_TITLE = "Playwright Poll & Options " + System.currentTimeMillis();
     private static final String LIMITS_POLL_TITLE = "Playwright Poll Limits " + System.currentTimeMillis();
     private static final String DEFAULT_DATES_POLL_TITLE = "Playwright Default Dates Poll & Options " + System.currentTimeMillis();
-    private static final String BULK_POLL_TITLE_ONE = "Playwright Bulk Poll One " + System.currentTimeMillis();
+    private static final String BULK_POLL_TITLE_ONE = "Playwright Bulk Poll & <b>One</b> " + System.currentTimeMillis();
     private static final String BULK_POLL_TITLE_TWO = "Playwright Bulk Poll Two " + System.currentTimeMillis();
     private static boolean pollWithTwoOptionsCreated;
 

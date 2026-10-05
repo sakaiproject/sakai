@@ -47,10 +47,10 @@
             <tr th:each="poll : ${polls}">
               <td>
                 <div class="d-flex flex-column gap-1">
-                  <a th:if="${poll.votable}" class="fw-semibold" th:href="@{'/voteQuestion'(pollId=${poll.id})}" th:utext="${poll.text}">
+                  <a th:if="${poll.votable}" class="fw-semibold" th:href="@{'/voteQuestion'(pollId=${poll.id})}" th:text="${poll.text}">
                     Poll question
                   </a>
-                  <span th:if="${!poll.votable}" th:utext="${poll.optionCount == 0 ? poll.text + ' (' + #messages.msgOrNull('poll_no_options') + ')' : poll.text}">
+                  <span th:if="${!poll.votable}" th:text="${poll.optionCount == 0 ? poll.text + ' (' + #messages.msgOrNull('poll_no_options') + ')' : poll.text}">
                     Poll question
                   </span>
                   <div class="d-flex flex-wrap gap-2">
