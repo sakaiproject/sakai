@@ -1344,9 +1344,6 @@ public class DeliveryBean implements Serializable {
   }
 
   public String validatePassword() {
-    log.debug("**** password={}", password);
-    log.debug("**** setting password={}", getSettings().getPassword());
-    
     if (StringUtils.isBlank(password)) {
     	return "passwordAccessError";
     }
