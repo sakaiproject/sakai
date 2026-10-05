@@ -2036,25 +2036,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			//Now upload the received file
 			//Test that file has been sent in request 
-			org.apache.commons.fileupload2.core.FileItem uploadFile = null;
-
-			if (JakartaServletFileUpload.isMultipartContent(request)) {
-				DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
-				JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
-				JakartaServletRequestContext context = new JakartaServletRequestContext(request);
-
-				try {
-					List<org.apache.commons.fileupload2.core.FileItem> items = upload.parseRequest(context);
-					for (org.apache.commons.fileupload2.core.FileItem item : items) {
-						if (!item.isFormField()) {
-							uploadFile = item;
-							break;
-						}
-					}
-				} catch (FileUploadException e) {
-					log.warn("File upload parsing failed: {}", e);
-				}
-			}
+			org.apache.commons.fileupload2.core.FileItem uploadFile = (org.apache.commons.fileupload2.core.FileItem) request.getAttribute("file");
 
 			if(uploadFile != null)
 			{
