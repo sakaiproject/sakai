@@ -135,7 +135,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         transactionTemplate.execute(status -> {
 
-            sessionFactory.getCurrentSession().createQuery("delete UserNotification where EVENT in :events and REF = :ref and TO_USER in :toUsers")
+            sessionFactory.getCurrentSession().createQuery("delete from UserNotification where event in :events and ref = :ref and toUser in :toUsers")
                 .setParameterList("events", new String[] {EVENT_ADD_ASSIGNMENT, EVENT_UPDATE_ASSIGNMENT_ACCESS, EVENT_AVAILABLE_ASSIGNMENT})
                 .setParameter("ref", ref)
                 .setParameterList("toUsers", users).executeUpdate();
