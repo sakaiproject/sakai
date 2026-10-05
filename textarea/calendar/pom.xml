@@ -31,6 +31,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>jakarta.servlet.jsp</groupId>
