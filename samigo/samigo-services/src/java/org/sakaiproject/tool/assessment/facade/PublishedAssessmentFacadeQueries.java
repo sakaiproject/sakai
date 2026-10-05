@@ -2500,22 +2500,26 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	public boolean isFixedRandomDrawPart(final Long publishedAssessmentId, final Long sectionId) {
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
-
+		final String valueMultiple = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
 		try {
 			Session session = sessionFactory.getCurrentSession();
 			CriteriaBuilder cb = session.getCriteriaBuilder();
 			CriteriaQuery<PublishedSectionData> cq = cb.createQuery(PublishedSectionData.class);
 
 			Root<PublishedSectionData> sRoot = cq.from(PublishedSectionData.class);
-			Join<PublishedSectionData, PublishedSectionMetaData> mJoin = sRoot.join("section");
+			Root<PublishedSectionMetaData> mRoot = cq.from(PublishedSectionMetaData.class);
 
 			cq.select(sRoot);
 
 			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(cb.equal(sRoot, mRoot.get("section")));
 			predicates.add(cb.equal(sRoot.get("assessment").get("publishedAssessmentId"), publishedAssessmentId));
 			predicates.add(cb.equal(sRoot.get("id"), sectionId));
-			predicates.add(cb.equal(mJoin.get("label"), key));
-			predicates.add(cb.equal(mJoin.get("entry"), value));
+			predicates.add(cb.equal(mRoot.get("label"), key));
+			predicates.add(cb.or(
+				cb.equal(mRoot.get("entry"), value),
+				cb.equal(mRoot.get("entry"), valueMultiple)
+			));
 
 			cq.where(predicates.toArray(new Predicate[0]));
 
