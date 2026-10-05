@@ -448,9 +448,9 @@ button.btn.btn-default.multiselect-clear-filter{
 								<select name="selectResource${DOT}$i" id="selectResource${DOT}$i">
 								#foreach ($key in $resourceSelections.keySet())
 									#if($key.startsWith("${item.getSubmittedResourceFilter()}/") && $item.isUseConditionalRelease())
-										<option value="${key.replaceAll("\"","&quot;")}" selected="selected">${resourceSelections.get(${key})}</option>
+										<option value="${key.replaceAll('"','&quot;')}" selected="selected">${resourceSelections.get(${key})}</option>
 									#else
-										<option value="${key.replaceAll("\"","&quot;")}">${resourceSelections.get(${key})}</option>
+										<option value="${key.replaceAll('"','&quot;')}">${resourceSelections.get(${key})}</option>
 									#end
 								#end
 								</select>
