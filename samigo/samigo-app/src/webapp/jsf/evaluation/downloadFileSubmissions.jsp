@@ -121,7 +121,8 @@
 
     <h:column>
       <h:panelGrid columnClasses="samLeftNav," border="0">
-        <h:outputText value="<b>#{evaluationMessages.part} #{question.section.sequence}: #{evaluationMessages.question} #{question.sequence}</b> - #{evaluationMessages.q_fu}" escape="false"/>
+        <h:outputText value="<b>#{evaluationMessages.part} #{question.section.sequence}: #{evaluationMessages.question} #{question.sequence}</b> - #{evaluationMessages.q_fu}" escape="false" rendered="#{question.typeId == 6}"/>
+        <h:outputText value="<b>#{evaluationMessages.part} #{question.section.sequence}: #{evaluationMessages.question} #{question.sequence}</b> - #{evaluationMessages.q_aud}" escape="false" rendered="#{question.typeId == 7}"/>
         <h:outputText value="#{question.text}" escape="false"/>
       </h:panelGrid>
     </h:column>
