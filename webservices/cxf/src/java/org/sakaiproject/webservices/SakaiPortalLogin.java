@@ -175,7 +175,7 @@ public class SakaiPortalLogin extends AbstractWebService {
                     log.debug("Site does not exist...");
                         throw new RuntimeException("Failed login");
                 }
-                if ( log.isDebugEnabled() ) log.debug("Sakai Portal Login id="+id+" ip="+ipAddress+" session="+s.getId());
+                if ( log.isDebugEnabled() ) log.debug("Sakai Portal Login id={} ip={}", id, ipAddress);
                     return s.getId();
             }
         }

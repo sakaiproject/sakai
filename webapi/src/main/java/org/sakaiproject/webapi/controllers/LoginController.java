@@ -91,7 +91,7 @@ public class LoginController extends AbstractSakaiApiController {
 
             usageSessionService.login(a.getUid(), username, ipAddress, "/api/login", UsageSessionService.EVENT_LOGIN_WS);
 
-            log.debug("/api/login username={} ip={} session={}", username, ipAddress, s.getId());
+            log.debug("/api/login username={} ip={}", username, ipAddress);
 
             // retrieve the configured cookie name, if any
             if (System.getProperty(RequestFilter.SAKAI_COOKIE_PROP) != null) {
@@ -124,7 +124,7 @@ public class LoginController extends AbstractSakaiApiController {
                 response.addCookie(c);
             }
 
-            log.debug("/api/login username={} ip={} session={}", username, ipAddress, s.getId());
+            log.debug("/api/login username={} ip={}", username, ipAddress);
             return ResponseEntity.ok(s.getId());
         }
 	}

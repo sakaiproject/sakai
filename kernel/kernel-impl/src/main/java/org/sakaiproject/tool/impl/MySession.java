@@ -59,8 +59,6 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 
-import com.carrotsearch.sizeof.ObjectTree;
-import com.carrotsearch.sizeof.RamUsageEstimator;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -524,31 +522,7 @@ public class MySession implements Session, HttpSession, Serializable
 
 		else
 		{
-			if (log.isDebugEnabled()) {
-				// DO NOT USE this in a production system as calculating object sizes is very
-				// CPU intensive and is for debugging only. YOU HAVE BEEN WARNED.
-				try {
-					long size = RamUsageEstimator.sizeOf(value);
-					StringBuilder msg = new StringBuilder("sizeOf [session id = ");
-					msg.append(this.m_id).append("]");
-					msg.append(":[").append(name).append(" => ").append(value.getClass().getName()).append("]");
-					msg.append(" size is ").append(RamUsageEstimator.humanReadableUnits(size));
-
-					if (log.isTraceEnabled()) {
-						// to get a dump of the object tree turn on trace level logging
-						// don't dump anything over 1MB
-						if (size <= 1048576 ) {
-							msg.append(", dumping object tree:\n");
-							msg.append(ObjectTree.dump(value));
-						} else {
-							msg.append(", object is over 1MB skipping dump\n");
-						}
-					}
-					log.debug("{}", msg);
-				} catch(Exception e) {
-					log.error("sizeOf could not calculate the size of [session => attribute]:[{} => {}]", this.m_id, name, e);
-				}
-			}
+			log.debug("Setting session attribute of type {}", value.getClass().getName());
 
 			Object old = null;
 
@@ -772,8 +746,7 @@ public class MySession implements Session, HttpSession, Serializable
 
     @Override
     public String toString() {
-        return "MyS_"+m_userEid+"{" + m_id +
-                       ", userId='" + m_userId + '\'' +
+        return "MyS_"+m_userEid+"{userId='" + m_userId + '\'' +
                        ", at=" + (m_attributes != null ? m_attributes.size() : 0) +
                        ", ts=" + (m_toolSessions != null ? m_toolSessions.size() : 0) +
                        ", cs=" + (m_contextSessions != null ? m_contextSessions.size() : 0) +

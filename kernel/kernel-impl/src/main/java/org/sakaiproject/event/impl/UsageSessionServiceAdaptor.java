@@ -470,7 +470,7 @@ public class UsageSessionServiceAdaptor implements UsageSessionService
 			} catch (UserNotDefinedException undfe) {
 				log.warn("The mock user [{}] could not be found, {}", userId, undfe.toString());
 			} catch (Exception e) {
-				log.error("Could not perform RoleView for user [{}], session [{}] maybe contaminated, {}", userId, currentSession.getId(), e.toString());
+				log.error("Could not perform RoleView for user [{}], session may be contaminated", userId, e);
 				currentSession.invalidate();
 				throw new SakaiException(e);
 			}
@@ -505,7 +505,7 @@ public class UsageSessionServiceAdaptor implements UsageSessionService
 			currentSession.setUserId(realUserId);
 			currentSession.setUserEid(realUserEid);
 			authzGroupService.refreshUser(realUserId);
-			log.info("Exiting from roleview mode, restored real user [{}] for session [{}]", realUserEid, currentSession.getId());
+			log.info("Exiting from roleview mode, restored real user [{}]", realUserEid);
 		} else {
 			log.warn("Restore from roleview for user, but a session does not exist for this request, skipping");
 		}

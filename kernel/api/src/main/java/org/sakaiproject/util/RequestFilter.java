@@ -1179,7 +1179,7 @@ public class RequestFilter implements Filter
 				}
 				if (log.isDebugEnabled())
 				{
-					log.debug("assureSession found sessionId in cookie: " + sessionId);
+					log.debug("Found session ID in request");
 				}
 
 				// find the session

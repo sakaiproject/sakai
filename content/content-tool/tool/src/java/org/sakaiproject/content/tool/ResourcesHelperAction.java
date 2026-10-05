@@ -34,9 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -323,46 +321,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe == null)
 		{
-			String attributes = "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of state.attributes:\n";
-			List<String> attrNames = state.getAttributeNames();
-			for(String attrName : attrNames)
-			{
-				Object val = state.getAttribute(attrName);
-				if(val instanceof Collection)
-				{
-					int i = 0;
-					for(Object obj : (Collection) val)
-					{
-						attributes += "\t" + attrName + "[" + i + "] ==> " + obj + "\n";
-						i++;
-					}
-				}
-				else
-				{
-					attributes += "\t" + attrName + " ==> " + val + "\n";
-				}
-			}
-			attributes += "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of toolSession.attributes:\n";
-			Enumeration toolNames = toolSession.getAttributeNames();
-			while(toolNames.hasMoreElements())
-			{
-				String name = (String) toolNames.nextElement();
-				Object val = toolSession.getAttribute(name);
-				if(val instanceof Collection)
-				{
-					int i = 0;
-					for(Object obj : (Collection) val)
-					{
-						attributes += "\t" + name + "[" + i + "] ==> " + obj + "\n";
-						i++;
-					}
-				}
-				else
-				{
-					attributes += "\t" + name + " ==> " + val + "\n";
-				}
-			}
-			log.debug(attributes, new Throwable());
+			log.debug("Resource tool action pipe is missing");
             return ERROR_PAGE_TEMPLATE;
 		}
 		if(pipe.isActionCompleted())

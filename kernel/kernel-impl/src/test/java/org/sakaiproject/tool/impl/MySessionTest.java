@@ -88,6 +88,24 @@ import static org.mockito.Mockito.*;
 public class MySessionTest extends BaseSessionComponentTest {
 
 	@Test
+	public void testStringRepresentationDoesNotExposeAuthenticationId() {
+		String sessionId = "authentication-session-marker";
+		Session session = sessionComponent.startSession(sessionId);
+		session.setUserId("user-marker");
+		session.setUserEid("eid-marker");
+		session.setAttribute("sakai.csrf.token", "csrf-marker");
+		session.setAttribute("sakai.locale." + sessionId, "locale-marker");
+
+		String description = session.toString();
+		assertFalse(description.contains(sessionId));
+		assertFalse(description.contains("csrf-marker"));
+		assertFalse(description.contains("locale-marker"));
+		assertTrue(description.contains("user-marker"));
+		assertEquals(sessionId, session.getId());
+		assertEquals("csrf-marker", session.getAttribute("sakai.csrf.token"));
+	}
+
+	@Test
 	public void testCreatedInExpectedState() throws Exception {
 		final String sessionId = "SESSION_ID";
 		doTestCreatedInExpectedState(sessionId, new Callable<MySession>() {

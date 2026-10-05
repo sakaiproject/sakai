@@ -200,8 +200,7 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 		finally
 		{
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer("PagePresenceDaoImpl.findBySession: "
-					+ session, start, finish);
+			TimeLogger.printTimer("PagePresenceDaoImpl.findBySession", start, finish);
 		}
 	}
 

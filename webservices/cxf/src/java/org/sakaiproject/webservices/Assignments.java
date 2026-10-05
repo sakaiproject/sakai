@@ -728,7 +728,7 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId,
             @WebParam(name = "userId", partName = "userId") @QueryParam("userId") String userId,
             @WebParam(name = "time", partName = "time") @QueryParam("time") long time) {
-        log.info("createSubmission( " + sessionId + ", " + context + " , " + assignmentId + " , " + userId + "," + time + ")");
+        log.info("Creating submission context={} assignmentId={} userId={} time={}", context, assignmentId, userId, time);
         try {
     		//establish the session
     		Session s = establishSession(sessionId);
