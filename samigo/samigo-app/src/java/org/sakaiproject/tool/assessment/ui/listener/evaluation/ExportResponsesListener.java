@@ -58,6 +58,7 @@ public class ExportResponsesListener
     exportResponsesBean.setAssessmentId(totalScoreBean.getPublishedId());
     exportResponsesBean.setAssessmentName(totalScoreBean.getAssessmentName());
     exportResponsesBean.setAnonymous(Boolean.valueOf(totalScoreBean.getAnonymous()).booleanValue());
+    new DownloadFileSubmissionsListener().processAction(ae);
   }
 }
 

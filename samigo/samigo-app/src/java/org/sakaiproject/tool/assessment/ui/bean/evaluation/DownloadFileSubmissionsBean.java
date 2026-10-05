@@ -89,7 +89,7 @@ public class DownloadFileSubmissionsBean implements Serializable {
 	}
 
 	public int getAvailableSectionSize() {
-		return availableSectionItems.size();
+		return availableSectionItems == null ? 0 : availableSectionItems.size();
 	}
 
 	public SelectItem[] getSiteSectionItems(){
@@ -149,7 +149,7 @@ public class DownloadFileSubmissionsBean implements Serializable {
 	}
 
 	public int getFileUploadQuestionListSize(){
-		return fileUploadQuestionList.size();
+		return fileUploadQuestionList == null ? 0 : fileUploadQuestionList.size();
 	}
 
 	public String getPublishedAssessmentId(){

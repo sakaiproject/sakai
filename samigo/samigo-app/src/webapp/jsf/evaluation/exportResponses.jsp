@@ -36,13 +36,34 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <script>
-  $(document).ready(function(){
+  document.addEventListener("DOMContentLoaded", () => {
     // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
-    var currentLink = $('#editTotalResults\\:exportResponsesMenuLink');
-    currentLink.addClass('current');
-    // Remove the link of the current option
-    currentLink.html(currentLink.find('a').text());
+    const currentLink = document.getElementById("editTotalResults:exportResponsesMenuLink");
+    if (currentLink) {
+      currentLink.classList.add("current");
+      const anchor = currentLink.querySelector("a");
+      if (anchor) {
+        currentLink.textContent = anchor.textContent;
+      }
+    }
+    showHideReleaseSections();
   });
+
+  function toggleChecked() {
+    document.querySelectorAll("input[type=checkbox]").forEach((input) => {
+      if (input.name && /downloadFileSubmissions.*questionCheckbox/.test(input.name)) {
+        input.checked = true;
+      }
+    });
+  }
+
+  function showHideReleaseSections() {
+    const selected = document.querySelector("input[name='downloadFileSubmissions:siteSection']:checked");
+    const sections = document.querySelector(".samigo-download-sections");
+    if (sections) {
+      sections.classList.toggle("is-open", !!(selected && selected.value === "sections"));
+    }
+  }
 </script>
  <div class="portletBody">
 <!-- content... -->
@@ -63,18 +84,58 @@
   <!-- EVALUATION SUBMENU -->
   <%@ include file="/jsf/evaluation/evaluationSubmenu.jsp" %>
 
-<div class="tier1">
-<h:panelGrid columns="1">
-<h:panelGroup>
-<h:outputText value="#{evaluationMessages.export_msg}"/>
-</h:panelGroup>
-<h:outputText value=" "/>
-<h:outputText value=" "/>
-<h:panelGroup>
-<h:commandButton actionListener="#{exportResponses.exportExcel}" value="#{commonMessages.export_action}" id="exportButton" />
-</h:panelGroup>
-</h:panelGrid>
-</div>
+  <h:panelGroup layout="block" styleClass="samigo-export-block">
+    <h:outputText value="#{evaluationMessages.export_msg}" styleClass="samigo-export-lead"/>
+    <p class="act">
+      <h:commandButton actionListener="#{exportResponses.exportExcel}" value="#{commonMessages.export_action}" id="exportButton" styleClass="active" />
+    </p>
+  </h:panelGroup>
+</h:form>
+
+<h:form id="downloadFileSubmissions" rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 0}">
+  <h:inputHidden id="publishedId" value="#{downloadFileSubmissions.publishedAssessmentId}" />
+  <h:panelGroup layout="block" styleClass="samigo-export-files">
+    <h2 class="samigo-download-heading">
+      <h:outputText value="#{evaluationMessages.title_download_file_submissions}"/>
+    </h2>
+    <h:outputLink title="#{evaluationMessages.select_all}" styleClass="samigo-download-select-all" onclick="toggleChecked(); return false;" value="#" rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 1}">
+      <h:outputText value="#{evaluationMessages.select_all}" />
+    </h:outputLink>
+    <h:dataTable value="#{downloadFileSubmissions.fileUploadQuestionList}" var="question" styleClass="samigo-download-questions" columnClasses="downloanQuestionCheckbox,downloanQuestionDescription">
+      <h:column rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 1}">
+        <h:selectManyCheckbox value="" id="questionCheckbox">
+          <f:selectItem itemValue="#{question.itemIdString}" />
+        </h:selectManyCheckbox>
+      </h:column>
+      <h:column>
+        <h:panelGroup styleClass="samigo-download-qmeta">
+          <h:outputText value="#{evaluationMessages.part} #{question.section.sequence}"/>
+          <h:outputText value="#{evaluationMessages.column} "/>
+          <h:outputText value="#{evaluationMessages.question} #{question.sequence}"/>
+        </h:panelGroup>
+        <h:outputText value="#{evaluationMessages.q_fu}" styleClass="samigo-download-qtype" rendered="#{question.typeId == 6}"/>
+        <h:outputText value="#{evaluationMessages.q_aud}" styleClass="samigo-download-qtype" rendered="#{question.typeId == 7}"/>
+        <h:panelGroup layout="block" styleClass="samigo-download-qtext">
+          <h:outputText value="#{question.text}" escape="false"/>
+        </h:panelGroup>
+      </h:column>
+    </h:dataTable>
+
+    <h:panelGroup layout="block" styleClass="samigo-download-audience" rendered="#{downloadFileSubmissions.availableSectionSize > 0}">
+      <h:selectOneRadio id="siteSection" layout="pageDirection" value="#{downloadFileSubmissions.firstTargetSelected}" onclick="showHideReleaseSections();" required="true">
+        <f:selectItems value="#{downloadFileSubmissions.siteSectionItems}" />
+      </h:selectOneRadio>
+      <h:panelGroup layout="block" styleClass="samigo-download-sections" rendered="#{downloadFileSubmissions.availableSectionSize > 1}">
+        <h:selectManyCheckbox id="sectionsForSite" layout="pageDirection" value="#{downloadFileSubmissions.sectionsSelected}">
+          <f:selectItems value="#{downloadFileSubmissions.availableSectionItems}" />
+        </h:selectManyCheckbox>
+      </h:panelGroup>
+    </h:panelGroup>
+
+    <p class="act">
+      <h:commandButton value="#{evaluationMessages.download}" actionListener="#{downloadFileSubmissions.downloadFiles}" styleClass="active" />
+    </p>
+  </h:panelGroup>
 </h:form>
 
 </div>
