@@ -5,6 +5,10 @@
         http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
     version="2.3">
 
+ <lifecycle>
+   <phase-listener>org.sakaiproject.tool.assessment.ui.security.SamigoJsfAuthorizationListener</phase-listener>
+ </lifecycle>
+
  <managed-bean>
  	<description>
  	  Dynamic Resource Bundle Loader

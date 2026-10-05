@@ -24,6 +24,7 @@ package org.sakaiproject.jsf.util;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -59,6 +60,8 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.security.SamigoJsfViewAccess;
+import org.sakaiproject.tool.assessment.ui.security.SamigoJsfPermissions;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavListener;
 
@@ -118,6 +121,29 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       // build up the target that will be dispatched to
       String target = req.getPathInfo();
       log.debug("***0. dispatch, target ="+target);
+
+      // Check before helper dispatch, resource forwards or assessment-bean updates.
+      String authorizationTarget = target;
+      if (authorizationTarget != null && authorizationTarget.startsWith(RESET_ASSESSMENT_BEAN)) {
+          authorizationTarget = authorizationTarget.substring(RESET_ASSESSMENT_BEAN.length());
+      }
+      if (authorizationTarget != null && authorizationTarget.startsWith("/jsf/")
+              && !SamigoJsfViewAccess.isAllowed(authorizationTarget, permission -> false)) {
+          if (ToolManager.getCurrentPlacement() == null) {
+              res.sendError(HttpServletResponse.SC_FORBIDDEN);
+              return;
+          }
+          String siteId = ToolManager.getCurrentPlacement().getContext();
+          Set<String> permissions = SamigoJsfPermissions.get(req, SessionManager.getCurrentSessionUserId(), siteId, () -> {
+              AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
+              authorization.addAllPrivilege(siteId);
+              return authorization.getAuthzMap();
+          });
+          if (!SamigoJsfViewAccess.isAllowed(authorizationTarget, permissions::contains)) {
+              res.sendError(HttpServletResponse.SC_FORBIDDEN);
+              return;
+          }
+      }
       
       //To avoid lessons collide url
       Session ses = SessionManager.getCurrentSession();
@@ -214,53 +240,6 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
         toolSession.setAttribute(LAST_VIEW_VISITED, target);
       }
 
-      //check direct URL permissions
-      AuthorizationBean authBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
-      if (target.indexOf("/jsf/author/permissions") > -1 && !authBean.getManagePermissions()) {
-          log.debug("***4a0. dispatch, authorization error : path={}", target);
-          target = computeDefaultTarget(false);
-      }
-      if (target.indexOf("/jsf/author/") > -1 &&
-          target.indexOf("/jsf/author/permissions") == -1 &&
-          !authBean.getAdminPrivilege() &&
-          !authBean.getCreateAssessment() &&
-          !authBean.getEditAnyAssessment() &&
-          !authBean.getEditOwnAssessment() &&
-          !authBean.getDeleteAnyAssessment() &&
-          !authBean.getDeleteOwnAssessment() &&
-          !authBean.getPublishAnyAssessment() &&
-          !authBean.getPublishOwnAssessment()) {
-              log.debug("***4a. dispatch, authorization error : path="+target);
-              target = computeDefaultTarget(false);
-      }
-      if (target.indexOf("/jsf/evaluation/") > -1 && 
-          !authBean.getAdminPrivilege() &&
-          !authBean.getGradeAnyAssessment() &&
-          !authBean.getGradeOwnAssessment()) {
-              log.debug("***4b. dispatch, authorization error : path="+target);
-              target = computeDefaultTarget(false);
-      }
-      if (target.indexOf("/jsf/template/") > -1 && 
-          !authBean.getAdminPrivilege() &&
-          !authBean.getCreateTemplate() &&
-          !authBean.getEditOwnTemplate() &&
-          !authBean.getDeleteOwnTemplate()) {
-              log.debug("***4c. dispatch, authorization error : path="+target);
-              target = computeDefaultTarget(false);
-      }
-      //based on assessmentHeadings.jsp, "event" and "section-activity" paths are based on questionpool permissions
-      //TODO : create custom permissions for event and section-activity
-      if ((target.indexOf("/jsf/questionpool/") > -1 || target.indexOf("/jsf/event/") > -1 || target.indexOf("/jsf/section-activity/") > -1)  && 
-          !authBean.getAdminPrivilege() &&
-          !authBean.getAdminQuestionPool() &&
-          !authBean.getCreateQuestionPool() &&
-          !authBean.getEditOwnQuestionPool() &&
-          !authBean.getDeleteOwnQuestionPool() &&
-          !authBean.getCopyOwnQuestionPool()) {
-              log.debug("***4d. dispatch, authorization error : path="+target);
-              target = computeDefaultTarget(false);
-      }
-     
       // add the configured folder root and extension (if missing)
       target = m_path + target;
 
