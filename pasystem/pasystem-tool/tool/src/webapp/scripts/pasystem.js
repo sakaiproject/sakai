@@ -47,7 +47,7 @@ PASystemBannerAlerts.prototype.handleBannerAlertClose = async function(element) 
   if (alert) {
     alert.dismissed = true;
   }
-  element.hidden = true;
+  this.renderBannerAlerts();
   if (alertId !== "tz") {
     this.toggle.hidden = false;
     this.toggle.focus();

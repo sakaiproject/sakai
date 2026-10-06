@@ -25,6 +25,7 @@ import com.microsoft.playwright.Response;
 import com.microsoft.playwright.Request;
 import com.microsoft.playwright.Route;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.Media;
 import java.util.regex.Pattern;
 import java.util.UUID;
 import java.util.ArrayList;
@@ -93,6 +94,9 @@ class PaSystemTest extends SakaiUiTestBase {
             assertTrue(dismissed.text().contains("SUCCESS"));
             assertThat(banner).isHidden();
             assertThat(showAlerts).isVisible();
+            page.emulateMedia(new Page.EmulateMediaOptions().setMedia(Media.PRINT));
+            assertThat(showAlerts).isHidden();
+            page.emulateMedia(new Page.EmulateMediaOptions().setMedia(Media.SCREEN));
 
             page.reload();
             assertThat(banner).isHidden();
@@ -210,6 +214,42 @@ class PaSystemTest extends SakaiUiTestBase {
             } finally {
                 deleteBanner(secondMessage);
             }
+        }
+    }
+
+    @Test
+    void dismissalSurvivesBannerRefresh() {
+        String message = "SAK-52958 refresh " + UUID.randomUUID();
+        sakai.login("admin");
+        sakai.gotoPath("/portal/site/!admin");
+        sakai.toolClick("PA System");
+
+        try {
+            createMediumBanner(message);
+            Locator banner = page.locator(".pasystem-banner-alert").filter(
+                new Locator.FilterOptions().setHasText(message));
+            Locator showAlerts = page.getByRole(AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Show System Alerts").setExact(true));
+            List<Route> pendingDismissals = new ArrayList<>();
+            page.route("**/direct/pasystem/bannerAcknowledge", pendingDismissals::add);
+            banner.getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("Dismiss Alert")).click();
+            page.waitForCondition(() -> pendingDismissals.size() == 1);
+
+            // The asynchronous timezone check uses this public API to refresh the banners.
+            page.evaluate("() => pasystem.banners.addBannerAlert('tz', 'Timezone warning', true, 'timezone')");
+            Response dismissed = page.waitForResponse(
+                response -> response.url().contains("/direct/pasystem/bannerAcknowledge") && response.ok(),
+                () -> pendingDismissals.get(0).resume());
+            assertTrue(dismissed.text().contains("SUCCESS"));
+            assertThat(showAlerts).isVisible();
+            assertThat(banner).isHidden();
+            assertThat(page.locator(".pasystem-banner-timezone")).isVisible();
+
+            page.reload();
+            assertThat(banner).isHidden();
+        } finally {
+            deleteBanner(message);
         }
     }
 
