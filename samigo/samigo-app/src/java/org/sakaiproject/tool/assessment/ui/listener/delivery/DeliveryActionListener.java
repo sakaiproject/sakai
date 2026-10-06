@@ -632,9 +632,7 @@ public class DeliveryActionListener
         String localDateTime = LocalDateTime.now().plusSeconds(tokenValiditySeconds).toString();
         String sessionId = sessionManager.getCurrentSession().getId();
         String secureTokenString = sessionId+"|"+localDateTime;
-        log.debug("Encrypting secured token {}", secureTokenString);
         String secureToken = URLEncoder.encode(encryptionUtilityService.encrypt(secureTokenString), StandardCharsets.UTF_8.name());
-        log.debug("Encrypted token with value {}", secureToken);
         delivery.setSecureToken(secureToken);
       }
     } catch (Exception ex) {
