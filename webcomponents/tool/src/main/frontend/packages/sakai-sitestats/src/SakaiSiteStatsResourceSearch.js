@@ -195,14 +195,9 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
 
     if (this._announcement) return this._announcement;
     if (this._state === "results") {
-      return this.tr("resource_search_results", [ this._number(this._items.length) ]);
+      return this.tr("resource_search_results", [ this._items.length ]);
     }
     return this._i18n[`resource_search_${this._state}`];
-  }
-
-  _number(number) {
-
-    return new Intl.NumberFormat(document.documentElement.lang || "en").format(number);
   }
 
   render() {
@@ -243,7 +238,7 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
             <button class="btn btn-secondary" type="button" ?disabled=${!this._hasNext || this._state === "searching"}
                     @click=${() => this._search(this._page + 1)}>${this._i18n.resource_search_more}</button>
           </div>` : nothing}
-        <h3>${this.tr("resource_search_selection_count", [ this._number(this._selected.length) ])}</h3>
+        <h3>${this.tr("resource_search_selection_count", [ this._selected.length ])}</h3>
         ${this._selected.length ? nothing : html`<p>${this._i18n.resource_search_none_selected}</p>`}
         <ul id="selected-resources" class="resource-list">
           ${repeat(selected, resource => resource.id, (resource, index) => html`
