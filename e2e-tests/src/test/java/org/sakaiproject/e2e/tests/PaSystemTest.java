@@ -222,6 +222,7 @@ class PaSystemTest extends SakaiUiTestBase {
     @Test
     void dismissalSurvivesBannerRefresh() {
         String message = "SAK-52958 refresh " + UUID.randomUUID();
+        String timezoneMessage = "SAK-52958 timezone " + UUID.randomUUID();
         sakai.login("admin");
         sakai.gotoPath("/portal/site/!admin");
         sakai.toolClick("PA System");
@@ -239,14 +240,16 @@ class PaSystemTest extends SakaiUiTestBase {
             page.waitForCondition(() -> pendingDismissals.size() == 1);
 
             // The asynchronous timezone check uses this public API to refresh the banners.
-            page.evaluate("() => pasystem.banners.addBannerAlert('tz', 'Timezone warning', true, 'timezone')");
+            page.evaluate("message => pasystem.banners.addBannerAlert('tz', message, true, 'timezone')", timezoneMessage);
             Response dismissed = page.waitForResponse(
                 response -> response.url().contains("/direct/pasystem/bannerAcknowledge") && response.ok(),
                 () -> pendingDismissals.get(0).resume());
             assertTrue(dismissed.text().contains("SUCCESS"));
             assertThat(showAlerts).isVisible();
             assertThat(banner).isHidden();
-            assertThat(page.locator(".pasystem-banner-timezone .bi-info-circle")).isVisible();
+            Locator timezoneBanner = page.locator(".pasystem-banner-timezone").filter(
+                new Locator.FilterOptions().setHasText(timezoneMessage));
+            assertThat(timezoneBanner.locator(".bi-info-circle")).isVisible();
 
             page.reload();
             assertThat(banner).isHidden();
