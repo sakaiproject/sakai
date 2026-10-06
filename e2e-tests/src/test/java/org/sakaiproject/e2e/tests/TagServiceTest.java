@@ -30,10 +30,14 @@ class TagServiceTest extends SakaiUiTestBase {
         String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.tagservice"));
         page.navigate(courseUrl);
         sakai.toolClick("Tags Service");
-        Locator collection = page.locator(".tagservice-table tbody tr").first();
-        String name = collection.locator("td").first().textContent().trim();
+        String name = "Literal label collection " + System.currentTimeMillis();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create Tag Collection").setExact(true)).click();
+        page.locator("#name").fill(name);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Tag Collection").setExact(true)).click();
+        Locator collection = page.locator(".tagservice-table tbody tr")
+            .filter(new Locator.FilterOptions().setHasText(name));
         String label = "<script>alert('test')</script> & \"日本語\" " + System.currentTimeMillis();
-        collection.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Manage Tags")).click();
+        collection.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("View Tags").setExact(true)).click();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create Tag")).click();
         String collectionId = page.locator("#tagCollectionId").inputValue();
         page.getByLabel("Label", new Page.GetByLabelOptions().setExact(true)).fill(label);
