@@ -22,16 +22,15 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.List;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiHistoryObjectDao;
@@ -39,6 +38,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiObjectContentDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiCurrentObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiHistoryObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
+import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObjectContent;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 // FIXME: Component
@@ -55,12 +55,20 @@ public class RWikiHistoryObjectDaoImpl implements
 	@Override
 	@Transactional
 	public void update(RWikiHistoryObject rwo) {
+		Session session = sessionFactory.getCurrentSession();
 		// should have already checked
 		RWikiHistoryObjectImpl impl = (RWikiHistoryObjectImpl) rwo;
-		sessionFactory.getCurrentSession().saveOrUpdate(impl);
-		// and remember to save the content
-		impl.getRWikiObjectContent().setRwikiid(rwo.getId());
-		contentDAO.update(impl.getRWikiObjectContent());
+		RWikiObjectContent content = impl.getRWikiObjectContent();
+
+		RWikiHistoryObjectImpl managed = impl;
+		if (impl.getId() == null) {
+			session.persist(impl);
+		} else if (!session.contains(impl)) {
+			managed = session.merge(impl);
+		}
+
+		content.setRwikiid(managed.getId());
+		contentDAO.update(content);
 	}
 
 	/**
