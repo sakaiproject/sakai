@@ -88,8 +88,7 @@ public class RWikiHistoryObjectContentDaoImpl
 	@Transactional
 	public void update(RWikiObjectContent content)
 	{
-		RWikiHistoryObjectContentImpl impl = (RWikiHistoryObjectContentImpl) content;
-		sessionFactory.getCurrentSession().saveOrUpdate(impl);
+		sessionFactory.getCurrentSession().merge(content);
 	}
 
 }

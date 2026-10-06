@@ -172,7 +172,14 @@ public class MessageDaoImpl implements MessageDao {
 	@Transactional
 	public void update(Object o)
 	{
-		sessionFactory.getCurrentSession().saveOrUpdate(o);
+		Session session = sessionFactory.getCurrentSession();
+		if (o instanceof RwikiMessageImpl message && message.getId() == null)
+		{
+			session.persist(message);
+		} else
+		{
+			o = session.merge(o);
+		}
 	}
 
 	/*
