@@ -21,6 +21,8 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
@@ -48,6 +50,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Controller
 @RequiredArgsConstructor
@@ -56,6 +59,7 @@ public class SiteStatsController {
     private final SiteStatsToolService toolService;
     private final SiteStatsToolExportService exportService;
     private final MessageSource messageSource;
+    private final SiteStatsResourceSelectionService resourceSelectionService;
 
     @GetMapping({"/", "/index.html"})
     public String index(RedirectAttributes redirectAttributes) {
@@ -95,6 +99,14 @@ public class SiteStatsController {
     public List<SiteStatsToolService.NamedOption> reportUsers(@RequestParam(required = false) String siteId,
             @RequestParam String q) {
         return toolService.searchReportUsers(siteId, q);
+    }
+
+    @GetMapping(value = "/reports/resources/search", produces = "application/json")
+    @ResponseBody
+    public SiteStatsResourceSelectionService.ResourceSearchPage reportResources(
+            @RequestParam(required = false) String siteId, @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "0") int page) {
+        return resourceSelectionService.search(siteId, q, page);
     }
 
     @GetMapping("/reports/{reportId}/edit")
@@ -260,6 +272,11 @@ public class SiteStatsController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Void> invalidParameter() {
+        return ResponseEntity.badRequest().build();
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Void> notFound() {
         return ResponseEntity.notFound().build();
@@ -272,6 +289,12 @@ public class SiteStatsController {
         toolService.prepareReportForm(form, editorOptions);
         model.addAttribute("reportForm", form);
         model.addAttribute("editorOptions", editorOptions);
+        try {
+            model.addAttribute("selectedResourcesJson", MapperFactory.createDefaultJsonMapper().writeValueAsString(
+                    resourceSelectionService.selectedFromForm(siteId, form.getWhatResourceIds())));
+        } catch (JsonProcessingException failure) {
+            throw new IllegalStateException("Unable to serialize selected report resources", failure);
+        }
     }
 
     private void commonModel(Model model, String siteId, String activeMenu) {

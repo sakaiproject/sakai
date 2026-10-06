@@ -16,6 +16,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -33,6 +34,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -426,6 +428,150 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(page.locator("sakai-sitestats-report-panel")).isVisible();
         assertThat(page.locator("sakai-sitestats-report-panel sakai-sitestats-table table")).isVisible();
         assertNoLegacyReportChartImages();
+    }
+
+    @Test
+    @Order(12)
+    void searchesNestedResourcesAndPreservesSelectionsThroughReportFlows() {
+        sakai.login("instructor1");
+        String resourcesSiteUrl = sakai.createCourse("instructor1", List.of("sakai\\.sitestats", "sakai\\.resources"));
+        String siteId = sakai.siteIdFromUrl(resourcesSiteUrl);
+        APIResponse login = page.request().post("/sakai-ws/rest/login/login", RequestOptions.create()
+            .setForm(FormData.create().set("id", "admin").set("pw", sakai.passwordFor("admin"))));
+        assertTrue(login.ok(), "Unable to log in to the fixture API");
+        String adminSession = login.text().trim();
+        assertEquals(36, adminSession.length());
+        String root = "/group/" + siteId + "/";
+        try {
+            for (String folder : List.of("Week One", "Week Two")) {
+                APIResponse created = page.request().get("/sakai-ws/rest/contenthosting/createFolder", RequestOptions.create()
+                    .setQueryParam("sessionid", adminSession).setQueryParam("collectionId", root).setQueryParam("name", folder));
+                assertTrue(created.ok(), "Unable to create the nested fixture folder");
+                assertEquals(root + folder + "/", created.text());
+                createResourceFixture(adminSession, root + folder + "/", "Reading.pdf");
+            }
+            createResourceFixture(adminSession, root, "Notes.txt");
+            page.navigate(resourcesSiteUrl);
+            sakai.toolClick("Statistics");
+            page.evaluate("""
+                () => {
+                    const oldBundle = {
+                        loading_statistics: 'Loading statistics...',
+                        failed_to_load_statistics: 'Failed to load statistics ({})',
+                        failed_to_load_statistics_unknown: 'Failed to load statistics',
+                        no_data_available: 'No data available',
+                        site_statistics_chart: 'Site statistics chart',
+                        label: 'Label',
+                        overview_tool_filters_min_one: 'Keep at least one tool selected.'
+                    };
+                    sessionStorage.setItem((window.portal?.locale || '') + 'sitestats', JSON.stringify(oldBundle));
+                }
+                """);
+            page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Reports").setExact(true)).click();
+            page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add").setExact(true)).click();
+            page.getByLabel("Title").fill(REPORT_TITLE + " Resources");
+            page.getByLabel("Activity:").selectOption("what-resources");
+            assertThat(page.locator("#resource-selection")).isHidden();
+            page.locator("#limit-resources").check();
+            Locator component = page.locator("sakai-sitestats-resource-search");
+            Locator search = component.getByLabel("Search resources by name");
+            search.fill("reading");
+            Locator matches = component.locator("#resource-results li");
+            assertThat(matches).hasCount(2);
+            assertThat(matches.nth(0)).containsText("Resources / Week One");
+            assertThat(matches.nth(1)).containsText("Resources / Week Two");
+            matches.nth(0).getByRole(AriaRole.BUTTON).click();
+            matches.nth(1).getByRole(AriaRole.BUTTON).click();
+            assertThat(component.locator("#selected-resources li")).hasCount(2);
+            search.fill("notes");
+            assertThat(matches).hasCount(1);
+            matches.first().getByRole(AriaRole.BUTTON).click();
+            component.locator("#selected-resources li").first().getByRole(AriaRole.BUTTON).click();
+            String selectedIds = root + "Week Two/Reading.pdf\n" + root + "Notes.txt";
+            assertThat(page.locator("#resource-ids")).hasValue(selectedIds);
+            assertThat(page.locator("#resource-ids")).hasAttribute("type", "hidden");
+            assertThat(component).not().containsText(root);
+            assertThat(component.locator("select")).hasCount(0);
+            page.getByLabel("Period:").selectOption("when-custom");
+            page.locator("#when-from").fill("");
+            page.locator("#when-to").fill("");
+            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save report").setExact(true)).click();
+            assertThat(page.locator("#report-error")).containsText("Custom time period not defined");
+            assertThat(page.locator("#resource-ids")).hasValue(selectedIds);
+            assertThat(component.locator("#selected-resources li")).hasCount(2);
+            page.getByLabel("Period:").selectOption("when-all");
+            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate report").setExact(true)).click();
+            assertThat(page.getByRole(AriaRole.HEADING,
+                new Page.GetByRoleOptions().setName(REPORT_TITLE + " Resources").setExact(true))).isVisible();
+            page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
+            assertThat(page.locator("#resource-ids")).hasValue(selectedIds);
+            assertThat(component.locator("#selected-resources li")).hasCount(2);
+            // An unfinished query must not replace the filters already selected in the form.
+            component.getByLabel("Search resources by name").fill("unfinished query");
+            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save report").setExact(true)).click();
+            assertThat(page.locator(".sak-banner-success")).containsText("saved successfully");
+            page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
+            page.getByRole(AriaRole.ROW).filter(new Locator.FilterOptions().setHasText(REPORT_TITLE + " Resources"))
+                .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Edit").setExact(true)).click();
+            assertThat(page.locator("#resource-ids")).hasValue(selectedIds);
+            assertThat(component.locator("#selected-resources li")).hasCount(2);
+            assertThat(component).containsText("Reading.pdf");
+            assertThat(component).containsText("Notes.txt");
+            page.locator("#limit-resources").uncheck();
+            assertThat(page.locator("#resource-selection")).isHidden();
+            page.locator("#limit-resources").check();
+            assertThat(component.locator("#selected-resources li")).hasCount(2);
+        } finally {
+            APIResponse cleanup = page.request().get("/sakai-ws/rest/sakai/removeSite", RequestOptions.create()
+                .setQueryParam("sessionid", adminSession).setQueryParam("siteid", siteId));
+            assertTrue(cleanup.ok(), "Unable to remove the disposable resource-search fixture site");
+            assertEquals("success", cleanup.text());
+        }
+    }
+
+    @Test
+    @Order(13)
+    @EnabledIfSystemProperty(named = "sitestats.resource.search.performance", matches = "true")
+    void findsTheLastResourceInTheOptInTwoThousandResourceFixture() {
+        // The documented performance fixture is intentionally separate from regular UI setup.
+        sakai.login("instructor1");
+        page.navigate("/portal/site/sak-52957-benchmark-nested");
+        sakai.toolClick("Statistics");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Reports").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add").setExact(true)).click();
+        page.getByLabel("Activity:").selectOption("what-resources");
+        page.locator("#limit-resources").check();
+        Locator component = page.locator("sakai-sitestats-resource-search");
+        component.getByLabel("Search resources by name").fill("benchmark file");
+        assertThat(component.locator("#resource-results li")).hasCount(20);
+        assertThat(component.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("More results").setExact(true))).isEnabled();
+        component.getByLabel("Search resources by name").fill("1999");
+        assertThat(component.locator("#resource-results li")).hasCount(1);
+        assertThat(component.locator("#resource-results li")).containsText("Benchmark file 1999.txt");
+        assertThat(component.locator("#resource-results li")).containsText("Unit 99");
+        String endpoint = component.getAttribute("endpoint");
+        for (int sample = 0; sample < 3; sample++) {
+            long start = System.nanoTime();
+            APIResponse matches = page.request().get(endpoint, RequestOptions.create()
+                .setQueryParam("q", "benchmark file").setQueryParam("page", 0));
+            long elapsedMillis = (System.nanoTime() - start) / 1_000_000;
+            assertTrue(matches.ok(), "Resource search performance fixture request failed");
+            Object count = page.evaluate("json => JSON.parse(json).items.length", matches.text());
+            assertEquals(20, ((Number) count).intValue());
+            System.out.println("SiteStats resource-search fixture sample=" + sample
+                + " responseBytes=" + matches.body().length + " elapsedMillis=" + elapsedMillis + " count=20");
+        }
+    }
+
+    private void createResourceFixture(String adminSession, String collectionId, String name) {
+        APIResponse created = page.request().get("/sakai-ws/rest/contenthosting/createContentItem", RequestOptions.create()
+            .setQueryParam("sessionid", adminSession).setQueryParam("name", name)
+            .setQueryParam("collectionId", collectionId).setQueryParam("contentMime", "Resource search fixture")
+            .setQueryParam("description", "Disposable SiteStats resource-search fixture")
+            .setQueryParam("type", "text/plain").setQueryParam("binary", false));
+        assertTrue(created.ok(), "Unable to create the resource-search fixture");
+        assertEquals("success", created.text());
     }
 
     private void openReportsAsInstructor() {

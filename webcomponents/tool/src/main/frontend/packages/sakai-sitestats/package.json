@@ -24,7 +24,8 @@
     "./sakai-sitestats-tool-filter.js": "./sakai-sitestats-tool-filter.js",
     "./sakai-sitestats-highlights.js": "./sakai-sitestats-highlights.js",
     "./sakai-sitestats-chart.js": "./sakai-sitestats-chart.js",
-    "./sakai-sitestats-table.js": "./sakai-sitestats-table.js"
+    "./sakai-sitestats-table.js": "./sakai-sitestats-table.js",
+    "./sakai-sitestats-resource-search.js": "./sakai-sitestats-resource-search.js"
   },
   "dependencies": {
     "@sakai-ui/sakai-element": "file:../sakai-element",
