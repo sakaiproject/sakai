@@ -530,8 +530,10 @@ class SiteStatsTest extends SakaiUiTestBase {
 
     private String createNestedResourceFixture() {
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.sitestats", "sakai\\.resources"));
+        page.navigate(siteUrl);
         sakai.toolClick("Resources");
         String resourcesUrl = page.url();
+        assertEquals(sakai.siteIdFromUrl(siteUrl), sakai.siteIdFromUrl(resourcesUrl));
         page.locator("button[title='Actions']").first().click();
         page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Create Folders").setExact(true)).click();
         page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName("Folder Name").setExact(true)).fill("Week 1");
