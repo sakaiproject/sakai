@@ -50,6 +50,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiObjectContentDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiCurrentObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiHistoryObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
+import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObjectContent;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 // FIXME: Component
@@ -176,19 +177,29 @@ public class RWikiCurrentObjectDaoImpl implements RWikiCurrentObjectDao, ObjectP
 
 	@Transactional
 	public void update(RWikiCurrentObject rwo, RWikiHistoryObject rwho) {
+		Session session = sessionFactory.getCurrentSession();
 		// should have already checked
 		RWikiCurrentObjectImpl impl = (RWikiCurrentObjectImpl) rwo;
-		sessionFactory.getCurrentSession().saveOrUpdate(impl);
+		impl.setRwikiObjectContentDao(contentDAO);
+		RWikiObjectContent content = impl.getRWikiObjectContent();
+
+		RWikiCurrentObjectImpl managed = impl;
+		if (impl.getId() == null) {
+			session.persist(impl);
+		} else if (!session.contains(impl)) {
+			managed = session.merge(impl);
+			managed.setRwikiObjectContentDao(contentDAO);
+		}
+
 		// update the history
 		if (rwho != null) {
-			rwho.setRwikiobjectid(impl.getId());
+			rwho.setRwikiobjectid(managed.getId());
 			historyDAO.update(rwho);
 		}
 		// remember to save the content, and make certain the contentDAO is set
 		// first
-		impl.setRwikiObjectContentDao(contentDAO);
-		impl.getRWikiObjectContent().setRwikiid(rwo.getId());
-		contentDAO.update(impl.getRWikiObjectContent());
+		content.setRwikiid(managed.getId());
+		contentDAO.update(content);
 	}
 
 	public RWikiCurrentObject createRWikiObject(String name, String realm) {
@@ -292,7 +303,12 @@ public class RWikiCurrentObjectDaoImpl implements RWikiCurrentObjectDao, ObjectP
 
 	@Transactional
 	public void updateObject(RWikiObject rwo) {
-		sessionFactory.getCurrentSession().saveOrUpdate(rwo);
+		Session session = sessionFactory.getCurrentSession();
+		if (rwo.getId() == null) {
+			session.persist(rwo);
+		} else if (!session.contains(rwo)) {
+			rwo = session.merge(rwo);
+		}
 	}
 
 	public int getPageCount(final String group) {
