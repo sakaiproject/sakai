@@ -255,6 +255,31 @@ class PaSystemTest extends SakaiUiTestBase {
         }
     }
 
+    @Test
+    void popupPreviewUsesStandardButtons() {
+        sakai.login("admin");
+        sakai.gotoPath("/portal/site/!admin");
+        sakai.toolClick("PA System");
+
+        // Preview uses the production popup renderer without creating a campaign.
+        page.locator("#popup-container-content").evaluate(
+            "element => element.textContent = '<header class=\"popup-container-header\">Preview</header><p>Preview content</p>'");
+        page.evaluate("() => new PASystemPopup('preview', 'preview')");
+        Locator popup = page.locator("#pasystem-popup-wrapper");
+        assertThat(popup.locator(".popup-container-header")).hasText("Preview");
+        Locator acknowledge = popup.locator("button#popup-acknowledged-button.btn-secondary");
+        Locator remindLater = popup.locator("button#popup-later-button.btn-primary");
+        assertThat(acknowledge).isVisible();
+        assertThat(remindLater).isVisible();
+        acknowledge.click();
+        assertThat(popup).hasCount(0);
+
+        page.evaluate("() => new PASystemPopup('preview', 'preview')");
+        assertThat(remindLater).isVisible();
+        remindLater.click();
+        assertThat(popup).hasCount(0);
+    }
+
     private void createMediumBanner(String message) {
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName("Create Banner").setExact(true)).click();

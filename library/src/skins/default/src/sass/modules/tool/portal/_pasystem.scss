@@ -1,9 +1,7 @@
 .pasystem-banner-alert {
-  background-color: #f7e084;
-  color: #000;
   padding: 10px 0;
   position: relative;
-  border-bottom: 1px solid rgba(165, 138, 29, 0.1);
+  border-bottom: 1px solid var(--sakai-border-color);
 }
 
 .pasystem-banner-alert-message {
@@ -49,6 +47,7 @@
     padding: 40px;
     padding-bottom: 0;
     background-color: var(--sakai-background-color-1);
+    color: var(--sakai-text-color-1);
 }
 
 #pasystem-popup-wrapper .featherlight-close {
@@ -67,45 +66,10 @@
 }
 
 
-.popup-dismiss-button {
-    display: inline-block !important;
-    margin-right: 4px !important;
-    margin-bottom: 4px !important;
-    padding: 3px 8px !important;
-
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.popup-dismiss-button.permanent {
-    border: 1px solid #DBDCDE !important;
-    background: #E7E7EB !important;
-    color: #444 !important;
-}
-
-.popup-dismiss-button.temporary {
-    background: #3698DB !important;
-    color: #FFF !important;
-    border: 1px solid #3698DB !important;
-}
-
-.popup-dismiss-button:hover,
-.popup-dismiss-button:focus {
-    -webkit-transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    -moz-transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    -ms-transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    -o-transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-
-    background: #FFF !important;
-    color: #3698DB !important;
-    border-color: #3698DB !important;
-}
-
 .popup-container-header {
-  background: #57068c;
+  background: var(--sakai-modal-header-bg);
   padding: 10px 20px;
-  color: #FFF;
+  color: var(--sakai-modal-header-color);
   text-align: center;
   font-size: 2em;
   padding-right: 50px;
