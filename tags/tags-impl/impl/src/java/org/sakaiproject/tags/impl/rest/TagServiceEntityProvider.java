@@ -198,9 +198,10 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
 
             if (pageLimit > maxPageSize) pageLimit = maxPageSize;
 
+            String lowerPrefix = prefix.toLowerCase(java.util.Locale.ROOT);
             List<TagSummary> available = tagService().getTagsForSite(accessibleSite(params)).stream()
-                .filter(tag -> tag.getTagLabel().toLowerCase(java.util.Locale.ROOT)
-                    .startsWith(prefix.toLowerCase(java.util.Locale.ROOT)))
+                .filter(tag -> tag.getTagLabel() != null
+                    && tag.getTagLabel().toLowerCase(java.util.Locale.ROOT).startsWith(lowerPrefix))
                 .collect(Collectors.toList());
             int tagCount = available.size();
             List<TagSummary> tags = page(available, page, pageLimit);

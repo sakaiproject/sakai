@@ -112,7 +112,8 @@ function textCounter(field, maxlimit) {
                 customElements.whenDefined("sakai-tag-selector").then(() => {
                     const selector = document.getElementById("tag-selector");
                     selector.options = JSON.parse(document.getElementById("questionpool:tagOptions").textContent);
-                    selector.selectedTags = selector.options.filter(tag => selector.selectedIds.split(",").includes(tag.code));
+                    const selectedIds = (selector.selectedIds || "").split(",");
+                    selector.selectedTags = selector.options.filter(tag => selectedIds.includes(tag.code));
                 });
             </script>
         </div>

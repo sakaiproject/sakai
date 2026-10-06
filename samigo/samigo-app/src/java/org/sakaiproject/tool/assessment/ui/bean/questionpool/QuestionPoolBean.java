@@ -1190,7 +1190,8 @@ public String getAddOrEdit()
     }
 
     public String getTagOptionsJson() {
-        List<Map<String, String>> options = new QuestionPoolService().getAvailableTags(currentPool.getId()).stream()
+        Long poolId = currentPool != null ? currentPool.getId() : null;
+        List<Map<String, String>> options = new QuestionPoolService().getAvailableTags(poolId).stream()
             .map(tag -> Map.of("name", tag.getTagLabel(), "code", tag.getTagId()))
             .collect(Collectors.toList());
         try {

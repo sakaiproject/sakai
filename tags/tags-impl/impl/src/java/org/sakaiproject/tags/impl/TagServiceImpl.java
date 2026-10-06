@@ -229,7 +229,9 @@ public class TagServiceImpl implements TagService {
                 continue;
             }
 
-            if (getTagCollection(tag.getTagCollectionId()).get().getSiteId() == null) {
+            boolean global = getTagCollection(tag.getTagCollectionId())
+                .map(collection -> collection.getSiteId() == null).orElse(false);
+            if (global) {
                 duplicatedTags.add(tag);
                 if (targetItemId != null) {
                     associateExistingTag(targetItemId, tag.getTagId());
@@ -281,7 +283,8 @@ public class TagServiceImpl implements TagService {
             // Interpret mixed UI input here; the explicit operations never guess its meaning.
             if (tagRepository.existsById(value)) {
                 Tag selected = tagRepository.findById(value).get();
-                TagCollection selectedCollection = tagCollectionRepository.findById(selected.getTagCollectionId()).get();
+                TagCollection selectedCollection = tagCollectionRepository.findById(selected.getTagCollectionId())
+                    .orElseThrow(() -> new SecurityException("Tag collection is unavailable: " + selected.getTagCollectionId()));
                 if (!Objects.equals(selected.getTagCollectionId(), collectionId) && selectedCollection.getSiteId() != null
                         && !Objects.equals(selectedCollection.getSiteId(), isSite ? collectionId : "~" + collectionId)) {
                     throw new SecurityException("Tag is not available in this collection context");

@@ -243,6 +243,40 @@ public class TagServiceTest {
     }
 
     @Test
+    public void copyingATagWithoutItsCollectionCreatesALocalCopy() {
+        Tag original = tag(collection("Missing parent"), "Recovered label");
+        jdbc.execute("SET DATABASE REFERENTIAL INTEGRITY FALSE");
+        try {
+            jdbc.update("DELETE FROM tagservice_collection WHERE tagcollectionid = ?", original.getTagCollectionId());
+        } finally {
+            jdbc.execute("SET DATABASE REFERENTIAL INTEGRITY TRUE");
+        }
+
+        List<Tag> copied = service.duplicateTags("site2", true, Collections.singletonList(original.getTagId()), "copied-item");
+
+        assertEquals(1, copied.size());
+        assertNotEquals(original.getTagId(), copied.get(0).getTagId());
+        assertEquals("Recovered label", copied.get(0).getTagLabel());
+        assertEquals("site2", copied.get(0).getTagCollectionId());
+        assertEquals(Collections.singletonList(copied.get(0).getTagId()), service.getTagAssociationIds("site2", "copied-item"));
+    }
+
+    @Test
+    public void selectingATagWithoutItsCollectionIsRejected() {
+        Tag orphan = tag(collection("Missing parent"), "Unavailable label");
+        jdbc.execute("SET DATABASE REFERENTIAL INTEGRITY FALSE");
+        try {
+            jdbc.update("DELETE FROM tagservice_collection WHERE tagcollectionid = ?", orphan.getTagCollectionId());
+        } finally {
+            jdbc.execute("SET DATABASE REFERENTIAL INTEGRITY TRUE");
+        }
+
+        assertThrows(SecurityException.class,
+            () -> service.updateTagAssociations("site1", "assignment", Collections.singletonList(orphan.getTagId()), true));
+        assertTrue(service.getTagAssociationIds("site1", "assignment").isEmpty());
+    }
+
+    @Test
     public void poolTagsStayPrivateAndCanBeSelectedAlongsideGlobalTags() {
         TagCollection global = collection("Global");
         jdbc.update("UPDATE tagservice_collection SET siteid = NULL WHERE tagcollectionid = ?", global.getTagCollectionId());

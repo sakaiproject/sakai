@@ -128,9 +128,19 @@ class TagsTest extends SakaiUiTestBase {
     private Locator collectionRow(String name, String scope) {
         Locator row = page.locator(".tagservice-table tbody tr").filter(new Locator.FilterOptions().setHasText(name))
             .filter(new Locator.FilterOptions().setHasText(scope));
-        Locator nextPage = page.locator(".pagination li.active + li:not(.disabled) a");
-        while (row.count() == 0 && nextPage.count() > 0) {
+        Locator pager = page.locator("sakai-pager");
+        Locator nextPage = pager.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Next page").setExact(true));
+        int pageCount = pager.count() > 0 ? Integer.parseInt(pager.getAttribute("count")) : 1;
+        for (int attempt = 1; attempt < pageCount && row.count() == 0; attempt++) {
+            int current = Integer.parseInt(pager.getAttribute("current"));
+            if (current >= pageCount) {
+                break;
+            }
+            int next = current + 1;
+            String nextUrl = pager.getAttribute("data-page-base") + next + "/" + pager.getAttribute("data-page-size");
             nextPage.click();
+            page.waitForURL(nextUrl);
         }
         return row;
     }
