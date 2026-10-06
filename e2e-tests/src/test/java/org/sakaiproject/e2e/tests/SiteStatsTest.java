@@ -475,6 +475,40 @@ class SiteStatsTest extends SakaiUiTestBase {
             page.locator("#limit-resources").check();
             Locator component = page.locator("sakai-sitestats-resource-search");
             Locator search = component.getByLabel("Search resources by name");
+            String rootClasses = (String) page.evaluate("() => document.documentElement.className");
+            try {
+                for (String theme : List.of("light", "dark", "light")) {
+                    page.evaluate("""
+                        theme => {
+                            document.documentElement.classList.remove('sakaiUserTheme-light', 'sakaiUserTheme-dark');
+                            document.documentElement.classList.add('sakaiUserTheme-' + theme);
+                        }
+                        """, theme);
+                    String background = themeColor(search, "--sakai-background-color-1");
+                    String text = themeColor(search, "--sakai-text-color-1");
+                    search.evaluate("input => input.blur()");
+                    assertThat(search).hasCSS("background-color", background);
+                    assertThat(search).hasCSS("color", text);
+                    assertThat(search).hasCSS("border-top-color", themeColor(search, "--sakai-border-color"));
+                    search.focus();
+                    assertThat(search).hasCSS("background-color", background);
+                    assertThat(search).hasCSS("color", text);
+                    assertThat(search).hasCSS("border-top-color", themeColor(search, "--focus-outline-color"));
+                    if ("dark".equals(theme)) {
+                        assertFalse("rgb(255, 255, 255)".equals(background), "Dark theme input must not be white");
+                        for (int width : List.of(1280, 390)) {
+                            page.setViewportSize(width, 900);
+                            component.scrollIntoViewIfNeeded();
+                            component.screenshot(new Locator.ScreenshotOptions().setPath(
+                                ARTIFACT_ROOT.resolve("resource-search-dark-" + width + ".png")));
+                            assertThat(search).hasCSS("background-color", background);
+                        }
+                    }
+                }
+            } finally {
+                page.evaluate("classes => document.documentElement.className = classes", rootClasses);
+                page.setViewportSize(1280, 720);
+            }
             search.fill("reading");
             Locator matches = component.locator("#resource-results li");
             assertThat(matches).hasCount(2);
@@ -562,6 +596,19 @@ class SiteStatsTest extends SakaiUiTestBase {
             System.out.println("SiteStats resource-search fixture sample=" + sample
                 + " responseBytes=" + matches.body().length + " elapsedMillis=" + elapsedMillis + " count=20");
         }
+    }
+
+    private String themeColor(Locator input, String token) {
+        return (String) input.evaluate("""
+            (input, token) => {
+                const probe = document.createElement('span');
+                probe.style.color = getComputedStyle(input).getPropertyValue(token);
+                document.body.append(probe);
+                const color = getComputedStyle(probe).color;
+                probe.remove();
+                return color;
+            }
+            """, token);
     }
 
     private void createResourceFixture(String adminSession, String collectionId, String name) {

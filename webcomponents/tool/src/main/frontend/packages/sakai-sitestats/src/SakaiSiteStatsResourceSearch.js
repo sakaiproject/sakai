@@ -25,7 +25,14 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
       :host([hidden]) { display: none; }
       fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
       label { display: block; margin-block-end: 0.5rem; }
-      input { width: 100%; box-sizing: border-box; font: inherit; }
+      input.form-control { width: 100%; box-sizing: border-box; font: inherit;
+        background-color: var(--sakai-background-color-1); color: var(--sakai-text-color-1);
+        border-color: var(--sakai-border-color); }
+      input.form-control:focus { background-color: var(--sakai-background-color-1);
+        color: var(--sakai-text-color-1); border-color: var(--focus-outline-color); box-shadow: none; }
+      input.form-control:disabled { background-color: var(--sakai-background-color-4);
+        color: var(--sakai-text-color-disabled); border-color: var(--sakai-border-color); }
+      input.form-control:focus-visible { outline-color: var(--focus-outline-color); }
       .resource-list { list-style: none; padding: 0; margin: 0.5rem 0 1rem; }
       .resource-list li { display: flex; align-items: center; gap: 0.75rem;
         padding-block: 0.5rem; border-block-end: 1px solid var(--sakai-border-color); }

@@ -206,6 +206,45 @@ describe("sakai-sitestats-resource-search", () => {
     expect(selected(el)[1].querySelector("button").getAttribute("type")).to.equal("button");
   });
 
+  it("uses host theme colors for normal, focused, and disabled inputs when the theme changes", async () => {
+    const el = await mount();
+    const input = el.renderRoot.querySelector("input");
+    const light = { background: "rgb(255, 255, 255)", text: "rgb(38, 38, 38)",
+      border: "rgb(204, 204, 204)", disabledBackground: "rgb(238, 238, 238)",
+      disabledText: "rgb(102, 102, 102)", focus: "rgb(0, 95, 204)" };
+    const dark = { background: "rgb(28, 41, 53)", text: "rgb(221, 221, 221)",
+      border: "rgb(80, 99, 121)", disabledBackground: "rgb(67, 89, 110)",
+      disabledText: "rgb(153, 153, 153)", focus: "rgb(97, 181, 255)" };
+    for (const theme of [ light, dark, light ]) {
+      for (const [ token, value ] of Object.entries({
+        "--sakai-background-color-1": theme.background,
+        "--sakai-text-color-1": theme.text,
+        "--sakai-border-color": theme.border,
+        "--sakai-background-color-4": theme.disabledBackground,
+        "--sakai-text-color-disabled": theme.disabledText,
+        "--focus-outline-color": theme.focus,
+      })) el.style.setProperty(token, value);
+      input.blur();
+      expect(getComputedStyle(input).backgroundColor).to.equal(theme.background);
+      expect(getComputedStyle(input).color).to.equal(theme.text);
+      await waitUntil(() => getComputedStyle(input).borderTopColor === theme.border);
+      input.focus();
+      expect(getComputedStyle(input).backgroundColor).to.equal(theme.background);
+      expect(getComputedStyle(input).color).to.equal(theme.text);
+      await waitUntil(() => getComputedStyle(input).borderTopColor === theme.focus);
+      expect(getComputedStyle(input).outlineColor).to.equal(theme.focus);
+      expect(getComputedStyle(input).boxShadow).to.equal("none");
+      el.disabled = true;
+      await elementUpdated(el);
+      expect(input.matches(":disabled")).to.be.true;
+      expect(getComputedStyle(input).backgroundColor).to.equal(theme.disabledBackground);
+      expect(getComputedStyle(input).color).to.equal(theme.disabledText);
+      await waitUntil(() => getComputedStyle(input).borderTopColor === theme.border);
+      el.disabled = false;
+      await elementUpdated(el);
+    }
+  });
+
   it("disables all actions and cancels search while retaining selection", async () => {
     const el = await mount([ resource(1) ]);
     await query(el, "reading");
