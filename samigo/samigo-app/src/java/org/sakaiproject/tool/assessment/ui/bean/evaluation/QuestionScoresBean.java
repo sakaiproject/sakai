@@ -49,6 +49,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
@@ -65,6 +66,33 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="questionScores")
 @SessionScoped
 public class QuestionScoresBean implements Serializable, PhaseAware {
+  public boolean isTotalScoreCancellationAllowed() {
+    return totalScoreCancellationRestrictionKey() == null;
+  }
+
+  public String getTotalScoreCancellationRestrictionMessage() {
+    String messageKey = totalScoreCancellationRestrictionKey();
+    return messageKey == null ? "" : ContextUtil.getLocalizedString(
+        "org.sakaiproject.tool.assessment.bundle.CommonMessages", messageKey);
+  }
+
+  private String totalScoreCancellationRestrictionKey() {
+    if (publishedAssessment == null) {
+      return "cancel_question_reduce_total_unavailable";
+    }
+    String messageKey;
+    try {
+      if (new PublishedAssessmentService().isTotalScoreCancellationAllowed(publishedAssessment)) {
+        return null;
+      }
+      messageKey = "cancel_question_reduce_total_category_restricted";
+    } catch (PublishedAssessmentService.TotalScoreCancellationException e) {
+      messageKey = "cancel_question_reduce_total_unavailable";
+      log.warn("Unable to check question cancellation eligibility", e);
+    }
+    return messageKey;
+  }
+
   @Setter
   private String assessmentId;
   @Setter

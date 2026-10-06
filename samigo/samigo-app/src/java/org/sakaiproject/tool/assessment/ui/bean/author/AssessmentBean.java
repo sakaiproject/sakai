@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -80,6 +81,33 @@ public class AssessmentBean  implements Serializable {
    * Creates a new AssessmentBean object.
    */
   public AssessmentBean() {
+  }
+
+  public boolean isTotalScoreCancellationAllowed() {
+    return totalScoreCancellationRestrictionKey() == null;
+  }
+
+  public String getTotalScoreCancellationRestrictionMessage() {
+    String messageKey = totalScoreCancellationRestrictionKey();
+    return messageKey == null ? "" : ContextUtil.getLocalizedString(
+        "org.sakaiproject.tool.assessment.bundle.CommonMessages", messageKey);
+  }
+
+  private String totalScoreCancellationRestrictionKey() {
+    if (!(assessment instanceof PublishedAssessmentIfc)) {
+      return null;
+    }
+    String messageKey;
+    try {
+      if (new PublishedAssessmentService().isTotalScoreCancellationAllowed((PublishedAssessmentIfc) assessment)) {
+        return null;
+      }
+      messageKey = "cancel_question_reduce_total_category_restricted";
+    } catch (PublishedAssessmentService.TotalScoreCancellationException e) {
+      messageKey = "cancel_question_reduce_total_unavailable";
+      log.warn("Unable to check question cancellation eligibility", e);
+    }
+    return messageKey;
   }
 
   public AssessmentIfc getAssessment() {

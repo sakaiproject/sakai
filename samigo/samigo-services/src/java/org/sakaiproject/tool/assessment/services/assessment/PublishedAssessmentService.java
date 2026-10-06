@@ -23,7 +23,11 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -63,6 +67,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -629,6 +634,165 @@ public class PublishedAssessmentService extends AssessmentService{
 	    return map;
   }
 
+  /** Raised when reduction cannot safely be exported; late preparation failures may follow a flag save. */
+  public static class TotalScoreCancellationException extends IllegalStateException {
+    private final boolean categoryRestricted;
+    private boolean changesMayHaveBeenMade;
+
+    public TotalScoreCancellationException(boolean categoryRestricted, String message, Throwable cause) {
+      super(message, cause);
+      this.categoryRestricted = categoryRestricted;
+    }
+
+    public boolean isChangesMayHaveBeenMade() {
+      return changesMayHaveBeenMade;
+    }
+
+    public boolean isCategoryRestricted() {
+      return categoryRestricted;
+    }
+  }
+
+  private String cancellationOwnerSite(PublishedAssessmentIfc assessment) {
+    String ownerSiteId = getPublishedAssessmentOwner(assessment.getPublishedAssessmentId());
+    if (StringUtils.isBlank(ownerSiteId) || ToolManager.getCurrentPlacement() == null
+        || !ownerSiteId.equals(ToolManager.getCurrentPlacement().getContext())) {
+      throw new TotalScoreCancellationException(false, "The assessment does not belong to the current tool site", null);
+    }
+    return ownerSiteId;
+  }
+
+  /** Reads current and configured export categories without changing assessment or Gradebook state. */
+  public boolean isTotalScoreCancellationAllowed(PublishedAssessmentIfc assessment) {
+    String ownerSiteId = cancellationOwnerSite(assessment);
+    PublishedAssessmentFacade persistedAssessment = getPublishedAssessment(assessment.getPublishedAssessmentId().toString());
+    if (persistedAssessment == null) {
+      throw new TotalScoreCancellationException(false, "The published assessment is unavailable", null);
+    }
+    PublishedAssessmentIfc persistedData = (PublishedAssessmentIfc) persistedAssessment.getData();
+    EvaluationModelIfc evaluation = persistedData.getEvaluationModel();
+    if (evaluation == null) {
+      throw new TotalScoreCancellationException(false, "The assessment export settings are unavailable", null);
+    }
+    // Selected-item export changes earned scores, not the target item's possible points.
+    if (!EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+      return true;
+    }
+    try {
+      Site ownerSite = SiteService.getSite(ownerSiteId);
+      org.sakaiproject.grading.api.GradingService gradebookService =
+          (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance()
+              .getBean("org.sakaiproject.grading.api.GradingService");
+      String externalId = assessment.getPublishedAssessmentId().toString();
+      Map<String, String> configuredTargets = new LinkedHashMap<>();
+      Set<Long> configuredCategories = new HashSet<>();
+      if (gradebookService.isGradebookGroupEnabled(ownerSiteId)) {
+        List<String> groups = new ArrayList<>(persistedAssessment.getReleaseToGroups().keySet());
+        if (groups.isEmpty() || groups.stream().anyMatch(uid -> ownerSite.getGroup(uid) == null)) {
+          throw new IllegalStateException("The assessment's group Gradebook targets are unavailable");
+        }
+        String categories = persistedData.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CATEGORY_LIST);
+        if (StringUtils.isNotBlank(categories) && !"-1".equals(categories)) {
+          for (String category : categories.split(",")) {
+            Long categoryId = Long.valueOf(category);
+            if (categoryId != -1L) {
+              configuredCategories.add(categoryId);
+            }
+          }
+        }
+        configuredTargets.putAll(gradebookService.buildCategoryGradebookMap(groups,
+            StringUtils.isBlank(categories) || "-1".equals(categories) ? "" : categories, ownerSiteId));
+        if (!configuredTargets.keySet().equals(new HashSet<>(groups))) {
+          throw new IllegalStateException("The assessment's group Gradebook mapping is incomplete");
+        }
+      } else {
+        Long categoryId = persistedData.getCategoryId();
+        configuredTargets.put(ownerSiteId, categoryId == null ? "-1" : categoryId.toString());
+        if (categoryId != null && categoryId != -1L) {
+          configuredCategories.add(categoryId);
+        }
+      }
+
+      Set<String> linkedTargets = new HashSet<>(gradebookService.getGradebookUidByExternalId(externalId));
+      linkedTargets.removeIf(uid -> !ownerSiteId.equals(uid) && ownerSite.getGroup(uid) == null);
+      Set<String> targets = new LinkedHashSet<>(configuredTargets.keySet());
+      targets.addAll(linkedTargets);
+      Set<Long> foundConfiguredCategories = new HashSet<>();
+      boolean allowed = true;
+      for (String gradebookUid : targets) {
+        List<CategoryDefinition> categories = gradebookService.getCategoryDefinitions(gradebookUid, ownerSiteId);
+        if (categories == null) {
+          throw new IllegalStateException("Gradebook category definitions are unavailable for " + gradebookUid);
+        }
+        Map<Long, CategoryDefinition> categoryMap = categories.stream()
+            .collect(Collectors.toMap(CategoryDefinition::getId, category -> category));
+        foundConfiguredCategories.addAll(categoryMap.keySet());
+        Set<Long> categoryIds = new HashSet<>();
+        String configured = configuredTargets.get(gradebookUid);
+        if (configured != null && !"-1".equals(configured)) {
+          categoryIds.add(Long.valueOf(configured));
+        }
+        if (linkedTargets.contains(gradebookUid)
+            || gradebookService.isExternalAssignmentDefined(gradebookUid, externalId)) {
+          Assignment linked = gradebookService.getExternalAssignment(gradebookUid, externalId);
+          if (linked == null) {
+            throw new IllegalStateException("The linked Gradebook item is unavailable for " + gradebookUid);
+          }
+          if (linked.getCategoryId() != null && linked.getCategoryId() != -1L) {
+            categoryIds.add(linked.getCategoryId());
+          }
+        }
+        for (Long categoryId : categoryIds) {
+          CategoryDefinition category = categoryMap.get(categoryId);
+          if (category == null) {
+            throw new IllegalStateException("The expected Gradebook category " + categoryId + " is unavailable");
+          }
+          if (category.getDropKeepEnabled() && !category.getEqualWeight()) {
+            allowed = false;
+          }
+        }
+      }
+      if (!foundConfiguredCategories.containsAll(configuredCategories)) {
+        throw new IllegalStateException("The configured Gradebook categories are unavailable");
+      }
+      return allowed;
+    } catch (IdUnusedException | RuntimeException e) {
+      throw new TotalScoreCancellationException(false,
+          "Unable to verify Gradebook categories for assessment " + assessment.getPublishedAssessmentId(), e);
+    }
+  }
+
+  /** Reloads and validates the request before the first cancellation write. */
+  public PublishedAssessmentFacade cancelPublishedItem(String assessmentId, String itemId, int cancellation) {
+    if (cancellation != ItemDataIfc.ITEM_TOTAL_SCORE_TO_CANCEL
+        && cancellation != ItemDataIfc.ITEM_DISTRIBUTED_TO_CANCEL) {
+      throw new IllegalArgumentException("Unsupported question cancellation mode: " + cancellation);
+    }
+    PublishedAssessmentFacade assessment = getPublishedAssessment(assessmentId);
+    if (assessment == null) {
+      throw new IllegalArgumentException("Published assessment not found: " + assessmentId);
+    }
+    cancellationOwnerSite(assessment);
+    ItemDataIfc item = preparePublishedItemHash(assessment).get(Long.valueOf(itemId));
+    if (item == null) {
+      throw new IllegalArgumentException("The question does not belong to assessment " + assessmentId);
+    }
+    if (ItemCancellationUtil.isCancelled(item)) {
+      return assessment;
+    }
+    if (cancellation == ItemDataIfc.ITEM_TOTAL_SCORE_TO_CANCEL && !isTotalScoreCancellationAllowed(assessment)) {
+      throw new TotalScoreCancellationException(true, "The Gradebook category requires equal point totals", null);
+    }
+    item.setCancellation(cancellation);
+    new PublishedItemService().saveItem(new ItemFacade(item));
+    try {
+      return preparePublishedItemCancellation(getPublishedAssessment(assessmentId));
+    } catch (TotalScoreCancellationException e) {
+      e.changesMayHaveBeenMade = true;
+      throw e;
+    }
+  }
+
   public PublishedAssessmentFacade preparePublishedItemCancellation(PublishedAssessmentIfc publishedAssessment) {
     // Get publishedItemMap and filter out EMI questions
     Map<Long, ItemDataIfc> publishedItemMap = preparePublishedItemHash(publishedAssessment).entrySet().stream()
@@ -643,6 +807,10 @@ public class PublishedAssessmentService extends AssessmentService{
         .filter(publishedItem -> publishedItem.getScore() != null)
         .filter(publishedItem -> publishedItem.getScore() != 0.0)
         .collect(Collectors.toSet());
+
+    if (!totalScoreItemsToCancel.isEmpty() && !isTotalScoreCancellationAllowed(publishedAssessment)) {
+      throw new TotalScoreCancellationException(true, "The Gradebook category requires equal point totals", null);
+    }
 
     // Items to cancel by setting the score to 0 and distributing the points to the other items. Total score is unaffected.
     Set<ItemDataIfc> distributedItemsToCancel = publishedItemMap.entrySet().stream()
@@ -878,6 +1046,8 @@ public class PublishedAssessmentService extends AssessmentService{
               data.setReference(ref);
 
               gbsHelper.addToGradebook(entry.getKey(), data, !entry.getValue().equals("-1") ? Long.parseLong(entry.getValue()) : null, gradingService);
+            } catch (InvalidCategoryException e) {
+              throw e;
             } catch(Exception e){
               log.warn("oh well, must have been added already:"+e.getMessage());
             }
@@ -902,6 +1072,8 @@ public class PublishedAssessmentService extends AssessmentService{
 
           try {
             gbsHelper.updateGradebook(assessment, isGradebookGroupEnabled, gradebookUidList, updateGradebookCategoryMap, gradingService);
+          } catch (InvalidCategoryException e) {
+            throw e;
           } catch (Exception e) {
             evaluation.setToGradeBook("0");
             log.warn("Exception thrown in updateGB():" + e.getMessage());
