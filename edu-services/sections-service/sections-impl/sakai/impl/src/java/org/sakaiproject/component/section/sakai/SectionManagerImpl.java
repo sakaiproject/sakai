@@ -24,6 +24,7 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -51,7 +52,10 @@ import org.sakaiproject.component.section.sakai.facade.SakaiUtil;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
@@ -88,7 +92,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  *
  */
 @Slf4j
-public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor {
+public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor, EntityProducer, EntityTransferrer, ContentExistsAware {
 
     // Sakai services set by method injection
     protected abstract SiteService siteService();
@@ -113,6 +117,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
     public void init() {
     	if(log.isInfoEnabled()) log.info("init()");
 		siteService().addSiteAdvisor(this);
+		entityManager.registerEntityProducer(this, "/sections");
 		
 		// A group provider may not exist, so we can't use spring to inject it
 		groupProvider = (GroupProvider)ComponentManager.get(GroupProvider.class);
@@ -126,6 +131,134 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
     	siteService().removeSiteAdvisor(this);
     }
     
+    private static final List<String> SECTION_PROPERTIES = List.of(
+        CourseSectionImpl.CATEGORY, CourseSectionImpl.MAX_ENROLLMENTS,
+        CourseSectionImpl.LOCATION, CourseSectionImpl.START_TIME, CourseSectionImpl.END_TIME,
+        CourseSectionImpl.MONDAY, CourseSectionImpl.TUESDAY, CourseSectionImpl.WEDNESDAY,
+        CourseSectionImpl.THURSDAY, CourseSectionImpl.FRIDAY, CourseSectionImpl.SATURDAY,
+        CourseSectionImpl.SUNDAY);
+
+    @Override
+    public String getLabel() {
+        return "sections";
+    }
+
+    @Override
+    public String[] myToolIds() {
+        return new String[] { "sakai.sections" };
+    }
+
+    @Override
+    public boolean hasContent(String siteId) {
+        if (!siteService().allowAccessSite(siteId)) {
+            return false;
+        }
+        try {
+            Site site = siteService().getSite(siteId);
+            return isManuallyManaged(site) && site.getGroups().stream().anyMatch(this::isManualSection);
+        } catch (IdUnusedException e) {
+            log.warn("Cannot find site {} while checking section content", siteId, e);
+            return false;
+        }
+    }
+
+    @Override
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext,
+            List<String> ids, List<String> transferOptions) {
+        return transferCopyEntities(fromContext, toContext, ids, transferOptions, false);
+    }
+
+    @Override
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext,
+            List<String> ids, List<String> transferOptions, boolean cleanup) {
+        if (StringUtils.equals(fromContext, toContext)) {
+            return Collections.emptyMap();
+        }
+        if (!siteService().allowAccessSite(fromContext) || !siteService().allowUpdateSite(toContext)) {
+            throw new SecurityException("Not permitted to import sections from " + fromContext + " to " + toContext);
+        }
+        try {
+            Site source = siteService().getSite(fromContext);
+            Site destination = siteService().getSite(toContext);
+            if (!isManuallyManaged(source) || !isManuallyManaged(destination)) {
+                log.debug("Skipping section import from {} to {} because sections are externally managed", fromContext, toContext);
+                return Collections.emptyMap();
+            }
+
+            // Section structure is merged in both import modes. Deleting existing groups
+            // would also delete memberships and break references in tools not being imported.
+            Map<String, Group> destinationGroups = new HashMap<>();
+            for (Group group : destination.getGroups()) {
+                destinationGroups.putIfAbsent(group.getTitle(), group);
+            }
+            Map<String, String> references = new HashMap<>();
+            List<Group> addedGroups = new ArrayList<>();
+            for (Group group : source.getGroups()) {
+                if (!isManualSection(group) || (ids != null && !ids.isEmpty()
+                        && !ids.contains(group.getId()) && !ids.contains(group.getReference()))) {
+                    continue;
+                }
+                Group existing = destinationGroups.get(group.getTitle());
+                if (existing != null) {
+                    if (isManualSection(existing) && StringUtils.equals(
+                            group.getProperties().getProperty(CourseSectionImpl.CATEGORY),
+                            existing.getProperties().getProperty(CourseSectionImpl.CATEGORY))) {
+                        references.put(group.getReference(), existing.getReference());
+                    } else {
+                        log.warn("Cannot import section {} from {}: a different group with that title exists in {}",
+                            group.getId(), fromContext, toContext);
+                    }
+                    continue;
+                }
+                Group copy = destination.addGroup();
+                copy.setTitle(group.getTitle());
+                copy.setDescription(group.getDescription());
+                // Copy serialized meeting metadata without locale/timezone conversion.
+                // Provider IDs, enterprise IDs, locks and memberships belong to the source site.
+                for (String property : SECTION_PROPERTIES) {
+                    String value = group.getProperties().getProperty(property);
+                    if (value != null) {
+                        copy.getProperties().addProperty(property, value);
+                    }
+                }
+                destinationGroups.put(copy.getTitle(), copy);
+                addedGroups.add(copy);
+                references.put(group.getReference(), copy.getReference());
+            }
+            if (!addedGroups.isEmpty()) {
+                siteService().save(destination);
+                clearSite(toContext);
+                for (Group group : addedGroups) {
+                    postEvent("section.add", group.getReference());
+                }
+            }
+            return references;
+        } catch (IdUnusedException | PermissionException e) {
+            throw new IllegalStateException("Cannot import sections from " + fromContext + " to " + toContext, e);
+        }
+    }
+
+    private boolean isManualSection(Group group) {
+        return StringUtils.isBlank(group.getProviderGroupId())
+            && StringUtils.isNotBlank(group.getProperties().getProperty(CourseSectionImpl.CATEGORY));
+    }
+
+    private boolean isManuallyManaged(Site site) {
+        ExternalIntegrationConfig integrationConfig = getConfiguration(null);
+        if (integrationConfig == ExternalIntegrationConfig.AUTOMATIC_MANDATORY) {
+            return false;
+        }
+        if (integrationConfig == ExternalIntegrationConfig.MANUAL_MANDATORY) {
+            return true;
+        }
+        String externallyMaintained = site.getProperties().getProperty(CourseImpl.EXTERNALLY_MAINTAINED);
+        if (externallyMaintained != null) {
+            return !Boolean.parseBoolean(externallyMaintained);
+        }
+        return !"course".equalsIgnoreCase(site.getType())
+            || integrationConfig != ExternalIntegrationConfig.AUTOMATIC_DEFAULT;
+    }
+
     // SiteAdvisor methods
 
     /**
