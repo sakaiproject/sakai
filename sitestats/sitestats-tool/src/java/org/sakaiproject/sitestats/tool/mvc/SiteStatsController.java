@@ -50,7 +50,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Controller
 @RequiredArgsConstructor
@@ -103,10 +102,9 @@ public class SiteStatsController {
 
     @GetMapping(value = "/reports/resources/search", produces = "application/json")
     @ResponseBody
-    public SiteStatsResourceSelectionService.ResourceSearchPage reportResources(
-            @RequestParam(required = false) String siteId, @RequestParam(defaultValue = "") String q,
-            @RequestParam(defaultValue = "0") int page) {
-        return resourceSelectionService.search(siteId, q, page);
+    public SiteStatsResourceSelectionService.ResourceSearchResult reportResources(
+            @RequestParam(required = false) String siteId, @RequestParam(defaultValue = "") String q) {
+        return resourceSelectionService.search(siteId, q);
     }
 
     @GetMapping("/reports/{reportId}/edit")
@@ -270,11 +268,6 @@ public class SiteStatsController {
     @ExceptionHandler(SecurityException.class)
     public ResponseEntity<Void> forbidden() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Void> invalidParameter() {
-        return ResponseEntity.badRequest().build();
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

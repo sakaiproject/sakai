@@ -17,6 +17,7 @@ package org.sakaiproject.sitestats.tool.mvc;
 
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,7 +46,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class SiteStatsResourceSelectionService {
 
-    private static final int PAGE_SIZE = 20;
+    private static final int SEARCH_LIMIT = 20;
     private static final int MAX_QUERY_LENGTH = 256;
 
     private final SiteStatsToolAuthorizationService authorizationService;
@@ -53,28 +54,35 @@ public class SiteStatsResourceSelectionService {
     private final LocaleService localeService;
     private final MessageSource messageSource;
 
-    public ResourceSearchPage search(String requestedSiteId, String query, int page) {
+    public ResourceSearchResult search(String requestedSiteId, String query) {
         String siteId = authorizationService.reportSite(requestedSiteId);
-        String nameQuery = query == null ? "" : query.strip();
-        if (page < 0 || nameQuery.length() > MAX_QUERY_LENGTH) {
+        String searchQuery = query == null ? "" : query.strip();
+        if (searchQuery.length() > MAX_QUERY_LENGTH) {
             throw new InvalidReportConfigurationException("sitestats_report_configuration_invalid");
         }
-        if (nameQuery.codePointCount(0, nameQuery.length()) < 2) {
-            return new ResourceSearchPage(List.of(), page, false);
+        List<String> terms = Arrays.stream(searchQuery.toLowerCase(Locale.ROOT).split("(?U)\\s+"))
+                .filter(term -> !term.isEmpty()).toList();
+        if (searchQuery.codePointCount(0, searchQuery.length()) < 2 || terms.isEmpty()) {
+            return new ResourceSearchResult(List.of(), false);
         }
         Locale locale = locale(siteId);
         Map<String, String> roots = roots(siteId, locale);
-        String foldedQuery = nameQuery.toLowerCase(Locale.ROOT);
         Map<String, ContentResource> matches = new LinkedHashMap<>();
+        Map<String, String> collectionLabels = new LinkedHashMap<>();
         try {
             // The Kernel applies current read/availability permissions and returns metadata only.
             // Context/type lookup excludes attachments; the full-text index excludes Drop Box.
             for (String root : roots.keySet()) {
                 for (ContentResource resource : contentHostingService.getAllResources(root)) {
                     String id = resource.getId();
-                    if (!resource.isCollection() && id.startsWith(root)
-                            && label(resource, locale).toLowerCase(Locale.ROOT).contains(foldedQuery)) {
-                        matches.putIfAbsent(id, resource);
+                    if (resource.isCollection() || !id.startsWith(root) || matches.containsKey(id)) {
+                        continue;
+                    }
+                    String name = label(resource, locale);
+                    // Name-only matches do not need parent metadata until the visible results are assembled.
+                    if (matches(name, terms) || matches(name + " "
+                            + location(id, roots, collectionLabels, locale), terms)) {
+                        matches.put(id, resource);
                     }
                 }
             }
@@ -82,23 +90,21 @@ public class SiteStatsResourceSelectionService {
             List<ContentResource> ordered = new ArrayList<>(matches.values());
             ordered.sort(Comparator.comparing((ContentResource resource) -> label(resource, locale), collator)
                     .thenComparing(ContentResource::getId));
-            long offset = (long) page * PAGE_SIZE;
-            if (offset >= ordered.size()) {
-                return new ResourceSearchPage(List.of(), page, false);
-            }
-            int from = (int) offset;
-            int to = Math.min(ordered.size(), from + PAGE_SIZE);
             List<ResourceOption> items = new ArrayList<>();
-            Map<String, String> collectionLabels = new LinkedHashMap<>();
-            for (ContentResource resource : ordered.subList(from, to)) {
+            for (ContentResource resource : ordered.subList(0, Math.min(ordered.size(), SEARCH_LIMIT))) {
                 items.add(new ResourceOption(resource.getId(), label(resource, locale),
                         location(resource.getId(), roots, collectionLabels, locale)));
             }
-            return new ResourceSearchPage(List.copyOf(items), page, to < ordered.size());
+            return new ResourceSearchResult(List.copyOf(items), ordered.size() > SEARCH_LIMIT);
         } catch (RuntimeException failure) {
             log.warn("Unable to search report resources in site {}", siteId, failure);
             throw failure;
         }
+    }
+
+    private boolean matches(String text, List<String> terms) {
+        String folded = text.toLowerCase(Locale.ROOT);
+        return terms.stream().allMatch(folded::contains);
     }
 
     public List<SelectedResourceOption> selected(String requestedSiteId, List<String> ids) {
@@ -194,10 +200,14 @@ public class SiteStatsResourceSelectionService {
                     ContentCollection collection = contentHostingService.getCollection(collectionId);
                     collectionLabels.put(collectionId, label(collection, locale));
                 } catch (IdUnusedException | PermissionException | TypeException unavailable) {
-                    return roots.get(root) + " / " + message("sitestats_resource_unavailable_location", locale);
+                    collectionLabels.put(collectionId, null);
                 }
             }
-            parts.add(collectionLabels.get(collectionId));
+            String collectionLabel = collectionLabels.get(collectionId);
+            if (collectionLabel == null) {
+                return roots.get(root) + " / " + message("sitestats_resource_unavailable_location", locale);
+            }
+            parts.add(collectionLabel);
         }
         return String.join(" / ", parts);
     }
@@ -230,9 +240,8 @@ public class SiteStatsResourceSelectionService {
 
     @Getter
     @RequiredArgsConstructor
-    public static class ResourceSearchPage {
+    public static class ResourceSearchResult {
         private final List<ResourceOption> items;
-        private final int page;
-        private final boolean hasNext;
+        private final boolean truncated;
     }
 }

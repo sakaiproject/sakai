@@ -11,8 +11,7 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
     _query: { state: true },
     _items: { state: true },
     _selected: { state: true },
-    _page: { state: true },
-    _hasNext: { state: true },
+    _truncated: { state: true },
     _selectedPage: { state: true },
     _state: { state: true },
     _announcement: { state: true },
@@ -57,13 +56,11 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
     this._query = "";
     this._items = [];
     this._selected = [];
-    this._page = 0;
-    this._hasNext = false;
+    this._truncated = false;
     this._selectedPage = 0;
     this._state = "guidance";
     this._announcement = "";
     this._requestVersion = 0;
-    this._requestedPage = 0;
   }
 
   updated(changed) {
@@ -78,7 +75,7 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
         this._items = [];
         this._state = "guidance";
       } else if (this._query.trim().length >= 2) {
-        this._search(0);
+        this._search();
       }
     }
   }
@@ -102,31 +99,27 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
     this._cancelSearch();
     this._query = event.target.value;
     this._items = [];
-    this._page = 0;
-    this._hasNext = false;
+    this._truncated = false;
     this._announcement = "";
     if (this.disabled || [ ...this._query.trim() ].length < 2) {
       this._state = "guidance";
       return;
     }
     this._state = "searching";
-    this._searchTimer = setTimeout(() => this._search(0), 300);
+    this._searchTimer = setTimeout(() => this._search(), 300);
   }
 
-  async _search(page) {
+  async _search() {
 
     if (this.disabled || !this.endpoint || [ ...this._query.trim() ].length < 2) return;
     this._cancelSearch();
     const version = this._requestVersion;
     const controller = new AbortController();
     this._abortController = controller;
-    this._requestedPage = page;
-    const pagingControl = this.renderRoot.activeElement?.closest(".result-pages button");
     this._state = "searching";
     this._announcement = "";
     const endpoint = new URL(this.endpoint, document.baseURI);
     endpoint.searchParams.set("q", this._query.trim());
-    endpoint.searchParams.set("page", String(page));
     try {
       const response = await fetch(endpoint, {
         credentials: "same-origin",
@@ -137,24 +130,12 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
       const result = await response.json();
       if (version !== this._requestVersion || !this.isConnected) return;
       this._items = result.items.slice(0, 20);
-      this._page = result.page;
-      this._hasNext = result.hasNext;
+      this._truncated = result.truncated;
       this._state = this._items.length ? "results" : "empty";
-      if (pagingControl) {
-        await this.updateComplete;
-        if (version === this._requestVersion && this.isConnected
-            && (!this.renderRoot.activeElement || this.renderRoot.activeElement === pagingControl)
-            && (document.activeElement === this || document.activeElement === document.body)) {
-          const control = pagingControl.isConnected && !pagingControl.matches(":disabled") ? pagingControl
-            : this.renderRoot.querySelector(".result-pages button:not(:disabled)")
-              || this.renderRoot.querySelector("#resource-query");
-          control?.focus();
-        }
-      }
     } catch (error) {
       if (version === this._requestVersion && error.name !== "AbortError") {
         this._items = [];
-        this._hasNext = false;
+        this._truncated = false;
         this._state = "error";
       }
     }
@@ -193,9 +174,13 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
 
   _status() {
 
-    if (this._announcement) return this._announcement;
+    const truncated = this._state === "results" && this._truncated;
+    if (this._announcement) {
+      return this._announcement + (truncated ? ` ${this._i18n.resource_search_truncated}` : "");
+    }
     if (this._state === "results") {
-      return this.tr("resource_search_results", [ this._items.length ]);
+      return truncated ? this._i18n.resource_search_truncated
+        : this.tr("resource_search_results", [ this._items.length ]);
     }
     return this._i18n[`resource_search_${this._state}`];
   }
@@ -214,7 +199,7 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
                @keydown=${event => { if (event.key === "Enter" && !event.isComposing) event.preventDefault(); }}>
         <p id="resource-search-status" class="status" role="status" aria-live="polite">${this._status()}</p>
         ${this._state === "error" ? html`
-          <button class="btn btn-secondary" type="button" @click=${() => this._search(this._requestedPage)}>
+          <button class="btn btn-secondary" type="button" @click=${() => this._search()}>
             ${this._i18n.resource_search_retry}
           </button>` : nothing}
         <ul id="resource-results" class="resource-list" aria-busy=${String(this._state === "searching")}>
@@ -231,13 +216,6 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
               </button>
             </li>`)}
         </ul>
-        ${this._page > 0 || this._hasNext ? html`
-          <div class="pages result-pages">
-            <button class="btn btn-secondary" type="button" ?disabled=${this._page === 0 || this._state === "searching"}
-                    @click=${() => this._search(this._page - 1)}>${this._i18n.resource_search_previous}</button>
-            <button class="btn btn-secondary" type="button" ?disabled=${!this._hasNext || this._state === "searching"}
-                    @click=${() => this._search(this._page + 1)}>${this._i18n.resource_search_more}</button>
-          </div>` : nothing}
         <h3>${this.tr("resource_search_selection_count", [ this._selected.length ])}</h3>
         ${this._selected.length ? nothing : html`<p>${this._i18n.resource_search_none_selected}</p>`}
         <ul id="selected-resources" class="resource-list">

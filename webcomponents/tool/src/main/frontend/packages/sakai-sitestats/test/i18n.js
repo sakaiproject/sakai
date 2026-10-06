@@ -9,8 +9,8 @@ site_statistics_chart=Site statistics chart
 label=Label
 overview_tool_filters_min_one=Keep at least one tool selected.
 
-resource_search_label=Search resources by name
-resource_search_guidance=Enter at least 2 characters to find resources in this site.
+resource_search_label=Search resources
+resource_search_guidance=Enter at least 2 characters from a resource name or location.
 resource_search_searching=Searching resources...
 resource_search_empty=No matching resources.
 resource_search_error=Could not search resources. Try again.
@@ -26,8 +26,7 @@ resource_search_selected=Added
 resource_search_selection_count=Selected resources ({})
 resource_search_none_selected=No resources selected.
 resource_search_legacy_collection=Saved folder filter
-resource_search_previous=Previous results
-resource_search_more=More results
+resource_search_truncated=Showing the first 20 matches. Refine your search.
 resource_search_previous_selected=Previous selected resources
 resource_search_more_selected=Next selected resources
 `;

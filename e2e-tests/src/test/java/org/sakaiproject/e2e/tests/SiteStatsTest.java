@@ -443,7 +443,8 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertEquals(36, adminSession.length());
         String root = "/group/" + siteId + "/";
         try {
-            for (String folder : List.of("Week One", "Week Two")) {
+            for (int week = 1; week <= 25; week++) {
+                String folder = "Week " + week;
                 APIResponse created = page.request().get("/sakai-ws/rest/contenthosting/createFolder", RequestOptions.create()
                     .setQueryParam("sessionid", adminSession).setQueryParam("collectionId", root).setQueryParam("name", folder));
                 assertTrue(created.ok(), "Unable to create the nested fixture folder");
@@ -474,7 +475,7 @@ class SiteStatsTest extends SakaiUiTestBase {
             assertThat(page.locator("#resource-selection")).isHidden();
             page.locator("#limit-resources").check();
             Locator component = page.locator("sakai-sitestats-resource-search");
-            Locator search = component.getByLabel("Search resources by name");
+            Locator search = component.getByLabel("Search resources");
             String rootClasses = (String) page.evaluate("() => document.documentElement.className");
             try {
                 for (String theme : List.of("light", "dark", "light")) {
@@ -511,17 +512,31 @@ class SiteStatsTest extends SakaiUiTestBase {
             }
             search.fill("reading");
             Locator matches = component.locator("#resource-results li");
-            assertThat(matches).hasCount(2);
-            assertThat(matches.nth(0)).containsText("Resources / Week One");
-            assertThat(matches.nth(1)).containsText("Resources / Week Two");
-            matches.nth(0).getByRole(AriaRole.BUTTON).click();
-            matches.nth(1).getByRole(AriaRole.BUTTON).click();
+            assertThat(matches).hasCount(20);
+            assertThat(component.locator("[role=status]")).containsText("Showing the first 20 matches. Refine your search.");
+            assertThat(component.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("More results").setExact(true))).hasCount(0);
+            assertThat(component.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Previous results").setExact(true))).hasCount(0);
+            for (int width : List.of(1280, 390)) {
+                page.setViewportSize(width, 900);
+                search.scrollIntoViewIfNeeded();
+                page.screenshot(new Page.ScreenshotOptions().setPath(
+                    ARTIFACT_ROOT.resolve("resource-search-refine-" + width + ".png")));
+            }
+            page.setViewportSize(1280, 720);
+            matches.first().getByRole(AriaRole.BUTTON).click();
+            search.fill("Week 5 Reading");
+            assertThat(matches).hasCount(3);
+            Locator chosenWeek = matches.filter(new Locator.FilterOptions().setHasText("Resources / Week 5"));
+            assertThat(chosenWeek).hasCount(1);
+            chosenWeek.getByRole(AriaRole.BUTTON).click();
             assertThat(component.locator("#selected-resources li")).hasCount(2);
             search.fill("notes");
             assertThat(matches).hasCount(1);
             matches.first().getByRole(AriaRole.BUTTON).click();
             component.locator("#selected-resources li").first().getByRole(AriaRole.BUTTON).click();
-            String selectedIds = root + "Week Two/Reading.pdf\n" + root + "Notes.txt";
+            String selectedIds = root + "Week 5/Reading.pdf\n" + root + "Notes.txt";
             assertThat(page.locator("#resource-ids")).hasValue(selectedIds);
             assertThat(page.locator("#resource-ids")).hasAttribute("type", "hidden");
             assertThat(component).not().containsText(root);
@@ -541,7 +556,7 @@ class SiteStatsTest extends SakaiUiTestBase {
             assertThat(page.locator("#resource-ids")).hasValue(selectedIds);
             assertThat(component.locator("#selected-resources li")).hasCount(2);
             // An unfinished query must not replace the filters already selected in the form.
-            component.getByLabel("Search resources by name").fill("unfinished query");
+            component.getByLabel("Search resources").fill("unfinished query");
             page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save report").setExact(true)).click();
             assertThat(page.locator(".sak-banner-success")).containsText("saved successfully");
             page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
@@ -569,18 +584,19 @@ class SiteStatsTest extends SakaiUiTestBase {
     void findsTheLastResourceInTheOptInTwoThousandResourceFixture() {
         // The documented performance fixture is intentionally separate from regular UI setup.
         sakai.login("instructor1");
-        page.navigate("/portal/site/sak-52957-benchmark-nested");
+        page.navigate("/portal/site/sak-52957-refine-performance");
         sakai.toolClick("Statistics");
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Reports").setExact(true)).click();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add").setExact(true)).click();
         page.getByLabel("Activity:").selectOption("what-resources");
         page.locator("#limit-resources").check();
         Locator component = page.locator("sakai-sitestats-resource-search");
-        component.getByLabel("Search resources by name").fill("benchmark file");
+        component.getByLabel("Search resources").fill("benchmark file");
         assertThat(component.locator("#resource-results li")).hasCount(20);
+        assertThat(component.locator("[role=status]")).containsText("Refine your search.");
         assertThat(component.getByRole(AriaRole.BUTTON,
-            new Locator.GetByRoleOptions().setName("More results").setExact(true))).isEnabled();
-        component.getByLabel("Search resources by name").fill("1999");
+            new Locator.GetByRoleOptions().setName("More results").setExact(true))).hasCount(0);
+        component.getByLabel("Search resources").fill("Unit 99 1999");
         assertThat(component.locator("#resource-results li")).hasCount(1);
         assertThat(component.locator("#resource-results li")).containsText("Benchmark file 1999.txt");
         assertThat(component.locator("#resource-results li")).containsText("Unit 99");
@@ -588,7 +604,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         for (int sample = 0; sample < 3; sample++) {
             long start = System.nanoTime();
             APIResponse matches = page.request().get(endpoint, RequestOptions.create()
-                .setQueryParam("q", "benchmark file").setQueryParam("page", 0));
+                .setQueryParam("q", "unit 99 benchmark file"));
             long elapsedMillis = (System.nanoTime() - start) / 1_000_000;
             assertTrue(matches.ok(), "Resource search performance fixture request failed");
             Object count = page.evaluate("json => JSON.parse(json).items.length", matches.text());
