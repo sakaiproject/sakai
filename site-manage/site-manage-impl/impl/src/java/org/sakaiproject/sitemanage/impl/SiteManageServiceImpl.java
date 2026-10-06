@@ -659,9 +659,19 @@ public class SiteManageServiceImpl implements SiteManageService {
 
         // Import section structure before tools recreate their referenced groups by title.
         if (toolIds.contains(SECTIONS_TOOL_ID)) {
-            for (String fromSiteId : importTools.getOrDefault(SECTIONS_TOOL_ID, Collections.emptyList())) {
+            Set<String> fullyImportedSiteIds = new LinkedHashSet<>(
+                    importTools.getOrDefault(SECTIONS_TOOL_ID, Collections.emptyList()));
+            Map<String, List<String>> siteItems = toolItemMap.getOrDefault(SECTIONS_TOOL_ID, Collections.emptyMap());
+            Map<String, List<String>> siteOptions = toolOptions.get(SECTIONS_TOOL_ID);
+            for (String fromSiteId : fullyImportedSiteIds) {
                 doImport(transversalMap, SECTIONS_TOOL_ID, siteIds, fromSiteId, toSiteId,
-                        toolItemMap.get(SECTIONS_TOOL_ID), toolOptions.get(SECTIONS_TOOL_ID), cleanup, false);
+                        Collections.emptyMap(), siteOptions, cleanup, false);
+            }
+            for (Map.Entry<String, List<String>> entry : siteItems.entrySet()) {
+                if (!fullyImportedSiteIds.contains(entry.getKey()) && CollectionUtils.isNotEmpty(entry.getValue())) {
+                    doImport(transversalMap, SECTIONS_TOOL_ID, siteIds, entry.getKey(), toSiteId,
+                            siteItems, siteOptions, cleanup, false);
+                }
             }
         }
 

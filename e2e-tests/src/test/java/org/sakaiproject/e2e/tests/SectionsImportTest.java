@@ -53,6 +53,11 @@ class SectionsImportTest extends SakaiUiTestBase {
 
         sakai.toolClick("Assignments");
         assertThat(page.locator("body")).containsText(assignmentTitle);
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Edit " + assignmentTitle).setExact(true)).click();
+        Locator importedSection = page.locator("#selectedGroups option")
+            .filter(new Locator.FilterOptions().setHasText(sectionTitle));
+        assertThat(importedSection).hasCount(1);
+        assertThat(importedSection).hasJSProperty("selected", true);
 
         // A new section lets us wait for the repeated import to finish before checking duplicates.
         page.navigate(sourceSite);
