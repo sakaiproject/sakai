@@ -7,6 +7,8 @@ package org.sakaiproject.sitestats.impl.view;
 
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ALL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_OWN;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_COMMUNICATION;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_COMMUNICATION;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -219,12 +221,24 @@ public class SiteStatsWidgetCatalog {
 	private List<SiteStatsWidgetMetric> toMetrics(String siteId, WidgetSpec spec, String userId, boolean includeValues,
 			SiteStatsReportRequest request) {
 		List<SiteStatsWidgetMetric> metrics = new ArrayList<SiteStatsWidgetMetric>();
+		Map<String, WidgetMetricValue> values = communicationMetricValues(siteId, spec, userId, includeValues, request);
 		for (WidgetMetricSpec metric : spec.getMetrics()) {
 			if (metric.isAvailable()) {
-				metrics.add(toMetric(siteId, spec, metric, userId, includeValues, request));
+				metrics.add(toMetric(siteId, spec, metric, userId, includeValues, request, values));
 			}
 		}
 		return metrics;
+	}
+
+	private Map<String, WidgetMetricValue> communicationMetricValues(String siteId, WidgetSpec spec, String userId,
+			boolean includeValues, SiteStatsReportRequest request) {
+		if (!includeValues || support.getCommunicationAnalytics() == null) {
+			return Collections.emptyMap();
+		}
+		if (!WIDGET_COMMUNICATION.equals(spec.getId()) && !WIDGET_STUDENT_COMMUNICATION.equals(spec.getId())) {
+			return Collections.emptyMap();
+		}
+		return support.getCommunicationAnalytics().metricValues(siteId, userId, request);
 	}
 
 	private List<SiteStatsChart> toHighlights(String siteId, WidgetSpec spec, String userId, SiteStatsReportRequest request) {
@@ -246,24 +260,28 @@ public class SiteStatsWidgetCatalog {
 
 	private SiteStatsWidgetMetric toMetric(String siteId, WidgetSpec spec, WidgetMetricSpec metric, String userId,
 			boolean includeValues) {
-		return toMetric(siteId, spec, metric, userId, includeValues, null);
+		return toMetric(siteId, spec, metric, userId, includeValues, null, Collections.emptyMap());
 	}
 
 	private SiteStatsWidgetMetric toMetric(String siteId, WidgetSpec spec, WidgetMetricSpec metric, String userId,
-			boolean includeValues, SiteStatsReportRequest request) {
+			boolean includeValues, SiteStatsReportRequest request, Map<String, WidgetMetricValue> batchedValues) {
 		Object[] args = metric.getTextArgs() == null ? null : metric.getTextArgs().args(siteId);
 		SiteStatsWidgetMetric viewMetric = new SiteStatsWidgetMetric(metric.getId(),
 				formatMetricText(metric.getLabelKey(), args), metric.getAudience(), metric.isReportable());
 		viewMetric.setHelp(formatMetricText(metric.getHelpKey(), args));
 		viewMetric.setWidgetTitle(support.message(spec.getTitleKey()));
-		if (includeValues && metric.getValueFactory() != null) {
-			WidgetMetricValue value = metric.getValueFactory().getValue(siteId, userId,
-					SiteStatsReportRequest.normalized(request));
-			SiteStatsWidgetMetricSnapshot snapshot = new SiteStatsWidgetMetricSnapshot();
-			snapshot.setPrimary(value.getPrimary());
-			snapshot.setPercentage(value.getPercentage());
-			snapshot.setDetail(value.getDetail());
-			viewMetric.setSnapshot(snapshot);
+		if (includeValues) {
+			WidgetMetricValue value = batchedValues == null ? null : batchedValues.get(metric.getId());
+			if (value == null && metric.getValueFactory() != null) {
+				value = metric.getValueFactory().getValue(siteId, userId, SiteStatsReportRequest.normalized(request));
+			}
+			if (value != null) {
+				SiteStatsWidgetMetricSnapshot snapshot = new SiteStatsWidgetMetricSnapshot();
+				snapshot.setPrimary(value.getPrimary());
+				snapshot.setPercentage(value.getPercentage());
+				snapshot.setDetail(value.getDetail());
+				viewMetric.setSnapshot(snapshot);
+			}
 		}
 		return viewMetric;
 	}

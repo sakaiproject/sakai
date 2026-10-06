@@ -189,6 +189,33 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     @Test
+    @Order(12)
+    void communicationWidgetRendersThroughJsonPanel() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Statistics");
+
+        Locator communicationTab = page.locator(
+            ".sitestats-widget-tab[endpoint*='/widgets/communication/tabs/byuser']");
+        assertThat(communicationTab).hasCount(1);
+        communicationTab.locator("summary").click();
+
+        Locator reportPanel = communicationTab.locator("sakai-sitestats-report-panel");
+        assertThat(reportPanel).isVisible();
+        Locator communicationWidget = page.locator(".sitestats-widget")
+            .filter(new Locator.FilterOptions().setHas(communicationTab));
+        assertThat(communicationTab.locator("[data-report-filter='itemType']")).hasCount(0);
+        assertThat(communicationTab.locator("[data-report-filter='item']")).hasCount(0);
+        assertThat(communicationTab.locator("[data-report-filter='group']")).isVisible();
+        assertThat(communicationTab.locator("[data-report-filter='role']")).isVisible();
+        assertThat(communicationWidget.locator(".sitestats-widget-title")).containsText("Communication");
+        assertWidgetHasMetricLabels(communicationWidget, "Authored", "Replied",
+            "Unanswered threads", "Most active author");
+        assertTrue(communicationWidget.locator("sakai-sitestats-highlights").count() <= 1);
+        assertNoLegacyReportChartImages();
+    }
+
+    @Test
     @Order(3)
     void reportValidationDisplaysOneErrorBanner() {
         openReportsAsInstructor();
@@ -408,6 +435,10 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-grades/']"))
             .hasCount(1);
         assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/grades/tabs/']"))
+            .hasCount(0);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/student-communication/']"))
+            .hasCount(1);
+        assertThat(page.locator(".sitestats-widget-tab[endpoint*='/widgets/communication/tabs/']"))
             .hasCount(0);
     }
 

@@ -117,6 +117,19 @@
             <artifactId>messageforums-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.conversations</groupId>
+            <artifactId>sakai-conversations-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.commons</groupId>
+            <artifactId>commons-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.polls</groupId>
             <artifactId>polls-api</artifactId>
         </dependency>

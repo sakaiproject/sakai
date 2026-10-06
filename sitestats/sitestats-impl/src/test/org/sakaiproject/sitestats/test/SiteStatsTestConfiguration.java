@@ -166,6 +166,57 @@ public class SiteStatsTestConfiguration {
         return mock(org.sakaiproject.grading.api.GradingService.class);
     }
 
+    @Bean(name = "org.sakaiproject.api.app.messageforums.MessageForumsMessageManager")
+    public org.sakaiproject.api.app.messageforums.MessageForumsMessageManager messageForumsMessageManager() {
+        org.sakaiproject.api.app.messageforums.MessageForumsMessageManager manager =
+                mock(org.sakaiproject.api.app.messageforums.MessageForumsMessageManager.class);
+        when(manager.getAllMessagesInSite(anyString())).thenReturn(Collections.emptyList());
+        return manager;
+    }
+
+    @Bean(name = "org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager")
+    public org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager privateMessageManager() {
+        org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager manager =
+                mock(org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager.class);
+        when(manager.getMessagesByTypeByContext(anyString(), anyString())).thenReturn(Collections.emptyList());
+        return manager;
+    }
+
+    @Bean(name = "org.sakaiproject.api.app.messageforums.MessageForumsTypeManager")
+    public org.sakaiproject.api.app.messageforums.MessageForumsTypeManager messageForumsTypeManager() {
+        org.sakaiproject.api.app.messageforums.MessageForumsTypeManager manager =
+                mock(org.sakaiproject.api.app.messageforums.MessageForumsTypeManager.class);
+        when(manager.getSentPrivateMessageType()).thenReturn("sent-type");
+        when(manager.getReceivedPrivateMessageType()).thenReturn("received-type");
+        return manager;
+    }
+
+    @Bean(name = "org.sakaiproject.conversations.api.ConversationsService")
+    public org.sakaiproject.conversations.api.ConversationsService conversationsService() {
+        org.sakaiproject.conversations.api.ConversationsService service =
+                mock(org.sakaiproject.conversations.api.ConversationsService.class);
+        try {
+            when(service.getTopicsForSite(anyString())).thenReturn(Collections.emptyList());
+            when(service.getPostsByTopicId(anyString(), anyString(), any(), any(), any()))
+                    .thenReturn(Collections.emptyList());
+        } catch (org.sakaiproject.conversations.api.ConversationsPermissionsException e) {
+            throw new IllegalStateException(e);
+        }
+        return service;
+    }
+
+    @Bean(name = "org.sakaiproject.commons.api.CommonsManager")
+    public org.sakaiproject.commons.api.CommonsManager commonsManager() {
+        org.sakaiproject.commons.api.CommonsManager manager =
+                mock(org.sakaiproject.commons.api.CommonsManager.class);
+        try {
+            when(manager.getPosts(any())).thenReturn(Collections.emptyList());
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+        return manager;
+    }
+
     @Bean(name = "org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup")
     public org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup samigoLookup() {
         return samigoLookupMock;
@@ -282,6 +333,8 @@ public class SiteStatsTestConfiguration {
                 .thenReturn("Students below {0}% on graded work");
         when(resourceLoader.getString("overview_help_grades_below_threshold"))
                 .thenReturn("Students whose earned/possible points on graded, non-excused Gradebook work are below {0}%. Students without grades are excluded. Covers all time.");
+        when(resourceLoader.getString("overview_metric_communication_contributions"))
+                .thenReturn("{0} contributions");
         when(resourceLoader.getString("report_content_attachments")).thenReturn("Attachments");
         when(resourceLoader.getString("report_what_visits")).thenReturn("Visits");
         when(resourceLoader.getString("report_when_all")).thenReturn("All");

@@ -287,6 +287,17 @@
 		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
 	</bean>
 
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsCommunicationAnalytics"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsCommunicationAnalytics">
+		<property name="messageForumsMessageManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+		<property name="privateMessageManager" ref="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
+		<property name="messageForumsTypeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		<property name="conversationsService" ref="org.sakaiproject.conversations.api.ConversationsService"/>
+		<property name="commonsManager" ref="org.sakaiproject.commons.api.CommonsManager"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
 	<bean id="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"
 		  class="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.ServerWideReportViewMapper"
@@ -301,6 +312,7 @@
 		<property name="metricSupport" ref="org.sakaiproject.sitestats.impl.view.WidgetMetricSupport"/>
 		<property name="submissionsAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics"/>
 		<property name="gradesAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsGradesAnalytics"/>
+		<property name="communicationAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsCommunicationAnalytics"/>
 	</bean>
 
 	<!-- SiteStatsWidgetDefinitionSupport __________________________________________________________ -->
@@ -324,6 +336,10 @@
 		  class="org.sakaiproject.sitestats.impl.view.GradesWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.StudentGradesWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.StudentGradesWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.CommunicationWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.CommunicationWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.StudentCommunicationWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.StudentCommunicationWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"
@@ -345,6 +361,8 @@
 				<ref bean="org.sakaiproject.sitestats.impl.view.StudentSubmissionsWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.GradesWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.StudentGradesWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.CommunicationWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.StudentCommunicationWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"/>
