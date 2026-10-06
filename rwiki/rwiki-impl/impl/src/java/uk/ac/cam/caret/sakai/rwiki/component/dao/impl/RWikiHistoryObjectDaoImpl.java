@@ -251,7 +251,7 @@ public class RWikiHistoryObjectDaoImpl implements
 	@Transactional
 	public void updateObject(RWikiObject rwo)
 	{
-		sessionFactory.getCurrentSession().saveOrUpdate(rwo);
+		sessionFactory.getCurrentSession().merge(rwo);
 	}
 
 }

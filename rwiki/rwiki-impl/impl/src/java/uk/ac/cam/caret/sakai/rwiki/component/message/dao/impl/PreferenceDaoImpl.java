@@ -106,8 +106,12 @@ public class PreferenceDaoImpl implements
 	@Transactional
 	public void update(Object o)
 	{
-		sessionFactory.getCurrentSession().saveOrUpdate(o);
-
+		Session session = sessionFactory.getCurrentSession();
+		if (o instanceof PreferenceImpl pref && pref.getId() == null) {
+			session.persist(pref);
+		} else {
+			o = session.merge(o);
+		}
 	}
 
 	public List findByUser(final String user, final String context)

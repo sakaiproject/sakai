@@ -170,7 +170,7 @@ public class TriggerDaoImpl implements TriggerDao
 	@Transactional
 	public void update(Object o)
 	{
-		sessionFactory.getCurrentSession().saveOrUpdate(o);
+		sessionFactory.getCurrentSession().merge(o);
 	}
 
 }
