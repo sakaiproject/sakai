@@ -9,11 +9,9 @@
   </div>
 </script>
 <script id="pasystemBannerAlertsToggleTemplate" type="text/template">
-  <li class="pasystem-banner-alert-toggle-list-item">
-    <a href="javscript:void(0)" class="pasystem-banner-alert-toggle">
-      {{{t this "Show System Alerts"}}}
-    </a>
-  </li>
+  <button type="button" class="btn btn-secondary pasystem-banner-alert-toggle" hidden>
+    {{{t this "Show System Alerts"}}}
+  </button>
 </script>
 <script>
   if (pasystem) {

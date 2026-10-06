@@ -2,7 +2,7 @@ function PASystemBannerAlerts(json, csrf_token) {
   this.json = json;
   this.csrf_token = csrf_token;
 
-  var templateString = $("#pasystemBannerAlertsTemplate").html().trim().toString();
+  const templateString = document.getElementById("pasystemBannerAlertsTemplate").textContent.trim();
   this.bannerTemplate = TrimPath.parseTemplate(templateString, "pasystemBannerAlertsTemplate");
 
   this.setupAlertBannerToggle();
@@ -10,133 +10,98 @@ function PASystemBannerAlerts(json, csrf_token) {
   this.setupEvents();
 }
 
-
-PASystemBannerAlerts.prototype.getBannerAlerts = function() {
-  return $(".pasystem-banner-alert");
+PASystemBannerAlerts.prototype.showAllAlerts = async function() {
+  this.toggle.disabled = true;
+  try {
+    await this.clearAcknowledgements();
+    this.json.forEach(alert => { alert.dismissed = false; });
+    this.renderBannerAlerts();
+    this.container.querySelector(".pasystem-banner-alert-close")?.focus();
+  } finally {
+    this.toggle.disabled = false;
+  }
 };
 
-
-PASystemBannerAlerts.prototype.showAllAlerts = function() {
-  this.clearAcknowledgements();
-  this.renderBannerAlerts(true);
-};
-
-
-PASystemBannerAlerts.prototype.handleBannerAlertClose = function($alert) {
-  var self = this;
-
-  var alertId = $alert.attr("id");
-
-  $alert.slideUp(function() {
-    if (alertId == "tz") {
-      // dismiss for the duration of the user's session
-      document.cookie = "pasystem_timezone_warning_dismissed=true; path=/;";
-    } else {
-      self.acknowledge(alertId);
-      self.$toggle.show();
-    }
-  });
-};
-
-
-PASystemBannerAlerts.prototype.hasAlertBeenDismissed = function(alert) {
-  return alert.dismissed;
-};
-
-
-PASystemBannerAlerts.prototype.renderBannerAlerts = function(forceShowAllBanners) {
-  var self = this;
-
-  if (typeof self.$container == "undefined") {
-    self.$container = $("<div>").addClass("pasystem-banner-alerts");
-    self.$container.attr('role', 'status');
-    $(".portal-pasystem").prepend(self.$container);
+PASystemBannerAlerts.prototype.handleBannerAlertClose = async function(element) {
+  const alertId = element.id;
+  if (alertId === "tz") {
+    document.cookie = "pasystem_timezone_warning_dismissed=true; path=/;";
   } else {
-    self.$container.empty();
+    await this.acknowledge(alertId);
   }
 
-  $.each(self.json, function(i, alert) {
-    var $alert = $(self.bannerTemplate.process(alert));
-    $alert.hide();
-    self.$container.append($alert);
+  const alert = this.json.find(alert => alert.id === alertId);
+  if (alert) {
+    alert.dismissed = true;
+  }
+  element.hidden = true;
+  if (alertId !== "tz") {
+    this.toggle.hidden = false;
+    this.toggle.focus();
+  }
+};
 
-    if (forceShowAllBanners || !self.hasAlertBeenDismissed(alert)) {
-      $alert.show();
-    } else {
-      self.$toggle.show();
-    }
+PASystemBannerAlerts.prototype.renderBannerAlerts = function() {
+  if (!this.container) {
+    this.container = document.createElement("div");
+    this.container.className = "pasystem-banner-alerts";
+    this.container.setAttribute("role", "status");
+    document.querySelector(".portal-pasystem").prepend(this.container);
+  }
+  this.container.replaceChildren();
+  this.toggle.hidden = !this.json.some(alert => alert.id !== "tz" && alert.dismissed);
+
+  this.json.forEach(alert => {
+    const template = document.createElement("template");
+    template.innerHTML = this.bannerTemplate.process(alert);
+    const element = template.content.firstElementChild;
+    element.hidden = Boolean(alert.dismissed);
+    this.container.append(element);
   });
 };
 
 PASystemBannerAlerts.prototype.addBannerAlert = function(id, message, dismissible, type) {
-  this.json.push({
-    id: id,
-    message: message,
-    dismissible: dismissible,
-    type: type
-  });
-
+  this.json.push({ id, message, dismissible, type });
   this.renderBannerAlerts();
 };
 
-
 PASystemBannerAlerts.prototype.setupEvents = function() {
-  var self = this;
-
-  $(document).on("click", ".pasystem-banner-alert-close", function() {
-    self.handleBannerAlertClose($(this).closest(".pasystem-banner-alert"));
-    return false;
+  this.container.addEventListener("click", event => {
+    const close = event.target.closest(".pasystem-banner-alert-close");
+    if (close) {
+      event.preventDefault();
+      this.handleBannerAlertClose(close.closest(".pasystem-banner-alert"))
+        .catch(error => console.error("Unable to dismiss system alert", error));
+    }
   });
 };
 
+PASystemBannerAlerts.prototype.postAcknowledgement = async function(action, params = {}) {
+  const response = await fetch(`/direct/pasystem/${action}`, {
+    method: "POST",
+    body: new URLSearchParams({ ...params, sakai_csrf_token: this.csrf_token })
+  });
+  if (!response.ok || (await response.json()).status !== "SUCCESS") {
+    throw new Error(`System alert acknowledgement failed: ${action}`);
+  }
+};
 
 PASystemBannerAlerts.prototype.clearAcknowledgements = function() {
-  var self = this;
-
-  $.ajax({
-    method: 'POST',
-    url: '/direct/pasystem/clearBannerAcknowledgements',
-    data: {
-      sakai_csrf_token: this.csrf_token
-    }
-  });
+  return this.postAcknowledgement("clearBannerAcknowledgements");
 };
-
 
 PASystemBannerAlerts.prototype.acknowledge = function(uuid) {
-  var self = this;
-
-  $.ajax({
-    method: 'POST',
-    url: '/direct/pasystem/bannerAcknowledge',
-    data: {
-      uuid: uuid,
-      sakai_csrf_token: this.csrf_token
-    }
-  });
+  return this.postAcknowledgement("bannerAcknowledge", { uuid });
 };
 
-
 PASystemBannerAlerts.prototype.setupAlertBannerToggle = function() {
-  var self = this;
+  const template = document.createElement("template");
+  template.innerHTML = document.getElementById("pasystemBannerAlertsToggleTemplate").textContent.trim();
+  this.toggle = template.content.firstElementChild;
+  document.querySelector(".portal-pasystem").append(this.toggle);
 
-  self.$toggle = $($("#pasystemBannerAlertsToggleTemplate").html().trim());
-
-  if ($('.Mrphs-siteHierarchy:visible').length > 0) {
-    // Place the notification in the breadcrumbs bar where it's out of the way
-    self.$toggle.css('top', ($('.Mrphs-siteHierarchy').offset().top) + 'px');
-  }
-
-  self.$toggle.hide();
-  $("#loginLinks").prepend(self.$toggle);
-
-  self.$toggle.on("click", function(event) {
-    event.preventDefault();
-
-    self.showAllAlerts();
-    self.$toggle.slideUp();
-
-    return false;
+  this.toggle.addEventListener("click", () => {
+    this.showAllAlerts().catch(error => console.error("Unable to restore system alerts", error));
   });
 };
 
