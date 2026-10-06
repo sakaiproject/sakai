@@ -55,6 +55,12 @@ public class SakaiPersistenceUnitManager extends DefaultPersistenceUnitManager {
         pui.addProperty("hibernate.identifier_generator_strategy_provider", SakaiIdentifierGeneratorProvider.class.getName());
         AssignableUUIDGenerator.setServerConfigurationService(serverConfigurationService);
 
+        // Hibernate 6 detects the dialect from the JDBC metadata; only override it when explicitly configured
+        String dialect = serverConfigurationService.getString(AvailableSettings.DIALECT);
+        if (StringUtils.isNotBlank(dialect)) {
+            pui.getProperties().setProperty(AvailableSettings.DIALECT, dialect);
+        }
+
         postProcessPersistenceUnitInfo(pui);
 
         Boolean autoddl = serverConfigurationService.getBoolean("auto.ddl", true);
