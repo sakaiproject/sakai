@@ -20,9 +20,6 @@
   </head>
   <body>
     <div class="portletBody">
-      <script th:inline="javascript">
-          var sakaiSessionId = /*[[${sakaiSessionId}]]*/ null;
-      </script>
       <sakai-rubrics-manager th:attr="site-id=${siteId}, enable-pdf-export=${enablePdfExport} ? 'true' : null, is-super-user=${isSuperUser} ? 'true' : null"></sakai-rubrics-manager>
     </div>
   </body>

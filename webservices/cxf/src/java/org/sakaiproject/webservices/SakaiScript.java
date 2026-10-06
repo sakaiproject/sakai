@@ -3465,7 +3465,7 @@ public class SakaiScript extends AbstractWebService {
                         //check if the origin attribute, if set, is set for web services
                         String origin = (String) existingSession.getAttribute(SESSION_ATTR_NAME_ORIGIN);
                         if (StringUtils.equals(origin, SESSION_ATTR_VALUE_ORIGIN_WS)) {
-                            log.warn("WS getSessionForUser() reusing existing session for: " + eid + ", session=" + existingSession.getId());
+                            log.warn("Reusing existing web service session for user {}", eid);
                             return existingSession.getId();
                         }
                     }
@@ -3489,7 +3489,7 @@ public class SakaiScript extends AbstractWebService {
             //if wsonly, inject the origin attribute
             if (wsonly) {
                 newsession.setAttribute(SESSION_ATTR_NAME_ORIGIN, SESSION_ATTR_VALUE_ORIGIN_WS);
-                log.warn("WS getSessionForUser() set origin attribute on session: " + newsession.getId());
+                log.warn("Set web service session origin for user {}", eid);
             }
 
             //register the session with presence
@@ -3505,7 +3505,7 @@ public class SakaiScript extends AbstractWebService {
                 log.warn("WS getSessionForUser() failed. Unable to establish session for userid=" + eid + ", ipAddress=" + ipAddress);
                 throw new RuntimeException("WS failed. Unable to establish session");
             } else {
-                log.warn("WS getSessionForUser() OK. Established session for userid=" + eid + ", session=" + newsession.getId() + ", ipAddress=" + ipAddress);
+                log.warn("Established web service session for user {} ipAddress={}", eid, ipAddress);
                 return newsession.getId();
             }
         } catch (Exception e) {
@@ -3627,7 +3627,7 @@ public class SakaiScript extends AbstractWebService {
         try {
             return session.getUserId();
         } catch (Exception e) {
-            log.warn("WS getUserId() failed for session: " + sessionid);
+            log.warn("Could not retrieve user ID for web service session");
             return "";
         }
     }

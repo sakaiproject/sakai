@@ -1010,7 +1010,7 @@ public class LTI13Servlet extends HttpServlet {
 		String authorization = request.getHeader("authorization");
 
 		if (authorization == null || !authorization.startsWith("Bearer")) {
-			log.error("Invalid authorization {}", authorization);
+			log.error("Invalid authorization header");
 			LTI13Util.return400(response, "invalid_authorization");
 			return;
 		}
@@ -1018,7 +1018,7 @@ public class LTI13Servlet extends HttpServlet {
 		// https://stackoverflow.com/questions/7899525/how-to-split-a-string-by-space/7899558
 		String[] parts = authorization.split("\\s+");
 		if (parts.length != 2 || parts[1].length() < 1) {
-			log.error("Bad authorization {}", authorization);
+			log.error("Malformed authorization header");
 			LTI13Util.return400(response, "invalid_authorization");
 			return;
 		}

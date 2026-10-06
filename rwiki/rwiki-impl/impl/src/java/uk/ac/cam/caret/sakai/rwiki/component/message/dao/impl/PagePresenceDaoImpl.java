@@ -196,23 +196,20 @@ public class PagePresenceDaoImpl extends HibernateDaoSupport implements
 			{
 				if (log.isDebugEnabled())
 				{
-					log.debug("Found " + found.size() + " objects with name "
-							+ sessionid);
+					log.debug("Found {} presence records for session", found.size());
 				}
 				return null;
 			}
 			if (log.isDebugEnabled())
 			{
-				log.debug("Found " + found.size() + " objects with name "
-						+ sessionid + " returning most recent one.");
+				log.debug("Found {} presence records for session, returning most recent", found.size());
 			}
 			return (PagePresence) found.get(0);
 		}
 		finally
 		{
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer("PagePresenceDaoImpl.findBySessionId: "
-					+ sessionid, start, finish);
+			TimeLogger.printTimer("PagePresenceDaoImpl.findBySessionId", start, finish);
 		}
 	}
 
