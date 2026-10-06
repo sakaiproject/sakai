@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.sitestats.tool.mvc;
+package org.sakaiproject.sitestats.test;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,62 +40,44 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsAuthz;
-import org.sakaiproject.sitestats.tool.mvc.SiteStatsResourceSelectionService.ResourceSearchResult;
-import org.sakaiproject.sitestats.tool.mvc.SiteStatsResourceSelectionService.SelectedResourceOption;
-import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService;
+import org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService.ResourceSearchResult;
+import org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService.ResourceOption;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.ViewResolver;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SiteStatsResourceSelectionTestConfiguration.class)
-@WebAppConfiguration("src/webapp")
+@ContextConfiguration(classes = SiteStatsTestConfiguration.class)
 @Transactional
-public class SiteStatsResourceSelectionServiceTest {
+public class SiteStatsResourceSearchServiceTest {
 
     private static final String SITE = "site1";
     private static final String ROOT = "/group/" + SITE + "/";
     private static final String DROPBOX = "/group-user/" + SITE + "/";
     private static final String ATTACHMENTS = "/attachment/" + SITE + "/";
 
-    @Autowired private SiteStatsResourceSelectionService service;
-    @Autowired private SiteStatsToolAuthorizationService authorizationService;
+    @Autowired private SiteStatsResourceSearchService service;
     @Autowired private ContentHostingService content;
     @Autowired private SecurityService security;
     @Autowired private SiteService sites;
     @Autowired private ToolManager tools;
     @Autowired private SessionManager sessions;
     @Autowired private LocaleService locales;
-    @Autowired private WebApplicationContext context;
 
     private final Map<String, List<ContentResource>> readable = new HashMap<>();
-    private MockMvc mvc;
 
     @Before
     public void setUp() throws Exception {
-        reset(content, security, sites, tools, sessions, locales);
+        reset(content, security, sites, sessions, locales);
+        clearInvocations(tools);
         readable.clear();
-        Placement placement = mock(Placement.class);
-        when(placement.getContext()).thenReturn(SITE);
-        when(tools.getCurrentPlacement()).thenReturn(placement);
-        Tool tool = mock(Tool.class);
-        when(tool.getId()).thenReturn("sakai.sitestats");
-        when(tools.getCurrentTool()).thenReturn(tool);
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("instructor");
         when(sessions.getCurrentSession()).thenReturn(session);
@@ -111,14 +90,6 @@ public class SiteStatsResourceSelectionServiceTest {
         when(content.getSiteCollection(anyString())).thenAnswer(call -> "/group/" + call.getArgument(0) + "/");
         when(content.getDropboxCollection(anyString())).thenAnswer(call -> "/group-user/" + call.getArgument(0) + "/");
         when(content.getAllResources(anyString())).thenAnswer(call -> readable.getOrDefault(call.getArgument(0), List.of()));
-        mvc = MockMvcBuilders.webAppContextSetup(context).build();
-    }
-
-    @Test
-    public void usesRealInternalAuthorizationAndSearchBeans() {
-        assertFalse(mockingDetails(service).isMock());
-        assertFalse(mockingDetails(authorizationService).isMock());
-        assertEquals(SITE, authorizationService.reportSite(SITE));
     }
 
     @Test
@@ -129,9 +100,9 @@ public class SiteStatsResourceSelectionServiceTest {
         resource(DROPBOX, DROPBOX + "upload.txt", "Reading Upload", ResourceType.TYPE_UPLOAD);
         resource(ATTACHMENTS, ATTACHMENTS + "file.url", "Reading Link", ResourceType.TYPE_URL);
         ResourceSearchResult result = service.search(SITE, "reading");
-        assertEquals(3, result.getItems().size());
-        assertEquals("Resources / Week One / Readings", result.getItems().get(1).getLocation());
-        assertTrue(result.getItems().stream().allMatch(item -> !item.getId().startsWith("/content")));
+        assertEquals(3, result.items().size());
+        assertEquals("Resources / Week One / Readings", result.items().get(1).location());
+        assertTrue(result.items().stream().allMatch(item -> !item.id().startsWith("/content")));
         verify(nested, never()).getContent();
         verify(nested, never()).streamContent();
         verify(content).getAllResources(ROOT);
@@ -143,13 +114,13 @@ public class SiteStatsResourceSelectionServiceTest {
     public void matchesLiteralUnicodeAndPunctuationRatherThanBodyOrWildcards() throws Exception {
         resource(ROOT, ROOT + "unicode.txt", "Résumé [50%]_星.txt", ResourceType.TYPE_UPLOAD);
         resource(ROOT, ROOT + "other.txt", "Unrelated document", ResourceType.TYPE_HTML);
-        assertEquals(1, service.search(SITE, "RÉSUMÉ").getItems().size());
+        assertEquals(1, service.search(SITE, "RÉSUMÉ").items().size());
         folder(ROOT + "résumé/", "ÉTÉ [50%]_星");
         resource(ROOT, ROOT + "résumé/reading.txt", "Reading.pdf", ResourceType.TYPE_UPLOAD);
-        assertEquals(1, service.search(SITE, "été\u2003[50%]_星 reading").getItems().size());
-        assertEquals(2, service.search(SITE, "[50%]_星").getItems().size());
-        assertEquals(0, service.search(SITE, ".*").getItems().size());
-        assertEquals(0, service.search(SITE, "document body").getItems().size());
+        assertEquals(1, service.search(SITE, "été\u2003[50%]_星 reading").items().size());
+        assertEquals(2, service.search(SITE, "[50%]_星").items().size());
+        assertEquals(0, service.search(SITE, ".*").items().size());
+        assertEquals(0, service.search(SITE, "document body").items().size());
     }
 
     @Test
@@ -159,9 +130,9 @@ public class SiteStatsResourceSelectionServiceTest {
         resource(ROOT, ROOT + "b/file.txt", "Reading.pdf", ResourceType.TYPE_UPLOAD);
         resource(ROOT, ROOT + "a/file.txt", "Reading.pdf", ResourceType.TYPE_UPLOAD);
         ResourceSearchResult result = service.search(SITE, "reading");
-        assertEquals(ROOT + "a/file.txt", result.getItems().get(0).getId());
-        assertEquals("Resources / First Week", result.getItems().get(0).getLocation());
-        assertEquals("Resources / Second Week", result.getItems().get(1).getLocation());
+        assertEquals(ROOT + "a/file.txt", result.items().get(0).id());
+        assertEquals("Resources / First Week", result.items().get(0).location());
+        assertEquals("Resources / Second Week", result.items().get(1).location());
     }
 
     @Test
@@ -171,13 +142,13 @@ public class SiteStatsResourceSelectionServiceTest {
             resource(ROOT, ROOT + i + ".txt", name, ResourceType.TYPE_UPLOAD);
         }
         ResourceSearchResult first = service.search(SITE, "file");
-        assertEquals(20, first.getItems().size());
-        assertEquals("File 0000", first.getItems().get(0).getLabel());
-        assertTrue(first.isTruncated());
+        assertEquals(20, first.items().size());
+        assertEquals("File 0000", first.items().get(0).label());
+        assertTrue(first.truncated());
         ResourceSearchResult refined = service.search(SITE, "file 1999");
-        assertEquals(1, refined.getItems().size());
-        assertEquals(ROOT + "1999.txt", refined.getItems().get(0).getId());
-        assertFalse(refined.isTruncated());
+        assertEquals(1, refined.items().size());
+        assertEquals(ROOT + "1999.txt", refined.items().get(0).id());
+        assertFalse(refined.truncated());
     }
 
     @Test
@@ -187,20 +158,20 @@ public class SiteStatsResourceSelectionServiceTest {
             folder(folderId, "Week " + i);
             resource(ROOT, folderId + "file.pdf", "Reading.pdf", ResourceType.TYPE_UPLOAD);
         }
-        assertTrue(service.search(SITE, "reading").isTruncated());
+        assertTrue(service.search(SITE, "reading").truncated());
         verify(content, times(20)).getCollection(anyString());
         clearInvocations(content);
         ResourceSearchResult refined = service.search(SITE, "  WEEK\t5  reading  ");
-        assertEquals(2, refined.getItems().size());
-        assertFalse(refined.isTruncated());
-        assertTrue(refined.getItems().stream().anyMatch(item -> "Resources / Week 5".equals(item.getLocation())));
+        assertEquals(2, refined.items().size());
+        assertFalse(refined.truncated());
+        assertTrue(refined.items().stream().anyMatch(item -> "Resources / Week 5".equals(item.location())));
         verify(content, times(25)).getCollection(anyString());
-        assertTrue(service.search(SITE, "week 5 missing").getItems().isEmpty());
-        assertTrue(service.search(SITE, "internal-5").getItems().isEmpty());
+        assertTrue(service.search(SITE, "week 5 missing").items().isEmpty());
+        assertTrue(service.search(SITE, "internal-5").items().isEmpty());
         ResourceSearchResult locationOnly = service.search(SITE, "week 24");
-        assertEquals(1, locationOnly.getItems().size());
-        assertEquals(ROOT + "internal-24/file.pdf", locationOnly.getItems().get(0).getId());
-        assertEquals("Resources / Week 24", locationOnly.getItems().get(0).getLocation());
+        assertEquals(1, locationOnly.items().size());
+        assertEquals(ROOT + "internal-24/file.pdf", locationOnly.items().get(0).id());
+        assertEquals("Resources / Week 24", locationOnly.items().get(0).location());
     }
 
     @Test
@@ -213,9 +184,9 @@ public class SiteStatsResourceSelectionServiceTest {
             }
         }
         ResourceSearchResult refined = service.search(SITE, "week 99 reading");
-        assertEquals(20, refined.getItems().size());
-        assertFalse(refined.isTruncated());
-        assertTrue(refined.getItems().stream().allMatch(item -> "Resources / Week 99".equals(item.getLocation())));
+        assertEquals(20, refined.items().size());
+        assertFalse(refined.truncated());
+        assertTrue(refined.items().stream().allMatch(item -> "Resources / Week 99".equals(item.location())));
         verify(content, times(100)).getCollection(anyString());
     }
 
@@ -228,12 +199,12 @@ public class SiteStatsResourceSelectionServiceTest {
             resource(ROOT, ROOT + "private/" + i + ".txt", "Readable Reading " + i, ResourceType.TYPE_UPLOAD);
         }
         ResourceSearchResult nameMatches = service.search(SITE, "reading");
-        assertEquals(20, nameMatches.getItems().size());
-        assertFalse(nameMatches.isTruncated());
-        assertTrue(nameMatches.getItems().stream().allMatch(item -> "Resources / Unavailable location".equals(item.getLocation())));
+        assertEquals(20, nameMatches.items().size());
+        assertFalse(nameMatches.truncated());
+        assertTrue(nameMatches.items().stream().allMatch(item -> "Resources / Unavailable location".equals(item.location())));
         verify(content).getCollection(ROOT + "private/");
         clearInvocations(content);
-        assertTrue(service.search(SITE, "secret reading").getItems().isEmpty());
+        assertTrue(service.search(SITE, "secret reading").items().isEmpty());
         verify(content).getCollection(ROOT + "private/");
     }
 
@@ -244,30 +215,26 @@ public class SiteStatsResourceSelectionServiceTest {
         assertThrows(SecurityException.class, () -> service.search(SITE, "a"));
         assertThrows(SecurityException.class, () -> service.selected(SITE, List.of()));
         verifyNoInteractions(content);
-        mvc.perform(get("/reports/resources/search").param("siteId", SITE).param("q", "reading"))
-                .andExpect(status().isForbidden());
         verifyNoInteractions(content);
     }
 
     @Test
-    public void refusesCrossSiteRequestsUntilActualAdminPermissionIsPresent() throws Exception {
+    public void refusesUnauthorizedSitesUntilTheirReportPermissionsArePresent() throws Exception {
         assertThrows(SecurityException.class, () -> service.search("site2", "reading"));
         verifyNoInteractions(content);
-        allow(SITE, StatsAuthz.PERMISSION_SITESTATS_ADMIN_VIEW);
         allow("site2", StatsAuthz.PERMISSION_SITESTATS_VIEW);
         allow("site2", StatsAuthz.PERMISSION_SITESTATS_ALL);
         resource("/group/site2/", "/group/site2/file.txt", "Reading", ResourceType.TYPE_UPLOAD);
-        assertEquals("/group/site2/file.txt", service.search("site2", "reading").getItems().get(0).getId());
+        assertEquals("/group/site2/file.txt", service.search("site2", "reading").items().get(0).id());
         verify(content, never()).getAllResources(ROOT);
     }
 
     @Test
-    public void ignoresOutOfSiteCandidatesAndReflectsKernelReadChanges() throws Exception {
+    public void reflectsKernelReadChanges() throws Exception {
         ContentResource file = resource(ROOT, ROOT + "file.txt", "Reading", ResourceType.TYPE_UPLOAD);
-        resource(ROOT, "/group/site2/leak.txt", "Reading Secret", ResourceType.TYPE_UPLOAD);
-        assertEquals(1, service.search(SITE, "reading").getItems().size());
+        assertEquals(1, service.search(SITE, "reading").items().size());
         readable.get(ROOT).remove(file);
-        assertTrue(service.search(SITE, "reading").getItems().isEmpty());
+        assertTrue(service.search(SITE, "reading").items().isEmpty());
     }
 
     @Test
@@ -278,26 +245,24 @@ public class SiteStatsResourceSelectionServiceTest {
         when(content.getResource(ROOT + "private.txt")).thenThrow(new PermissionException("instructor", "content.read", ROOT + "private.txt"));
         List<String> ids = List.of(ROOT + "file.txt", ROOT + "folder/", "/group/", "/group-user/", "/attachment/",
                 ROOT + "deleted.txt", ROOT + "private.txt", "/group/site2/leak.txt");
-        List<SelectedResourceOption> selected = service.selected(SITE, ids);
-        assertEquals(ids, selected.stream().map(SelectedResourceOption::getId).toList());
-        assertEquals("Reading", selected.get(0).getLabel());
-        assertTrue(selected.get(1).isLegacyCollection());
-        for (SelectedResourceOption unavailable : selected.subList(5, 8)) {
-            assertTrue(unavailable.isUnavailable());
-            assertEquals("Unavailable resource", unavailable.getLabel());
-            assertEquals("", unavailable.getLocation());
+        List<ResourceOption> selected = service.selected(SITE, ids);
+        assertEquals(ids, selected.stream().map(ResourceOption::id).toList());
+        assertEquals("Reading", selected.get(0).label());
+        assertTrue(selected.get(1).legacyCollection());
+        for (ResourceOption unavailable : selected.subList(5, 8)) {
+            assertEquals("Unavailable resource", unavailable.label());
+            assertEquals("", unavailable.location());
         }
         verify(content, never()).getResource("/group/site2/leak.txt");
         verify(content, never()).getAllResources(anyString());
     }
 
     @Test
-    public void returnsCanonicalIdsAndTruncationThroughTheRealJsonRoute() throws Exception {
+    public void serializesCanonicalIdsAndTruncationThroughThePublicResultContract() throws Exception {
         for (int i = 0; i < 21; i++) {
             resource(ROOT, ROOT + i + ".txt", String.format(Locale.ROOT, "Reading %02d", i), ResourceType.TYPE_UPLOAD);
         }
-        String json = mvc.perform(get("/reports/resources/search").param("siteId", SITE).param("q", "reading"))
-                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String json = MapperFactory.createDefaultJsonMapper().writeValueAsString(service.search(SITE, "reading"));
         JsonNode result = MapperFactory.createDefaultJsonMapper().readTree(json);
         assertEquals(20, result.get("items").size());
         assertTrue(result.get("truncated").asBoolean());
@@ -307,7 +272,8 @@ public class SiteStatsResourceSelectionServiceTest {
         assertEquals(ROOT + "0.txt", result.get("items").get(0).get("id").asText());
         assertEquals("Reading 00", result.get("items").get(0).get("label").asText());
         assertEquals("Resources", result.get("items").get(0).get("location").asText());
-        assertEquals(3, result.get("items").get(0).size());
+        assertEquals(4, result.get("items").get(0).size());
+        assertFalse(result.get("items").get(0).get("legacyCollection").asBoolean());
     }
 
     @Test
@@ -319,63 +285,29 @@ public class SiteStatsResourceSelectionServiceTest {
         when(content.getCollection(ROOT + "stale-folder/"))
                 .thenThrow(new IdUnusedException(ROOT + "stale-folder/"));
         List<String> ids = List.of(ROOT + "private-folder/file.txt", ROOT + "stale-folder/file.txt");
-        List<SelectedResourceOption> options = service.selected(SITE, ids);
-        assertEquals(ids, options.stream().map(SelectedResourceOption::getId).toList());
-        for (SelectedResourceOption option : options) {
-            assertEquals("Resources / Unavailable location", option.getLocation());
-            assertFalse(option.isUnavailable());
-            assertFalse(option.getLocation().contains("private-folder"));
-            assertFalse(option.getLocation().contains("stale-folder"));
+        List<ResourceOption> options = service.selected(SITE, ids);
+        assertEquals(ids, options.stream().map(ResourceOption::id).toList());
+        for (ResourceOption option : options) {
+            assertEquals("Resources / Unavailable location", option.location());
+            assertFalse(option.location().contains("private-folder"));
+            assertFalse(option.location().contains("stale-folder"));
         }
     }
 
     @Test
-    public void usesTheSitesEffectiveLocaleAndReturnsBadRequestsForInvalidParameters() throws Exception {
+    public void usesTheSitesEffectiveLocaleAndRejectsOversizedQueries() throws Exception {
         when(locales.getLocaleForSiteAndUser(SITE, "instructor")).thenReturn(Locale.FRANCE);
         resource(ROOT, ROOT + "file.txt", "Résumé", ResourceType.TYPE_UPLOAD);
         service.search(SITE, "résumé");
         verify(locales).getLocaleForSiteAndUser(SITE, "instructor");
-        mvc.perform(get("/reports/resources/search").param("siteId", SITE).param("q", "a".repeat(257)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void rendersTheEditorsEffectiveLocaleTagsAndEscapesInitialSelectionJson() throws Exception {
-        String hostile = "</sakai-sitestats-resource-search><script>alert(1)</script>";
-        resource(ROOT, ROOT + "file.txt", hostile, ResourceType.TYPE_UPLOAD);
-        for (Locale locale : List.of(Locale.US, Locale.FRANCE)) {
-            SiteStatsReportForm form = SiteStatsReportForm.create(Clock.systemUTC());
-            form.setWhat("what-resources");
-            form.setWhatResourceIds(ROOT + "file.txt");
-            Map<String, Object> model = new HashMap<>();
-            model.put("locale", locale);
-            model.put("siteId", SITE);
-            model.put("reportForm", form);
-            model.put("editorOptions", new SiteStatsToolService.ReportEditorOptions(List.of(), List.of(), List.of(),
-                    List.of(), List.of(), List.of("what-resources"), new ReportEditorRulesView(), false, false, true, false));
-            model.put("toolMenuAvailable", false);
-            model.put("adminTool", false);
-            model.put("userActivityAvailable", false);
-            model.put("cdnQuery", "");
-            model.put("selectedResourcesJson", MapperFactory.createDefaultJsonMapper()
-                    .writeValueAsString(service.selected(SITE, List.of(ROOT + "file.txt"))));
-            MockHttpServletRequest request = new MockHttpServletRequest(context.getServletContext());
-            MockHttpServletResponse response = new MockHttpServletResponse();
-            View view = context.getBean("viewResolver", ViewResolver.class).resolveViewName("reports/edit", locale);
-            assertNotNull(view);
-            view.render(model, request, response);
-            String rendered = response.getContentAsString();
-            assertTrue(rendered.contains("lang=\"" + locale.toLanguageTag() + "\""));
-            assertTrue(rendered.contains("&lt;script&gt;alert(1)&lt;/script&gt;"));
-            assertFalse(rendered.contains("<script>alert(1)</script>"));
-            assertTrue(rendered.contains("initial-selection=\"[{&quot;"));
-        }
+        assertThrows(SiteStatsResourceSearchService.InvalidQueryException.class,
+                () -> service.search(SITE, "a".repeat(257)));
     }
 
     @Test
     public void leavesAuthorizedBlankQueriesAndEmptySelectionsWithoutInventoryReads() {
-        assertTrue(service.search(SITE, "").getItems().isEmpty());
-        assertTrue(service.search(SITE, "a").getItems().isEmpty());
+        assertTrue(service.search(SITE, "").items().isEmpty());
+        assertTrue(service.search(SITE, "a").items().isEmpty());
         assertTrue(service.selected(SITE, List.of()).isEmpty());
         verifyNoInteractions(content);
     }

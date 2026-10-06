@@ -2,12 +2,16 @@ import { css, html, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 
+const SELECTED_PAGE_SIZE = 50;
+
 export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
+
+  static formAssociated = true;
 
   static properties = {
     endpoint: { type: String },
     initialSelection: { type: Array, attribute: "initial-selection" },
-    disabled: { type: Boolean, reflect: true },
+    _disabled: { state: true },
     _query: { state: true },
     _items: { state: true },
     _selected: { state: true },
@@ -52,7 +56,8 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
     super();
     this.loadTranslations({ bundle: "sitestats", cache: false });
     this.initialSelection = [];
-    this.disabled = false;
+    this._internals = this.attachInternals();
+    this._disabled = false;
     this._query = "";
     this._items = [];
     this._selected = [];
@@ -60,24 +65,48 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
     this._selectedPage = 0;
     this._state = "guidance";
     this._announcement = "";
-    this._requestVersion = 0;
   }
 
-  updated(changed) {
+  willUpdate(changed) {
 
     if (changed.has("initialSelection")) {
       this._selected = (this.initialSelection || []).map(resource => ({ ...resource }));
       this._selectedPage = 0;
+      this._syncFormValue();
     }
-    if (changed.has("disabled")) {
-      this._cancelSearch();
-      if (this.disabled) {
-        this._items = [];
-        this._state = "guidance";
-      } else if (this._query.trim().length >= 2) {
-        this._search();
-      }
-    }
+  }
+
+  get value() {
+
+    return this._selected.map(resource => resource.id).join("\n");
+  }
+
+  get _canSearch() {
+
+    return [ ...this._query.trim() ].length >= 2;
+  }
+
+  formDisabledCallback(disabled) {
+
+    this._disabled = disabled;
+    this._cancelSearch();
+    this._items = [];
+    this._state = "guidance";
+    if (!disabled && this._canSearch) this._search();
+  }
+
+  formResetCallback() {
+
+    this._selected = (this.initialSelection || []).map(resource => ({ ...resource }));
+    this._selectedPage = 0;
+    this._syncFormValue();
+  }
+
+  formStateRestoreCallback(state) {
+
+    this._selected = JSON.parse(state);
+    this._selectedPage = 0;
+    this._syncFormValue();
   }
 
   disconnectedCallback() {
@@ -91,7 +120,6 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
 
     clearTimeout(this._searchTimer);
     this._abortController?.abort();
-    this._requestVersion++;
   }
 
   _queryChanged(event) {
@@ -101,7 +129,7 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
     this._items = [];
     this._truncated = false;
     this._announcement = "";
-    if (this.disabled || [ ...this._query.trim() ].length < 2) {
+    if (!this._canSearch) {
       this._state = "guidance";
       return;
     }
@@ -111,9 +139,8 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
 
   async _search() {
 
-    if (this.disabled || !this.endpoint || [ ...this._query.trim() ].length < 2) return;
+    if (!this.endpoint || !this._canSearch) return;
     this._cancelSearch();
-    const version = this._requestVersion;
     const controller = new AbortController();
     this._abortController = controller;
     this._state = "searching";
@@ -128,12 +155,12 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
       });
       if (!response.ok) throw new Error("Resource search failed");
       const result = await response.json();
-      if (version !== this._requestVersion || !this.isConnected) return;
-      this._items = result.items.slice(0, 20);
+      if (controller.signal.aborted || !this.isConnected) return;
+      this._items = result.items;
       this._truncated = result.truncated;
       this._state = this._items.length ? "results" : "empty";
     } catch (error) {
-      if (version === this._requestVersion && error.name !== "AbortError") {
+      if (!controller.signal.aborted && this.isConnected && error.name !== "AbortError") {
         this._items = [];
         this._truncated = false;
         this._state = "error";
@@ -141,32 +168,27 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
     }
   }
 
-  _selectionChanged() {
+  _syncFormValue() {
 
-    this.dispatchEvent(new CustomEvent("resource-selection-changed", {
-      bubbles: true,
-      composed: true,
-      detail: { ids: this._selected.map(resource => resource.id) },
-    }));
+    this._internals.setFormValue(this.value, JSON.stringify(this._selected));
   }
 
   async _add(resource) {
 
-    if (this.disabled || this._selected.some(selected => selected.id === resource.id)) return;
+    if (this._selected.some(selected => selected.id === resource.id)) return;
     this._selected = [ ...this._selected, { ...resource } ];
     this._announcement = this.tr("resource_search_added", [ resource.label ]);
-    this._selectionChanged();
+    this._syncFormValue();
     await this.updateComplete;
     this.renderRoot.querySelector("#resource-query")?.focus();
   }
 
   async _remove(resource, index) {
 
-    if (this.disabled) return;
     this._selected = this._selected.filter(selected => selected.id !== resource.id);
-    this._selectedPage = Math.min(this._selectedPage, Math.max(0, Math.ceil(this._selected.length / 50) - 1));
+    this._selectedPage = Math.min(this._selectedPage, Math.max(0, Math.ceil(this._selected.length / SELECTED_PAGE_SIZE) - 1));
     this._announcement = this.tr("resource_search_removed", [ resource.label ]);
-    this._selectionChanged();
+    this._syncFormValue();
     await this.updateComplete;
     const buttons = this.renderRoot.querySelectorAll("#selected-resources button");
     (buttons[Math.min(index, buttons.length - 1)] || this.renderRoot.querySelector("#resource-query"))?.focus();
@@ -189,9 +211,9 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
 
     if (!this._i18n) return nothing;
     const selectedIds = new Set(this._selected.map(resource => resource.id));
-    const selected = this._selected.slice(this._selectedPage * 50, (this._selectedPage + 1) * 50);
+    const selected = this._selected.slice(this._selectedPage * SELECTED_PAGE_SIZE, (this._selectedPage + 1) * SELECTED_PAGE_SIZE);
     return html`
-      <fieldset ?disabled=${this.disabled}>
+      <fieldset ?disabled=${this._disabled}>
         <label for="resource-query">${this._i18n.resource_search_label}</label>
         <input id="resource-query" class="form-control" type="search" maxlength="256"
                aria-describedby="resource-search-status" autocomplete="off" .value=${this._query}
@@ -231,11 +253,11 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
                       @click=${() => this._remove(resource, index)}>${this._i18n.resource_search_remove}</button>
             </li>`)}
         </ul>
-        ${this._selected.length > 50 ? html`
+        ${this._selected.length > SELECTED_PAGE_SIZE ? html`
           <div class="pages">
             <button class="btn btn-secondary" type="button" ?disabled=${this._selectedPage === 0}
                     @click=${() => this._selectedPage--}>${this._i18n.resource_search_previous_selected}</button>
-            <button class="btn btn-secondary" type="button" ?disabled=${(this._selectedPage + 1) * 50 >= this._selected.length}
+            <button class="btn btn-secondary" type="button" ?disabled=${(this._selectedPage + 1) * SELECTED_PAGE_SIZE >= this._selected.length}
                     @click=${() => this._selectedPage++}>${this._i18n.resource_search_more_selected}</button>
           </div>` : nothing}
       </fieldset>

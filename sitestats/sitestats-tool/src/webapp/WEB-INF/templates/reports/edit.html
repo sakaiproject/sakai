@@ -80,12 +80,11 @@
                    th:field="*{whatLimitedResourceIds}" aria-controls="resource-selection"/>
             <label class="form-check-label" for="limit-resources" th:text="#{report_what_sel_resources}"></label>
           </div>
-          <input id="resource-ids" type="hidden" th:field="*{whatResourceIds}"/>
-          <div id="resource-selection" class="mt-2" hidden>
-            <sakai-sitestats-resource-search id="resource-search" disabled
+          <fieldset id="resource-selection" class="mt-2 border-0 p-0" hidden disabled>
+            <sakai-sitestats-resource-search id="resource-search" name="whatResourceIds"
                 th:attr="endpoint=@{/reports/resources/search(siteId=${siteId})},initial-selection=${selectedResourcesJson}">
             </sakai-sitestats-resource-search>
-          </div>
+          </fieldset>
         </div>
       </div>
     </fieldset>

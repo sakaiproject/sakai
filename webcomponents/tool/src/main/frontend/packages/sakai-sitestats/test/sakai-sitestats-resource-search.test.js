@@ -18,8 +18,9 @@ const selected = el => el.renderRoot.querySelectorAll("#selected-resources li");
 const button = (el, label) => [ ...el.renderRoot.querySelectorAll("button") ]
   .find(candidate => candidate.textContent.trim() === label);
 const mount = async (initialSelection = []) => {
-  const el = await fixture(html`<sakai-sitestats-resource-search
-    endpoint=${endpoint} .initialSelection=${initialSelection}></sakai-sitestats-resource-search>`);
+  const form = await fixture(html`<form><fieldset><sakai-sitestats-resource-search name="whatResourceIds"
+    endpoint=${endpoint} .initialSelection=${initialSelection}></sakai-sitestats-resource-search></fieldset></form>`);
+  const el = form.querySelector("sakai-sitestats-resource-search");
   await waitUntil(() => el.renderRoot.querySelector("input"));
   await elementUpdated(el);
   return el;
@@ -74,29 +75,26 @@ describe("sakai-sitestats-resource-search", () => {
     expect(fetchMock.callHistory.calls().length).to.equal(2);
   });
 
-  it("keeps selections across queries, prevents duplicates, and emits a copied full list", async () => {
+  it("submits selections natively across queries and prevents duplicates", async () => {
     searchRoute("reading", response([ resource(1), resource(2) ]));
     searchRoute("notes", response([ resource(3, "Notes") ]));
     const el = await mount();
-    const events = [];
-    el.parentElement.addEventListener("resource-selection-changed", event => events.push(event));
+    const value = () => new FormData(el.closest("form")).get("whatResourceIds");
     await query(el, "reading");
     await waitUntil(() => rows(el).length === 2);
     rows(el)[0].querySelector("button").click();
     await elementUpdated(el);
     expect(rows(el)[0].querySelector("button").disabled).to.be.true;
-    expect(events[0].composed).to.be.true;
-    expect(events[0].detail.ids).to.deep.equal([ resource(1).id ]);
-    events[0].detail.ids.push("untrusted-mutation");
+    expect(value()).to.equal(resource(1).id);
     expect(el.renderRoot.activeElement).to.equal(el.renderRoot.querySelector("input"));
     await query(el, "notes");
     await waitUntil(() => rows(el).length === 1);
     rows(el)[0].querySelector("button").click();
     await elementUpdated(el);
-    expect(events[1].detail.ids).to.deep.equal([ resource(1).id, resource(3).id ]);
+    expect(value()).to.equal([ resource(1).id, resource(3).id ].join("\n"));
     selected(el)[0].querySelector("button").click();
     await elementUpdated(el);
-    expect(events[2].detail.ids).to.deep.equal([ resource(3).id ]);
+    expect(value()).to.equal(resource(3).id);
     await query(el, "");
     expect(rows(el)).to.have.length(0);
     expect(selected(el)).to.have.length(1);
@@ -173,16 +171,16 @@ describe("sakai-sitestats-resource-search", () => {
 
   it("retains all 2,000 selected IDs while bounding selection and result rows", async () => {
     const saved = Array.from({ length: 2000 }, (_, n) => resource(n));
-    searchRoute("reading", response(saved));
+    searchRoute("reading", response(saved.slice(0, 20), true));
     const el = await mount(saved);
     expect(selected(el)).to.have.length(50);
-    let ids;
-    el.addEventListener("resource-selection-changed", event => { ids = event.detail.ids; });
+
     button(el, "Next selected resources").click();
     await elementUpdated(el);
     expect(selected(el)[0].textContent).to.contain("Reading 50");
     selected(el)[0].querySelector("button").click();
     await elementUpdated(el);
+    const ids = new FormData(el.closest("form")).get("whatResourceIds").split("\n");
     expect(ids).to.have.length(1999);
     expect(ids).to.include(resource(1999).id);
     expect(ids).not.to.include(resource(50).id);
@@ -233,13 +231,13 @@ describe("sakai-sitestats-resource-search", () => {
       await waitUntil(() => getComputedStyle(input).borderTopColor === theme.focus);
       expect(getComputedStyle(input).outlineColor).to.equal(theme.focus);
       expect(getComputedStyle(input).boxShadow).to.equal("none");
-      el.disabled = true;
+      el.closest("fieldset").disabled = true;
       await elementUpdated(el);
       expect(input.matches(":disabled")).to.be.true;
       expect(getComputedStyle(input).backgroundColor).to.equal(theme.disabledBackground);
       expect(getComputedStyle(input).color).to.equal(theme.disabledText);
       await waitUntil(() => getComputedStyle(input).borderTopColor === theme.border);
-      el.disabled = false;
+      el.closest("fieldset").disabled = false;
       await elementUpdated(el);
     }
   });
@@ -247,7 +245,7 @@ describe("sakai-sitestats-resource-search", () => {
   it("disables all actions and cancels search while retaining selection", async () => {
     const el = await mount([ resource(1) ]);
     await query(el, "reading");
-    el.disabled = true;
+    el.closest("fieldset").disabled = true;
     await elementUpdated(el);
     await pause(330);
     expect(fetchMock.callHistory.calls().length).to.equal(1);
@@ -255,9 +253,28 @@ describe("sakai-sitestats-resource-search", () => {
     expect(selected(el)).to.have.length(1);
   });
 
+  it("omits disabled values and restores the initial selection on form reset", async () => {
+    searchRoute("reading", response([ resource(2) ]));
+    const el = await mount([ resource(1) ]);
+    const form = el.closest("form");
+    await query(el, "reading");
+    await waitUntil(() => rows(el).length === 1);
+    rows(el)[0].querySelector("button").click();
+    await elementUpdated(el);
+    expect(new FormData(form).get("whatResourceIds")).to.equal([ resource(1).id, resource(2).id ].join("\n"));
+    el.closest("fieldset").disabled = true;
+    await elementUpdated(el);
+    expect(new FormData(form).has("whatResourceIds")).to.be.false;
+    el.closest("fieldset").disabled = false;
+    form.reset();
+    await elementUpdated(el);
+    expect(new FormData(form).get("whatResourceIds")).to.equal(resource(1).id);
+    expect(selected(el)).to.have.length(1);
+  });
+
   it("does not submit a surrounding form and supports the server's effective locale", async () => {
     document.documentElement.lang = "fr-FR";
-    const form = await fixture(html`<form><sakai-sitestats-resource-search
+    const form = await fixture(html`<form><sakai-sitestats-resource-search name="whatResourceIds"
       endpoint=${endpoint} .initialSelection=${[ resource(1) ]}></sakai-sitestats-resource-search></form>`);
     const el = form.querySelector("sakai-sitestats-resource-search");
     await waitUntil(() => el.renderRoot.querySelector("input"));

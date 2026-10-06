@@ -45,6 +45,8 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.db.api.SqlService;
@@ -82,6 +84,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.BeansException;
@@ -112,6 +115,7 @@ public class SiteStatsTestConfiguration {
 
     static {
         System.setProperty("sakai.tests.enabled", "true");
+        ComponentManager.testingMode = true;
     }
 
     private final org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup samigoLookupMock =
@@ -149,6 +153,20 @@ public class SiteStatsTestConfiguration {
         HibernateTransactionManager txManager = new HibernateTransactionManager();
         txManager.setSessionFactory(sessionFactory);
         return txManager;
+    }
+
+    @Bean(name = "org.sakaiproject.thread_local.api.ThreadLocalManager")
+    public ThreadLocalManager threadLocalManager() {
+        ThreadLocalManager manager = mock(ThreadLocalManager.class);
+        ComponentManager.loadComponent(ThreadLocalManager.class, manager);
+        return manager;
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public LocaleService localeService() {
+        LocaleService locales = mock(LocaleService.class);
+        when(locales.getLocaleForSiteAndUser(anyString(), anyString())).thenReturn(java.util.Locale.US);
+        return locales;
     }
 
     @Bean(name = "org.sakaiproject.alias.api.AliasService")
@@ -399,6 +417,10 @@ public class SiteStatsTestConfiguration {
         when(chatTool.getId()).thenReturn(FakeData.TOOL_CHAT);
         Tool resourcesTool = mock(Tool.class);
         when(resourcesTool.getId()).thenReturn(StatsManager.RESOURCES_TOOLID);
+        when(resourcesTool.getTitle()).thenReturn("Resources");
+        Tool dropboxTool = mock(Tool.class);
+        when(dropboxTool.getTitle()).thenReturn("Drop Box");
+        when(toolManager.getTool(StatsManager.DROPBOX_TOOLID)).thenReturn(dropboxTool);
         Set<Tool> tools = new HashSet<>(Arrays.asList(chatTool, resourcesTool));
         when(toolManager.findTools(null, null)).thenReturn(tools);
         when(toolManager.findTools(Collections.EMPTY_SET, null)).thenReturn(tools);

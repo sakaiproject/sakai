@@ -38,11 +38,6 @@ if (reportEditor) {
   const userSearchResults = control("who-user-search-results");
   const userSearchStatus = control("who-user-search-status");
   const selectedUsers = control("who-users");
-  const resourceSearch = control("resource-search");
-  resourceSearch?.addEventListener("resource-selection-changed", event => {
-    control("resource-ids").value = event.detail.ids.join("\n");
-  });
-
   let userSearchTimer;
   let userSearchRequest;
 
@@ -145,8 +140,7 @@ if (reportEditor) {
     setVisible("resource-options", resources);
     setEnabled(control("resource-action"), resources && control("limit-resource-action")?.checked);
     const resourceSelectionActive = resources && control("limit-resources")?.checked;
-    setEnabled(control("resource-ids"), resourceSelectionActive);
-    setEnabled(resourceSearch, resourceSelectionActive);
+    setEnabled(control("resource-selection"), resourceSelectionActive);
     setVisible("resource-selection", resourceSelectionActive);
     updateTotals();
     updateChartSources();

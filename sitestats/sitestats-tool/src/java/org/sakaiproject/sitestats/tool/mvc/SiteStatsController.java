@@ -21,11 +21,10 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
+import org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsServerWideReportIds;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolExportService.ExportResult;
@@ -58,7 +57,7 @@ public class SiteStatsController {
     private final SiteStatsToolService toolService;
     private final SiteStatsToolExportService exportService;
     private final MessageSource messageSource;
-    private final SiteStatsResourceSelectionService resourceSelectionService;
+    private final SiteStatsResourceSearchService resourceSearchService;
 
     @GetMapping({"/", "/index.html"})
     public String index(RedirectAttributes redirectAttributes) {
@@ -102,9 +101,9 @@ public class SiteStatsController {
 
     @GetMapping(value = "/reports/resources/search", produces = "application/json")
     @ResponseBody
-    public SiteStatsResourceSelectionService.ResourceSearchResult reportResources(
+    public SiteStatsResourceSearchService.ResourceSearchResult reportResources(
             @RequestParam(required = false) String siteId, @RequestParam(defaultValue = "") String q) {
-        return resourceSelectionService.search(siteId, q);
+        return resourceSearchService.search(toolService.reportSite(siteId), q);
     }
 
     @GetMapping("/reports/{reportId}/edit")
@@ -265,6 +264,11 @@ public class SiteStatsController {
         return "admin/server-wide";
     }
 
+    @ExceptionHandler(SiteStatsResourceSearchService.InvalidQueryException.class)
+    public ResponseEntity<Void> invalidResourceQuery() {
+        return ResponseEntity.badRequest().build();
+    }
+
     @ExceptionHandler(SecurityException.class)
     public ResponseEntity<Void> forbidden() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -282,12 +286,7 @@ public class SiteStatsController {
         toolService.prepareReportForm(form, editorOptions);
         model.addAttribute("reportForm", form);
         model.addAttribute("editorOptions", editorOptions);
-        try {
-            model.addAttribute("selectedResourcesJson", MapperFactory.createDefaultJsonMapper().writeValueAsString(
-                    resourceSelectionService.selectedFromForm(siteId, form.getWhatResourceIds())));
-        } catch (JsonProcessingException failure) {
-            throw new IllegalStateException("Unable to serialize selected report resources", failure);
-        }
+        model.addAttribute("selectedResourcesJson", toolService.selectedResourcesJson(siteId, form));
     }
 
     private void commonModel(Model model, String siteId, String activeMenu) {
