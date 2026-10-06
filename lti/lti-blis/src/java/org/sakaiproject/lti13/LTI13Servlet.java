@@ -948,7 +948,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, true) ) {
 				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
@@ -1215,6 +1215,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		Site site = null;
 		LtiToolBean tool = null;
+		boolean sendEmptyListInsteadOf403 = false;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
@@ -1253,9 +1254,8 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
-				// checkToolHasPlacements() already logs and writes the 403 response.
-				return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, false) ) {
+				sendEmptyListInsteadOf403 = true;
 			}
 
 		}
@@ -1305,7 +1305,7 @@ public class LTI13Servlet extends HttpServlet {
 				memberMap.put(member.getUserId(), member);
 			}
 
-			List<User> users = UserDirectoryService.getUsers(userIds);
+			List<User> users = sendEmptyListInsteadOf403 ? new ArrayList<>() : UserDirectoryService.getUsers(userIds);
 
 			String roleMapProp = tool.rolemap;
 			Map<String, String> toolRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
@@ -1519,7 +1519,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Don't let a tool access groups unless it is placed *somewhere* in this site
-		if ( ! checkToolHasPlacements(sat.tool_id, site_id, response) ) {
+		if ( ! checkToolHasPlacements(sat.tool_id, site_id, response, true) ) {
 			// checkToolHasPlacements() already logs and writes the 403 response.
 			return;
 		}
@@ -1764,14 +1764,16 @@ public class LTI13Servlet extends HttpServlet {
 		return userExistsInSite;
 	}
 
-	protected static boolean checkToolHasPlacements(Long toolId, String siteId, HttpServletResponse response)
+	protected static boolean checkToolHasPlacements(Long toolId, String siteId, HttpServletResponse response, boolean send403)
 	{
 		List<LtiContentBean> contents =
 			ltiService.getContentsForToolAndSite(toolId, siteId);
 
 		if (contents.isEmpty()) {
 			log.warn("Tool id={} has no placements in site={}", toolId, siteId);
-			LTI13Util.return403(response, "Tool not placed in site");
+			if (send403) {
+			    LTI13Util.return403(response, "Tool not placed in site");
+			}
 			return false;
 		}
 		return true;
@@ -1958,7 +1960,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, true) ) {
 				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
@@ -2066,7 +2068,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, true) ) {
 				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
@@ -2150,6 +2152,7 @@ public class LTI13Servlet extends HttpServlet {
 		Site site = null;
 		LtiToolBean tool = null;
 		LtiContentBean content = null;
+		boolean sendEmptyListInsteadOf403 = false;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
@@ -2188,9 +2191,8 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
-				// checkToolHasPlacements() already logs and writes the 403 response.
-				return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, false) ) {
+				sendEmptyListInsteadOf403 = true;
 			}
 
 		}
@@ -2217,8 +2219,9 @@ public class LTI13Servlet extends HttpServlet {
 			log.debug("filter={}", JacksonUtil.prettyPrint(filter));
 		}
 		boolean gradebookReadonlyView = isGradebookReadonlyView(tool);
-		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter,
-				gradebookReadonlyView);
+		List<SakaiLineItem> toolItems = (sendEmptyListInsteadOf403)
+		    ? new ArrayList<>()
+		    : LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter, gradebookReadonlyView);
 
 		response.setContentType(SakaiLineItem.CONTENT_TYPE_CONTAINER);
 		PrintWriter out = response.getWriter();
@@ -2315,7 +2318,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, true) ) {
 				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
@@ -2563,7 +2566,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, true) ) {
 				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
