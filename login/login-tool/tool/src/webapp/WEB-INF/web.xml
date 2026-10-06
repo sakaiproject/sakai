@@ -27,15 +27,6 @@
          <filter-name>springSecurityFilterChain</filter-name>
          <filter-class>org.sakaiproject.login.springframework.SafeDelegatingFilterProxy</filter-class>
      </filter>
-
-     <filter-mapping>
-         <filter-name>springSecurityFilterChain</filter-name>
-         <url-pattern>/container/*</url-pattern>
-         <dispatcher>REQUEST</dispatcher>
-         <dispatcher>FORWARD</dispatcher>
-         <dispatcher>INCLUDE</dispatcher>
-     </filter-mapping>
-
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>sakai.login</servlet-name>
@@ -46,15 +37,18 @@
 
     <filter-mapping>
         <filter-name>sakai.request.container</filter-name>
-        <servlet-name>sakai.login.container</servlet-name>
+        <url-pattern>/container/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
-    
-    <filter-mapping>
-        <filter-name>sakai.request.container</filter-name>
-        <servlet-name>sakai.logout.container</servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
+
+    <!-- Establish Sakai request/session context before authentication and logout. -->
+     <filter-mapping>
+         <filter-name>springSecurityFilterChain</filter-name>
+         <url-pattern>/container/*</url-pattern>
+         <dispatcher>REQUEST</dispatcher>
+         <dispatcher>FORWARD</dispatcher>
+         <dispatcher>INCLUDE</dispatcher>
+     </filter-mapping>
 
     <servlet>
         <servlet-name>sakai.login</servlet-name>

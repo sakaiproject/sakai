@@ -55,20 +55,35 @@
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
-	<dependency>
-	    <groupId>org.springframework.security.extensions</groupId>
-	    <artifactId>spring-security-saml2-core</artifactId>
-	    <version>1.0.10.RELEASE</version>
-        <exclusions>
-            <exclusion>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>commons-httpclient</groupId>
-                <artifactId>commons-httpclient</artifactId>
-            </exclusion>
-        </exclusions>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-saml2-service-provider</artifactId>
+      <version>${sakai.spring.security.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.opensaml</groupId>
+          <artifactId>opensaml-saml-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.opensaml</groupId>
+          <artifactId>opensaml-saml-impl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.opensaml</groupId>
+      <artifactId>opensaml-saml-api</artifactId>
+      <version>${sakai.opensaml.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opensaml</groupId>
+      <artifactId>opensaml-saml-impl</artifactId>
+      <version>${sakai.opensaml.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
     </dependency>
       <dependency>
           <groupId>org.apereo.cas.client</groupId>
@@ -134,6 +149,11 @@
       </dependency>
   </dependencies>
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources>
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>

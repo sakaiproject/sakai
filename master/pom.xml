@@ -57,6 +57,7 @@
     <sakai.spring.data.jpa.version>3.5.13</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.12</sakai.spring.data.rest.version>
     <sakai.spring.security.version>6.5.11</sakai.spring.security.version>
+    <sakai.opensaml.version>5.2.3</sakai.opensaml.version>
     <sakai.spring.hateoas.version>3.1.1</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>3.0.0</sakai.spring.plugin.version>
     <sakai.tika.version>3.3.2</sakai.tika.version>
