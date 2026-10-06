@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'pasystem-icons';
-  src:url('../fonts/pasystem-icons.eot?-wa2nby');
-  src:url('../fonts/pasystem-icons.eot?#iefix-wa2nby') format('embedded-opentype'),
-    url('../fonts/pasystem-icons.woff?-wa2nby') format('woff'),
-    url('../fonts/pasystem-icons.ttf?-wa2nby') format('truetype'),
-    url('../fonts/pasystem-icons.svg?-wa2nby#pasystem-icons') format('svg');
+  src:url('/pasystem-tool/fonts/pasystem-icons.eot?-wa2nby');
+  src:url('/pasystem-tool/fonts/pasystem-icons.eot?#iefix-wa2nby') format('embedded-opentype'),
+    url('/pasystem-tool/fonts/pasystem-icons.woff?-wa2nby') format('woff'),
+    url('/pasystem-tool/fonts/pasystem-icons.ttf?-wa2nby') format('truetype'),
+    url('/pasystem-tool/fonts/pasystem-icons.svg?-wa2nby#pasystem-icons') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -41,7 +41,7 @@
 }
 .pasystem-banner-alert.pasystem-banner-high {
   background-color: var(--errorBanner-bgcolor);
-  color: var(--errorBanner-color); 
+  color: var(--errorBanner-color);
 }
 .pasystem-banner-alert.pasystem-banner-high:before {
   content: '\f06a';
@@ -72,7 +72,7 @@
   margin: 0.5rem;
 }
 
-.featherlight .featherlight-content {
+#pasystem-popup-wrapper .featherlight-content {
     min-width: 450px;
     max-width: 782px;
     max-height: 85%;
@@ -81,7 +81,7 @@
     background-color: var(--sakai-background-color-1);
 }
 
-.featherlight .featherlight-close {
+#pasystem-popup-wrapper .featherlight-close {
     right: 5px;
     top: 5px;
 }
