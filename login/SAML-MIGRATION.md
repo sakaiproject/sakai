@@ -3,18 +3,20 @@
 The login tool now uses `spring-security-saml2-service-provider` at the same
 version as Spring Security, with OpenSAML 5. The old
 `spring-security-saml2-core` extension and its OpenSAML 2 helpers are removed.
-Existing extension XML files in `sakai.home` must be replaced before enabling
-SAML on Tomcat 10.
+Remove old extension XML imports and bean definitions from custom contexts in
+`sakai.home` before enabling SAML on Tomcat 10.
 
 ## Configure the service provider
 
-Enable exactly one sample in the login tool's `applicationContext.xml`:
-`xlogin-context.saml.xml`, or `xlogin-context.saml.adfs-prod.xml`. The ADFS
-sample retains the `saml-adfs-prod` Spring profile.
+SAML is enabled entirely through `sakai.properties`. No Spring profile or XML
+edits are required. Remove old SAML imports and extension bean definitions from
+any custom login context in `sakai.home`; the bundled application context
+registers the Java configuration automatically.
 
 Set these values in `sakai.properties`:
 
 ```properties
+saml.enabled=true
 container.login=true
 saml.idp.metadata=file:/opt/tomcat/sakai/idp-metadata.xml
 saml.entity-id=https://sakai.example.edu/existing-sp-entity-id
@@ -43,8 +45,13 @@ The public authentication endpoints remain:
 
 ## Map the Sakai username
 
-The standard sample uses NameID. The ADFS sample uses the UPN claim
-`http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn`.
+NameID is used by default. For ADFS UPN mapping, set:
+
+```properties
+saml.principal.attribute=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn
+```
+
+There is no ADFS-specific profile or configuration file.
 
 To replace the old `EppnSamlFilter`, set:
 
@@ -59,7 +66,8 @@ does not establish a Sakai login unless Sakai accepts it. Spring retains the
 original NameID and session indexes for SAML logout.
 
 `saml.max-authentication-age` retains the authentication age limit in seconds:
-7200 for the standard sample, 86400 for ADFS. Spring's signature, issuer,
+7200 by default. To retain the previous ADFS sample's 24-hour limit, set
+`saml.max-authentication-age=86400`. Spring's signature, issuer,
 destination, audience, subject confirmation, and time validation remain enabled.
 
 ## Configure signing and single logout
@@ -87,9 +95,13 @@ migrated to the corresponding Spring Security service-provider APIs. Consult
 
 ## Validation
 
-`SamlLoginTest` loads the production Spring XML and filter chain and sends real
+`SamlLoginTest` loads the production login application context and filter chain and sends real
 signed messages. It covers Sakai session creation, attribute mapping, signature
 and audience rejection, authentication age, metadata, and local and single logout.
+
+`SamlConfigurationTest` checks property activation through the production login
+context: disabled SAML needs no metadata, and enabled SAML fails startup without
+trusted metadata.
 
 A Playwright SAML flow is not practical in the current local E2E setup: it has no
 configured test IdP or SP trust relationship. Before deployment, run browser login

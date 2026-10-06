@@ -31,7 +31,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.converter.RsaKeyConverters;
 
@@ -41,7 +40,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Configuration
-@ImportResource("file:src/webapp/WEB-INF/xlogin-context.saml.xml")
 public class SamlTestConfiguration {
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService configuration() throws Exception {
@@ -72,6 +70,7 @@ public class SamlTestConfiguration {
         when(configuration.getString(anyString(), anyString())).thenAnswer(invocation ->
                 properties.getOrDefault(invocation.getArgument(0), invocation.getArgument(1)));
         when(configuration.getInt(anyString(), anyInt())).thenAnswer(invocation -> invocation.getArgument(1));
+        when(configuration.getBoolean("saml.enabled", false)).thenReturn(true);
         when(configuration.getServerUrl()).thenReturn("https://sakai.example.test");
         when(configuration.getPortalUrl()).thenReturn("https://sakai.example.test/portal");
         return configuration;

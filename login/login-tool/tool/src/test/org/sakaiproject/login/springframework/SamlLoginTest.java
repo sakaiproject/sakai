@@ -62,6 +62,7 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.w3c.dom.Document;
@@ -71,10 +72,13 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/** Exercise the production XML and filter chain with real signed SAML messages. */
+/** Exercise the production login context and filter chain with real signed SAML messages. */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = SamlTestConfiguration.class)
+@ContextHierarchy({
+    @ContextConfiguration(classes = SamlTestConfiguration.class),
+    @ContextConfiguration(locations = "file:src/webapp/WEB-INF/applicationContext.xml")
+})
 public class SamlLoginTest {
     private static final String ACS = "https://sakai.example.test/sakai-login-tool/container/saml/SSO";
     @Autowired private FilterChainProxy springSecurityFilterChain;

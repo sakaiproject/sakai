@@ -22,7 +22,6 @@ import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.Collection;
 
-import lombok.Setter;
 import org.opensaml.saml.saml2.core.AuthnStatement;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -30,6 +29,10 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -59,17 +62,33 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.sakaiproject.login.filter.SakaiLogoutSamlFilter;
 
-/** Spring Security's Jakarta SAML support, enabled by the SAML context XML. */
+/** Spring Security's Jakarta SAML support, enabled through sakai.properties. */
 @Configuration
 @EnableWebSecurity
+@Conditional(SakaiSamlSecurityConfiguration.SamlEnabledCondition.class)
 public class SakaiSamlSecurityConfiguration {
 
-    @Setter private ServerConfigurationService serverConfigurationService;
-    @Setter private AuthenticationManager authenticationManager;
-    @Setter private UsageSessionService usageSessionService;
-    @Setter private SessionManager sessionManager;
-    @Setter private String defaultPrincipalAttribute = "";
-    @Setter private int defaultMaxAuthenticationAge = 7200;
+    private final ServerConfigurationService serverConfigurationService;
+    private final AuthenticationManager authenticationManager;
+    private final UsageSessionService usageSessionService;
+    private final SessionManager sessionManager;
+
+    public SakaiSamlSecurityConfiguration(ServerConfigurationService serverConfigurationService,
+            AuthenticationManager authenticationManager, UsageSessionService usageSessionService,
+            SessionManager sessionManager) {
+        this.serverConfigurationService = serverConfigurationService;
+        this.authenticationManager = authenticationManager;
+        this.usageSessionService = usageSessionService;
+        this.sessionManager = sessionManager;
+    }
+
+    public static class SamlEnabledCondition implements Condition {
+        @Override
+        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            return context.getBeanFactory().getBean(ServerConfigurationService.class)
+                    .getBoolean("saml.enabled", false);
+        }
+    }
 
     @Bean
     public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() throws Exception {
@@ -141,7 +160,7 @@ public class SakaiSamlSecurityConfiguration {
                     token.getResponse().getAssertions().get(0).getSubject().getNameID());
             return new Saml2Authentication(principal, authentication.getSaml2Response(), authentication.getAuthorities());
         });
-        int maxAge = serverConfigurationService.getInt("saml.max-authentication-age", defaultMaxAuthenticationAge);
+        int maxAge = serverConfigurationService.getInt("saml.max-authentication-age", 7200);
         Assert.isTrue(maxAge > 0, "saml.max-authentication-age must be positive");
         provider.setAssertionValidator(token -> {
             Saml2ResponseValidatorResult result = validator.convert(token);
@@ -163,7 +182,7 @@ public class SakaiSamlSecurityConfiguration {
     @Bean
     public SakaiSamlAuthenticationSuccessHandler samlAuthenticationSuccessHandler() {
         return new SakaiSamlAuthenticationSuccessHandler(authenticationManager, usageSessionService, sessionManager,
-                serverConfigurationService, serverConfigurationService.getString("saml.principal.attribute", defaultPrincipalAttribute));
+                serverConfigurationService, serverConfigurationService.getString("saml.principal.attribute", ""));
     }
 
     @Bean
