@@ -18,6 +18,7 @@ package org.sakaiproject.tool.assessment.services;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -165,40 +166,7 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
 
     @Test
     public void oneRestrictedGroupBlocksAllTargets() {
-        Group first = mock(Group.class);
-        when(first.getId()).thenReturn("group-one");
-        when(first.getTitle()).thenReturn("One");
-        when(first.getContainingSite()).thenReturn(site);
-        when(siteService.findGroup("group-one")).thenReturn(first);
-        Group second = mock(Group.class);
-        when(second.getId()).thenReturn("group-two");
-        when(second.getTitle()).thenReturn("Two");
-        when(second.getContainingSite()).thenReturn(site);
-        when(siteService.findGroup("group-two")).thenReturn(second);
-        Group third = mock(Group.class);
-        when(third.getId()).thenReturn("group-three");
-        when(third.getTitle()).thenReturn("Three");
-        when(third.getContainingSite()).thenReturn(site);
-        when(siteService.findGroup("group-three")).thenReturn(third);
-        when(site.getGroups()).thenReturn(List.of(first, second, third));
-        when(site.getGroup("group-one")).thenReturn(first);
-        when(site.getGroup("group-two")).thenReturn(second);
-        when(site.getGroup("group-three")).thenReturn(third);
-        ownerAuthorization("group-one", "TAKE_PUBLISHED_ASSESSMENT", assessment.getId());
-        ownerAuthorization("group-two", "TAKE_PUBLISHED_ASSESSMENT", assessment.getId());
-        ownerAuthorization("group-three", "TAKE_PUBLISHED_ASSESSMENT", assessment.getId());
-        PublishedAssessmentData data = data();
-        data.getAssessmentAccessControl().setReleaseTo(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
-        data.getAssessmentMetaDataSet().add(new PublishedMetaData(data, AssessmentMetaDataIfc.CATEGORY_LIST, "10,20,-1"));
-        sessionFactory.getCurrentSession().flush();
-        sessionFactory.getCurrentSession().clear();
-        assessment = reload();
-        when(gradebookService.isGradebookGroupEnabled(siteId)).thenReturn(true);
-        when(gradebookService.buildCategoryGradebookMap(anyList(), eq("10,20,-1"), eq(siteId)))
-                .thenReturn(Map.of("group-one", "10", "group-two", "20", "group-three", "-1"));
-        when(gradebookService.getCategoryDefinitions("group-one", siteId)).thenReturn(List.of(category(10L, 0, 0, 0, false)));
-        when(gradebookService.getCategoryDefinitions("group-two", siteId)).thenReturn(List.of(category(20L, 0, 0, 0, false)));
-        when(gradebookService.getCategoryDefinitions("group-three", siteId)).thenReturn(Collections.emptyList());
+        configureGroupExport();
         assertTrue(service.isTotalScoreCancellationAllowed(assessment));
         when(gradebookService.getCategoryDefinitions("group-two", siteId)).thenReturn(List.of(category(20L, 0, 0, 2, false)));
         assertRejectedWithoutChanges();
@@ -321,6 +289,68 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
         assertEquals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), data().getEvaluationModel().getToGradeBook());
     }
 
+    @Test
+    public void singleExportMapsConfiguredAndUncategorizedItemsForCreateAndUpdate() {
+        for (Long categoryId : Arrays.asList(10L, null, -1L)) {
+            PublishedAssessmentData current = data();
+            current.setCategoryId(categoryId);
+            when(gradebookService.isExternalAssignmentDefined(siteId, assessment.getId())).thenReturn(false);
+            clearInvocations(gradebookService);
+            service.updateGradebook(current);
+            verify(gradebookService).addExternalAssessment(eq(siteId), eq(siteId), eq(assessment.getId()),
+                    isNull(), eq(current.getTitle()), eq(3D), isNull(), eq("sakai.samigo"), isNull(), eq(false),
+                    eq(categoryId == null || categoryId == -1L ? null : categoryId), anyString());
+            verify(gradebookService, never()).updateExternalAssessment(anyString(), anyString(), any(), any(),
+                    anyString(), any(), any(), any(), any());
+
+            when(gradebookService.isExternalAssignmentDefined(siteId, assessment.getId())).thenReturn(true);
+            clearInvocations(gradebookService);
+            service.updateGradebook(current);
+            verify(gradebookService).updateExternalAssessment(eq(siteId), eq(assessment.getId()), isNull(),
+                    isNull(), eq(current.getTitle()), eq(categoryId == null ? -1L : categoryId), eq(3D), isNull(), isNull());
+            verify(gradebookService, never()).addExternalAssessment(anyString(), anyString(), anyString(), any(),
+                    anyString(), any(), any(), anyString(), any(), any(), any(), anyString());
+        }
+    }
+
+    @Test
+    public void groupExportUsesEditedMetadataAndUpdatesAllSelectedTargetsAfterCreation() {
+        configureGroupExport();
+        PublishedAssessmentData current = data();
+        PublishedMetaData selection = (PublishedMetaData) current.getAssessmentMetaDataSet().stream()
+                .filter(metadata -> AssessmentMetaDataIfc.CATEGORY_LIST.equals(((PublishedMetaData) metadata).getLabel()))
+                .findFirst().get();
+        selection.setEntry("30,20,-1");
+        assertEquals("10,20,-1", current.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CATEGORY_LIST));
+        when(gradebookService.buildCategoryGradebookMap(anyList(), eq("30,20,-1"), eq(siteId)))
+                .thenReturn(Map.of("group-one", "30", "group-two", "20", "group-three", "-1"));
+        when(gradebookService.isExternalAssignmentDefined("group-one", assessment.getId())).thenReturn(true);
+
+        service.updateGradebook(current);
+
+        verify(gradebookService).buildCategoryGradebookMap(argThat(groups ->
+                new HashSet<>(groups).equals(Set.of("group-one", "group-two", "group-three"))), eq("30,20,-1"), eq(siteId));
+        verify(gradebookService).addExternalAssessment(eq("group-two"), eq(siteId), eq(assessment.getId()),
+                isNull(), eq(current.getTitle()), eq(3D), isNull(), eq("sakai.samigo"), isNull(), eq(false), eq(20L), anyString());
+        verify(gradebookService).addExternalAssessment(eq("group-three"), eq(siteId), eq(assessment.getId()),
+                isNull(), eq(current.getTitle()), eq(3D), isNull(), eq("sakai.samigo"), isNull(), eq(false), isNull(), anyString());
+        verify(gradebookService).updateExternalAssessment(eq("group-one"), eq(assessment.getId()), isNull(),
+                isNull(), eq(current.getTitle()), eq(30L), eq(3D), isNull(), isNull());
+        for (String created : List.of("group-two", "group-three")) {
+            verify(gradebookService).updateExternalAssessment(eq(created), eq(assessment.getId()), isNull(),
+                    isNull(), eq(current.getTitle()), isNull(), eq(3D), isNull(), isNull());
+        }
+    }
+
+    @Test
+    public void missingConfiguredGroupCategoryCannotBecomeUncategorizedPermission() {
+        configureGroupExport();
+        when(gradebookService.getCategoryDefinitions("group-two", siteId)).thenReturn(Collections.emptyList());
+        when(gradebookService.buildCategoryGradebookMap(anyList(), eq("10,20,-1"), eq(siteId)))
+                .thenReturn(Map.of("group-one", "10", "group-two", "-1", "group-three", "-1"));
+        assertRejectedWithoutChanges();
+    }
+
     private void assertRejectedWithoutChanges() {
         List<Object> before = snapshot();
         assertThrows(TotalScoreCancellationException.class,
@@ -380,6 +410,43 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
         definition.setDropKeepEnabled(dropHighest > 0 || dropLowest > 0 || keepHighest > 0);
         definition.setEqualWeight(equalWeight);
         return definition;
+    }
+
+    private void configureGroupExport() {
+        Group first = mock(Group.class);
+        when(first.getId()).thenReturn("group-one");
+        when(first.getTitle()).thenReturn("One");
+        when(first.getContainingSite()).thenReturn(site);
+        when(siteService.findGroup("group-one")).thenReturn(first);
+        Group second = mock(Group.class);
+        when(second.getId()).thenReturn("group-two");
+        when(second.getTitle()).thenReturn("Two");
+        when(second.getContainingSite()).thenReturn(site);
+        when(siteService.findGroup("group-two")).thenReturn(second);
+        Group third = mock(Group.class);
+        when(third.getId()).thenReturn("group-three");
+        when(third.getTitle()).thenReturn("Three");
+        when(third.getContainingSite()).thenReturn(site);
+        when(siteService.findGroup("group-three")).thenReturn(third);
+        when(site.getGroups()).thenReturn(List.of(first, second, third));
+        when(site.getGroup("group-one")).thenReturn(first);
+        when(site.getGroup("group-two")).thenReturn(second);
+        when(site.getGroup("group-three")).thenReturn(third);
+        ownerAuthorization("group-one", "TAKE_PUBLISHED_ASSESSMENT", assessment.getId());
+        ownerAuthorization("group-two", "TAKE_PUBLISHED_ASSESSMENT", assessment.getId());
+        ownerAuthorization("group-three", "TAKE_PUBLISHED_ASSESSMENT", assessment.getId());
+        PublishedAssessmentData data = data();
+        data.getAssessmentAccessControl().setReleaseTo(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
+        data.getAssessmentMetaDataSet().add(new PublishedMetaData(data, AssessmentMetaDataIfc.CATEGORY_LIST, "10,20,-1"));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assessment = reload();
+        when(gradebookService.isGradebookGroupEnabled(siteId)).thenReturn(true);
+        when(gradebookService.buildCategoryGradebookMap(anyList(), eq("10,20,-1"), eq(siteId)))
+                .thenReturn(Map.of("group-one", "10", "group-two", "20", "group-three", "-1"));
+        when(gradebookService.getCategoryDefinitions("group-one", siteId)).thenReturn(List.of(category(10L, 0, 0, 0, false)));
+        when(gradebookService.getCategoryDefinitions("group-two", siteId)).thenReturn(List.of(category(20L, 0, 0, 0, false)));
+        when(gradebookService.getCategoryDefinitions("group-three", siteId)).thenReturn(Collections.emptyList());
     }
 
     private void ownerAuthorization(String agent, String function, String id) {

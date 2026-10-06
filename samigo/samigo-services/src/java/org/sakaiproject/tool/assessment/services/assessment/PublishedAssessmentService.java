@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.grading.api.model.Gradebook;
@@ -662,6 +661,16 @@ public class PublishedAssessmentService extends AssessmentService{
     return ownerSiteId;
   }
 
+  private Map<String, String> defaultExportTargets(PublishedAssessmentIfc assessment, String siteId,
+      List<String> gradebookUids, boolean groupGradebook, org.sakaiproject.grading.api.GradingService gradebookService) {
+    if (!groupGradebook) {
+      return Collections.singletonMap(siteId, Objects.toString(assessment.getCategoryId(), "-1"));
+    }
+    Object categories = assessment.getAssessmentMetaDataMap().get(AssessmentMetaDataIfc.CATEGORY_LIST);
+    String selection = categories == null || "-1".equals(categories.toString()) ? "" : categories.toString();
+    return gradebookService.buildCategoryGradebookMap(gradebookUids, selection, siteId);
+  }
+
   /** Reads current and configured export categories without changing assessment or Gradebook state. */
   public boolean isTotalScoreCancellationAllowed(PublishedAssessmentIfc assessment) {
     String ownerSiteId = cancellationOwnerSite(assessment);
@@ -679,87 +688,69 @@ public class PublishedAssessmentService extends AssessmentService{
       return true;
     }
     try {
-      Site ownerSite = SiteService.getSite(ownerSiteId);
-      org.sakaiproject.grading.api.GradingService gradebookService =
-          (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance()
-              .getBean("org.sakaiproject.grading.api.GradingService");
-      String externalId = assessment.getPublishedAssessmentId().toString();
-      Map<String, String> configuredTargets = new LinkedHashMap<>();
-      Set<Long> configuredCategories = new HashSet<>();
-      if (gradebookService.isGradebookGroupEnabled(ownerSiteId)) {
-        List<String> groups = new ArrayList<>(persistedAssessment.getReleaseToGroups().keySet());
-        if (groups.isEmpty() || groups.stream().anyMatch(uid -> ownerSite.getGroup(uid) == null)) {
-          throw new IllegalStateException("The assessment's group Gradebook targets are unavailable");
-        }
-        String categories = persistedData.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CATEGORY_LIST);
-        if (StringUtils.isNotBlank(categories) && !"-1".equals(categories)) {
-          for (String category : categories.split(",")) {
-            Long categoryId = Long.valueOf(category);
-            if (categoryId != -1L) {
-              configuredCategories.add(categoryId);
-            }
-          }
-        }
-        configuredTargets.putAll(gradebookService.buildCategoryGradebookMap(groups,
-            StringUtils.isBlank(categories) || "-1".equals(categories) ? "" : categories, ownerSiteId));
-        if (!configuredTargets.keySet().equals(new HashSet<>(groups))) {
-          throw new IllegalStateException("The assessment's group Gradebook mapping is incomplete");
-        }
-      } else {
-        Long categoryId = persistedData.getCategoryId();
-        configuredTargets.put(ownerSiteId, categoryId == null ? "-1" : categoryId.toString());
-        if (categoryId != null && categoryId != -1L) {
-          configuredCategories.add(categoryId);
-        }
-      }
-
-      Set<String> linkedTargets = new HashSet<>(gradebookService.getGradebookUidByExternalId(externalId));
-      linkedTargets.removeIf(uid -> !ownerSiteId.equals(uid) && ownerSite.getGroup(uid) == null);
-      Set<String> targets = new LinkedHashSet<>(configuredTargets.keySet());
-      targets.addAll(linkedTargets);
-      Set<Long> foundConfiguredCategories = new HashSet<>();
-      boolean allowed = true;
-      for (String gradebookUid : targets) {
-        List<CategoryDefinition> categories = gradebookService.getCategoryDefinitions(gradebookUid, ownerSiteId);
-        if (categories == null) {
-          throw new IllegalStateException("Gradebook category definitions are unavailable for " + gradebookUid);
-        }
-        Map<Long, CategoryDefinition> categoryMap = categories.stream()
-            .collect(Collectors.toMap(CategoryDefinition::getId, category -> category));
-        foundConfiguredCategories.addAll(categoryMap.keySet());
-        Set<Long> categoryIds = new HashSet<>();
-        String configured = configuredTargets.get(gradebookUid);
-        if (configured != null && !"-1".equals(configured)) {
-          categoryIds.add(Long.valueOf(configured));
-        }
-        if (linkedTargets.contains(gradebookUid)
-            || gradebookService.isExternalAssignmentDefined(gradebookUid, externalId)) {
-          Assignment linked = gradebookService.getExternalAssignment(gradebookUid, externalId);
-          if (linked == null) {
-            throw new IllegalStateException("The linked Gradebook item is unavailable for " + gradebookUid);
-          }
-          if (linked.getCategoryId() != null && linked.getCategoryId() != -1L) {
-            categoryIds.add(linked.getCategoryId());
-          }
-        }
-        for (Long categoryId : categoryIds) {
-          CategoryDefinition category = categoryMap.get(categoryId);
-          if (category == null) {
-            throw new IllegalStateException("The expected Gradebook category " + categoryId + " is unavailable");
-          }
-          if (category.getDropKeepEnabled() && !category.getEqualWeight()) {
-            allowed = false;
-          }
-        }
-      }
-      if (!foundConfiguredCategories.containsAll(configuredCategories)) {
-        throw new IllegalStateException("The configured Gradebook categories are unavailable");
-      }
-      return allowed;
+      return cancellationGradebookCategories(persistedData, persistedAssessment, ownerSiteId).stream()
+          .noneMatch(category -> category.getDropKeepEnabled() && !category.getEqualWeight());
     } catch (IdUnusedException | RuntimeException e) {
       throw new TotalScoreCancellationException(false,
           "Unable to verify Gradebook categories for assessment " + assessment.getPublishedAssessmentId(), e);
     }
+  }
+
+  private List<CategoryDefinition> cancellationGradebookCategories(PublishedAssessmentIfc persistedData,
+      PublishedAssessmentFacade persistedAssessment, String ownerSiteId) throws IdUnusedException {
+    Site ownerSite = SiteService.getSite(ownerSiteId);
+    org.sakaiproject.grading.api.GradingService gradebookService =
+        (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance()
+            .getBean("org.sakaiproject.grading.api.GradingService");
+    String externalId = persistedData.getPublishedAssessmentId().toString();
+    boolean groupGradebook = gradebookService.isGradebookGroupEnabled(ownerSiteId);
+    List<String> gradebookUids = groupGradebook
+        ? new ArrayList<>(persistedAssessment.getReleaseToGroups().keySet()) : Collections.singletonList(ownerSiteId);
+    if (groupGradebook && (gradebookUids.isEmpty() || gradebookUids.stream().anyMatch(uid -> ownerSite.getGroup(uid) == null))) {
+      throw new IllegalStateException("The assessment's group Gradebook targets are unavailable");
+    }
+    Map<String, String> configuredTargets = defaultExportTargets(persistedData, ownerSiteId,
+        gradebookUids, groupGradebook, gradebookService);
+    Object selectedCategories = groupGradebook
+        ? persistedData.getAssessmentMetaDataMap().get(AssessmentMetaDataIfc.CATEGORY_LIST) : persistedData.getCategoryId();
+    Set<Long> missingConfiguredCategories = new HashSet<>();
+    if (selectedCategories != null && StringUtils.isNotBlank(selectedCategories.toString())) {
+      missingConfiguredCategories = Arrays.stream(selectedCategories.toString().split(","))
+          .map(Long::valueOf).filter(categoryId -> categoryId != -1L).collect(Collectors.toSet());
+    }
+
+    Set<String> linkedTargets = new HashSet<>(gradebookService.getGradebookUidByExternalId(externalId));
+    linkedTargets.removeIf(uid -> !ownerSiteId.equals(uid) && ownerSite.getGroup(uid) == null);
+    Set<String> targets = new LinkedHashSet<>(configuredTargets.keySet());
+    targets.addAll(linkedTargets);
+    List<CategoryDefinition> affectedCategories = new ArrayList<>();
+    for (String gradebookUid : targets) {
+      Set<Long> categoryIds = new HashSet<>();
+      String configured = configuredTargets.get(gradebookUid);
+      if (configured != null && !"-1".equals(configured)) {
+        categoryIds.add(Long.valueOf(configured));
+      }
+      if (linkedTargets.contains(gradebookUid)
+          || gradebookService.isExternalAssignmentDefined(gradebookUid, externalId)) {
+        Long linkedCategory = gradebookService.getExternalAssignment(gradebookUid, externalId).getCategoryId();
+        if (linkedCategory != null && linkedCategory != -1L) {
+          categoryIds.add(linkedCategory);
+        }
+      }
+      for (CategoryDefinition category : gradebookService.getCategoryDefinitions(gradebookUid, ownerSiteId)) {
+        missingConfiguredCategories.remove(category.getId());
+        if (categoryIds.remove(category.getId())) {
+          affectedCategories.add(category);
+        }
+      }
+      if (!categoryIds.isEmpty()) {
+        throw new IllegalStateException("The expected Gradebook categories " + categoryIds + " are unavailable");
+      }
+    }
+    if (!missingConfiguredCategories.isEmpty()) {
+      throw new IllegalStateException("The configured Gradebook categories are unavailable");
+    }
+    return affectedCategories;
   }
 
   /** Reloads and validates the request before the first cancellation write. */
@@ -983,58 +974,17 @@ public class PublishedAssessmentService extends AssessmentService{
 
         gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);
       } else if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(toGradebook)) {
-        Object categorySelected = null;
-
-        if (isGradebookGroupEnabled) {
-          categorySelected = assessment.getAssessmentMetaDataMap().get(AssessmentMetaDataIfc.CATEGORY_LIST);
-        } else {
-          categorySelected = assessment.getCategoryId();
-        }
-
-        String categoryString = categorySelected != null ? categorySelected.toString() : "-1";
-        categoryString = !categoryString.equals("-1") ? categoryString : "";
-
-        Map<String, String> newGradebookCategoryMap = new HashMap<>();
-
+        String siteId = AgentFacade.getCurrentSiteId();
+        List<String> gradebookUidList = isGradebookGroupEnabled
+            ? new ArrayList<>(assessmentFacade.getReleaseToGroups().keySet()) : Collections.singletonList(siteId);
+        Map<String, String> configuredTargets = defaultExportTargets(assessment, siteId,
+            gradebookUidList, isGradebookGroupEnabled, gradingService);
         Map<String, String> updateGradebookCategoryMap = new HashMap<>();
         Map<String, String> createGradebookCategoryMap = new HashMap<>();
-
-        if (isGradebookGroupEnabled) {
-          /* FIRST, WE WILL NEED TO CREATE TWO MAPS, ONE FOR THE OLD ONES AND ANOTHER FOR THE NEW ONES,
-              WHICH CONTAIN THE CATEGORY IDS AND THE GRADEBOOK UID. THIS IS BECAUSE WE WILL
-              LATER NEED TO CHECK IF THE CATEGORY IN EACH GRADEBOOK ASSOCIATED WITH THE EXAM HAS BEEN CHANGED */
-          Map<String, String> groupMap = assessmentFacade.getReleaseToGroups();
-          List<String> selectedGroups = groupMap.keySet().stream().collect(Collectors.toList());
-
-          newGradebookCategoryMap = gradingService.buildCategoryGradebookMap(selectedGroups, categoryString, AgentFacade.getCurrentSiteId());
-
-          for (Map.Entry<String, String> entry : newGradebookCategoryMap.entrySet()) {
-            boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(entry.getKey(),
-              assessment.getPublishedAssessmentId().toString());
-            /* IF: HERE WE WILL NEED TO CHECK IF THE ITEM EXISTS IN THE GRADEBOOK AND, IF THE CATEGORY HAS CHANGED,
-                WE WILL PUT IT IN THE MAP OF ITEMS THAT NEED TO BE UPDATED
-              ELSE: HERE WE WILL NEED TO CHECK IF THE ITEM EXISTS IN THE GRADEBOOK, IF NOT, WE WILL PUT IT
-                IN THE MAP OF ITEMS THAT NEED TO BE CREATED */
-
-            if (isExternalAssignmentDefined) {
-              updateGradebookCategoryMap.put(entry.getKey(), entry.getValue());
-
-            } else {
-              createGradebookCategoryMap.put(entry.getKey(), entry.getValue());
-            }
-          }
-        } else {
-          // IN THIS CASE, SINCE IT'S NOT A MULTI-GRADEBOOK, WE ONLY NEED THE PREVIOUS CATEGORY AND THE NEW ONE
-          Long newCategoryId = assessment.getCategoryId() != null ? assessment.getCategoryId() : -1L ;
-          boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(
-            AgentFacade.getCurrentSiteId(),
-            assessment.getPublishedAssessmentId().toString());
-
-          if (isExternalAssignmentDefined) {
-            updateGradebookCategoryMap.put(AgentFacade.getCurrentSiteId(), newCategoryId.toString());
-          } else {
-            createGradebookCategoryMap.put(AgentFacade.getCurrentSiteId(), newCategoryId.toString());
-          }
+        for (Map.Entry<String, String> target : configuredTargets.entrySet()) {
+          Map<String, String> destination = gradingService.isExternalAssignmentDefined(target.getKey(),
+              assessment.getPublishedAssessmentId().toString()) ? updateGradebookCategoryMap : createGradebookCategoryMap;
+          destination.put(target.getKey(), target.getValue());
         }
 
         if (createGradebookCategoryMap != null && createGradebookCategoryMap.size() >= 1) {
@@ -1059,17 +1009,6 @@ public class PublishedAssessmentService extends AssessmentService{
         /* WE WILL NEED TO UPDATE THE ITEMS FROM CASE 2 IF THE TITLE, SCORE, OR ANY OF THE CATEGORIES
           HAVE CHANGED (IN CASE OF MULTI GRADEBOOK) */
         if (updateGradebookCategoryMap.size() >= 1) {
-          List<String> gradebookUidList = new ArrayList<>();
-
-          if (isGradebookGroupEnabled) {
-            Map<String, String> groupMap = assessmentFacade.getReleaseToGroups();
-            List<String> selectedGroups = groupMap.keySet().stream().collect(Collectors.toList());
-
-            gradebookUidList = selectedGroups;
-          } else {
-            gradebookUidList.add(AgentFacade.getCurrentSiteId());
-          }
-
           try {
             gbsHelper.updateGradebook(assessment, isGradebookGroupEnabled, gradebookUidList, updateGradebookCategoryMap, gradingService);
           } catch (InvalidCategoryException e) {
