@@ -1,6 +1,7 @@
 function PASystemBannerAlerts(json, csrf_token) {
   this.json = json;
   this.csrf_token = csrf_token;
+  this.pendingDismissals = new Set();
 
   const templateString = document.getElementById("pasystemBannerAlertsTemplate").textContent.trim();
   this.bannerTemplate = TrimPath.parseTemplate(templateString, "pasystemBannerAlertsTemplate");
@@ -13,6 +14,7 @@ function PASystemBannerAlerts(json, csrf_token) {
 PASystemBannerAlerts.prototype.showAllAlerts = async function() {
   this.toggle.disabled = true;
   try {
+    await Promise.allSettled(this.pendingDismissals);
     await this.clearAcknowledgements();
     this.json.forEach(alert => { alert.dismissed = false; });
     this.renderBannerAlerts();
@@ -23,11 +25,22 @@ PASystemBannerAlerts.prototype.showAllAlerts = async function() {
 };
 
 PASystemBannerAlerts.prototype.handleBannerAlertClose = async function(element) {
+  // A restore must drain existing dismissals without allowing new ones to start.
+  if (this.toggle.disabled) {
+    return;
+  }
+
   const alertId = element.id;
   if (alertId === "tz") {
     document.cookie = "pasystem_timezone_warning_dismissed=true; path=/;";
   } else {
-    await this.acknowledge(alertId);
+    const dismissal = this.acknowledge(alertId);
+    this.pendingDismissals.add(dismissal);
+    try {
+      await dismissal;
+    } finally {
+      this.pendingDismissals.delete(dismissal);
+    }
   }
 
   const alert = this.json.find(alert => alert.id === alertId);

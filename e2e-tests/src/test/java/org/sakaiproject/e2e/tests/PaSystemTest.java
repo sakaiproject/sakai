@@ -17,13 +17,18 @@ package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
+import com.microsoft.playwright.Request;
+import com.microsoft.playwright.Route;
 import com.microsoft.playwright.options.AriaRole;
 import java.util.regex.Pattern;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
@@ -69,9 +74,8 @@ class PaSystemTest extends SakaiUiTestBase {
 
         Locator saveBanner = page.locator("form input[name=\"save\"], form input[value*=\"Save\"], form button:has-text(\"Save\")").first();
         assertThat(saveBanner).isVisible();
-        saveBanner.click();
-
         try {
+            saveBanner.click();
             Locator bannerAlerts = page.locator(".pasystem-banner-alerts").first();
             assertThat(bannerAlerts).containsText(message);
 
@@ -137,18 +141,97 @@ class PaSystemTest extends SakaiUiTestBase {
             assertThat(saveEditedBanner).isVisible();
             saveEditedBanner.click();
 
+            assertThat(bannerRow).containsText(message + " edited");
+            assertThat(bannerRow.locator("td").nth(2)).hasText("false");
             assertThat(bannerAlerts).not().containsText(message);
         } finally {
-            sakai.gotoPath("/portal/site/!admin");
-            sakai.toolClick("PA System");
-            Locator bannerRow = page.locator("tbody tr").filter(new Locator.FilterOptions().setHasText(message));
-            while (bannerRow.count() > 0) {
-                int count = bannerRow.count();
-                bannerRow.first().locator("a.pasystem-delete-btn").click();
-                page.getByRole(AriaRole.BUTTON,
-                    new Page.GetByRoleOptions().setName("Delete Banner").setExact(true)).click();
-                assertThat(bannerRow).hasCount(count - 1);
+            deleteBanner(message);
+        }
+    }
+
+    @Test
+    void restoreWaitsForPendingBannerDismissal() {
+        String firstMessage = "SAK-52958 first " + UUID.randomUUID();
+        String secondMessage = "SAK-52958 second " + UUID.randomUUID();
+        sakai.login("admin");
+        sakai.gotoPath("/portal/site/!admin");
+        sakai.toolClick("PA System");
+
+        try {
+            createMediumBanner(firstMessage);
+            createMediumBanner(secondMessage);
+            Locator firstBanner = page.locator(".pasystem-banner-alert").filter(
+                new Locator.FilterOptions().setHasText(firstMessage));
+            Locator secondBanner = page.locator(".pasystem-banner-alert").filter(
+                new Locator.FilterOptions().setHasText(secondMessage));
+            Locator showAlerts = page.getByRole(AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Show System Alerts").setExact(true));
+
+            page.waitForResponse(
+                response -> response.url().contains("/direct/pasystem/bannerAcknowledge") && response.ok(),
+                () -> firstBanner.getByRole(AriaRole.LINK,
+                    new Locator.GetByRoleOptions().setName("Dismiss Alert")).click());
+            assertThat(firstBanner).isHidden();
+            assertThat(showAlerts).isVisible();
+
+            // Hold the second dismissal before forwarding it to the real server.
+            List<Route> pendingDismissals = new ArrayList<>();
+            List<Request> restoreRequests = new ArrayList<>();
+            page.route("**/direct/pasystem/bannerAcknowledge", pendingDismissals::add);
+            page.onRequest(request -> {
+                if (request.url().contains("/direct/pasystem/clearBannerAcknowledgements")) {
+                    restoreRequests.add(request);
+                }
+            });
+            Locator secondClose = secondBanner.getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("Dismiss Alert"));
+            secondClose.click();
+            page.waitForCondition(() -> pendingDismissals.size() == 1);
+            showAlerts.click();
+            assertThat(showAlerts).isDisabled();
+            assertEquals(0, restoreRequests.size(), "Restore must not clear an outstanding dismissal");
+            secondClose.click();
+            assertEquals(1, pendingDismissals.size(), "A restore must prevent new dismissals");
+
+            Response restored = page.waitForResponse(
+                response -> response.url().contains("/direct/pasystem/clearBannerAcknowledgements") && response.ok(),
+                () -> pendingDismissals.get(0).resume());
+            assertTrue(restored.text().contains("SUCCESS"));
+            assertThat(firstBanner).isVisible();
+            assertThat(secondBanner).isVisible();
+            assertThat(showAlerts).isHidden();
+
+            page.reload();
+            assertThat(firstBanner).isVisible();
+            assertThat(secondBanner).isVisible();
+        } finally {
+            try {
+                deleteBanner(firstMessage);
+            } finally {
+                deleteBanner(secondMessage);
             }
+        }
+    }
+
+    private void createMediumBanner(String message) {
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Create Banner").setExact(true)).click();
+        page.locator("form input#message").fill(message);
+        page.locator("form select#type").selectOption("medium");
+        page.locator("form input#active").check();
+        page.locator("form input[name=\"save\"]").click();
+    }
+
+    private void deleteBanner(String message) {
+        sakai.gotoPath("/portal/site/!admin");
+        sakai.toolClick("PA System");
+        Locator bannerRow = page.locator("tbody tr").filter(new Locator.FilterOptions().setHasText(message));
+        while (bannerRow.count() > 0) {
+            int count = bannerRow.count();
+            bannerRow.first().locator("a.pasystem-delete-btn").click();
+            page.getByRole(AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Delete Banner").setExact(true)).click();
+            assertThat(bannerRow).hasCount(count - 1);
         }
     }
 }
