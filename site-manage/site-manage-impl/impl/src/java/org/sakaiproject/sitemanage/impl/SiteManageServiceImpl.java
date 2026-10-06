@@ -90,6 +90,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
 
+    private static final String SECTIONS_TOOL_ID = "sakai.sections";
     private static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 
     @Setter private ContentHostingService contentHostingService;
@@ -232,6 +233,12 @@ public class SiteManageServiceImpl implements SiteManageService {
                 sourceSiteInfoUrl = siteService.getSite(oSiteId).getInfoUrl();
             } catch (IdUnusedException iue) {
                 log.warn("Cannot resolve source site {} while importing site info URL, {}", oSiteId, iue.getMessage());
+            }
+
+            if (site.getToolForCommonId(SECTIONS_TOOL_ID) != null) {
+                transversalMap.putAll(transferCopyEntities(SECTIONS_TOOL_ID, oSiteId, nSiteId,
+                        Collections.emptyList(), Collections.emptyList(), false));
+                toolsCopied.add(SECTIONS_TOOL_ID);
             }
 
             if (pageList != null) {
@@ -650,6 +657,14 @@ public class SiteManageServiceImpl implements SiteManageService {
 			}
 		}
 
+        // Import section structure before tools recreate their referenced groups by title.
+        if (toolIds.contains(SECTIONS_TOOL_ID)) {
+            for (String fromSiteId : importTools.getOrDefault(SECTIONS_TOOL_ID, Collections.emptyList())) {
+                doImport(transversalMap, SECTIONS_TOOL_ID, siteIds, fromSiteId, toSiteId,
+                        toolItemMap.get(SECTIONS_TOOL_ID), toolOptions.get(SECTIONS_TOOL_ID), cleanup, false);
+            }
+        }
+
 		// import resources first
 		boolean resourcesImported = false;
 		if (toolIds.contains(SiteManageConstants.RESOURCES_TOOL_ID)) {
@@ -772,7 +787,8 @@ public class SiteManageServiceImpl implements SiteManageService {
 		// Now import the rest of the tools
 		if (!toolIds.isEmpty()) {
 			for (String toolId : toolIds) {
-				if (!StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)
+				if (!StringUtils.equalsIgnoreCase(toolId, SECTIONS_TOOL_ID)
+						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)
 						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID)
 						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID)
 						&& !StringUtils.equalsIgnoreCase(toolId, ANNOUNCEMENTS_TOOL_ID)) {
