@@ -1,8 +1,16 @@
 <script id="pasystemBannerAlertsTemplate" type="text/template">
   <div class="pasystem-banner-alert pasystem-banner-${type}" id="${id}">
+    {if type == 'high'}
+      <span class="bi bi-exclamation-circle pasystem-banner-alert-icon" aria-hidden="true"></span>
+    {elseif type == 'low' || type == 'timezone'}
+      <span class="bi bi-info-circle pasystem-banner-alert-icon" aria-hidden="true"></span>
+    {else}
+      <span class="bi bi-exclamation-triangle pasystem-banner-alert-icon" aria-hidden="true"></span>
+    {/if}
     <span class="pasystem-banner-alert-message">${message}</span>
     {if dismissible}
       <a class="pasystem-banner-alert-close" href="javascript:void(0)">
+        <span class="bi bi-x-lg" aria-hidden="true"></span>
         <span class="sr-only">{{{t this "Dismiss Alert"}}}</span>
       </a>
     {/if}
