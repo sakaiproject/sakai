@@ -21,8 +21,6 @@ import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -30,6 +28,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.hibernate.Length;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -49,8 +49,7 @@ public class Comment implements PersistableEntity<Long>, Serializable {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_comment_id_sequence")
-    @SequenceGenerator(name = "gb_comment_id_sequence", sequenceName = "GB_COMMENT_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_comment_id_sequence", sequenceName = "GB_COMMENT_S"))
     @ToString.Include
     @EqualsAndHashCode.Include
     private Long id;
@@ -69,7 +68,7 @@ public class Comment implements PersistableEntity<Long>, Serializable {
     @Column(name = "DATE_RECORDED", nullable = false)
     private Date dateRecorded;
 
-    @Column(name = "COMMENT_TEXT")
+    @Column(name = "COMMENT_TEXT", length = Length.LONG32)
     @Lob
     @ToString.Include(name = "comment")
     @EqualsAndHashCode.Include

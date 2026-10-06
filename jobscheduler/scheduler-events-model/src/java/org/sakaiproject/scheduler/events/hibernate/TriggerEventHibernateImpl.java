@@ -31,6 +31,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
 
@@ -72,7 +73,7 @@ public class TriggerEventHibernateImpl implements TriggerEvent
     @Temporal(TemporalType.TIMESTAMP)
     private Date time;
 
-    @Column(name = "message")
+    @Column(name = "message", length = Length.LONG32)
     @Lob
     private String message;
 

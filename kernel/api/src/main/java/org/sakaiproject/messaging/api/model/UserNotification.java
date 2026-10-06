@@ -19,12 +19,11 @@ import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -44,8 +43,7 @@ public class UserNotification implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_notification_id_sequence")
-    @SequenceGenerator(name = "user_notification_id_sequence", sequenceName = "USER_NOTIFICATIONS_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "user_notification_id_sequence", sequenceName = "USER_NOTIFICATIONS_S"))
     @EqualsAndHashCode.Include
     private Long id;
 

@@ -29,13 +29,12 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -54,8 +53,7 @@ public class Task implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "task_id_sequence")
-    @SequenceGenerator(name = "task_id_sequence", sequenceName = "TASKS_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "task_id_sequence", sequenceName = "TASKS_S"))
     @EqualsAndHashCode.Include
     private Long id;
 

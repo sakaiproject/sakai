@@ -29,6 +29,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Basic;
 import static jakarta.persistence.FetchType.LAZY;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -100,7 +101,7 @@ public class Tenant extends BaseLTI implements PersistableEntity<String> {
 	private String realmTemplate;
 
 	@Lob
-	@Column(name = "INBOUND_ROLE_MAP", nullable = true)
+	@Column(name = "INBOUND_ROLE_MAP", nullable = true, length = Length.LONG32)
 	private String inboundRoleMap;
 
 	@Column(name = "OIDC_AUTH", length = LENGTH_URI, nullable = true)
@@ -125,7 +126,7 @@ public class Tenant extends BaseLTI implements PersistableEntity<String> {
 	private Instant retryAt = null;
 
 	@Lob
-	@Column(name = "CACHE_KEYSET", nullable = true)
+	@Column(name = "CACHE_KEYSET", nullable = true, length = Length.LONG32)
 	private String cacheKeySet;
 
 	// Need to unlock Dynamic registration
@@ -137,7 +138,7 @@ public class Tenant extends BaseLTI implements PersistableEntity<String> {
 
 	@Basic(fetch=LAZY)
 	@Lob
-	@Column(name = "OIDC_REGISTRATION", nullable = true)
+	@Column(name = "OIDC_REGISTRATION", nullable = true, length = Length.LONG32)
 	private String oidcRegistration;
 
 	public boolean isDraft()

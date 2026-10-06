@@ -28,14 +28,13 @@ import lombok.ToString;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -58,8 +57,7 @@ public class Gradebook implements PersistableEntity<Long>, Serializable {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_gradebook_id_sequence")
-    @SequenceGenerator(name = "gb_gradebook_id_sequence", sequenceName = "GB_GRADEBOOK_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_gradebook_id_sequence", sequenceName = "GB_GRADEBOOK_S"))
     @ToString.Include
     private Long id;
 

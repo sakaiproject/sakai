@@ -31,8 +31,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -41,6 +39,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -68,8 +67,7 @@ import lombok.NoArgsConstructor;
 public class ReturnedEvaluation implements PersistableEntity<Long>, Serializable {
 
     @Id
-    @SequenceGenerator(name="rbc_ret_eval_seq", sequenceName = "rbc_ret_eval_seq")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_ret_eval_seq")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_ret_eval_seq", sequenceName = "rbc_ret_eval_seq"))
     private Long id;
 
     @Column(name = "original_evaluation_id", nullable = false)

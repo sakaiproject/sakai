@@ -26,14 +26,13 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -49,8 +48,7 @@ public class LetterGradePercentMapping implements PersistableEntity<Long>, Seria
 
     @Id
     @Column(name = "LGP_MAPPING_ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_lettergrade_percent_mapping_id_sequence")
-    @SequenceGenerator(name = "gb_lettergrade_percent_mapping_id_sequence", sequenceName = "GB_LETTER_MAPPING_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_lettergrade_percent_mapping_id_sequence", sequenceName = "GB_LETTER_MAPPING_S"))
     private Long id;
 
     @Column(name = "VERSION", nullable = false)

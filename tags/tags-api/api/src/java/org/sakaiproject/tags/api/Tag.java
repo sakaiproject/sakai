@@ -39,6 +39,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -68,7 +69,7 @@ public class Tag implements PersistableEntity<String> {
     @Column(name = "taglabel", length = 255)
     private String tagLabel;
     @Lob
-    @Column(name = "description", length = 65535)
+    @Column(name = "description", length = Length.LONG32)
     private String description;
     @Column(name = "createdby", length = 99)
     private String createdBy;
@@ -81,7 +82,7 @@ public class Tag implements PersistableEntity<String> {
     @Column(name = "externalid", length = 255)
     private String externalId;
     @Lob
-    @Column(name = "alternativelabels", length = 65535)
+    @Column(name = "alternativelabels", length = Length.LONG32)
     private String alternativeLabels;
     @Column(name = "externalcreation")
     private Boolean externalCreation;
@@ -94,12 +95,12 @@ public class Tag implements PersistableEntity<String> {
     @Column(name = "parentid", length = 255)
     private String parentId;
     @Lob
-    @Column(name = "externalhierarchycode", length = 65535)
+    @Column(name = "externalhierarchycode", length = Length.LONG32)
     private String externalHierarchyCode;
     @Column(name = "externaltype", length = 255)
     private String externalType;
     @Lob
-    @Column(name = "data", length = 65535)
+    @Column(name = "data", length = Length.LONG32)
     private String data;
     @Transient
     private String collectionName;

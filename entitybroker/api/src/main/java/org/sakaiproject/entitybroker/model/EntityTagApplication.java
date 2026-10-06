@@ -22,12 +22,11 @@ package org.sakaiproject.entitybroker.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -52,10 +51,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 public class EntityTagApplication implements PersistableEntity<Long> {
 
    @Id
-   @SequenceGenerator(name = "entity_tag_app_id_sequence",
-                      sequenceName = "ENTITY_TAG_APPLICATIONS_S",
-                      allocationSize = 1)
-   @GeneratedValue(strategy = GenerationType.AUTO, generator = "entity_tag_app_id_sequence")
+   @NativeGenerator(sequenceForm = @SequenceGenerator(name = "entity_tag_app_id_sequence", sequenceName = "ENTITY_TAG_APPLICATIONS_S", allocationSize = 1))
    @Column(name = "ID")
    @EqualsAndHashCode.Include
    private Long id;

@@ -19,12 +19,11 @@ import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.hibernate.annotations.Type;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -41,8 +40,7 @@ import lombok.EqualsAndHashCode;
 public class TimeSheetEntry implements PersistableEntity<Long> {
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "timesheet_sequence")
-    @SequenceGenerator(name = "timesheet_sequence", sequenceName = "TIMESHEET_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "timesheet_sequence", sequenceName = "TIMESHEET_S"))
     @EqualsAndHashCode.Include
     private Long id;
 

@@ -17,6 +17,7 @@ package org.sakaiproject.lti.api.model;
 
 import java.io.Serializable;
 import jakarta.persistence.*;
+import org.hibernate.Length;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -42,7 +43,7 @@ public class LtiMembershipsJob implements PersistableEntity<String>, Serializabl
     private String membershipsId;
 
     @Lob
-    @Column(name = "memberships_url")
+    @Column(name = "memberships_url", length = Length.LONG32)
     private String membershipsUrl;
 
     @Column(name = "consumerkey", length = 1024)

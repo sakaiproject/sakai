@@ -31,6 +31,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -61,7 +62,7 @@ public class Meeting {
     private String title;
     
     @Lob
-    @Column(name = "meeting_description", length = 4000)
+    @Column(name = "meeting_description", length = Length.LONG32)
     private String description;
     
     @Column(name = "meeting_site_id", length = 99)

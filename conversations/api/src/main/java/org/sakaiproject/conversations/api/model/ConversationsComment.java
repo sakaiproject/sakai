@@ -27,6 +27,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Lob;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -60,7 +61,7 @@ public class ConversationsComment implements PersistableEntity<String> {
     private ConversationsTopic topic;
 
     @Lob
-    @Column(name = "MESSAGE", nullable = false)
+    @Column(name = "MESSAGE", nullable = false, length = Length.LONG32)
     private String message;
 
     @Column(name = "LOCKED")

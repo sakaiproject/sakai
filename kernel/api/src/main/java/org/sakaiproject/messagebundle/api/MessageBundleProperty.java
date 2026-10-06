@@ -23,8 +23,6 @@ package org.sakaiproject.messagebundle.api;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
@@ -33,6 +31,8 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.hibernate.Length;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -58,8 +58,7 @@ public class MessageBundleProperty {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "message_bundle_property_sequence")
-    @SequenceGenerator(name = "message_bundle_property_sequence", sequenceName = "SAKAI_MESSAGEBUNDLE_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "message_bundle_property_sequence", sequenceName = "SAKAI_MESSAGEBUNDLE_S"))
     private Long id;
 
     @Column(name = "BASENAME", length = 150, nullable = false)
@@ -75,11 +74,11 @@ public class MessageBundleProperty {
     private String propertyName;
 
     @Lob
-    @Column(name = "PROP_VALUE")
+    @Column(name = "PROP_VALUE", length = Length.LONG32)
     private String value;
 
     @Lob
-    @Column(name = "DEFAULT_VALUE")
+    @Column(name = "DEFAULT_VALUE", length = Length.LONG32)
     private String defaultValue;
 
     public MessageBundleProperty(String baseName, String moduleName, String locale, String propertyName) {

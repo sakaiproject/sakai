@@ -43,8 +43,6 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OrderColumn;
@@ -54,6 +52,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import net.fortuna.ical4j.model.component.VEvent;
 
@@ -77,8 +76,7 @@ public class SignupTimeslot implements PersistableEntity<Long> {
     public static final int UNLIMITED = Integer.MAX_VALUE;
 
     @Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "signup_ts_seq")
-	@SequenceGenerator(name = "signup_ts_seq", sequenceName = "signup_ts_ID_SEQ")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "signup_ts_seq", sequenceName = "signup_ts_ID_SEQ"))
 	@EqualsAndHashCode.Include
 	private Long id;
 

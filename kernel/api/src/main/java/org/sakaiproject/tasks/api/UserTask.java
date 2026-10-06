@@ -22,6 +22,8 @@
 package org.sakaiproject.tasks.api;
 
 import jakarta.persistence.*;
+import org.hibernate.Length;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -38,8 +40,7 @@ public class UserTask implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_task_id_sequence")
-    @SequenceGenerator(name = "user_task_id_sequence", sequenceName = "USER_TASKS_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "user_task_id_sequence", sequenceName = "USER_TASKS_S"))
     @EqualsAndHashCode.Include
     private Long id;
 
@@ -54,7 +55,7 @@ public class UserTask implements PersistableEntity<Long> {
     private Integer priority;
 
     @Lob
-    @Column(name = "NOTES")
+    @Column(name = "NOTES", length = Length.LONG32)
     private String notes;
 
     @Column(name = "COMPLETE")

@@ -21,14 +21,14 @@ import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.hibernate.Length;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -46,8 +46,7 @@ public class Spreadsheet implements Serializable {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_spreadsheet_id_sequence")
-    @SequenceGenerator(name = "gb_spreadsheet_id_sequence", sequenceName = "GB_SPREADSHEET_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_spreadsheet_id_sequence", sequenceName = "GB_SPREADSHEET_S"))
     @EqualsAndHashCode.Include
     @ToString.Include
     protected Long id;
@@ -61,7 +60,7 @@ public class Spreadsheet implements Serializable {
     protected Integer version = 0;
 
     @Lob
-    @Column(name = "CONTENT", length = 16777215, nullable = false)
+    @Column(name = "CONTENT", length = Length.LONG32, nullable = false)
     protected String content;
 
     @Column(name = "CREATOR", nullable = false)

@@ -18,11 +18,13 @@ package org.sakaiproject.microsoft.api.model;
 import java.util.Map;
 
 import jakarta.persistence.Convert;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import org.hibernate.Length;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,7 +55,7 @@ public class MicrosoftAccessToken {
 
     private String microsoftUserId;
 
-    @Lob
+    @Lob @Column(length = Length.LONG32)
     private String accessToken;
     
     @Convert(converter = JpaConverterMicrosoftAuthorizationAccount.class)

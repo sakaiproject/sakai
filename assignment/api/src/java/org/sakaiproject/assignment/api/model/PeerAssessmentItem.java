@@ -18,6 +18,7 @@ package org.sakaiproject.assignment.api.model;
 import java.io.Serializable;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.Length;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -57,7 +58,7 @@ public class PeerAssessmentItem implements Serializable {
     private Integer score;
 
     @Lob
-    @Column(name = "REVIEW_COMMENT")
+    @Column(name = "REVIEW_COMMENT", length = Length.LONG32)
     private String comment;
 
     @Column(name = "REMOVED", nullable = false)

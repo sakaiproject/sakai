@@ -16,6 +16,7 @@
  package org.sakaiproject.api.app.messageforums;
 
 import jakarta.persistence.*;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,8 +36,7 @@ public class DraftRecipient
 	public static final String ALL_PARTICIPANTS_ID = "all_participants";
 
 	@Id @Column(name = "ID")
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "draft_recipient_sequence")
-    @SequenceGenerator(name = "draft_recipient_sequence", sequenceName = "MFR_DRAFT_RECIPIENT_S")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "draft_recipient_sequence", sequenceName = "MFR_DRAFT_RECIPIENT_S"))
 	private Long id;
 
 	@Column(name = "TYPE", nullable = false)

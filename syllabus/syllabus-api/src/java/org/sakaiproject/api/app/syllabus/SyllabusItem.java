@@ -28,8 +28,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
@@ -38,6 +36,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.hibernate.annotations.BatchSize;
 
@@ -64,8 +63,7 @@ public class SyllabusItem {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "syllabus_item_sequence")
-    @SequenceGenerator(name = "syllabus_item_sequence", sequenceName = "SyllabusItemImpl_SEQ")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "syllabus_item_sequence", sequenceName = "SyllabusItemImpl_SEQ"))
     private Long surrogateKey;
 
     @Version

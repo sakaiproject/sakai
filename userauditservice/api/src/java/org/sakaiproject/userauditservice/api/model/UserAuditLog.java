@@ -20,12 +20,11 @@ import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -40,8 +39,7 @@ public class UserAuditLog implements PersistableEntity<Long> {
 
 	@Id
 	@Column(name = "id")
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "user_audits_log_seq")
-	@SequenceGenerator(name = "user_audits_log_seq", sequenceName = "user_audits_log_seq")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "user_audits_log_seq", sequenceName = "user_audits_log_seq"))
 	@EqualsAndHashCode.Include
 	private Long id;
 

@@ -17,12 +17,11 @@ package org.sakaiproject.conversations.api.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.EqualsAndHashCode;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -39,8 +38,7 @@ public class ConvStatus implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "conv_status_id_sequence")
-    @SequenceGenerator(name = "conv_status_id_sequence", sequenceName = "CONV_STATUS_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "conv_status_id_sequence", sequenceName = "CONV_STATUS_S"))
     private Long id;
 
     @Column(name = "SITE_ID", length = 99, nullable = false)
