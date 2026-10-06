@@ -21,6 +21,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.sakaiproject.e2e.support.SakaiEnvironment;
 import org.sakaiproject.e2e.support.SakaiHelper;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
@@ -29,7 +30,14 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-/** Uses fresh prepared fixtures documented in e2e-tests/README.md; missing fixtures fail. */
+/**
+ * Opt in with {@code -Dsamigo.cancellation.enabled=true} and provide all five site URLs:
+ * {@code samigo.cancellation.restrictedSiteUrl}, {@code samigo.cancellation.redistributionSiteUrl},
+ * {@code samigo.cancellation.equalWeightSiteUrl}, {@code samigo.cancellation.ordinarySiteUrl},
+ * and {@code samigo.cancellation.staleSiteUrl}. Each run requires fresh prepared fixtures;
+ * the opt-in run fails if a required URL is missing.
+ */
+@EnabledIfSystemProperty(named = "samigo.cancellation.enabled", matches = "true")
 class SamigoCancellationCategoryTest extends SakaiUiTestBase {
     private static final String FIRST_QUIZ = "SAK-52130 TQ-1";
     private static final String RESTRICTION = "This Gradebook category uses Keep/Drop and requires equal point totals.";
@@ -122,7 +130,7 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
     private String fixture(String kind) {
         String property = "samigo.cancellation." + kind + "SiteUrl";
         String siteUrl = System.getProperty(property);
-        assertNotNull(siteUrl, "Required fresh fixture missing: -D" + property + "=<site URL>; see e2e-tests/README.md");
+        assertNotNull(siteUrl, "Required fresh fixture missing: -D" + property + "=<site URL>");
         assertFalse(siteUrl.isBlank(), "Required fixture URL is blank: " + property);
         sakai.login(System.getProperty("samigo.cancellation.instructor", "instructor1"));
         assertThat(page.locator("#sakai-account-panel")).hasCount(1);

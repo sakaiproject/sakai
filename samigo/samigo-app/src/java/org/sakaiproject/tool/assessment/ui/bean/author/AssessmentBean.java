@@ -45,7 +45,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.util.QuestionCancellationEligibility;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
@@ -84,30 +84,17 @@ public class AssessmentBean  implements Serializable {
   }
 
   public boolean isTotalScoreCancellationAllowed() {
-    return totalScoreCancellationRestrictionKey() == null;
+    if (!(assessment instanceof PublishedAssessmentIfc)) {
+      return true;
+    }
+    return QuestionCancellationEligibility.restrictionKey((PublishedAssessmentIfc) assessment).isEmpty();
   }
 
   public String getTotalScoreCancellationRestrictionMessage() {
-    String messageKey = totalScoreCancellationRestrictionKey();
-    return messageKey == null ? "" : ContextUtil.getLocalizedString(
-        "org.sakaiproject.tool.assessment.bundle.CommonMessages", messageKey);
-  }
-
-  private String totalScoreCancellationRestrictionKey() {
     if (!(assessment instanceof PublishedAssessmentIfc)) {
-      return null;
+      return "";
     }
-    String messageKey;
-    try {
-      if (new PublishedAssessmentService().isTotalScoreCancellationAllowed((PublishedAssessmentIfc) assessment)) {
-        return null;
-      }
-      messageKey = "cancel_question_reduce_total_category_restricted";
-    } catch (PublishedAssessmentService.TotalScoreCancellationException e) {
-      messageKey = "cancel_question_reduce_total_unavailable";
-      log.warn("Unable to check question cancellation eligibility", e);
-    }
-    return messageKey;
+    return QuestionCancellationEligibility.restrictionMessage((PublishedAssessmentIfc) assessment);
   }
 
   public AssessmentIfc getAssessment() {
