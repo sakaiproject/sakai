@@ -83,11 +83,13 @@ class PaSystemTest extends SakaiUiTestBase {
             Locator banner = bannerAlerts.locator(".pasystem-banner-alert").filter(
                 new Locator.FilterOptions().setHasText(message));
             Locator showAlerts = page.getByRole(AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName("Show System Alerts").setExact(true));
+                new Page.GetByRoleOptions().setName("Show dismissed system alerts").setExact(true));
             assertThat(banner).isVisible();
             assertThat(banner.locator(".bi-exclamation-triangle")).isVisible();
             assertThat(banner.locator(".bi-x-lg")).isVisible();
+            openAccountMenu();
             assertThat(showAlerts).isHidden();
+            closeAccountMenu();
 
             Response dismissed = page.waitForResponse(
                 response -> response.url().contains("/direct/pasystem/bannerAcknowledge") && response.ok(),
@@ -95,8 +97,10 @@ class PaSystemTest extends SakaiUiTestBase {
                     new Locator.GetByRoleOptions().setName("Dismiss Alert")).click());
             assertTrue(dismissed.text().contains("SUCCESS"));
             assertThat(banner).isHidden();
+            openAccountMenu();
             assertThat(showAlerts).isVisible();
-            assertThat(page.locator("#sakai-system-indicators .pasystem-banner-alert-toggle")).isVisible();
+            assertThat(page.locator("#sakai-account-panel .pasystem-banner-alert-toggle")).isVisible();
+            assertThat(page.locator("#sakai-system-indicators .pasystem-banner-alert-toggle")).hasCount(0);
             assertThat(page.locator(".portal-pasystem .pasystem-banner-alert-toggle")).hasCount(0);
             page.emulateMedia(new Page.EmulateMediaOptions().setMedia(Media.PRINT));
             assertThat(showAlerts).isHidden();
@@ -104,12 +108,15 @@ class PaSystemTest extends SakaiUiTestBase {
 
             page.reload();
             assertThat(banner).isHidden();
+            openAccountMenu();
             assertThat(showAlerts).isVisible();
 
             Response restored = page.waitForResponse(
                 response -> response.url().contains("/direct/pasystem/clearBannerAcknowledgements") && response.ok(),
                 () -> showAlerts.press("Enter"));
             assertTrue(restored.text().contains("SUCCESS"));
+            assertThat(page.locator("#sakai-account-panel")).isHidden();
+            assertThat(page.locator(".pasystem-banner-alerts .pasystem-banner-alert-close").first()).isFocused();
             assertThat(banner).isVisible();
             assertThat(showAlerts).isHidden();
 
@@ -123,11 +130,15 @@ class PaSystemTest extends SakaiUiTestBase {
                 () -> banner.getByRole(AriaRole.LINK,
                     new Locator.GetByRoleOptions().setName("Dismiss Alert")).click());
             assertThat(banner).isHidden();
+            openAccountMenu();
             assertThat(showAlerts).isVisible();
-            assertThat(page.locator("#sakai-system-indicators .pasystem-banner-alert-toggle")).isVisible();
+            assertThat(page.locator("#sakai-account-panel .pasystem-banner-alert-toggle")).isVisible();
+            assertThat(page.locator("#sakai-system-indicators .pasystem-banner-alert-toggle")).hasCount(0);
             page.waitForResponse(
                 response -> response.url().contains("/direct/pasystem/clearBannerAcknowledgements") && response.ok(),
                 showAlerts::click);
+            assertThat(page.locator("#sakai-account-panel")).isHidden();
+            assertThat(page.locator(".pasystem-banner-alerts .pasystem-banner-alert-close").first()).isFocused();
             assertThat(banner).isVisible();
             assertThat(showAlerts).isHidden();
             page.setViewportSize(1280, 720);
@@ -174,14 +185,16 @@ class PaSystemTest extends SakaiUiTestBase {
             Locator secondBanner = page.locator(".pasystem-banner-alert").filter(
                 new Locator.FilterOptions().setHasText(secondMessage));
             Locator showAlerts = page.getByRole(AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName("Show System Alerts").setExact(true));
+                new Page.GetByRoleOptions().setName("Show dismissed system alerts").setExact(true));
 
             page.waitForResponse(
                 response -> response.url().contains("/direct/pasystem/bannerAcknowledge") && response.ok(),
                 () -> firstBanner.getByRole(AriaRole.LINK,
                     new Locator.GetByRoleOptions().setName("Dismiss Alert")).click());
             assertThat(firstBanner).isHidden();
+            openAccountMenu();
             assertThat(showAlerts).isVisible();
+            closeAccountMenu();
 
             // Hold the second dismissal before forwarding it to the real server.
             List<Route> pendingDismissals = new ArrayList<>();
@@ -196,16 +209,19 @@ class PaSystemTest extends SakaiUiTestBase {
                 new Locator.GetByRoleOptions().setName("Dismiss Alert"));
             secondClose.click();
             page.waitForCondition(() -> pendingDismissals.size() == 1);
+            openAccountMenu();
             showAlerts.click();
             assertThat(showAlerts).isDisabled();
             assertEquals(0, restoreRequests.size(), "Restore must not clear an outstanding dismissal");
-            secondClose.click();
+            // A queued banner click must not start another dismissal during restoration.
+            secondClose.dispatchEvent("click");
             assertEquals(1, pendingDismissals.size(), "A restore must prevent new dismissals");
 
             Response restored = page.waitForResponse(
                 response -> response.url().contains("/direct/pasystem/clearBannerAcknowledgements") && response.ok(),
                 () -> pendingDismissals.get(0).resume());
             assertTrue(restored.text().contains("SUCCESS"));
+            assertThat(page.locator("#sakai-account-panel")).isHidden();
             assertThat(firstBanner).isVisible();
             assertThat(secondBanner).isVisible();
             assertThat(showAlerts).isHidden();
@@ -235,7 +251,7 @@ class PaSystemTest extends SakaiUiTestBase {
             Locator banner = page.locator(".pasystem-banner-alert").filter(
                 new Locator.FilterOptions().setHasText(message));
             Locator showAlerts = page.getByRole(AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName("Show System Alerts").setExact(true));
+                new Page.GetByRoleOptions().setName("Show dismissed system alerts").setExact(true));
             List<Route> pendingDismissals = new ArrayList<>();
             page.route("**/direct/pasystem/bannerAcknowledge", pendingDismissals::add);
             banner.getByRole(AriaRole.LINK,
@@ -248,6 +264,7 @@ class PaSystemTest extends SakaiUiTestBase {
                 response -> response.url().contains("/direct/pasystem/bannerAcknowledge") && response.ok(),
                 () -> pendingDismissals.get(0).resume());
             assertTrue(dismissed.text().contains("SUCCESS"));
+            openAccountMenu();
             assertThat(showAlerts).isVisible();
             assertThat(banner).isHidden();
             Locator timezoneBanner = page.locator(".pasystem-banner-timezone").filter(
@@ -284,6 +301,16 @@ class PaSystemTest extends SakaiUiTestBase {
         assertThat(remindLater).isVisible();
         remindLater.click();
         assertThat(popup).hasCount(0);
+    }
+
+    private void openAccountMenu() {
+        page.locator("[data-bs-target=\"#sakai-account-panel\"]").click();
+        assertThat(page.locator("#sakai-account-panel")).hasClass(Pattern.compile(".*\\bshow\\b.*"));
+    }
+
+    private void closeAccountMenu() {
+        page.locator("#sakai-account-panel [data-bs-dismiss=offcanvas]").click();
+        assertThat(page.locator("#sakai-account-panel")).isHidden();
     }
 
     private void createMediumBanner(String message) {
