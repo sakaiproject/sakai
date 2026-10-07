@@ -400,7 +400,7 @@
             id="tag-selector"
             input-id="pvtMsgReply:tag_selector"
             selected-ids='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
-            collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
+            collection-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
             site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
             tool='<h:outputText value="#{PrivateMessagesTool.getTagTool()}"/>'
             add-new="true"

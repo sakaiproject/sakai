@@ -323,7 +323,7 @@ public class PrivateMessagesTool {
     this.detailMsg = detailMsg;
     if (detailMsg == null || (!fromPreview && !detailMsg.getIsPreview() && !detailMsg.getIsPreviewReply() && !detailMsg.getIsPreviewReplyAll() && !detailMsg.getIsPreviewForward())) {
       this.selectedTags = detailMsg != null && detailMsg.getMsg().getId() != null && isCanUseTags()
-          ? String.join(",", tagService.getTagAssociationIds(getUserId(), String.valueOf(detailMsg.getMsg().getId())))
+          ? String.join(",", tagService.getTagAssociationIds(getSiteId(), String.valueOf(detailMsg.getMsg().getId())))
           : "";
       fromPreview = false;
     } else if (detailMsg.getIsPreview() || detailMsg.getIsPreviewReply() || detailMsg.getIsPreviewReplyAll() || detailMsg.getIsPreviewForward()) {
@@ -3278,8 +3278,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     log.debug("msgId " + msgId + " - selectedTags " + selectedTags);
     if (msgId != null && ServerConfigurationService.getBoolean("tagservice.enable.integrations", true) && isInstructor() && selectedTags != null) {
       List<String> tagIds = Arrays.asList(selectedTags.split(","));
-      tagService.updateTagAssociations(getUserId(), String.valueOf(msgId), tagIds, false);
-      selectedTags = String.join(",", tagService.getTagAssociationIds(getUserId(), String.valueOf(msgId)));
+      tagService.updateTagAssociations(getSiteId(), String.valueOf(msgId), tagIds, true);
+      selectedTags = String.join(",", tagService.getTagAssociationIds(getSiteId(), String.valueOf(msgId)));
     }
   }
 
@@ -4211,7 +4211,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     List<String> selectedTagsList = selectedTags != null ? Arrays.asList(selectedTags.split(",")) : new ArrayList<>();
     if(searchOnTags && CollectionUtils.isNotEmpty(selectedTagsList)) {
         tempPvtMsgLs = ((List<PrivateMessage>)tempPvtMsgLs).stream().filter(pm -> {
-                List<String> tagIds = tagService.getTagAssociationIds(getUserId(), String.valueOf(pm.getId()));
+                List<String> tagIds = tagService.getTagAssociationIds(getSiteId(), String.valueOf(pm.getId()));
                 return (tagIds.containsAll(selectedTagsList));
         }).collect(Collectors.toList());
     }
@@ -4322,7 +4322,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       }
         dbean.setSendToStringDecorated(createDecoratedSentToDisplay(dbean));
 
-      List<String> tagLabels = tagService.getAssociatedTagsForItem(getUserId(), String.valueOf(element.getId())).stream().map(Tag::getTagLabel).collect(Collectors.toList());
+      List<String> tagLabels = tagService.getAssociatedTagsForItem(getSiteId(), String.valueOf(element.getId())).stream().map(Tag::getTagLabel).collect(Collectors.toList());
       dbean.setTagList(tagLabels);
 
       decLs.add(dbean) ;

@@ -1121,7 +1121,7 @@ public class ItemAuthorBean implements Serializable {
   }
 
   public String getShowTagsStyle() {
-    if (ServerConfigurationService.getBoolean("samigo.author.usetags", Boolean.FALSE)){
+    if (ServerConfigurationService.getBoolean("samigo.author.usetags", ServerConfigurationService.getBoolean("tagservice.enable.integrations", true))){
       return "";
     }else{
       return "display:none;";

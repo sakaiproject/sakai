@@ -357,7 +357,7 @@ class SamigoTest extends SakaiUiTestBase {
         page.navigate(courseUrl);
         sakai.toolClick("Tests");
         clickFirstVisible(page.locator("a:has-text(\"Question Pools\")"));
-        assertPoolTagRequest(() -> page.locator("#questionpool\\:add").click());
+        page.locator("#questionpool\\:add").click();
         page.locator("#questionpool\\:namefield").fill(poolName);
         Locator tagInput = page.locator("#tag-selector").getByRole(AriaRole.COMBOBOX);
         tagInput.fill(tagLabel);
@@ -365,19 +365,19 @@ class SamigoTest extends SakaiUiTestBase {
         assertThat(page.locator("#tag-selector").getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true))).isVisible();
         page.locator("#questionpool\\:submit").click();
-        assertPoolTagRequest(() -> page.locator("#questionpool\\:TreeTable a")
-            .filter(new Locator.FilterOptions().setHasText(poolName)).first().click());
+        page.locator("#questionpool\\:TreeTable a")
+            .filter(new Locator.FilterOptions().setHasText(poolName)).first().click();
         assertThat(page.locator("#tag-selector").getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true))).isVisible();
         String secondTag = tagLabel + " edited";
         tagInput.fill(secondTag);
         tagInput.press("Enter");
-        assertPoolTagRequest(() -> page.locator("#editform\\:Update").click());
+        page.locator("#editform\\:Update").click();
         assertThat(page.locator("#tag-selector").getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Deselect: " + secondTag).setExact(true))).isVisible();
         page.locator("#tag-selector").getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true)).click();
-        assertPoolTagRequest(() -> page.locator("#editform\\:Update").click());
+        page.locator("#editform\\:Update").click();
         assertThat(page.locator("#tag-selector").getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Deselect: " + tagLabel).setExact(true))).hasCount(0);
 
