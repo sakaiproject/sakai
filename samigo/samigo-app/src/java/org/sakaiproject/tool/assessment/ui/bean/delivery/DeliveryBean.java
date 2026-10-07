@@ -2471,6 +2471,11 @@ public class DeliveryBean implements Serializable {
    return serverConfigurationService.getString("portalPath");
   }
 
+  // Needed because beginTakingAssessment.jsp binds the sebReturnUrl hidden input to selectURL:
+  // JSF writes the submitted value back on every form submit. The value is computed, so ignore it.
+  public void setSelectURL(String selectURL) {
+  }
+
   public String getSelectURL(){
    	  Session session = sessionManager.getCurrentSession();
 	  String returnUrl = (String)session.getAttribute("LESSONBUILDER_RETURNURL_SAMIGO");
