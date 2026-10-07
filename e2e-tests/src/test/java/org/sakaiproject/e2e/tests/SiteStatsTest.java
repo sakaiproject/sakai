@@ -470,6 +470,19 @@ class SiteStatsTest extends SakaiUiTestBase {
         }
         page.setViewportSize(1280, 720);
         matches.first().getByRole(AriaRole.BUTTON).click();
+        String portalLocale = (String) page.evaluate("() => window.portal?.locale || ''");
+        try {
+            page.evaluate("() => { window.portal ||= {}; window.portal.locale = 'tr_TR'; }");
+            search.fill("istanbul");
+            assertThat(matches).hasCount(1);
+            assertThat(matches.locator(".resource-name")).hasText("İstanbul.txt");
+            search.fill("ırmak");
+            assertThat(matches).hasCount(1);
+            assertThat(matches.locator(".resource-name")).hasText("IRMAK.txt");
+        } finally {
+            page.evaluate("locale => { if (locale) window.portal.locale = locale; else delete window.portal.locale; }",
+                    portalLocale);
+        }
         search.fill("Week 5 Reading");
         assertThat(matches).hasCount(0);
         assertThat(component.locator("[role=status]")).containsText("No matching resources.");
@@ -565,7 +578,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         uploadResourceFiles(resourceFile("Reading.txt"));
         page.navigate(resourcesUrl);
         sakai.toolClick("Resources");
-        uploadResourceFiles(resourceFile("Notes.txt"));
+        uploadResourceFiles(resourceFile("Notes.txt"), resourceFile("İstanbul.txt"), resourceFile("IRMAK.txt"));
         return siteUrl;
     }
 

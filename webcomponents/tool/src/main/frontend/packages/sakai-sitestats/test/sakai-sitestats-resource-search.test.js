@@ -28,14 +28,20 @@ const mount = async (initialSelection = [], resources = []) => {
 };
 
 describe("sakai-sitestats-resource-search", () => {
+  let portal;
   beforeEach(() => {
+    portal = window.portal;
+    window.portal = undefined;
     window.sessionStorage.clear();
     window.sakai = undefined;
     document.documentElement.lang = "en-US";
     fetchMock.mockGlobal();
     fetchMock.get(i18n.i18nUrl, i18n.i18n);
   });
-  afterEach(() => fetchMock.hardReset());
+  afterEach(() => {
+    window.portal = portal;
+    fetchMock.hardReset();
+  });
 
   it("refreshes translations when an older bundle is cached in storage and a resolved promise", async () => {
     const oldBundle = Object.fromEntries(i18n.i18n.trim().split("\n").slice(0, 7)
@@ -129,6 +135,32 @@ describe("sakai-sitestats-resource-search", () => {
     expect(selected(el)).to.have.length(1);
     expect(metadataCalls()).to.have.length(1);
   });
+
+  for (const locale of [ "tr_TR", "az_AZ" ]) {
+    it(`adds ${locale} name and location matches while preserving default-case matches`, async () => {
+      const el = await mount([], [
+        resource(1, "İstanbul.pdf"), resource(2, "IRMAK.txt"), resource(3, "IMPORT.txt"),
+        { ...resource(4, "Notes"), location: "Resources / İSTANBUL" },
+        { ...resource(5, "Other notes"), location: "Resources / IMPORT" },
+        resource(6, "info.txt"),
+      ]);
+      window.portal = { locale };
+      await query(el, "istanbul");
+      await waitUntil(() => rows(el).length === 2);
+      expect([ ...rows(el) ].map(row => row.querySelector(".resource-name").textContent))
+        .to.deep.equal([ "İstanbul.pdf", "Notes" ]);
+      await query(el, "ırmak");
+      expect(rows(el)).to.have.length(1);
+      expect(rows(el)[0].textContent).to.contain("IRMAK.txt");
+      await query(el, "İn");
+      expect(rows(el)).to.have.length(1);
+      expect(rows(el)[0].textContent).to.contain("info.txt");
+      await query(el, "import");
+      expect([ ...rows(el) ].map(row => row.querySelector(".resource-name").textContent))
+        .to.deep.equal([ "IMPORT.txt", "Other notes" ]);
+      expect(metadataCalls()).to.have.length(1);
+    });
+  }
 
   it("keeps the server's order and treats exactly twenty matches as complete", async () => {
     const resources = Array.from({ length: 20 }, (_, n) => resource(19 - n));

@@ -1,6 +1,7 @@
 import { css, html, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { getUserLocale } from "@sakai-ui/sakai-portal-utils";
 
 const SEARCH_LIMIT = 20;
 const SELECTED_PAGE_SIZE = 50;
@@ -146,10 +147,17 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
       this._loadResources();
       return;
     }
-    const query = this._query.trim().toLowerCase();
+    const query = this._query.trim();
+    const defaultQuery = query.toLowerCase();
+    const locale = getUserLocale();
+    const localeQuery = query.toLocaleLowerCase(locale);
     const items = [];
     for (const resource of this._resources) {
-      if (!resource.label.toLowerCase().includes(query) && !resource.location.toLowerCase().includes(query)) continue;
+      const matches = resource.label.toLowerCase().includes(defaultQuery)
+        || resource.location.toLowerCase().includes(defaultQuery)
+        || resource.label.toLocaleLowerCase(locale).includes(localeQuery)
+        || resource.location.toLocaleLowerCase(locale).includes(localeQuery);
+      if (!matches) continue;
       if (items.length === SEARCH_LIMIT) {
         this._truncated = true;
         break;
