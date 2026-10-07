@@ -175,6 +175,27 @@ public class SiteStatsResourceSearchServiceTest {
     }
 
     @Test
+    public void refinesTheBrowserFixtureWithTermsAcrossNamesAndLocations() throws Exception {
+        String firstWeek = ROOT + "Week 1/";
+        String fifthWeek = ROOT + "Week 5/";
+        folder(firstWeek, "Week 1");
+        folder(fifthWeek, "Week 5");
+        resource(ROOT, firstWeek + "Reading.txt", "Reading.txt", ResourceType.TYPE_UPLOAD);
+        resource(ROOT, fifthWeek + "Reading.txt", "Reading.txt", ResourceType.TYPE_UPLOAD);
+        for (int index = 1; index <= 20; index++) {
+            String name = "Reading " + index + ".txt";
+            resource(ROOT, firstWeek + name, name, ResourceType.TYPE_UPLOAD);
+        }
+        ResourceSearchResult broad = service.search(SITE, "reading");
+        assertEquals(20, broad.items().size());
+        assertTrue(broad.truncated());
+        ResourceSearchResult refined = service.search(SITE, "Week 5 Reading");
+        assertEquals(List.of(fifthWeek + "Reading.txt", firstWeek + "Reading 15.txt", firstWeek + "Reading 5.txt"),
+                refined.items().stream().map(ResourceOption::id).toList());
+        assertFalse(refined.truncated());
+    }
+
+    @Test
     public void boundsParentReadsForTwoThousandResourcesWithSharedLocations() throws Exception {
         for (int week = 0; week < 100; week++) {
             String folderId = ROOT + "unit-" + week + "/";

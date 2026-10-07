@@ -467,7 +467,10 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.setViewportSize(1280, 720);
         matches.first().getByRole(AriaRole.BUTTON).click();
         search.fill("Week 5 Reading");
-        assertThat(matches).hasCount(1);
+        // Each term can match the name or the location, including 5 in Reading 15.txt.
+        assertThat(matches).hasCount(3);
+        assertThat(matches.locator(".resource-name")).hasText(
+            new String[] { "Reading.txt", "Reading 15.txt", "Reading 5.txt" });
         Locator chosenWeek = matches.filter(new Locator.FilterOptions().setHasText("Resources / Week 5"));
         assertThat(chosenWeek).hasCount(1);
         chosenWeek.getByRole(AriaRole.BUTTON).click();
@@ -572,6 +575,7 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     private void assertResourceFormValue(String expected) {
+        assertThat(page.locator("sakai-sitestats-resource-search")).hasJSProperty("value", expected);
         assertEquals(expected, page.locator("#report-editor").evaluate(
             "form => new FormData(form).get('whatResourceIds')"));
     }
