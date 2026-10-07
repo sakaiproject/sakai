@@ -1150,21 +1150,12 @@ $(document).ready(() => {
   }
 });
 
-ASN.cancelGradeSubmission = function (clickedButton) {
+ASN.cancelGradeSubmission = function () {
 
-  const form = document.getElementById("gradeForm");
-  if (form.inert) return false;
-  form.inert = true;
-  Promise.all([...document.getElementsByTagName("sakai-rubric-grading")].map(r => r.cancel()))
-    .then(() => {
-      SPNR.disableControlsAndSpin( clickedButton, null );
-      ASN.submitForm( 'gradeForm', 'cancelgrade', null, null );
-    })
-    .catch(error => {
-      form.inert = false;
-      clickedButton.focus();
-      console.error("Failed to cancel rubric changes", error);
-    });
+  [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. cancel());
+
+  SPNR.disableControlsAndSpin( this, null );
+  ASN.submitForm( 'gradeForm', 'cancelgrade', null, null );
   return false;
 };
 

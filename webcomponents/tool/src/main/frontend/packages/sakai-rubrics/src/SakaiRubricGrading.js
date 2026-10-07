@@ -53,7 +53,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   set evaluatedItemId(value) {
 
-    if (value !== this._evaluatedItemId) this._savedEvaluation = null;
     this._evaluatedItemId = value;
     this._getAssociation();
   }
@@ -260,12 +259,12 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     if (this._evaluation.criterionOutcomes.length) {
       // We only want to inform the enclosing tool about ratings changes
       // for an existing evaluation
-      return this.dispatchRatingChanged(this._criteria, 2, true);
+      this.dispatchRatingChanged(this._criteria, 2);
     }
   }
 
   save() {
-    return this.dispatchRatingChanged(this._criteria, 1, true);
+    this.dispatchRatingChanged(this._criteria, 1);
   }
 
   decorateCriteria() {
@@ -339,7 +338,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this.dispatchRatingChanged(this._criteria, 1);
   }
 
-  dispatchRatingChanged(criteria, status, remember = false) {
+  dispatchRatingChanged(criteria, status) {
 
     const crit = criteria.map(c => {
 
@@ -372,20 +371,13 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       evaluation.metadata = this._evaluation.metadata;
     }
 
-    this._saveEvaluation(evaluation, remember);
-    return this._savePromise;
-  }
-
-  _saveEvaluation(evaluation, remember = false, notify = true) {
-
     let url = `/api/sites/${this.siteId}/rubric-evaluations`;
-    if (evaluation.id) url += `/${evaluation.id}`;
-    // Keep edits and cancellation in order, including overlapping auto-saves.
-    const request = (this._savePromise || Promise.resolve()).then(() => fetch(url, {
+    if (this._evaluation?.id) url += `/${this._evaluation.id}`;
+    fetch(url, {
       body: JSON.stringify(evaluation),
       headers: { "Content-Type": "application/json" },
-      method: evaluation.id ? "PUT" : "POST",
-    }))
+      method: this._evaluation?.id ? "PUT" : "POST",
+    })
     .then(r => {
 
       if (r.ok) {
@@ -396,17 +388,11 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     })
     .then(data => {
 
-      if (data.evaluatedItemId === this.evaluatedItemId) {
-        this._evaluation = data;
-        if (remember) this._savedEvaluation = data;
-        if (notify) this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
-      }
-      return data;
-    });
-
-    // Allow later requests to run after a failure, while cancellation receives the rejection.
-    this._savePromise = request.catch(error => console.error(error));
-    return request;
+      this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
+      this._evaluation = data;
+      return Promise.resolve(this._evaluation);
+    })
+    .catch(error => console.error(error));
   }
 
   getOverriddenClass(ovrdvl, selected) {
@@ -519,37 +505,30 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     }
   }
 
-  async cancel() {
+  cancel() {
 
-    const itemId = this.evaluatedItemId;
-    await this._savePromise;
-    if (itemId !== this.evaluatedItemId) return;
+    if (this._evaluation.status !== "DRAFT") return;
 
-    // Assignment cancellation restores the last explicit save, including unreleased rubrics.
-    const saved = this.toolId === "sakai.assignment.grades" && !this.isPeerOrSelf && this._savedEvaluation;
-    if (!saved?.id && (this._evaluation?.status !== "DRAFT" || this._evaluation.evaluatedItemId !== itemId)) return;
+    const url = `/api/sites/${this.siteId}/rubric-evaluations/${this._evaluation.id}/cancel`;
 
-    let restored;
-    if (saved?.id) {
-      restored = await this._saveEvaluation(saved, false, false);
-    } else {
-      const url = `/api/sites/${this.siteId}/rubric-evaluations/${this._evaluation.id}/cancel`;
-      const response = await fetch(url, { credentials: "include" });
-      if (!response.ok) throw new Error("Failed to cancel rubric evaluation");
-      restored = await response.json();
-    }
+    fetch(url, { credentials: "include" })
+    .then(r => {
 
-    if (itemId !== this.evaluatedItemId) return;
-    this._evaluation = restored;
-    // Clear edited values before applying the saved outcomes, including empty outcomes.
-    this._criteria.forEach(c => {
-      c.ratings.forEach(r => r.selected = false);
-      c.selectedvalue = 0;
-      c.selectedRatingId = 0;
-      c.pointoverride = "";
-      c.comments = "";
-    });
-    this.decorateCriteria();
+      if (r.ok) {
+        return r.json();
+      }
+
+      throw new Error("Failed to cancel rubric evaluation");
+    })
+    .then(restored => {
+
+      this._evaluation = restored;
+      // Unset any ratings
+      this._criteria.forEach(c => c.ratings.forEach(r => r.selected = false));
+      // And set the original ones
+      this.decorateCriteria();
+    })
+    .catch(error => console.error(error));
   }
 
   _getAssociation() {
@@ -558,24 +537,21 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       return;
     }
 
-    const itemId = this.evaluatedItemId;
     this.apiGetAssociation()
       .then(association => {
 
-        if (itemId !== this.evaluatedItemId) return;
         this.association = association;
         this._rubricId = association.rubricId;
-        this._getRubric(this._rubricId, itemId);
+        this._getRubric(this._rubricId);
       })
       .catch (error => console.error(error));
   }
 
-  _getRubric(rubricId, itemId) {
+  _getRubric(rubricId) {
 
     this.apiGetRubric(rubricId)
       .then(rubric => {
 
-        if (itemId !== this.evaluatedItemId) return;
         this._rubric = rubric;
         this._criteria = this._rubric.criteria;
 
@@ -584,9 +560,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           this.apiGetEvaluation()
             .then(evaluation => {
 
-              if (itemId !== this.evaluatedItemId) return;
               this._evaluation = evaluation || { criterionOutcomes: [] };
-              this._savedEvaluation = evaluation;
               this._criteria.forEach(c => {
 
                 c.pointoverride = "";

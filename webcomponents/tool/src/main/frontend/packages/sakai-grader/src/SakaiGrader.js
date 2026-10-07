@@ -551,27 +551,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     });
   }
 
-  async _cancel(toggle = true) {
-
-    if (this.inert) return false;
-    const focusedElement = document.activeElement;
-    const submissionId = this._submission.id;
-    const rubricGrading = this.querySelector("sakai-rubric-grading");
-    try {
-      if (rubricGrading) {
-        this.inert = true;
-        await rubricGrading.cancel();
-      }
-    } catch (error) {
-      console.error("Failed to cancel rubric changes", error);
-      this._saveFailed = true;
-      return false;
-    } finally {
-      this.inert = false;
-      focusedElement?.focus();
-    }
-    if (submissionId !== this._submission.id) return false;
-    this._saveFailed = false;
+  _cancel(toggle = true) {
 
     const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
     const i = this._submissions.findIndex(s => s.id === this._submission.id);
@@ -591,7 +571,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._resetGradeInputs();
 
     toggle && this._toggleGrader();
-    return true;
   }
 
   _resetGradeInputs() {
@@ -678,7 +657,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._gradeOrCommentsModified = true;
   }
 
-  async _previous() {
+  _previous() {
 
     // Check for unsaved changes before navigating
     if (this.modified) {
@@ -686,8 +665,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
         return;
       }
       // User confirmed - discard the unsaved changes
-      const cancelling = this._cancel(false);
-      if (this.querySelector("sakai-rubric-grading") && !await cancelling) return;
+      this._cancel(false);
     }
 
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
@@ -713,23 +691,20 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     }
   }
 
-  async _studentSelected(e) {
+  _studentSelected(e) {
 
-    const selectedId = e.target.value;
     // Check for unsaved changes before navigating
-    if (this.modified && selectedId !== this._submission.id) {
+    if (this.modified && e.target.value !== this._submission.id) {
       if (!confirm(this._i18n.unsaved_changes_warning)) {
         // Reset the select to the current submission
         e.target.value = this._submission.id;
         return;
       }
       // User confirmed - discard the unsaved changes
-      e.target.value = this._submission.id;
-      const cancelling = this._cancel(false);
-      if (this.querySelector("sakai-rubric-grading") && !await cancelling) return;
+      this._cancel(false);
     }
 
-    const selectedSubmission = this._submissions.find(s => s.id === selectedId);
+    const selectedSubmission = this._submissions.find(s => s.id === e.target.value);
     if (!selectedSubmission) {
       console.error("Selected submission not found in filtered submissions");
       return;
@@ -748,7 +723,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     }
   }
 
-  async _next() {
+  _next() {
 
     // Check for unsaved changes before navigating
     if (this.modified) {
@@ -756,8 +731,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
         return;
       }
       // User confirmed - discard the unsaved changes
-      const cancelling = this._cancel(false);
-      if (this.querySelector("sakai-rubric-grading") && !await cancelling) return;
+      this._cancel(false);
     }
 
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
