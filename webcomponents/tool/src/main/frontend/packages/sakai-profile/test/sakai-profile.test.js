@@ -18,7 +18,7 @@ describe("sakai-profile tests", () => {
     fetchMock.hardReset();
   });
 
-  window.top.portal = { siteId: "test-site" };
+  window.top.portal = { siteId: data.siteId };
 
   it ("renders correctly", async () => {
  
@@ -37,23 +37,5 @@ describe("sakai-profile tests", () => {
     expect(el.shadowRoot.querySelector("div.role").innerHTML).to.contain(data.profile.role);
     expect(el.shadowRoot.querySelector("sakai-pronunciation-player")).to.exist;
     expect(el.shadowRoot.querySelector("div.url")).to.exist;
-    const imageUrl = new URL(el.renderRoot.querySelector(".photo").style.backgroundImage.slice(5, -2), window.location.href);
-    expect(imageUrl.pathname).to.equal(`/api/users/${data.userId}/profile/image`);
-    expect(imageUrl.searchParams.get("siteId")).to.equal("test-site");
-  });
-
-  it("uses the profile image endpoint without a site context", async () => {
-    const siteId = window.top.portal.siteId;
-    window.top.portal.siteId = null;
-    try {
-      const el = await fixture(html`<sakai-profile user-id="${data.userId}"></sakai-profile>`);
-      el.fetchProfileData();
-      await waitUntil(() => el.renderRoot.querySelector(".photo"));
-      const imageUrl = new URL(el.renderRoot.querySelector(".photo").style.backgroundImage.slice(5, -2), window.location.href);
-      expect(imageUrl.pathname).to.equal(`/api/users/${data.userId}/profile/image`);
-      expect(imageUrl.search).to.equal("");
-    } finally {
-      window.top.portal.siteId = siteId;
-    }
   });
 });

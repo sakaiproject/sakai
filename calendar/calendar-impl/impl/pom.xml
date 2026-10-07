@@ -148,16 +148,6 @@
             <version>${sakai.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-spring</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-spring-cache-ext</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

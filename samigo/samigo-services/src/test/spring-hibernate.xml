@@ -26,11 +26,6 @@
     <bean id="assessmentGradingFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
         <property name="sessionFactory" ref="sessionFactory"/>
-        <property name="persistenceHelper" ref="persistenceHelper"/>
-    </bean>
-
-    <bean id="persistenceHelper" class="org.sakaiproject.tool.assessment.services.PersistenceHelper">
-        <property name="retryCount" value="1"/>
     </bean>
 
     <bean id="itemFacadeQueries"
@@ -45,16 +40,6 @@
 
     <bean id="assessmentFacadeQueries"
           class="org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries">
-        <property name="sessionFactory" ref="sessionFactory"/>
-    </bean>
-
-    <bean id="publishedAssessmentFacadeQueries"
-          class="org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries">
-        <property name="sessionFactory" ref="sessionFactory"/>
-    </bean>
-
-    <bean id="authzQueriesFacade"
-          class="org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
