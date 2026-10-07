@@ -71,9 +71,8 @@ class PollTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
 
-        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Add|New", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
 
         page.locator("form:visible input[type=\"text\"]").first().fill(POLL_TITLE);
 
@@ -127,9 +126,8 @@ class PollTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
 
-        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Add|New", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
 
         page.locator("form:visible input[type=\"text\"]").first().fill(LIMITS_POLL_TITLE);
         page.locator("#poll-details").fill("Poll limits regression test");
@@ -202,9 +200,8 @@ class PollTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
 
-        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Add|New", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
 
         page.locator("form:visible input[type=\"text\"]").first().fill(DEFAULT_DATES_POLL_TITLE);
 
@@ -236,9 +233,8 @@ class PollTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
 
-        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Bulk Creation", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Bulk Creation").setExact(true)).click();
 
         assertThat(page.locator("#poll-uploaded-text")).isVisible();
         assertThat(page.locator("label[for=\"poll-uploaded-text\"]")).isVisible();
@@ -336,9 +332,8 @@ class PollTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Poll");
 
-        page.locator(".navIntraTool a, .navIntraTool button, ul.nav a")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Bulk Creation", Pattern.CASE_INSENSITIVE))).first()
-            .click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Bulk Creation").setExact(true)).click();
 
         LocalDateTime now = LocalDateTime.now();
         String openDate = now.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
