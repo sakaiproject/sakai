@@ -3081,7 +3081,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
-				session.merge(section);
+				session.persist(section);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update assessment: {}", e.getMessage());

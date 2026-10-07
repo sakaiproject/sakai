@@ -42,12 +42,15 @@ public class SamigoPersistenceTestConfiguration {
     @Bean
     public PersistenceService persistenceService(AuthzQueriesFacadeAPI authzQueriesFacade,
             PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries,
-            AutoSubmitFacadeQueriesAPI autoSubmitFacadeQueries, PersistenceHelper persistenceHelper) {
+            AutoSubmitFacadeQueriesAPI autoSubmitFacadeQueries, PersistenceHelper persistenceHelper,
+            PublishedSectionFacadeQueriesAPI publishedSectionFacadeQueries, TypeFacadeQueriesAPI typeFacadeQueries) {
         PersistenceService service = new PersistenceService();
         service.setAuthzQueriesFacade(authzQueriesFacade);
         service.setPublishedAssessmentFacadeQueries(publishedAssessmentFacadeQueries);
         service.setAutoSubmitFacadeQueries(autoSubmitFacadeQueries);
         service.setPersistenceHelper(persistenceHelper);
+        service.setPublishedSectionFacadeQueries(publishedSectionFacadeQueries);
+        service.setTypeFacadeQueries(typeFacadeQueries);
         return service;
     }
 
@@ -57,4 +60,19 @@ public class SamigoPersistenceTestConfiguration {
         queries.setSessionFactory(sessionFactory);
         return queries;
     }
+
+    @Bean
+    public PublishedSectionFacadeQueries publishedSectionFacadeQueries(SessionFactory sessionFactory) {
+        PublishedSectionFacadeQueries queries = new PublishedSectionFacadeQueries();
+        queries.setSessionFactory(sessionFactory);
+        return queries;
+    }
+
+    @Bean
+    public TypeFacadeQueries typeFacadeQueries(SessionFactory sessionFactory) {
+        TypeFacadeQueries queries = new TypeFacadeQueries();
+        queries.setSessionFactory(sessionFactory);
+        return queries;
+    }
+
 }

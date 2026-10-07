@@ -945,6 +945,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 				CriteriaBuilder cb = session.getCriteriaBuilder();
 				CriteriaQuery<SecuredIPAddress> cq = cb.createQuery(SecuredIPAddress.class);
 				Root<SecuredIPAddress> root = cq.from(SecuredIPAddress.class);
+				cq.where(cb.equal(root.get("assessment").get("assessmentBaseId"), assessmentId));
 
 				List<SecuredIPAddress> ip = session.createQuery(cq).list();
 				if (ip.size() > 0) {

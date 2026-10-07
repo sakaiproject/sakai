@@ -29,8 +29,12 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -54,6 +58,8 @@ public class AssessmentPersistenceTest extends AbstractTransactionalJUnit4Spring
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private RubricsService rubricsService;
     @Autowired private AssessmentGradingFacadeQueries assessmentGradingFacadeQueries;
+    @Autowired private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
+    @Autowired private TypeFacadeQueries typeFacadeQueries;
 
     @Test
     public void importsDraftWithItsNewIdAuthorizationAndMetadata() throws Exception {
@@ -158,6 +164,97 @@ public class AssessmentPersistenceTest extends AbstractTransactionalJUnit4Spring
             ComponentManager.shutdown();
             ComponentManager.testingMode = previousTestingMode;
         }
+    }
+
+    @Test
+    public void removesIpRestrictionsOnlyFromTheRequestedDraftAssessment() {
+        assertIpRestrictionsAreIsolated(true);
+    }
+
+    @Test
+    public void clearingUnrestrictedAssessmentPreservesOtherIpRestrictions() {
+        assertIpRestrictionsAreIsolated(false);
+    }
+
+    private void assertIpRestrictionsAreIsolated(boolean restrictedTarget) {
+        Session session = sessionFactory.getCurrentSession();
+        AssessmentData target = seedDraft("Target assessment");
+        AssessmentData other = seedDraft("Other assessment");
+        SecuredIPAddress otherAddress = new SecuredIPAddress(other, "Other room", "192.0.2.2");
+        session.persist(otherAddress);
+        if (restrictedTarget) {
+            session.persist(new SecuredIPAddress(target, "Target room", "192.0.2.1"));
+        }
+        session.flush();
+        Long targetId = target.getAssessmentId();
+        Long otherId = other.getAssessmentId();
+        Long otherAddressId = otherAddress.getId();
+        session.clear();
+
+        boolean previousTestingMode = ComponentManager.testingMode;
+        ComponentManager.testingMode = true;
+        try {
+            ComponentManager.loadComponent("PersistenceService", persistenceService);
+            assessmentFacadeQueries.deleteAllSecuredIP(session.get(AssessmentData.class, targetId));
+            session.flush();
+            session.clear();
+            assertTrue(session.get(AssessmentData.class, targetId).getSecuredIPAddressSet().isEmpty());
+            assertEquals(1, session.get(AssessmentData.class, otherId).getSecuredIPAddressSet().size());
+            assertEquals("192.0.2.2", session.get(SecuredIPAddress.class, otherAddressId).getIpAddress());
+        } finally {
+            ComponentManager.shutdown();
+            ComponentManager.testingMode = previousTestingMode;
+        }
+    }
+
+    @Test
+    public void addingPublishedSectionReturnsItsPersistedIdAndMetadata() {
+        Session session = sessionFactory.getCurrentSession();
+        PublishedAssessmentData published = new PublishedAssessmentData();
+        published.setTitle("Published assessment");
+        published.setStatus(1);
+        published.setCreatedBy("instructor");
+        published.setLastModifiedBy("instructor");
+        published.setCreatedDate(new Date());
+        published.setLastModifiedDate(new Date());
+        session.persist(published);
+        session.flush();
+        Long publishedId = published.getPublishedAssessmentId();
+        session.clear();
+
+        boolean previousTestingMode = ComponentManager.testingMode;
+        ComponentManager.testingMode = true;
+        try {
+            ComponentManager.loadComponent("PersistenceService", persistenceService);
+            ComponentManager.loadComponent(UserDirectoryService.class, userDirectoryService);
+            SpringBeanLocator.setApplicationContext(applicationContext);
+            typeFacadeQueries.setTypeFacadeMap();
+            PublishedSectionFacade result = publishedAssessmentFacadeQueries.addSection(publishedId);
+            Long sectionId = result.getSectionId();
+            assertTrue(sectionId > 0);
+            session.flush();
+            session.clear();
+            PublishedSectionData stored = session.get(PublishedSectionData.class, sectionId);
+            assertEquals(publishedId, ((PublishedAssessmentIfc) stored.getAssessment()).getPublishedAssessmentId());
+            assertEquals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString(), stored.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE));
+            assertEquals(1, session.get(PublishedAssessmentData.class, publishedId).getSectionSet().size());
+        } finally {
+            SpringBeanLocator.setApplicationContext(null);
+            ComponentManager.shutdown();
+            ComponentManager.testingMode = previousTestingMode;
+        }
+    }
+
+    private AssessmentData seedDraft(String title) {
+        AssessmentData draft = new AssessmentData();
+        draft.setTitle(title);
+        draft.setStatus(1);
+        draft.setCreatedBy("instructor");
+        draft.setLastModifiedBy("instructor");
+        draft.setCreatedDate(new Date());
+        draft.setLastModifiedDate(new Date());
+        sessionFactory.getCurrentSession().persist(draft);
+        return draft;
     }
 
 }
