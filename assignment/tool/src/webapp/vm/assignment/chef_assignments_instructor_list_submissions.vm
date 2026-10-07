@@ -491,7 +491,7 @@ function printView(url) {
 										#if ($assignment.IsGroup && !$value_CheckAnonymousGrading && $gusers)
 											<div class="badge bg-primary fs-6">
 											#foreach ($user in $gusers)
-												#if($velocityCount > 1), #end
+												#if($foreach.count > 1), #end
 												#set($is_user_duplicate=false)
 												#if($usersinmultiplegroups)
 													#foreach ($userin in $usersinmultiplegroups)
