@@ -42,6 +42,9 @@ public class TagManagementService {
 
     public String createTag(String siteId, Tag submitted) {
         String collectionId = submitted.getTagCollectionId();
+        if (StringUtils.isBlank(collectionId)) {
+            throw new IllegalArgumentException("A tag collection is required");
+        }
         requireEditableCollection(siteId, collectionId);
         Tag tag = Tag.builder().tagCollectionId(collectionId).tagLabel(submitted.getTagLabel())
             .description(submitted.getDescription()).externalId(submitted.getExternalId()).build();

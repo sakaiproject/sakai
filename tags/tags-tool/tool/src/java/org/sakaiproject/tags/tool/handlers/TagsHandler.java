@@ -126,8 +126,9 @@ public class TagsHandler extends CrudHandler {
             if (!tagService.canManageCollection(siteId, tag.get().getTagCollectionId())) {
                 throw new SecurityException("Cannot edit tag " + uuid);
             }
-            Optional<TagCollection> tagCollection = tagManagementService.getCollection(siteId, tag.get().getTagCollectionId());
-            if (Boolean.TRUE.equals(tagCollection.get().getExternalCreation()) || Boolean.TRUE.equals(tag.get().getExternalCreation())){
+            TagCollection tagCollection = tagManagementService.getCollection(siteId, tag.get().getTagCollectionId())
+                .orElseThrow(() -> new IllegalArgumentException("No matching tag collection"));
+            if (Boolean.TRUE.equals(tagCollection.getExternalCreation()) || Boolean.TRUE.equals(tag.get().getExternalCreation())){
                 context.put("externalcreation", " readonly ");
                 context.put("isExternallyUpdated","style=display:none");
             }
