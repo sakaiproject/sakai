@@ -41,6 +41,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionSnapshot;
+import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
@@ -377,7 +379,14 @@ public class BaseExternalCalendarSubscriptionService implements
 				es.location = event.getLocation();
 				es.rangeStartMillis = event.getRange().firstTime().getTime();
 				es.rangeEndMillis = event.getRange().lastTime().getTime();
-				es.recurrenceRule = event.getRecurrenceRule();
+				RecurrenceRule recurrenceRule = event.getRecurrenceRule();
+				if (recurrenceRule != null)
+				{
+					es.recurrenceFrequency = recurrenceRule.getFrequency();
+					es.recurrenceInterval = recurrenceRule.getInterval();
+					es.recurrenceCount = recurrenceRule.getCount();
+					es.recurrenceUntilMillis = recurrenceRule.getUntil() == null ? null : recurrenceRule.getUntil().getTime();
+				}
 				snapshot.events.add(es);
 			}
 		}
@@ -406,10 +415,18 @@ public class BaseExternalCalendarSubscriptionService implements
 		{
 			TimeRange range = m_timeService.newTimeRange(
 					m_timeService.newTime(es.rangeStartMillis), m_timeService.newTime(es.rangeEndMillis));
+			RecurrenceRule recurrenceRule = null;
+			if (es.recurrenceFrequency != null)
+			{
+				recurrenceRule = es.recurrenceUntilMillis == null
+						? m_calendarService.newRecurrence(es.recurrenceFrequency, es.recurrenceInterval, es.recurrenceCount)
+						: m_calendarService.newRecurrence(es.recurrenceFrequency, es.recurrenceInterval,
+								m_timeService.newTime(es.recurrenceUntilMillis));
+			}
 			try
 			{
 				calendar.addEvent(range, es.displayName, es.description, es.type, es.location,
-						snapshot.userId, es.recurrenceRule, null);
+						snapshot.userId, recurrenceRule, null);
 			}
 			catch (PermissionException e)
 			{
