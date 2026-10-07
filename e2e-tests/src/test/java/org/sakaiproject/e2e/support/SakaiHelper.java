@@ -17,11 +17,15 @@ package org.sakaiproject.e2e.support;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+import com.microsoft.playwright.APIRequestContext;
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.RequestOptions;
 import com.microsoft.playwright.options.WaitForSelectorState;
 import com.microsoft.playwright.options.WaitUntilState;
 import java.time.LocalDateTime;
@@ -33,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,13 +48,21 @@ public class SakaiHelper {
         Pattern.CASE_INSENSITIVE
     );
     private static final Map<String, String> COURSE_URL_CACHE = new HashMap<>();
+    private static final Map<String, String> SITE_TEMPLATE_URL_CACHE = new HashMap<>();
 
     private final Page page;
     private final String baseUrl;
+    private final APIRequestContext fixtureRequest;
+    private String fixtureSessionId;
 
-    public SakaiHelper(Page page, String baseUrl) {
+    public SakaiHelper(Page page, String baseUrl, APIRequestContext fixtureRequest) {
         this.page = page;
         this.baseUrl = baseUrl;
+        this.fixtureRequest = fixtureRequest;
+    }
+
+    static void clearSiteCache() {
+        COURSE_URL_CACHE.clear();
     }
 
     public String randomId() {
@@ -85,6 +98,8 @@ public class SakaiHelper {
         // Go straight to the login form: /portal/ shows a guest landing page instead of the
         // form when guest access is enabled, which would otherwise leave the session anonymous.
         gotoPath("/portal/xlogin");
+        // The login page focuses the username on window.load, so wait before filling either field.
+        page.waitForLoadState();
 
         Locator usernameInput = page.locator("input[name=\"eid\"], #eid").first();
         if (waitForVisible(usernameInput, 5000)) {
@@ -92,7 +107,7 @@ public class SakaiHelper {
             page.locator("input[name=\"pw\"], #pw").first().fill(passwordFor(resolvedUsername));
 
             Locator submit = page.locator("#submit, button[type=\"submit\"], input[type=\"submit\"]").first();
-            submit.click(new Locator.ClickOptions().setForce(true));
+            submit.click();
             page.waitForLoadState();
         }
 
@@ -102,14 +117,15 @@ public class SakaiHelper {
     }
 
     public void toolClick(String label) {
-        boolean clicked = clickToolByText(label);
-        if (clicked) {
-            return;
+        // Tool actions can refresh the portal; wait before inspecting its navigation.
+        page.waitForLoadState();
+        Locator expandButtons = page.locator("li.site-list-item.is-current-site button[data-bs-toggle='collapse'][aria-expanded='false']");
+        if (expandButtons.count() > 0 && expandButtons.first().isVisible()) {
+            expandButtons.first().click();
         }
 
-        Locator expandButtons = page.locator("button[title*=\"Expand tool list\"], button[aria-label*=\"Expand tool list\"]");
-        if (expandButtons.count() > 0 && expandButtons.first().isVisible()) {
-            expandButtons.first().click(new Locator.ClickOptions().setForce(true));
+        if (clickToolByText(label)) {
+            return;
         }
 
         Locator allSitesButton = page.locator("button.responsive-allsites-button").first();
@@ -166,14 +182,58 @@ public class SakaiHelper {
             return cachedCourseUrl;
         }
 
+        // Build an empty template through the wizard once per user/site type in each fork.
+        // Copying it through SakaiScript preserves the provided roster, roles and site properties.
+        String templateKey = resolvedUsername + "|" + siteType;
+        String templateUrl = SITE_TEMPLATE_URL_CACHE.computeIfAbsent(templateKey,
+            key -> createSiteThroughUi(resolvedUsername, List.of(), siteType));
+        if (fixtureSessionId == null) {
+            APIResponse login = fixtureRequest.post("/direct/session/new", RequestOptions.create()
+                .setForm(FormData.create().set("_username", "admin").set("_password", passwordFor("admin"))));
+            if (!login.ok()) {
+                throw new IllegalStateException("Unable to authenticate site fixture requests: HTTP " + login.status());
+            }
+            fixtureSessionId = login.text().trim();
+        }
+        String siteId = UUID.randomUUID().toString();
+        callSakaiScript("copySite", fixtureSessionId, Map.of(
+            "siteidtocopy", siteIdFromUrl(templateUrl), "newsiteid", siteId,
+            "title", "Playwright Java Testing " + siteId, "type", siteType, "published", "true"));
+        callSakaiScript("addMemberToSiteWithRole", fixtureSessionId, Map.of(
+            "siteid", siteId, "eid", resolvedUsername,
+            "roleid", "course".equals(siteType) ? "Instructor" : "maintain"));
+        int position = 2; // Home and Site Info come from the template.
+        for (String toolId : normalizedToolIds(toolIds)) {
+            if (!"sakai.siteinfo".equals(toolId) && !"sakai.iframe.site".equals(toolId)) {
+                callSakaiScript("addToolAndPageToSite", fixtureSessionId, Map.of(
+                    "siteid", siteId, "toolid", toolId, "position", Integer.toString(position++)));
+            }
+        }
+        APIResponse pin = page.request().post("/portal/favorites/update", RequestOptions.create()
+            .setForm(FormData.create().set("siteId", siteId).set("pinned", "true")));
+        if (!pin.ok()) {
+            throw new IllegalStateException("Unable to pin site fixture: HTTP " + pin.status());
+        }
+        String siteUrl = "/portal/site/" + siteId;
+        COURSE_URL_CACHE.put(courseCacheKey, siteUrl);
+        return siteUrl;
+    }
+
+    private void callSakaiScript(String action, String sessionId, Map<String, String> parameters) {
+        RequestOptions options = RequestOptions.create().setQueryParam("sessionid", sessionId);
+        parameters.forEach(options::setQueryParam);
+        APIResponse response = fixtureRequest.get("/sakai-ws/rest/sakai/" + action, options);
+        if (!response.ok() || !"success".equals(response.text().trim())) {
+            throw new IllegalStateException("Site fixture " + action + " failed: " + response.text());
+        }
+    }
+
+    public String createSiteThroughUi(String username, List<String> toolIds, String siteType) {
+        String resolvedUsername = resolveUser(username);
         gotoPath("/portal/site/~" + resolvedUsername);
         dismissTutorial();
 
-        Locator worksiteSetup = page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^Worksite Setup$", Pattern.CASE_INSENSITIVE))).first();
-        assertThat(worksiteSetup).isVisible();
-        worksiteSetup.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        toolClick("Worksite Setup");
         dismissTutorial();
 
         Locator addCourseForm = page.locator("form[name=\"addCourseForm\"]");
@@ -331,7 +391,6 @@ public class SakaiHelper {
             throw new IllegalStateException("Unable to determine newly created site URL");
         }
 
-        COURSE_URL_CACHE.put(courseCacheKey, href);
         return href;
     }
 
@@ -529,48 +588,14 @@ public class SakaiHelper {
     }
 
     private boolean clickToolByText(String label) {
-        Locator nav = page.locator("li.site-list-item.is-current-site .site-list-item-collapse.collapse.show a.btn-nav");
-        int count = nav.count();
-
-        String currentSitePrefix = null;
-        Matcher currentSiteMatcher = Pattern.compile("/portal/site/([^/?#]+)").matcher(page.url());
-        if (currentSiteMatcher.find()) {
-            currentSitePrefix = "/portal/site/" + currentSiteMatcher.group(1);
+        Locator tool = page.locator("li.site-list-item.is-current-site .site-list-item-collapse.collapse.show a.btn-nav")
+            .filter(new Locator.FilterOptions().setHasText(label)).first();
+        if (!waitForVisible(tool, 5000)) {
+            return false;
         }
-
-        if (currentSitePrefix != null) {
-            for (int index = 0; index < count; index++) {
-                Locator candidate = nav.nth(index);
-                if (!candidate.isVisible()) {
-                    continue;
-                }
-
-                String text = text(candidate);
-                if (!text.toLowerCase().contains(label.toLowerCase())) {
-                    continue;
-                }
-
-                String href = candidate.getAttribute("href");
-                if (href == null || href.isBlank() || !href.startsWith(currentSitePrefix)) {
-                    continue;
-                }
-
-                candidate.click(new Locator.ClickOptions().setForce(true));
-                page.waitForLoadState();
-                return true;
-            }
-        }
-
-        for (int index = 0; index < count; index++) {
-            Locator candidate = nav.nth(index);
-            String text = text(candidate);
-            if (text.toLowerCase().contains(label.toLowerCase()) && candidate.isVisible()) {
-                candidate.click(new Locator.ClickOptions().setForce(true));
-                page.waitForLoadState();
-                return true;
-            }
-        }
-        return false;
+        tool.click();
+        page.waitForLoadState();
+        return true;
     }
 
     private boolean clickVisible(Locator locator) {

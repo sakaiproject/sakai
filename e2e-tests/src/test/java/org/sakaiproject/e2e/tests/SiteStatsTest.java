@@ -354,7 +354,7 @@ class SiteStatsTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(Pattern.compile("^Preferences$", Pattern.CASE_INSENSITIVE))).click();
         Locator preferenceTools = page.locator("fieldset").filter(
             new Locator.FilterOptions().setHas(page.locator("#all-tools"))).locator("h2");
-        assertTrue(preferenceTools.count() > 0);
+        assertThat(preferenceTools.first()).isVisible();
         for (int index = 0; index < preferenceTools.count(); index++) {
             assertTrue(!preferenceTools.nth(index).textContent().startsWith("sakai."));
         }
