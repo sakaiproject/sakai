@@ -24,12 +24,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -83,8 +82,7 @@ public class ValidationAccount implements PersistableEntity<Long> {
     public static final int ACCOUNT_STATUS_USERID_UPDATE = 7;  // For userId updates
 
     @Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "validation_account_seq")
-	@SequenceGenerator(name = "validation_account_seq", sequenceName = "VALIDATIONACCOUNT_ITEM_ID_SEQ")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "validation_account_seq", sequenceName = "VALIDATIONACCOUNT_ITEM_ID_SEQ"))
     @EqualsAndHashCode.Include
 	@JsonIgnore
 	private Long id;

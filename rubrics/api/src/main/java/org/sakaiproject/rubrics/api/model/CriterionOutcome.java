@@ -26,12 +26,11 @@ import java.io.Serializable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -50,8 +49,7 @@ import lombok.ToString;
 public class CriterionOutcome implements PersistableEntity<Long>, Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_crit_out_seq")
-    @SequenceGenerator(name="rbc_crit_out_seq", sequenceName = "rbc_crit_out_seq")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_crit_out_seq", sequenceName = "rbc_crit_out_seq"))
     private Long id;
 
     @Column(name = "criterion_id")

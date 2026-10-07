@@ -26,13 +26,12 @@ import java.time.Instant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,8 +47,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 public class Vote implements PersistableEntity<Long> {
 
     @Id
-    @SequenceGenerator(name = "poll_vote_id_sequence", sequenceName = "POLL_VOTE_ID_SEQ", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "poll_vote_id_sequence")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "poll_vote_id_sequence", sequenceName = "POLL_VOTE_ID_SEQ", allocationSize = 1))
     @Column(name = "VOTE_ID")
     @EqualsAndHashCode.Include
     private Long id;

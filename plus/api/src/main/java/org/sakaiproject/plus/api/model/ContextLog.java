@@ -25,13 +25,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Basic;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 import static jakarta.persistence.FetchType.LAZY;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -60,8 +59,7 @@ public class ContextLog implements PersistableEntity<Long> {
 
 	@Id
 	@Column(name = "CONTEXT_LOG_ID")
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "context_log_id_sequence")
-	@SequenceGenerator(name = "context_log_id_sequence", sequenceName = "PLUS_CONTEXT_LOG_S")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "context_log_id_sequence", sequenceName = "PLUS_CONTEXT_LOG_S"))
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)

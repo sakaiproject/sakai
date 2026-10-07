@@ -40,8 +40,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -53,6 +51,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -86,8 +85,7 @@ import lombok.ToString;
 public class SignupMeeting implements MeetingTypes, SignupMessageTypes, PersistableEntity<Long> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "signup_meeting_seq")
-    @SequenceGenerator(name = "signup_meeting_seq", sequenceName = "signup_meeting_ID_SEQ")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "signup_meeting_seq", sequenceName = "signup_meeting_ID_SEQ"))
     @EqualsAndHashCode.Include @Column(name = "id")
     private Long id;
 

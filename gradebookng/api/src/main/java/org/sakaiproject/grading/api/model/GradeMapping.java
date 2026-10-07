@@ -34,8 +34,6 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -43,6 +41,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
@@ -72,8 +71,7 @@ public class GradeMapping implements PersistableEntity<Long>, Serializable, Comp
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_grade_map_id_sequence")
-    @SequenceGenerator(name = "gb_grade_map_id_sequence", sequenceName = "GB_GRADE_MAPPING_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_grade_map_id_sequence", sequenceName = "GB_GRADE_MAPPING_S"))
     @ToString.Include
     protected Long id;
 

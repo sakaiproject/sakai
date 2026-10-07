@@ -22,12 +22,11 @@ import java.util.Map;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.microsoft.api.converters.JpaConverterMap;
@@ -117,8 +116,7 @@ public class MicrosoftLog {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "mc_log_seq")
-	@SequenceGenerator(name = "mc_log_seq", sequenceName = "mc_log_seq")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "mc_log_seq", sequenceName = "mc_log_seq"))
 	private Long id;
 
 	@Column(name = "event")

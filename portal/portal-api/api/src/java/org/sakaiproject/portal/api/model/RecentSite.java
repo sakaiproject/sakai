@@ -17,13 +17,12 @@ package org.sakaiproject.portal.api.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 import java.time.Instant;
 
 import org.hibernate.annotations.Type;
@@ -44,8 +43,7 @@ public class RecentSite implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "recent_sites_id_sequence")
-    @SequenceGenerator(name = "recent_sites_id_sequence", sequenceName = "RECENT_SITES_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "recent_sites_id_sequence", sequenceName = "RECENT_SITES_S"))
     private Long id;
 
     @Column(name = "USER_ID", length = 99, nullable = false)

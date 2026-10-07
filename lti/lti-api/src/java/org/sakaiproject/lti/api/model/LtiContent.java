@@ -18,6 +18,7 @@ package org.sakaiproject.lti.api.model;
 import java.io.Serializable;
 import java.time.Instant;
 import jakarta.persistence.*;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
@@ -41,8 +42,7 @@ public class LtiContent implements PersistableEntity<Long>, Serializable {
     @Id
     @EqualsAndHashCode.Include
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "lti_content_sequence")
-    @SequenceGenerator(name = "lti_content_sequence", sequenceName = "lti_content_id_sequence")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "lti_content_sequence", sequenceName = "lti_content_id_sequence"))
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

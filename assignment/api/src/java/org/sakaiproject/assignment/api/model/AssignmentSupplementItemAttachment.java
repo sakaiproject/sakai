@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.api.model;
 
 import jakarta.persistence.*;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,8 +43,7 @@ public class AssignmentSupplementItemAttachment {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "assignment_supplemental_item_attachment_sequence")
-    @SequenceGenerator(name = "assignment_supplemental_item_attachment_sequence", sequenceName = "ASN_SUP_ITEM_ATT_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "assignment_supplemental_item_attachment_sequence", sequenceName = "ASN_SUP_ITEM_ATT_S"))
     private Long id;
 
     @Column(name = "ATTACHMENT_ID", nullable = false)

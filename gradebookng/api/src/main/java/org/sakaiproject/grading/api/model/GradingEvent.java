@@ -21,14 +21,13 @@ import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.grading.api.GradingEventStatus;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -57,8 +56,7 @@ public class GradingEvent implements PersistableEntity<Long>, Comparable<Object>
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_grading_event_id_sequence")
-    @SequenceGenerator(name = "gb_grading_event_id_sequence", sequenceName = "GB_GRADING_EVENT_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_grading_event_id_sequence", sequenceName = "GB_GRADING_EVENT_S"))
     @EqualsAndHashCode.Include
     private Long id;
 

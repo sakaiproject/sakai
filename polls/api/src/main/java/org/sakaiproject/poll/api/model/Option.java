@@ -25,8 +25,6 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -34,6 +32,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -47,8 +46,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 public class Option implements PersistableEntity<Long> {
 
     @Id
-    @SequenceGenerator(name = "poll_option_id_sequence", sequenceName = "POLL_OPTION_ID_SEQ", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "poll_option_id_sequence")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "poll_option_id_sequence", sequenceName = "POLL_OPTION_ID_SEQ", allocationSize = 1))
     @Column(name = "OPTION_ID")
     @EqualsAndHashCode.Include
     private Long id;

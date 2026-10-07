@@ -24,8 +24,6 @@ import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -33,6 +31,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -60,8 +59,7 @@ public abstract class AbstractGradeRecord implements PersistableEntity<Long>, Se
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_grade_record_id_sequence")
-    @SequenceGenerator(name = "gb_grade_record_id_sequence", sequenceName = "GB_GRADE_RECORD_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_grade_record_id_sequence", sequenceName = "GB_GRADE_RECORD_S"))
     @ToString.Include
     protected Long id;
 

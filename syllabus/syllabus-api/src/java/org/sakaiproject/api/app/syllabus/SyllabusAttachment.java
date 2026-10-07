@@ -22,8 +22,6 @@ package org.sakaiproject.api.app.syllabus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -31,6 +29,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.springframework.util.comparator.NullSafeComparator;
 
@@ -51,8 +50,7 @@ import lombok.ToString;
 public class SyllabusAttachment implements Comparable<SyllabusAttachment> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "syllabus_attachment_sequence")
-    @SequenceGenerator(name = "syllabus_attachment_sequence", sequenceName = "SyllabusAttachImpl_SEQ")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "syllabus_attachment_sequence", sequenceName = "SyllabusAttachImpl_SEQ"))
     private Long syllabusAttachId;
 
     @Column(length = 256, nullable = false)

@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -38,6 +36,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -67,8 +66,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 public class Criterion implements PersistableEntity<Long>, Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_crit_seq")
-    @SequenceGenerator(name="rbc_crit_seq", sequenceName="rbc_crit_seq")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_crit_seq", sequenceName="rbc_crit_seq"))
     @JsonIgnore
     private Long id;
 

@@ -31,8 +31,6 @@ import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Index;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -40,6 +38,7 @@ import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -55,8 +54,7 @@ public class GradingScale implements PersistableEntity<Long>, Comparable<Object>
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_grading_scale_id_sequence")
-    @SequenceGenerator(name = "gb_grading_scale_id_sequence", sequenceName = "GB_GRADING_SCALE_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_grading_scale_id_sequence", sequenceName = "GB_GRADING_SCALE_S"))
     private Long id;
 
     @Column(name = "VERSION", nullable = false)

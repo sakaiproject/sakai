@@ -40,8 +40,6 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -49,6 +47,7 @@ import jakarta.persistence.OrderColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -71,8 +70,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 public class SignupSite implements PersistableEntity<Long> {
 
     @Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "signup_sites_seq")
-	@SequenceGenerator(name = "signup_sites_seq", sequenceName = "signup_sites_ID_SEQ")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "signup_sites_seq", sequenceName = "signup_sites_ID_SEQ"))
     @EqualsAndHashCode.Include
     @Column(name = "id")
 	private Long id;

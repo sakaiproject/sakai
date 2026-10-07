@@ -20,13 +20,12 @@ import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -54,8 +53,7 @@ public class HierarchyNodePermission implements PersistableEntity<Long>, Seriali
     @Id
     @Column(name = "ID")
     @EqualsAndHashCode.Include
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "hierarchy_perm_seq")
-    @SequenceGenerator(name = "hierarchy_perm_seq", sequenceName = "HIERARCHY_PERM_ID_SEQ", allocationSize = 1)
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "hierarchy_perm_seq", sequenceName = "HIERARCHY_PERM_ID_SEQ", allocationSize = 1))
     @ToString.Include
     private Long id;
 

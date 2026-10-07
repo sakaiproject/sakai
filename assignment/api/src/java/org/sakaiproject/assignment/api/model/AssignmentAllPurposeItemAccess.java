@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.api.model;
 
 import jakarta.persistence.*;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -44,8 +45,7 @@ public class AssignmentAllPurposeItemAccess {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "assignment_all_purpose_item_access_sequence")
-    @SequenceGenerator(name = "assignment_all_purpose_item_access_sequence", sequenceName = "ASN_AP_ITEM_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "assignment_all_purpose_item_access_sequence", sequenceName = "ASN_AP_ITEM_S"))
     private Long id;
 
     @Column(name = "ITEM_ACCESS", nullable = false)

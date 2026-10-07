@@ -24,6 +24,7 @@ package org.sakaiproject.content.api.persistence;
 import java.time.Instant;
 
 import jakarta.persistence.*;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -46,8 +47,7 @@ public class FileConversionQueueItem implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "file_conversion_queue_id_sequence")
-    @SequenceGenerator(name = "file_conversion_queue_id_sequence", sequenceName = "FILE_CONVERSION_QUEUE_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "file_conversion_queue_id_sequence", sequenceName = "FILE_CONVERSION_QUEUE_S"))
     @EqualsAndHashCode.Include
     private Long id;
 

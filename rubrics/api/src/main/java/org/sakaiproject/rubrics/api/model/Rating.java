@@ -24,6 +24,7 @@ package org.sakaiproject.rubrics.api.model;
 
 import java.io.Serializable;
 import jakarta.persistence.*;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.EqualsAndHashCode;
 
@@ -50,8 +51,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 public class Rating implements PersistableEntity<Long>, Serializable {
 
     @Id
-    @SequenceGenerator(name="rbc_rat_seq", sequenceName ="rbc_rat_seq")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_rat_seq")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_rat_seq", sequenceName ="rbc_rat_seq"))
     @JsonIgnore
     private Long id;
 

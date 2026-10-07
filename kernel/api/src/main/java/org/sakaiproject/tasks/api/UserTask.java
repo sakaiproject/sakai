@@ -22,6 +22,7 @@
 package org.sakaiproject.tasks.api;
 
 import jakarta.persistence.*;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -38,8 +39,7 @@ public class UserTask implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_task_id_sequence")
-    @SequenceGenerator(name = "user_task_id_sequence", sequenceName = "USER_TASKS_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "user_task_id_sequence", sequenceName = "USER_TASKS_S"))
     @EqualsAndHashCode.Include
     private Long id;
 

@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import jakarta.persistence.*;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -45,8 +46,7 @@ public class AssignmentSupplementItemWithAttachment {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "assignment_supplemental_item_sequence")
-    @SequenceGenerator(name = "assignment_supplemental_item_sequence", sequenceName = "ASN_SUP_ITEM_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "assignment_supplemental_item_sequence", sequenceName = "ASN_SUP_ITEM_S"))
     private Long id;
 
     @OneToMany(mappedBy = "assignmentSupplementItemWithAttachment", orphanRemoval = true)
