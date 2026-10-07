@@ -48,6 +48,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.Length;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
@@ -117,7 +118,7 @@ public class Assignment {
     private String title;
 
     @Lob
-    @Column(name = "INSTRUCTIONS", length = 65535)
+    @Column(name = "INSTRUCTIONS", length = Length.LONG32)
     private String instructions;
 
     @Column(name = "CONTEXT", length = 99, nullable = false)
@@ -243,7 +244,7 @@ public class Assignment {
     private Integer peerAssessmentNumberReviews;
 
     @Lob
-    @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS", length = 65535)
+    @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS", length = Length.LONG32)
     private String peerAssessmentInstructions;
 
     @Column(name = "CONTENT_REVIEW")

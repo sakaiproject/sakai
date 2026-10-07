@@ -28,6 +28,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -67,7 +68,7 @@ public class Comment implements PersistableEntity<Long>, Serializable {
     @Column(name = "DATE_RECORDED", nullable = false)
     private Date dateRecorded;
 
-    @Column(name = "COMMENT_TEXT")
+    @Column(name = "COMMENT_TEXT", length = Length.LONG32)
     @Lob
     @ToString.Include(name = "comment")
     @EqualsAndHashCode.Include

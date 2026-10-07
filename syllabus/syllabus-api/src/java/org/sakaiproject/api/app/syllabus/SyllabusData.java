@@ -40,6 +40,7 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.BatchSize;
 
 import lombok.Data;
@@ -70,7 +71,7 @@ public class SyllabusData implements Comparable<SyllabusData> {
     private Integer lockId;
 
     @Lob
-    @Column(length = 16777215)
+    @Column(length = Length.LONG32)
     private String asset;
 
     @Column(length = 128)

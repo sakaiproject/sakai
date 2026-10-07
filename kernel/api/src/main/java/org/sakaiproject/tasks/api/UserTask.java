@@ -22,6 +22,7 @@
 package org.sakaiproject.tasks.api;
 
 import jakarta.persistence.*;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -54,7 +55,7 @@ public class UserTask implements PersistableEntity<Long> {
     private Integer priority;
 
     @Lob
-    @Column(name = "NOTES")
+    @Column(name = "NOTES", length = Length.LONG32)
     private String notes;
 
     @Column(name = "COMPLETE")

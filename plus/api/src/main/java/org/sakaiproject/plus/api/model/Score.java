@@ -34,6 +34,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Basic;
 import static jakarta.persistence.FetchType.LAZY;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -110,7 +111,7 @@ public class Score implements PersistableEntity<String> {
 
 	@Basic(fetch=LAZY)
 	@Lob
-	@Column(name = "DEBUG_LOG")
+	@Column(name = "DEBUG_LOG", length = Length.LONG32)
 	private String debugLog;
 
 	public void setGradingProgress(String newStatus)

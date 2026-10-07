@@ -28,6 +28,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import org.hibernate.Length;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -56,7 +57,7 @@ public class TagCollection implements PersistableEntity<String> {
     @Column(name = "name", length = 255, unique = true)
     private String name;
     @Lob
-    @Column(name = "description", length = 65535)
+    @Column(name = "description", length = Length.LONG32)
     private String description;
     @Column(name = "createdby", length = 99)
     private String createdBy;
@@ -65,7 +66,7 @@ public class TagCollection implements PersistableEntity<String> {
     @Column(name = "externalsourcename", length = 255, unique = true)
     private String externalSourceName;
     @Lob
-    @Column(name = "externalsourcedescription", length = 65535)
+    @Column(name = "externalsourcedescription", length = Length.LONG32)
     private String externalSourceDescription;
     @Column(name = "lastmodifiedby", length = 99)
     private String lastModifiedBy;

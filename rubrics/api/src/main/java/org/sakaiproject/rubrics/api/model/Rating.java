@@ -28,6 +28,7 @@ import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.EqualsAndHashCode;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -59,7 +60,7 @@ public class Rating implements PersistableEntity<Long>, Serializable {
     @JacksonXmlProperty(isAttribute = true)
     private String title;
 
-    @Lob
+    @Lob @Column(length = Length.LONG32)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JacksonXmlCData
     private String description;

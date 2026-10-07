@@ -30,6 +30,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -65,7 +66,7 @@ public class CriterionOutcome implements PersistableEntity<Long>, Serializable {
     private Double points;
 
     @Lob
-    @Column(length = 65535)
+    @Column(length = Length.LONG32)
     private String comments;
 
 }

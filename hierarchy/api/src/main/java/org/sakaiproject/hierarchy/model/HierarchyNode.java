@@ -31,6 +31,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -79,7 +80,7 @@ public class HierarchyNode implements PersistableEntity<Long> {
     private String title;
 
     @Lob
-    @Column(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION", length = Length.LONG32)
     private String description;
 
     /** Token used to group nodes that share a permission boundary. */

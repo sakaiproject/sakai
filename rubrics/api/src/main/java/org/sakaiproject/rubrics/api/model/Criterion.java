@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -41,6 +42,7 @@ import org.sakaiproject.hibernate.annotations.NativeGenerator;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -73,7 +75,7 @@ public class Criterion implements PersistableEntity<Long>, Serializable {
     @JacksonXmlProperty(isAttribute = true)
     private String title;
 
-    @Lob
+    @Lob @Column(length = Length.LONG32)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JacksonXmlCData
     private String description;

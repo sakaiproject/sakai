@@ -61,6 +61,7 @@ import java.util.UUID;
 
 import net.fortuna.ical4j.model.component.VEvent;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Length;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -98,7 +99,7 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Lob @Column(name = "description")
+    @Lob @Column(name = "description", length = Length.LONG32)
     private String description;
 
     @Column(name = "location", nullable = false)

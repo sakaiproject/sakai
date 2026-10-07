@@ -23,6 +23,7 @@ package org.sakaiproject.assignment.api.model;
 import java.util.Date;
 import java.util.Set;
 import jakarta.persistence.*;
+import org.hibernate.Length;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -49,7 +50,7 @@ public class AssignmentAllPurposeItem extends AssignmentSupplementItemWithAttach
     private String title;
 
     @Lob
-    @Column(name = "TEXT")
+    @Column(name = "TEXT", length = Length.LONG32)
     private String text;
 
     @Column(name = "RELEASE_DATE")

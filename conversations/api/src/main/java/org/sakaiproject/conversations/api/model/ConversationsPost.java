@@ -28,6 +28,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import lombok.EqualsAndHashCode;
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -68,7 +69,7 @@ public class ConversationsPost implements PersistableEntity<String> {
     private String siteId;
 
     @Lob
-    @Column(name = "MESSAGE", nullable = false)
+    @Column(name = "MESSAGE", nullable = false, length = Length.LONG32)
     private String message;
 
     @Column(name = "NUMBER_OF_COMMENTS")

@@ -32,6 +32,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
@@ -53,7 +54,7 @@ public class Option implements PersistableEntity<Long> {
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
-    @Column(name = "OPTION_TEXT", nullable = false)
+    @Column(name = "OPTION_TEXT", nullable = false, length = Length.LONG32)
     private String text;
 
     @Column(name = "DELETED", nullable = false)

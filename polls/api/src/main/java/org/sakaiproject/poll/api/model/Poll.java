@@ -49,6 +49,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.springframework.data.PersistableEntity;
 import org.w3c.dom.Document;
@@ -91,12 +92,12 @@ public class Poll implements PersistableEntity<String> {
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
-    @Column(name = "POLL_TEXT", nullable = false)
+    @Column(name = "POLL_TEXT", nullable = false, length = Length.LONG32)
     private String text;
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
-    @Column(name = "POLL_DETAILS")
+    @Column(name = "POLL_DETAILS", length = Length.LONG32)
     private String description;
 
     @Column(name = "POLL_MIN_OPTIONS", nullable = false)

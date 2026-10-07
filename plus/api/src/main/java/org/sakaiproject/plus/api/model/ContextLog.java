@@ -30,6 +30,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Basic;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -101,7 +102,7 @@ public class ContextLog implements PersistableEntity<Long> {
 	@Lob
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
-	@Column(name = "DEBUG_LOG")
+	@Column(name = "DEBUG_LOG", length = Length.LONG32)
 	private String debugLog;
 
 	public int getPositiveHashCode() { return java.lang.Math.abs(this.hashCode()); }

@@ -27,6 +27,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.EqualsAndHashCode;
@@ -59,7 +60,7 @@ public class Spreadsheet implements Serializable {
     protected Integer version = 0;
 
     @Lob
-    @Column(name = "CONTENT", length = 16777215, nullable = false)
+    @Column(name = "CONTENT", length = Length.LONG32, nullable = false)
     protected String content;
 
     @Column(name = "CREATOR", nullable = false)

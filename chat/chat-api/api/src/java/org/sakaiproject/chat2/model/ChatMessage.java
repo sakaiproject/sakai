@@ -40,6 +40,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
@@ -87,7 +88,7 @@ public class ChatMessage implements org.sakaiproject.entity.api.Entity {
    @OrderColumn(name = "CHAT_MESSAGE_DATE_I")
    private Date messageDate;
 
-   @Column(name = "BODY", nullable = false)
+   @Column(name = "BODY", nullable = false, length = Length.LONG32)
    @Lob
    private String body;
 

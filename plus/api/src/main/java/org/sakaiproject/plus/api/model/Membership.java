@@ -27,6 +27,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Lob;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.apache.commons.lang3.StringUtils;
@@ -63,11 +64,11 @@ public class Membership extends BaseLTI implements PersistableEntity<Long> {
 	private Context context;
 
 	@Lob
-	@Column(name = "LTI_ROLES", nullable = true)
+	@Column(name = "LTI_ROLES", nullable = true, length = Length.LONG32)
 	private String ltiRoles;
 
 	@Lob
-	@Column(name = "LTI_ROLES_OVERRIDE", nullable = true)
+	@Column(name = "LTI_ROLES_OVERRIDE", nullable = true, length = Length.LONG32)
 	private String ltiRolesOverride;
 
 	public boolean isInstructor() {

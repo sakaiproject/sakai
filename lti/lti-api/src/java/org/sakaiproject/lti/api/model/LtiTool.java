@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 import jakarta.persistence.*;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
+import org.hibernate.Length;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -55,7 +56,7 @@ public class LtiTool implements PersistableEntity<Long>, Serializable {
     private String title;
 
     @Lob
-    @Column(name = "description")
+    @Column(name = "description", length = Length.LONG32)
     private String description;
 
     @Column(name = "status")
@@ -151,15 +152,15 @@ public class LtiTool implements PersistableEntity<Long>, Serializable {
     private Integer siteinfoConfig = 0;
 
     @Lob
-    @Column(name = "splash")
+    @Column(name = "splash", length = Length.LONG32)
     private String splash;
 
     @Lob
-    @Column(name = "custom")
+    @Column(name = "custom", length = Length.LONG32)
     private String custom;
 
     @Lob
-    @Column(name = "rolemap")
+    @Column(name = "rolemap", length = Length.LONG32)
     private String rolemap;
 
     @Column(name = "lti13")
@@ -188,7 +189,7 @@ public class LtiTool implements PersistableEntity<Long>, Serializable {
     private String secret;
 
     @Lob
-    @Column(name = "xmlimport")
+    @Column(name = "xmlimport", length = Length.LONG32)
     private String xmlImport;
 
     @Column(name = "lti13_auto_token", length = 1024)
@@ -198,7 +199,7 @@ public class LtiTool implements PersistableEntity<Long>, Serializable {
     private Integer lti13AutoState;
 
     @Lob
-    @Column(name = "lti13_auto_registration")
+    @Column(name = "lti13_auto_registration", length = Length.LONG32)
     private String lti13AutoRegistration;
 
 	@CreationTimestamp

@@ -28,6 +28,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.microsoft.api.converters.JpaConverterMap;
 
@@ -126,7 +127,7 @@ public class MicrosoftLog {
 	private Status status;
 	
 	@Lob
-	@Column(name="context")
+	@Column(name="context", length = Length.LONG32)
 	@Convert(converter = JpaConverterMap.class)
 	private Map<String, String> context;
 	

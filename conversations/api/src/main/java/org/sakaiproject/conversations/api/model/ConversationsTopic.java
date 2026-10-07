@@ -36,6 +36,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 import lombok.EqualsAndHashCode;
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.conversations.api.TopicType;
@@ -73,7 +74,7 @@ public class ConversationsTopic implements PersistableEntity<String> {
     private String title;
 
     @Lob
-    @Column(name = "MESSAGE")
+    @Column(name = "MESSAGE", length = Length.LONG32)
     private String message = "";
 
     @Column(name = "TOPIC_TYPE", length = 32)

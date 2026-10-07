@@ -20,6 +20,7 @@ import java.time.Instant;
 import jakarta.persistence.*;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -56,7 +57,7 @@ public class LtiContent implements PersistableEntity<Long>, Serializable {
     private String title;
 
     @Lob
-    @Column(name = "description")
+    @Column(name = "description", length = Length.LONG32)
     private String description;
 
     @Column(name = "frameheight")
@@ -75,22 +76,22 @@ public class LtiContent implements PersistableEntity<Long>, Serializable {
     private Integer debug = 0;
 
     @Lob
-    @Column(name = "custom")
+    @Column(name = "custom", length = Length.LONG32)
     private String custom;
 
     @Column(name = "launch", length = 1024)
     private String launch;
 
     @Lob
-    @Column(name = "xmlimport")
+    @Column(name = "xmlimport", length = Length.LONG32)
     private String xmlimport;
 
     @Lob
-    @Column(name = "settings")
+    @Column(name = "settings", length = Length.LONG32)
     private String settings;
 
     @Lob
-    @Column(name = "contentitem")
+    @Column(name = "contentitem", length = Length.LONG32)
     private String contentitem;
 
     @Column(name = "placement", length = 256)

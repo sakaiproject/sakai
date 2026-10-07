@@ -21,6 +21,7 @@
 package org.sakaiproject.assignment.api.model;
 
 import jakarta.persistence.*;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
@@ -38,7 +39,7 @@ import lombok.NoArgsConstructor;
 public class AssignmentNoteItem {
 
     @Lob
-    @Column(name = "NOTE")
+    @Column(name = "NOTE", length = Length.LONG32)
     public String note;
 
     @Id

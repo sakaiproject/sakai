@@ -24,6 +24,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.conversations.api.TopicType;
@@ -68,7 +69,7 @@ public class Settings implements PersistableEntity<Long> {
     private Boolean requireGuidelinesAgreement = Boolean.FALSE;
 
     @Lob
-    @Column(name = "GUIDELINES")
+    @Column(name = "GUIDELINES", length = Length.LONG32)
     private String guidelines = "";
 
     @Column(name = "DEFAULT_TOPIC_TYPE", length = 32)

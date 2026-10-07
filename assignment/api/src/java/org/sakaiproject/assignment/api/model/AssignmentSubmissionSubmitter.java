@@ -25,6 +25,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -81,7 +82,7 @@ public class AssignmentSubmissionSubmitter {
     private String grade;
 
     @Lob
-    @Column(name = "FEEDBACK", length = 65535)
+    @Column(name = "FEEDBACK", length = Length.LONG32)
     private String feedback;
     
     @Column(name = "TIME_SPENT", length = 255)

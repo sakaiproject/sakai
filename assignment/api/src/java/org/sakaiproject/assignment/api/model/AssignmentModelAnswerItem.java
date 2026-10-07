@@ -21,6 +21,7 @@
 package org.sakaiproject.assignment.api.model;
 
 import jakarta.persistence.*;
+import org.hibernate.Length;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,7 +40,7 @@ import lombok.NoArgsConstructor;
 public class AssignmentModelAnswerItem extends AssignmentSupplementItemWithAttachment {
 
     @Lob
-    @Column(name = "TEXT")
+    @Column(name = "TEXT", length = Length.LONG32)
     public String text;
 
     @Column(name = "ASSIGNMENT_ID", nullable = false)

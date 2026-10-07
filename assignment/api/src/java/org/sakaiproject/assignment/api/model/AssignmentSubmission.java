@@ -48,6 +48,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -121,15 +122,15 @@ public class AssignmentSubmission {
     private Set<String> feedbackAttachments = new HashSet<>();
 
     @Lob
-    @Column(name = "TEXT", length = 65535)
+    @Column(name = "TEXT", length = Length.LONG32)
     private String submittedText;
 
     @Lob
-    @Column(name = "FEEDBACK_COMMENT", length = 65535)
+    @Column(name = "FEEDBACK_COMMENT", length = Length.LONG32)
     private String feedbackComment;
 
     @Lob
-    @Column(name = "FEEDBACK_TEXT", length = 65535)
+    @Column(name = "FEEDBACK_TEXT", length = Length.LONG32)
     private String feedbackText;
 
     @Column(name = "GRADE", length = 32)
@@ -166,14 +167,14 @@ public class AssignmentSubmission {
     private String groupId;
 
     @Lob
-    @Column(name = "PRIVATE_NOTES", length = 65535)
+    @Column(name = "PRIVATE_NOTES", length = Length.LONG32)
     private String privateNotes;
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection(fetch = FetchType.LAZY)
     @MapKeyColumn(name = "NAME")
     @Lob
-    @Column(name = "VALUE", length = 65535)
+    @Column(name = "VALUE", length = Length.LONG32)
     @CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"), indexes = @Index(name = "FK_ASN_SUBMISSION_PROP", columnList = "SUBMISSION_ID"))
     private Map<String, String> properties = new HashMap<>();
 }

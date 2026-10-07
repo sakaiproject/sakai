@@ -31,6 +31,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.hibernate.Length;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
@@ -73,11 +74,11 @@ public class MessageBundleProperty {
     private String propertyName;
 
     @Lob
-    @Column(name = "PROP_VALUE")
+    @Column(name = "PROP_VALUE", length = Length.LONG32)
     private String value;
 
     @Lob
-    @Column(name = "DEFAULT_VALUE")
+    @Column(name = "DEFAULT_VALUE", length = Length.LONG32)
     private String defaultValue;
 
     public MessageBundleProperty(String baseName, String moduleName, String locale, String propertyName) {
