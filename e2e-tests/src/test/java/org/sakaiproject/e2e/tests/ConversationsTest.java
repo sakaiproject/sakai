@@ -24,7 +24,6 @@ import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
-import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -55,38 +54,10 @@ class ConversationsTest extends SakaiUiTestBase {
 
         assertThat(page.locator("#content, main, .portletBody, .Mrphs-toolTitle").first()).isVisible();
 
-        Locator createButton = page.locator("#conv-topbar-and-content > .conv-topbar > .conv-settings-and-create > .btn-primary:visible").first();
-        if (createButton.count() == 0) {
-            createButton = page.locator("#conv-topbar-and-content .conv-settings-and-create button:visible, #conv-topbar-and-content .conv-settings-and-create a:visible").first();
-        }
-        if (createButton.count() == 0) {
-            createButton = page.getByRole(AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName(Pattern.compile("Create new topic", Pattern.CASE_INSENSITIVE))).first();
-        }
-
-        assertThat(createButton).isVisible();
-        Locator fallbackTitleInput = page.locator("form input[type=\"text\"]:visible, form input:not([type]):visible").first();
-        Locator titleInput = page.getByRole(AriaRole.TEXTBOX,
-            new Page.GetByRoleOptions().setName(Pattern.compile("Title", Pattern.CASE_INSENSITIVE))).first();
-
-        boolean composerOpened = false;
-        for (int attempt = 0; attempt < 3; attempt++) {
-            createButton.click(new Locator.ClickOptions().setForce(true));
-            if (isVisible(titleInput, 5_000)) {
-                composerOpened = true;
-                break;
-            }
-            if (isVisible(fallbackTitleInput, 1_000)) {
-                titleInput = fallbackTitleInput;
-                composerOpened = true;
-                break;
-            }
-            page.waitForTimeout(750);
-        }
-
-        if (!composerOpened) {
-            throw new IllegalStateException("Conversation composer did not open");
-        }
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Create new topic").setExact(true)).click();
+        Locator titleInput = page.locator("sakai-add-topic:visible #summary");
+        assertThat(titleInput).isVisible();
 
         titleInput.fill(TOPIC_TITLE);
 
@@ -335,14 +306,5 @@ class ConversationsTest extends SakaiUiTestBase {
         assertThat(composer.locator("#topic-details-editor").frameLocator("iframe.cke_wysiwyg_frame")
             .locator("body[contenteditable='true']")).containsText(TOPIC_BODY);
         return composer;
-    }
-
-    private boolean isVisible(Locator locator, double timeoutMs) {
-        try {
-            locator.waitFor(new Locator.WaitForOptions().setTimeout(timeoutMs));
-            return true;
-        } catch (RuntimeException e) {
-            return false;
-        }
     }
 }
