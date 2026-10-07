@@ -45,7 +45,6 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
     private final TagManagementService tagManagementService;
     private final String siteId;
     private final int defaultPaginationSize = 10;
-    private final int countPerPageGroup = 10;
 
     public TagsInTagCollectionsHandler(TagService tagservice, TagManagementService tagManagementService, String siteId) {
         this.tagService = tagservice;
@@ -57,6 +56,7 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, Map<String, Object> context) {
 
         String uuid = extractId(request);
+        context.put("canManage", tagService.canManageCollection(siteId, uuid));
 
         TagCollection collection = tagManagementService.getCollection(siteId, uuid)
             .orElseThrow(() -> new IllegalArgumentException("No matching tag collection"));
@@ -71,7 +71,6 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
         context.put("pageSize", pageSize);
         context.put("pageNum", pageNum);
         context.put("totalPages", totalPages);
-        context.put("countPerPageGroup", countPerPageGroup);
         
         context.put("showPagination", totalTags > 0 && totalPages > 1);
 

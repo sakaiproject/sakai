@@ -311,4 +311,13 @@
       <include-prelude>/include/header.inc</include-prelude>
     </jsp-property-group>
   </jsp-config>
+  <!-- JSPs are JSF view templates. External requests must enter through a JSF mapping. -->
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>JSF templates</web-resource-name>
+      <url-pattern>*.jsp</url-pattern>
+      <url-pattern>*.jspf</url-pattern>
+    </web-resource-collection>
+    <auth-constraint />
+  </security-constraint>
 </web-app>

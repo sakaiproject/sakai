@@ -34,8 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tags.api.Errors;
 import org.sakaiproject.tags.api.MissingUuidException;
 import org.sakaiproject.tags.api.Tag;
-import org.sakaiproject.tags.tool.handlers.CrudHandler;
-import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.tags.api.TagService;
 
 import java.util.Optional;
 
@@ -150,18 +149,8 @@ public class TagForm extends BaseForm {
                 externalHierarchyCode, externalType, data, collectionName);
     }
 
-    public Errors validate(FormattedText formattedText, CrudHandler.CrudMode mode) {
-        Errors errors = new Errors();
-
-        // Validate required fields
-        if (tagLabel == null || tagLabel.trim().isEmpty()) {
-            errors.addError("tagLabel", "tag_label_required");
-        }
-
-        // Validate field lengths
-        if (tagLabel != null && tagLabel.length() > 255) {
-            errors.addError("tagLabel", "tag_label_too_long");
-        }
+    public Errors validate(TagService tagService) {
+        Errors errors = tagService.validateTag(toTag());
 
         if (description != null && description.length() > 1000) {
             errors.addError("description", "description_too_long");
@@ -169,19 +158,6 @@ public class TagForm extends BaseForm {
 
         if (externalId != null && externalId.length() > 255) {
             errors.addError("externalId", "external_id_too_long");
-        }
-
-        // XSS validation checks
-        StringBuilder tagMessages = new StringBuilder();
-        formattedText.processFormattedText(tagLabel, tagMessages);
-        if (!tagMessages.isEmpty()) {
-            errors.addError("tagLabel", "contains_xss");
-        }
-
-        StringBuilder descriptionMessages = new StringBuilder();
-        formattedText.processFormattedText(description, descriptionMessages);
-        if (!descriptionMessages.isEmpty()) {
-            errors.addError("description", "contains_xss");
         }
 
         return errors;

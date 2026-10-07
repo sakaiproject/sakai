@@ -6,8 +6,5 @@
     <bean id="org.sakaiproject.tags.tool.service.TagManagementService"
           class="org.sakaiproject.tags.tool.service.TagManagementService">
         <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     </bean>
 </beans>

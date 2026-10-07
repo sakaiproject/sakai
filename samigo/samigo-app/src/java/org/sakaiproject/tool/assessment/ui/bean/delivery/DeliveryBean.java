@@ -678,7 +678,6 @@ public class DeliveryBean implements Serializable {
       if (session != null) {
         sb.append("         - User EID  : ").append(session.getUserEid()).append("\n");
         sb.append("         - User ID   : ").append(session.getUserId()).append("\n");
-        sb.append("         - Session ID: ").append(session.getId()).append("\n");
       } else {
         sb.append("         - Session is null. Cannot determine user.\n");
       }
@@ -1344,9 +1343,6 @@ public class DeliveryBean implements Serializable {
   }
 
   public String validatePassword() {
-    log.debug("**** password={}", password);
-    log.debug("**** setting password={}", getSettings().getPassword());
-    
     if (StringUtils.isBlank(password)) {
     	return "passwordAccessError";
     }

@@ -8,7 +8,9 @@
     <header class="tagservice-section-header">
         <h3>{{{t this "tagsintagcollection"}}} : {{actualtagcollectionname}}</span></h3>
         <div class="btn-toolbar float-end">
-            <a href="{{{newURL this 'tags' 'new'}}}?tagCollectionId={{uuid}}" class="btn btn-primary btn-sm pull-right" {{isExternallyCreated}}>{{{t this "Create Tag"}}}</a>
+            {{#if canManage}}
+            <a href="{{newURL this 'tags' 'new' uuid}}" class="btn btn-primary btn-sm pull-right" {{isExternallyCreated}}>{{{t this "Create Tag"}}}</a>
+            {{/if}}
             <a href="{{baseURL}}" class="btn btn-primary btn-sm pull-right" >{{{t this "Return"}}}</a>
         </div>
     </header>
@@ -28,8 +30,10 @@
                     <td>{{this.tagLabel}}</td>
                     <td>{{this.description}}</td>
                     <td class="actions">
+                        {{#if ../canManage}}
                         <a href="{{{actionURL this 'tags' this.tagId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tag" {{isExternallyCreated}} aria-label="{{{t this "Delete Tag"}}}" title="{{{t this "Delete Tag"}}}"><span class="fa fa-trash" aria-hidden="true"></span></a>
                         <a href="{{{actionURL this 'tags' this.tagId "edit"}}}" class="btn btn-primary btn-xs">{{{t this editLabel}}}</a>
+                        {{/if}}
                     </td>
                 </tr>
             {{/each}}
@@ -46,29 +50,10 @@
     </table>
 
 
-    <!--pagination param ==> currentPage:{{pageNum}} totalPageCount:{{totalPages}} countPerPageGroup:{{countPerPageGroup}}-->
     {{#if showPagination}}
-        {{#pagination this pageNum totalPages countPerPageGroup}}
-            <div class="paging_bootstrap">
-                <ul class="pagination">
-                    {{#if canGoPrevious}}
-                        <li class="page-item prev"><a class="page-link" href="{{actionURLPaginated this 'tagsintagcollection' uuid "manage" previousIdx pageSize}}"><i class="icon-double-angle-left">&Lt;</i></a></li>
-                    {{else}}
-                        <li class="page-item prev disabled"><a class="page-link" href="#"><i class="icon-double-angle-left">&Lt;</i></a></li>
-                    {{/if}}
-
-                    {{#each pages}}
-                        <li {{#if isCurrent}}class="page-item active"{{/if}}><a class="page-link" href="{{actionURLPaginated this 'tagsintagcollection' uuid "manage" pageInt pageSize}}">{{page}}</a></li>
-                    {{/each}}
-
-                    {{#if canGoNext}}
-                        <li class="page-item next"><a class="page-link" href="{{actionURLPaginated this 'tagsintagcollection' uuid "manage" nextIdx pageSize}}"><i class="icon-double-angle-right">&Gt;</i></a></li>
-                    {{else}}
-                        <li class="page-item next disabled"><a class="page-link" href="#"><i class="icon-double-angle-right">&Gt;</i></a></li>
-                    {{/if}}
-                </ul>
-            </div>
-        {{/pagination}}
+        <sakai-pager current="{{pageNum}}" count="{{totalPages}}"
+            data-page-base="{{actionURL this 'tagsintagcollection' uuid "manage"}}/"
+            data-page-size="{{pageSize}}"></sakai-pager>
     {{/if}}
 </section>
 

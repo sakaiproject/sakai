@@ -66,6 +66,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.serialization.MapperFactory;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -1184,7 +1186,19 @@ public String getAddOrEdit()
 
     public boolean getShowTags()
     {
-        return ServerConfigurationService.getBoolean("samigo.author.usetags", Boolean.FALSE);
+        return ServerConfigurationService.getBoolean("samigo.author.usetags", ServerConfigurationService.getBoolean("tagservice.enable.integrations", true));
+    }
+
+    public String getTagOptionsJson() {
+        Long poolId = currentPool != null ? currentPool.getId() : null;
+        List<Map<String, String>> options = new QuestionPoolService().getAvailableTags(poolId).stream()
+            .map(tag -> Map.of("name", tag.getTagLabel(), "code", tag.getTagId()))
+            .collect(Collectors.toList());
+        try {
+            return MapperFactory.createDefaultJsonMapper().writeValueAsString(options);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Unable to serialize pool tag options", e);
+        }
     }
 
     public boolean getCanManageTags() {

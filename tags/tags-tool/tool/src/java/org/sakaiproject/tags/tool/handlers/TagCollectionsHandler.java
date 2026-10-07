@@ -37,6 +37,7 @@ import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.tool.forms.TagCollectionForm;
 import org.sakaiproject.tags.tool.service.TagManagementService;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * A handler for creating and updating Tag collections in the Tags Service administration tool.
@@ -47,11 +48,13 @@ public class TagCollectionsHandler extends CrudHandler {
     private final TagService tagService;
     private final TagManagementService tagManagementService;
     private final String siteId;
+    private final FormattedText formattedText;
 
-    public TagCollectionsHandler(TagService tagservice, TagManagementService tagManagementService, String siteId) {
+    public TagCollectionsHandler(TagService tagservice, TagManagementService tagManagementService, FormattedText formattedText, String siteId) {
         this.tagService = tagservice;
         this.tagManagementService = tagManagementService;
         this.siteId = siteId;
+        this.formattedText = formattedText;
     }
 
     @Override
@@ -59,7 +62,6 @@ public class TagCollectionsHandler extends CrudHandler {
         if (request.getPathInfo().contains("/preview") && isGet(request)) {
             handlePreview(request, response, context);
         } else {
-            tagManagementService.checkCollectionAdministration();
             super.handle(request, response, context);
         }
     }
@@ -67,7 +69,7 @@ public class TagCollectionsHandler extends CrudHandler {
     @Override
     protected void handleDelete(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
-        tagManagementService.deleteCollection(uuid);
+        tagManagementService.deleteCollection(siteId, uuid);
 
         flash("info", "tagcollection_deleted");
         sendRedirect("");
@@ -84,7 +86,7 @@ public class TagCollectionsHandler extends CrudHandler {
                 // Don't let the portal buffering hijack our response.
                 // Include enough content to count as having returned a
                 // body.
-                response.getWriter().write(tagCollection.get().getName());
+                response.getWriter().write(formattedText.escapeHtml(tagCollection.get().getName()));
             }else{
 
                 response.getWriter().write("     ");
@@ -97,6 +99,9 @@ public class TagCollectionsHandler extends CrudHandler {
     @Override
     protected void handleEdit(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
+        if (!tagService.canManageCollection(siteId, uuid)) {
+            throw new SecurityException("Cannot edit collection " + uuid);
+        }
         context.put("subpage", "tagcollection_form");
         Optional<TagCollection> tagCollection = tagService.getTagCollection(uuid);
 
@@ -117,14 +122,16 @@ public class TagCollectionsHandler extends CrudHandler {
     @Override
     protected void handleCreateOrUpdate(HttpServletRequest request, Map<String, Object> context, CrudMode mode) {
         String uuid = extractId(request);
+        if (CrudMode.UPDATE.equals(mode) && !tagService.canManageCollection(siteId, uuid)) {
+            throw new SecurityException("Cannot edit collection " + uuid);
+        }
         TagCollectionForm tagCollectionForm = TagCollectionForm.fromRequest(uuid, request);
-
 
         if (CrudMode.CREATE.equals(mode)) {
             if (tagService.getTagCollectionForExternalSourceName(tagCollectionForm.toTagCollection().getExternalSourceName()).isPresent()){
                 this.addError("externalsourcename","error_unique_externalsource");
             }
-            if (tagService.getTagCollectionForName(tagCollectionForm.toTagCollection().getName()).isPresent()){
+            if (nameExistsInScope(tagCollectionForm.getName(), null)){
                 this.addError("name","error_unique_name");
             }
         }else{
@@ -138,7 +145,7 @@ public class TagCollectionsHandler extends CrudHandler {
                 }
             }
             if (!(actualName.equals(futureName))) {
-                if (tagService.getTagCollectionForName(futureName).isPresent()) {
+                if (nameExistsInScope(futureName, uuid)) {
                     this.addError("name", "error_unique_name");
                 }
             }
@@ -150,14 +157,22 @@ public class TagCollectionsHandler extends CrudHandler {
         }
 
         if (CrudMode.CREATE.equals(mode)) {
-            tagManagementService.createCollection(tagCollectionForm.toTagCollection());
+            tagManagementService.createCollection(siteId, tagCollectionForm.toTagCollection());
             flash("info", "tagcollection_created");
         } else {
-            tagManagementService.updateCollection(tagCollectionForm.toTagCollection());
+            tagManagementService.updateCollection(siteId, tagCollectionForm.toTagCollection());
             flash("info", "tagcollection_updated");
         }
 
         sendRedirect("");
+    }
+
+    private boolean nameExistsInScope(String name, String collectionId) {
+        String scope = collectionId == null ? ("!admin".equals(siteId) ? null : siteId)
+            : tagService.getTagCollection(collectionId).get().getSiteId();
+        return tagService.getTagCollectionsForSite(siteId).stream().anyMatch(collection ->
+            java.util.Objects.equals(scope, collection.getSiteId()) && java.util.Objects.equals(name, collection.getName())
+                && !java.util.Objects.equals(collectionId, collection.getTagCollectionId()));
     }
 
     private void showEditForm(TagCollectionForm tagCollectionForm, Map<String, Object> context, CrudMode mode) {

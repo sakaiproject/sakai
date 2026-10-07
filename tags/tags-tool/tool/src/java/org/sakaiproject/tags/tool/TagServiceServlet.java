@@ -27,7 +27,8 @@ package org.sakaiproject.tags.tool;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +66,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.SecFetchSiteCsrf;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -85,6 +87,7 @@ public class TagServiceServlet extends HttpServlet {
     @Autowired private ToolManager toolManager;
     @Autowired private TimeService timeService;
     @Autowired private FormattedText formattedText;
+    @Autowired private LocaleService localeService;
 
 
     public void init(ServletConfig config) throws ServletException {
@@ -103,11 +106,11 @@ public class TagServiceServlet extends HttpServlet {
         if (path.contains("/tagsintagcollection/")) {
             return new TagsInTagCollectionsHandler(tagService, tagManagementService, siteId);
         } else if (path.contains("/tagcollections/")) {
-            return new TagCollectionsHandler(tagService, tagManagementService, siteId);
+            return new TagCollectionsHandler(tagService, tagManagementService, formattedText, siteId);
         } else if (path.contains("/tags/")) {
-            return new TagsHandler(tagManagementService, formattedText, siteId);
+            return new TagsHandler(tagService, tagManagementService, formattedText, siteId);
         } else {
-            return new IndexHandler(tagService, sessionManager, securityService, toolManager);
+            return new IndexHandler(tagService, securityService, toolManager);
         }
     }
 
@@ -137,6 +140,7 @@ public class TagServiceServlet extends HttpServlet {
             Map<String, Object> context = new HashMap<>();
 
             context.put("baseURL", toolBaseURL);
+            context.put("locale", localeService.getLocaleForCurrentSiteAndUser().toLanguageTag());
             context.put("layout", true);
             context.put("skinRepo", serverConfigurationService.getString("skin.repo", ""));
             context.put("randomSakaiHeadStuff", request.getAttribute("sakai.html.head"));
@@ -250,24 +254,6 @@ public class TagServiceServlet extends HttpServlet {
             }
         });
 
-        handlebars.registerHelper("actionURLPaginated", new Helper<Object>() {
-            @Override
-            public CharSequence apply(final Object context, final Options options) {
-                String type = options.param(0);
-                String uuid = options.param(1);
-                String action = options.param(2);
-                int pageNum = options.param(3);
-                int pageSize = options.param(4);
-
-                try {
-                    return new URL(baseURL, type + "/" + uuid + "/" + action  + "/" + pageNum + "/" + pageSize).toString();
-                } catch (MalformedURLException e) {
-                    throw new TagServiceException("Failed while building action URL", e);
-                }
-            }
-        });
-
-
         handlebars.registerHelper("newURL", new Helper<Object>() {
             @Override
             public CharSequence apply(final Object context, final Options options) {
@@ -275,7 +261,11 @@ public class TagServiceServlet extends HttpServlet {
                 String action = options.param(1);
 
                 try {
-                    return new URL(baseURL, type + "/" + action).toString();
+                    String url = new URL(baseURL, type + "/" + action).toString();
+                    if (options.params.length > 2) {
+                        url += "?tagCollectionId=" + URLEncoder.encode(options.<String>param(2), StandardCharsets.UTF_8);
+                    }
+                    return url;
                 } catch (MalformedURLException e) {
                     throw new TagServiceException("Failed while building newURL", e);
                 }
@@ -306,63 +296,6 @@ public class TagServiceServlet extends HttpServlet {
                 String a = options.param(0);
                 String b = options.param(1);
                 return a.equals(b) ? "display:none" : "";
-            }
-        });
-
-        handlebars.registerHelper("pagination", new Helper<Object>() {
-            @Override
-            public CharSequence apply(Object context, Options options) throws IOException {
-
-                Map<String, Object> paginationInfoMap;
-
-                try {
-                    int currentPageNumber = options.param(0, 1); // parameter. default 1
-                    int totalPageCount = options.param(1, 1); // parameter. default 1
-                    int pageGroupCount = options.param(2, 10); // parameter. default 10. max displayed page count
-
-                    int firstPageIdx = (((currentPageNumber - 1) / pageGroupCount)) * pageGroupCount + 1; // 첫번째 index
-                    int lastPageIdx = (((currentPageNumber - 1) / pageGroupCount)) * pageGroupCount + pageGroupCount; // 마지막 index
-
-                    int previousIdx = lastPageIdx - pageGroupCount; // 이전 index
-                    int nextIdx = lastPageIdx + 1; // 다음 index
-
-                    boolean canGoPrevious = firstPageIdx > 1 ? true : false; // previous 버튼 active 여부
-                    boolean canGoNext = totalPageCount > lastPageIdx ? true : false; // next 버튼 active 여부
-
-                    int displayedLastPage = totalPageCount < lastPageIdx ? totalPageCount : lastPageIdx;
-
-                    paginationInfoMap = this.makePaginationInfoMap(canGoPrevious, canGoNext, currentPageNumber, firstPageIdx, displayedLastPage, previousIdx,
-                            nextIdx);
-
-                } catch (Exception e) {
-                    log.warn(e.getMessage());
-                    paginationInfoMap = new HashMap<>();
-                }
-
-                return options.fn(paginationInfoMap);
-            }
-
-            private Map<String, Object> makePaginationInfoMap(boolean canGoPrevious, boolean canGoNext, int page, int firstPage, int displayedLastPage,
-                                                              int previousIdx, int nextIdx) {
-
-                Map<String, Object> paginationInfoMap = new HashMap<>();
-                List<Map> pageList = new ArrayList<>();
-
-                for (int i = firstPage; i <= displayedLastPage; i++) {
-                    Map<String, Object> numberMap = new HashMap<>();
-                    numberMap.put("page", String.valueOf(i));
-                    numberMap.put("pageInt", i);
-                    numberMap.put("isCurrent", (i == page ? true : false));
-                    pageList.add(numberMap);
-                }
-
-                paginationInfoMap.put("canGoPrevious", canGoPrevious);
-                paginationInfoMap.put("previousIdx", previousIdx);
-                paginationInfoMap.put("pages", pageList);
-                paginationInfoMap.put("canGoNext", canGoNext);
-                paginationInfoMap.put("nextIdx", nextIdx);
-
-                return paginationInfoMap;
             }
         });
 

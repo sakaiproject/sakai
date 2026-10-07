@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tags.api.TagCollection;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.tool.forms.TagForm;
 import org.sakaiproject.tags.tool.service.TagManagementService;
@@ -45,11 +46,13 @@ import org.sakaiproject.util.api.FormattedText;
 @Slf4j
 public class TagsHandler extends CrudHandler {
 
+    private final TagService tagService;
     private final FormattedText formattedText;
     private final TagManagementService tagManagementService;
     private final String siteId;
 
-    public TagsHandler(TagManagementService tagManagementService, FormattedText formattedText, String siteId) {
+    public TagsHandler(TagService tagService, TagManagementService tagManagementService, FormattedText formattedText, String siteId) {
+        this.tagService = tagService;
         this.formattedText = formattedText;
         this.tagManagementService = tagManagementService;
         this.siteId = siteId;
@@ -120,6 +123,9 @@ public class TagsHandler extends CrudHandler {
         context.put("subpage", "tag_form");
         Optional<Tag> tag = tagManagementService.getTag(siteId, uuid);
         if (tag.isPresent()) {
+            if (!tagService.canManageCollection(siteId, tag.get().getTagCollectionId())) {
+                throw new SecurityException("Cannot edit tag " + uuid);
+            }
             Optional<TagCollection> tagCollection = tagManagementService.getCollection(siteId, tag.get().getTagCollectionId());
             if (Boolean.TRUE.equals(tagCollection.get().getExternalCreation()) || Boolean.TRUE.equals(tag.get().getExternalCreation())){
                 context.put("externalcreation", " readonly ");
@@ -150,7 +156,7 @@ public class TagsHandler extends CrudHandler {
         String uuid = extractId(request);
         TagForm tagForm = TagForm.fromRequest(uuid, request);
 
-        this.addErrors(tagForm.validate(formattedText, mode));
+        this.addErrors(tagForm.validate(tagService));
 
         if (hasErrors()) {
             showEditForm(tagForm, context, mode);
@@ -173,20 +179,20 @@ public class TagsHandler extends CrudHandler {
 
         context.put("subpage", "tag_form");
         context.put("mode", "new");
-        String actualCollection = context.getOrDefault("actualtagcollection","none").toString();
-        if (!actualCollection.isBlank() && !actualCollection.equals("none")){
-
-            Optional<TagCollection> tagCollection = tagManagementService.getCollection(siteId, actualCollection);
-            if (tagCollection.isPresent()){
-                if (Boolean.TRUE.equals(tagCollection.get().getExternalCreation())) {
-                    context.put("externalcreation", " readonly ");
-                }
-            }
-
-        }else{
-            context.put("externalcreation", "");
+        String collectionId = (String) context.get("actualtagcollection");
+        Optional<TagCollection> collection = collectionId == null || collectionId.isBlank()
+            ? Optional.empty() : tagManagementService.getCollection(siteId, collectionId);
+        if (collection.isEmpty()) {
+            flash("danger", "uuid_missing");
+            sendRedirect("");
+            return;
         }
-
+        if (!tagService.canManageCollection(siteId, collectionId)) {
+            throw new SecurityException("Cannot create tags in collection " + collectionId);
+        }
+        if (Boolean.TRUE.equals(collection.get().getExternalCreation())) {
+            context.put("externalcreation", " readonly ");
+        }
     }
 
 }

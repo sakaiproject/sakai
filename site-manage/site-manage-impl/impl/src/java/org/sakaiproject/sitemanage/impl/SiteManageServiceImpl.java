@@ -90,6 +90,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
 
+    private static final String SECTIONS_TOOL_ID = "sakai.sections";
     private static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 
     @Setter private ContentHostingService contentHostingService;
@@ -234,6 +235,12 @@ public class SiteManageServiceImpl implements SiteManageService {
                 log.warn("Cannot resolve source site {} while importing site info URL, {}", oSiteId, iue.getMessage());
             }
 
+            if (site.getToolForCommonId(SECTIONS_TOOL_ID) != null) {
+                transversalMap.putAll(transferCopyEntities(SECTIONS_TOOL_ID, oSiteId, nSiteId,
+                        Collections.emptyList(), Collections.emptyList(), false));
+                toolsCopied.add(SECTIONS_TOOL_ID);
+            }
+
             if (pageList != null) {
                 for (SitePage page : pageList) {
                     List<ToolConfiguration> pageToolList = page.getTools();
@@ -318,8 +325,11 @@ public class SiteManageServiceImpl implements SiteManageService {
                 if (supportedTools != null) {
                     for (String toolId : supportedTools) {
                         if (selectedTools.contains(toolId)) {
+                            // Duplicate copies settings and permissions without opting into publication.
                             transferrer.getTransferOptions().ifPresent(options ->
-                                toolOptions.put(toolId, Map.of(fromSiteId, new ArrayList<>(options))));
+                                toolOptions.put(toolId, Map.of(fromSiteId, options.stream()
+                                    .filter(option -> !EntityTransferrer.PUBLISH_OPTION.equals(option))
+                                    .collect(Collectors.toList()))));
                         }
                     }
                 }
@@ -647,6 +657,24 @@ public class SiteManageServiceImpl implements SiteManageService {
 			}
 		}
 
+        // Import section structure before tools recreate their referenced groups by title.
+        if (toolIds.contains(SECTIONS_TOOL_ID)) {
+            Set<String> fullyImportedSiteIds = new LinkedHashSet<>(
+                    importTools.getOrDefault(SECTIONS_TOOL_ID, Collections.emptyList()));
+            Map<String, List<String>> siteItems = toolItemMap.getOrDefault(SECTIONS_TOOL_ID, Collections.emptyMap());
+            Map<String, List<String>> siteOptions = toolOptions.get(SECTIONS_TOOL_ID);
+            for (String fromSiteId : fullyImportedSiteIds) {
+                doImport(transversalMap, SECTIONS_TOOL_ID, siteIds, fromSiteId, toSiteId,
+                        Collections.emptyMap(), siteOptions, cleanup, false);
+            }
+            for (Map.Entry<String, List<String>> entry : siteItems.entrySet()) {
+                if (!fullyImportedSiteIds.contains(entry.getKey()) && CollectionUtils.isNotEmpty(entry.getValue())) {
+                    doImport(transversalMap, SECTIONS_TOOL_ID, siteIds, entry.getKey(), toSiteId,
+                            siteItems, siteOptions, cleanup, false);
+                }
+            }
+        }
+
 		// import resources first
 		boolean resourcesImported = false;
 		if (toolIds.contains(SiteManageConstants.RESOURCES_TOOL_ID)) {
@@ -769,7 +797,8 @@ public class SiteManageServiceImpl implements SiteManageService {
 		// Now import the rest of the tools
 		if (!toolIds.isEmpty()) {
 			for (String toolId : toolIds) {
-				if (!StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)
+				if (!StringUtils.equalsIgnoreCase(toolId, SECTIONS_TOOL_ID)
+						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)
 						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID)
 						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID)
 						&& !StringUtils.equalsIgnoreCase(toolId, ANNOUNCEMENTS_TOOL_ID)) {

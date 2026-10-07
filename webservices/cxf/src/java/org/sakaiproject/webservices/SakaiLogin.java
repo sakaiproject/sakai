@@ -139,7 +139,7 @@ public class SakaiLogin extends AbstractWebService {
 
                 usageSessionService.login(a.getUid(), id, ipAddress, "SakaiLogin", UsageSessionService.EVENT_LOGIN_WS);
 
-                log.debug("Sakai Web Services Login id={} ip={} session={}", id, ipAddress, s.getId());
+                log.debug("Sakai Web Services Login id={} ip={}", id, ipAddress);
 
                 // retrieve the configured cookie name, if any
                 if (System.getProperty(RequestFilter.SAKAI_COOKIE_PROP) != null) {
@@ -174,7 +174,7 @@ public class SakaiLogin extends AbstractWebService {
                     res.addCookie(c);
                 }
 
-                log.debug("Sakai Web Services Login id={} ip={} session={}", id, ipAddress, s.getId());
+                log.debug("Sakai Web Services Login id={} ip={}", id, ipAddress);
                 return s.getId();
             }
         } catch (AuthenticationException ex) {

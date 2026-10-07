@@ -1,7 +1,9 @@
 <script>includeWebjarLibrary('select2');</script>
 <script src="/library/webjars/select2/4.0.13/js/i18n/<h:outputText value='#{itemauthor.language}' rendered='#{not empty itemauthor.language}' /><h:outputText value='en' rendered='#{empty itemauthor.language}' />.js"></script>
 <f:subview id="delete" rendered="#{itemauthor.deleteTagsAllowed == true}">
-    <script>
+    <input type="hidden" id="item-tag-data" value="<h:outputText value="#{itemauthor.tagsListToJson}"/>"/>
+    <script type="module">
+        import { tagLabel } from "/samigo-app/js/tag-display.js";
 
 
         $(document).ready(function () {
@@ -15,7 +17,8 @@
                     delay: 500,
                     data: function (params) {
                         return {
-                            prefix: params.term, // search term
+                            siteId: "<h:outputText value='#{author.currentSiteId}'/>",
+                            prefix: params.term || "", // search term
                             page: params.page
                         };
                     },
@@ -50,7 +53,7 @@
 
 
             //Load the item actual tags
-            var arr =<h:outputText value="#{itemauthor.tagsListToJson}" escape="false"/>;
+            var arr =JSON.parse(document.getElementById('item-tag-data').value);
             for (var i = 0; i < arr.length; i++) {
                 var obj = arr[i];
                 var newOption = new Option(obj["tagLabel"], obj["tagId"], true, true);
@@ -69,19 +72,19 @@
         });
 
         function formatRepo(repo) {
-            var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+            var $tag_formatted = $(tagLabel(repo.text, repo.collection));
             return $tag_formatted;
         }
 
         function formatRepoSelection(repo) {
             if (typeof repo.collection != 'undefined') {
-                var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+                var $tag_formatted = $(tagLabel(repo.text, repo.collection));
             } else {
                 var collection = $('.tag_selector option[value=' + repo.id + ']').attr("title");
                 if (typeof collection != 'undefined') {
-                    var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + collection + ")</span></span>");
+                    var $tag_formatted = $(tagLabel(repo.text, collection));
                 } else {
-                    var $tag_formatted = $("<span>" + repo.text + "</span>");
+                    var $tag_formatted = $(tagLabel(repo.text));
                 }
             }
             return $tag_formatted;
@@ -122,7 +125,9 @@
 </f:subview>
 <f:subview id="nodelete" rendered="#{itemauthor.deleteTagsAllowed == false}">
 
-    <script>
+    <input type="hidden" id="item-tag-data" value="<h:outputText value="#{itemauthor.tagsListToJson}"/>"/>
+    <script type="module">
+        import { tagLabel } from "/samigo-app/js/tag-display.js";
 
 
         $(document).ready(function () {
@@ -136,7 +141,8 @@
                     delay: 500,
                     data: function (params) {
                         return {
-                            prefix: params.term, // search term
+                            siteId: "<h:outputText value='#{author.currentSiteId}'/>",
+                            prefix: params.term || "", // search term
                             page: params.page
                         };
                     },
@@ -182,7 +188,7 @@
 
 
             //Load the item actual tags
-            var arr =<h:outputText value="#{itemauthor.tagsListToJson}" escape="false"/>;
+            var arr =JSON.parse(document.getElementById('item-tag-data').value);
             for (var i = 0; i < arr.length; i++) {
                 var obj = arr[i];
                 var newOption = new Option(obj["tagLabel"], obj["tagId"], true, true);
@@ -211,19 +217,19 @@
         });
 
         function formatRepo(repo) {
-            var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+            var $tag_formatted = $(tagLabel(repo.text, repo.collection));
             return $tag_formatted;
         }
 
         function formatRepoSelection(repo) {
             if (typeof repo.collection != 'undefined') {
-                var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+                var $tag_formatted = $(tagLabel(repo.text, repo.collection));
             } else {
                 var collection = $('.tag_selector option[value=' + repo.id + ']').attr("title");
                 if (typeof collection != 'undefined') {
-                    var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + collection + ")</span></span>");
+                    var $tag_formatted = $(tagLabel(repo.text, collection));
                 } else {
-                    var $tag_formatted = $("<span>" + repo.text + "</span>");
+                    var $tag_formatted = $(tagLabel(repo.text));
                 }
             }
             return $tag_formatted;
@@ -231,13 +237,13 @@
 
         function formatRepoSelection_previous(repo) {
             if (typeof repo.collection != 'undefined') {
-                var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+                var $tag_formatted = $(tagLabel(repo.text, repo.collection));
             } else {
                 var collection = $('.tag_selector_previous option[value=' + repo.id + ']').attr("title");
                 if (typeof collection != 'undefined') {
-                    var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + collection + ")</span></span>");
+                    var $tag_formatted = $(tagLabel(repo.text, collection));
                 } else {
-                    var $tag_formatted = $("<span>" + repo.text + "</span>");
+                    var $tag_formatted = $(tagLabel(repo.text));
                 }
             }
             return $tag_formatted;

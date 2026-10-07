@@ -2,16 +2,19 @@
                  org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener,
                  org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener,
                  org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean,
+                 org.sakaiproject.tool.assessment.ui.security.SamigoJsfPermissions,
                  org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil,
+                 org.sakaiproject.tool.cover.SessionManager,
                  org.sakaiproject.tool.cover.ToolManager"
 %>
 <%
   AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean(
                          "authorization");
-  //if (authzBean.getAuthzMap().size()==0){ 
-    authzBean.addAllPrivilege(ToolManager.getCurrentPlacement().getContext());
-  //}
-  boolean adminPrivilege = authzBean.getAdminPrivilege();
+  String siteId = ToolManager.getCurrentPlacement().getContext();
+  boolean adminPrivilege = SamigoJsfPermissions.get(request, SessionManager.getCurrentSessionUserId(), siteId, () -> {
+    authzBean.addAllPrivilege(siteId);
+    return authzBean.getAuthzMap();
+  }).contains("admin.privilege");
 
   if (!adminPrivilege)
   {

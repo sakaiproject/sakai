@@ -165,7 +165,7 @@ public class SakaiReport extends AbstractWebService {
             throw new RuntimeException("Report service not enabled.");
         }
         if (session == null) {
-            log.warn("No session for: {}", sessionid);
+            log.warn("No active web service session");
             throw new RuntimeException("No session for " + sessionid);
         }
         

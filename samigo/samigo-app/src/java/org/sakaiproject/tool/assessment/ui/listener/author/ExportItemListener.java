@@ -24,10 +24,15 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.context.FacesContext;
+import javax.faces.FacesException;
+import java.io.IOException;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.ui.bean.qti.XMLController;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -39,18 +44,24 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 @Slf4j
 public class ExportItemListener implements ActionListener
 {
-  private static ContextUtil cu;
-
   public ExportItemListener()
   {
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    log.info("Listener=ExportItemListener");
-    String itemId = (String) cu.lookupParam("itemId");
-    log.info("** item = "+itemId);
-    XMLController xmlController = (XMLController) cu.lookupBean(
+    String itemId = ContextUtil.lookupParam("itemId");
+    if (!new ItemService().canExportItem(Long.valueOf(itemId), AgentFacade.getCurrentSiteId())) {
+      FacesContext context = FacesContext.getCurrentInstance();
+      try {
+        context.getExternalContext().responseSendError(403, null);
+        context.responseComplete();
+      } catch (IOException e) {
+        throw new FacesException(e);
+      }
+      return;
+    }
+    XMLController xmlController = (XMLController) ContextUtil.lookupBean(
                                           "xmlController");
     xmlController.setId(itemId);
     xmlController.setQtiVersion(1);
@@ -58,5 +69,3 @@ public class ExportItemListener implements ActionListener
   }
 
 }
-
-

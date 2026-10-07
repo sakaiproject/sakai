@@ -370,7 +370,7 @@ public class SessionComponent implements SessionManager, SessionStore
 		// check for id conflict
 		if (old != null)
 		{
-			log.warn("startSession: duplication id: " + s.getId());
+			log.warn("Duplicate session ID while starting session");
 		}
 
 		return s;
@@ -559,10 +559,10 @@ public class SessionComponent implements SessionManager, SessionStore
 					for (Map.Entry<String, MutableLong> entry: expirationTimeSuggestionMap.entrySet()) {
 						if (entry.getValue().longValue() < System.currentTimeMillis()) {
 							MySession s = (MySession)m_sessions.get(entry.getKey());
-							if (log.isDebugEnabled()) log.debug("checking session " + s.getId());
+							if (log.isDebugEnabled()) log.debug("Checking session expiry");
 							if (s.isInactive())
 							{
-								if (log.isDebugEnabled()) log.debug("invalidating session " + s.getId());
+								if (log.isDebugEnabled()) log.debug("Invalidating expired session");
 								synchronized(s) {
 									s.invalidate();
 								}
