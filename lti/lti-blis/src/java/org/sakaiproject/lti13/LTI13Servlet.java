@@ -2180,7 +2180,10 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, false) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, !all) ) {
+				if (!all) {
+					return; // checkToolHasPlacements() already writes the 403 response.
+				}
 				sendEmptyListInsteadOf403 = true;
 			}
 
