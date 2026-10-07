@@ -92,7 +92,8 @@ public abstract class SakaiUiTestBase {
         Browser.NewContextOptions contextOptions = new Browser.NewContextOptions()
             .setIgnoreHTTPSErrors(true)
             .setBaseURL(SakaiEnvironment.baseUrl())
-            .setLocale("en-US");
+            .setLocale("en-US")
+            .setTimezoneId("America/New_York");
 
         context = activeBrowser.newContext(contextOptions);
         // setLocale() only affects navigator.language/Intl in the browser; Sakai negotiates
