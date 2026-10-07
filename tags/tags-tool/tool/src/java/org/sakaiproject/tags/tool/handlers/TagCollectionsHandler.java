@@ -35,8 +35,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
-import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tags.tool.forms.TagCollectionForm;
+import org.sakaiproject.tags.tool.service.TagManagementService;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * A handler for creating and updating Tag collections in the Tags Service administration tool.
@@ -45,14 +46,15 @@ import org.sakaiproject.tags.tool.forms.TagCollectionForm;
 public class TagCollectionsHandler extends CrudHandler {
 
     private final TagService tagService;
+    private final TagManagementService tagManagementService;
     private final String siteId;
-
     private final FormattedText formattedText;
 
-    public TagCollectionsHandler(TagService tagservice, FormattedText formattedText, String siteId) {
+    public TagCollectionsHandler(TagService tagservice, TagManagementService tagManagementService, FormattedText formattedText, String siteId) {
         this.tagService = tagservice;
-        this.formattedText = formattedText;
+        this.tagManagementService = tagManagementService;
         this.siteId = siteId;
+        this.formattedText = formattedText;
     }
 
     @Override
@@ -67,7 +69,7 @@ public class TagCollectionsHandler extends CrudHandler {
     @Override
     protected void handleDelete(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
-        tagService.deleteTagCollection(siteId, uuid);
+        tagManagementService.deleteCollection(siteId, uuid);
 
         flash("info", "tagcollection_deleted");
         sendRedirect("");
@@ -75,11 +77,10 @@ public class TagCollectionsHandler extends CrudHandler {
 
     private void handlePreview(HttpServletRequest request, HttpServletResponse response, Map<String, Object> context) {
         String uuid = extractId(request);
-        tagService.checkCollectionAccess(siteId, uuid);
 
         context.put("layout", false);
         try {
-            Optional<TagCollection> tagCollection = tagService.getTagCollection(uuid);
+            Optional<TagCollection> tagCollection = tagManagementService.getCollection(siteId, uuid);
 
             if (tagCollection.isPresent()) {
                 // Don't let the portal buffering hijack our response.
@@ -121,8 +122,10 @@ public class TagCollectionsHandler extends CrudHandler {
     @Override
     protected void handleCreateOrUpdate(HttpServletRequest request, Map<String, Object> context, CrudMode mode) {
         String uuid = extractId(request);
+        if (CrudMode.UPDATE.equals(mode) && !tagService.canManageCollection(siteId, uuid)) {
+            throw new SecurityException("Cannot edit collection " + uuid);
+        }
         TagCollectionForm tagCollectionForm = TagCollectionForm.fromRequest(uuid, request);
-
 
         if (CrudMode.CREATE.equals(mode)) {
             if (tagService.getTagCollectionForExternalSourceName(tagCollectionForm.toTagCollection().getExternalSourceName()).isPresent()){
@@ -154,10 +157,10 @@ public class TagCollectionsHandler extends CrudHandler {
         }
 
         if (CrudMode.CREATE.equals(mode)) {
-            tagService.saveTagCollection(siteId, tagCollectionForm.toTagCollection().toBuilder().tagCollectionId(null).build());
+            tagManagementService.createCollection(siteId, tagCollectionForm.toTagCollection());
             flash("info", "tagcollection_created");
         } else {
-            tagService.saveTagCollection(siteId, tagCollectionForm.toTagCollection());
+            tagManagementService.updateCollection(siteId, tagCollectionForm.toTagCollection());
             flash("info", "tagcollection_updated");
         }
 

@@ -37,6 +37,7 @@ import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.tool.forms.TagForm;
+import org.sakaiproject.tags.tool.service.TagManagementService;
 import org.sakaiproject.util.api.FormattedText;
 
 /**
@@ -46,26 +47,37 @@ import org.sakaiproject.util.api.FormattedText;
 public class TagsHandler extends CrudHandler {
 
     private final TagService tagService;
-    private final String siteId;
     private final FormattedText formattedText;
+    private final TagManagementService tagManagementService;
+    private final String siteId;
 
-    public TagsHandler(TagService tagService, FormattedText formattedText, String siteId) {
+    public TagsHandler(TagService tagService, TagManagementService tagManagementService, FormattedText formattedText, String siteId) {
         this.tagService = tagService;
-        this.siteId = siteId;
         this.formattedText = formattedText;
+        this.tagManagementService = tagManagementService;
+        this.siteId = siteId;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, Map<String, Object> context) {
-        String collectionId = request.getParameter("tagCollectionId");
-        if (!request.getPathInfo().contains("/new")) {
-            collectionId = tagService.getTag(extractId(request)).map(Tag::getTagCollectionId).orElse(null);
+        String collectionId;
+        if (request.getPathInfo().endsWith("/new")) {
+            collectionId = request.getParameter("tagCollectionId");
+        } else {
+            collectionId = tagManagementService.getTag(siteId, extractId(request))
+                .map(Tag::getTagCollectionId).orElse(null);
         }
-        context.put("actualtagcollection", collectionId);
-        context.put("tagcollectionidreadonly", "readonly hidden");
-        if (collectionId != null) {
-            tagService.getTagCollection(collectionId).ifPresent(collection ->
-                context.put("actualtagcollectionname", collection.getName()));
+        context.put("actualtagcollection", "");
+        context.put("actualtagcollectionname", "");
+        context.put("tagcollectionidreadonly", "");
+        context.put("returnpath", context.get("baseURL"));
+        if (collectionId != null && !collectionId.isBlank()) {
+            TagCollection collection = tagManagementService.getCollection(siteId, collectionId)
+                .orElseThrow(() -> new IllegalArgumentException("No matching tag collection"));
+            context.put("actualtagcollection", collectionId);
+            context.put("actualtagcollectionname", collection.getName());
+            context.put("tagcollectionidreadonly", "readonly hidden");
+            context.put("returnpath", context.get("baseURL") + "tagsintagcollection/" + collectionId + "/manage");
         }
         if (request.getPathInfo().contains("/preview") && isGet(request)) {
             handlePreview(request, response, context);
@@ -77,10 +89,10 @@ public class TagsHandler extends CrudHandler {
     @Override
     protected void handleDelete(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
-        tagService.deleteTag(siteId, uuid);
+        String collectionId = tagManagementService.deleteTag(siteId, uuid);
 
         flash("info", "tag_deleted");
-        sendRedirect("tagsintagcollection/" + context.get("actualtagcollection") + "/manage");
+        sendRedirect("tagsintagcollection/" + collectionId + "/manage");
     }
 
 
@@ -89,10 +101,9 @@ public class TagsHandler extends CrudHandler {
 
         context.put("layout", false);
         try {
-            Optional<Tag> tag = tagService.getTag(uuid);
+            Optional<Tag> tag = tagManagementService.getTag(siteId, uuid);
 
             if (tag.isPresent()) {
-                tagService.checkCollectionAccess(siteId, tag.get().getTagCollectionId());
                 // Don't let the portal buffering hijack our response.
                 // Include enough content to count as having returned a
                 // body.
@@ -110,13 +121,14 @@ public class TagsHandler extends CrudHandler {
     protected void handleEdit(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
         context.put("subpage", "tag_form");
-        Optional<Tag> tag = tagService.getTag(uuid);
+        Optional<Tag> tag = tagManagementService.getTag(siteId, uuid);
         if (tag.isPresent()) {
             if (!tagService.canManageCollection(siteId, tag.get().getTagCollectionId())) {
                 throw new SecurityException("Cannot edit tag " + uuid);
             }
-            Optional<TagCollection> tagCollection = tagService.getTagCollection(tag.get().getTagCollectionId());
-            if (Boolean.TRUE.equals(tagCollection.get().getExternalCreation())){
+            TagCollection tagCollection = tagManagementService.getCollection(siteId, tag.get().getTagCollectionId())
+                .orElseThrow(() -> new IllegalArgumentException("No matching tag collection"));
+            if (Boolean.TRUE.equals(tagCollection.getExternalCreation()) || Boolean.TRUE.equals(tag.get().getExternalCreation())){
                 context.put("externalcreation", " readonly ");
                 context.put("isExternallyUpdated","style=display:none");
             }
@@ -152,14 +164,15 @@ public class TagsHandler extends CrudHandler {
             return;
         }
 
+        String collectionId;
         if (CrudMode.CREATE.equals(mode)) {
-            tagService.saveTag(siteId, tagForm.toTag().toBuilder().tagId(null).build());
+            collectionId = tagManagementService.createTag(siteId, tagForm.toTag());
             flash("info", "tag_created");
         } else {
-            tagService.saveTag(siteId, tagForm.toTag());
+            collectionId = tagManagementService.updateTag(siteId, tagForm.toTag());
             flash("info", "tag_updated");
         }
-        sendRedirect("tagsintagcollection/" + tagForm.toTag().getTagCollectionId() + "/manage");
+        sendRedirect("tagsintagcollection/" + collectionId + "/manage");
     }
 
     @Override
@@ -168,12 +181,15 @@ public class TagsHandler extends CrudHandler {
         context.put("subpage", "tag_form");
         context.put("mode", "new");
         String collectionId = (String) context.get("actualtagcollection");
-        Optional<TagCollection> collection = collectionId == null
-            ? Optional.empty() : tagService.getTagCollection(collectionId);
+        Optional<TagCollection> collection = collectionId == null || collectionId.isBlank()
+            ? Optional.empty() : tagManagementService.getCollection(siteId, collectionId);
         if (collection.isEmpty()) {
             flash("danger", "uuid_missing");
             sendRedirect("");
             return;
+        }
+        if (!tagService.canManageCollection(siteId, collectionId)) {
+            throw new SecurityException("Cannot create tags in collection " + collectionId);
         }
         if (Boolean.TRUE.equals(collection.get().getExternalCreation())) {
             context.put("externalcreation", " readonly ");
