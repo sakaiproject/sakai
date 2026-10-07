@@ -19,32 +19,47 @@ import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import java.util.List;
 import java.util.regex.Pattern;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.sakaiproject.e2e.support.SakaiEnvironment;
 import org.sakaiproject.e2e.support.SakaiHelper;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
-/**
- * Opt in with {@code -Dsamigo.cancellation.enabled=true} and provide all five site URLs:
- * {@code samigo.cancellation.restrictedSiteUrl}, {@code samigo.cancellation.redistributionSiteUrl},
- * {@code samigo.cancellation.equalWeightSiteUrl}, {@code samigo.cancellation.ordinarySiteUrl},
- * and {@code samigo.cancellation.staleSiteUrl}. Each run requires fresh prepared fixtures;
- * the opt-in run fails if a required URL is missing.
- */
-@EnabledIfSystemProperty(named = "samigo.cancellation.enabled", matches = "true")
+/** Creates one course, three quizzes and real submissions before exercising ordered cancellation flows. */
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SamigoCancellationCategoryTest extends SakaiUiTestBase {
-    private static final String FIRST_QUIZ = "SAK-52130 TQ-1";
+    private static String siteUrl;
+    private static final String FIRST_QUIZ = "SAK-52130 Cancellation Q1";
+    private static final String SECOND_QUIZ = "SAK-52130 Cancellation Q2";
+    private static final String THIRD_QUIZ = "SAK-52130 Cancellation Q3";
     private static final String RESTRICTION = "This Gradebook category uses Keep/Drop and requires equal point totals.";
 
+    @BeforeEach
+    void prepareCourse() {
+        loginInstructor();
+        if (siteUrl == null) {
+            createFixtures();
+        }
+    }
+
+    private void loginInstructor() {
+        sakai.login("instructor1");
+        assertThat(page.locator("#sakai-account-panel")).hasCount(1);
+    }
+
     @Test
+    @Order(1)
     void bothRestrictedDialogsExplainReductionAndDismissalPreservesGrades() {
-        String siteUrl = fixture("restricted");
+        openGradebook(siteUrl);
+        changeCategorySettings(page, true, false);
         openGradebook(siteUrl);
         assertThat(studentRow().locator("[role='gridcell'][aria-label*='Course Grade']")).containsText("83.33");
         assertGradebookPoints(FIRST_QUIZ, "3");
@@ -67,8 +82,10 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
     }
 
     @Test
+    @Order(3)
     void redistributionTargetsSelectedQuestionAndSynchronizesThreePossiblePoints() {
-        String siteUrl = fixture("redistribution");
+        openGradebook(siteUrl);
+        changeCategorySettings(page, true, false);
         openEvaluation(siteUrl, FIRST_QUIZ);
         openCancellation();
         assertRestrictedDialog();
@@ -87,21 +104,26 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
     }
 
     @Test
+    @Order(4)
     void equalWeightCategoryAllowsReductionAndSynchronizesTwoPossiblePoints() {
-        String siteUrl = fixture("equalWeight");
         openGradebook(siteUrl);
-        changeCategorySettings(page, false, true);
-        reduceAndAssertTwoPoints(siteUrl);
+        changeCategorySettings(page, true, true);
+        reduceAndAssertTwoPoints(SECOND_QUIZ, "1");
     }
 
     @Test
+    @Order(5)
     void ordinaryCategoryAllowsReductionAndSynchronizesTwoPossiblePoints() {
-        reduceAndAssertTwoPoints(fixture("ordinary"));
+        openGradebook(siteUrl);
+        changeCategorySettings(page, false, false);
+        reduceAndAssertTwoPoints(THIRD_QUIZ, "2");
     }
 
     @Test
+    @Order(2)
     void staleReductionFormCannotChangePointsAfterCategoryBecomesRestricted() {
-        String siteUrl = fixture("stale");
+        openGradebook(siteUrl);
+        changeCategorySettings(page, false, false);
         openEvaluation(siteUrl, FIRST_QUIZ);
         openCancellation();
         Locator reduction = modal().getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Reduce total points"));
@@ -127,14 +149,78 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         assertStudentAssignmentScore(FIRST_QUIZ, "2");
     }
 
-    private String fixture(String kind) {
-        String property = "samigo.cancellation." + kind + "SiteUrl";
-        String siteUrl = System.getProperty(property);
-        assertNotNull(siteUrl, "Required fresh fixture missing: -D" + property + "=<site URL>");
-        assertFalse(siteUrl.isBlank(), "Required fixture URL is blank: " + property);
-        sakai.login(System.getProperty("samigo.cancellation.instructor", "instructor1"));
+    private void createFixtures() {
+        siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.samigo", "sakai\\.gradebookng"));
+        System.out.println("SAK-52130 cancellation course: " + siteUrl);
+        openGradebook(siteUrl);
+        openCategorySettings(page);
+        page.getByLabel("Categories only", new Page.GetByLabelOptions().setExact(true)).check();
+        page.locator(".gb-category-row input[name$='name']").first().fill("Quizzes");
+        saveCategorySettings(page);
+        for (String title : List.of(FIRST_QUIZ, SECOND_QUIZ, THIRD_QUIZ)) {
+            createQuiz(title);
+        }
+        openGradebook(siteUrl);
+        changeCategorySettings(page, true, false);
+        sakai.login("student0011");
         assertThat(page.locator("#sakai-account-panel")).hasCount(1);
-        return siteUrl;
+        submitQuiz(FIRST_QUIZ, List.of(0, 0, 1));
+        submitQuiz(SECOND_QUIZ, List.of(1, 0, 1));
+        submitQuiz(THIRD_QUIZ, List.of(0, 0, 0));
+        loginInstructor();
+        openGradebook(siteUrl);
+        assertStudentAssignmentScore(FIRST_QUIZ, "2");
+        assertStudentAssignmentScore(SECOND_QUIZ, "1");
+        assertStudentAssignmentScore(THIRD_QUIZ, "3");
+    }
+
+    private void createQuiz(String title) {
+        openAssessments(siteUrl);
+        page.locator("#authorIndexForm a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add$"))).click();
+        page.locator("#authorIndexForm\\:title").fill(title);
+        page.locator("#authorIndexForm\\:createnew").click();
+        for (int question = 1; question <= 3; question++) {
+            Locator type = page.locator("#assessmentForm\\:parts\\:0\\:changeQType");
+            String value = type.locator("option").filter(new Locator.FilterOptions()
+                .setHasText(Pattern.compile("multiple choice", Pattern.CASE_INSENSITIVE))).first().getAttribute("value");
+            type.selectOption(value);
+            page.locator("#itemForm\\:answerptr").fill("1");
+            page.locator("#itemForm textarea").first().fill("Question " + question + ": choose Correct.");
+            page.locator("#itemForm\\:mcchoices textarea").nth(0).fill("Correct");
+            page.locator("#itemForm\\:mcchoices textarea").nth(1).fill("Incorrect");
+            page.locator("#itemForm\\:mcchoices input[type='radio']").nth(0).check();
+            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save").setExact(true)).first().click();
+            assertThat(page.locator("#assessmentForm\\:parts .samigo-question-callout")).hasCount(question);
+        }
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Settings").setExact(true)).first().click();
+        page.locator("#expandLink").click();
+        page.locator("[id='assessmentSettingsAction:honor_pledge']").check();
+        page.locator("#assessmentSettingsAction\\:toDefaultGradebook input[value='1']").check();
+        page.locator("#assessmentSettingsAction\\:selectCategory").selectOption(
+            new com.microsoft.playwright.options.SelectOption().setLabel("Quizzes"));
+        page.getByLabel("The complete assessment is displayed on one web page", new Page.GetByLabelOptions().setExact(true)).check();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Settings and Publish").setExact(true)).click();
+        page.locator("#publishAssessmentForm\\:publish").click();
+        assertThat(publishedRow(title)).hasCount(1);
+    }
+
+    private void submitQuiz(String title, List<Integer> answers) {
+        page.navigate(siteUrl);
+        sakai.toolClick("Tests");
+        page.locator("[id='selectIndexForm:selectTable'] a[id$=':takeAssessment']")
+            .filter(new Locator.FilterOptions().setHasText(title)).click();
+        page.locator("[id='takeAssessmentForm:honor_pledge']").check();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Begin Assessment").setExact(true)).click();
+        Locator questions = page.locator(".samigo-question-callout");
+        assertThat(questions).hasCount(3);
+        for (int question = 0; question < answers.size(); question++) {
+            questions.nth(question).getByRole(AriaRole.RADIO).nth(answers.get(question)).check();
+        }
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Submit for Grading").setExact(true)).first().click();
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Assessment Submission Warning").setExact(true))).isVisible();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Submit for Grading").setExact(true)).click();
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Submission " + title).setExact(true))).isVisible();
+        assertThat(page.getByText("Confirmation Number", new Page.GetByTextOptions().setExact(true))).isVisible();
     }
 
     private void openGradebook(String siteUrl) {
@@ -152,7 +238,7 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
     private void openAssessments(String siteUrl) {
         page.navigate(siteUrl);
         sakai.toolClick("Tests");
-        assertThat(page.locator("#authorIndexForm\\:coreAssessments")).isVisible();
+        assertThat(page.locator("#authorIndexForm")).isVisible();
     }
 
     private void openEvaluation(String siteUrl, String title) {
@@ -189,25 +275,27 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
 
     private void assertRestrictedDialog() {
         assertThat(modal()).isVisible();
+        // Bootstrap moves focus to the dialog after its opening transition completes.
+        assertThat(modal()).isFocused();
         assertThat(modal().getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Reduce total points"))).isDisabled();
         assertThat(modal().getByText(RESTRICTION)).isVisible();
         assertThat(modal().getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Equally distribute points"))).isEnabled();
     }
 
-    private void reduceAndAssertTwoPoints(String siteUrl) {
-        openEvaluation(siteUrl, FIRST_QUIZ);
+    private void reduceAndAssertTwoPoints(String title, String earnedScore) {
+        openEvaluation(siteUrl, title);
         openCancellation();
         Locator reduction = modal().getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Reduce total points"));
         assertThat(reduction).isEnabled();
         reduction.click();
         assertThat(page.getByText("This question has been cancelled and will not affect the total score.",
                 new Page.GetByTextOptions().setExact(true))).isVisible();
-        openPublishedAuthoring(siteUrl, FIRST_QUIZ);
+        openPublishedAuthoring(siteUrl, title);
         assertAuthoringPoints("2");
         assertThat(page.locator("input[id$='answerptr']").first()).hasValue(Pattern.compile("0(?:\\.0+)?"));
         openGradebook(siteUrl);
-        assertGradebookPoints(FIRST_QUIZ, "2");
-        assertStudentAssignmentScore(FIRST_QUIZ, "1");
+        assertGradebookPoints(title, "2");
+        assertStudentAssignmentScore(title, earnedScore);
     }
 
     private void assertAuthoringPoints(String points) {
@@ -236,7 +324,7 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         assertThat(header.locator(".gb-total-points")).hasText(Pattern.compile("\\s*" + points.replace(".", "\\.") + "(?:\\.0+)?\\s*"));
     }
 
-    private void changeCategorySettings(Page target, boolean keepHighest, boolean equalWeight) {
+    private void openCategorySettings(Page target) {
         target.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Settings")).first().click();
         Locator accordion = target.locator(".accordion button").filter(new Locator.FilterOptions().setHasText("Categories")).first();
         if (!"true".equals(accordion.getAttribute("aria-expanded"))) {
@@ -245,14 +333,22 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
             target.waitForFunction("panel => !panel.isConnected", previousPanel);
             previousPanel.dispose();
         }
-        if (keepHighest) {
-            target.locator("#settingsCategories input[type='checkbox'][name$='keepHighest']").check();
-        }
-        if (equalWeight) {
-            target.locator("#settingsCategories input[type='checkbox'][name$='equalWeight']").first().check();
+    }
+
+    private void changeCategorySettings(Page target, boolean keepHighest, boolean equalWeight) {
+        openCategorySettings(target);
+        for (String option : List.of("keepHighest", "equalWeight")) {
+            Locator checkbox = target.locator("#settingsCategories .gb-inline-checkbox input[name$='" + option + "']");
+            boolean enabled = "keepHighest".equals(option) ? keepHighest : equalWeight;
+            if (checkbox.isChecked() != enabled) {
+                ElementHandle previousRow = target.locator(".gb-category-row").first().elementHandle();
+                checkbox.setChecked(enabled);
+                target.waitForFunction("row => !row.isConnected", previousRow);
+                previousRow.dispose();
+            }
         }
         Locator category = target.locator(".gb-category-row").filter(new Locator.FilterOptions()
-                .setHas(target.locator("input[name$='name'][value='Quizzes']")));
+            .setHas(target.locator("input[name$='name'][value='Quizzes']")));
         assertThat(category).hasCount(1);
         if (keepHighest) {
             category.locator(".gb-category-keephighest input").fill("2");
@@ -260,6 +356,10 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         if (equalWeight) {
             category.locator(".gb-category-equalweight input").check();
         }
+        saveCategorySettings(target);
+    }
+
+    private void saveCategorySettings(Page target) {
         target.locator(".act button.active").first().click();
         assertThat(target.getByText("The settings were successfully updated", new Page.GetByTextOptions().setExact(true))).isVisible();
     }
