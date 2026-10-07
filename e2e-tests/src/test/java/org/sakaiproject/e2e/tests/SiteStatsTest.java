@@ -450,6 +450,10 @@ class SiteStatsTest extends SakaiUiTestBase {
         Locator component = page.locator("sakai-sitestats-resource-search");
         Locator search = component.getByLabel("Search resources");
         assertResourceInputThemes(component, search);
+        List<String> metadataRequests = new ArrayList<>();
+        page.onRequest(request -> {
+            if (request.url().contains("/reports/resources?")) metadataRequests.add(request.url());
+        });
         search.fill("reading");
         Locator matches = component.locator("#resource-results li");
         assertThat(matches).hasCount(20);
@@ -467,10 +471,13 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.setViewportSize(1280, 720);
         matches.first().getByRole(AriaRole.BUTTON).click();
         search.fill("Week 5 Reading");
-        // Each term can match the name or the location, including 5 in Reading 15.txt.
-        assertThat(matches).hasCount(3);
-        assertThat(matches.locator(".resource-name")).hasText(
-            new String[] { "Reading.txt", "Reading 15.txt", "Reading 5.txt" });
+        assertThat(matches).hasCount(0);
+        assertThat(component.locator("[role=status]")).containsText("No matching resources.");
+        search.fill("Reading 5");
+        assertThat(matches).hasCount(1);
+        assertThat(matches.locator(".resource-name")).hasText("Reading 5.txt");
+        search.fill("Week 5");
+        assertThat(matches).hasCount(1);
         Locator chosenWeek = matches.filter(new Locator.FilterOptions().setHasText("Resources / Week 5"));
         assertThat(chosenWeek).hasCount(1);
         chosenWeek.getByRole(AriaRole.BUTTON).click();
@@ -479,6 +486,8 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(matches).hasCount(1);
         matches.first().getByRole(AriaRole.BUTTON).click();
         component.locator("#selected-resources li").first().getByRole(AriaRole.BUTTON).click();
+        assertEquals(1, metadataRequests.size(), "Refining the query must reuse the editor's resource metadata");
+        assertFalse(metadataRequests.get(0).contains("&q="));
         String selectedIds = root + "Week 5/Reading.txt\n" + root + "Notes.txt";
         assertResourceFormValue(selectedIds);
         assertThat(page.locator("#resource-ids")).hasCount(0);

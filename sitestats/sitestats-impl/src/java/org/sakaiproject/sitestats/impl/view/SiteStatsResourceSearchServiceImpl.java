@@ -17,7 +17,6 @@ package org.sakaiproject.sitestats.impl.view;
 
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,54 +44,30 @@ import org.sakaiproject.util.ResourceLoader;
 @Setter
 public class SiteStatsResourceSearchServiceImpl implements SiteStatsResourceSearchService {
 
-    private static final int SEARCH_LIMIT = 20;
-    private static final int MAX_QUERY_LENGTH = 256;
-
     private SiteStatsReportAccessService reportAccessService;
     private ContentHostingService contentHostingService;
     private LocaleService localeService;
     private ToolManager toolManager;
 
     @Override
-    public ResourceSearchResult search(String siteId, String query) {
+    public List<ResourceOption> resources(String siteId) {
         reportAccessService.assertCanViewAll(siteId);
-        String searchQuery = query == null ? "" : query.strip();
-        if (searchQuery.length() > MAX_QUERY_LENGTH) {
-            throw new InvalidQueryException();
-        }
-        List<String> terms = Arrays.stream(searchQuery.toLowerCase(Locale.ROOT).split("(?U)\\s+"))
-                .filter(term -> !term.isEmpty()).toList();
-        if (searchQuery.codePointCount(0, searchQuery.length()) < 2 || terms.isEmpty()) {
-            return new ResourceSearchResult(List.of(), false);
-        }
         Locale locale = locale(siteId);
         ResourceLoader messages = messages(locale);
         Map<String, String> roots = roots(siteId, messages);
-        List<ResourceOption> matches = new ArrayList<>();
+        List<ResourceOption> resources = new ArrayList<>();
         Map<String, String> collectionLabels = new LinkedHashMap<>();
-        // The Kernel returns readable resource metadata beneath each site-specific root.
+        // Only readable metadata is loaded; resource bodies are never read.
         for (String root : roots.keySet()) {
             for (ContentResource resource : contentHostingService.getAllResources(root)) {
                 String id = resource.getId();
-                String name = label(resource, messages);
-                // Defer parent reads for name-only matches until the visible results are assembled.
-                if (matches(name, terms) || matches(name + " "
-                        + location(id, roots, collectionLabels, messages), terms)) {
-                    matches.add(new ResourceOption(id, name, "", false));
-                }
+                resources.add(new ResourceOption(id, label(resource, messages),
+                        location(id, roots, collectionLabels, messages), false));
             }
         }
         Collator collator = Collator.getInstance(locale);
-        matches.sort(Comparator.comparing(ResourceOption::label, collator).thenComparing(ResourceOption::id));
-        List<ResourceOption> items = matches.stream().limit(SEARCH_LIMIT)
-                .map(resource -> new ResourceOption(resource.id(), resource.label(),
-                        location(resource.id(), roots, collectionLabels, messages), false)).toList();
-        return new ResourceSearchResult(items, matches.size() > SEARCH_LIMIT);
-    }
-
-    private boolean matches(String text, List<String> terms) {
-        String folded = text.toLowerCase(Locale.ROOT);
-        return terms.stream().allMatch(folded::contains);
+        resources.sort(Comparator.comparing(ResourceOption::label, collator).thenComparing(ResourceOption::id));
+        return List.copyOf(resources);
     }
 
     @Override

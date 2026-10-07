@@ -20,17 +20,10 @@ import java.util.List;
 /** Permission-aware resource lookup for SiteStats report filters. */
 public interface SiteStatsResourceSearchService {
 
-    ResourceSearchResult search(String siteId, String query);
+    /** Returns readable metadata, sorted using the site's effective locale, for local filtering. */
+    List<ResourceOption> resources(String siteId);
 
     List<ResourceOption> selected(String siteId, List<String> ids);
 
     record ResourceOption(String id, String label, String location, boolean legacyCollection) { }
-
-    record ResourceSearchResult(List<ResourceOption> items, boolean truncated) { }
-
-    class InvalidQueryException extends IllegalArgumentException {
-        public InvalidQueryException() {
-            super("Resource search queries cannot exceed 256 characters");
-        }
-    }
 }

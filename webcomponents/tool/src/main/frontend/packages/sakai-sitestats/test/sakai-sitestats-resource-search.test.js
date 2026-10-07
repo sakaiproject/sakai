@@ -3,9 +3,8 @@ import * as i18n from "./i18n.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
 
-const endpoint = "/reports/resources/search?siteId=site1";
+const endpoint = "/reports/resources?siteId=site1";
 const resource = (n, label = `Reading ${n}`) => ({ id: `/group/site1/${n}.txt`, label, location: "Resources / Week One" });
-const response = (items, truncated = false) => ({ items, truncated });
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const query = async (el, value) => {
   const input = el.renderRoot.querySelector("input");
@@ -17,7 +16,9 @@ const rows = el => el.renderRoot.querySelectorAll("#resource-results li");
 const selected = el => el.renderRoot.querySelectorAll("#selected-resources li");
 const button = (el, label) => [ ...el.renderRoot.querySelectorAll("button") ]
   .find(candidate => candidate.textContent.trim() === label);
-const mount = async (initialSelection = []) => {
+const metadataCalls = () => fetchMock.callHistory.calls().filter(call => call.url.includes("/reports/resources?"));
+const mount = async (initialSelection = [], resources = []) => {
+  fetchMock.get(new URL(endpoint, location.origin).href, resources);
   const form = await fixture(html`<form><fieldset><sakai-sitestats-resource-search name="whatResourceIds"
     endpoint=${endpoint} .initialSelection=${initialSelection}></sakai-sitestats-resource-search></fieldset></form>`);
   const el = form.querySelector("sakai-sitestats-resource-search");
@@ -25,9 +26,6 @@ const mount = async (initialSelection = []) => {
   await elementUpdated(el);
   return el;
 };
-const searchRoute = (q, body) => fetchMock.get({
-  url: `begin:${location.origin}/reports/resources/search`, query: { siteId: "site1", q },
-}, body);
 
 describe("sakai-sitestats-resource-search", () => {
   beforeEach(() => {
@@ -45,8 +43,7 @@ describe("sakai-sitestats-resource-search", () => {
     window.sessionStorage.setItem("sitestats", JSON.stringify(oldBundle));
     window.sakai = { translations: { sitestats: oldBundle,
       existingPromises: { sitestats: Promise.resolve(oldBundle) } } };
-    searchRoute("reading", response([ resource(1) ]));
-    const el = await mount();
+    const el = await mount([], [ resource(1) ]);
     expect(el.renderRoot.querySelector("label").textContent).to.equal("Search resources");
     expect(el.renderRoot.querySelector("h3").textContent).to.equal("Selected resources (0)");
     expect(Object.keys(window.sakai.translations.sitestats)
@@ -57,28 +54,28 @@ describe("sakai-sitestats-resource-search", () => {
     expect(rows(el)[0].textContent).to.contain("Reading 1");
   });
 
-  it("labels native search and debounces without fetching initial inventory", async () => {
-    searchRoute("reading", response([ resource(1) ]));
-    const el = await mount();
+  it("loads metadata on the first valid query and reuses it without debounce or query requests", async () => {
+    const el = await mount([], [ resource(1), resource(2, "Notes") ]);
     expect(el.renderRoot.querySelector("label").htmlFor).to.equal("resource-query");
     expect(el.renderRoot.querySelector("input").getAttribute("aria-describedby")).to.equal("resource-search-status");
     await query(el, "r");
-    await pause(330);
-    expect(fetchMock.callHistory.calls().length).to.equal(1);
-    await query(el, "read");
-    await pause(80);
+    expect(metadataCalls()).to.have.length(0);
     await query(el, "reading");
-    await pause(180);
-    expect(rows(el)).to.have.length(0);
-    expect(el.renderRoot.querySelector("[role=status]").textContent).to.contain("Searching");
     await waitUntil(() => rows(el).length === 1);
-    expect(fetchMock.callHistory.calls().length).to.equal(2);
+    await query(el, "notes");
+    expect(rows(el)[0].textContent).to.contain("Notes");
+    await query(el, "");
+    expect(rows(el)).to.have.length(0);
+    await query(el, "reading");
+    expect(rows(el)[0].textContent).to.contain("Reading 1");
+    expect(metadataCalls()).to.have.length(1);
+    const params = new URL(metadataCalls()[0].url).searchParams;
+    expect(params.has("q")).to.be.false;
+    expect(params.has("page")).to.be.false;
   });
 
   it("submits selections natively across queries and prevents duplicates", async () => {
-    searchRoute("reading", response([ resource(1), resource(2) ]));
-    searchRoute("notes", response([ resource(3, "Notes") ]));
-    const el = await mount();
+    const el = await mount([], [ resource(1), resource(2), resource(3, "Notes") ]);
     const value = () => new FormData(el.closest("form")).get("whatResourceIds");
     await query(el, "reading");
     await waitUntil(() => rows(el).length === 2);
@@ -88,7 +85,6 @@ describe("sakai-sitestats-resource-search", () => {
     expect(value()).to.equal(resource(1).id);
     expect(el.renderRoot.activeElement).to.equal(el.renderRoot.querySelector("input"));
     await query(el, "notes");
-    await waitUntil(() => rows(el).length === 1);
     rows(el)[0].querySelector("button").click();
     await elementUpdated(el);
     expect(value()).to.equal([ resource(1).id, resource(3).id ].join("\n"));
@@ -98,14 +94,13 @@ describe("sakai-sitestats-resource-search", () => {
     await query(el, "");
     expect(rows(el)).to.have.length(0);
     expect(selected(el)).to.have.length(1);
+    expect(metadataCalls()).to.have.length(1);
   });
 
-  it("caps broad results and refines by name and location without result paging or losing selection", async () => {
-    const broad = Array.from({ length: 20 }, (_, n) => resource(n, "Reading.pdf"));
-    searchRoute("reading", response(broad, true));
-    searchRoute("Week 5 Reading", response([ { ...resource(5, "Reading.pdf"), location: "Resources / Week 5" } ]));
-    searchRoute("[50%]_星", response([ resource(99, "[50%]_星") ]));
-    const el = await mount();
+  it("caps broad results and matches a literal phrase within a name or location", async () => {
+    const broad = Array.from({ length: 21 }, (_, n) => resource(n, `Reading ${n}.txt`));
+    const fifthWeek = { ...resource(22, "Reading.txt"), location: "Resources / Week 5" };
+    const el = await mount([], [ ...broad, fifthWeek, resource(99, "Résumé [50%]_星") ]);
     await query(el, "reading");
     await waitUntil(() => rows(el).length === 20);
     expect(el.renderRoot.querySelector("[role=status]").textContent).to.contain("Showing the first 20 matches. Refine your search.");
@@ -115,48 +110,115 @@ describe("sakai-sitestats-resource-search", () => {
     await elementUpdated(el);
     expect(el.renderRoot.querySelector("[role=status]").textContent).to.contain("Refine your search.");
     await query(el, "Week 5 Reading");
-    await waitUntil(() => rows(el).length === 1);
+    expect(rows(el)).to.have.length(0);
+    await query(el, "Week 5");
+    expect(rows(el)).to.have.length(1);
     expect(rows(el)[0].textContent).to.contain("Resources / Week 5");
-    expect(selected(el)).to.have.length(1);
-    expect(el.renderRoot.querySelector("[role=status]").textContent).to.contain("1 matching resources shown.");
+    await query(el, "  READING 5  ");
+    expect(rows(el)).to.have.length(1);
+    expect(rows(el)[0].textContent).to.contain("Reading 5.txt");
+    await query(el, "5 Reading");
+    expect(rows(el)).to.have.length(0);
     await query(el, "[50%]_星");
-    await waitUntil(() => rows(el)[0]?.textContent.includes("[50%]_星"));
+    expect(rows(el)).to.have.length(1);
+    expect(rows(el)[0].textContent).to.contain("[50%]_星");
+    await query(el, "RÉSUMÉ");
+    expect(rows(el)).to.have.length(1);
+    await query(el, ".*");
+    expect(rows(el)).to.have.length(0);
     expect(selected(el)).to.have.length(1);
-    for (const call of fetchMock.callHistory.calls().filter(call => call.url.includes("/reports/resources/search"))) {
-      expect(new URL(call.url).searchParams.has("page")).to.be.false;
-    }
+    expect(metadataCalls()).to.have.length(1);
   });
 
-  it("supersedes stale requests and cancels pending work on clear or disconnect", async () => {
-    let resolveOld;
-    searchRoute("old", () => new Promise(resolve => { resolveOld = resolve; }));
-    searchRoute("new", response([ resource(2, "Newest") ]));
-    const el = await mount([ resource(99) ]);
+  it("keeps the server's order and treats exactly twenty matches as complete", async () => {
+    const resources = Array.from({ length: 20 }, (_, n) => resource(19 - n));
+    const el = await mount([], resources);
+    await query(el, "reading");
+    await waitUntil(() => rows(el).length === 20);
+    expect(rows(el)[0].textContent).to.contain("Reading 19");
+    expect(el.renderRoot.querySelector("[role=status]").textContent).to.contain("20 matching resources shown.");
+  });
+
+  it("shares a pending metadata load and filters the latest query when it arrives", async () => {
+    let resolve;
+    const el = await mount([ resource(99) ], () => new Promise(done => { resolve = done; }));
     await query(el, "old");
-    await waitUntil(() => resolveOld);
+    await waitUntil(() => resolve);
     await query(el, "new");
-    await waitUntil(() => rows(el)[0]?.textContent.includes("Newest"));
     const remove = selected(el)[0].querySelector("button");
     remove.focus();
-    resolveOld(response([ resource(1, "Stale") ]));
-    await pause(30);
+    resolve([ resource(1, "Old"), resource(2, "Newest") ]);
+    await waitUntil(() => rows(el).length === 1);
     expect(rows(el)[0].textContent).to.contain("Newest");
     expect(el.renderRoot.activeElement).to.equal(remove);
-    await query(el, "cancelled");
+    expect(metadataCalls()).to.have.length(1);
+  });
+
+  it("keeps cleared or disabled queries hidden when a pending load finishes", async () => {
+    let resolve;
+    const el = await mount([], () => new Promise(done => { resolve = done; }));
+    await query(el, "reading");
+    await waitUntil(() => resolve);
     await query(el, "");
-    await pause(330);
+    resolve([ resource(1) ]);
+    await pause(30);
     expect(rows(el)).to.have.length(0);
-    await query(el, "disconnected");
+    expect(el.renderRoot.querySelector("[role=status]").textContent).to.contain("Enter at least 2");
+    el.closest("fieldset").disabled = true;
+    await query(el, "reading");
+    expect(rows(el)).to.have.length(0);
+    el.closest("fieldset").disabled = false;
+    await elementUpdated(el);
+    expect(rows(el)).to.have.length(1);
+    expect(metadataCalls()).to.have.length(1);
+  });
+
+  it("aborts a pending load on disconnect", async () => {
+    let resolve;
+    const el = await mount([], () => new Promise(done => { resolve = done; }));
+    await query(el, "reading");
+    await waitUntil(() => resolve);
+    const signal = metadataCalls()[0].options.signal;
     el.remove();
-    await pause(330);
-    expect(fetchMock.callHistory.calls().length).to.equal(3);
+    expect(signal.aborted).to.be.true;
+    resolve([ resource(1) ]);
+    await pause(30);
+    expect(rows(el)).to.have.length(0);
+  });
+
+  it("discards the previous site's metadata when the endpoint changes", async () => {
+    const el = await mount([], [ resource(1, "Reading from site1") ]);
+    await query(el, "reading");
+    await waitUntil(() => rows(el).length === 1);
+    fetchMock.get(new URL("/reports/resources?siteId=site2", location.origin).href,
+      [ { ...resource(2, "Reading from site2"), id: "/group/site2/2.txt" } ]);
+    el.endpoint = "/reports/resources?siteId=site2";
+    await elementUpdated(el);
+    await waitUntil(() => rows(el)[0]?.textContent.includes("Reading from site2"));
+    expect(el.renderRoot.textContent).not.to.contain("Reading from site1");
+    expect(metadataCalls()).to.have.length(2);
+  });
+
+  it("ignores a previous site's pending response after the endpoint changes", async () => {
+    let resolve;
+    const el = await mount([], () => new Promise(done => { resolve = done; }));
+    await query(el, "reading");
+    await waitUntil(() => resolve);
+    fetchMock.get(new URL("/reports/resources?siteId=site2", location.origin).href,
+      [ { ...resource(2, "Reading from site2"), id: "/group/site2/2.txt" } ]);
+    el.endpoint = "/reports/resources?siteId=site2";
+    await waitUntil(() => rows(el)[0]?.textContent.includes("Reading from site2"));
+    resolve([ resource(1, "Reading from site1") ]);
+    await pause(30);
+    expect(rows(el)).to.have.length(1);
+    expect(rows(el)[0].textContent).to.contain("Reading from site2");
+    expect(el.renderRoot.textContent).not.to.contain("Reading from site1");
+    expect(metadataCalls()).to.have.length(2);
   });
 
   it("distinguishes no matches from failure and retries without losing choices", async () => {
     let attempts = 0;
-    searchRoute("reading", () => ++attempts === 1 ? 500 : response([ resource(2) ]));
-    searchRoute("none", response([]));
-    const el = await mount([ resource(1) ]);
+    const el = await mount([ resource(1) ], () => ++attempts === 1 ? 500 : [ resource(2) ]);
     await query(el, "reading");
     await waitUntil(() => button(el, "Retry search"));
     expect(el.renderRoot.querySelector("[role=status]").textContent).to.contain("Could not");
@@ -164,37 +226,48 @@ describe("sakai-sitestats-resource-search", () => {
     button(el, "Retry search").click();
     await waitUntil(() => rows(el).length === 1);
     await query(el, "none");
-    await waitUntil(() => el.renderRoot.querySelector("[role=status]").textContent.includes("No matching"));
+    expect(el.renderRoot.querySelector("[role=status]").textContent).to.contain("No matching");
     expect(button(el, "Retry search")).to.be.undefined;
     expect(selected(el)).to.have.length(1);
+    expect(metadataCalls()).to.have.length(2);
   });
 
-  it("retains all 2,000 selected IDs while bounding selection and result rows", async () => {
-    const saved = Array.from({ length: 2000 }, (_, n) => resource(n));
-    searchRoute("reading", response(saved.slice(0, 20), true));
-    const el = await mount(saved);
-    expect(selected(el)).to.have.length(50);
+  it("loads an empty inventory once and keeps subsequent searches local", async () => {
+    const el = await mount();
+    await query(el, "reading");
+    await waitUntil(() => el.renderRoot.querySelector("[role=status]").textContent.includes("No matching"));
+    await query(el, "notes");
+    expect(rows(el)).to.have.length(0);
+    expect(metadataCalls()).to.have.length(1);
+  });
 
+  it("finds the last of two thousand resources locally while bounding rows and retaining selected IDs", async () => {
+    const saved = Array.from({ length: 2000 }, (_, n) => resource(n, `File ${String(n).padStart(4, "0")}`));
+    const el = await mount(saved, saved);
+    expect(selected(el)).to.have.length(50);
     button(el, "Next selected resources").click();
     await elementUpdated(el);
-    expect(selected(el)[0].textContent).to.contain("Reading 50");
+    expect(selected(el)[0].textContent).to.contain("File 0050");
     selected(el)[0].querySelector("button").click();
     await elementUpdated(el);
     const ids = new FormData(el.closest("form")).get("whatResourceIds").split("\n");
     expect(ids).to.have.length(1999);
     expect(ids).to.include(resource(1999).id);
     expect(ids).not.to.include(resource(50).id);
-    await query(el, "reading");
-    await waitUntil(() => rows(el).length > 0);
-    expect(rows(el)).to.have.length(20);
+    await query(el, "file");
+    await waitUntil(() => rows(el).length === 20);
     expect(selected(el)).to.have.length(50);
+    await query(el, "file 1999");
+    expect(rows(el)).to.have.length(1);
+    expect(rows(el)[0].textContent).to.contain("File 1999");
+    expect(metadataCalls()).to.have.length(1);
   });
 
   it("escapes hostile labels and renders removable legacy and unavailable choices", async () => {
     const hostile = "<img src=x onerror=alert(1)>";
     const el = await mount([
       { ...resource(1, hostile), legacyCollection: true },
-      { id: "/group/site1/deleted.txt", label: "Unavailable resource", location: "", unavailable: true },
+      { id: "/group/site1/deleted.txt", label: "Unavailable resource", location: "", legacyCollection: false },
     ]);
     expect(selected(el)[0].textContent).to.contain(hostile);
     expect(selected(el)[0].textContent).to.contain("Saved folder filter");
@@ -242,20 +315,26 @@ describe("sakai-sitestats-resource-search", () => {
     }
   });
 
-  it("disables all actions and cancels search while retaining selection", async () => {
-    const el = await mount([ resource(1) ]);
+  it("finishes a pending load while disabled and reuses it after enabling the filter", async () => {
+    let resolve;
+    const el = await mount([ resource(1) ], () => new Promise(done => { resolve = done; }));
     await query(el, "reading");
+    await waitUntil(() => resolve);
     el.closest("fieldset").disabled = true;
     await elementUpdated(el);
-    await pause(330);
-    expect(fetchMock.callHistory.calls().length).to.equal(1);
+    resolve([ resource(2) ]);
+    await pause(30);
+    expect(rows(el)).to.have.length(0);
     expect(el.renderRoot.querySelector("input").matches(":disabled")).to.be.true;
     expect(selected(el)).to.have.length(1);
+    el.closest("fieldset").disabled = false;
+    await elementUpdated(el);
+    expect(rows(el)).to.have.length(1);
+    expect(metadataCalls()).to.have.length(1);
   });
 
   it("omits disabled values and restores the initial selection on form reset", async () => {
-    searchRoute("reading", response([ resource(2) ]));
-    const el = await mount([ resource(1) ]);
+    const el = await mount([ resource(1) ], [ resource(2) ]);
     const form = el.closest("form");
     await query(el, "reading");
     await waitUntil(() => rows(el).length === 1);

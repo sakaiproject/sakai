@@ -41,7 +41,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService;
-import org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService.ResourceSearchResult;
 import org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService.ResourceOption;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -93,16 +92,17 @@ public class SiteStatsResourceSearchServiceTest {
     }
 
     @Test
-    public void searchesNestedNamesAcrossAllThreeRootsWithoutCollectionsOrBodies() throws Exception {
+    public void loadsReadableMetadataAcrossAllThreeRootsWithoutCollectionsOrBodies() throws Exception {
         folder(ROOT + "week-one/", "Week One");
         folder(ROOT + "week-one/readings/", "Readings");
         ContentResource nested = resource(ROOT, ROOT + "week-one/readings/file.txt", "Reading Notes", ResourceType.TYPE_TEXT);
         resource(DROPBOX, DROPBOX + "upload.txt", "Reading Upload", ResourceType.TYPE_UPLOAD);
         resource(ATTACHMENTS, ATTACHMENTS + "file.url", "Reading Link", ResourceType.TYPE_URL);
-        ResourceSearchResult result = service.search(SITE, "reading");
-        assertEquals(3, result.items().size());
-        assertEquals("Resources / Week One / Readings", result.items().get(1).location());
-        assertTrue(result.items().stream().allMatch(item -> !item.id().startsWith("/content")));
+        List<ResourceOption> result = service.resources(SITE);
+        assertEquals(3, result.size());
+        assertEquals("Resources / Week One / Readings", result.get(1).location());
+        assertTrue(result.stream().allMatch(item -> !item.id().startsWith("/content")));
+        assertTrue(result.stream().noneMatch(ResourceOption::legacyCollection));
         verify(nested, never()).getContent();
         verify(nested, never()).streamContent();
         verify(content).getAllResources(ROOT);
@@ -111,16 +111,15 @@ public class SiteStatsResourceSearchServiceTest {
     }
 
     @Test
-    public void matchesLiteralUnicodeAndPunctuationRatherThanBodyOrWildcards() throws Exception {
+    public void preservesLiteralDisplayNamesAndReadableLocationsForLocalFiltering() throws Exception {
         resource(ROOT, ROOT + "unicode.txt", "Résumé [50%]_星.txt", ResourceType.TYPE_UPLOAD);
-        resource(ROOT, ROOT + "other.txt", "Unrelated document", ResourceType.TYPE_HTML);
-        assertEquals(1, service.search(SITE, "RÉSUMÉ").items().size());
-        folder(ROOT + "résumé/", "ÉTÉ [50%]_星");
-        resource(ROOT, ROOT + "résumé/reading.txt", "Reading.pdf", ResourceType.TYPE_UPLOAD);
-        assertEquals(1, service.search(SITE, "été\u2003[50%]_星 reading").items().size());
-        assertEquals(2, service.search(SITE, "[50%]_星").items().size());
-        assertEquals(0, service.search(SITE, ".*").items().size());
-        assertEquals(0, service.search(SITE, "document body").items().size());
+        folder(ROOT + "internal-folder/", "ÉTÉ [50%]_星");
+        resource(ROOT, ROOT + "internal-folder/reading.txt", "Reading.pdf", ResourceType.TYPE_UPLOAD);
+        List<ResourceOption> result = service.resources(SITE);
+        assertEquals("Reading.pdf", result.get(0).label());
+        assertEquals("Resources / ÉTÉ [50%]_星", result.get(0).location());
+        assertEquals("Résumé [50%]_星.txt", result.get(1).label());
+        assertFalse(result.get(0).location().contains("internal-folder"));
     }
 
     @Test
@@ -129,70 +128,27 @@ public class SiteStatsResourceSearchServiceTest {
         folder(ROOT + "b/", "Second Week");
         resource(ROOT, ROOT + "b/file.txt", "Reading.pdf", ResourceType.TYPE_UPLOAD);
         resource(ROOT, ROOT + "a/file.txt", "Reading.pdf", ResourceType.TYPE_UPLOAD);
-        ResourceSearchResult result = service.search(SITE, "reading");
-        assertEquals(ROOT + "a/file.txt", result.items().get(0).id());
-        assertEquals("Resources / First Week", result.items().get(0).location());
-        assertEquals("Resources / Second Week", result.items().get(1).location());
+        List<ResourceOption> result = service.resources(SITE);
+        assertEquals(ROOT + "a/file.txt", result.get(0).id());
+        assertEquals("Resources / First Week", result.get(0).location());
+        assertEquals("Resources / Second Week", result.get(1).location());
     }
 
     @Test
-    public void capsMatchesAndFindsTheLastResourceInTwoThousandByRefinement() throws Exception {
+    public void returnsAllTwoThousandResourcesSortedForLocalRefinement() throws Exception {
         for (int i = 1999; i >= 0; i--) {
             String name = String.format(Locale.ROOT, "File %04d", i);
             resource(ROOT, ROOT + i + ".txt", name, ResourceType.TYPE_UPLOAD);
         }
-        ResourceSearchResult first = service.search(SITE, "file");
-        assertEquals(20, first.items().size());
-        assertEquals("File 0000", first.items().get(0).label());
-        assertTrue(first.truncated());
-        ResourceSearchResult refined = service.search(SITE, "file 1999");
-        assertEquals(1, refined.items().size());
-        assertEquals(ROOT + "1999.txt", refined.items().get(0).id());
-        assertFalse(refined.truncated());
-    }
-
-    @Test
-    public void distinguishesDuplicateNamesByAllLiteralNameAndReadableLocationTerms() throws Exception {
-        for (int i = 0; i < 25; i++) {
-            String folderId = ROOT + "internal-" + i + "/";
-            folder(folderId, "Week " + i);
-            resource(ROOT, folderId + "file.pdf", "Reading.pdf", ResourceType.TYPE_UPLOAD);
-        }
-        assertTrue(service.search(SITE, "reading").truncated());
-        verify(content, times(20)).getCollection(anyString());
-        clearInvocations(content);
-        ResourceSearchResult refined = service.search(SITE, "  WEEK\t5  reading  ");
-        assertEquals(2, refined.items().size());
-        assertFalse(refined.truncated());
-        assertTrue(refined.items().stream().anyMatch(item -> "Resources / Week 5".equals(item.location())));
-        verify(content, times(25)).getCollection(anyString());
-        assertTrue(service.search(SITE, "week 5 missing").items().isEmpty());
-        assertTrue(service.search(SITE, "internal-5").items().isEmpty());
-        ResourceSearchResult locationOnly = service.search(SITE, "week 24");
-        assertEquals(1, locationOnly.items().size());
-        assertEquals(ROOT + "internal-24/file.pdf", locationOnly.items().get(0).id());
-        assertEquals("Resources / Week 24", locationOnly.items().get(0).location());
-    }
-
-    @Test
-    public void refinesTheBrowserFixtureWithTermsAcrossNamesAndLocations() throws Exception {
-        String firstWeek = ROOT + "Week 1/";
-        String fifthWeek = ROOT + "Week 5/";
-        folder(firstWeek, "Week 1");
-        folder(fifthWeek, "Week 5");
-        resource(ROOT, firstWeek + "Reading.txt", "Reading.txt", ResourceType.TYPE_UPLOAD);
-        resource(ROOT, fifthWeek + "Reading.txt", "Reading.txt", ResourceType.TYPE_UPLOAD);
-        for (int index = 1; index <= 20; index++) {
-            String name = "Reading " + index + ".txt";
-            resource(ROOT, firstWeek + name, name, ResourceType.TYPE_UPLOAD);
-        }
-        ResourceSearchResult broad = service.search(SITE, "reading");
-        assertEquals(20, broad.items().size());
-        assertTrue(broad.truncated());
-        ResourceSearchResult refined = service.search(SITE, "Week 5 Reading");
-        assertEquals(List.of(fifthWeek + "Reading.txt", firstWeek + "Reading 15.txt", firstWeek + "Reading 5.txt"),
-                refined.items().stream().map(ResourceOption::id).toList());
-        assertFalse(refined.truncated());
+        List<ResourceOption> result = service.resources(SITE);
+        assertEquals(2000, result.size());
+        assertEquals("File 0000", result.get(0).label());
+        assertEquals("File 1999", result.get(1999).label());
+        assertEquals(ROOT + "1999.txt", result.get(1999).id());
+        verify(content).getAllResources(ROOT);
+        verify(content).getAllResources(DROPBOX);
+        verify(content).getAllResources(ATTACHMENTS);
+        verify(content, never()).getResource(anyString());
     }
 
     @Test
@@ -204,58 +160,87 @@ public class SiteStatsResourceSearchServiceTest {
                 resource(ROOT, folderId + file + ".txt", "Reading " + file, ResourceType.TYPE_UPLOAD);
             }
         }
-        ResourceSearchResult refined = service.search(SITE, "week 99 reading");
-        assertEquals(20, refined.items().size());
-        assertFalse(refined.truncated());
-        assertTrue(refined.items().stream().allMatch(item -> "Resources / Week 99".equals(item.location())));
+        List<ResourceOption> result = service.resources(SITE);
+        assertEquals(2000, result.size());
+        assertEquals(20, result.stream().filter(item -> "Resources / Week 99".equals(item.location())).count());
         verify(content, times(100)).getCollection(anyString());
     }
 
     @Test
-    public void exactlyTwentyMatchesAreCompleteAndPermissionDeniedLocationsCannotMatchHiddenNames() throws Exception {
+    public void keepsPermissionDeniedLocationsNeutralWithoutLeakingHiddenNames() throws Exception {
         folder(ROOT + "private/", "Secret hidden week");
         when(content.getCollection(ROOT + "private/"))
                 .thenThrow(new PermissionException("instructor", "content.read", ROOT + "private/"));
         for (int i = 0; i < 20; i++) {
             resource(ROOT, ROOT + "private/" + i + ".txt", "Readable Reading " + i, ResourceType.TYPE_UPLOAD);
         }
-        ResourceSearchResult nameMatches = service.search(SITE, "reading");
-        assertEquals(20, nameMatches.items().size());
-        assertFalse(nameMatches.truncated());
-        assertTrue(nameMatches.items().stream().allMatch(item -> "Resources / Unavailable location".equals(item.location())));
-        verify(content).getCollection(ROOT + "private/");
-        clearInvocations(content);
-        assertTrue(service.search(SITE, "secret reading").items().isEmpty());
+        List<ResourceOption> result = service.resources(SITE);
+        assertEquals(20, result.size());
+        assertTrue(result.stream().allMatch(item -> "Resources / Unavailable location".equals(item.location())));
         verify(content).getCollection(ROOT + "private/");
     }
 
     @Test
-    public void authorizesEvenShortQueriesAndEnumeratesNothingWhenDenied() throws Exception {
+    public void authorizesMetadataAndSelectionLookupsBeforeEnumeratingAnything() throws Exception {
         when(security.unlock(StatsAuthz.PERMISSION_SITESTATS_VIEW, "/site/" + SITE)).thenReturn(false);
-        assertThrows(SecurityException.class, () -> service.search(SITE, ""));
-        assertThrows(SecurityException.class, () -> service.search(SITE, "a"));
+        assertThrows(SecurityException.class, () -> service.resources(SITE));
         assertThrows(SecurityException.class, () -> service.selected(SITE, List.of()));
-        verifyNoInteractions(content);
         verifyNoInteractions(content);
     }
 
     @Test
     public void refusesUnauthorizedSitesUntilTheirReportPermissionsArePresent() throws Exception {
-        assertThrows(SecurityException.class, () -> service.search("site2", "reading"));
+        assertThrows(SecurityException.class, () -> service.resources("site2"));
         verifyNoInteractions(content);
         allow("site2", StatsAuthz.PERMISSION_SITESTATS_VIEW);
         allow("site2", StatsAuthz.PERMISSION_SITESTATS_ALL);
         resource("/group/site2/", "/group/site2/file.txt", "Reading", ResourceType.TYPE_UPLOAD);
-        assertEquals("/group/site2/file.txt", service.search("site2", "reading").items().get(0).id());
+        assertEquals("/group/site2/file.txt", service.resources("site2").get(0).id());
         verify(content, never()).getAllResources(ROOT);
     }
 
     @Test
-    public void reflectsKernelReadChanges() throws Exception {
-        ContentResource file = resource(ROOT, ROOT + "file.txt", "Reading", ResourceType.TYPE_UPLOAD);
-        assertEquals(1, service.search(SITE, "reading").items().size());
-        readable.get(ROOT).remove(file);
-        assertTrue(service.search(SITE, "reading").items().isEmpty());
+    public void reflectsKernelReadChangesOnReloadAndWhenResolvingSelections() throws Exception {
+        String id = ROOT + "file.txt";
+        resource(ROOT, id, "Reading", ResourceType.TYPE_UPLOAD);
+        assertEquals(1, service.resources(SITE).size());
+        readable.get(ROOT).clear();
+        when(content.getResource(id)).thenThrow(new PermissionException("instructor", "content.read", id));
+        assertTrue(service.resources(SITE).isEmpty());
+        assertEquals("Unavailable resource", service.selected(SITE, List.of(id)).get(0).label());
+        assertEquals("", service.selected(SITE, List.of(id)).get(0).location());
+    }
+
+    @Test
+    public void serializesOnlyResourceMetadataWithoutBodiesOrServerSearchState() throws Exception {
+        for (int i = 0; i < 21; i++) {
+            resource(ROOT, ROOT + i + ".txt", String.format(Locale.ROOT, "Reading %02d", i), ResourceType.TYPE_UPLOAD);
+        }
+        String json = MapperFactory.createDefaultJsonMapper().writeValueAsString(service.resources(SITE));
+        JsonNode result = MapperFactory.createDefaultJsonMapper().readTree(json);
+        assertTrue(result.isArray());
+        assertEquals(21, result.size());
+        assertEquals(ROOT + "0.txt", result.get(0).get("id").asText());
+        assertEquals("Reading 00", result.get(0).get("label").asText());
+        assertEquals("Resources", result.get(0).get("location").asText());
+        assertEquals(4, result.get(0).size());
+        assertFalse(result.get(0).get("legacyCollection").asBoolean());
+    }
+
+    @Test
+    public void usesTheSitesEffectiveLocaleForLabelsAndOrdering() throws Exception {
+        when(locales.getLocaleForSiteAndUser(SITE, "instructor")).thenReturn(Locale.FRANCE);
+        resource(ROOT, ROOT + "z.txt", "Zèbre", ResourceType.TYPE_UPLOAD);
+        resource(ROOT, ROOT + "a.txt", "Été", ResourceType.TYPE_UPLOAD);
+        List<ResourceOption> result = service.resources(SITE);
+        assertEquals(List.of("Été", "Zèbre"), result.stream().map(ResourceOption::label).toList());
+        verify(locales).getLocaleForSiteAndUser(SITE, "instructor");
+    }
+
+    @Test
+    public void leavesEmptySelectionsWithoutInventoryReads() {
+        assertTrue(service.selected(SITE, List.of()).isEmpty());
+        verifyNoInteractions(content);
     }
 
     @Test
@@ -279,25 +264,6 @@ public class SiteStatsResourceSearchServiceTest {
     }
 
     @Test
-    public void serializesCanonicalIdsAndTruncationThroughThePublicResultContract() throws Exception {
-        for (int i = 0; i < 21; i++) {
-            resource(ROOT, ROOT + i + ".txt", String.format(Locale.ROOT, "Reading %02d", i), ResourceType.TYPE_UPLOAD);
-        }
-        String json = MapperFactory.createDefaultJsonMapper().writeValueAsString(service.search(SITE, "reading"));
-        JsonNode result = MapperFactory.createDefaultJsonMapper().readTree(json);
-        assertEquals(20, result.get("items").size());
-        assertTrue(result.get("truncated").asBoolean());
-        assertEquals(2, result.size());
-        assertFalse(result.has("page"));
-        assertFalse(result.has("hasNext"));
-        assertEquals(ROOT + "0.txt", result.get("items").get(0).get("id").asText());
-        assertEquals("Reading 00", result.get("items").get(0).get("label").asText());
-        assertEquals("Resources", result.get("items").get(0).get("location").asText());
-        assertEquals(4, result.get("items").get(0).size());
-        assertFalse(result.get("items").get(0).get("legacyCollection").asBoolean());
-    }
-
-    @Test
     public void keepsSavedIdsWhenTheirParentLocationIsDeniedOrDeletedWithoutLeakingPaths() throws Exception {
         resource(ROOT, ROOT + "private-folder/file.txt", "Readable file", ResourceType.TYPE_UPLOAD);
         resource(ROOT, ROOT + "stale-folder/file.txt", "Other file", ResourceType.TYPE_UPLOAD);
@@ -313,24 +279,6 @@ public class SiteStatsResourceSearchServiceTest {
             assertFalse(option.location().contains("private-folder"));
             assertFalse(option.location().contains("stale-folder"));
         }
-    }
-
-    @Test
-    public void usesTheSitesEffectiveLocaleAndRejectsOversizedQueries() throws Exception {
-        when(locales.getLocaleForSiteAndUser(SITE, "instructor")).thenReturn(Locale.FRANCE);
-        resource(ROOT, ROOT + "file.txt", "Résumé", ResourceType.TYPE_UPLOAD);
-        service.search(SITE, "résumé");
-        verify(locales).getLocaleForSiteAndUser(SITE, "instructor");
-        assertThrows(SiteStatsResourceSearchService.InvalidQueryException.class,
-                () -> service.search(SITE, "a".repeat(257)));
-    }
-
-    @Test
-    public void leavesAuthorizedBlankQueriesAndEmptySelectionsWithoutInventoryReads() {
-        assertTrue(service.search(SITE, "").items().isEmpty());
-        assertTrue(service.search(SITE, "a").items().isEmpty());
-        assertTrue(service.selected(SITE, List.of()).isEmpty());
-        verifyNoInteractions(content);
     }
 
     private void allow(String site, String permission) {

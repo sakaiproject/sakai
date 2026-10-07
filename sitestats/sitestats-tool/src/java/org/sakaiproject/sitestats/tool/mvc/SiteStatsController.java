@@ -99,11 +99,12 @@ public class SiteStatsController {
         return toolService.searchReportUsers(siteId, q);
     }
 
-    @GetMapping(value = "/reports/resources/search", produces = "application/json")
+    @GetMapping(value = "/reports/resources", produces = "application/json")
     @ResponseBody
-    public SiteStatsResourceSearchService.ResourceSearchResult reportResources(
-            @RequestParam(required = false) String siteId, @RequestParam(defaultValue = "") String q) {
-        return resourceSearchService.search(toolService.reportSite(siteId), q);
+    public ResponseEntity<List<SiteStatsResourceSearchService.ResourceOption>> reportResources(
+            @RequestParam(required = false) String siteId) {
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .body(resourceSearchService.resources(toolService.reportSite(siteId)));
     }
 
     @GetMapping("/reports/{reportId}/edit")
@@ -262,11 +263,6 @@ public class SiteStatsController {
         model.addAttribute("reportType", reportType);
         model.addAttribute("reportEndpoint", SiteStatsApiUrls.serverWideReport(authorizedSiteId, reportType));
         return "admin/server-wide";
-    }
-
-    @ExceptionHandler(SiteStatsResourceSearchService.InvalidQueryException.class)
-    public ResponseEntity<Void> invalidResourceQuery() {
-        return ResponseEntity.badRequest().build();
     }
 
     @ExceptionHandler(SecurityException.class)

@@ -2,6 +2,7 @@ import { css, html, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 
+const SEARCH_LIMIT = 20;
 const SELECTED_PAGE_SIZE = 50;
 
 export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
@@ -60,6 +61,7 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
     this._disabled = false;
     this._query = "";
     this._items = [];
+    this._resources = null;
     this._selected = [];
     this._truncated = false;
     this._selectedPage = 0;
@@ -69,6 +71,11 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
 
   willUpdate(changed) {
 
+    if (changed.has("endpoint")) {
+      this._cancelLoad();
+      this._resources = null;
+      this._search();
+    }
     if (changed.has("initialSelection")) {
       this._selected = (this.initialSelection || []).map(resource => ({ ...resource }));
       this._selectedPage = 0;
@@ -89,10 +96,7 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
   formDisabledCallback(disabled) {
 
     this._disabled = disabled;
-    this._cancelSearch();
-    this._items = [];
-    this._state = "guidance";
-    if (!disabled && this._canSearch) this._search();
+    this._search();
   }
 
   formResetCallback() {
@@ -111,60 +115,74 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
 
   disconnectedCallback() {
 
-    this._cancelSearch();
+    this._cancelLoad();
     this._state = "guidance";
     super.disconnectedCallback();
   }
 
-  _cancelSearch() {
+  _cancelLoad() {
 
-    clearTimeout(this._searchTimer);
     this._abortController?.abort();
+    this._abortController = null;
   }
 
   _queryChanged(event) {
 
-    this._cancelSearch();
     this._query = event.target.value;
+    this._search();
+  }
+
+  _search() {
+
     this._items = [];
     this._truncated = false;
     this._announcement = "";
-    if (!this._canSearch) {
+    if (this._disabled || !this._canSearch) {
       this._state = "guidance";
       return;
     }
-    this._state = "searching";
-    this._searchTimer = setTimeout(() => this._search(), 300);
+    if (this._resources === null) {
+      this._state = "searching";
+      this._loadResources();
+      return;
+    }
+    const query = this._query.trim().toLowerCase();
+    const items = [];
+    for (const resource of this._resources) {
+      if (!resource.label.toLowerCase().includes(query) && !resource.location.toLowerCase().includes(query)) continue;
+      if (items.length === SEARCH_LIMIT) {
+        this._truncated = true;
+        break;
+      }
+      items.push(resource);
+    }
+    this._items = items;
+    this._state = items.length ? "results" : "empty";
   }
 
-  async _search() {
+  async _loadResources() {
 
-    if (!this.endpoint || !this._canSearch) return;
-    this._cancelSearch();
+    if (!this.endpoint || this._abortController) return;
     const controller = new AbortController();
     this._abortController = controller;
     this._state = "searching";
-    this._announcement = "";
-    const endpoint = new URL(this.endpoint, document.baseURI);
-    endpoint.searchParams.set("q", this._query.trim());
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch(new URL(this.endpoint, document.baseURI), {
         credentials: "same-origin",
         headers: { Accept: "application/json" },
         signal: controller.signal,
       });
-      if (!response.ok) throw new Error("Resource search failed");
-      const result = await response.json();
+      if (!response.ok) throw new Error("Resource lookup failed");
+      const resources = await response.json();
       if (controller.signal.aborted || !this.isConnected) return;
-      this._items = result.items;
-      this._truncated = result.truncated;
-      this._state = this._items.length ? "results" : "empty";
+      this._resources = resources;
+      this._search();
     } catch (error) {
       if (!controller.signal.aborted && this.isConnected && error.name !== "AbortError") {
-        this._items = [];
-        this._truncated = false;
-        this._state = "error";
+        this._state = this._disabled || !this._canSearch ? "guidance" : "error";
       }
+    } finally {
+      if (this._abortController === controller) this._abortController = null;
     }
   }
 
@@ -221,7 +239,7 @@ export class SakaiSiteStatsResourceSearch extends SakaiShadowElement {
                @keydown=${event => { if (event.key === "Enter" && !event.isComposing) event.preventDefault(); }}>
         <p id="resource-search-status" class="status" role="status" aria-live="polite">${this._status()}</p>
         ${this._state === "error" ? html`
-          <button class="btn btn-secondary" type="button" @click=${() => this._search()}>
+          <button class="btn btn-secondary" type="button" @click=${() => this._loadResources()}>
             ${this._i18n.resource_search_retry}
           </button>` : nothing}
         <ul id="resource-results" class="resource-list" aria-busy=${String(this._state === "searching")}>

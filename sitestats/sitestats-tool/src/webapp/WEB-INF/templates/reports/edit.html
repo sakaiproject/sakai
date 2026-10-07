@@ -82,7 +82,7 @@
           </div>
           <fieldset id="resource-selection" class="mt-2 border-0 p-0" hidden disabled>
             <sakai-sitestats-resource-search id="resource-search" name="whatResourceIds"
-                th:attr="endpoint=@{/reports/resources/search(siteId=${siteId})},initial-selection=${selectedResourcesJson}">
+                th:attr="endpoint=@{/reports/resources(siteId=${siteId})},initial-selection=${selectedResourcesJson}">
             </sakai-sitestats-resource-search>
           </fieldset>
         </div>
