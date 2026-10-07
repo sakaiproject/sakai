@@ -1152,12 +1152,19 @@ $(document).ready(() => {
 
 ASN.cancelGradeSubmission = function (clickedButton) {
 
+  const form = document.getElementById("gradeForm");
+  if (form.inert) return false;
+  form.inert = true;
   Promise.all([...document.getElementsByTagName("sakai-rubric-grading")].map(r => r.cancel()))
     .then(() => {
       SPNR.disableControlsAndSpin( clickedButton, null );
       ASN.submitForm( 'gradeForm', 'cancelgrade', null, null );
     })
-    .catch(error => console.error("Failed to cancel rubric changes", error));
+    .catch(error => {
+      form.inert = false;
+      clickedButton.focus();
+      console.error("Failed to cancel rubric changes", error);
+    });
   return false;
 };
 

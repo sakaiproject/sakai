@@ -553,14 +553,22 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   async _cancel(toggle = true) {
 
+    if (this.inert) return false;
+    const focusedElement = document.activeElement;
     const submissionId = this._submission.id;
     const rubricGrading = this.querySelector("sakai-rubric-grading");
     try {
-      if (rubricGrading) await rubricGrading.cancel();
+      if (rubricGrading) {
+        this.inert = true;
+        await rubricGrading.cancel();
+      }
     } catch (error) {
       console.error("Failed to cancel rubric changes", error);
       this._saveFailed = true;
       return false;
+    } finally {
+      this.inert = false;
+      focusedElement?.focus();
     }
     if (submissionId !== this._submission.id) return false;
     this._saveFailed = false;
