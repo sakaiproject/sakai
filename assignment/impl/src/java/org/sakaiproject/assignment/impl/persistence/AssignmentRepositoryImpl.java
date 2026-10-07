@@ -17,7 +17,9 @@ package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,16 +27,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
+import javax.persistence.LockModeType;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
+import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -62,6 +67,28 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     public Assignment findAssignment(String id) {
         return findOne(id);
+    }
+
+    @Override
+    public Assignment findAssignmentForUpdate(String id) {
+        Assignment assignment = findOne(id);
+        if (assignment != null) {
+            // Persist a newly created assignment before locking its row in the same transaction.
+            geCurrentSession().flush();
+            // Reload the deleted flag too, in case this request loaded the assignment before deletion.
+            geCurrentSession().refresh(assignment, LockModeType.PESSIMISTIC_WRITE);
+        }
+        return assignment;
+    }
+
+    @Override
+    public boolean lockAssignmentAndCheckDeleted(String assignmentId) {
+        return Boolean.TRUE.equals(geCurrentSession().createQuery(
+                "select a.deleted from Assignment a where a.id = :assignmentId", Boolean.class)
+                .setParameter("assignmentId", assignmentId)
+                .setHibernateFlushMode(FlushMode.COMMIT)
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .getSingleResult());
     }
 
     @Override
@@ -175,10 +202,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     public AssignmentSubmission newSubmission(String assignmentId, Optional<String> groupId, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
         Assignment assignment = findAssignment(assignmentId);
         if (assignment != null) {
-            // Since this transaction is going to add a submission to the assignment we lock the assignment
-            // the lock is freed once transaction is committed or rolled back
-            geCurrentSession().buildLockRequest(LockOptions.UPGRADE).setLockMode(LockMode.PESSIMISTIC_WRITE).lock(assignment);
-
             AssignmentSubmission submission = new AssignmentSubmission();
             submission.setDateCreated(Instant.now());
             submitters.ifPresent(submission::setSubmitters);
@@ -251,6 +274,29 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds))
                 .list();
         return submissions;
+    }
+
+    @Override
+    public List<AssignmentSubmission> findSubmissions(Collection<String> assignmentIds) {
+        if (assignmentIds == null || assignmentIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Set<String> ids = new HashSet<String>();
+        for (String assignmentId : assignmentIds) {
+            if (StringUtils.isNotBlank(assignmentId)) {
+                ids.add(assignmentId);
+            }
+        }
+        if (ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<AssignmentSubmission> cq = cb.createQuery(AssignmentSubmission.class);
+        Root<AssignmentSubmission> root = cq.from(AssignmentSubmission.class);
+        Join<AssignmentSubmission, Assignment> a = root.join("assignment", JoinType.LEFT);
+        cq.select(root).distinct(true)
+                .where(HibernateCriterionUtils.PredicateInSplitter(cb, a.get("id"), ids));
+        return geCurrentSession().createQuery(cq).list();
     }
 
     @Override

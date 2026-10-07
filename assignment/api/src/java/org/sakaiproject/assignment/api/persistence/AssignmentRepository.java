@@ -34,6 +34,12 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     Assignment findAssignment(String id);
 
+    /** Load the current assignment and lock it until the calling transaction completes. */
+    Assignment findAssignmentForUpdate(String id);
+
+    /** Lock the assignment and read its deleted flag without flushing pending submission edits. */
+    boolean lockAssignmentAndCheckDeleted(String assignmentId);
+
     List<Assignment> findAssignmentsBySite(String siteId);
 
     List<Assignment> findDeletedAssignmentsBySite(String siteId);
@@ -70,6 +76,12 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
     List<AssignmentSubmission> findSubmissionForUsers(String assignmentId, List<String> userIds);
 
     AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId);
+
+    /**
+     * Load submissions for several assignments in one query.
+     * Blank ids are ignored. Missing assignment ids produce no rows.
+     */
+    List<AssignmentSubmission> findSubmissions(Collection<String> assignmentIds);
 
     long countAssignmentsBySite(String siteId);
 
