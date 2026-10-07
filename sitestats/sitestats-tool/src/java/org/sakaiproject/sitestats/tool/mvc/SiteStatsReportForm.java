@@ -65,6 +65,11 @@ public class SiteStatsReportForm {
     private String howChartSeriesSource = StatsManager.T_TOTAL;
     private String howChartSeriesPeriod = StatsManager.CHARTTIMESERIES_DAY;
 
+    public List<String> resourceIdList() {
+        return whatResourceIds == null ? List.of()
+                : whatResourceIds.lines().map(String::trim).filter(id -> !id.isEmpty()).toList();
+    }
+
     public static SiteStatsReportForm create(Clock clock) {
         SiteStatsReportForm form = new SiteStatsReportForm();
         LocalDate today = LocalDate.now(clock);

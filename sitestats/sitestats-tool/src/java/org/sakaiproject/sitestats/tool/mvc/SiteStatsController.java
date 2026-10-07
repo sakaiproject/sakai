@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
+import org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsServerWideReportIds;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolExportService.ExportResult;
@@ -56,6 +57,7 @@ public class SiteStatsController {
     private final SiteStatsToolService toolService;
     private final SiteStatsToolExportService exportService;
     private final MessageSource messageSource;
+    private final SiteStatsResourceSearchService resourceSearchService;
 
     @GetMapping({"/", "/index.html"})
     public String index(RedirectAttributes redirectAttributes) {
@@ -95,6 +97,14 @@ public class SiteStatsController {
     public List<SiteStatsToolService.NamedOption> reportUsers(@RequestParam(required = false) String siteId,
             @RequestParam String q) {
         return toolService.searchReportUsers(siteId, q);
+    }
+
+    @GetMapping(value = "/reports/resources", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<List<SiteStatsResourceSearchService.ResourceOption>> reportResources(
+            @RequestParam(required = false) String siteId) {
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .body(resourceSearchService.resources(toolService.reportSite(siteId)));
     }
 
     @GetMapping("/reports/{reportId}/edit")
@@ -272,6 +282,7 @@ public class SiteStatsController {
         toolService.prepareReportForm(form, editorOptions);
         model.addAttribute("reportForm", form);
         model.addAttribute("editorOptions", editorOptions);
+        model.addAttribute("selectedResourcesJson", toolService.selectedResourcesJson(siteId, form));
     }
 
     private void commonModel(Model model, String siteId, String activeMenu) {
