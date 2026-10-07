@@ -83,6 +83,15 @@
 												#end
 												#assignmentIcons($assignment)
 											</strong>
+											#if ($assignment.isGroup)
+												<p class="instruction">
+													#if ($service.canReleaseGroupLocks($assignment))
+														$tlang.getString("group.locks.restore.draft")
+													#else
+														$tlang.getString("group.locks.trash.retain")
+													#end
+												</p>
+											#end
 								</td>
 								<td headers="softremoveddate" scope="row">
 									#if ($!assignment.softRemovedDate)
