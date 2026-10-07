@@ -42,7 +42,7 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
 class AuthnPortalTest extends SakaiUiTestBase {
 
-    private static final String USERNAME = "instructor1";
+    private static final String USERNAME = "instructor";
     private static final String PARAMETER_NAME = "\"><script>document.body.dataset.authnXss='executed'</script>";
 
     @ParameterizedTest
