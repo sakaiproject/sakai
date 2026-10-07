@@ -2857,7 +2857,6 @@
           <compilerVersion>${sakai.jdk.version}</compilerVersion>
           <source>${sakai.jdk.version}</source>
           <target>${sakai.jdk.version}</target>
-          <parameters>true</parameters>
           <forceJavacCompilerUse>true</forceJavacCompilerUse>
           <compilerArgs>
             <arg>--add-exports=java.base/java.io=ALL-UNNAMED</arg>
