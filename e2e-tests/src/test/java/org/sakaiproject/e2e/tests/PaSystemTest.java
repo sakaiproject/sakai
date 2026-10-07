@@ -96,6 +96,8 @@ class PaSystemTest extends SakaiUiTestBase {
             assertTrue(dismissed.text().contains("SUCCESS"));
             assertThat(banner).isHidden();
             assertThat(showAlerts).isVisible();
+            assertThat(page.locator("#sakai-system-indicators .pasystem-banner-alert-toggle")).isVisible();
+            assertThat(page.locator(".portal-pasystem .pasystem-banner-alert-toggle")).hasCount(0);
             page.emulateMedia(new Page.EmulateMediaOptions().setMedia(Media.PRINT));
             assertThat(showAlerts).isHidden();
             page.emulateMedia(new Page.EmulateMediaOptions().setMedia(Media.SCREEN));
@@ -122,6 +124,7 @@ class PaSystemTest extends SakaiUiTestBase {
                     new Locator.GetByRoleOptions().setName("Dismiss Alert")).click());
             assertThat(banner).isHidden();
             assertThat(showAlerts).isVisible();
+            assertThat(page.locator("#sakai-system-indicators .pasystem-banner-alert-toggle")).isVisible();
             page.waitForResponse(
                 response -> response.url().contains("/direct/pasystem/clearBannerAcknowledgements") && response.ok(),
                 showAlerts::click);

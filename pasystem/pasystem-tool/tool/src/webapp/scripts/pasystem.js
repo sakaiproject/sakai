@@ -49,7 +49,7 @@ PASystemBannerAlerts.prototype.handleBannerAlertClose = async function(element) 
   }
   this.renderBannerAlerts();
   if (alertId !== "tz") {
-    this.toggle.hidden = false;
+    this.toggleContainer.hidden = false;
     this.toggle.focus();
   }
 };
@@ -62,7 +62,7 @@ PASystemBannerAlerts.prototype.renderBannerAlerts = function() {
     document.querySelector(".portal-pasystem").prepend(this.container);
   }
   this.container.replaceChildren();
-  this.toggle.hidden = !this.json.some(alert => alert.id !== "tz" && alert.dismissed);
+  this.toggleContainer.hidden = !this.json.some(alert => alert.id !== "tz" && alert.dismissed);
 
   this.json.forEach(alert => {
     const template = document.createElement("template");
@@ -110,8 +110,9 @@ PASystemBannerAlerts.prototype.acknowledge = function(uuid) {
 PASystemBannerAlerts.prototype.setupAlertBannerToggle = function() {
   const template = document.createElement("template");
   template.innerHTML = document.getElementById("pasystemBannerAlertsToggleTemplate").textContent.trim();
-  this.toggle = template.content.firstElementChild;
-  document.querySelector(".portal-pasystem").append(this.toggle);
+  this.toggleContainer = template.content.firstElementChild;
+  this.toggle = this.toggleContainer.querySelector("button");
+  document.getElementById("sakai-system-indicators")?.prepend(this.toggleContainer);
 
   this.toggle.addEventListener("click", () => {
     this.showAllAlerts().catch(error => console.error("Unable to restore system alerts", error));
