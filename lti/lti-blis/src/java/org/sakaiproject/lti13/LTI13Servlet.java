@@ -1275,8 +1275,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		String maintainRole = site.getMaintainRole();
 
-		PrintWriter out = null;
-
 		SakaiLTIUtil.pushAdvisor();
 		try {
 			boolean success = false;
@@ -1346,6 +1344,21 @@ public class LTI13Servlet extends HttpServlet {
 				log.debug("Link: {}", linkHeader);
 			    response.addHeader("Link", linkHeader);
 			}
+
+			JSONObject context_obj = new JSONObject();
+			context_obj.put("id", site.getId());
+			context_obj.put("title", site.getTitle());
+
+			response.setContentType(APPLICATION_JSON);
+			PrintWriter out = response.getWriter();
+			out.println("{");
+			String currentUrl = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
+			out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+",");
+			out.println(" \"context\" : ");
+			log.debug("context_obj={}", JacksonUtil.prettyPrint(context_obj));
+			out.print(JacksonUtil.prettyPrint(context_obj));
+			out.println(",");
+			out.println(" \"members\": [");
 
 			int current = 0;
 			for (User user : users) {
@@ -1439,23 +1452,8 @@ public class LTI13Servlet extends HttpServlet {
 
 				jo.put("sakai_ext", sakai_ext);
 
-				if (out == null) {
-						JSONObject context_obj = new JSONObject();
-						context_obj.put("id", site.getId());
-						context_obj.put("title", site.getTitle());
-
-						response.setContentType(APPLICATION_JSON);
-						out = response.getWriter();
-						out.println("{");
-						String currentUrl = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
-						out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+",");
-						out.println(" \"context\" : ");
-						log.debug("context_obj={}", JacksonUtil.prettyPrint(context_obj));
-						out.print(JacksonUtil.prettyPrint(context_obj));
-						out.println(",");
-						out.println(" \"members\": [");
-				} else {
-						out.println(",");
+				if (current > start) {
+					out.println(",");
 				}
 
 				log.debug("jo={}", JacksonUtil.prettyPrint(jo));
@@ -1464,10 +1462,8 @@ public class LTI13Servlet extends HttpServlet {
 				current++;
 
 			}
-			if ( out != null ) {
-				out.println("");
-				out.println(" ] }");
-			}
+			out.println("");
+			out.println(" ] }");
 		} finally {
 			SakaiLTIUtil.popAdvisor();
 		}
