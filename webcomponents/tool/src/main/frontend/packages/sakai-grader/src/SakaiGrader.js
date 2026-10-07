@@ -554,8 +554,9 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   async _cancel(toggle = true) {
 
     const submissionId = this._submission.id;
+    const rubricGrading = this.querySelector("sakai-rubric-grading");
     try {
-      await this.querySelector("sakai-rubric-grading")?.cancel();
+      if (rubricGrading) await rubricGrading.cancel();
     } catch (error) {
       console.error("Failed to cancel rubric changes", error);
       this._saveFailed = true;
@@ -677,7 +678,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
         return;
       }
       // User confirmed - discard the unsaved changes
-      if (!await this._cancel(false)) return;
+      const cancelling = this._cancel(false);
+      if (this.querySelector("sakai-rubric-grading") && !await cancelling) return;
     }
 
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
@@ -715,7 +717,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       }
       // User confirmed - discard the unsaved changes
       e.target.value = this._submission.id;
-      if (!await this._cancel(false)) return;
+      const cancelling = this._cancel(false);
+      if (this.querySelector("sakai-rubric-grading") && !await cancelling) return;
     }
 
     const selectedSubmission = this._submissions.find(s => s.id === selectedId);
@@ -745,7 +748,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
         return;
       }
       // User confirmed - discard the unsaved changes
-      if (!await this._cancel(false)) return;
+      const cancelling = this._cancel(false);
+      if (this.querySelector("sakai-rubric-grading") && !await cancelling) return;
     }
 
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
