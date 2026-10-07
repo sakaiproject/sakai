@@ -54,6 +54,7 @@ import org.sakaiproject.tags.api.I18n;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.TagServiceException;
 import org.sakaiproject.tags.tool.handlers.Handler;
+import org.sakaiproject.tags.tool.service.TagManagementService;
 import org.sakaiproject.tags.tool.handlers.IndexHandler;
 import org.sakaiproject.tags.tool.handlers.TagCollectionsHandler;
 import org.sakaiproject.tags.tool.handlers.TagsHandler;
@@ -63,6 +64,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.SecFetchSiteCsrf;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,7 @@ public class TagServiceServlet extends HttpServlet {
     private static final String FLASH_MESSAGE_KEY = "tags-tool.flash.errors";
 
     @Autowired private TagService tagService;
+    @Autowired private TagManagementService tagManagementService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -99,23 +102,31 @@ public class TagServiceServlet extends HttpServlet {
             path = "";
         }
 
+        String siteId = toolManager.getCurrentPlacement().getContext();
         if (path.contains("/tagsintagcollection/")) {
-            return new TagsInTagCollectionsHandler(tagService);
+            return new TagsInTagCollectionsHandler(tagService, tagManagementService, siteId);
         } else if (path.contains("/tagcollections/")) {
-            return new TagCollectionsHandler(tagService, formattedText);
+            return new TagCollectionsHandler(tagService, tagManagementService, formattedText, siteId);
         } else if (path.contains("/tags/")) {
-            return new TagsHandler(tagService, formattedText);
+            return new TagsHandler(tagService, tagManagementService, formattedText, siteId);
         } else {
-            return new IndexHandler(tagService, sessionManager, securityService, toolManager);
+            return new IndexHandler(tagService, securityService, toolManager);
         }
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (SecFetchSiteCsrf.isUntrustedUnsafeRequest(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
         doGet(request, response);
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        checkAccessControl();
+        if (!checkAccessControl()) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 
         I18n i18n = tagService.getI18n(this.getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
 
@@ -152,17 +163,19 @@ public class TagServiceServlet extends HttpServlet {
                     response.getWriter().write(template.apply(context));
                 }
             }
+        } catch (SecurityException e) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } catch (IllegalArgumentException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         } catch (IOException e) {
             log.warn("Write failed", e);
         }
     }
 
-    private void checkAccessControl() {
+    private boolean checkAccessControl() {
         String siteId = toolManager.getCurrentPlacement().getContext();
-        if (!securityService.unlock("tagservice.manage", "/site/" + siteId)) {
-            log.error("Access denied to Tags management tool for user " + sessionManager.getCurrentSessionUserId());
-            throw new TagServiceException("Access denied");
-        }
+        return sessionManager.getCurrentSessionUserId() != null
+            && securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/" + siteId);
     }
 
     private void storeFlashMessages(Map<String, List<String>> messages) {

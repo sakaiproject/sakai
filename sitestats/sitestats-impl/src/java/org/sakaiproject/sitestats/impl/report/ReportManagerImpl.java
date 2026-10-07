@@ -1433,19 +1433,19 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					try{
 						if(resourceId.endsWith("/")) {
 							if(StatsManager.RESOURCES_DIR.equals(resourceId) || resourceId.equals(resourcesCollectionId)) {
-								buff.append(toolManager.getTool(StatsManager.RESOURCES_TOOLID).getTitle());
+								buff.append(SiteStatsResourceLabels.rootLabel(StatsManager.RESOURCES_DIR, toolManager, resourceLoader));
 							}else if(StatsManager.DROPBOX_DIR.equals(resourceId) || resourceId.equals(dropboxCollectionId)) {
-								buff.append(toolManager.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
+								buff.append(SiteStatsResourceLabels.rootLabel(StatsManager.DROPBOX_DIR, toolManager, resourceLoader));
 							}else if(resourceId.startsWith(dropboxCollectionId)) {
-								buff.append(toolManager.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
+								buff.append(SiteStatsResourceLabels.rootLabel(StatsManager.DROPBOX_DIR, toolManager, resourceLoader));
 								buff.append(": ");
 								ContentCollection cc = contentHostingService.getCollection(resourceId);
 								String ccName = cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
 								buff.append(ccName);
 							}else if(StatsManager.ATTACHMENTS_DIR.equals(resourceId) || resourceId.equals(attachmentsCollectionId)) {
-								buff.append(resourceLoader.getString("report_content_attachments"));
+								buff.append(SiteStatsResourceLabels.rootLabel(StatsManager.ATTACHMENTS_DIR, toolManager, resourceLoader));
 							}else if(resourceId.startsWith(attachmentsCollectionId)) {
-								buff.append(resourceLoader.getString("report_content_attachments"));
+								buff.append(SiteStatsResourceLabels.rootLabel(StatsManager.ATTACHMENTS_DIR, toolManager, resourceLoader));
 								buff.append(": ");
 								ContentCollection cc = contentHostingService.getCollection(resourceId);
 								String ccName = cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	

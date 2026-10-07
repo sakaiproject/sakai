@@ -223,6 +223,14 @@
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 	</bean>
 
+	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsResourceSearchServiceImpl">
+		<property name="reportAccessService" ref="org.sakaiproject.sitestats.api.view.SiteStatsReportAccessService"/>
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="localeService" ref="org.sakaiproject.util.api.LocaleService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+	</bean>
+
 	<!-- SiteStatsReportPreviewService _____________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.view.SiteStatsReportPreviewService"
 		  class="org.sakaiproject.sitestats.impl.view.SiteStatsReportPreviewServiceImpl"

@@ -16,9 +16,11 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
@@ -133,7 +135,10 @@ class ConversationsTest extends SakaiUiTestBase {
         editor.click();
         editor.pressSequentially("My already-read reply");
         editor.press("Tab");
-        page.locator("sakai-topic:visible .topic-reply-block input[value='Publish']").click();
+        Response reply = page.waitForResponse(
+            response -> "POST".equals(response.request().method()) && response.url().endsWith("/posts"),
+            () -> page.locator("sakai-topic:visible .topic-reply-block input[value='Publish']").click());
+        assertTrue(reply.ok(), "Reply save returned HTTP " + reply.status());
         assertThat(page.locator("sakai-topic:visible .topic-posts-block")).containsText("My already-read reply");
 
         page.reload();

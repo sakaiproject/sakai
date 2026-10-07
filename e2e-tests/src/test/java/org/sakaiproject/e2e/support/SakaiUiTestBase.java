@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.e2e.support;
 
+import com.microsoft.playwright.APIRequest;
+import com.microsoft.playwright.APIRequestContext;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
@@ -27,10 +29,11 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public abstract class SakaiUiTestBase {
 
@@ -41,12 +44,17 @@ public abstract class SakaiUiTestBase {
     protected Page page;
     protected SakaiHelper sakai;
     private String artifactSlug;
+    private APIRequestContext fixtureRequest;
+
+    @RegisterExtension
+    final AfterEachCallback artifacts = extension -> tearDown(extension.getExecutionException().isPresent());
 
     protected static final Path ARTIFACT_ROOT = Path.of("target", "playwright-artifacts");
 
     @BeforeAll
     static void launchBrowser() throws Exception {
         Files.createDirectories(ARTIFACT_ROOT);
+        SakaiHelper.clearSiteCache();
 
         if (playwright == null || browser == null) {
             playwright = Playwright.create();
@@ -84,8 +92,7 @@ public abstract class SakaiUiTestBase {
         Browser.NewContextOptions contextOptions = new Browser.NewContextOptions()
             .setIgnoreHTTPSErrors(true)
             .setBaseURL(SakaiEnvironment.baseUrl())
-            .setLocale("en-US")
-            .setRecordVideoDir(testDir.resolve("video"));
+            .setLocale("en-US");
 
         context = activeBrowser.newContext(contextOptions);
         // setLocale() only affects navigator.language/Intl in the browser; Sakai negotiates
@@ -100,18 +107,19 @@ public abstract class SakaiUiTestBase {
             .setSources(true));
 
         page = context.newPage();
-        sakai = new SakaiHelper(page, SakaiEnvironment.baseUrl());
+        fixtureRequest = playwright.request().newContext(new APIRequest.NewContextOptions()
+            .setBaseURL(SakaiEnvironment.baseUrl()).setIgnoreHTTPSErrors(true));
+        sakai = new SakaiHelper(page, SakaiEnvironment.baseUrl(), fixtureRequest);
     }
 
-    @AfterEach
-    void tearDown(TestInfo testInfo) {
+    private void tearDown(boolean failed) throws Exception {
         if (artifactSlug == null) {
-            artifactSlug = slug(testInfo);
+            return;
         }
         Path testDir = ARTIFACT_ROOT.resolve(artifactSlug);
 
         try {
-            if (page != null) {
+            if (failed && page != null) {
                 page.screenshot(new Page.ScreenshotOptions().setPath(testDir.resolve("final.png")).setFullPage(true));
             }
         } catch (RuntimeException ignored) {
@@ -120,14 +128,25 @@ public abstract class SakaiUiTestBase {
 
         try {
             if (context != null) {
+                // Export before cleanup: a passing test can still fail while closing resources.
                 context.tracing().stop(new Tracing.StopOptions().setPath(testDir.resolve("trace.zip")));
             }
         } catch (RuntimeException ignored) {
             // Ignore tracing failures so context close still runs.
         }
 
-        if (context != null) {
-            context.close();
+        try {
+            if (context != null) {
+                context.close();
+            }
+        } finally {
+            if (fixtureRequest != null) {
+                fixtureRequest.dispose();
+            }
+        }
+        if (!failed) {
+            Files.deleteIfExists(testDir.resolve("trace.zip"));
+            Files.deleteIfExists(testDir);
         }
         artifactSlug = null;
     }

@@ -44,13 +44,27 @@ mvn -P e2e -Dtest=AssignmentTest#canCreatePointsAssignment test
 export PLAYWRIGHT_BROWSER=chromium  # default, or firefox/webkit
 ```
 
-Artifacts (trace/video/final screenshot) are written to `target/playwright-artifacts/`.
+CI runs four separate test processes against the same Sakai server. Methods within each
+class remain sequential. To use the same parallelism locally:
+
+```bash
+mvn -Pe2e -Dsakai.test.forks=4 test
+```
+
+CI uses Ubuntu 24.04 and installs only Chromium's headless shell and its system
+dependencies. PR builds restore the shared Maven repository cache from `master`,
+independent of POM changes, operating system, and CPU architecture. Maven downloads
+missing dependencies during each build. Only pushes to `master` save the cache,
+seeding it when no reusable cache exists.
+
+Failure screenshots and traces are written to `target/playwright-artifacts/`.
+Successful traces are discarded and video recording is disabled.
 
 ## Test helpers
 
 Shared helpers live in `src/test/java/org/sakaiproject/e2e/support`:
 
-- `SakaiUiTestBase`: browser/context lifecycle + trace/video/screenshot artifacts.
+- `SakaiUiTestBase`: browser/context lifecycle + failure traces/screenshots.
 - `SakaiHelper`: login/navigation/tool actions/site creation/date selection.
 - `SakaiEnvironment`: base URL, browser/headless flags.
 
@@ -59,6 +73,9 @@ Shared helpers live in `src/test/java/org/sakaiproject/e2e/support`:
 - Add new `*Test.java` under `src/test/java/org/sakaiproject/e2e/tests`.
 - Extend `SakaiUiTestBase`.
 - Use `sakai.login(...)`, `sakai.createCourse(...)`, `sakai.toolClick(...)` instead of duplicating flow code.
+- Routine sites are copied from an empty wizard-created template using SakaiScript,
+  retaining the demo roster and roles. Each process has its own templates and site cache.
+- Use `sakai.createSiteThroughUi(...)` when the site creation wizard is the flow under test.
 - Prefer stable selectors; add `data-*` hooks in server templates when UI selectors are ambiguous.
 
 ### Samigo pool-tag regression (SAK-52380)

@@ -340,6 +340,18 @@ public interface AssignmentService extends EntityProducer {
     public void softDeleteAssignment(Assignment assignment) throws PermissionException;
 
     /**
+     * Whether deleting this group assignment can release its locks. Student work and grading
+     * keep the locks in place; empty grading placeholders do not, unless linked to a rubric.
+     */
+    boolean canReleaseGroupLocks(Assignment assignment);
+
+    /**
+     * Restore an assignment from Trash. Empty group assignments return as drafts so that
+     * instructors can review current groups before publishing. Missing groups are removed.
+     */
+    Assignment restoreAssignment(String assignmentId) throws IdUnusedException, PermissionException;
+
+    /**
      * Softly delete this Assignment and remove all references to it.
      *
      * @param assignment - The Assignment to softly delete.

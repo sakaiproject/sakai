@@ -94,18 +94,27 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
             .check(new Locator.CheckOptions().setForce(true));
         page.onDialog(dialog -> dialog.accept());
         clickContinueOrFinish();
-        page.waitForLoadState();
-        page.waitForTimeout(10_000);
 
         page.navigate(destinationSite);
-        page.waitForLoadState();
         sakai.toolClick("Assignments");
+        waitForImportedContent();
         assertThat(page.locator("body")).containsText(ASSIGNMENT_TITLE);
         Locator assignmentRow = page.locator("tr, li, .assignment").filter(new Locator.FilterOptions().setHasText(ASSIGNMENT_TITLE)).first();
         assertThat(assignmentRow).not().containsText(Pattern.compile("\\bDraft\\b", Pattern.CASE_INSENSITIVE));
 
         sakai.toolClick("Announcements");
+        waitForImportedContent();
         assertThat(page.locator("body")).containsText(ASSIGNMENT_TITLE);
+    }
+
+    private void waitForImportedContent() {
+        page.waitForCondition(() -> {
+            if (page.locator("body").innerText().contains(ASSIGNMENT_TITLE)) {
+                return true;
+            }
+            page.reload();
+            return false;
+        });
     }
 
     private void openAddAssignmentForm() {

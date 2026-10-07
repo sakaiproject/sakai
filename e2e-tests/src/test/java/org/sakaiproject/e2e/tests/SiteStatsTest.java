@@ -16,6 +16,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -25,9 +26,12 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.FilePayload;
 import com.microsoft.playwright.options.RequestOptions;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
+import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -354,7 +358,7 @@ class SiteStatsTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(Pattern.compile("^Preferences$", Pattern.CASE_INSENSITIVE))).click();
         Locator preferenceTools = page.locator("fieldset").filter(
             new Locator.FilterOptions().setHas(page.locator("#all-tools"))).locator("h2");
-        assertTrue(preferenceTools.count() > 0);
+        assertThat(preferenceTools.first()).isVisible();
         for (int index = 0; index < preferenceTools.count(); index++) {
             assertTrue(!preferenceTools.nth(index).textContent().startsWith("sakai."));
         }
@@ -426,6 +430,230 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(page.locator("sakai-sitestats-report-panel")).isVisible();
         assertThat(page.locator("sakai-sitestats-report-panel sakai-sitestats-table table")).isVisible();
         assertNoLegacyReportChartImages();
+    }
+
+    @Test
+    @Order(12)
+    void searchesNestedResourcesAndPreservesSelectionsThroughReportFlows() {
+        sakai.login("instructor1");
+        String resourcesSiteUrl = createNestedResourceFixture();
+        String root = "/group/" + sakai.siteIdFromUrl(resourcesSiteUrl) + "/";
+        page.navigate(resourcesSiteUrl);
+        sakai.toolClick("Statistics");
+        seedOldSiteStatsTranslations();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Reports").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add").setExact(true)).click();
+        page.getByLabel("Title").fill(REPORT_TITLE + " Resources");
+        page.getByLabel("Activity:").selectOption("what-resources");
+        assertThat(page.locator("#resource-selection")).isHidden();
+        page.locator("#limit-resources").check();
+        Locator component = page.locator("sakai-sitestats-resource-search");
+        Locator search = component.getByLabel("Search resources");
+        assertResourceInputThemes(component, search);
+        List<String> metadataRequests = new ArrayList<>();
+        page.onRequest(request -> {
+            if (request.url().contains("/reports/resources?")) metadataRequests.add(request.url());
+        });
+        search.fill("reading");
+        Locator matches = component.locator("#resource-results li");
+        assertThat(matches).hasCount(20);
+        assertThat(component.locator("[role=status]")).containsText("Showing the first 20 matches. Refine your search.");
+        assertThat(component.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("More results").setExact(true))).hasCount(0);
+        assertThat(component.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("Previous results").setExact(true))).hasCount(0);
+        for (int width : List.of(1280, 390)) {
+            page.setViewportSize(width, 900);
+            search.scrollIntoViewIfNeeded();
+            page.screenshot(new Page.ScreenshotOptions().setPath(
+                ARTIFACT_ROOT.resolve("resource-search-refine-" + width + ".png")));
+        }
+        page.setViewportSize(1280, 720);
+        matches.first().getByRole(AriaRole.BUTTON).click();
+        String portalLocale = (String) page.evaluate("() => window.portal?.locale || ''");
+        try {
+            page.evaluate("() => { window.portal ||= {}; window.portal.locale = 'tr_TR'; }");
+            search.fill("istanbul");
+            assertThat(matches).hasCount(1);
+            assertThat(matches.locator(".resource-name")).hasText("İstanbul.txt");
+            search.fill("ırmak");
+            assertThat(matches).hasCount(1);
+            assertThat(matches.locator(".resource-name")).hasText("IRMAK.txt");
+        } finally {
+            page.evaluate("locale => { if (locale) window.portal.locale = locale; else delete window.portal.locale; }",
+                    portalLocale);
+        }
+        search.fill("Week 5 Reading");
+        assertThat(matches).hasCount(0);
+        assertThat(component.locator("[role=status]")).containsText("No matching resources.");
+        search.fill("Reading 5");
+        assertThat(matches).hasCount(1);
+        assertThat(matches.locator(".resource-name")).hasText("Reading 5.txt");
+        search.fill("Week 5");
+        assertThat(matches).hasCount(1);
+        Locator chosenWeek = matches.filter(new Locator.FilterOptions().setHasText("Resources / Week 5"));
+        assertThat(chosenWeek).hasCount(1);
+        chosenWeek.getByRole(AriaRole.BUTTON).click();
+        assertThat(component.locator("#selected-resources li")).hasCount(2);
+        search.fill("notes");
+        assertThat(matches).hasCount(1);
+        matches.first().getByRole(AriaRole.BUTTON).click();
+        component.locator("#selected-resources li").first().getByRole(AriaRole.BUTTON).click();
+        assertEquals(1, metadataRequests.size(), "Refining the query must reuse the editor's resource metadata");
+        assertFalse(metadataRequests.get(0).contains("&q="));
+        String selectedIds = root + "Week 5/Reading.txt\n" + root + "Notes.txt";
+        assertResourceFormValue(selectedIds);
+        assertThat(page.locator("#resource-ids")).hasCount(0);
+        assertThat(component).not().containsText(root);
+        assertThat(component.locator("select")).hasCount(0);
+        page.getByLabel("Period:").selectOption("when-custom");
+        page.locator("#when-from").fill("");
+        page.locator("#when-to").fill("");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save report").setExact(true)).click();
+        assertThat(page.locator("#report-error")).containsText("Custom time period not defined");
+        assertResourceFormValue(selectedIds);
+        assertThat(component.locator("#selected-resources li")).hasCount(2);
+        page.getByLabel("Period:").selectOption("when-all");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate report").setExact(true)).click();
+        assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName(REPORT_TITLE + " Resources").setExact(true))).isVisible();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
+        assertResourceFormValue(selectedIds);
+        assertThat(component.locator("#selected-resources li")).hasCount(2);
+        // An unfinished query must not replace the filters already selected in the form.
+        component.getByLabel("Search resources").fill("unfinished query");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save report").setExact(true)).click();
+        assertThat(page.locator(".sak-banner-success")).containsText("saved successfully");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
+        page.getByRole(AriaRole.ROW).filter(new Locator.FilterOptions().setHasText(REPORT_TITLE + " Resources"))
+            .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Edit").setExact(true)).click();
+        assertResourceFormValue(selectedIds);
+        assertThat(component.locator("#selected-resources li")).hasCount(2);
+        assertThat(component).containsText("Reading.txt");
+        assertThat(component).containsText("Notes.txt");
+        page.locator("#limit-resources").uncheck();
+        assertThat(page.locator("#resource-selection")).isHidden();
+        assertFalse((Boolean) page.locator("#report-editor").evaluate(
+            "form => new FormData(form).has('whatResourceIds')"));
+        page.locator("#limit-resources").check();
+        assertResourceFormValue(selectedIds);
+        assertThat(component.locator("#selected-resources li")).hasCount(2);
+    }
+
+    private String themeColor(Locator input, String token) {
+        return (String) input.evaluate("""
+            (input, token) => {
+                const probe = document.createElement('span');
+                probe.style.color = getComputedStyle(input).getPropertyValue(token);
+                document.body.append(probe);
+                const color = getComputedStyle(probe).color;
+                probe.remove();
+                return color;
+            }
+            """, token);
+    }
+
+    private String createNestedResourceFixture() {
+        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.sitestats", "sakai\\.resources"));
+        page.navigate(siteUrl);
+        sakai.toolClick("Resources");
+        String resourcesUrl = page.url();
+        assertEquals(sakai.siteIdFromUrl(siteUrl), sakai.siteIdFromUrl(resourcesUrl));
+        page.locator("button[title='Actions']").first().click();
+        page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Create Folders").setExact(true)).click();
+        page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName("Folder Name").setExact(true)).fill("Week 1");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add Another Folder").setExact(true)).click();
+        page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName("Folder Name").setExact(true)).nth(1).fill("Week 5");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Create Folders Now").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Week 1").setExact(true)).click();
+        List<FilePayload> readings = new ArrayList<>();
+        readings.add(resourceFile("Reading.txt"));
+        for (int index = 1; index <= 20; index++) {
+            readings.add(resourceFile("Reading " + index + ".txt"));
+        }
+        uploadResourceFiles(readings.toArray(FilePayload[]::new));
+        page.navigate(resourcesUrl);
+        sakai.toolClick("Resources");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Week 5").setExact(true)).click();
+        uploadResourceFiles(resourceFile("Reading.txt"));
+        page.navigate(resourcesUrl);
+        sakai.toolClick("Resources");
+        uploadResourceFiles(resourceFile("Notes.txt"), resourceFile("İstanbul.txt"), resourceFile("IRMAK.txt"));
+        return siteUrl;
+    }
+
+    private FilePayload resourceFile(String name) {
+        return new FilePayload(name, "text/plain", "SiteStats resource search fixture".getBytes(StandardCharsets.UTF_8));
+    }
+
+    private void uploadResourceFiles(FilePayload... files) {
+        page.locator("button[title='Actions']").first().click();
+        page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Upload Files").setExact(true)).click();
+        page.locator("input[type=file]").setInputFiles(files);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
+        for (FilePayload file : files) {
+            assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(file.name).setExact(true))).isVisible();
+        }
+    }
+
+    private void assertResourceFormValue(String expected) {
+        assertThat(page.locator("sakai-sitestats-resource-search")).hasJSProperty("value", expected);
+        assertEquals(expected, page.locator("#report-editor").evaluate(
+            "form => new FormData(form).get('whatResourceIds')"));
+    }
+
+    private void assertResourceInputThemes(Locator component, Locator search) {
+        String rootClasses = (String) page.evaluate("() => document.documentElement.className");
+        try {
+            for (String theme : List.of("light", "dark", "light")) {
+                page.evaluate("""
+                    theme => {
+                        document.documentElement.classList.remove('sakaiUserTheme-light', 'sakaiUserTheme-dark');
+                        document.documentElement.classList.add('sakaiUserTheme-' + theme);
+                    }
+                    """, theme);
+                String background = themeColor(search, "--sakai-background-color-1");
+                String text = themeColor(search, "--sakai-text-color-1");
+                search.evaluate("input => input.blur()");
+                assertThat(search).hasCSS("background-color", background);
+                assertThat(search).hasCSS("color", text);
+                assertThat(search).hasCSS("border-top-color", themeColor(search, "--sakai-border-color"));
+                search.focus();
+                assertThat(search).hasCSS("background-color", background);
+                assertThat(search).hasCSS("color", text);
+                assertThat(search).hasCSS("border-top-color", themeColor(search, "--focus-outline-color"));
+                if ("dark".equals(theme)) {
+                    assertFalse("rgb(255, 255, 255)".equals(background), "Dark theme input must not be white");
+                    for (int width : List.of(1280, 390)) {
+                        page.setViewportSize(width, 900);
+                        component.scrollIntoViewIfNeeded();
+                        component.screenshot(new Locator.ScreenshotOptions().setPath(
+                            ARTIFACT_ROOT.resolve("resource-search-dark-" + width + ".png")));
+                        assertThat(search).hasCSS("background-color", background);
+                    }
+                }
+            }
+        } finally {
+            page.evaluate("classes => document.documentElement.className = classes", rootClasses);
+            page.setViewportSize(1280, 720);
+        }
+    }
+
+    private void seedOldSiteStatsTranslations() {
+        page.evaluate("""
+            () => {
+                const oldBundle = {
+                    loading_statistics: 'Loading statistics...',
+                    failed_to_load_statistics: 'Failed to load statistics ({})',
+                    failed_to_load_statistics_unknown: 'Failed to load statistics',
+                    no_data_available: 'No data available',
+                    site_statistics_chart: 'Site statistics chart',
+                    label: 'Label',
+                    overview_tool_filters_min_one: 'Keep at least one tool selected.'
+                };
+                sessionStorage.setItem((window.portal?.locale || '') + 'sitestats', JSON.stringify(oldBundle));
+            }
+            """);
     }
 
     private void openReportsAsInstructor() {

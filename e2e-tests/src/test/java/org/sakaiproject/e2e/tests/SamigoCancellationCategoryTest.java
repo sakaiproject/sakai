@@ -19,7 +19,10 @@ import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -131,7 +134,7 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         Page settingsPage = context.newPage();
         try {
             settingsPage.navigate(siteUrl);
-            new SakaiHelper(settingsPage, SakaiEnvironment.baseUrl()).toolClick("Gradebook");
+            new SakaiHelper(settingsPage, SakaiEnvironment.baseUrl(), settingsPage.request()).toolClick("Gradebook");
             changeCategorySettings(settingsPage, true, false);
             reduction.click();
             assertThat(page.locator("[data-item-cancellable]")).hasCount(1);
@@ -194,6 +197,11 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         }
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Settings").setExact(true)).first().click();
         page.locator("#expandLink").click();
+        DateTimeFormatter dateTime12h = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US);
+        sakai.selectDate("#assessmentSettingsAction\\:startDate",
+            LocalDateTime.now().minusDays(1).format(dateTime12h).toLowerCase(Locale.US));
+        sakai.selectDate("#assessmentSettingsAction\\:endDate",
+            LocalDateTime.now().plusYears(2).format(dateTime12h).toLowerCase(Locale.US));
         page.locator("[id='assessmentSettingsAction:honor_pledge']").check();
         page.locator("#assessmentSettingsAction\\:toDefaultGradebook input[value='1']").check();
         page.locator("#assessmentSettingsAction\\:selectCategory").selectOption(
@@ -202,6 +210,7 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Settings and Publish").setExact(true)).click();
         page.locator("#publishAssessmentForm\\:publish").click();
         assertThat(publishedRow(title)).hasCount(1);
+        assertThat(publishedRow(title).locator(".status_published_2")).isVisible();
     }
 
     private void submitQuiz(String title, List<Integer> answers) {

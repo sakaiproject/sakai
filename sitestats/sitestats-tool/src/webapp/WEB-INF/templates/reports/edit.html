@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:lang="${locale}">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${locale.toLanguageTag()}">
 <head th:replace="~{fragments/common :: head(#{menu_reports})}"></head>
 <body>
 <main class="portletBody container-fluid">
@@ -77,13 +77,14 @@
         <div class="col-12 col-md-6">
           <div class="form-check">
             <input id="limit-resources" class="form-check-input" type="checkbox"
-                   th:field="*{whatLimitedResourceIds}" aria-controls="resource-ids"/>
+                   th:field="*{whatLimitedResourceIds}" aria-controls="resource-selection"/>
             <label class="form-check-label" for="limit-resources" th:text="#{report_what_sel_resources}"></label>
           </div>
-          <label class="visually-hidden" for="resource-ids"
-                 th:text="#{sitestats_resource_ids}">Resource IDs</label>
-          <textarea id="resource-ids" class="form-control mt-2" th:field="*{whatResourceIds}" rows="3"
-                    th:placeholder="#{sitestats_resource_ids_hint}"></textarea>
+          <fieldset id="resource-selection" class="mt-2 border-0 p-0" hidden disabled>
+            <sakai-sitestats-resource-search id="resource-search" name="whatResourceIds"
+                th:attr="endpoint=@{/reports/resources(siteId=${siteId})},initial-selection=${selectedResourcesJson}">
+            </sakai-sitestats-resource-search>
+          </fieldset>
         </div>
       </div>
     </fieldset>

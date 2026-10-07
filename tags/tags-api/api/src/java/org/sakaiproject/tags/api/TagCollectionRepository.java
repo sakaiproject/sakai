@@ -30,6 +30,7 @@ public interface TagCollectionRepository extends SpringCrudRepository<TagCollect
     /** Insert a collection with an assigned ID; reject duplicates instead of merging existing data. */
     TagCollection create(TagCollection collection);
     List<TagCollection> findAllOrdered(int offset, int limit);
+    List<TagCollection> findAvailableInSite(String siteId);
     Optional<TagCollection> findByName(String name);
     Optional<TagCollection> findByExternalSourceName(String externalSourceName);
 }
