@@ -372,19 +372,19 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       evaluation.metadata = this._evaluation.metadata;
     }
 
-    return this._saveEvaluation(evaluation, remember);
+    this._saveEvaluation(evaluation, remember);
+    return this._savePromise;
   }
 
-  _saveEvaluation(evaluation, remember = false) {
+  _saveEvaluation(evaluation, remember = false, notify = true) {
 
     let url = `/api/sites/${this.siteId}/rubric-evaluations`;
     if (evaluation.id) url += `/${evaluation.id}`;
     // Keep edits and cancellation in order, including overlapping auto-saves.
-    this._savePromise = (this._savePromise || Promise.resolve()).then(() => fetch(url, {
+    const request = (this._savePromise || Promise.resolve()).then(() => fetch(url, {
       body: JSON.stringify(evaluation),
       headers: { "Content-Type": "application/json" },
       method: evaluation.id ? "PUT" : "POST",
-      keepalive: true,
     }))
     .then(r => {
 
@@ -399,13 +399,14 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       if (data.evaluatedItemId === this.evaluatedItemId) {
         this._evaluation = data;
         if (remember) this._savedEvaluation = data;
-        this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
+        if (notify) this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
       }
       return data;
-    })
-    .catch(error => console.error(error));
+    });
 
-    return this._savePromise;
+    // Allow later requests to run after a failure, while cancellation receives the rejection.
+    this._savePromise = request.catch(error => console.error(error));
+    return request;
   }
 
   getOverriddenClass(ovrdvl, selected) {
@@ -518,36 +519,37 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     }
   }
 
-  cancel() {
+  async cancel() {
+
+    const itemId = this.evaluatedItemId;
+    await this._savePromise;
+    if (itemId !== this.evaluatedItemId) return;
 
     // Assignment cancellation restores the last explicit save, including unreleased rubrics.
     const saved = this.toolId === "sakai.assignment.grades" && !this.isPeerOrSelf && this._savedEvaluation;
-    if (this._evaluation.status !== "DRAFT" && !saved?.id) return;
+    if (!saved?.id && (this._evaluation?.status !== "DRAFT" || this._evaluation.evaluatedItemId !== itemId)) return;
 
-    const itemId = this.evaluatedItemId;
-    const url = `/api/sites/${this.siteId}/rubric-evaluations/${this._evaluation.id}/cancel`;
-    const request = saved?.id ? this._saveEvaluation(saved) :
-      (this._savePromise || Promise.resolve()).then(() => fetch(url, { credentials: "include", keepalive: true }))
-    .then(r => {
+    let restored;
+    if (saved?.id) {
+      restored = await this._saveEvaluation(saved, false, false);
+    } else {
+      const url = `/api/sites/${this.siteId}/rubric-evaluations/${this._evaluation.id}/cancel`;
+      const response = await fetch(url, { credentials: "include" });
+      if (!response.ok) throw new Error("Failed to cancel rubric evaluation");
+      restored = await response.json();
+    }
 
-      if (r.ok) {
-        return r.json();
-      }
-
-      throw new Error("Failed to cancel rubric evaluation");
+    if (itemId !== this.evaluatedItemId) return;
+    this._evaluation = restored;
+    // Clear edited values before applying the saved outcomes, including empty outcomes.
+    this._criteria.forEach(c => {
+      c.ratings.forEach(r => r.selected = false);
+      c.selectedvalue = 0;
+      c.selectedRatingId = 0;
+      c.pointoverride = "";
+      c.comments = "";
     });
-
-    return request.then(restored => {
-
-      if (!restored || itemId !== this.evaluatedItemId) return;
-
-      this._evaluation = restored;
-      // Unset any ratings
-      this._criteria.forEach(c => c.ratings.forEach(r => r.selected = false));
-      // And set the original ones
-      this.decorateCriteria();
-    })
-    .catch(error => console.error(error));
+    this.decorateCriteria();
   }
 
   _getAssociation() {
@@ -556,21 +558,24 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       return;
     }
 
+    const itemId = this.evaluatedItemId;
     this.apiGetAssociation()
       .then(association => {
 
+        if (itemId !== this.evaluatedItemId) return;
         this.association = association;
         this._rubricId = association.rubricId;
-        this._getRubric(this._rubricId);
+        this._getRubric(this._rubricId, itemId);
       })
       .catch (error => console.error(error));
   }
 
-  _getRubric(rubricId) {
+  _getRubric(rubricId, itemId) {
 
     this.apiGetRubric(rubricId)
       .then(rubric => {
 
+        if (itemId !== this.evaluatedItemId) return;
         this._rubric = rubric;
         this._criteria = this._rubric.criteria;
 
@@ -579,6 +584,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           this.apiGetEvaluation()
             .then(evaluation => {
 
+              if (itemId !== this.evaluatedItemId) return;
               this._evaluation = evaluation || { criterionOutcomes: [] };
               this._savedEvaluation = evaluation;
               this._criteria.forEach(c => {
