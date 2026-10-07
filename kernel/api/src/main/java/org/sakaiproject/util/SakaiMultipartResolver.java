@@ -22,6 +22,7 @@ import java.util.Collections;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.FileUploadSizeException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -33,16 +34,6 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 
 /** Adapts files already parsed by Sakai's RequestFilter to Spring MVC. */
 public class SakaiMultipartResolver implements MultipartResolver {
-    private final long uploadMax;
-
-    public SakaiMultipartResolver() {
-        this(Long.MAX_VALUE);
-    }
-
-    public SakaiMultipartResolver(long uploadMax) {
-        this.uploadMax = uploadMax;
-    }
-
     @Override
     public boolean isMultipart(HttpServletRequest request) {
         return request.getAttribute(RequestFilter.ATTR_UPLOADS_DONE) != null;
@@ -51,16 +42,14 @@ public class SakaiMultipartResolver implements MultipartResolver {
     @Override
     public MultipartHttpServletRequest resolveMultipart(HttpServletRequest request) {
         if (request.getAttribute("upload.exception") instanceof Exception exception) {
+            if (exception instanceof FileUploadSizeException sizeException) {
+                throw new MaxUploadSizeExceededException(sizeException.getPermitted(), exception);
+            }
             throw new MultipartException("Sakai upload processing failed", exception);
         }
         MultiValueMap<String, MultipartFile> files = new LinkedMultiValueMap<>();
-        long totalSize = 0;
         if (request.getAttribute(RequestFilter.ATTR_UPLOAD_FILES) instanceof DiskFileItem[] items) {
             for (DiskFileItem item : items) {
-                totalSize += item.getSize();
-                if (totalSize > uploadMax) {
-                    throw new MaxUploadSizeExceededException(uploadMax);
-                }
                 files.add(item.getFieldName(), new UploadedFile(item));
             }
         }

@@ -15,12 +15,8 @@
  */
 package org.sakaiproject.mailsender.tool.config;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
 import org.sakaiproject.util.SakaiMultipartResolver;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
@@ -51,9 +47,6 @@ public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAwar
 
     private ApplicationContext applicationContext;
     
-    @Autowired
-    private ServerConfigurationService serverConfigurationService;
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -109,7 +102,7 @@ public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAwar
     
      @Bean
     public MultipartResolver multipartResolver() {
-        return new SakaiMultipartResolver(serverConfigurationService.getInt(EmailService.MAIL_SENDFROMSAKAI_MAXSIZE, EmailService.DEFAULT_MAXSIZE));
+        return new SakaiMultipartResolver();
     }
 
      @Override
