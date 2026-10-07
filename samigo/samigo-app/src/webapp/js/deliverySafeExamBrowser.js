@@ -13,11 +13,19 @@ const downloadConfigLinkId = "sebDownloadConfiguration";
 const relativeConfigLink = seb.relativeConfigLink;
 const assessmentId = seb.assessmentId;
 const loadingMessage = window.please_wait;
+// SEB may expose window.SafeExamBrowser after page scripts run (SEB issue #1443)
+const sebApiTimeoutMs = 10000;
+const sebApiIntervalMs = 100;
 
 // GETTERS
 
 function getSebApi() {
-    return window.SafeExamBrowser = window.SafeExamBrowser || null;
+    // Only read the object, SEB may not have injected it yet
+    return window.SafeExamBrowser || null;
+}
+
+function isSebUserAgent() {
+    return /\bSEB\//.test(navigator.userAgent);
 }
 
 function getDownloadConfigLink() {
@@ -74,6 +82,16 @@ async function hideStartView() {
     }
 }
 
+function showStartView() {
+    const form = document.getElementById(formId);
+    if (form) {
+        form.style.display = "";
+    }
+    if (window.$ && $.unblockUI) {
+        $.unblockUI();
+    }
+}
+
 async function showLoadingMessage(message) {
     if (window.$ && $.blockUI) {
         const spinnerPath = "/library/image/sakai/spinner.gif";
@@ -109,12 +127,26 @@ async function fetchValidationData({ configKey, browserExamKey }) {
 
 // LOGIC
 
-const sebApi = getSebApi();
 const domLoadedPromise = new Promise((resolve) => {
     window.addEventListener("load", () => resolve(true), { once : true });
 });
 
-async function onSebKeysPresent() {
+function waitForSebApi() {
+    return new Promise((resolve) => {
+        const start = Date.now();
+        const check = () => {
+            const api = getSebApi();
+            if (api || Date.now() - start >= sebApiTimeoutMs) {
+                resolve(api);
+            } else {
+                window.setTimeout(check, sebApiIntervalMs);
+            }
+        };
+        check();
+    });
+}
+
+async function onSebKeysPresent(sebApi) {
     const [domLoaded, delivered] = await Promise.all([domLoadedPromise, fetchValidationData(sebApi.security)]);
 
     if (!delivered) {
@@ -126,15 +158,7 @@ async function onSebKeysPresent() {
     }
 }
 
-// Check if sebApi is available, this will indicate if SEB is used right now
-if (sebApi) {
-    // If our keys are present, we can call onSebKeysPresent, else, we register it as a callback for the update
-    if (isEmptyKey(sebApi.security?.configKey) || isEmptyKey(sebApi.security?.browserExamKey)) {
-        sebApi.security.updateKeys(onSebKeysPresent);
-    } else {
-        onSebKeysPresent();
-    }
-
+function showSebLoadingView() {
     // Check if this is the sebSetup view, hide it and display loading bar
     domLoadedPromise.then(() => {
         if (isStartView()) {
@@ -142,23 +166,56 @@ if (sebApi) {
             showLoadingMessage(loadingMessage);
         }
     });
-} else {
-    // Configure links
-    document.addEventListener("DOMContentLoaded", () => {
-        const launchUrl = new URL(getLaunchSebLink());
-        launchUrl.searchParams.set("return", getReturnUrl());
-        configureLink(launchSebLinkId, launchUrl.toString());
-        configureLink(downloadSebLinkId, downloadSebLink);
-        configureLink(downloadConfigLinkId, getDownloadConfigLink());
+}
 
-        const launchLink = document.getElementById(launchSebLinkId);
-        if (launchLink && !launchLink.classList.contains("disabled")) {
-            launchLink.addEventListener("click", () => {
-                // Keep the regular browser on the T&Q landing page after SEB launches.
-                window.setTimeout(() => {
-                    window.location.href = getReturnUrl();
-                }, 500);
+function startSebDelivery(sebApi) {
+    // If our keys are present, we can call onSebKeysPresent, else, we register it as a callback for the update
+    if (isEmptyKey(sebApi.security?.configKey) || isEmptyKey(sebApi.security?.browserExamKey)) {
+        sebApi.security.updateKeys(() => onSebKeysPresent(sebApi));
+    } else {
+        onSebKeysPresent(sebApi);
+    }
+}
+
+function configureLinks() {
+    const launchUrl = new URL(getLaunchSebLink());
+    launchUrl.searchParams.set("return", getReturnUrl());
+    configureLink(launchSebLinkId, launchUrl.toString());
+    configureLink(downloadSebLinkId, downloadSebLink);
+    configureLink(downloadConfigLinkId, getDownloadConfigLink());
+
+    const launchLink = document.getElementById(launchSebLinkId);
+    if (launchLink && !launchLink.classList.contains("disabled")) {
+        launchLink.addEventListener("click", () => {
+            // Keep the regular browser on the T&Q landing page after SEB launches.
+            window.setTimeout(() => {
+                window.location.href = getReturnUrl();
+            }, 500);
+        });
+    }
+}
+
+const sebApi = getSebApi();
+
+// Check if sebApi is available, this will indicate if SEB is used right now
+if (sebApi) {
+    startSebDelivery(sebApi);
+    showSebLoadingView();
+} else if (isSebUserAgent()) {
+    // Running inside SEB but its API is not available yet: wait for it instead of offering to launch SEB
+    showSebLoadingView();
+    waitForSebApi().then((lateSebApi) => {
+        if (lateSebApi) {
+            startSebDelivery(lateSebApi);
+        } else {
+            console.error(`SEB user agent detected but SafeExamBrowser API not available after ${sebApiTimeoutMs} ms`);
+            domLoadedPromise.then(() => {
+                showStartView();
+                configureLinks();
             });
         }
-    }, { once : true });
+    });
+} else {
+    // Configure links
+    document.addEventListener("DOMContentLoaded", configureLinks, { once : true });
 }
