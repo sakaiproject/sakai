@@ -17,8 +17,6 @@
 package org.sakaiproject.poll.tool.config;
 
 import org.sakaiproject.util.ResourceLoaderMessageSource;
-import org.sakaiproject.util.SakaiMultipartResolver;
-import org.sakaiproject.util.RequestFilter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
@@ -26,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -105,7 +104,7 @@ public class PollsWebMvcConfig implements WebMvcConfigurer, ApplicationContextAw
 
     @Bean
     public MultipartResolver multipartResolver() {
-        return new SakaiMultipartResolver(Long.getLong(RequestFilter.SYSTEM_UPLOAD_MAX, 1L) * 1024L * 1024L);
+        return new StandardServletMultipartResolver();
     }
 
     @Override
