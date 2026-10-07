@@ -553,6 +553,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _cancel(toggle = true) {
 
+    this.querySelector("sakai-rubric-grading")?.cancel();
+
     const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
     const i = this._submissions.findIndex(s => s.id === this._submission.id);
     this._submissions.splice(i, 1, originalSubmission);

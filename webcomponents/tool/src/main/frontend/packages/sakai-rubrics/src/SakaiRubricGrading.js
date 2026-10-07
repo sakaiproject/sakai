@@ -53,6 +53,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   set evaluatedItemId(value) {
 
+    if (value !== this._evaluatedItemId) this._savedEvaluation = null;
     this._evaluatedItemId = value;
     this._getAssociation();
   }
@@ -259,12 +260,12 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     if (this._evaluation.criterionOutcomes.length) {
       // We only want to inform the enclosing tool about ratings changes
       // for an existing evaluation
-      this.dispatchRatingChanged(this._criteria, 2);
+      return this.dispatchRatingChanged(this._criteria, 2, true);
     }
   }
 
   save() {
-    this.dispatchRatingChanged(this._criteria, 1);
+    return this.dispatchRatingChanged(this._criteria, 1, true);
   }
 
   decorateCriteria() {
@@ -338,7 +339,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this.dispatchRatingChanged(this._criteria, 1);
   }
 
-  dispatchRatingChanged(criteria, status) {
+  dispatchRatingChanged(criteria, status, remember = false) {
 
     const crit = criteria.map(c => {
 
@@ -371,13 +372,20 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       evaluation.metadata = this._evaluation.metadata;
     }
 
+    return this._saveEvaluation(evaluation, remember);
+  }
+
+  _saveEvaluation(evaluation, remember = false) {
+
     let url = `/api/sites/${this.siteId}/rubric-evaluations`;
-    if (this._evaluation?.id) url += `/${this._evaluation.id}`;
-    fetch(url, {
+    if (evaluation.id) url += `/${evaluation.id}`;
+    // Keep edits and cancellation in order, including overlapping auto-saves.
+    this._savePromise = (this._savePromise || Promise.resolve()).then(() => fetch(url, {
       body: JSON.stringify(evaluation),
       headers: { "Content-Type": "application/json" },
-      method: this._evaluation?.id ? "PUT" : "POST",
-    })
+      method: evaluation.id ? "PUT" : "POST",
+      keepalive: true,
+    }))
     .then(r => {
 
       if (r.ok) {
@@ -388,11 +396,16 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     })
     .then(data => {
 
-      this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
-      this._evaluation = data;
-      return Promise.resolve(this._evaluation);
+      if (data.evaluatedItemId === this.evaluatedItemId) {
+        this._evaluation = data;
+        if (remember) this._savedEvaluation = data;
+        this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
+      }
+      return data;
     })
     .catch(error => console.error(error));
+
+    return this._savePromise;
   }
 
   getOverriddenClass(ovrdvl, selected) {
@@ -507,11 +520,14 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   cancel() {
 
-    if (this._evaluation.status !== "DRAFT") return;
+    // Assignment cancellation restores the last explicit save, including unreleased rubrics.
+    const saved = this.toolId === "sakai.assignment.grades" && !this.isPeerOrSelf && this._savedEvaluation;
+    if (this._evaluation.status !== "DRAFT" && !saved?.id) return;
 
+    const itemId = this.evaluatedItemId;
     const url = `/api/sites/${this.siteId}/rubric-evaluations/${this._evaluation.id}/cancel`;
-
-    fetch(url, { credentials: "include" })
+    const request = saved?.id ? this._saveEvaluation(saved) :
+      (this._savePromise || Promise.resolve()).then(() => fetch(url, { credentials: "include", keepalive: true }))
     .then(r => {
 
       if (r.ok) {
@@ -519,8 +535,11 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       }
 
       throw new Error("Failed to cancel rubric evaluation");
-    })
-    .then(restored => {
+    });
+
+    return request.then(restored => {
+
+      if (!restored || itemId !== this.evaluatedItemId) return;
 
       this._evaluation = restored;
       // Unset any ratings
@@ -561,6 +580,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
             .then(evaluation => {
 
               this._evaluation = evaluation || { criterionOutcomes: [] };
+              this._savedEvaluation = evaluation;
               this._criteria.forEach(c => {
 
                 c.pointoverride = "";

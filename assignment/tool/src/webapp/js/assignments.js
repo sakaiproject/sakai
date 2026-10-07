@@ -1152,10 +1152,9 @@ $(document).ready(() => {
 
 ASN.cancelGradeSubmission = function () {
 
-  [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. cancel());
-
   SPNR.disableControlsAndSpin( this, null );
-  ASN.submitForm( 'gradeForm', 'cancelgrade', null, null );
+  Promise.all([...document.getElementsByTagName("sakai-rubric-grading")].map(r => r.cancel()))
+    .then(() => ASN.submitForm( 'gradeForm', 'cancelgrade', null, null ));
   return false;
 };
 
