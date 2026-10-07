@@ -4283,7 +4283,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             cq.where(
                 cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
                 cb.equal(auRoot.get("agentIdString"), siteId),
-                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.equal(aRoot.get("publishedAssessmentId").as(String.class), auRoot.get("qualifierId")),
                 cb.isFalse(aRoot.get("forGrade")),
                 cb.or(
                     cb.equal(aRoot.get("status"), AssessmentGradingData.IN_PROGRESS),
@@ -4324,7 +4324,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             cq.where(
                 cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
                 cb.equal(auRoot.get("agentIdString"), siteId),
-                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.equal(aRoot.get("publishedAssessmentId").as(String.class), auRoot.get("qualifierId")),
                 cb.isTrue(aRoot.get("forGrade")),
                 cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED),
                 cb.equal(aRoot.get("publishedAssessmentId"), pRoot.get("publishedAssessmentId")),

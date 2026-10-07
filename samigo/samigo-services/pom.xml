@@ -247,6 +247,7 @@
                     <include>hibernate.properties</include>
                     <include>log4j2.properties</include>
                     <include>spring-hibernate.xml</include>
+                    <include>spring-samigo-query-integration.xml</include>
                 </includes>
             </testResource>
             <!--includes:  include: **/*Test.java -->
