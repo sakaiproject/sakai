@@ -2153,9 +2153,9 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                     List<Long> chunk = itemIds.subList(i, Math.min(i + 1000, itemIds.size()));
                     inPredicates.add(root.get("itemId").in(chunk));
                 }
-                cq.where(cb.or(inPredicates.toArray(new Predicate[0])));
+                cq2.where(cb.or(inPredicates.toArray(new Predicate[0])));
             } else {
-                cq.where(root.get("itemId").in(itemIds));
+                cq2.where(root.get("itemId").in(itemIds));
             }
 
             List<PublishedItemData> publishedItems = session.createQuery(cq2).getResultList();
@@ -4022,7 +4022,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                     aRoot.get("status").in(Arrays.asList(AssessmentGradingData.REMOVED, AssessmentGradingData.NO_SUBMISSION)));
 
             Predicate autoSubmissionNotRun = cb.or(
-                    cb.equal(aRoot.get("hasAutoSubmissionRun"), 0),
+                    cb.isFalse(aRoot.get("hasAutoSubmissionRun")),
                     cb.isNull(aRoot.get("hasAutoSubmissionRun")));
 
             cq.where(

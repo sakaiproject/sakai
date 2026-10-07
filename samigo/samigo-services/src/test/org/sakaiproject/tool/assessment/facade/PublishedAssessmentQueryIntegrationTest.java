@@ -17,6 +17,8 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
@@ -28,10 +30,12 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionMetaData;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -166,6 +170,58 @@ public class PublishedAssessmentQueryIntegrationTest extends AbstractTransaction
         assertEquals(Long.valueOf(1), assessmentGradingFacadeQueries.getSubmittedCounts("owner-site")
                 .get(assessment.getPublishedAssessmentId()));
         assertTrue(assessmentGradingFacadeQueries.getSubmittedCounts("other-site").isEmpty());
+    }
+
+    @Test
+    public void returnsOnlyGradedItemsInTheRequestedSection() {
+        assertGradedItemsAreFiltered(1);
+    }
+
+    @Test
+    public void filtersGradedItemsWhenIdentifiersRequireMultipleInClauses() {
+        assertGradedItemsAreFiltered(1001);
+    }
+
+    private void assertGradedItemsAreFiltered(int count) {
+        Session session = sessionFactory.getCurrentSession();
+        seedAttempt(true, AssessmentGradingData.SUBMITTED);
+        AssessmentGradingData attempt = session.createQuery("from AssessmentGradingData", AssessmentGradingData.class).getSingleResult();
+        Set<Long> expectedIds = new HashSet<>();
+        for (int index = 0; index < count; index++) {
+            PublishedItemData graded = index == 0 ? item : seedItem();
+            PublishedItemText text = new PublishedItemText(graded, 1L, "Question", null);
+            session.persist(text);
+            ItemGradingData response = new ItemGradingData();
+            response.setPublishedItemTextId(text.getId());
+            response.setAssessmentGradingId(attempt.getAssessmentGradingId());
+            response.setPublishedItemId(graded.getItemId());
+            response.setAgentId("student");
+            session.persist(response);
+            expectedIds.add(graded.getItemId());
+        }
+        seedItem(); // An ungraded question must never be returned.
+        session.flush();
+
+        Set<PublishedItemData> results = assessmentGradingFacadeQueries.getItemSet(assessment.getPublishedAssessmentId(), section.getSectionId());
+        Set<Long> actualIds = new HashSet<>();
+        for (PublishedItemData result : results) {
+            actualIds.add(result.getItemId());
+        }
+        assertEquals(expectedIds, actualIds);
+        assertTrue(assessmentGradingFacadeQueries.getItemSet(assessment.getPublishedAssessmentId(), -1L).isEmpty());
+    }
+
+    private PublishedItemData seedItem() {
+        PublishedItemData extraItem = new PublishedItemData();
+        extraItem.setSection(section);
+        extraItem.setTypeId(1L);
+        extraItem.setStatus(1);
+        extraItem.setCreatedBy("test");
+        extraItem.setCreatedDate(new Date());
+        extraItem.setLastModifiedBy("test");
+        extraItem.setLastModifiedDate(new Date());
+        sessionFactory.getCurrentSession().persist(extraItem);
+        return extraItem;
     }
 
     private void seedAttempt(boolean forGrade, Integer status) {

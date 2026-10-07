@@ -1834,7 +1834,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 			AssessmentData copiedAssessment = prepareAssessment(sourceAssessment, ServerConfigurationService.getServerUrl(), toContext, true);
 			String uniqueTitle = getUniqueImportedTitle(copiedAssessment.getTitle(), usedTitles);
 			copiedAssessment.setTitle(uniqueTitle);
-			session.merge(copiedAssessment);
+			session.persist(copiedAssessment);
 
 			String sourceAssessmentId = (sourceAssessment.getAssessmentBaseId() == null) ? null : sourceAssessment.getAssessmentBaseId().toString();
 			Map<String, String> releaseToGroups = releaseToGroupsByAssessmentId.getOrDefault(sourceAssessmentId, Collections.emptyMap());
