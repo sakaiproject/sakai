@@ -587,10 +587,12 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     private void uploadResourceFiles(FilePayload... files) {
+        String listingUrl = page.url().split("[?#]", 2)[0];
         page.locator("button[title='Actions']").first().click();
         page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Upload Files").setExact(true)).click();
         page.locator("input[type=file]").setInputFiles(files);
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
+        page.waitForURL(url -> url.split("[?#]", 2)[0].equals(listingUrl));
         for (FilePayload file : files) {
             assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(file.name).setExact(true))).isVisible();
         }
