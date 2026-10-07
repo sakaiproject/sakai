@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.api.app.messageforums.MembershipItemSnapshot;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BulkPermission;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;

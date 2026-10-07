@@ -15,17 +15,15 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.component.app.messageforums.ui;
+package org.sakaiproject.api.app.messageforums;
 
 import java.util.Date;
-
-import org.sakaiproject.api.app.messageforums.DBMembershipItem;
-import org.sakaiproject.api.app.messageforums.PermissionLevel;
 
 import lombok.Data;
 
 /**
  * Plain, cache-marshalable snapshot of a DBMembershipItem.
+ * This class belongs in the shared API JAR so the shared Ignite class loader can resolve it.
  * <p>
  * DBMembershipItemImpl's area/forum/topic many-to-one associations are mapped {@code lazy="false"}
  * (always real, eagerly-loaded objects), but Area/OpenForum/Topic each map several of their own

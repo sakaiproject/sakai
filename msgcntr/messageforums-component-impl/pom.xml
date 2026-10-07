@@ -164,6 +164,11 @@
       <groupId>org.opensearch</groupId>
       <artifactId>opensearch</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.ignite</groupId>
+      <artifactId>ignite-core</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <resources>
