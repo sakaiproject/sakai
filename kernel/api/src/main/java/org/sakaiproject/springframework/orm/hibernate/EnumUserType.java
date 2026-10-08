@@ -44,17 +44,9 @@ public class EnumUserType<E extends Enum<E>> implements UserType
     private Class<E>
         myClass = null;
 
-    private static final int[]
-        SQL_TYPES = {Types.VARCHAR};
-
     protected EnumUserType (Class<E> c)
     {
         myClass = c;
-    }
-
-    public int[] sqlTypes()
-    {
-        return SQL_TYPES;
     }
 
     public Class returnedClass()
@@ -132,7 +124,6 @@ public class EnumUserType<E extends Enum<E>> implements UserType
 
 	@Override
 	public int getSqlType() {
-		// TODO Auto-generated method stub
-		return 0;
+		return Types.VARCHAR;
 	}
 }

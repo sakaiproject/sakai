@@ -367,6 +367,12 @@ public class QuestionPoolFacade
    * @param data
    */
   public void setData(QuestionPoolDataIfc data) {
+      try {
+          questionPool.updateData(data);
+      }
+      catch (QuestionPoolException ex) {
+          throw new DataFacadeException(ex.getMessage());
+      }
       this.data = data;
   }
 

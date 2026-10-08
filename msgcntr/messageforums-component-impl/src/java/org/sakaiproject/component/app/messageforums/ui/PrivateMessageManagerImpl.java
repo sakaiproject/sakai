@@ -889,7 +889,10 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
         cb.equal(recipient.get("contextId"), contextId)
     );
 
-    Path<?> orderPath = root.get(orderField);
+    String actualField = orderField.startsWith("message.")
+            ? orderField.substring("message.".length())
+            : orderField;
+    Path<?> orderPath = root.get(actualField);
     if ("desc".equalsIgnoreCase(order)) {
         cq.orderBy(cb.desc(orderPath));
     } else {
@@ -1006,7 +1009,7 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
 	    Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient = 
 	        message.join("recipients", JoinType.LEFT);
 
-	    cq.select(cb.array(recipient.get("contextId"), cb.count(recipient)))
+	    cq.select(cb.array(recipient.get("contextId"), cb.count(recipient.get("userId"))))
 	    .where(
 	        cb.equal(recipient.get("userId"), getCurrentUser()),
 	        cb.isFalse(recipient.get("read")),

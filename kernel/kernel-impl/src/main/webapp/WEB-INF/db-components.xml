@@ -181,7 +181,7 @@
 				     are read correctly. -->
 				<prop key="hibernate.type.preferred_instant_jdbc_type">TIMESTAMP</prop>
 				<prop key="hibernate.timezone.default_storage">NORMALIZE</prop>
-				<prop key="javax.persistence.query.timeout">30000</prop>
+				<prop key="jakarta.persistence.query.timeout">30000</prop>
 			</props>
 		</property>
 	</bean>

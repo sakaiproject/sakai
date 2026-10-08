@@ -17,6 +17,7 @@ package org.sakaiproject.hibernate;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,8 +55,13 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
     @Transactional
     public <S extends T> S save(S entity) {
 
-        sessionFactory.getCurrentSession().save(entity);
-        return entity;
+        Session session = sessionFactory.getCurrentSession();
+        if (sessionFactory.getPersistenceUnitUtil().getIdentifier(entity) == null) {
+            // Preserve save/update cascades for new graphs with detached associations.
+            session.save(entity);
+            return entity;
+        }
+        return session.merge(entity);
     }
 
     @Override
@@ -174,6 +180,6 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
     @Override
     @Transactional
     public void update(T entity) {
-        sessionFactory.getCurrentSession().update(entity);
+        sessionFactory.getCurrentSession().merge(entity);
     }
 }

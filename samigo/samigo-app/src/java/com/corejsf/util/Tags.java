@@ -132,8 +132,6 @@ public class Tags {
          setMethodBinding(component, "action", attributeValue,
                new Class[] {});
       else {
-         FacesContext context = FacesContext.getCurrentInstance();
-         Application app = context.getApplication();
          MethodExpression mb = new ActionMethodBinding(attributeValue);
          ((ActionSource2) component).setActionExpression(mb);
       }
@@ -219,9 +217,6 @@ public class Tags {
       private String result;
 
       public ActionMethodBinding(String result) { this.result = result; }
-      public Object invoke(FacesContext context, Object params[]) {
-         return result;
-      }
       public String getExpressionString() { return result; }
       public Class getType(FacesContext context) { return String.class; }
 
@@ -232,7 +227,7 @@ public class Tags {
 
       @Override
       public Object invoke(ELContext context, Object[] params) {
-        return null;
+        return result;
       }
 
       @Override
