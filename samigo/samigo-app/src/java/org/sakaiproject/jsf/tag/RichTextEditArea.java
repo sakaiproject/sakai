@@ -25,11 +25,11 @@ import jakarta.el.ValueExpression;
 import jakarta.faces.application.Application;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.webapp.UIComponentELTag;
+import jakarta.faces.webapp.UIComponentTag;
 import lombok.Getter;
 import lombok.Setter;
 
-public class RichTextEditArea extends UIComponentELTag
+public class RichTextEditArea extends UIComponentTag
 {
   @Setter @Getter 
   private String identity;
