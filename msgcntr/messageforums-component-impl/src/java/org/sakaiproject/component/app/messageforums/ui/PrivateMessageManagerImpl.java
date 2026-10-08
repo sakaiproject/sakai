@@ -1009,7 +1009,7 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
 	    Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient = 
 	        message.join("recipients", JoinType.LEFT);
 
-	    cq.select(cb.array(recipient.get("contextId"), cb.count(recipient)))
+	    cq.select(cb.array(recipient.get("contextId"), cb.count(recipient.get("userId"))))
 	    .where(
 	        cb.equal(recipient.get("userId"), getCurrentUser()),
 	        cb.isFalse(recipient.get("read")),

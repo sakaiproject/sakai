@@ -504,7 +504,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
                 && forum.getId().equals(((MembershipItemSnapshot) item).getForumId());
         forumItemsInThread.stream().filter(ifSameForum).forEach(thisForumItemSet::add);
 
-        if (thisForumItemSet.isEmpty() && forum.getTopicsSet() == null && ".anon".equals(forum.getCreatedBy()) && forumManager.getAnonRole()) {
+        if (thisForumItemSet.isEmpty() && forum.getTopicsSet() == null && ".anon".equals(forum.getCreatedBy()) && forumManager.getAnonRole()
+                && forum.getMembershipItemSet() != null) {
             forum.getMembershipItemSet().stream().filter(item -> ".anon".equals(item.getName())).forEach(thisForumItemSet::add);
         }
 
