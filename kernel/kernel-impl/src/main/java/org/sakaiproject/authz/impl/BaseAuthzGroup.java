@@ -810,8 +810,10 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
+		Set<String> roleViewUserIds = getRoleViewUserIds();
+
 		return m_userGrants.entrySet().stream()
-				.filter(e -> e.getValue().isActive() && !userDirectoryService.isRoleViewType(e.getKey()))
+				.filter(e -> e.getValue().isActive() && !roleViewUserIds.contains(e.getKey()))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
 	}
@@ -823,8 +825,10 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
+		Set<String> roleViewUserIds = getRoleViewUserIds();
+
 		return m_userGrants.entrySet().stream()
-				.filter(e -> !userDirectoryService.isRoleViewType(e.getKey()))
+				.filter(e -> !roleViewUserIds.contains(e.getKey()))
 				.map(Map.Entry::getValue)
 				.collect(Collectors.toSet());
 	}
@@ -834,10 +838,12 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
+		Set<String> roleViewUserIds = getRoleViewUserIds();
+
 		return m_userGrants.entrySet().stream()
 				.filter(e -> e.getValue().isActive()
 						&& e.getValue().getRole().isAllowed(lock)
-						&& !userDirectoryService.isRoleViewType(e.getKey()))
+						&& !roleViewUserIds.contains(e.getKey()))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
 	}
@@ -847,11 +853,21 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
+		Set<String> roleViewUserIds = getRoleViewUserIds();
+
 		return m_userGrants.entrySet().stream()
 				.filter(e -> e.getValue().isActive()
 						&& e.getValue().getRole().getId().equals(role)
-						&& !userDirectoryService.isRoleViewType(e.getKey()))
+						&& !roleViewUserIds.contains(e.getKey()))
 				.map(Map.Entry::getKey)
+				.collect(Collectors.toSet());
+	}
+
+	private Set<String> getRoleViewUserIds()
+	{
+		return userDirectoryService.getUsers(m_userGrants.keySet()).stream()
+				.filter(user -> UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType()))
+				.map(User::getId)
 				.collect(Collectors.toSet());
 	}
 
