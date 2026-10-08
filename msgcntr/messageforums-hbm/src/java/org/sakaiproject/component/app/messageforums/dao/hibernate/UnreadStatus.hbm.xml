@@ -56,11 +56,6 @@
 	</database-object>
 
 	<database-object>
-		<create>create index MFR_UNREAD_TOPIC_C_ID on MFR_UNREAD_STATUS_T (TOPIC_C)</create>
-		<drop></drop>
-	</database-object>
-
-	<database-object>
 		<create>create index MFR_UNREAD_USER_C_ID on MFR_UNREAD_STATUS_T (USER_C)</create>
 		<drop></drop>
 	</database-object>
