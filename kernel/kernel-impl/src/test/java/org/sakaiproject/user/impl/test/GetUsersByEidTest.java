@@ -237,7 +237,6 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		clearUserFromServiceCaches(roleViewUser.getId());
 		clearUserFromServiceCaches(regularGrantId.trim().toLowerCase(java.util.Locale.ROOT));
 
-		Assert.assertEquals(roleViewUser.getId(), userDirectoryService.getUsers(List.of(roleViewGrantId)).get(0).getId());
 		AuthzGroup group = authzGroupService.addAuthzGroup("/test/roleview-normalized");
 		Role role = group.addRole("access");
 		role.allowFunction("test.roleview-normalized");

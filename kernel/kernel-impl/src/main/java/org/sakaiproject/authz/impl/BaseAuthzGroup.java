@@ -865,13 +865,16 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (userIds.isEmpty()) return Set.of();
 
-		Set<String> roleViewUserReferences = userDirectoryService.getUsers(userIds).stream()
-				.filter(user -> UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType()))
-				.map(user -> userDirectoryService.userReference(user.getId()))
-				.collect(Collectors.toSet());
+		Map<String, User> usersByReference = userDirectoryService.getUsers(userIds).stream()
+				.collect(Collectors.toMap(user -> userDirectoryService.userReference(user.getId()), user -> user));
 
 		return userIds.stream()
-				.filter(userId -> roleViewUserReferences.contains(userDirectoryService.userReference(userId)))
+				.filter(userId -> {
+					User user = usersByReference.get(userDirectoryService.userReference(userId));
+					// Batch and single-user lookups have different ID normalization rules.
+					return user == null ? userDirectoryService.isRoleViewType(userId)
+							: UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType());
+				})
 				.collect(Collectors.toSet());
 	}
 
