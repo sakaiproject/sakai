@@ -21,7 +21,7 @@
 package org.sakaiproject.tool.messageforums.jsf;
 
 import jakarta.faces.component.UIComponent;
-import jakarta.faces.webapp.UIComponentELTag;
+import jakarta.faces.webapp.UIComponentTag;
 import jakarta.el.ValueExpression;
 import jakarta.faces.application.Application;
 import jakarta.faces.context.FacesContext;
@@ -31,7 +31,7 @@ import jakarta.faces.context.FacesContext;
  * @version $Id$
  * 
  */
-public class ShowAreaTag extends UIComponentELTag
+public class ShowAreaTag extends UIComponentTag
 {
   private String value;
   private String hideBorder;
