@@ -21,6 +21,16 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-saml-api</artifactId>
+				<version>${sakai.opensaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-saml-impl</artifactId>
+				<version>${sakai.opensaml.version}</version>
+			</dependency>
+			<dependency>
 				<artifactId>login-api</artifactId>
 				<groupId>org.sakaiproject.login</groupId>
 				<version>${project.version}</version>
