@@ -90,6 +90,8 @@ public class RequestFilter implements Filter
 	public static final String ATTR_FILTERED = "sakai.filtered";
 	/** The request attribute name (and value) used to indicated that file uploads have been parsed. */
 	public static final String ATTR_UPLOADS_DONE = "sakai.uploads.done";
+	/** All accepted uploaded files, including repeated field names (DiskFileItem[]). */
+	public static final String ATTR_UPLOAD_FILES = "sakai.upload.files";
 	/** The request attribute name (and value) used to indicated that character encoding has been set. */
 	public static final String ATTR_CHARACTER_ENCODING_DONE = "sakai.character.encoding.done";
 	/** The request attribute name used to indicated that the *response* has been redirected. */
@@ -1000,6 +1002,7 @@ public class RequestFilter implements Filter
 		{
 			// parse multipart encoded parameters
 			boolean uploadOk = true;
+			List<DiskFileItem> uploadedFiles = new ArrayList<>();
 			List list = upload.parseRequest(req);
 			for (int i = 0; i < list.size(); i++)
 			{
@@ -1062,9 +1065,12 @@ public class RequestFilter implements Filter
 					else
 					{
 						req.setAttribute(item.getFieldName(), item);
+						uploadedFiles.add(item);
 					}
 				}
 			}
+
+			req.setAttribute(ATTR_UPLOAD_FILES, uploadedFiles.toArray(new DiskFileItem[0]));
 
 			// unless we had an upload file that exceeded max, set the upload status to "ok"
 			if (uploadOk)

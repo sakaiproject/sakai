@@ -43,6 +43,7 @@ public class WebAppConfiguration implements WebApplicationInitializer {
         
         FilterRegistration requestFilterRegistration = servletContext.addFilter("sakai.request", RequestFilter.class);
         requestFilterRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.INCLUDE), true, "/*");
+        requestFilterRegistration.addMappingForServletNames(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.INCLUDE), true, "sakai.mailtool");
         requestFilterRegistration.setInitParameter(RequestFilter.CONFIG_UPLOAD_ENABLED, "true");       
 
         Dynamic servlet = servletContext.addServlet("sakai.mailtool", new DispatcherServlet(rootContext));
