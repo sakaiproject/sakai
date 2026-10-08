@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.scorm.content.impl;
 
+import org.sakaiproject.scorm.content.api.VirtualFileSystem;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URLDecoder;
