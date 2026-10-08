@@ -25,7 +25,7 @@
 
     <!-- MoveHistory fields -->
     <property name="messageId" >
-      <column name="MESSAGE_ID" not-null="true"  />
+      <column name="MESSAGE_ID" not-null="true" index="MFR_MOVE_HISTORY_MSG_ID" />
     </property>
      
     <property name="reminder">
@@ -46,10 +46,6 @@
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl as us where us.messageId = :messageId ]]>
   </query>
 
-	<database-object>
-		<create>create index MFR_MOVE_HISTORY_MSG_ID on MFR_MOVE_HISTORY_T (MESSAGE)</create>
-		<drop></drop>
-	</database-object>
 <!--  
   <query name="findHistoryForMessage">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl as us where us.messageId = :messageId ]]>
