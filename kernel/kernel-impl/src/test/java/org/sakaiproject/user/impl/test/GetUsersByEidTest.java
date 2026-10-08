@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +29,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.test.SakaiKernelTestBase;
@@ -35,6 +40,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.impl.DbUserService;
 
@@ -222,6 +228,77 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 	}
 	
 	@Test
+	public void testRoleViewFilteringWithNoncanonicalGrantIds() throws Exception {
+		UserDirectoryService userDirectoryService = dbUserService;
+		User roleViewUser = userDirectoryService.addUser("roleview:normalized", "roleview_normalized",
+				"Role", "View", null, null, UserDirectoryService.ROLEVIEW_USER_TYPE, null);
+		String roleViewGrantId = " " + roleViewUser.getId().toUpperCase(java.util.Locale.ROOT) + " ";
+		String regularGrantId = " " + dbUserService.getUserByEid(LOCAL_USER_EID).getId().toUpperCase(java.util.Locale.ROOT) + " ";
+		clearUserFromServiceCaches(roleViewUser.getId());
+		clearUserFromServiceCaches(regularGrantId.trim().toLowerCase(java.util.Locale.ROOT));
+
+		AuthzGroup group = authzGroupService.addAuthzGroup("/test/roleview-normalized");
+		Role role = group.addRole("access");
+		role.allowFunction("test.roleview-normalized");
+		group.addMember(roleViewGrantId, role.getId(), true, false);
+		group.addMember(regularGrantId, role.getId(), true, false);
+		group.addMember("missing-user", role.getId(), true, false);
+		group.addMember("inactive-user", role.getId(), false, false);
+
+		Set<String> activeUserIds = Set.of(regularGrantId, "missing-user");
+		Assert.assertEquals(activeUserIds, group.getUsers());
+		Assert.assertEquals(activeUserIds, group.getUsersHasRole(role.getId()));
+		Assert.assertEquals(activeUserIds, group.getUsersIsAllowed("test.roleview-normalized"));
+		Assert.assertEquals(Set.of(regularGrantId, "missing-user", "inactive-user"),
+				group.getMembers().stream().map(Member::getUserId).collect(Collectors.toSet()));
+	}
+
+	@Test
+	public void testRoleViewLookupOnlyFetchesCandidates() throws Exception {
+		List<String> userIds = List.of(dbUserService.getUserByEid("0").getId(),
+				dbUserService.getUserByEid("1").getId(), dbUserService.getUserByEid("2").getId());
+		AuthzGroup group = authzGroupService.addAuthzGroup("/test/roleview-candidates");
+		Role selectedRole = group.addRole("selected");
+		selectedRole.allowFunction("test.roleview-candidates");
+		group.addRole("other");
+		group.addMember(userIds.get(0), "selected", true, true);
+		group.addMember(userIds.get(1), "other", true, true);
+		group.addMember(userIds.get(2), "selected", false, true);
+
+		resetProviderLookupTracking(userIds);
+		Assert.assertEquals(Set.of(userIds.get(0)), group.getUsersHasRole("selected"));
+		Assert.assertEquals(Set.of("0"), TestProvider.LAST_GET_USERS_EIDS);
+		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
+
+		resetProviderLookupTracking(userIds);
+		Assert.assertEquals(Set.of(userIds.get(0)), group.getUsersIsAllowed("test.roleview-candidates"));
+		Assert.assertEquals(Set.of("0"), TestProvider.LAST_GET_USERS_EIDS);
+		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
+
+		resetProviderLookupTracking(userIds);
+		Assert.assertEquals(Set.of(userIds.get(0), userIds.get(1)), group.getUsers());
+		Assert.assertEquals(Set.of("0", "1"), TestProvider.LAST_GET_USERS_EIDS);
+
+		resetProviderLookupTracking(userIds);
+		Assert.assertEquals(Set.copyOf(userIds),
+				group.getMembers().stream().map(Member::getUserId).collect(Collectors.toSet()));
+		Assert.assertEquals(Set.of("0", "1", "2"), TestProvider.LAST_GET_USERS_EIDS);
+
+		resetProviderLookupTracking(userIds);
+		Assert.assertTrue(group.getUsersHasRole("missing-role").isEmpty());
+		Assert.assertTrue(group.getUsersIsAllowed("missing-permission").isEmpty());
+		Assert.assertEquals(0, TestProvider.GET_USERS_CALLS_COUNTER);
+		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
+	}
+
+	private static void resetProviderLookupTracking(List<String> userIds) {
+		userIds.forEach(GetUsersByEidTest::clearUserFromServiceCaches);
+		TestProvider.GET_USER_CALLS_COUNTER = 0;
+		TestProvider.GET_USERS_CALLS_COUNTER = 0;
+		TestProvider.LAST_GET_USERS_EIDS = Set.of();
+	}
+
+	@Test
 	public void testSearchUsers() {
 		List<User> users = dbUserService.searchUsers("Joe", 1, 1);
 		if (users == null) {
@@ -236,6 +313,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 	public static class TestProvider implements UserDirectoryProvider {
 		public static int GET_USER_CALLS_COUNTER = 0;
 		public static int GET_USERS_CALLS_COUNTER = 0;
+		public static Set<String> LAST_GET_USERS_EIDS = Set.of();
 		
 		public boolean authenticateUser(String eid, UserEdit userEdit, String password) {
 			return false;
@@ -270,6 +348,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 
 		public void getUsers(Collection<UserEdit> users) {
 			GET_USERS_CALLS_COUNTER++;
+			LAST_GET_USERS_EIDS = users.stream().map(UserEdit::getEid).collect(Collectors.toSet());
 			
 			// This is where an efficient single DB query might
 			// be made if we used a DB....
