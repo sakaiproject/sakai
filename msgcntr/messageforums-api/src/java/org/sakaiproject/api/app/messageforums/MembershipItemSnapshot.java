@@ -31,9 +31,9 @@ import lombok.Data;
  * membershipItemSet, hiddenGroups; OpenForum/Topic have similar lazy sets). Caching a
  * DBMembershipItem directly would mean Ignite's marshaller has to walk area/forum/topic and
  * almost certainly hits one of those uninitialized Hibernate collections somewhere in the
- * reachable graph. permissionLevel is safe to embed directly - PermissionLevelImpl
- * (MFR_PERMISSION_LEVEL_T) is a flat entity with no collections of its own - so only
- * area/forum/topic are reduced to plain ids here (all that any real caller ever reads off them).
+ * reachable graph. Area/forum/topic are reduced to plain ids here (all that any real caller
+ * ever reads off them). The permissionLevel entity is left unset; permissions are resolved
+ * from permissionLevelName after a cache read.
  */
 @Data
 public class MembershipItemSnapshot implements DBMembershipItem {
