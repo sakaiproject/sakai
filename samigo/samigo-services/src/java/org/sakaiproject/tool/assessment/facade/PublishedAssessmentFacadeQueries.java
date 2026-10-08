@@ -979,7 +979,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			cq.select(root)
 				.where(cb.equal(root.get("status"), status));
 
-			Path<Object> orderPath = root.get(orderBy);
+			Path<?> orderPath = getOrderPath(root, orderBy);
 			cq.orderBy(ascending ? cb.asc(orderPath) : cb.desc(orderPath));
 
 			List<PublishedAssessmentData> list = session.createQuery(cq).list();
@@ -1109,7 +1109,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			cq.select(root);
 
 			if (orderBy != null && !orderBy.isEmpty()) {
-				cq.orderBy(cb.asc(root.get(orderBy)));
+				cq.orderBy(cb.asc(getOrderPath(root, orderBy)));
 			}
 
 			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
@@ -1140,7 +1140,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				.where(cb.equal(root.get("status"), status));
 
 			if (orderBy != null && !orderBy.isEmpty()) {
-				cq.orderBy(cb.asc(root.get(orderBy)));
+				cq.orderBy(cb.asc(getOrderPath(root, orderBy)));
 			}
 
 			List<PublishedAssessmentData> list = session.createQuery(cq).getResultList();
@@ -1212,6 +1212,14 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		} catch (Exception e) {
 			log.warn("Error removing assessment with ID {}: {}", assessmentId, e.toString());
 		}
+	}
+
+	private Path<?> getOrderPath(Path<?> root, String orderBy) {
+		Path<?> path = root;
+		for (String part : orderBy.split("\\.")) {
+			path = path.get(part);
+		}
+		return path;
 	}
 
 	private String getOrderBy(String sortString) {
@@ -1332,7 +1340,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			cq.where(predicates.toArray(new Predicate[0]));
 
 			if (orderBy != null && !orderBy.isEmpty()) {
-				Path<Object> orderPath = pRoot.get(orderBy);
+				Path<?> orderPath = getOrderPath(pRoot, orderBy);
 				if (ascending) {
 					cq.orderBy(cb.asc(orderPath));
 				} else {
@@ -1434,7 +1442,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			cq.where(cb.and(joinC, joinZ, orPredicate, functionPredicate, sitePredicate));
 
 			if (orderBy != null && !orderBy.isEmpty()) {
-				Path<Object> orderPath = pRoot.get(orderBy);
+				Path<?> orderPath = getOrderPath(pRoot, orderBy);
 				if (ascending) {
 					cq.orderBy(cb.asc(orderPath));
 				} else {
@@ -1610,11 +1618,11 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			cq.where(predicates.toArray(new Predicate[0]));
 
 			if (orderBy != null && !orderBy.isEmpty()) {
-				Path<Object> orderPath;
+				Path<?> orderPath;
 				if (orderBy.equals("dueDate")) {
 					orderPath = cRoot.get(orderBy);
 				} else {
-					orderPath = pRoot.get(orderBy);
+					orderPath = getOrderPath(pRoot, orderBy);
 				}
 				cq.orderBy(ascending ? cb.asc(orderPath) : cb.desc(orderPath));
 			}
@@ -1678,10 +1686,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			cq.where(predicates.toArray(new Predicate[0]));
 
 			if (orderBy != null && !orderBy.isEmpty()) {
-				Path<?> orderPath = pRoot;
-				for (String part : orderBy.split("\\.")) {
-					orderPath = orderPath.get(part);
-				}
+				Path<?> orderPath = getOrderPath(pRoot, orderBy);
 				if (ascending) {
 					cq.orderBy(cb.asc(orderPath));
 				} else {

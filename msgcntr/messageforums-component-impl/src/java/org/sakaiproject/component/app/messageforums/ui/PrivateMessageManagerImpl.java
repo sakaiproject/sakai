@@ -889,7 +889,10 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
         cb.equal(recipient.get("contextId"), contextId)
     );
 
-    Path<?> orderPath = root.get(orderField);
+    String actualField = orderField.startsWith("message.")
+            ? orderField.substring("message.".length())
+            : orderField;
+    Path<?> orderPath = root.get(actualField);
     if ("desc".equalsIgnoreCase(order)) {
         cq.orderBy(cb.desc(orderPath));
     } else {
