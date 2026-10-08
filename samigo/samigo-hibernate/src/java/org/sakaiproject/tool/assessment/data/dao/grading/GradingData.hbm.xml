@@ -169,4 +169,14 @@
     <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" unique-key="uniqueStudentSectionResponse" />
     <property name="attemptDate" type="java.util.Date" column="ATTEMPTDATE" not-null="false"/>
   </class>
+
+  <!-- Composite index on two columns that a property level index attribute cannot express.
+       Dialect scopes match on the exact dialect class name. -->
+  <database-object>
+    <create>create index SAM_ASSGRAD_AID_PUBASSEID_T on SAM_ASSESSMENTGRADING_T (AGENTID,PUBLISHEDASSESSMENTID)</create>
+    <drop></drop>
+    <dialect-scope name="org.hibernate.dialect.MariaDBDialect"/>
+    <dialect-scope name="org.hibernate.dialect.MySQLDialect"/>
+    <dialect-scope name="org.hibernate.dialect.HSQLDialect"/>
+  </database-object>
 </hibernate-mapping>
