@@ -199,6 +199,7 @@
 								tool-id="sakai.assignment.grades"
 								entity-id="$assignment.Id"
 								evaluated-item-id="$assessorId"
+								defer-save
 								is-peer-or-self="true"
 								#if ($assignment.IsGroup && $assignment.getAllowPeerAssessment())
 									is-peer-group-graded="true"
