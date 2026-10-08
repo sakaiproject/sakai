@@ -124,11 +124,6 @@
           <version>${sakai.spring.security.version}</version>
       </dependency>
       <dependency>
-	      <groupId>aopalliance</groupId>
-	      <artifactId>aopalliance</artifactId>
-	      <scope>provided</scope>
-      </dependency>
-      <dependency>
           <groupId>org.sakaiproject.portal</groupId>
           <artifactId>sakai-portal-api</artifactId>
       </dependency>

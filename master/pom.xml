@@ -705,12 +705,6 @@
         <version>${sakai.jsoup.version}</version>
       </dependency>
       <dependency>
-        <groupId>aopalliance</groupId>
-        <artifactId>aopalliance</artifactId>
-        <version>1.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>javax.cache</groupId>
         <artifactId>cache-api</artifactId>
         <version>1.1.1</version>

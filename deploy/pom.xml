@@ -718,12 +718,6 @@
             <artifactId>jakarta.inject-api</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>aopalliance</groupId>
-            <artifactId>aopalliance</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
         <!-- apache -->
         <dependency>
             <groupId>org.antlr</groupId>
