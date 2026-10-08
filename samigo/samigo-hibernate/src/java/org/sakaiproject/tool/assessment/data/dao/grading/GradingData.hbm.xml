@@ -41,8 +41,10 @@
         <param name="sequence">SAM_ASSESSMENTGRADING_ID_S</param>
       </generator>
     </id>
-    <property name="publishedAssessmentId" column="PUBLISHEDASSESSMENTID" not-null="true" type="long" index="SAM_PUBLISHEDASSESSMENT_I" />
-    <property name="agentId" type="string" length="99" column="AGENTID" not-null="true" />
+    <!-- agentId is declared before publishedAssessmentId on purpose: Hibernate adds the columns of a
+         shared index in declaration order, and SAM_ASSGRAD_AID_PUBASSEID_T is (AGENTID, PUBLISHEDASSESSMENTID). -->
+    <property name="agentId" type="string" length="99" column="AGENTID" not-null="true" index="SAM_ASSGRAD_AID_PUBASSEID_T" />
+    <property name="publishedAssessmentId" column="PUBLISHEDASSESSMENTID" not-null="true" type="long" index="SAM_PUBLISHEDASSESSMENT_I,SAM_ASSGRAD_AID_PUBASSEID_T" />
     <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="false" />
     <property name="isLate" type="boolean" column="ISLATE" not-null="true" />
     <property name="forGrade" type="boolean" column="FORGRADE" not-null="true" />
@@ -169,14 +171,4 @@
     <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" unique-key="uniqueStudentSectionResponse" />
     <property name="attemptDate" type="java.util.Date" column="ATTEMPTDATE" not-null="false"/>
   </class>
-
-  <!-- Composite index on two columns that a property level index attribute cannot express.
-       Dialect scopes match on the exact dialect class name. -->
-  <database-object>
-    <create>create index SAM_ASSGRAD_AID_PUBASSEID_T on SAM_ASSESSMENTGRADING_T (AGENTID,PUBLISHEDASSESSMENTID)</create>
-    <drop></drop>
-    <dialect-scope name="org.hibernate.dialect.MariaDBDialect"/>
-    <dialect-scope name="org.hibernate.dialect.MySQLDialect"/>
-    <dialect-scope name="org.hibernate.dialect.HSQLDialect"/>
-  </database-object>
 </hibernate-mapping>
