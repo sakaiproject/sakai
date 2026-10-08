@@ -2694,7 +2694,6 @@ public class MessageForumsMessageManagerImpl implements MessageForumsMessageMana
         List<Object[]> temp1 = session.createQuery(cq1).getResultList();
 
         Message tempMsg = null;
-        Set<Message> resultSet2 = new HashSet<>();
         for (Iterator i = temp1.iterator(); i.hasNext();)
         {
           Object[] results = (Object[]) i.next();        
@@ -2704,7 +2703,7 @@ public class MessageForumsMessageManagerImpl implements MessageForumsMessageMana
               tempMsg = (Message)results[0];
               tempMsg.setTopic((Topic)results[1]);
               tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
-              resultSet2.add(tempMsg);
+              resultSet.add(tempMsg);
           }
         }
 
