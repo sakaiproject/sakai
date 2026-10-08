@@ -1311,7 +1311,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 			Root<PublishedAssessmentData> pRoot = cq.from(PublishedAssessmentData.class);
 			Join<PublishedAssessmentData, PublishedAccessControl> cJoin = pRoot.join("assessmentAccessControl");
-			Join<PublishedAssessmentData, AuthorizationData> zJoin = pRoot.join("authorizations");
+			Root<AuthorizationData> zRoot = cq.from(AuthorizationData.class);
 
 			cq.select(cb.construct(PublishedAssessmentData.class,
 				pRoot.get("publishedAssessmentId"),
@@ -1326,8 +1326,9 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 			List<Predicate> predicates = new ArrayList<>();
 			predicates.add(cb.equal(pRoot.get("status"), 1));
-			predicates.add(cb.equal(zJoin.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
-			predicates.add(cb.equal(zJoin.get("agentIdString"), siteAgentId));
+			predicates.add(cb.equal(zRoot.get("qualifierId"), pRoot.get("publishedAssessmentId").as(String.class)));
+			predicates.add(cb.equal(zRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"));
+			predicates.add(cb.equal(zRoot.get("agentIdString"), siteAgentId));
 			cq.where(predicates.toArray(new Predicate[0]));
 
 			if (orderBy != null && !orderBy.isEmpty()) {
@@ -2953,7 +2954,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			Root<PublishedItemData> iRoot = cq.from(PublishedItemData.class);
 			Join<PublishedItemData, PublishedSectionData> sJoin = iRoot.join("section");
 			Join<PublishedSectionData, PublishedAssessmentData> pJoin = sJoin.join("assessment");
-			Join<PublishedSectionData, PublishedSectionMetaData> mJoin = sJoin.join("sectionMetaData");
+			Join<PublishedSectionData, PublishedSectionMetaData> mJoin = sJoin.join("sectionMetaDataSet");
 
 			cq.select(cb.count(iRoot));
 
@@ -3080,7 +3081,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
-				session.merge(section);
+				session.persist(section);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update assessment: {}", e.getMessage());

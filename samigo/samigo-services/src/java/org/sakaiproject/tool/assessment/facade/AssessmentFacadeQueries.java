@@ -945,6 +945,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 				CriteriaBuilder cb = session.getCriteriaBuilder();
 				CriteriaQuery<SecuredIPAddress> cq = cb.createQuery(SecuredIPAddress.class);
 				Root<SecuredIPAddress> root = cq.from(SecuredIPAddress.class);
+				cq.where(cb.equal(root.get("assessment").get("assessmentBaseId"), assessmentId));
 
 				List<SecuredIPAddress> ip = session.createQuery(cq).list();
 				if (ip.size() > 0) {
@@ -1834,7 +1835,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 			AssessmentData copiedAssessment = prepareAssessment(sourceAssessment, ServerConfigurationService.getServerUrl(), toContext, true);
 			String uniqueTitle = getUniqueImportedTitle(copiedAssessment.getTitle(), usedTitles);
 			copiedAssessment.setTitle(uniqueTitle);
-			session.merge(copiedAssessment);
+			session.persist(copiedAssessment);
 
 			String sourceAssessmentId = (sourceAssessment.getAssessmentBaseId() == null) ? null : sourceAssessment.getAssessmentBaseId().toString();
 			Map<String, String> releaseToGroups = releaseToGroupsByAssessmentId.getOrDefault(sourceAssessmentId, Collections.emptyMap());

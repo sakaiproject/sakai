@@ -2153,9 +2153,9 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                     List<Long> chunk = itemIds.subList(i, Math.min(i + 1000, itemIds.size()));
                     inPredicates.add(root.get("itemId").in(chunk));
                 }
-                cq.where(cb.or(inPredicates.toArray(new Predicate[0])));
+                cq2.where(cb.or(inPredicates.toArray(new Predicate[0])));
             } else {
-                cq.where(root.get("itemId").in(itemIds));
+                cq2.where(root.get("itemId").in(itemIds));
             }
 
             List<PublishedItemData> publishedItems = session.createQuery(cq2).getResultList();
@@ -4022,7 +4022,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                     aRoot.get("status").in(Arrays.asList(AssessmentGradingData.REMOVED, AssessmentGradingData.NO_SUBMISSION)));
 
             Predicate autoSubmissionNotRun = cb.or(
-                    cb.equal(aRoot.get("hasAutoSubmissionRun"), 0),
+                    cb.isFalse(aRoot.get("hasAutoSubmissionRun")),
                     cb.isNull(aRoot.get("hasAutoSubmissionRun")));
 
             cq.where(
@@ -4283,7 +4283,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             cq.where(
                 cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
                 cb.equal(auRoot.get("agentIdString"), siteId),
-                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.equal(aRoot.get("publishedAssessmentId").as(String.class), auRoot.get("qualifierId")),
                 cb.isFalse(aRoot.get("forGrade")),
                 cb.or(
                     cb.equal(aRoot.get("status"), AssessmentGradingData.IN_PROGRESS),
@@ -4324,7 +4324,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             cq.where(
                 cb.equal(auRoot.get("functionId"), "OWN_PUBLISHED_ASSESSMENT"),
                 cb.equal(auRoot.get("agentIdString"), siteId),
-                cb.equal(aRoot.get("publishedAssessmentId"), auRoot.get("qualifierId")),
+                cb.equal(aRoot.get("publishedAssessmentId").as(String.class), auRoot.get("qualifierId")),
                 cb.isTrue(aRoot.get("forGrade")),
                 cb.greaterThan(aRoot.get("status"), AssessmentGradingData.REMOVED),
                 cb.equal(aRoot.get("publishedAssessmentId"), pRoot.get("publishedAssessmentId")),

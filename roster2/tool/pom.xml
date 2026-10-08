@@ -68,6 +68,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.sakaiproject.roster2</groupId>
+            <artifactId>sakai-roster2-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
         </dependency>

@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.calendar.impl;
 
+import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionSnapshot;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

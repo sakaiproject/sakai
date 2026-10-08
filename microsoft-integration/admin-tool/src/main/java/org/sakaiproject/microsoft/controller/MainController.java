@@ -358,7 +358,7 @@ public class MainController {
 	public AjaxResponse updateSiteSynchronizationDate(
 			@PathVariable("id") String id,
 			@RequestParam("name") String name,
-			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, 
+			@RequestParam(name = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
 			Model model
 	) {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build());

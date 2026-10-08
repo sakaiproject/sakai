@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.api.app.messageforums.MembershipItemSnapshot;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BulkPermission;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
@@ -768,7 +769,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         snapshot.setName(item.getName());
         snapshot.setType(item.getType());
         snapshot.setPermissionLevelName(item.getPermissionLevelName());
-        snapshot.setPermissionLevel(item.getPermissionLevel());
         if (item instanceof DBMembershipItemImpl dbmi) {
             snapshot.setAreaId(dbmi.getArea() != null ? dbmi.getArea().getId() : null);
             snapshot.setForumId(dbmi.getForum() != null ? dbmi.getForum().getId() : null);
