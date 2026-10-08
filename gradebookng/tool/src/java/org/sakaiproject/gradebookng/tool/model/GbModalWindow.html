@@ -3,10 +3,10 @@
 <body>
 <wicket:panel>
 	<div wicket:id="overlay" class="gb-modal-overlay">
-		<div wicket:id="dialog" class="gb-modal-dialog">
+		<div wicket:id="dialog" class="gb-modal-dialog" role="dialog" aria-modal="true">
 			<div class="gb-modal-titlebar">
 				<span wicket:id="title" class="gb-modal-title"></span>
-				<a wicket:id="close" class="gb-modal-close" href="#"><span aria-hidden="true">&#10005;</span></a>
+				<a wicket:id="close" class="gb-modal-close" href="#" wicket:message="aria-label:button.close"><span aria-hidden="true">&#10005;</span></a>
 			</div>
 			<div wicket:id="content" class="gb-modal-content">
 			</div>
