@@ -103,12 +103,6 @@
 			<artifactId>hibernate-core</artifactId>
 		</dependency>
 
-		<!-- Required for hibernate 3 HQL queries -->
-		<dependency>
-			<groupId>antlr</groupId>
-			<artifactId>antlr</artifactId>
-		</dependency>
-
 		<!-- testing dependencies -->
 		<dependency>
 			<groupId>org.hsqldb</groupId>

@@ -83,10 +83,6 @@
             <artifactId>spring-tx</artifactId>
         </dependency>
         <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-        </dependency>
-        <dependency>
             <artifactId>jdom</artifactId>
             <groupId>jdom</groupId>
             <version>1.0</version>

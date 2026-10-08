@@ -351,43 +351,20 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>xml-apis</groupId>
-        <artifactId>xml-apis</artifactId>
-        <version>2.0.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
         <version>2.12.2</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.7.3</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>serializer</artifactId>
-        <version>2.7.3</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <!-- common/lib -->
-      <dependency>
-        <groupId>commons-el</groupId>
-        <artifactId>commons-el</artifactId>
-        <version>1.0</version>
-        <scope>provided</scope>
         <exclusions>
+          <!-- java.xml already provides these APIs. -->
           <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
+
+      <!-- common/lib -->
       <dependency>
         <groupId>jakarta.servlet.jsp</groupId>
         <artifactId>jakarta.servlet.jsp-api</artifactId>
@@ -740,12 +717,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>antlr</groupId>
-        <artifactId>antlr</artifactId>
-        <version>2.7.7</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>cglib</groupId>
         <artifactId>cglib-nodep</artifactId>
         <version>3.3.0</version>
@@ -946,12 +917,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.hibernate.validator</groupId>
-        <artifactId>hibernate-validator-annotation-processor</artifactId>
-        <version>6.2.5.Final</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
         <version>1.14.3</version>
@@ -1013,12 +978,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.jboss.logging</groupId>
-        <artifactId>jboss-logging-annotations</artifactId>
-        <version>2.2.1.Final</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>io.smallrye</groupId>
         <artifactId>jandex</artifactId>
         <version>3.2.7</version>
@@ -1060,12 +1019,6 @@
         <version>3.2.2</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
-         <groupId>backport-util-concurrent</groupId>
-         <artifactId>backport-util-concurrent</artifactId>
-         <version>3.1</version>
-         <scope>provided</scope>
-      </dependency> 
       <dependency>
         <groupId>jaxen</groupId>
         <artifactId>jaxen</artifactId>
@@ -2404,12 +2357,6 @@
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
         <version>${sakai.hikaricp.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jvnet.opendmk</groupId>
-        <artifactId>jmxremote_optional</artifactId>
-        <version>1.0_01-ea</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

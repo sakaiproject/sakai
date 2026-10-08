@@ -156,14 +156,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Required by Tomcat.  Can be dropped once it's confirmed that JSF-related tools are bundling it up in their webapps. -->
-        <dependency>
-            <groupId>commons-el</groupId>
-            <artifactId>commons-el</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-
         <!-- quartz scheduler -->
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
@@ -573,24 +565,15 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>serializer</artifactId>
-            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Samigo shared dependencies -->
@@ -743,11 +726,6 @@
 
         <!-- apache -->
         <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <scope>compile</scope>
@@ -877,11 +855,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging-annotations</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>io.smallrye</groupId>
             <artifactId>jandex</artifactId>
             <scope>compile</scope>
@@ -901,12 +874,6 @@
             <artifactId>hibernate-validator</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator-annotation-processor</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
         <!-- hibernate related -->
         <dependency>
             <groupId>jakarta.validation</groupId>
@@ -988,18 +955,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jvnet.opendmk</groupId>
-            <artifactId>jmxremote_optional</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
