@@ -34,10 +34,16 @@ import jakarta.el.MethodExpression;
 import jakarta.el.MethodInfo;
 import jakarta.el.ValueExpression;
 import jakarta.faces.application.Application;
+import jakarta.faces.component.ActionSource;
+import jakarta.faces.component.ActionSource2;
+import jakarta.faces.component.EditableValueHolder;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.MethodExpressionActionListener;
+import jakarta.faces.event.MethodExpressionValueChangeListener;
 import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.validator.MethodExpressionValidator;
 import jakarta.faces.webapp.UIComponentTag;
 
 public class Tags {
@@ -129,7 +135,7 @@ public class Tags {
          FacesContext context = FacesContext.getCurrentInstance();
          Application app = context.getApplication();
          MethodExpression mb = new ActionMethodBinding(attributeValue);
-         component.getAttributes().put("action", mb);
+         ((ActionSource2) component).setActionExpression(mb);
       }
    }
 
@@ -140,8 +146,18 @@ public class Tags {
       if (isEL(attributeValue)) {
          FacesContext context = FacesContext.getCurrentInstance();
          Application app = context.getApplication();
-         MethodExpression mb = context.getApplication().getExpressionFactory().createMethodExpression(context.getELContext(), attributeValue, Object.class, paramTypes);
-         component.getAttributes().put(attributeName, mb);
+         MethodExpression mb = context.getApplication().getExpressionFactory().createMethodExpression(context.getELContext(), attributeValue, "action".equals(attributeName) ? Object.class : Void.TYPE, paramTypes);
+         if ("action".equals(attributeName)) {
+            ((ActionSource2) component).setActionExpression(mb);
+         } else if ("actionListener".equals(attributeName)) {
+            ((ActionSource) component).addActionListener(new MethodExpressionActionListener(mb));
+         } else if ("valueChangeListener".equals(attributeName)) {
+            ((EditableValueHolder) component).addValueChangeListener(new MethodExpressionValueChangeListener(mb));
+         } else if ("validator".equals(attributeName)) {
+            ((EditableValueHolder) component).addValidator(new MethodExpressionValidator(mb));
+         } else {
+            component.getAttributes().put(attributeName, mb);
+         }
       }
    }
 
