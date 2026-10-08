@@ -695,7 +695,7 @@ public class MessageForumsMessageManagerImpl implements MessageForumsMessageMana
         List<UserStatistics> returnList = new ArrayList<UserStatistics>();
         for(Object[] result : results){
       	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
-      			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+                          result[4].toString(), result[5].toString(), result[6].toString(), studentId);
       	  returnList.add(stat);
         }
         return returnList;
@@ -760,7 +760,7 @@ public class MessageForumsMessageManagerImpl implements MessageForumsMessageMana
     	List<UserStatistics> returnList = new ArrayList<UserStatistics>();
     	for(Object[] result : results){
     		UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
-    				((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+                                result[4].toString(), result[5].toString(), result[6].toString(), studentId);
     		returnList.add(stat);
     	}
     	return returnList;
@@ -825,7 +825,7 @@ public class MessageForumsMessageManagerImpl implements MessageForumsMessageMana
     	List<UserStatistics> returnList = new ArrayList<UserStatistics>();
     	for(Object[] result : results){
     		UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
-    				((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+                                result[4].toString(), result[5].toString(), result[6].toString(), studentId);
     		returnList.add(stat);
     	}
     	return returnList;
@@ -1090,7 +1090,7 @@ public class MessageForumsMessageManagerImpl implements MessageForumsMessageMana
       List<UserStatistics> returnList = new ArrayList<UserStatistics>();
       for(Object[] result : results){
     	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
-    			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+                          result[4].toString(), result[5].toString(), result[6].toString(), studentId);
     	  returnList.add(stat);
       }
       return returnList;
@@ -1131,7 +1131,7 @@ public class MessageForumsMessageManagerImpl implements MessageForumsMessageMana
         List<UserStatistics> returnList = new ArrayList<UserStatistics>();
         for(Object[] result : results){
       	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
-      			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+                          result[4].toString(), result[5].toString(), result[6].toString(), studentId);
       	  returnList.add(stat);
         }
         return returnList;
@@ -1171,7 +1171,7 @@ public class MessageForumsMessageManagerImpl implements MessageForumsMessageMana
         List<UserStatistics> returnList = new ArrayList<UserStatistics>();
         for(Object[] result : results){
       	  UserStatistics stat = new UserStatistics((String) result[0], (String) result[1], (Date) result[2], (String) result[3], 
-      			  ((Integer) result[4]).toString(), ((Integer) result[5]).toString(), ((Integer) result[6]).toString(), studentId);
+                          result[4].toString(), result[5].toString(), result[6].toString(), studentId);
       	  returnList.add(stat);
         }
         return returnList;
