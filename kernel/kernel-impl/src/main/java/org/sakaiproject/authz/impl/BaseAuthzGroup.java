@@ -810,12 +810,12 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
-		Set<String> roleViewUserIds = getRoleViewUserIds();
-
-		return m_userGrants.entrySet().stream()
-				.filter(e -> e.getValue().isActive() && !roleViewUserIds.contains(e.getKey()))
+		Set<String> userIds = m_userGrants.entrySet().stream()
+				.filter(e -> e.getValue().isActive())
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
+		userIds.removeAll(getRoleViewUserIds(userIds));
+		return userIds;
 	}
 
 	@Override
@@ -825,7 +825,7 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
-		Set<String> roleViewUserIds = getRoleViewUserIds();
+		Set<String> roleViewUserIds = getRoleViewUserIds(m_userGrants.keySet());
 
 		return m_userGrants.entrySet().stream()
 				.filter(e -> !roleViewUserIds.contains(e.getKey()))
@@ -838,14 +838,13 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
-		Set<String> roleViewUserIds = getRoleViewUserIds();
-
-		return m_userGrants.entrySet().stream()
+		Set<String> userIds = m_userGrants.entrySet().stream()
 				.filter(e -> e.getValue().isActive()
-						&& e.getValue().getRole().isAllowed(lock)
-						&& !roleViewUserIds.contains(e.getKey()))
+						&& e.getValue().getRole().isAllowed(lock))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
+		userIds.removeAll(getRoleViewUserIds(userIds));
+		return userIds;
 	}
 
 	@Override
@@ -853,24 +852,25 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
-		Set<String> roleViewUserIds = getRoleViewUserIds();
-
-		return m_userGrants.entrySet().stream()
+		Set<String> userIds = m_userGrants.entrySet().stream()
 				.filter(e -> e.getValue().isActive()
-						&& e.getValue().getRole().getId().equals(role)
-						&& !roleViewUserIds.contains(e.getKey()))
+						&& e.getValue().getRole().getId().equals(role))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
+		userIds.removeAll(getRoleViewUserIds(userIds));
+		return userIds;
 	}
 
-	private Set<String> getRoleViewUserIds()
+	private Set<String> getRoleViewUserIds(Set<String> userIds)
 	{
-		Set<String> roleViewUserReferences = userDirectoryService.getUsers(m_userGrants.keySet()).stream()
+		if (userIds.isEmpty()) return Set.of();
+
+		Set<String> roleViewUserReferences = userDirectoryService.getUsers(userIds).stream()
 				.filter(user -> UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType()))
 				.map(user -> userDirectoryService.userReference(user.getId()))
 				.collect(Collectors.toSet());
 
-		return m_userGrants.keySet().stream()
+		return userIds.stream()
 				.filter(userId -> roleViewUserReferences.contains(userDirectoryService.userReference(userId)))
 				.collect(Collectors.toSet());
 	}

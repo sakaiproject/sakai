@@ -255,6 +255,51 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 	}
 
 	@Test
+	public void testRoleViewLookupOnlyFetchesCandidates() throws Exception {
+		List<String> userIds = List.of(dbUserService.getUserByEid("0").getId(),
+				dbUserService.getUserByEid("1").getId(), dbUserService.getUserByEid("2").getId());
+		AuthzGroup group = authzGroupService.addAuthzGroup("/test/roleview-candidates");
+		Role selectedRole = group.addRole("selected");
+		selectedRole.allowFunction("test.roleview-candidates");
+		group.addRole("other");
+		group.addMember(userIds.get(0), "selected", true, true);
+		group.addMember(userIds.get(1), "other", true, true);
+		group.addMember(userIds.get(2), "selected", false, true);
+
+		resetProviderLookupTracking(userIds);
+		Assert.assertEquals(Set.of(userIds.get(0)), group.getUsersHasRole("selected"));
+		Assert.assertEquals(Set.of("0"), TestProvider.LAST_GET_USERS_EIDS);
+		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
+
+		resetProviderLookupTracking(userIds);
+		Assert.assertEquals(Set.of(userIds.get(0)), group.getUsersIsAllowed("test.roleview-candidates"));
+		Assert.assertEquals(Set.of("0"), TestProvider.LAST_GET_USERS_EIDS);
+		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
+
+		resetProviderLookupTracking(userIds);
+		Assert.assertEquals(Set.of(userIds.get(0), userIds.get(1)), group.getUsers());
+		Assert.assertEquals(Set.of("0", "1"), TestProvider.LAST_GET_USERS_EIDS);
+
+		resetProviderLookupTracking(userIds);
+		Assert.assertEquals(Set.copyOf(userIds),
+				group.getMembers().stream().map(Member::getUserId).collect(Collectors.toSet()));
+		Assert.assertEquals(Set.of("0", "1", "2"), TestProvider.LAST_GET_USERS_EIDS);
+
+		resetProviderLookupTracking(userIds);
+		Assert.assertTrue(group.getUsersHasRole("missing-role").isEmpty());
+		Assert.assertTrue(group.getUsersIsAllowed("missing-permission").isEmpty());
+		Assert.assertEquals(0, TestProvider.GET_USERS_CALLS_COUNTER);
+		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
+	}
+
+	private static void resetProviderLookupTracking(List<String> userIds) {
+		userIds.forEach(GetUsersByEidTest::clearUserFromServiceCaches);
+		TestProvider.GET_USER_CALLS_COUNTER = 0;
+		TestProvider.GET_USERS_CALLS_COUNTER = 0;
+		TestProvider.LAST_GET_USERS_EIDS = Set.of();
+	}
+
+	@Test
 	public void testSearchUsers() {
 		List<User> users = dbUserService.searchUsers("Joe", 1, 1);
 		if (users == null) {
@@ -269,6 +314,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 	public static class TestProvider implements UserDirectoryProvider {
 		public static int GET_USER_CALLS_COUNTER = 0;
 		public static int GET_USERS_CALLS_COUNTER = 0;
+		public static Set<String> LAST_GET_USERS_EIDS = Set.of();
 		
 		public boolean authenticateUser(String eid, UserEdit userEdit, String password) {
 			return false;
@@ -303,6 +349,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 
 		public void getUsers(Collection<UserEdit> users) {
 			GET_USERS_CALLS_COUNTER++;
+			LAST_GET_USERS_EIDS = users.stream().map(UserEdit::getEid).collect(Collectors.toSet());
 			
 			// This is where an efficient single DB query might
 			// be made if we used a DB....
