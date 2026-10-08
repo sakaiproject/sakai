@@ -796,7 +796,12 @@ public class QuestionPoolFacadeQueries
       }
       while (retryCount > 0){
         try {
-          sessionFactory.getCurrentSession().saveOrUpdate(qpp);
+          if (insert) {
+            sessionFactory.getCurrentSession().persist(qpp);
+          } else {
+            qpp = sessionFactory.getCurrentSession().merge(qpp);
+            pool.setData(qpp);
+          }
           retryCount = 0;
         }
         catch (DataAccessException | PersistenceException e) {

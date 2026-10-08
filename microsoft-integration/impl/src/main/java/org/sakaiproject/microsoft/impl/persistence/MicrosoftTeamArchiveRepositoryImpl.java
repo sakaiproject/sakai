@@ -34,8 +34,7 @@ public class MicrosoftTeamArchiveRepositoryImpl extends BasicSerializableReposit
 
     @Override
     public MicrosoftTeamArchiveRecord save(MicrosoftTeamArchiveRecord record) {
-        sessionFactory.getCurrentSession().saveOrUpdate(record);
-        return record;
+        return super.save(record);
     }
 
     @Override
