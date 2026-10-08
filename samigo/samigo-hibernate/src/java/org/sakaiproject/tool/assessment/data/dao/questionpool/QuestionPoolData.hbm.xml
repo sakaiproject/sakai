@@ -34,16 +34,16 @@
 
   <class name="org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData" table="SAM_QUESTIONPOOLITEM_T">
     <composite-id>
-      <key-property name="questionPoolId" column="QUESTIONPOOLID" />
       <key-property name="itemId" column="ITEMID" type="java.lang.Long" />
+      <key-property name="questionPoolId" column="QUESTIONPOOLID" />
     </composite-id>
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData" table="SAM_QUESTIONPOOLACCESS_T">
     <composite-id>
-      <key-property name="questionPoolId" column="QUESTIONPOOLID" />
-      <key-property name="agentId" column="AGENTID" />
       <key-property name="accessTypeId" column="ACCESSTYPEID" />
+      <key-property name="agentId" column="AGENTID" />
+      <key-property name="questionPoolId" column="QUESTIONPOOLID" />
     </composite-id>
   </class>
 
