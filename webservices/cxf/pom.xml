@@ -166,13 +166,6 @@
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
         </dependency>
-        <!-- SAK-27503 we do not want aopalliance JAR deployed in our WAR! -->
-        <dependency>
-            <groupId>aopalliance</groupId>
-            <artifactId>aopalliance</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
         	<groupId>com.thoughtworks.paranamer</groupId>
         	<artifactId>paranamer</artifactId>
