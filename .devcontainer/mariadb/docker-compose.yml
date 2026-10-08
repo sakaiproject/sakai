@@ -1,0 +1,19 @@
+include:
+  - ../docker-compose.yml
+
+services:
+
+  dblocal:
+    image: mariadb:10
+    ports:
+        - 3306:3306
+    environment:
+        - MARIADB_ROOT_PASSWORD=sakairoot
+    volumes:
+        - mariadb-data-vol:/var/lib/mysql
+        - ./db:/docker-entrypoint-initdb.d
+    networks:
+        - backend-local            
+
+volumes:
+    mariadb-data-vol:
