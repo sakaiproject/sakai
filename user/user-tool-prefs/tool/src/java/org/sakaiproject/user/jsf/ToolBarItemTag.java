@@ -27,11 +27,11 @@ import org.sakaiproject.jsf2.util.JSFDepends;
 import org.sakaiproject.jsf2.util.TagUtil;
 
 import jakarta.faces.component.UIComponent;
-import jakarta.faces.webapp.UIComponentELTag;
+import jakarta.faces.webapp.UIComponentTag;
 
 @Getter
 @Setter
-public class ToolBarItemTag extends UIComponentELTag
+public class ToolBarItemTag extends UIComponentTag
 {
 
     /**

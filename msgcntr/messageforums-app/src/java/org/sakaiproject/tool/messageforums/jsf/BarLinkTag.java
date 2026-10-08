@@ -20,13 +20,47 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.jsf;
 
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
+import lombok.Setter;
+import org.sakaiproject.jsf2.util.TagUtil;
+
 /**
  * @author Chen Wen
  * @version $Id$
  * 
  */
-public class BarLinkTag extends com.sun.faces.taglib.html_basic.CommandButtonTag
+@Setter
+public class BarLinkTag extends UIComponentTag
 {
+  private String action;
+  private String value;
+  private String title;
+  private String disabled;
+  private String immediate;
+
+  @Override
+  protected void setProperties(UIComponent component)
+  {
+    super.setProperties(component);
+    TagUtil.setAction(component, action);
+    TagUtil.setObject(component, "value", value);
+    TagUtil.setString(component, "title", title);
+    TagUtil.setBoolean(component, "disabled", disabled);
+    TagUtil.setBoolean(component, "immediate", immediate);
+  }
+
+  @Override
+  public void release()
+  {
+    super.release();
+    action = null;
+    value = null;
+    title = null;
+    disabled = null;
+    immediate = null;
+  }
+
   public String getComponentType()
   {
     return "BarLink";
@@ -37,6 +71,5 @@ public class BarLinkTag extends com.sun.faces.taglib.html_basic.CommandButtonTag
     return "org.sakaiproject.tool.messageforums.jsf.BarLinkRenderer";
   }
 }
-
 
 

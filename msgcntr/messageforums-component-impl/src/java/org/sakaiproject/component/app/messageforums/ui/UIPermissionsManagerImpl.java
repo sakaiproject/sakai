@@ -807,6 +807,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         if (StringUtils.isNotBlank(siteId)) {
             Area area = forumManager.getDiscussionForumArea(siteId);
             if (area != null) {
+                if (area.getMembershipItemSet() == null) return Collections.emptySet();
                 String areaSiteCacheKey = "area_" + area.getId();
                 Set<DBMembershipItem> cachedAreaMemberships = membershipItemCache.get(areaSiteCacheKey, Set.class);
                 if (cachedAreaMemberships == null) {

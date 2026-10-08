@@ -8,9 +8,9 @@ import jakarta.faces.application.Application;
 import jakarta.faces.application.ApplicationFactory;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.webapp.UIComponentELTag;
+import jakarta.faces.webapp.UIComponentTag;
 
-public class CustomSelectOneRadioTag extends UIComponentELTag {
+public class CustomSelectOneRadioTag extends UIComponentTag {
 
 	/* (non-Javadoc)
 	 * @see javax.faces.webapp.UIComponentTag#getComponentType()

@@ -1733,12 +1733,10 @@ public class MessageForumsForumManagerImpl implements MessageForumsForumManager 
 				cb.equal(area.get("contextId"), cb.parameter(String.class, "contextId"))
 					);
 
-			session.createQuery(cq)
+			List temp = session.createQuery(cq)
 				.setParameter("typeUuid", typeUuid)
 				.setParameter("contextId", contextId)
-				.list();
-			
-			List temp = session.createQuery(cq).getResultList();
+				.getResultList();
 
 			BaseForum tempForum = null;
 			Set resultSet = new HashSet();

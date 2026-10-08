@@ -27,7 +27,7 @@ import jakarta.faces.application.Application;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIData;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.webapp.UIComponentELTag;
+import jakarta.faces.webapp.UIComponentTag;
 import jakarta.servlet.jsp.JspException;
 
 import lombok.Setter;
@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 @Slf4j
-public class HierPvtMsgDataTableTag extends UIComponentELTag 
+public class HierPvtMsgDataTableTag extends UIComponentTag
 {
 
 	//
