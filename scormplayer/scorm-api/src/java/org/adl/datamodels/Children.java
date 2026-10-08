@@ -64,6 +64,12 @@ public class Children extends DMElement {
 	private boolean mRandomize = true;
 
 	/**
+	 * Constructor for Hibernate.
+	 */
+	protected Children() {
+	}
+
+	/**
 	 * Constructs a <code>_children</code> keyword data model element consisting
 	 * of a SCORM conformant set of child data model element names. If the size
 	 * of the incoming Vector is <= 0, the method throws an Illegal Argument

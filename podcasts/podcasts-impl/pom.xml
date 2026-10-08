@@ -27,14 +27,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-    <!--
-   If you find an import for javax.faces.context either remove it or uncomment this
-    <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-tool-sun</artifactId>
-      <type>pom</type>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-podcasts-api</artifactId>

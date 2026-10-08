@@ -957,9 +957,8 @@ public class SiteHandler extends WorksiteHandler
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
 			rcontext.put(PortalConstants.PROP_SIDEBAR_COLLAPSED, Boolean.valueOf(sidebarCollapsed));
-			if (expandedSite.equals(siteId)) {
-				rcontext.put(PortalConstants.PROP_CURRENT_EXPANDED, Boolean.valueOf(currentExpanded));
-			}
+			rcontext.put(PortalConstants.PROP_CURRENT_EXPANDED,
+					Boolean.valueOf(StringUtils.equals(expandedSite, siteId) && currentExpanded));
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(

@@ -207,10 +207,6 @@
             <artifactId>jaxb-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jvnet.opendmk</groupId>
-            <artifactId>jmxremote_optional</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>33.3.1-jre</version>

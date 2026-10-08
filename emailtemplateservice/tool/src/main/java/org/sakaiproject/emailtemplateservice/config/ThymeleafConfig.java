@@ -28,6 +28,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.thymeleaf.spring6.ISpringTemplateEngine;
@@ -47,6 +48,11 @@ public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAwar
 
     @Autowired
     private ObjectProvider<EmailTemplateSecurityInterceptor> securityInterceptor;
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.setPatternParser(null);
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

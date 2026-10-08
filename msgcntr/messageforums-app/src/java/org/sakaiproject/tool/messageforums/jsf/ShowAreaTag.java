@@ -105,7 +105,7 @@ public class ShowAreaTag extends UIComponentTag
   {
     super.release();
     
-    value = null;
+    value = hideBorder = showInputTextArea = null;
   }
   
   public static void setString(UIComponent component, String attributeName,

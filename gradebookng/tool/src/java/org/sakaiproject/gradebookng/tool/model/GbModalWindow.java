@@ -65,6 +65,7 @@ public class GbModalWindow extends ModalDialog {
 	private static final CssHeaderItem CSS = CssHeaderItem.forCSS(
 			".gb-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; "
 			+ "background: rgba(0, 0, 0, 0.5); display: flex; align-items: flex-start; justify-content: center; }"
+			+ ".gb-modal-overlay-transparent { background: transparent; }"
 			+ ".gb-modal-dialog { position: relative; background: var(--sakai-modal-content-bg, #fff); "
 			+ "color: var(--sakai-text-color-1, #000); margin-top: 5vh; max-height: 90vh; max-width: 95vw; "
 			+ "overflow: auto; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4); border-radius: 3px; }"
@@ -74,7 +75,8 @@ public class GbModalWindow extends ModalDialog {
 			+ ".gb-modal-title { font-weight: bold; font-size: 1.1em; color: inherit; }"
 			+ ".gb-modal-close { text-decoration: none; color: inherit; opacity: 0.75; font-size: 1.2em; padding: 0 0.25em; }"
 			+ ".gb-modal-close:hover { opacity: 1; }"
-			+ ".gb-modal-content { padding: 1em; }",
+			+ ".gb-modal-content { padding: 1em; }"
+			+ ".gb-modal-dialog .gb-summary-print { position: static; }",
 			"gb-modal-window-css");
 
 	public GbModalWindow(final String id) {
@@ -100,14 +102,17 @@ public class GbModalWindow extends ModalDialog {
 		final WebMarkupContainer dialogContainer = (WebMarkupContainer) get("overlay:dialog");
 		dialogContainer.setOutputMarkupId(true);
 
-		dialogContainer.add(new Label("title", new IModel<String>() {
+		final Label titleLabel = new Label("title", new IModel<String>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public String getObject() {
 				return GbModalWindow.this.title == null ? null : GbModalWindow.this.title.getObject();
 			}
-		}));
+		});
+		titleLabel.setOutputMarkupId(true);
+		dialogContainer.add(titleLabel);
+		dialogContainer.add(AttributeModifier.replace("aria-labelledby", titleLabel.getMarkupId()));
 
 		dialogContainer.add(new AjaxLink<Void>("close") {
 			private static final long serialVersionUID = 1L;

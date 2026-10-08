@@ -102,7 +102,7 @@ public class SiteStatsController {
     @GetMapping(value = "/reports/resources", produces = "application/json")
     @ResponseBody
     public ResponseEntity<List<SiteStatsResourceSearchService.ResourceOption>> reportResources(
-            @RequestParam(required = false) String siteId) {
+            @RequestParam(name = "siteId", required = false) String siteId) {
         return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store")
                 .body(resourceSearchService.resources(toolService.reportSite(siteId)));
     }

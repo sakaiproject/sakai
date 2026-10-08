@@ -58,6 +58,7 @@
     <sakai.spring.data.jpa.version>3.5.13</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.12</sakai.spring.data.rest.version>
     <sakai.spring.security.version>6.5.11</sakai.spring.security.version>
+    <sakai.opensaml.version>5.2.3</sakai.opensaml.version>
     <sakai.spring.hateoas.version>3.1.1</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>3.0.0</sakai.spring.plugin.version>
     <sakai.tika.version>3.3.2</sakai.tika.version>
@@ -352,43 +353,20 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>xml-apis</groupId>
-        <artifactId>xml-apis</artifactId>
-        <version>2.0.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
         <version>2.12.2</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.7.3</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>serializer</artifactId>
-        <version>2.7.3</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <!-- common/lib -->
-      <dependency>
-        <groupId>commons-el</groupId>
-        <artifactId>commons-el</artifactId>
-        <version>1.0</version>
-        <scope>provided</scope>
         <exclusions>
+          <!-- java.xml already provides these APIs. -->
           <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
+
+      <!-- common/lib -->
       <dependency>
         <groupId>jakarta.servlet.jsp</groupId>
         <artifactId>jakarta.servlet.jsp-api</artifactId>
@@ -729,21 +707,9 @@
         <version>${sakai.jsoup.version}</version>
       </dependency>
       <dependency>
-        <groupId>aopalliance</groupId>
-        <artifactId>aopalliance</artifactId>
-        <version>1.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>javax.cache</groupId>
         <artifactId>cache-api</artifactId>
         <version>1.1.1</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>antlr</groupId>
-        <artifactId>antlr</artifactId>
-        <version>2.7.7</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -947,12 +913,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.hibernate.validator</groupId>
-        <artifactId>hibernate-validator-annotation-processor</artifactId>
-        <version>6.2.5.Final</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
         <version>1.14.3</version>
@@ -1014,12 +974,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.jboss.logging</groupId>
-        <artifactId>jboss-logging-annotations</artifactId>
-        <version>2.2.1.Final</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>io.smallrye</groupId>
         <artifactId>jandex</artifactId>
         <version>3.2.7</version>
@@ -1061,12 +1015,6 @@
         <version>3.2.2</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
-         <groupId>backport-util-concurrent</groupId>
-         <artifactId>backport-util-concurrent</artifactId>
-         <version>3.1</version>
-         <scope>provided</scope>
-      </dependency> 
       <dependency>
         <groupId>jaxen</groupId>
         <artifactId>jaxen</artifactId>
@@ -2230,65 +2178,6 @@
         <artifactId>sakai-velocity-util</artifactId>
         <version>${sakai.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-app</artifactId>
-        <version>${sakai.version}</version>
-        <!-- type>pom</type -->
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-spreadsheet</artifactId>
-        <version>${sakai.version}</version>
-        <!-- type>pom</type -->
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool</artifactId>
-        <version>${sakai.version}</version>
-        <!-- type>pom</type -->
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool-sun</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-widgets-sun</artifactId>
-        <version>${sakai.version}</version>
-        <!-- type>pom</type -->
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-widgets-sun-depend</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>myfaces-tool</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-        <exclusions>
-          <!-- exclude this to avoid the collision btw RI and tomahawk -->
-          <exclusion>
-            <groupId>javax.faces</groupId>
-            <artifactId>jsf-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.faces</groupId>
-            <artifactId>jsf-impl</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>myfaces-widgets-depend</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-      </dependency>
       <!--JSF 2 Dependencies-->
       <dependency>
         <groupId>org.sakaiproject.jsf2</groupId>
@@ -2338,21 +2227,6 @@
         <version>${sakai.jakarta.servlet.jsp.jstl.version}</version>
       </dependency>
       <!-- Sakai Wicket -->
-      <dependency>
-        <groupId>org.sakaiproject.wicket</groupId>
-        <artifactId>wicket-tool-6</artifactId>
-        <version>${sakai.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.wicket</groupId>
-        <artifactId>wicket-tool-8</artifactId>
-        <version>${sakai.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.wicket</groupId>
-        <artifactId>wicket-tool-9</artifactId>
-        <version>${sakai.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.sakaiproject.wicket</groupId>
         <artifactId>wicket-tool-10</artifactId>
@@ -2405,12 +2279,6 @@
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
         <version>${sakai.hikaricp.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jvnet.opendmk</groupId>
-        <artifactId>jmxremote_optional</artifactId>
-        <version>1.0_01-ea</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

@@ -183,7 +183,7 @@ public class MessageForumsForumManagerImpl implements MessageForumsForumManager 
     
     private static final String QUERY_GET_FORUM_BY_ID_WITH_TOPICS_AND_ATT_AND_MSGS = "findForumByIdWithTopicsAndAttachmentsAndMessages";
     private static final String QUERY_UNREAD_STATUSES_FOR_TOPIC = "findUnreadStatusesForTopic";
-    private static final String QUERY_GET_UNREAD_STATUSES_FOR_TOPIC = "findHistoryForMessage";
+    private static final String QUERY_MOVE_HISTORY_FOR_MESSAGE = "findHistoryForMessage";
 
 
     private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
@@ -1421,29 +1421,17 @@ public class MessageForumsForumManagerImpl implements MessageForumsForumManager 
     }
 
     private List<MessageMoveHistory> getMoveHistoryForMessageId(Long messageId) {
-         Session session = sessionFactory.getCurrentSession();
-         CriteriaBuilder cb = session.getCriteriaBuilder();
-
-         CriteriaQuery<MessageMoveHistory> cq = cb.createQuery(MessageMoveHistory.class);
-         Root<MessageMoveHistory> history = cq.from(MessageMoveHistory.class);
-
-         cq.select(history)
-           .where(cb.equal(history.get("messageId"), messageId));
-
-         return session.createQuery(cq).getResultList();
+        return sessionFactory.getCurrentSession()
+                .createNamedQuery(QUERY_MOVE_HISTORY_FOR_MESSAGE, MessageMoveHistory.class)
+                .setParameter("messageId", messageId)
+                .getResultList();
     }
 
     private List<UnreadStatus> getUnreadStatusesForTopic(Long topicId) {
-        Session session = sessionFactory.getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-
-        CriteriaQuery<UnreadStatus> cq = cb.createQuery(UnreadStatus.class);
-        Root<UnreadStatus> status = cq.from(UnreadStatus.class);
-
-        cq.select(status)
-          .where(cb.equal(status.get("topicId"), topicId));
-
-        return session.createQuery(cq).getResultList();
+        return sessionFactory.getCurrentSession()
+                .createNamedQuery(QUERY_UNREAD_STATUSES_FOR_TOPIC, UnreadStatus.class)
+                .setParameter("topicId", topicId)
+                .getResultList();
     }
 
     
@@ -1963,24 +1951,9 @@ public class MessageForumsForumManagerImpl implements MessageForumsForumManager 
 
 			cq.select(topic).where(predicates.toArray(new Predicate[0]));
 
-			List resultSet = session.createQuery(cq)
+			return new ArrayList<>(session.createQuery(cq)
 				.setParameter("contextId", contextId)
-				.list();
-
-			List<Topic> topicList = new ArrayList<>();
-			for (Object objResultArray : resultSet)
-			{
-				Object[] resultArray = (Object[]) objResultArray;
-				for (Object result : resultArray)
-				{
-					if (result instanceof Topic)
-					{
-						topicList.add((Topic) result);
-						break;
-					}
-				}
-			}
-			return topicList;
+				.getResultList());
 		}
 
 		public List<Topic> getAnonymousTopicsInSite(final String contextId)
