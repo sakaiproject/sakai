@@ -23,6 +23,9 @@ import jakarta.el.MethodExpression;
 import jakarta.el.MethodInfo;
 import jakarta.el.ValueExpression;
 import jakarta.faces.application.Application;
+import jakarta.faces.component.ActionSource;
+import jakarta.faces.component.ActionSource2;
+import jakarta.faces.component.EditableValueHolder;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
@@ -215,7 +218,7 @@ public class TagUtil
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
             MethodExpression mb = new ActionMethodBinding(value);
-            component.getAttributes().put("action", mb);
+            ((ActionSource2) component).setActionExpression(mb);
         }
     }
 
@@ -234,19 +237,19 @@ public class TagUtil
             FacesContext context = FacesContext.getCurrentInstance();
             Application app = context.getApplication();
             MethodExpression mb = app.getExpressionFactory().createMethodExpression(
-                    context.getELContext(), value, Void.class, paramTypes);
+                    context.getELContext(), value, "action".equals(name) ? Object.class : Void.TYPE, paramTypes);
 
-            Object toStore;
-            if ("valueChangeListener".equals(name)) {
-                toStore = new jakarta.faces.event.MethodExpressionValueChangeListener(mb);
+            if ("action".equals(name)) {
+                ((ActionSource2) component).setActionExpression(mb);
+            } else if ("valueChangeListener".equals(name)) {
+                ((EditableValueHolder) component).addValueChangeListener(new MethodExpressionValueChangeListener(mb));
             } else if ("actionListener".equals(name)) {
-                toStore = new jakarta.faces.event.MethodExpressionActionListener(mb);
+                ((ActionSource) component).addActionListener(new MethodExpressionActionListener(mb));
             } else if ("validator".equals(name)) {
-                toStore = new jakarta.faces.validator.MethodExpressionValidator(mb);
+                ((EditableValueHolder) component).addValidator(new MethodExpressionValidator(mb));
             } else {
-                toStore = mb;
+                component.getAttributes().put(name, mb);
             }
-            component.getAttributes().put(name, toStore);
         }
     }
 

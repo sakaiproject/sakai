@@ -42,7 +42,6 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import lombok.Data;
-import org.sakaiproject.user.api.User;
 
 /**
  * <code>RosterMember</code> wraps together fields from <code>User</code>,

@@ -15,11 +15,8 @@
  */
 package org.sakaiproject.mailsender.tool.config;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.sakaiproject.util.SakaiMultipartResolver;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
@@ -27,7 +24,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
@@ -43,8 +39,6 @@ import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
-import jakarta.servlet.MultipartConfigElement;
-
 @Configuration
 @EnableWebMvc
 @ComponentScan("org.sakaiproject.mailsender.tool")
@@ -53,9 +47,6 @@ public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAwar
 
     private ApplicationContext applicationContext;
     
-    @Autowired
-    private ServerConfigurationService serverConfigurationService;
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -111,15 +102,8 @@ public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAwar
     
      @Bean
     public MultipartResolver multipartResolver() {
-        return new StandardServletMultipartResolver();
+        return new SakaiMultipartResolver();
     }
-
-    @Bean
-     public MultipartConfigElement multipartConfigElement() {
-        long uploadMax = (long) (serverConfigurationService.getInt(EmailService.MAIL_SENDFROMSAKAI_MAXSIZE, EmailService.DEFAULT_MAXSIZE));
-        return new MultipartConfigElement("", uploadMax, uploadMax, 0);
-     }
-
 
      @Override
      public void configurePathMatch(PathMatchConfigurer configurer) {

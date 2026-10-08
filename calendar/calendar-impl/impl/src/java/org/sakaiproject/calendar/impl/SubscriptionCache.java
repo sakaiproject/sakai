@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.calendar.impl;
 
+import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionSnapshot;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

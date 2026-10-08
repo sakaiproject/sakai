@@ -101,7 +101,13 @@ class LoginTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(Pattern.compile("^Home$", Pattern.CASE_INSENSITIVE))).first()).isVisible();
 
         page.navigate("/portal/site/~" + username);
-        assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^Preferences$", Pattern.CASE_INSENSITIVE))).first()).isVisible();
+        page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Preferences$", Pattern.CASE_INSENSITIVE))).first().click();
+        assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName("Notifications").setExact(true))).isVisible();
+        page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("Time Zone").setExact(true)).click();
+        assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName("Time Zone").setExact(true))).isVisible();
     }
 }

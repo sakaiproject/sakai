@@ -15,17 +15,15 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.component.app.messageforums.ui;
+package org.sakaiproject.api.app.messageforums;
 
 import java.util.Date;
-
-import org.sakaiproject.api.app.messageforums.DBMembershipItem;
-import org.sakaiproject.api.app.messageforums.PermissionLevel;
 
 import lombok.Data;
 
 /**
  * Plain, cache-marshalable snapshot of a DBMembershipItem.
+ * This class belongs in the shared API JAR so the shared Ignite class loader can resolve it.
  * <p>
  * DBMembershipItemImpl's area/forum/topic many-to-one associations are mapped {@code lazy="false"}
  * (always real, eagerly-loaded objects), but Area/OpenForum/Topic each map several of their own
@@ -33,9 +31,9 @@ import lombok.Data;
  * membershipItemSet, hiddenGroups; OpenForum/Topic have similar lazy sets). Caching a
  * DBMembershipItem directly would mean Ignite's marshaller has to walk area/forum/topic and
  * almost certainly hits one of those uninitialized Hibernate collections somewhere in the
- * reachable graph. permissionLevel is safe to embed directly - PermissionLevelImpl
- * (MFR_PERMISSION_LEVEL_T) is a flat entity with no collections of its own - so only
- * area/forum/topic are reduced to plain ids here (all that any real caller ever reads off them).
+ * reachable graph. Area/forum/topic are reduced to plain ids here (all that any real caller
+ * ever reads off them). The permissionLevel entity is left unset; permissions are resolved
+ * from permissionLevelName after a cache read.
  */
 @Data
 public class MembershipItemSnapshot implements DBMembershipItem {

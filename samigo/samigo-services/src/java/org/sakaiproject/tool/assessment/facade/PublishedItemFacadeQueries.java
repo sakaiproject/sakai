@@ -218,7 +218,7 @@ public class PublishedItemFacadeQueries implements PublishedItemFacadeQueriesAPI
 
 		cq.select(s.get("assessment").get("publishedAssessmentId"))
 			.where(cb.and(
-				cb.equal(s.get("id"), i.get("section")),
+				cb.equal(s, i.get("section")),
 				cb.equal(i.get("itemId"), itemId)
 			));
 

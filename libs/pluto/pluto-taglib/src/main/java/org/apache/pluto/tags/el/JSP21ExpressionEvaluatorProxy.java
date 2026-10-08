@@ -51,11 +51,11 @@ class JSP21ExpressionEvaluatorProxy extends ExpressionEvaluatorProxy {
             elContextGetter = 
                 PageContext.class.getMethod("getELContext", new Class[0]);
             valueExpressionGetter = 
-                Class.forName("javax.el.ExpressionFactory").getMethod(
+                Class.forName("jakarta.el.ExpressionFactory").getMethod(
                     "createValueExpression", new Class[] 
-                    { Class.forName("javax.el.ELContext"), String.class, Class.class });
-            evalMethod = Class.forName("javax.el.ValueExpression").getMethod(
-                    "getValue", new Class[] { Class.forName("javax.el.ELContext") });
+                    { Class.forName("jakarta.el.ELContext"), String.class, Class.class });
+            evalMethod = Class.forName("jakarta.el.ValueExpression").getMethod(
+                    "getValue", new Class[] { Class.forName("jakarta.el.ELContext") });
         } catch (Exception e) {
             throw new RuntimeException("Unable to find JSP2.1 methods.", e);
         }

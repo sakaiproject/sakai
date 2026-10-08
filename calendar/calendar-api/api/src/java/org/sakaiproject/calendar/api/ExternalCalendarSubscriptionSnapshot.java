@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **********************************************************************************/
-package org.sakaiproject.calendar.impl;
+package org.sakaiproject.calendar.api;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.calendar.api.RecurrenceRule;
 
 /**
  * Plain, cache-marshalable snapshot of a fetched external calendar subscription.
+ * Shared with the Kernel Ignite loader and receiving cluster nodes through the API JAR.
  * <p>
  * {@code BaseExternalSubscriptionDetails.calendar} (an {@code ExternalCalendarSubscription})
  * and its events ({@code ExternalCalendarEvent}) are non-static inner classes of
- * {@link BaseExternalCalendarSubscriptionService}, so caching them directly would drag the
+ * {@code BaseExternalCalendarSubscriptionService}, so caching them directly would drag the
  * whole singleton service instance (and everything it depends on) into the cached entry.
  * This type carries only the plain data needed to replay the existing
  * {@code ExternalCalendarSubscription.addEvent(...)} construction call on a cache hit.
@@ -60,6 +60,10 @@ public class ExternalCalendarSubscriptionSnapshot {
 		public String location;
 		public long rangeStartMillis;
 		public long rangeEndMillis;
-		public RecurrenceRule recurrenceRule;
+		// Only recurrence types supported by CalendarImporterService are cached.
+		public String recurrenceFrequency;
+		public int recurrenceInterval;
+		public int recurrenceCount;
+		public Long recurrenceUntilMillis;
 	}
 }

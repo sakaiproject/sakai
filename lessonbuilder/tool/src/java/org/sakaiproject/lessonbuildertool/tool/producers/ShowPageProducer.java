@@ -53,6 +53,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
 import org.sakaiproject.lessonbuildertool.ChecklistItemStatusImpl;
+import org.sakaiproject.lessonbuildertool.CssResource;
 import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
@@ -651,7 +652,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 		
 		// Set up customizable CSS
-		SimplePageBean.CssResource cssLink = simplePageBean.getCssForCurrentPage();
+		CssResource cssLink = simplePageBean.getCssForCurrentPage();
 		if(cssLink != null) {
 			UIOutput.make(tofill, "customCSS").decorate(new UIFreeAttributeDecorator("href", cssLink.getUrl()));
 		}
@@ -3602,7 +3603,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(tofill, rsfid, "simplePageBean.csrfToken", sessionToken.toString());
 	}
 
-	public void createDialogs(UIContainer tofill, SimplePage currentPage, SimplePageItem pageItem, SimplePageBean.CssResource cssLink) {
+	public void createDialogs(UIContainer tofill, SimplePage currentPage, SimplePageItem pageItem, CssResource cssLink) {
 		createEditItemDialog(tofill, currentPage, pageItem);
 		createAddMultimediaDialog(tofill, currentPage);
 		createEditMultimediaDialog(tofill, currentPage);
@@ -4973,7 +4974,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "movie-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 
-	private void createEditTitleDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem, SimplePageBean.CssResource cssLink) {
+	private void createEditTitleDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem, CssResource cssLink) {
 		if (pageItem.getType() == SimplePageItem.STUDENT_CONTENT)
 			UIOutput.make(tofill, "edit-title-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.editTitle")));
 		else
@@ -5056,7 +5057,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		if(!simplePageBean.isStudentPage(page)) {
 			UIOutput.make(form, "csssection");
-			ArrayList<SimplePageBean.CssResource> sheets = simplePageBean.getAvailableCss();
+			ArrayList<CssResource> sheets = simplePageBean.getAvailableCss();
 			String[] options = new String[sheets.size()+2];
 			String[] labels = new String[sheets.size()+2];
 

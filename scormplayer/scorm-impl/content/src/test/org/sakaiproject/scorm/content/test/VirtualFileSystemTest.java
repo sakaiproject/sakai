@@ -19,7 +19,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sakaiproject.scorm.content.impl.VirtualFileSystem;
+import org.sakaiproject.scorm.content.api.VirtualFileSystem;
 
 import lombok.extern.slf4j.Slf4j;
 

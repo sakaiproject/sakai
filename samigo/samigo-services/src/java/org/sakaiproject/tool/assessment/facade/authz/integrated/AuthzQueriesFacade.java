@@ -154,7 +154,7 @@ public class AuthzQueriesFacade implements AuthzQueriesFacadeAPI
     Root<AuthorizationData> a = cq.from(AuthorizationData.class);
 
     cq.select(a).where(cb.and(
-        cb.equal(a.get("agentId"), effectiveAgentId),
+        cb.equal(a.get("agentIdString"), effectiveAgentId),
         cb.equal(a.get("functionId"), functionId),
         cb.equal(a.get("qualifierId"), qualifierId)
     ));
@@ -206,7 +206,7 @@ public class AuthzQueriesFacade implements AuthzQueriesFacadeAPI
     Root<AuthorizationData> a = cq.from(AuthorizationData.class);
 
     cq.select(a).where(cb.and(
-        cb.equal(a.get("agentId"), agentId),
+        cb.equal(a.get("agentIdString"), agentId),
         cb.equal(a.get("functionId"), functionId)
     ));
 
@@ -231,10 +231,12 @@ public class AuthzQueriesFacade implements AuthzQueriesFacadeAPI
     CriteriaBuilder cb = session.getCriteriaBuilder();
     CriteriaQuery<AssessmentBaseData> cq = cb.createQuery(AssessmentBaseData.class);
     Root<AssessmentBaseData> a = cq.from(AssessmentBaseData.class);
+    Root<AuthorizationData> authorization = cq.from(AuthorizationData.class);
 
     cq.select(a).where(cb.and(
-        cb.equal(a.get("agentId"), agentId),
-        cb.equal(a.get("functionId"), functionId)
+        cb.equal(authorization.get("agentIdString"), agentId),
+        cb.equal(authorization.get("functionId"), functionId),
+        cb.equal(a.get("assessmentBaseId").as(String.class), authorization.get("qualifierId"))
     ));
 
     return session.createQuery(cq).getResultList();

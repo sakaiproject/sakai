@@ -67,6 +67,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
+import org.sakaiproject.lessonbuildertool.CssResource;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
@@ -723,33 +724,6 @@ public class SimplePageBean {
 	    public String addInstructions; // can be null
 	}
 
-	// Plain, cacheable stand-in for a ContentResource. ContentResource's concrete runtime
-	// type (BaseContentService.BaseResourceEdit) is a non-static inner class carrying an
-	// implicit reference to the enclosing BaseContentService, so it can never be cached
-	// directly - only these three fields are ever read off a cached CSS resource.
-	public static class CssResource {
-	    public String id;
-	    public String url;
-	    public String displayName;
-
-	    public CssResource(String id, String url, String displayName) {
-		this.id = id;
-		this.url = url;
-		this.displayName = displayName;
-	    }
-
-	    public String getId() {
-		return id;
-	    }
-
-	    public String getUrl() {
-		return url;
-	    }
-
-	    public String getDisplayName() {
-		return displayName;
-	    }
-	}
 
 	@Setter public Map<Integer,BltiTool> bltiTools;
 

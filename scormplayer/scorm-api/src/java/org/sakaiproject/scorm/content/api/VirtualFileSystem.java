@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.scorm.content.impl;
+package org.sakaiproject.scorm.content.api;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -124,7 +124,7 @@ public class VirtualFileSystem implements Serializable
 		return dir.getNumberOfChildren();
 	}
 
-	public class VirtualDirectory extends VirtualNode
+	public static class VirtualDirectory extends VirtualNode
 	{
 		private static final long serialVersionUID = 1L;
 

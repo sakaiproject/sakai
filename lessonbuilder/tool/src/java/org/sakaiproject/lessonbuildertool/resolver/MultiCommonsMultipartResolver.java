@@ -15,40 +15,37 @@
  */
 package org.sakaiproject.lessonbuildertool.resolver;
 
-import jakarta.servlet.ServletContext;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
+import org.sakaiproject.util.SakaiMultipartResolver;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-@Slf4j
-public class MultiCommonsMultipartResolver implements MultipartResolver {
-
-    private final StandardServletMultipartResolver delegate = new StandardServletMultipartResolver();
-
-    public MultiCommonsMultipartResolver() {
-    }
-
-    public MultiCommonsMultipartResolver(ServletContext servletContext) {
-    }
-
-    @Override
-    public boolean isMultipart(HttpServletRequest request) {
-        return delegate.isMultipart(request);
-    }
+public class MultiCommonsMultipartResolver extends SakaiMultipartResolver {
 
     @Override
     public MultipartHttpServletRequest resolveMultipart(HttpServletRequest request) throws MultipartException {
-        return delegate.resolveMultipart(request);
-    }
-
-    @Override
-    public void cleanupMultipart(MultipartHttpServletRequest request) {
-        delegate.cleanupMultipart(request);
+        MultipartHttpServletRequest multipartRequest = super.resolveMultipart(request);
+        // RSF consumes getFileMap(), so retain every file submitted under the same field name.
+        Map<String, MultipartFile> files = new LinkedHashMap<>();
+        for (List<MultipartFile> fieldFiles : multipartRequest.getMultiFileMap().values()) {
+            for (MultipartFile file : fieldFiles) {
+                files.put(Integer.toString(files.size()), file);
+            }
+        }
+        return new DefaultMultipartHttpServletRequest(multipartRequest, multipartRequest.getMultiFileMap(),
+                Collections.emptyMap(), Collections.emptyMap()) {
+            @Override
+            public Map<String, MultipartFile> getFileMap() {
+                return files;
+            }
+        };
     }
 }
