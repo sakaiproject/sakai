@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +29,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.test.SakaiKernelTestBase;
@@ -35,6 +40,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.impl.DbUserService;
 
@@ -221,6 +227,33 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
 	}
 	
+	@Test
+	public void testRoleViewFilteringWithNoncanonicalGrantIds() throws Exception {
+		UserDirectoryService userDirectoryService = dbUserService;
+		User roleViewUser = userDirectoryService.addUser("roleview:normalized", "roleview_normalized",
+				"Role", "View", null, null, UserDirectoryService.ROLEVIEW_USER_TYPE, null);
+		String roleViewGrantId = " " + roleViewUser.getId().toUpperCase(java.util.Locale.ROOT) + " ";
+		String regularGrantId = " " + dbUserService.getUserByEid(LOCAL_USER_EID).getId().toUpperCase(java.util.Locale.ROOT) + " ";
+		clearUserFromServiceCaches(roleViewUser.getId());
+		clearUserFromServiceCaches(regularGrantId.trim().toLowerCase(java.util.Locale.ROOT));
+
+		Assert.assertEquals(roleViewUser.getId(), userDirectoryService.getUsers(List.of(roleViewGrantId)).get(0).getId());
+		AuthzGroup group = authzGroupService.addAuthzGroup("/test/roleview-normalized");
+		Role role = group.addRole("access");
+		role.allowFunction("test.roleview-normalized");
+		group.addMember(roleViewGrantId, role.getId(), true, false);
+		group.addMember(regularGrantId, role.getId(), true, false);
+		group.addMember("missing-user", role.getId(), true, false);
+		group.addMember("inactive-user", role.getId(), false, false);
+
+		Set<String> activeUserIds = Set.of(regularGrantId, "missing-user");
+		Assert.assertEquals(activeUserIds, group.getUsers());
+		Assert.assertEquals(activeUserIds, group.getUsersHasRole(role.getId()));
+		Assert.assertEquals(activeUserIds, group.getUsersIsAllowed("test.roleview-normalized"));
+		Assert.assertEquals(Set.of(regularGrantId, "missing-user", "inactive-user"),
+				group.getMembers().stream().map(Member::getUserId).collect(Collectors.toSet()));
+	}
+
 	@Test
 	public void testSearchUsers() {
 		List<User> users = dbUserService.searchUsers("Joe", 1, 1);

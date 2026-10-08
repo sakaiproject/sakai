@@ -917,7 +917,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		for (Iterator<String> idIter = ids.iterator(); idIter.hasNext(); )
 		{
 			String id = idIter.next();
-			id = cleanEid(id);
+			id = cleanId(id);
 			if (id != null) searchIds.add(id);
 		}
 		

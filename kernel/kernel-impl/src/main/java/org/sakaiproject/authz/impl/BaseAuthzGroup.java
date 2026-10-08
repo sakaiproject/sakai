@@ -865,9 +865,13 @@ public class BaseAuthzGroup implements AuthzGroup
 
 	private Set<String> getRoleViewUserIds()
 	{
-		return userDirectoryService.getUsers(m_userGrants.keySet()).stream()
+		Set<String> roleViewUserReferences = userDirectoryService.getUsers(m_userGrants.keySet()).stream()
 				.filter(user -> UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType()))
-				.map(User::getId)
+				.map(user -> userDirectoryService.userReference(user.getId()))
+				.collect(Collectors.toSet());
+
+		return m_userGrants.keySet().stream()
+				.filter(userId -> roleViewUserReferences.contains(userDirectoryService.userReference(userId)))
 				.collect(Collectors.toSet());
 	}
 
