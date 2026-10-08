@@ -32,14 +32,14 @@
       <column name="TOPIC_C" not-null="true" index="MFR_UNREAD_STATUS_I1"/>
     </property>
     <property name="messageId" unique-key="uniqueUserTopicMessage">
-      <column name="MESSAGE_C" not-null="true" index="MFR_UNREAD_STATUS_I1 MFR_UNREAD_STATUS_I2"/>
+      <column name="MESSAGE_C" not-null="true" index="MFR_UNREAD_MESSAGE_C_ID"/>
     </property>
     <property name="userId" unique-key="uniqueUserTopicMessage">
-      <column name="USER_C" length="255" not-null="true" index="MFR_UNREAD_STATUS_I1 MFR_UNREAD_STATUS_I2"/>
+      <column name="USER_C" length="255" not-null="true" index="MFR_UNREAD_USER_C_ID"/>
     </property>
     <property name="read">
-      <column name="READ_C" not-null="true" index="MFR_UNREAD_STATUS_I1 MFR_UNREAD_STATUS_I2" />
-    </property>      
+      <column name="READ_C" not-null="true" index="MFR_UNREAD_READ_C_ID" />
+    </property>
   </class>
 
   <query name="findUnreadStatusForMessage">
@@ -49,20 +49,5 @@
     <query name="findUnreadStatusesForTopic">
         <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where us.topicId = :topicId]]>
     </query>
-
-	<database-object>
-		<create>create index MFR_UNREAD_MESSAGE_C_ID on MFR_UNREAD_STATUS_T (MESSAGE_C)</create>
-		<drop></drop>
-	</database-object>
-
-	<database-object>
-		<create>create index MFR_UNREAD_USER_C_ID on MFR_UNREAD_STATUS_T (USER_C)</create>
-		<drop></drop>
-	</database-object>
-
-	<database-object>
-		<create>create index MFR_UNREAD_READ_C_ID on MFR_UNREAD_STATUS_T (READ_C)</create>
-		<drop></drop>
-	</database-object>
 </hibernate-mapping>
 
