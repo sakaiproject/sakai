@@ -827,7 +827,7 @@ public class MessageForumSynopticBean {
 						
 							Object [] finalCount = new Object [2];
 							finalCount[0] = count[0];
-							finalCount[1] = count[2];
+							finalCount[1] = ((Number) count[2]).intValue();
 						
 							compiledDFMessageCounts.add(finalCount);
 						}
