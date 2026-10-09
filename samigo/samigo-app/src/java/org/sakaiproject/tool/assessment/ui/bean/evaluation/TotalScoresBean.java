@@ -98,11 +98,11 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
 
   @Autowired
   @Qualifier("AuthzQueriesFacade")
-  private AuthzQueriesFacadeAPI authzQueriesFacade;
+  private transient AuthzQueriesFacadeAPI authzQueriesFacade;
 
   @Autowired
   @Qualifier("sectionAwareServiceHelper")
-  private SectionAwareServiceHelper sectionAwareServiceHelper;
+  private transient SectionAwareServiceHelper sectionAwareServiceHelper;
 
   private String assessmentId;
   private String publishedId;
