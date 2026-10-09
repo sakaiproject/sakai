@@ -574,9 +574,12 @@ $(window).load( function() {
           <h:outputText value="#{commonMessages.cancel_question_info_no_undo}" />
         </h:panelGroup>
       </h:panelGroup>
+      <h:panelGroup layout="block" styleClass="sak-banner-info" rendered="#{!assessmentBean.totalScoreCancellationAllowed}">
+        <h:outputText value="#{assessmentBean.totalScoreCancellationRestrictionMessage}" />
+      </h:panelGroup>
       <h:panelGroup styleClass="modal-footer act" layout="block">
         <h:commandButton styleClass="active" immediate="true" id="cancelItemTotal" action="editAssessment"
-            value="#{commonMessages.cancel_question_reduce_total}">
+            disabled="#{!assessmentBean.totalScoreCancellationAllowed}" value="#{commonMessages.cancel_question_reduce_total}">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemCancellationListener" />
           <f:param name="outcome" value="editAssessment" />
           <f:param name="itemId" value="ITEM_ID" />

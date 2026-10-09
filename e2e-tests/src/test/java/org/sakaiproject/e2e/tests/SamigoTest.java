@@ -329,7 +329,7 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#questionpool\\:TreeTable a").filter(new Locator.FilterOptions().setHasText(poolName)).first()
             .click(new Locator.ClickOptions().setForce(true));
 
-        clickFirstVisible(page.locator("a:has-text(\"Add Question\")"));
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add Question").setExact(true)).click();
         selectQuestionType(Pattern.compile("multiple\\s*choice", Pattern.CASE_INSENSITIVE));
         clickSubmit("Save");
         page.locator("#itemForm\\:answerptr").fill("100.00");

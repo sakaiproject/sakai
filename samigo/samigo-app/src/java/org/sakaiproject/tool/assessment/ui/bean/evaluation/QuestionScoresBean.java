@@ -49,6 +49,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.ui.bean.util.QuestionCancellationEligibility;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
@@ -65,6 +66,14 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="questionScores")
 @SessionScoped
 public class QuestionScoresBean implements Serializable, PhaseAware {
+  public boolean isTotalScoreCancellationAllowed() {
+    return QuestionCancellationEligibility.restrictionKey(publishedAssessment).isEmpty();
+  }
+
+  public String getTotalScoreCancellationRestrictionMessage() {
+    return QuestionCancellationEligibility.restrictionMessage(publishedAssessment);
+  }
+
   @Setter
   private String assessmentId;
   @Setter
