@@ -2177,65 +2177,6 @@
         <artifactId>sakai-velocity-util</artifactId>
         <version>${sakai.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-app</artifactId>
-        <version>${sakai.version}</version>
-        <!-- type>pom</type -->
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-spreadsheet</artifactId>
-        <version>${sakai.version}</version>
-        <!-- type>pom</type -->
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool</artifactId>
-        <version>${sakai.version}</version>
-        <!-- type>pom</type -->
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool-sun</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-widgets-sun</artifactId>
-        <version>${sakai.version}</version>
-        <!-- type>pom</type -->
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-widgets-sun-depend</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>myfaces-tool</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-        <exclusions>
-          <!-- exclude this to avoid the collision btw RI and tomahawk -->
-          <exclusion>
-            <groupId>javax.faces</groupId>
-            <artifactId>jsf-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.faces</groupId>
-            <artifactId>jsf-impl</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>myfaces-widgets-depend</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-      </dependency>
       <!--JSF 2 Dependencies-->
       <dependency>
         <groupId>org.sakaiproject.jsf2</groupId>
@@ -2285,21 +2226,6 @@
         <version>${sakai.jakarta.servlet.jsp.jstl.version}</version>
       </dependency>
       <!-- Sakai Wicket -->
-      <dependency>
-        <groupId>org.sakaiproject.wicket</groupId>
-        <artifactId>wicket-tool-6</artifactId>
-        <version>${sakai.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.wicket</groupId>
-        <artifactId>wicket-tool-8</artifactId>
-        <version>${sakai.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.wicket</groupId>
-        <artifactId>wicket-tool-9</artifactId>
-        <version>${sakai.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.sakaiproject.wicket</groupId>
         <artifactId>wicket-tool-10</artifactId>
