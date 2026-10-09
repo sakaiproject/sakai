@@ -116,7 +116,6 @@
                 <module>userauditservice</module>
                 <module>usermembership</module>
                 <module>velocity</module>
-                <module>vuecomponents</module>
                 <module>web</module>
                 <module>webapi</module>
                 <module>webcomponents</module>
@@ -339,7 +338,6 @@
                 <module>tags/tags-api/api</module>
                 <module>user/user-util</module>
                 <module>userauditservice/api</module>
-                <module>vuecomponents/bundle</module>
                 <module>webcomponents/bundle</module>
             </modules>
         </profile>

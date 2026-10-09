@@ -43,3 +43,22 @@ then write the code. That way you'll write nicer components for the end users si
 Coverage is intentionally omitted from our testing setup, as it's debatable
 if, as developers, we should be focusing on coverage metrics. We should instead be focusing on the
 most commong pathways our users will be taking through our component, and edge cases later.
+
+# Shared tool components
+
+The portal's `base.js` bundle registers the following Lit components. Tool pages that load
+the gradebook selector separately can use `bundles/multi-gradebook.js`.
+
+| Component | Package | Integration |
+| --- | --- | --- |
+| `sakai-timer-bar` | `sakai-timer-bar` | Samigo countdown; posts `SAVE` and `END` messages with the timer's `id` to the parent window. |
+| `sakai-multi-gradebook` | `sakai-multi-gradebook` | Searches gradebook items/categories and allows one selection per gradebook. `input-id` names the host form's comma-separated hidden input. The `change` event contains `detail.value`, the selected items. |
+| `sakai-condition-editor`, `sakai-condition-picker` | `sakai-conditions` | Lessons score conditions and AND/OR prerequisite trees. Context changes reload the data through the existing conditions API. |
+| `sakai-dynamic-rubric` | `sakai-rubrics` | Samigo ad hoc criteria and evaluation. `cancel()` restores saved selections; `release()` returns a promise for the evaluation save. |
+
+Translations for these components live in `bundle/src/main/bundle`. All reactive internal
+state stays in the components; criterion changes use events instead of mutating a parent's model.
+
+Build the frontend bundles before running `LitComponentsMigrationTest` in `e2e-tests`.
+That Playwright test loads the production bundles with tool markup and HTTP fixtures to check
+form values, condition persistence, rubric recalculation navigation, and timer messages.

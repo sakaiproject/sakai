@@ -18,3 +18,9 @@ globalThis.Sortable = Sortable;
 import { loadProperties, tr } from "@sakai-ui/sakai-i18n";
 globalThis.loadProperties = loadProperties;
 globalThis.tr = tr;
+
+import "@sakai-ui/sakai-timer-bar/sakai-timer-bar.js";
+import "@sakai-ui/sakai-multi-gradebook/sakai-multi-gradebook.js";
+import "@sakai-ui/sakai-conditions/sakai-condition-editor.js";
+import "@sakai-ui/sakai-conditions/sakai-condition-picker.js";
+import "@sakai-ui/sakai-rubrics/sakai-dynamic-rubric.js";

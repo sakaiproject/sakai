@@ -199,11 +199,6 @@
                                     sakaiReminder.new($(this).val());
                                   });
                                 });
-
-				if (document.getElementById("dfStatisticsForm:multigradebook-group-container") !== null) {
-					window.syncGbSelectorInput("gb-selector", "dfStatisticsForm:gb_selector");
-				}
-
 			});
 		</script>
         <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
@@ -305,7 +300,7 @@
 			<h:panelGroup rendered="#{mfStatisticsBean.gradingService.isGradebookGroupEnabled(ForumTool.siteId) && !mfStatisticsBean.discussionGeneric}" id="multigradebook-group-container">
 				<div style="margin-bottom: 0.5rem;">
 					<sakai-multi-gradebook
-						id="gb-selector"
+						id="gb-selector" input-id="dfStatisticsForm:gb_selector"
 						site-id='<h:outputText value="#{ForumTool.siteId}" />'
 						user-id='<h:outputText value="#{ForumTool.userId}" />'
 						group-id='<h:outputText value="#{mfStatisticsBean.groupId}" />'

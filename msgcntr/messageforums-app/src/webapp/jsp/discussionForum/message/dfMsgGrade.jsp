@@ -26,7 +26,7 @@
         </script>
         <script src="/library/js/sakai-reminder.js"></script>
         <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
-        <script type="module" src="/vuecomponents/js/sakai.min.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+        <script type="module" src="/webcomponents/bundles/multi-gradebook.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <h:form id="msgForum">
             <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
@@ -98,13 +98,8 @@
             <script src="/library/js/spinner.js"></script>
 
             <script>
-                var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
                 
                 $(document).ready(function() {
-                    if (isGradebookGroupEnabled) {
-                        window.syncGbSelectorInput("gb-selector", "msgForum:gb_selector");
-                    }
-
                     try {
                         var sakaiReminder = new SakaiReminder();
                         new Awesomplete($('.awesomplete')[0], {
@@ -161,7 +156,7 @@
             </h:panelGroup>
             <h:panelGroup layout="block" styleClass="row" rendered="#{ForumTool.gradebookGroupEnabled}">
                 <sakai-multi-gradebook
-                        id="gb-selector"
+                        id="gb-selector" input-id="msgForum:gb_selector"
                         app-name="sakai.forums"
                         site-id='<h:outputText value="#{ForumTool.siteId}" />'
                         user-id='<h:outputText value="#{ForumTool.selectedGradedUserId}" />'

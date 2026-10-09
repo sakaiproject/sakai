@@ -16,7 +16,6 @@ import process from "node:process";
 // Example (all frontend dirs):
 //   GITHUB_TOKEN=... node dismiss-nondeployed-dependabot-alerts.mjs --dry-run \
 //     --frontend-dir ../../../webcomponents/tool/src/main/frontend \
-//     --frontend-dir ../../../vuecomponents/tool/src/main/frontend \
 //     --frontend-dir ../../../sakai/library/src/skins/default \
 //     --frontend-dir ../../../sakai/meetings/ui/src/main/frontend
 //
@@ -241,7 +240,6 @@ if (repoRoot && args.frontendDirArgs === 0) {
     0,
     frontendDirs.length,
     path.join(repoRoot, "webcomponents/tool/src/main/frontend"),
-    path.join(repoRoot, "vuecomponents/tool/src/main/frontend"),
     path.join(repoRoot, "library/src/skins/default"),
     path.join(repoRoot, "meetings/ui/src/main/frontend")
   );
