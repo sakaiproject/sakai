@@ -1152,8 +1152,6 @@ $(document).ready(() => {
 
 ASN.cancelGradeSubmission = function () {
 
-  [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. cancel());
-
   SPNR.disableControlsAndSpin( this, null );
   ASN.submitForm( 'gradeForm', 'cancelgrade', null, null );
   return false;
