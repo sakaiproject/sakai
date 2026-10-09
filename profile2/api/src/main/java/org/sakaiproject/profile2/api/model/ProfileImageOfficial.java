@@ -16,6 +16,7 @@
 package org.sakaiproject.profile2.api.model;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -34,6 +35,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "PROFILE_IMAGES_OFFICIAL_T")
