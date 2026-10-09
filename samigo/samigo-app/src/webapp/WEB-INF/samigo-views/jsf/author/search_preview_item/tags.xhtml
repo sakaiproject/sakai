@@ -1,0 +1,13 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>&lt;br/&gt;</f:verbatim><h:outputLabel value="#{questionPoolMessages.t_tags}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}"/><f:verbatim>&lt;/br&gt;
+
+</f:verbatim><t:dataList value="#{itemValue.itemTagSet.toArray()}" var="tag" layout="unorderedList" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}">&lt;span&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{tag.tagLabel}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}">&lt;span class="collection"&gt;</f:verbatim><f:verbatim>
+    (</f:verbatim><h:outputText value="#{tag.tagCollectionName}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><f:verbatim>)
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}">&lt;/span&gt;&lt;/span&gt;&lt;/br&gt;&#32;&#32;</f:verbatim><f:verbatim>
+</f:verbatim></t:dataList><f:verbatim>
+</f:verbatim>
+</ui:composition>

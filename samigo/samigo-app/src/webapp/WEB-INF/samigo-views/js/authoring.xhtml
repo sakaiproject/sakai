@@ -1,0 +1,908 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>var checkflag = "false";
+
+function checkAll(field) {
+if (field != null) {
+  if (field.length &gt;0){
+// for more than one checkbox
+    if (checkflag == "false") {
+       for (i = 0; i &lt; field.length; i++) {
+           field[i].checked = true;}
+       checkflag = "true";
+       return "Uncheck all"; }
+    else {
+       for (i = 0; i &lt; field.length; i++) {
+           field[i].checked = false; }
+       checkflag = "false";
+       return "Check all"; }
+  }
+  else {
+/// for only one checkbox
+    if (checkflag == "false") {
+  field.checked = true;
+  checkflag = "true";
+  return "Uncheck all"; }
+else {
+  field.checked = false;&#32;
+  checkflag = "false";
+  return "Check all"; }
+
+   }
+}
+}
+
+
+function uncheck(field){
+      field.checked = false;&#32;
+  checkflag = "false";
+    return "uncheck";&#32;
+}
+
+
+
+// this is for multiple choice authoring. uncheck all other radio buttons when one is checked, to make it  behave like they are in an array.
+
+function uncheckOthers(field){
+ var fieldname = field.getAttribute("name");
+ var tables= document.getElementsByTagName("TABLE");
+ var prevCorrectBtn=null;
+
+ for (var i = 0; i &lt; tables.length; i++) {
+    if ( tables[i].id.indexOf("mcradiobtn") &gt;=0){
+       var radiobtn = tables[i].getElementsByTagName("INPUT")[0];
+       if (fieldname!=radiobtn.getAttribute("name")){
+          if (radiobtn.checked){
+             prevCorrectBtn=radiobtn.getAttribute("name");
+          }
+          radiobtn.checked = false;
+       }
+    }
+ }
+&#32;
+var selectId =  field.getAttribute("value");
+var inputhidden = document.getElementById("itemForm:selectedRadioBtn");
+inputhidden.setAttribute("value", selectId);
+switchPartialCredit(fieldname,prevCorrectBtn);&#32;
+}
+
+function updateHiddenMultipleChoice() {
+  var checkboxes = jQuery("input[id*=':mccheckboxes:']:checked");
+  var selectedCheckboxes = "";
+  for (var i=0; i &lt;= checkboxes.size()-1; i++) {
+    selectedCheckboxes += $(checkboxes[i]).val() + ",";
+  }
+  selectedCheckboxes = selectedCheckboxes.substring(0, selectedCheckboxes.length-1);
+  jQuery('#itemForm\\:selectedCheckboxesAnswers').val(selectedCheckboxes);
+}
+
+function switchPartialCredit(newCorrect,oldCorrect){
+   var pInput = document.getElementById('itemForm:mcchoices:0:partialCredit');
+   if(typeof(pInput) == 'undefined' || pInput == null){
+      // partial credit function is disabled
+      return;
+   }&#9;
+&#32;&#32;&#32;
+   var toggleDiv=document.getElementById('partialCredit_toggle');
+   if( typeof(toggleDiv) == 'undefined' ||toggleDiv == null){
+      return;
+   }
+   else{
+       //setting old one to zero
+       if(oldCorrect!=null &amp;&amp; oldCorrect!='undefined'){
+             var position= oldCorrect.split(":");
+             var  prevcorrId="itemForm:mcchoices:"+position[2]+":partialCredit";
+             var pInput= document.getElementById(prevcorrId);
+             pInput.value=0;
+             pInput.style.borderStyle = "solid double";
+             pInput.style.borderColor="red";
+&#9;&#9;&#9; pInput.disabled=false;
+             pInput.focus();
+             var reminderTextId="itemForm:mcchoices:"+position[2]+":partialCreditReminder";
+             var reminderTexElement= document.getElementById(reminderTextId);
+             reminderTexElement.style.visibility="visible";
+         }
+         //setting new one to 100&#32;
+         position= newCorrect.split(":");
+         var currCorrId="itemForm:mcchoices:"+position[2]+":partialCredit";
+         var correctPInput= document.getElementById(currCorrId);
+         correctPInput.value=100;
+&#9;&#9; correctPInput.disabled=true;
+  }
+}
+
+function resetInsertAnswerSelectMenus(){
+  var selectlist = document.getElementsByTagName("SELECT");
+
+  for (var i = 0; i &lt; selectlist.length; i++) {
+        if ( selectlist[i].id.indexOf("insertAdditionalAnswerSelectMenu") &gt;=0){
+          selectlist[i].value = 0;
+        }
+  }
+
+  var toggleDiv=document.getElementById('partialCredit_toggle');
+  if( typeof(toggleDiv) == 'undefined' || toggleDiv == null){ return;}
+  else{
+    var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
+    QtypeTable.rows[0].cells[0].appendChild(toggleDiv);&#32;
+  }
+}
+
+function disablePartialCreditField(){
+ var pInput = document.getElementById('itemForm:mcchoices:0:partialCredit');
+ if(typeof(pInput) == 'undefined' || pInput == null){
+    // partial credit function is disabled
+    return;
+ }
+&#32;
+ var inputs= document.getElementsByTagName("INPUT");
+
+ for (var i = 0; i &lt; inputs.length; i++) {
+    if (inputs[i].name.indexOf("mcradiobtn") &gt;= 0){
+&#9;   var radiobtn = inputs[i];
+       if (radiobtn.checked){
+          var subElement= radiobtn.name.split(":");
+          var currCorrId="itemForm:mcchoices:"+subElement[2]+":partialCredit";
+&#9;&#9;  var correctPInput= document.getElementById(currCorrId);
+&#9;&#9;  correctPInput.value=100;
+          correctPInput.disabled=true;
+       }&#32;&#32;&#32;
+    }
+ }
+}
+
+function clickAddChoiceLink(){
+  $('#itemForm\\:hiddenAddChoicelink')[0].click();
+}
+
+function clickAddEmiAnswerOptionsLink(){
+&#9;var newindex = 0;
+&#9;for (i=0; i&lt;document.links.length; i++) {
+&#9;  if ( document.links[i].id.indexOf("hiddenAddEmiAnswerOptionsActionlink") &gt;=0){
+&#9;    newindex = i;
+&#9;    break;
+&#9;  }
+&#9;}
+&#9;document.links[newindex].onclick();
+}
+
+function clickAddEmiQuestionAnswerCombinationsLink(){
+&#9;var newindex = 0;
+&#9;for (i=0; i&lt;document.links.length; i++) {
+&#9;  if ( document.links[i].id.indexOf("hiddenAddEmiQuestionAnswerCombinationsActionlink") &gt;=0){
+&#9;    newindex = i;
+&#9;    break;
+&#9;  }
+&#9;}
+&#9;document.links[newindex].onclick();
+}
+
+function countNum(){
+  var spanList= document.getElementsByTagName("SPAN");
+  var count=1;
+  for (var i = 0; i &lt; spanList.length; i++)&#32;
+    {
+        if(spanList[i].id.indexOf("num")&gt;=0)
+         {
+           spanList[i].innerHTML = count;
+           count++;
+         }
+    }
+&#32;&#32;
+}
+
+/*
+ * document.htmlareas will be undefined if the wysiwyg is anything
+ * other then htmlarea, so we know if the onsubmit trick is needed
+ * to get htmlarea to work right or not
+ *
+ */
+function editorCheck(){
+   if (document.htmlareas==undefined) {
+      return true;
+   }
+   else {
+      return false;
+   }
+}
+
+$( document ).ready( function() {
+
+    // inputText with class ConvertPoint changes
+    $( "input.ConvertPoint[type='text']" ).change( function() {
+        var value = $( this ).val();
+        if (value) {
+            $( this ).val(value.replace(',','.'));
+        } else {
+            $( this ).val("0")
+        }
+    });
+
+    // validation for points
+    $( "#itemForm\\:answerptr" ).change( function() {
+        var pointValue = parseFloat( $( this ).val() );
+        var negField = $( "#itemForm\\:answerdsc" );
+        var minField = $( "#itemForm\\:minPoints\\:answerminptr" );
+        // do not allow negative points for point value
+        if (pointValue &lt; 0) {
+            validationWarningSetDefault($( this ), "0");
+            validationWarningSetDefault(negField, "0");
+            validationWarningSetDefault(minField, "");
+        } else {
+            // negValue should be less than pointValue
+            var negValue = parseFloat(negField.val());
+            if (negValue &lt; 0 || negValue &gt; pointValue) {
+                validationWarningSetDefault(negField, "0");
+            }
+            // minField may not be on the page if disabled
+            if (minField) {
+                var minValue = parseFloat(minField.val());
+                if (minValue &lt; 0 || minValue &gt; pointValue) {
+                    validationWarningSetDefault(minField, "");
+                }
+            }
+        }
+    });
+
+    // validation for minPoints
+    $( "#itemForm\\:minPoints\\:answerminptr" ).change( function() {
+        var pointValue = parseFloat( $( "#itemForm\\:answerptr" ).val() );
+        var minValue = parseFloat( $( this ).val() );
+        // minValue should not be greater than pointValue
+        if (minValue &lt; 0 || minValue &gt; pointValue) {
+            validationWarningSetDefault($( this ), "0")
+        } else {
+            // minValue is valid disable negative points
+            var negField = $( "#itemForm\\:answerdsc" );
+            if (negField) {
+                var negValue = parseFloat(negField.val());
+                if (negValue &gt; 0) {
+                    validationWarningSetDefault(negField, "0");
+                }
+            }
+        }
+    });
+
+    // validation for negative points
+    const negField = document.getElementById("itemForm:answerdsc");
+    negField &amp;&amp; negField.addEventListener("change", function () {
+
+      const pointValue = parseFloat(document.getElementById("itemForm:answerptr").value);
+      const negValue = parseFloat(this.value);
+      // minValue should not be equal to or greater than pointValue
+      if (negValue &lt; 0 || negValue &gt; pointValue) {
+          validationWarningSetDefault($(this), "0");
+      } else {
+        // negValue should 0 if using minPoints
+        const minField = document.getElementById("itemForm:minPoints:answerminptr");
+        const warning = document.getElementById("itemForm:minPoints:min-point-warning");
+        const info = document.getElementById("itemForm:minPoints:min-point-info");
+        if (negValue == 0.0) {
+          minField.disabled = false;
+          warning.style.display = "none";
+          info.style.display = "inline-block";
+        } else {
+          if (minField) {
+            const minValue = parseFloat(minField.value);
+            minField.value = "";
+            minField.disabled = true;
+            warning.style.display = "inline-block";
+            info.style.display = "none";
+          }
+        }
+      }
+    });
+
+    $(function() {
+
+        if (document.querySelector("input[name='itemForm:partialCredit_NegativeMarking']:checked")) {
+          // This is the partial credit option
+          let minField = document.getElementById("itemForm:minPoints:answerminptr");
+          minField.value = "";
+        }
+    });
+
+    // Fix the input value and display for the correct answer in Multiple Choice when entering with partial credit enabled.
+    $('[id$="mcradiobtn"]').click( function(e) {
+
+        // Transform the previous full credit label into an empty text field
+        $('[id$="partialCredit"]').removeAttr('disabled');
+        $('[id$="partialCredit"]').attr('type', 'text');
+        $('#correctAnswerPC').remove();
+
+        // For the choice that was marked as correct, replace the editable point value field with a static value/label of 100%
+        pcBox = $('#'+this.id.replace(/:/g, '\\:').replace('mcradiobtn', 'partialCredit'));
+        pcBox.after('&lt;span id="correctAnswerPC"&gt;100%&lt;/span&gt;');
+        pcBox.attr('disabled', true);
+        pcBox.attr('type', 'hidden');
+        pcBox.val("0");
+    });
+
+    // Apply the above when the form loads.
+    $('[id$="mcradiobtn"]').each(function() {
+        if( $("input", this).attr("checked") ) {
+            $("input", this).click();
+        }
+    });
+    $('input[name="assessmentSettingsAction\\:userOrGroup"]').change(function () {
+        checkUserOrGroupRadio();
+    });
+});
+
+function validationWarningSetDefault(element, value) {
+    $( element ).animate({ backgroundColor: "red" });
+    $( element ).val(value);
+    $( element ).animate({ backgroundColor: "transparent" });
+}
+
+/**
+ * adds a change handler to the pulldown menu, which shows/hides the rich text editor
+ * for the match part of the MatchItemBean.  Odd syntax for id required to find the
+ * jsf pulldown menu, standard #&lt;pulldown&gt; would not retrieve the component.
+ * @param pulldown
+ * @param feedbackContainerID the ID of the feedback container to conditionally show/hide based on the pulldown selection
+ * @param noFeedbackMsgID the ID of the container which contains the feedback not available message
+ */
+function applyMenuListener(pulldown, feedbackContainerID, noFeedbackMsgID) {
+&#9;var $pulldownHolder = $("[id='itemForm:" + pulldown + "']");
+&#9;$pulldownHolder.change( function() {
+&#9;&#9;var applyNoFeedbackChanges = (feedbackContainerID !== undefined &amp;&amp; feedbackContainerID !== null) &amp;&amp; (noFeedbackMsgID !== undefined &amp;&amp; noFeedbackMsgID !== null);
+&#9;&#9;var $feedbackContainer = applyNoFeedbackChanges ? $("[id='itemForm:" + feedbackContainerID + "']") : null;
+&#9;&#9;var $noFeedbackMsgID = applyNoFeedbackChanges ? $("[id='itemForm:" + noFeedbackMsgID + "']") : null;
+&#9;&#9;var $editor = $(this).parent("div").find("div.toggle_link_container").parent("td:last");
+&#9;&#9;if (this.value === "*new*") {
+&#9;&#9;&#9;$editor.show();
+&#9;&#9;&#9;if (applyNoFeedbackChanges) {
+&#9;&#9;&#9;&#9;$feedbackContainer.show();
+&#9;&#9;&#9;&#9;$noFeedbackMsgID.hide();
+&#9;&#9;&#9;}
+&#9;&#9;} else {
+&#9;&#9;&#9;$editor.hide();
+&#9;&#9;&#9;if (applyNoFeedbackChanges) {
+&#9;&#9;&#9;&#9;$feedbackContainer.hide();
+&#9;&#9;&#9;&#9;$noFeedbackMsgID.show();
+&#9;&#9;&#9;}
+&#9;&#9;}
+&#9;});
+&#9;
+&#9;// hide the match if needed
+&#9;$pulldownHolder.change();
+}
+
+//consolidate common used functions here for assessment settings
+//improve feedback UI, get rid of page reload bugid:5574 -Qu 10/31/2013
+
+// If we select "No, do not display any feedback to the student"
+// it will uncheck feedback as well as blank out text, otherwise,
+// if a different radio button is selected, we reenable feedback checkboxes &amp; text.
+function disableAllFeedbackCheck() {
+&#9;disableFeedbackDateCheck();
+&#9;disableOtherFeedbackComponentOption();
+}
+
+// Display the date selectors when the feedback is shown by date.
+function disableFeedbackDateCheck() {
+    const dateFeedback = 2;
+    const feedbackType = document.querySelector("input[id*=feedbackDelivery]:checked").value;
+
+    if (feedbackType == dateFeedback) {
+        $("#feedbackByDatePanel").show();
+        $("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").prop("disabled", false);
+        $("input#assessmentSettingsAction\\:feedbackEndDate.hasDatepicker").prop("disabled", false);
+        $("td.feedbackColumn1 &gt; img.ui-datepicker-trigger").prop("hidden", false);
+        $("td.feedbackColumn2").prop("hidden", false);
+    } else {
+        $("#feedbackByDatePanel").hide();
+        $("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").prop("disabled", true);
+        $("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").val( "" );
+        $("input#assessmentSettingsAction\\:feedbackEndDate.hasDatepicker").prop("disabled", true);
+        $("input#assessmentSettingsAction\\:feedbackEndDate.hasDatepicker").val( "" );
+        $("td.feedbackColumn1 &gt; img.ui-datepicker-trigger").prop("hidden", true);
+        $("td.feedbackColumn2").prop("hidden", true);
+    }
+}
+
+function disableAllFeedbackCheckTemplate(feedbackType)
+{
+&#9;// By convention we start all feedback JSF ids with "feedback".
+&#9;var feedbackIdFlag = "templateEditorForm:feedbackComponent";
+&#9;var noFeedback = "3";
+&#9;var feedbacks = document.getElementsByTagName('INPUT');
+
+&#9;for (i=0; i&lt;feedbacks.length; i++)
+&#9;{
+&#9;&#9;if (feedbacks[i].name.indexOf(feedbackIdFlag)==0)
+&#9;&#9;{
+&#9;&#9;&#9;if (feedbackType == noFeedback)
+&#9;&#9;&#9;{
+&#9;&#9;&#9;&#9;if (feedbacks[i].type == 'checkbox')
+&#9;&#9;&#9;&#9;{
+&#9;&#9;&#9;&#9;&#9;feedbacks[i].checked = false;
+&#9;&#9;&#9;&#9;&#9;feedbacks[i].disabled = true;
+&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;&#9;else if (feedbacks[i].type == 'text')
+&#9;&#9;&#9;&#9;{
+&#9;&#9;&#9;&#9;&#9;feedbacks[i].value = "";
+&#9;&#9;&#9;&#9;&#9;feedbacks[i].disabled = true;
+&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;&#9;else if ((feedbacks[i].type == 'radio') &amp;&amp; (feedbacks[i].name.indexOf(feedbackComponentOptionFlag)==0))
+&#9;&#9;&#9;&#9;{
+&#9;&#9;&#9;&#9;&#9;if(feedbacks[i].value == 2) {
+&#9;&#9;&#9;&#9;&#9;&#9;feedbacks[i].checked = true;
+&#9;&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;&#9;&#9;if(feedbacks[i].value == 1) {
+&#9;&#9;&#9;&#9;&#9;&#9;feedbacks[i].checked = false;
+&#9;&#9;&#9;&#9;&#9;&#9;feedbacks[i].disabled = true;
+&#9;&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;}
+&#9;&#9;&#9;else
+&#9;&#9;&#9;{
+&#9;&#9;&#9;&#9;feedbacks[i].disabled = false;
+&#9;&#9;&#9;}
+&#9;&#9;}
+&#9;}
+}
+
+function disableOtherFeedbackComponentOption (){
+&#9;const noFeedback = 3;
+&#9;const feedbackType = document.querySelector("input[id*=feedbackDelivery]:checked").value;
+&#9;const fields = document.querySelectorAll("input[id*=feedbackComponentOption]");
+&#9;const field = Array.from(fields).find(radio =&gt; radio.checked);
+&#9;const respChoice = document.querySelector('.respChoice');
+
+&#9;fields.forEach(radio =&gt; {
+&#9;&#9;radio.disabled = feedbackType == noFeedback;
+&#9;});
+
+&#9;if (field !== undefined) {
+&#9;&#9;respChoice.style.display = (field.value === "2" &amp;&amp; !field.disabled) ? "block" : "none";
+&#9;} else {
+&#9;&#9;//Set default value when no radio is selected and call function again
+&#9;&#9;fields[0].checked = true;
+&#9;&#9;disableOtherFeedbackComponentOption();
+&#9;}
+}
+
+function validateUrl(){
+  var list =document.getElementsByTagName("input");
+  for (var i=0; i&lt;list.length; i++){
+    if (list[i].id.indexOf("finalPageUrl") &gt;=0){
+      var finalPageUrl = list[i].value;
+&#9;  if (finalPageUrl.substring(0,4).toLowerCase().indexOf("http") == -1)
+&#9;  {
+&#9;&#9;finalPageUrl = "http://" + finalPageUrl;
+&#9;  }
+&#9;  //alert(finalPageUrl);
+      window.open(finalPageUrl,'validateUrl');
+    }
+  }
+}
+
+function updateItemNavigation(isFromItemNavigation)
+{
+  var inputhidden = document.getElementById("assessmentSettingsAction:itemNavigationUpdated");
+  inputhidden.value = isFromItemNavigation;
+}
+&#32;&#32;&#32;&#32;
+function uncheckOther(field){
+ var fieldname = field.getAttribute("name");
+ var inputList = document.getElementsByTagName("INPUT");
+
+ for(i = 0; i &lt; inputList.length; i++){
+    if((inputList[i].name.indexOf("background")&gt;=0)&amp;&amp;(inputList[i].name != fieldname))
+         inputList[i].checked=false;
+&#32;&#32;&#32;&#32;&#32;&#32;
+ }
+}
+
+function showHideReleaseGroups() {
+  const groupDiv = document.getElementById("groupDiv");
+  const releaseTo = document.getElementById("assessmentSettingsAction:releaseTo");
+&#32;&#32;
+  if (releaseTo?.selectedIndex === 2) {
+    groupDiv.style.display = "block";
+    groupDiv.style.width = "80%";
+  } else {
+    groupDiv.style.display = "none";
+  }
+}
+
+function setBlockDivs()
+{&#32;&#32;
+   //alert("setBlockDivs()");
+   var divisionNo = "";&#32;
+   var blockDivs = "";&#32;
+   blockElements = document.getElementsByTagName("div");
+   //alert("blockElements.length" + blockElements.length);
+   for (i=0 ; i &lt; blockElements.length; i++)
+   {
+      divisionNo = "" + blockElements[i].id;
+&#9;  //alert("divisionNo=" + divisionNo);
+&#9;  //alert("display=" + blockElements[i].style.display);
+      if(divisionNo.indexOf("__hide_division_assessmentSettingsAction") &gt;=0 &amp;&amp; blockElements[i].style.display == "block")
+      {&#32;
+         //alert("divisionNo=" + divisionNo);
+         var id = divisionNo.substring(41);
+&#9;&#9; if (blockDivs == "") {
+            blockDivs = id;
+         }
+&#9;&#9; else {
+&#9;&#9;&#9; blockDivs = blockDivs + ";" + id;&#32;
+&#9;&#9; }
+&#9;&#9; //alert("blockDivs=" + blockDivs);
+&#9;  }
+   }
+   //document.forms[0].elements['assessmentSettingsAction:blockDivs'].value = "_id224";
+   document.forms[0].elements['assessmentSettingsAction:blockDivs'].value = blockDivs;
+}
+function checkTimedRadio(){
+        var timelimitEnabled=$('input[id*="selTimeAssess"]:checked').val();
+        var hourSelect=$('select[id*="timedHours"]');
+        var minuteSelect=$('select[id*="timedMinutes"]');
+        var hourLabel = $('[id*="timedHoursLabel"]');
+        var minuteLabel = $('[id*="timedMinutesLabel"]');
+        var firstLabel = $('label[for*="selTimeAssess:1"]');
+        var secondLabel = $('label[id*="isTimedTimeLimitLabel"]');
+        var dot = ".";
+
+        if(timelimitEnabled == 'true') {
+                //timelimit enabled
+                hourSelect.show();
+                minuteSelect.show();
+                hourLabel.show();
+                minuteLabel.show();
+                secondLabel.show();
+                if(firstLabel.text().indexOf(dot) == -1) {
+                    firstLabel.text(firstLabel.text() + dot);
+                    firstLabel.after('&lt;span id="timedSpace"&gt; &lt;/span&gt;');
+                }
+        }
+        else if(timelimitEnabled == 'false') {
+                //timelimit disabled
+                hourSelect.hide();
+                minuteSelect.hide();
+                hourLabel.hide();
+                minuteLabel.hide();
+                secondLabel.hide();
+                if(firstLabel.text().indexOf(dot) &gt; -1) {
+                    firstLabel.text(firstLabel.text().substring(0, firstLabel.text().indexOf(dot)));
+                    $("#timedSpace").remove();
+                }
+                //set hour and min to 0
+                hourSelect[0].options.selectedIndex = 0;
+                minuteSelect[0].options.selectedIndex = 0;
+        }
+}
+
+function initTimedRadio(){
+&#9;timedSettings = $('[id*="selTimeAssess"]');
+&#9;//false -&gt; No; true -&gt; Yes (time limit)
+&#9;defaultValue = false ? 1 : 0;
+&#9;//If no option is selected
+&#9;if(timedSettings.filter(':checked').length == 0) {
+&#9;&#9;//Select default value
+&#9;&#9;timedSettings.slice(defaultValue, defaultValue + 1).prop('checked', 'checked');
+&#9;}
+&#9;checkTimedRadio();
+}
+
+function initAnononymousUsers(){
+&#9;let releaseTo = document.getElementById('assessmentSettingsAction:releaseTo');
+&#9;releaseTo.prevValue = releaseTo.value;
+&#9;if (releaseTo.value === 'Anonymous Users') {
+&#9;&#9;handleAnonymousUsers(releaseTo.value, releaseTo.value);
+&#9;}
+}
+
+//This is just needed for the published settings
+//In unpublished settings the default is set in the AssessmentSettingsBean
+function setSubmissionLimit() {
+&#9;var textField = $('[id*="submissions_Allowed"]')
+&#9;if(textField.val() == "") {
+&#9;&#9;textField.val("1");
+&#9;}
+}
+
+//Sets default values for time exceptions (User/Group)
+function setExceptionDefault() {
+&#9;defaultButton = $('[id*="extendedEnableUser"]');
+&#9;defaultButton.first().prop('checked', 'checked');
+        checkUserOrGroupRadio();
+}
+
+const ANON_USERS = "Anonymous Users";
+function lockdownAnonyGrading(value, prevValue) {
+&#9;const ag = document.getElementById("assessmentSettingsAction:anonymousGrading");
+&#9;if (ag !== null) {
+&#9;&#9;if (value === ANON_USERS) {
+&#9;&#9;&#9;ag.checked = true;
+&#9;&#9;}
+&#9;&#9;else if (prevValue === ANON_USERS) {
+&#9;&#9;&#9;ag.checked = false;
+&#9;&#9;}
+&#9;&#9;ag.disabled = value === ANON_USERS;
+&#9;}
+}
+
+function lockdownGradebook(value) {
+&#9;if (value == 'Anonymous Users') {
+&#9;&#9;$('#assessmentSettingsAction\\:toDefaultGradebook').prop('checked', '');
+&#9;&#9;$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', 'disabled');
+&#9;&#9;$('#assessmentSettingsAction\\:toGradebookName input').prop('disabled', 'disabled');
+&#9;}&#32;
+&#9;else {
+&#9;&#9;$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', '');
+&#9;}
+}
+
+function handleAnonymousUsers(value, prevValue) {
+&#9;lockdownAnonyGrading(value, prevValue);
+&#9;lockdownGradebook(value);
+&#9;const msg = document.getElementById("assessmentSettingsAction:gradingOptionsDisabledInfo");
+&#9;if (msg !== null) {
+&#9;&#9;msg.style.display = value === ANON_USERS ? "block" : "none";
+&#9;}
+}
+
+
+
+function handleAnonymousUsersChange(element)
+{
+&#9;const value = element.value; &#9;// possible values are Anonymous Users, &lt;site title&gt;, Specific Groups
+&#9;const prevValue = "prevValue" in element ? element.prevValue : [...element.options].filter(o =&gt; o.defaultSelected)[0].label;
+&#9;element.prevValue = value;
+
+&#9;&#9;handleAnonymousUsers(value, prevValue);
+}
+
+function show_multiple_text(show_multiple_link){
+&#9;$('.simple_text_area').each(function(){
+&#9;&#9;var $currentStatus=$(this).siblings('[type="hidden"]');
+&#9;&#9;if(typeof $currentStatus.data("first") != 'undefined' &amp;&amp; typeof $currentStatus.data("second") != 'undefined'){
+&#9;&#9;&#9;show_editor($currentStatus.data("first"),$currentStatus.data("second"));
+&#9;&#9;}
+&#9;});
+&#9;$(show_multiple_link).hide();
+}
+
+function checkLastHandling(){
+&#9;var isDisabled=$('input[id*="lateHandling"]:checked').val();
+&#9;var retractDate = $('input[id*="retractDate"]');
+&#9;var deadlineLabel = $('[id*="lateHandlingDeadlineLabel"]');
+&#9;var firstLabel = $('label[for*="lateHandling:1"]');
+&#9;var dot = ".";
+&#9;//$('input[id*="retractDate"]:visible').prop( "disabled", isDisabled);
+&#9;//$('input[id*="retractDate"]:visible').next().show;
+&#9;
+&#9;if(isDisabled==2){
+&#9;&#9;retractDate.hide().next().hide();
+&#9;&#9;deadlineLabel.hide();
+&#9;&#9;if(firstLabel.text().indexOf(dot) &gt; -1) {
+&#9;&#9;&#9;firstLabel.text(firstLabel.text().substring(0, firstLabel.text().indexOf(dot)));
+&#9;&#9;&#9;$("#lateSpace").remove();
+&#9;&#9;}
+&#9;}else{
+&#9;&#9;retractDate.show().next().show();
+&#9;&#9;deadlineLabel.show();
+&#9;&#9;if(firstLabel.text().indexOf(dot) == -1) {
+&#9;&#9;&#9;firstLabel.text(firstLabel.text() + dot);
+&#9;&#9;&#9;firstLabel.after('&lt;span id="lateSpace"&gt; &lt;/span&gt;');
+&#9;&#9;}
+&#9;}
+}
+
+function checkUserOrGroupRadio() {
+&#9;var checkedSettingId = $('input[id*="extendedEnable"]:checked').attr('id');
+
+&#9;if(checkedSettingId.indexOf('User') &gt; -1) {
+&#9;&#9;//User is selected -&gt; disable group selection
+&#9;&#9;$('select[name*="newEntry-group"]').prop('disabled', 'disabled');
+&#9;&#9;$('select[name*="newEntry-user"]').prop('disabled', '');
+&#9;}
+&#9;else if(checkedSettingId.indexOf('Group') &gt; -1) {
+&#9;&#9;//Group is selected -&gt; disable user selection
+&#9;&#9;$('select[name*="newEntry-user"]').prop('disabled', 'disabled');
+&#9;&#9;$('select[name*="newEntry-group"]').prop('disabled', '');
+&#9;}
+}
+
+function enableDisableToGradebook() {
+    // Handle the display of the gradebook select dropdown
+    const checkedInput = document.querySelector('#assessmentSettingsAction\\:toDefaultGradebook input:checked');
+    const gradebookSelect = document.querySelector('#assessmentSettingsAction\\:toGradebookNameContainer');
+&#32;&#32;&#32;&#32;
+    if (gradebookSelect) {
+        if (checkedInput &amp;&amp; checkedInput.value === '3') {
+            gradebookSelect.style.display = 'block';
+        } else {
+            gradebookSelect.style.display = 'none';
+        }
+    }
+
+    // Call toggleCategories with the current value
+    // For JSF-generated radio buttons, we need to find the checked one
+    const toDefaultGradebook = document.getElementById('assessmentSettingsAction:toDefaultGradebook');
+    if (toDefaultGradebook) {
+        const inputs = toDefaultGradebook.getElementsByTagName('input');
+        let selectedValue = '2'; // Default to "no gradebook"
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+        for (let i = 0; i &lt; inputs.length; i++) {
+            if (inputs[i].checked) {
+                selectedValue = inputs[i].value;
+                break;
+            }
+        }
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+        toggleCategories(selectedValue);
+    }
+}
+
+//if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.
+//ie/xp reports clientHeight == offsetHeight, but has a good scrollHeight
+function mySetMainFrameHeight(id)
+{
+&#9;mySetMainFrameHeight(id, null);
+}
+
+function mySetMainFrameHeight(id, minHeight)
+{
+&#9;// run the script only if this window's name matches the id parameter
+&#9;// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
+&#9;if (typeof window.name != "undefined" &amp;&amp; id != window.name) return;
+
+&#9;var frame = parent.document.getElementById(id);
+&#9;if (frame)
+&#9;{
+
+&#9;&#9;var objToResize = (frame.style) ? frame.style : frame;
+
+&#9;&#9;var height;&#32;
+&#9;&#9;
+&#9;&#9;var scrollH = document.body.scrollHeight;
+&#9;&#9;var offsetH = document.body.offsetHeight;
+&#9;&#9;var clientH = document.body.clientHeight;
+&#9;&#9;var innerDocScrollH = null;
+
+&#9;&#9;if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
+&#9;&#9;{
+&#9;&#9;&#9;// very special way to get the height from IE on Windows!
+&#9;&#9;&#9;// note that the above special way of testing for undefined variables is necessary for older browsers
+&#9;&#9;&#9;// (IE 5.5 Mac) to not choke on the undefined variables.
+&#9;&#9;&#9;var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
+&#9;&#9;&#9;innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+&#9;&#9;}
+
+&#9;&#9;if (document.all &amp;&amp; innerDocScrollH != null)
+&#9;&#9;{
+&#9;&#9;&#9;// IE on Windows only
+&#9;&#9;&#9;height = innerDocScrollH;
+&#9;&#9;}
+&#9;&#9;else
+&#9;&#9;{
+&#9;&#9;&#9;// every other browser!
+&#9;&#9;&#9;height = offsetH;
+&#9;&#9;&#9;if(innerDocScrollH != null &amp;&amp; innerDocScrollH &gt; height){
+&#9;&#9;&#9;&#9;height = innerDocScrollH;
+&#9;&#9;&#9;}
+&#9;&#9;}
+
+&#9;&#9;// here we fudge to get a little bigger
+&#9;&#9;//gsilver: changing this from 50 to 10, and adding extra bottom padding to the portletBody&#9;&#9;
+&#9;&#9;var newHeight = height + 150;
+&#9;&#9;//contributed patch from hedrick@rutgers.edu (for very long documents)
+&#9;&#9;if (newHeight &gt; 32760)
+&#9;&#9;newHeight = 32760;
+
+&#9;&#9;// no need to be smaller than...
+&#9;&#9;if(minHeight &amp;&amp; minHeight &gt; newHeight){
+&#9;&#9;&#9;newHeight = minHeight;
+&#9;&#9;}
+&#9;&#9;objToResize.height=newHeight + "px";
+&#9;
+&#9;&#9;var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
+
+&#9;}
+}
+
+function resetSelectMenus(){
+  var selectlist = document.getElementsByTagName("SELECT");
+
+  for (var i = 0; i &lt; selectlist.length; i++) {
+        if ( selectlist[i].id.indexOf("changeQType") &gt;=0){
+          selectlist[i].value = "";
+        }
+  }
+}
+
+function clickInsertLink(field){
+  var insertlinkid = field.id.replace("changeQType", "hiddenlink");
+  var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
+  $(hiddenSelector)[0].click()
+}
+
+// Show MathJax warning messages if applicable
+if (typeof MathJax != 'undefined') {
+  $(document).ready(function() {
+    $(".mathjax-warning").show();
+  });
+}
+
+function toggleCategories(checkbox) {
+  // Toggle categories selector. If categories are disabled it won't exist
+  // so check first.
+  const categoryDiv = document.querySelector('#assessmentSettingsAction\\:toGradebookCategory');
+  const selectedGradebook = document.querySelector('#assessmentSettingsAction\\:toGradebookSelected');
+
+  if (categoryDiv) {
+    // If checkbox is a string, it's the initial call from document ready
+    if (typeof checkbox === 'string') {
+        categoryDiv.style.display = checkbox === '1' ? 'block' : 'none';
+    } else {
+        categoryDiv.style.display = checkbox.value === '1' ? 'block' : 'none';
+    }
+  }
+
+  if (selectedGradebook) {
+    // If checkbox is a string, it's the initial call from document ready
+    if (typeof checkbox === 'string') {
+      selectedGradebook.style.display = checkbox === '3' ? 'block' : 'none';
+    } else {
+      selectedGradebook.style.display = checkbox.value === '3' ? 'block' : 'none';
+    }
+  }
+
+}
+
+function expandAccordion(iframId){
+    $('div#jqueryui-accordion &gt; .ui-accordion-content').show();
+    mySetMainFrameHeight(iframId);
+    $("#collapseLink").show();
+    $("#expandLink").hide();
+    $("div#jqueryui-accordion &gt; h3.ui-accordion-header &gt; span").removeClass("ui-icon-triangle-1-e").addClass("ui-icon-triangle-1-s");
+    $("div#jqueryui-accordion &gt; h3.ui-accordion-header").addClass("ui-accordion-header-active ui-state-active");
+}
+
+function collapseAccordion(iframId){
+    $('.ui-accordion-content').hide();
+    mySetMainFrameHeight(iframId);
+    $("#collapseLink").hide();
+    $("#expandLink").show();
+    $("div#jqueryui-accordion &gt; h3.ui-accordion-header &gt; span").removeClass("ui-icon-triangle-1-s").addClass("ui-icon-triangle-1-e");
+    $("div#jqueryui-accordion &gt; h3.ui-accordion-header").removeClass("ui-accordion-header-active ui-state-active");
+}
+
+/*
+* This will set an aria-describedbiy attribute to every setting with a descriptive label when
+* the lablels id equals [the id of the option] + [whatever helpBlockDetectionString is]
+*/
+function setAccessibilityAttributes() {
+&#9;var helpBlockDetectString = "HelpBlock";
+&#9;var helpBlocks = $("[id*=" + helpBlockDetectString +"]");
+&#9;for(i = 0; i &lt; helpBlocks.length; i++) {
+&#9;&#9;var helpBlockId = helpBlocks[i].id;
+&#9;&#9;//removes helpBlockDetectString resulting in the id of the setting
+&#9;&#9;var settingId = helpBlockId.substring(0,helpBlockId.indexOf(helpBlockDetectString));
+&#9;&#9;//querries elements with that exact id
+&#9;&#9;var settingQuerryIdent = "#" + settingId.replace(/:/g, "\\:");
+&#9;&#9;//querries elements with appending :0, :1, ...
+&#9;&#9;var settingQuerryOption = "[id*=" + settingId.replace(/:/g, "\\:") + "\\:]";
+&#9;&#9;//sets aria-describredby attribute
+&#9;&#9;$(settingQuerryIdent + ", " + settingQuerryOption).first().attr("aria-describredby", helpBlockId);
+&#9;}
+}
+
+function toggleSection(sectionId, visible){
+&#9;if(visible === "true"){
+&#9;&#9;document.getElementById(sectionId).classList.remove('hidden');
+&#9;} else {
+&#9;&#9;document.getElementById(sectionId).classList.add('hidden');
+&#9;}
+}
+function changeStatusCorrectResponseCheckbox() {
+  const hideCorrectResponse = document.getElementById('assessmentSettingsAction:hideCorrectResponse');
+
+  hideCorrectResponse.style.display = (hideCorrectResponse.style.display == "none") ? "block" : "none";
+}
+</f:verbatim>
+</ui:composition>

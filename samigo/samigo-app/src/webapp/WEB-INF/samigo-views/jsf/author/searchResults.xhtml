@@ -1,0 +1,145 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>&lt;!-- $Id$
+
+--&gt;
+
+&lt;div class="table"&gt;
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="text_searched_results" rendered="#{not empty searchQuestionBean.textToSearch}"><f:verbatim>
+        &lt;h3&gt;</f:verbatim><h:outputLabel value="#{authorMessages.results_text}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>&lt;/h3&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="tags_searched_results" rendered="#{not empty searchQuestionBean.tagToSearchLabel}"><f:verbatim>
+        &lt;h3&gt;</f:verbatim><h:outputLabel value="#{authorMessages.results_tag}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>&lt;/h3&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+    &lt;div class="col-xs-12 col-sm-12 col-md-12 instruction"&gt;</f:verbatim><h:outputText value="#{authorMessages.preview_tip}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:verbatim>&lt;/div&gt;
+
+    &lt;script&gt;
+        $(function() {
+            $('a.uimodal').on('click', function() {
+                var href = $(this).attr('href');
+                var title = $(this).attr('title');
+                var loading = $(this).attr('loading');
+                $('&lt;div id=QuestionPreview&gt;').html(loading).dialog({
+                    modal: true,
+                    open: function () {
+                        $.get(href).done(function(data, status, XHR){
+                            handleData(data);
+                        });
+                    },
+
+                    close: function (e) {
+                        $(this).empty();
+                        $(this).dialog('destroy');
+                    },
+                    height: 350,
+                    width: 540,
+                    title: title
+
+                });
+                return false;
+            });
+        });
+
+
+        function handleData( responseData ) {
+            $("#QuestionPreview").html(responseData);
+        }
+
+
+
+    &lt;/script&gt;
+
+&#32;&#32;&#32;&#32;</f:verbatim><t:dataTable value="#{searchQuestionBean.results.entrySet().toArray()}" var="item_search_result" styleClass="table table-striped" id="searchquestions-questions" rowIndexVar="row"><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"><h:outputText   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"><f:attribute name="value" value=""/></h:outputText></h:panelGroup></f:facet><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}">&lt;span&gt;&lt;a href="/portal/tool/</f:verbatim><f:verbatim>
+</f:verbatim><h:outputText value="#{requestScope[&#x27;sakai.tool.placement.id&#x27;]}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"/><f:verbatim>
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}">/jsf/author/searchPreview.faces?idString=</f:verbatim><h:outputText value="#{item_search_result.value.idString}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"/><f:verbatim>
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}">&amp;typeId=</f:verbatim><h:outputText value="#{item_search_result.value.typeId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}"/><f:verbatim>
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}">" class="uimodal" loading="</f:verbatim><h:outputText value="#{authorMessages.loading}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"/><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 17}">" title="</f:verbatim><h:outputText value="#{authorMessages.preview}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 18}"/><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 19}">"   &gt;&lt;i class="fa fa-eye" aria-hidden="true"&gt;&lt;/i&gt;&lt;/a&gt;</f:verbatim><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 20}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 21}"><h:outputText value="#{questionPoolMessages.q_type}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 22}"/></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;1&#x27;}" value="#{authorMessages.multiple_choice_type}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 23}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;2&#x27;}" value="#{authorMessages.multiple_choice_type}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 24}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;3&#x27;}" value="#{authorMessages.multiple_choice_surv}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 25}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;4&#x27;}" value="#{authorMessages.true_false}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 26}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;5&#x27;}" value="#{authorMessages.short_answer_essay}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 27}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;6&#x27;}" value="#{authorMessages.file_upload}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 28}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;7&#x27;}" value="#{authorMessages.audio_recording}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 29}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;8&#x27;}" value="#{authorMessages.fill_in_the_blank}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 30}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;9&#x27;}" value="#{authorMessages.matching}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 31}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;11&#x27;}" value="#{authorMessages.fill_in_numeric}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 32}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;12&#x27;}" value="#{authorMessages.multiple_choice_type}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 33}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;14&#x27;}" value="#{authorMessages.extended_matching_items}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 34}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;13&#x27;}" value="#{authorMessages.matrix_choice_surv}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 35}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;15&#x27;}" value="#{authorMessages.calculated_question}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 36}"/><f:verbatim>&lt;!-- // CALCULATED_QUESTION --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{item_search_result.value.typeId== &#x27;16&#x27;}" value="#{authorMessages.image_map_question}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 37}"/><f:verbatim>&lt;!-- // IMAGEMAP_QUESTION --&gt;
+
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 38}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 39}"><h:outputText value="#{questionPoolMessages.q_text}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 40}"/></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText escape="false" value="#{row + 1} : #{item_search_result.value.qText}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 41}"/><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{searchQuestionBean.showTags == &#x27;true&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 42}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 43}"><h:outputText value="#{questionPoolMessages.t_tags}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 44}"/></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:dataList value="#{item_search_result.value.tagSet.toArray()}" var="tag" layout="unorderedList" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 45}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 46}">&lt;span&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{tag}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 47}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 48}">&lt;/span&gt;&lt;/br&gt;&#32;&#32;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:dataList><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 49}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 50}"><h:outputText value="#{authorMessages.origin}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 51}"/></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:dataList value="#{item_search_result.value.origin}" var="origin" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 52}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 53}">&lt;span&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{origin}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 54}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 55}">&lt;/span&gt;&lt;/br&gt;&#32;&#32;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:dataList><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="colimport" ><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 57}"><h:outputText value="#{questionPoolMessages.impToAuthor} " id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 58}"/><h:outputText value="#{questionPoolMessages.select_all}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 59}"/><f:verbatim>&amp;nbsp;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox id="importSelectAllCheck" onclick="toggleCheckboxes(this,&#x27;importCheckbox&#x27;);updateButtonStatusOnCheck(document.getElementById(&#x27;editform:import&#x27;), document.getElementById(&#x27;editform&#x27;));"  ><f:attribute name="value" value=""/></h:selectBooleanCheckbox></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{searchQuestionBean.destItems}" onclick="toggleSelectAllCheck(this,&#x27;importSelectAllCheck&#x27;);updateButtonStatusOnCheck(document.getElementById(&#x27;editform:import&#x27;), document.getElementById(&#x27;editform&#x27;));"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="#{item_search_result.value.idString}" itemLabel="" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 62}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectManyCheckbox><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;</f:verbatim></t:dataTable><f:verbatim>
+&lt;/div&gt;
+</f:verbatim>
+</ui:composition>

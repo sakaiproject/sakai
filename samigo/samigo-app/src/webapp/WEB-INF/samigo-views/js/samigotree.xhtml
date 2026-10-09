@@ -1,0 +1,747 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>var checkflag = "false";
+
+function checkAll(field) {
+if (field != null) {
+  if (field.length &gt;0){
+// for more than one checkbox
+    if (checkflag == "false") {
+       for (i = 0; i &lt; field.length; i++) {
+           field[i].checked = true;}
+       checkflag = "true";
+       return "Uncheck all"; }
+    else {
+       for (i = 0; i &lt; field.length; i++) {
+           field[i].checked = false; }
+       checkflag = "false";
+       return "Check all"; }
+  }
+  else {
+// for only one checkbox
+    if (checkflag == "false") {
+  field.checked = true;
+  checkflag = "true";
+  return "Uncheck all"; }
+else {
+  field.checked = false;&#32;
+  checkflag = "false";
+  return "Check all"; }
+
+   }
+}
+}
+
+function uncheck(field){
+      field.checked = false;&#32;
+  checkflag = "false";
+    return "uncheck";&#32;
+}
+
+// this is for movePool. uncheck all other radio buttons when one is checked, to make it  behave like they are in an array.
+
+function uncheckOthers(field){
+ var fieldname = field.getAttribute("name");
+ var tables= document.getElementsByTagName("TABLE");
+
+  for (var i = 0; i &lt; tables.length; i++) {
+        if ( tables[i].id.indexOf("radiobtn") &gt;=0){
+ &#9;&#9;var radiobtn = tables[i].getElementsByTagName("INPUT")[0];
+// go through the radio buttons, if it's the one clicked on, uncheck all others
+&#9;if (fieldname!=radiobtn.getAttribute("name")){
+&#9;&#9;radiobtn.checked = false;
+}
+        }&#32;
+  }
+&#32;
+var selectId =  field.getAttribute("value");
+var inputhidden = document.getElementById("movePool:selectedRadioBtn");
+inputhidden.setAttribute("value", selectId);
+&#32;
+}
+
+function toggleRows(elm) {
+ var tables = document.getElementsByTagName("TABLE");
+ var t=0;
+ for (t= 0; t&lt; tables.length; t++) {
+        if ( tables[t].id.indexOf("TreeTable") &gt;=0){
+                break;
+        }
+ }
+
+ var rows = tables[t].getElementsByTagName("TR");
+ elm.classList.remove("treefolder-open");
+ elm.classList.add("treefolder");
+ var newDisplay = "none";
+ var spannode = elm.parentNode;
+ var inputnode = spannode.getElementsByTagName("INPUT")[0];
+ var thisID = inputnode.value+ "-";
+ // Are we expanding or contracting? If the first child is hidden, we expand
+  for (var i = 1; i &lt; rows.length; i++) {
+   var r = rows[i];
+
+// get row id&#32;
+     var cell= r.getElementsByTagName("TD")[0];
+     var sf= cell.getElementsByTagName("SPAN")[0];
+     var sfs= cell.getElementsByTagName("SPAN");
+&#9;if (sfs.length &gt;0) {   // skip the table for remove checkboxes&#9;
+     var ht= sf.getElementsByTagName("INPUT")[0];
+   var rowid = ht.value;
+
+   if (matchStart(rowid, thisID, true)) {
+    if (r.style.display == "none") {
+     if (document.all) newDisplay = "block"; //IE4+ specific code
+     else newDisplay = "table-row"; //Netscape and Mozilla
+      elm.classList.remove("treefolder");
+      elm.classList.add("treefolder-open");
+    }
+    break;
+   }
+   }
+
+ }
+
+ // When expanding, only expand one level.  Collapse all desendants.
+ var matchDirectChildrenOnly = (newDisplay != "none");
+
+ for (var j = 1; j &lt; rows.length; j++) {
+   var s = rows[j];
+// get row id&#32;
+     var cell= s.getElementsByTagName("TD")[0];
+     var sf= cell.getElementsByTagName("SPAN")[0];
+     var sfs= cell.getElementsByTagName("SPAN");
+&#9;if (sfs.length &gt;0) {   // skip the table for remove checkboxes&#9;
+     var ht= sf.getElementsByTagName("INPUT")[0];
+   var rowid = ht.value;
+
+   if (matchStart(rowid, thisID, matchDirectChildrenOnly)) {
+     s.style.display = newDisplay;
+   }
+  }
+
+ }
+}
+
+function matchStart(target, pattern, matchDirectChildrenOnly) {
+ var pos = target.indexOf(pattern);
+ if (pos != 0) return false;
+ if (!matchDirectChildrenOnly) return true;
+ if (target.slice(pos + pattern.length, target.length).indexOf("-") &gt;= 0) return
+ false;
+ return true;
+}
+
+function collapseAllRows() {
+ var tables = document.getElementsByTagName("TABLE");
+ var t= 0;
+ var hastreetable= "false";
+
+ if (!tables.length &gt; 0){
+
+&#9;return;&#32;
+ }
+ for (t= 0; t&lt; tables.length; t++) {
+&#9;if ( tables[t].id.indexOf("TreeTable") &gt;=0){
+&#9;hastreetable= "true";
+&#9;&#9;break;
+        }&#9;
+ }
+
+if (hastreetable== "false") {
+        return;
+}
+
+ var rows = tables[t].getElementsByTagName("TR");
+ //var rows = document.getElementsByTagName("TR");
+ for (var j = 1; j &lt; rows.length; j++) {
+   var r = rows[j];
+     var cells= r.getElementsByTagName("TD");
+     var cell= r.getElementsByTagName("TD")[0];
+     var sfs= cell.getElementsByTagName("SPAN");
+&#9;if (sfs.length &gt;0) {   // skip the table for remove checkboxes&#9;
+     var sf= cell.getElementsByTagName("SPAN")[0];
+     var ht= sf.getElementsByTagName("INPUT")[0];
+   if (ht.value.indexOf("-") &gt;= 0) {
+     r.style.display = "none";
+   }
+  }
+
+ }
+}
+
+/****************************************************************/
+// this is for movePool and copyPool, where there are nested tr, td tags&#32;
+
+function toggleRowsForSelectList(elm) {
+ var tables = document.getElementsByTagName("TABLE");
+ var t=0;
+ for (t= 0; t&lt; tables.length; t++) {
+        if ( tables[t].id.indexOf("TreeTable") &gt;=0){
+                break;
+        }
+ }
+
+ var rows = tables[t].getElementsByTagName("TR");
+
+ elm.classList.remove("treefolder-open");
+ elm.classList.add("treefolder");
+ var newDisplay = "none";
+ var spannode = elm.parentNode;
+ var inputnode = spannode.getElementsByTagName("INPUT")[0];
+ var thisID = inputnode.value+ "-";
+ // Are we expanding or contracting? If the first child is hidden, we expand
+  for (var i = 1; i &lt; rows.length; i++) {
+   var r = rows[i];
+
+// to skip the cell for radio button or checkbox
+      var cells= r.getElementsByTagName("TD");
+if (cells.length !=7) {
+ continue;
+}
+
+     var cell= r.getElementsByTagName("TD")[2];
+     var sf= cell.getElementsByTagName("SPAN")[0];
+     var ht= sf.getElementsByTagName("INPUT")[0];
+   var rowid = ht.value;
+
+   if (matchStart(rowid, thisID, true)) {
+    if (r.style.display == "none") {
+     if (document.all) newDisplay = "block"; //IE4+ specific code
+     else newDisplay = "table-row"; //Netscape and Mozilla
+      elm.classList.remove("treefolder");
+      elm.classList.add("treefolder-open");
+    }
+    break;
+   }
+ }
+
+ // When expanding, only expand one level.  Collapse all desendants.
+ var matchDirectChildrenOnly = (newDisplay != "none");
+
+ for (var j = 1; j &lt; rows.length; j++) {
+   var s = rows[j];
+// get row id
+// to skip the cell for radio button or checkbox
+      var cells= s.getElementsByTagName("TD");
+if (cells.length !=7) {
+ continue;
+}
+
+     var cell= s.getElementsByTagName("TD")[2];
+
+     var sf= cell.getElementsByTagName("SPAN")[0];
+     var ht= sf.getElementsByTagName("INPUT")[0];
+   var rowid = ht.value;
+
+   if (matchStart(rowid, thisID, matchDirectChildrenOnly)) {
+     s.style.display = newDisplay;
+     var cell = s.getElementsByTagName("TD")[2];
+     var tier = cell.getElementsByTagName("SPAN")[0];
+     var folder = tier.getElementsByTagName("A")[0];
+     if (folder.getAttribute("onclick") != null) {
+       elm.classList.remove("treefolder-open");
+       elm.classList.add("treefolder");
+     }
+   }
+ }
+}
+
+function collapseAllRowsForSelectList() {
+ var tables = document.getElementsByTagName("TABLE");
+ var t=0;
+ for (t= 0; t&lt; tables.length; t++) {
+        if ( tables[t].id.indexOf("TreeTable") &gt;=0){
+                break;
+        }
+ }
+ var rows = tables[t].getElementsByTagName("TR");
+ //var rows = document.getElementsByTagName("TR");
+ for (var j = 1; j &lt; rows.length; j++) {
+   var r = rows[j];
+// to skip the cell for radio button or checkbox
+      var cells= r.getElementsByTagName("TD");
+if (cells.length !=7) {
+ continue;
+
+}
+      var cell= r.getElementsByTagName("TD")[2];
+
+
+     var sf= cell.getElementsByTagName("SPAN")[0];
+     var ht= sf.getElementsByTagName("INPUT")[0];
+   if (ht.value.indexOf("-") &gt;= 0) {
+     r.style.display = "none";
+   }
+ }
+}
+
+/****************************************************************/
+function collapseRowsByLevel(level) {
+
+ var tables = document.getElementsByTagName("TABLE");
+ var t= 0;
+ var hastreetable= "false";
+ if (!tables.length &gt; 0){
+        return;
+ }
+ for (t= 0; t&lt; tables.length; t++) {
+        if ( tables[t].id.indexOf("TreeTable") &gt;=0){
+ &#9;&#9;hastreetable= "true";
+                break;
+        }
+ }
+if (hastreetable== "false") {
+&#9;return;
+}
+
+ var rows = tables[t].getElementsByTagName("TR");
+ //var rows = document.getElementsByTagName("TR");
+ for (var j = 1; j &lt; rows.length; j++) {
+   var r = rows[j];
+     var cells= r.getElementsByTagName("TD");
+     var cell= r.getElementsByTagName("TD")[0];
+     var sfs= cell.getElementsByTagName("SPAN");
+        if (sfs.length &gt;0) {   // skip the table for remove checkboxes
+     var sf= cell.getElementsByTagName("SPAN")[0];
+     var ht= sf.getElementsByTagName("INPUT")[0];
+   var rtokens =ht.value.split("-");
+   if (ht.value.indexOf("-") &gt;= 0) {
+     if (rtokens.length &gt; level) {
+       r.style.display = "none";
+     }
+   }
+  }
+
+ }
+}
+
+/****************************************************************/
+
+
+function collapseRowsByLevel1(i) {
+// not used&#32;
+ var tables = document.getElementsByTagName("TABLE");
+ var t=0;
+ for (t= 0; t&lt; tables.length; t++) {
+        if ( tables[t].id.indexOf("TreeTable") &gt;=0){
+                break;
+        }
+ }
+
+ var rows = tables[t].getElementsByTagName("TR");
+
+ //var rows = document.getElementsByTagName("TR");
+ for (var j = 0; j &lt; rows.length; j++) {
+   var r = rows[j];
+   var rtokens =r.id.split("-");
+
+   if (r.id.indexOf("-") &gt;= 0) {
+     if (rtokens.length &gt; i) {
+       r.style.display = "none";
+     }
+   }
+
+ }
+}
+
+
+// below is for simple tree
+function toggleBullet(elm) {
+ var newDisplay = "none";
+ var e = elm.nextSibling;
+ while (e != null) {
+  if (e.tagName == "OL" || e.tagName == "ol") {
+   if (e.style.display == "none") newDisplay = "block";
+   break;
+  }
+  e = e.nextSibling;
+ }
+ while (e != null) {
+  if (e.tagName == "OL" || e.tagName == "ol") e.style.display = newDisplay;
+  e = e.nextSibling;
+ }
+}
+
+function collapseAll() {
+  var lists = document.getElementsByTagName('OL');
+  for (var j = 0; j &lt; lists.length; j++)
+   lists[j].style.display = "none";
+  lists = document.getElementsByTagName('ol');
+  for (var j = 0; j &lt; lists.length; j++)
+   lists[j].style.display = "none";
+  var e = document.getElementById("root");
+  e.style.display = "block";
+}
+
+function PopupWin(url)
+{
+   window.open(url,"ha_fullscreen","toolbar=no,location=no,directories=no,status=no,menubar=yes,"+"scrollbars=yes,resizable=yes,width=640,height=480");
+
+}
+
+function checkUpdate(){
+ var tables= document.getElementsByTagName("INPUT");
+ disabledButton();
+ for (var i = 0; i &lt; tables.length; i++) {
+    if (tables[i].name.indexOf("removeCheckbox") &gt;=0){
+         if(tables[i].checked){&#32;&#32;&#32;
+            abledButton();
+             break;
+         }
+    }
+
+ }
+}
+
+// convenience function for single button arrays, see next function
+function updateButtonStatusOnCheck(button, checkboxContainer)
+{
+    updateButtonStatusesOnCheck([button], checkboxContainer);
+}
+
+// enables/disables the given buttons depending on whether or not
+// any checkbox child element of the given container is checked
+function updateButtonStatusesOnCheck(buttons, checkboxContainer)
+{
+    if (buttons === null || checkboxContainer === null)
+    {
+        return;
+    }
+
+    var inputs = checkboxContainer.getElementsByTagName("input");
+    var foundChecked = false;
+    for (i = 0; i &lt; inputs.length; ++i)
+    {
+        if (inputs[i].type === "checkbox" &amp;&amp; inputs[i].checked)
+        {
+            foundChecked = true;
+            break;
+        }
+    }
+
+    for (i = 0; i &lt; buttons.length; ++i)
+    {
+        if (buttons[i] !== null)
+        {
+            buttons[i].disabled = !foundChecked;
+        }
+    }
+}
+
+function inIt()
+{
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i &lt; inputs.length; i++) {
+    if (inputs[i].name.indexOf("Update") &gt;=0) {
+      inputs[i].disabled=false;
+    }
+  }
+}
+
+function disableIt()
+{
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i &lt; inputs.length; i++) {
+    if (inputs[i].name.indexOf("Update") &gt;=0) {
+      inputs[i].disabled=true;
+    }
+  }
+}
+
+function disabledButton(){
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i &lt; inputs.length; i++){
+    if (inputs[i].name.indexOf("Submit") &gt;=0) {
+      inputs[i].disabled=true;
+&#9;  inputs[i].className='disabled';
+&#9;}
+  }
+}
+function abledButton(){
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i &lt; inputs.length; i++) {
+    if (inputs[i].name.indexOf("Submit") &gt;=0) {
+      inputs[i].disabled=false;
+&#9;  inputs[i].className='active';
+&#9;}
+  }
+}
+
+function toggleRemove(){
+  var inputs= document.getElementsByTagName("INPUT");
+  var selectitem = null;
+  for (var i = 0; i &lt; inputs.length; i++) {
+    if (inputs[i].name.indexOf("selectall") &gt;=0) {
+       selectitem = inputs[i];
+       break;
+    }
+  }
+
+  var checkit = selectitem.checked;&#32;&#32;
+  if (checkit)
+    selectitem.title=textuncheckall;
+  else
+    selectitem.title=textcheckall;
+
+  for (var i = 0; i &lt; inputs.length; i++){
+    if (inputs[i].name.indexOf("removeCheckbox") &gt;=0)
+      inputs[i].checked=checkit;
+  }
+}
+
+// **********************************************
+// ****************** SAM-2049 ******************
+// **********************************************
+
+function checkChildrenCheckboxes(item) {
+&#9;var localItem = jQuery(item);
+&#9;var itemChecked = localItem.is(':checked');
+
+&#9;// Go to the item's parent table that has the tier. I would have used a wildcard selector but the version
+&#9;// of jquery we are using doesn't seem to have that working well
+&#9;var itemParentTable = localItem.parents("table[id$='radiobtn']");
+&#32;&#32;
+&#9;// Make sure we found something.  A length of 0 would be not found
+&#9;if (itemParentTable.length == 1) {
+&#9;&#9;// What is the css style of this parent table? we assume this is "tierX"
+&#9;&#9;var itemTierClassName = itemParentTable.attr("class");
+&#9;&#9;var itemCheckboxTierDigit = getTierDigit(itemTierClassName);
+&#9;&#9;var itemParentTr = itemParentTable.parent().parent().parent();
+&#32;&#32;&#32;&#32;&#32;
+&#9;&#9;// Let's get all the other mega table rows
+&#9;&#9;var itemPeerTrs = itemParentTr.nextAll(); // Get all sibling tr's AFTER this tr.
+
+&#9;&#9;// This will be used if we find a tier level that is at a level the same or higher than the one being checked
+&#9;&#9;var isKeepLooping = true;
+
+&#9;&#9;for (var index = 0; (isKeepLooping &amp;&amp; index &lt; itemPeerTrs.length); index++) {&#9;    &#9;&#32;
+&#9;&#9;&#9;var siblingTr = jQuery(itemPeerTrs.get(index));
+&#9;&#9;&#9;var siblingTierTable = siblingTr.find("table");
+&#9;&#9;&#9;var siblingTierTableClassName = siblingTierTable.attr("class");&#9;    &#9;&#32;
+&#9;&#9;&#9;var siblingCheckboxTierDigit = getTierDigit(siblingTierTableClassName);
+
+&#9;&#9;&#9;// If this tier level is greater than the initial item checked then these are child
+&#9;&#9;&#9;// checkboxes that need to be set or unset.
+&#9;&#9;&#9;if (siblingCheckboxTierDigit &gt; itemCheckboxTierDigit) {
+&#9;&#9;&#9;&#9;var siblingInputCheckbox = siblingTierTable.find("input:checkbox");
+&#9;&#9;&#9;&#9;if (itemChecked) {
+&#9;&#9;&#9;&#9;&#9;siblingInputCheckbox.attr("checked", "checked");
+&#9;&#9;&#9;&#9;&#9;siblingInputCheckbox.attr("disabled", "disabled");
+&#9;&#9;&#9;&#9;} else {
+&#9;&#9;&#9;&#9;&#9;siblingInputCheckbox.removeAttr("checked");
+&#9;&#9;&#9;&#9;&#9;siblingInputCheckbox.removeAttr("disabled");&#9;    &#9;&#9;&#9;&#32;&#32;
+&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;} else {
+&#9;&#9;&#9;&#9;// This tier level is NOT a child tier. No need to look at any more checkboxes
+&#9;&#9;&#9;&#9;isKeepLooping = false;
+&#9;&#9;&#9;}
+&#9;&#9;}&#9;&#32;&#32;&#32;&#32;&#32;&#32;
+  &#9;}
+}
+
+function getTierDigit(tierString) {
+&#9;if (tierString !== undefined) {
+&#9;&#9;return tierString.substr(4, tierString.length - 4);
+&#9;}
+&#9;else {
+&#9;&#9;return -1;
+&#9;}
+}
+
+function checkAllCheckboxes( selectAllCheckbox )
+{
+&#9;var allCheckboxes = jQuery(':checkbox');
+&#9;var isSelectAllChecked = selectAllCheckbox.checked;
+&#9;for( i = 0; i &lt; allCheckboxes.length; i++ )
+&#9;{
+&#9;&#9;var checkbox = allCheckboxes[i];
+&#9;&#9;if( selectAllCheckbox.id !== checkbox.id )
+&#9;&#9;{
+&#9;&#9;&#9;if( isSelectAllChecked )
+&#9;&#9;&#9;{
+&#9;&#9;&#9;&#9;checkbox.checked = true;
+&#9;&#9;&#9;&#9;checkbox.disabled = true;
+&#9;&#9;&#9;}
+&#9;&#9;&#9;else
+&#9;&#9;&#9;{
+&#9;&#9;&#9;&#9;checkbox.checked = false;
+&#9;&#9;&#9;&#9;checkbox.disabled = false;
+&#9;&#9;&#9;}
+&#9;&#9;}
+&#9;}
+}
+
+function passSelectedPoolIds() {
+&#9;var allCheckboxes = jQuery('#transferPool\\:TreeTable').find(':checkbox:checked');
+&#9;var poolIds = new Array();
+&#9;var checkboxValue;
+&#9;
+&#9;for (var index = 0; index &lt; allCheckboxes.length; index++) {
+&#9;&#9;checkboxValue = jQuery(allCheckboxes.get(index)).val();
+&#9;&#9;poolIds[index] = checkboxValue;
+&#9;}
+&#9;
+&#9;var hideInput = jQuery('input[name$=transferPoolIds]');
+&#9;hideInput.val(poolIds);
+}
+
+function checkChildrenCheckboxesDisable(item) {
+&#9;var localItem = jQuery(item);
+&#9;var itemChecked = localItem.is(':checked');
+&#9;var itemParentTable = localItem.closest('table');
+
+&#9;if (itemParentTable.length == 1) {
+&#9;&#9;var itemTierClassName = itemParentTable.attr("class");
+&#9;&#9;var itemCheckboxTierDigit = getTierDigit(itemTierClassName);
+&#9;&#9;var itemParentTr = itemParentTable.closest('tr');
+&#9;&#9;var itemPeerTrs = itemParentTr.nextAll(); // Get all sibling tr's AFTER this tr.
+&#9;&#9;var isKeepLooping = true;
+
+&#9;&#9;for (var index = 0; (isKeepLooping &amp;&amp; index &lt; itemPeerTrs.length); index++) {
+&#9;&#9;&#9;var siblingTr = jQuery(itemPeerTrs.get(index));
+&#9;&#9;&#9;var siblingTierTable = siblingTr.find("table");
+&#9;&#9;&#9;var siblingTierTableClassName = siblingTierTable.attr("class");
+&#9;&#9;&#9;var siblingCheckboxTierDigit = getTierDigit(siblingTierTableClassName);
+
+&#9;&#9;&#9;if (siblingCheckboxTierDigit &gt; itemCheckboxTierDigit) {
+&#9;&#9;&#9;&#9;var siblingInputCheckbox = siblingTierTable.find("input:checkbox");
+&#9;&#9;&#9;&#9;if (itemChecked) {
+&#9;&#9;&#9;&#9;&#9;siblingInputCheckbox.attr("disabled", "disabled");
+&#9;&#9;&#9;&#9;} else {
+&#9;&#9;&#9;&#9;&#9;siblingInputCheckbox.removeAttr("disabled");
+&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;} else {
+&#9;&#9;&#9;&#9;isKeepLooping = false;
+&#9;&#9;&#9;}
+&#9;&#9;}&#9;&#32;&#32;&#32;&#32;&#32;&#32;
+&#9;}
+}
+
+function disableCheckboxes() {
+&#9;var allCheckboxes = jQuery(':checkbox');
+&#9;var checkAllChecked = jQuery('input[name$=checkAllCheckbox]').is(':checked');
+
+&#9;for (var index = 1; index &lt; allCheckboxes.length; index++) {
+&#9;&#9;var checkboxItem = jQuery(allCheckboxes.get(index) );
+&#9;&#9;if (checkAllChecked) {
+&#9;&#9;&#9;checkboxItem.attr("disabled", "disabled");
+&#9;&#9;} else {
+&#9;&#9;&#9;checkboxItem.removeAttr("disabled");
+&#9;&#9;}
+&#9;}
+&#9;
+&#9;var otherCheckboxes = jQuery('input[name$=radiobtn]');
+&#9;for (var i = 0; i &lt; otherCheckboxes.length; i++) {
+&#9;&#9;checkChildrenCheckboxesDisable(otherCheckboxes.get(i));
+&#9;}
+}
+
+function disableButtons() {
+
+&#9;// Get the buttons
+&#9;var elements = $(":submit");
+&#9;for (i = 0; i &lt; elements.length; i++) {
+
+&#9;&#9;// Hide the original
+&#9;&#9;var button = elements[i];
+&#9;&#9;button.style.display = "none";
+
+&#9;&#9;// Clone and disable the original
+&#9;&#9;var newButton = document.createElement("input");
+&#9;&#9;newButton.setAttribute("type", "button" );
+&#9;&#9;newButton.setAttribute("id", button.getAttribute("id") + "Disabled");
+&#9;&#9;newButton.setAttribute("name", button.getAttribute("name") + "Disabled");
+&#9;&#9;newButton.setAttribute("value", button.getAttribute("value"));
+&#9;&#9;newButton.setAttribute("className", button.getAttribute("className"));
+&#9;&#9;newButton.setAttribute("disabled", "true");
+
+&#9;&#9;// Add the clone where the original is in the DOM
+&#9;&#9;var parent = button.parentNode;
+&#9;&#9;parent.insertBefore(newButton, button);
+&#9;}
+}
+
+/*
+  Toggle JSF checkboxes that match a controller checkbox&#32;&#32;
+*/
+function toggleCheckboxes(checkbox,checkboxtargetname) {
+    // Render the transfer button if one or more checkboxes are selected
+    // Basically this needs to split out the ID from checkbox which will be named&#32;
+    // editform:_id142:chk
+    //
+    // And either check or uncheck all boxes named depending on whether or not it (itself) is checked
+    // editform:_id142:#:*
+&#9;&#9;// Add your controller checkbox with the name:&#32;
+&#9;&#9;//&#32;</f:verbatim><h:selectBooleanCheckbox id="importCheckbox_chk" onclick="toggleCheckboxes(this);"  ><f:attribute name="value" value=""/></h:selectBooleanCheckbox><f:verbatim>
+&#9;&#9;
+&#9;&#9;//debugger;
+    if (checkboxtargetname) {
+&#9;&#9;&#9;&#9;params = checkbox.name.split(":")
+&#9;&#9;}
+&#9;&#9;if (params &amp;&amp; params.length == 3) {
+&#9;&#9;&#9;&#9;params.pop();
+&#9;&#9;&#9;&#9;params.push(checkboxtargetname);
+&#9;&#9;}
+    else&#32;
+&#9;&#9;&#9;return;&#32;
+
+&#9;&#9;for (i = 0;; i++) {
+        id = params[0] + ":" + params[1] + ":" + i + ":" + params[2];
+        elem = null;
+        if (document.getElementsByName)
+            elem = document.getElementsByName(id);
+        if (elem == null || elem.length == 0) {
+            break;
+        } else {
+            if (elem.length == 1)
+                elem[0].checked = checkbox.checked;
+            //Not sure if it finds multiple elements with the same name, since this is a special JSF case
+            //It shouldn't happen
+        }
+    }
+}
+
+function toggleSelectAllCheck(checkbox,checkboxtargetname) {
+&#9;if (checkboxtargetname)&#32;
+&#9;&#9;params = checkbox.name.split(":");
+&#9;
+&#9;if (params &amp;&amp; params.length == 4) {
+&#9;&#9;params.pop();
+&#9;&#9;params.pop();
+&#9;&#9;params.push(checkboxtargetname);
+&#9;}
+&#9;else
+&#9;&#9; return;
+
+&#9;id = params[0] + ":" + params[1] + ":" + params[2];
+&#9;elem = document.getElementsByName(id);
+&#9;
+&#9;if(elem == null || elem.length == 0)
+&#9;&#9;return;
+&#9;else{
+&#9;&#9;
+&#9;&#9;if(elem.length == 1){
+&#9;&#9;&#9;if(elem[0].checked&amp;&amp;!checkbox.checked)
+&#9;&#9;&#9;&#9;elem[0].checked = checkbox.checked;
+&#9;&#9;&#9;else
+&#9;&#9;&#9;&#9;return;
+&#9;&#9;}
+&#9;&#9;else&#32;
+&#9;&#9;&#9;return;
+&#9;}
+}
+
+var orderUpdate = null;
+
+function enableOrderUpdate() {&#32;&#32;
+&#9;if(orderUpdate != null) return;&#32;&#32;
+&#9;var inputs = document.getElementsByTagName("INPUT");&#32;&#32;
+&#9;for(var i = 0; i &lt; inputs.length; i++) {&#32;&#32;
+&#9;&#9;if(inputs[i].name.indexOf("orderUpdate") != -1) {&#32;&#32;
+&#9;&#9;&#9;orderUpdate = inputs[i];&#32;&#32;
+&#9;&#9;&#9;orderUpdate.disabled=false;&#32;&#32;
+&#9;&#9;&#9;break;&#32;&#32;
+&#9;&#9;}&#32;&#32;
+&#9;}&#32;&#32;
+}</f:verbatim>
+</ui:composition>

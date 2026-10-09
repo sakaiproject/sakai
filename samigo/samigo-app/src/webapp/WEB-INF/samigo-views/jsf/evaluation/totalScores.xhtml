@@ -1,0 +1,761 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+
+&lt;!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;!--
+
+--&gt;
+&#32;</f:verbatim><f:view><f:verbatim>
+    &lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+      &lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+      &lt;title&gt;</f:verbatim><h:outputText
+        value="#{commonMessages.total_scores}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>&lt;/title&gt;
+      &lt;script src='/library/js/spinner.js</f:verbatim><h:outputText value="#{totalScores.CDNQuery}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>'&gt;&lt;/script&gt;
+</f:verbatim><ui:include src="/WEB-INF/samigo-views/js/delivery.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 3}"/></ui:include><f:verbatim>
+
+      &lt;script&gt;includeWebjarLibrary('awesomplete')&lt;/script&gt;
+      &lt;script src='/library/js/sakai-reminder.js</f:verbatim><h:outputText value="#{totalScores.CDNQuery}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>'&gt;&lt;/script&gt;
+
+&lt;script&gt;
+function toPoint(id)
+{
+  var x=document.getElementById(id).value
+  document.getElementById(id).value=x.replace(',','.')
+}
+
+function pause(numberMillis)
+{
+var now = new Date();
+var exitTime = now.getTime() + numberMillis;
+while (true)
+{
+now = new Date();
+if (now.getTime() &gt; exitTime)
+return;
+}
+}
+
+function inIt()
+{
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i &lt; inputs.length; i++) {
+    if (inputs[i].name.indexOf("applyScoreButton") &gt;=0) {
+      inputs[i].disabled=false;
+    }
+  }
+}
+
+function disableIt()
+{
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i &lt; inputs.length; i++) {
+    if (inputs[i].name.indexOf("applyScoreButton") &gt;=0) {
+      inputs[i].disabled=true;
+    }
+  }
+}
+
+$(document).ready(function(){
+
+  // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
+  var currentLink = $('#editTotalResults\\:totalScoresMenuLink');
+  currentLink.addClass('current');
+  // Remove the link of the current option
+  currentLink.html(currentLink.find('a').text());
+
+  $("a.sam-scoretable-deleteattempt").each(function(){
+    this.existingOnclick = this.onclick;
+    this.onclick = null;
+    $(this).click(function(){
+    &#9;if ( confirm("</f:verbatim><h:outputText value="#{commonMessages.confirm_delete_attempt}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:verbatim>") ) {
+        this.existingOnclick();
+      } else {
+        return false;
+      }
+    });
+  });
+
+  var sakaiReminder = new SakaiReminder();
+  $('.awesomplete').each(function() {
+    new Awesomplete(this, {
+      list: sakaiReminder.getAll()
+    });
+  });
+  $('#editTotalResults').submit(function(e) {
+    $('textarea.awesomplete').each(function() {
+      sakaiReminder.new($(this).val());
+    });
+  });
+
+});
+
+function showLoadingMessage() {
+  let loadingMessageContainer = document.getElementById('editTotalResults:loadingMessage');
+  loadingMessageContainer.classList.remove('hidden');
+}
+
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body onload="disableIt();</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>"&gt;
+ &lt;div class="portletBody container-fluid"&gt;
+
+&lt;!-- content... --&gt;
+</f:verbatim><h:form id="editTotalResults"><f:verbatim>
+&#32;&#32;</f:verbatim><h:inputHidden id="publishedId" value="#{totalScores.publishedId}" /><f:verbatim>
+&#32;&#32;</f:verbatim><h:inputHidden id="itemId" value="#{totalScores.firstItem}" /><f:verbatim>
+
+  &lt;!-- HEADINGS --&gt;
+&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/evaluation/evaluationHeadings.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 8}"/></ui:include><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:panelGroup layout="block" styleClass="page-header" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 32}"><f:verbatim>
+    &lt;h1&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{commonMessages.total_scores}#{evaluationMessages.column} " escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 33}"/><f:verbatim>
+      &lt;small&gt;</f:verbatim><h:outputText value="#{totalScores.assessmentName} " escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 34}"/><f:verbatim>&lt;/small&gt;
+    &lt;/h1&gt;
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+  &lt;!-- EVALUATION SUBMENU --&gt;
+&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/evaluation/evaluationSubmenu.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 35}"/></ui:include><f:verbatim>
+
+  &lt;div class="hide"&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.auto_scored_tip}" rendered="#{totalScores.isAutoScored}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 63}"/><f:verbatim>
+  &lt;/div&gt;
+
+&lt;div class="tier1"&gt;
+&#32;&#32;</f:verbatim><h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 64}"/><f:verbatim>
+  &lt;!-- only shows Max Score Possible if this assessment does not contain random dawn parts --&gt;
+
+&#32;&#32;</f:verbatim><sakai:flowState bean="#{totalScores}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 65}"/><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:panelGroup styleClass="max-score-possible" layout="block" rendered="#{!totalScores.hasRandomDrawPart}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 66}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&lt;h2&gt;#{evaluationMessages.max_score_poss}&lt;small&gt;: #{totalScores.maxScore}&lt;/small&gt;&lt;/h2&gt;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 67}"/><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:panelGroup styleClass="apply-grades" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 68}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 70}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:inputText id="applyScoreUnsubmitted" value="#{totalScores.applyToUngraded}"  onkeydown="inIt()" onchange="toPoint(this.id);" size="5"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value=" #{totalScores.allSubmissions ne &#x27;4&#x27; ? evaluationMessages.applyGradesDesc : evaluationMessages.applyGradesDescAvg}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 72}"/><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:panelGroup id="export-total-scores" layout="block" styleClass="mt-1 mb-1"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton value="#{commonMessages.export_action}" action="#{totalScores.exportExcel}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 74}"/><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+</f:verbatim><h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq &#x27;false&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 75}"><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:panelGroup styleClass="col-md-6" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 76}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="all-submissions form-group" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 77}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 78}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1"
+        required="true" onchange="showLoadingMessage();document.forms[0].submit();" rendered="#{totalScores.scoringOption eq &#x27;4&#x27;}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 80}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="4" itemLabel="#{evaluationMessages.average_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 81}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL1"
+        required="true" onchange="showLoadingMessage();document.forms[0].submit();" rendered="#{totalScores.scoringOption eq &#x27;2&#x27;}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 83}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 84}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH1"
+        required="true" onchange="showLoadingMessage();document.forms[0].submit();" rendered="#{totalScores.scoringOption eq &#x27;1&#x27;}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 86}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 87}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;
+     &lt;!-- SECTION AWARE --&gt;
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false" rendered="#{totalScores.multipleSubmissionsAllowed eq &#x27;true&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 88}"><f:attribute name="value" value="&amp;nbsp;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&amp;nbsp;#{evaluationMessages.forAllSectionsGroups}" escape="false" rendered="#{totalScores.availableSectionSize &lt; 1 &amp;&amp; totalScores.multipleSubmissionsAllowed eq &#x27;true&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 89}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&amp;nbsp;#{evaluationMessages.all_sections}" escape="false" rendered="#{totalScores.availableSectionSize &lt; 1 &amp;&amp; !totalScores.multipleSubmissionsAllowed eq &#x27;true&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 90}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&amp;nbsp;#{evaluationMessages.for_s}&amp;nbsp;&amp;nbsp;" rendered="#{totalScores.availableSectionSize &gt;= 1}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 91}"/><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="showLoadingMessage();document.forms[0].submit();" rendered="#{totalScores.availableSectionSize &gt;= 1}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{totalScores.sectionFilterSelectItems}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 93}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="loadingMessage" styleClass="hidden"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="spinner-border spinner-border-sm" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 95}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.loading_submissions_message}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 96}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#9;&#32;&#32;</f:verbatim><h:panelGroup styleClass="search-student form-group" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 97}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 98}"/><f:verbatim>
+ &#9;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText
+                id="searchString"
+                value="#{totalScores.searchString}"
+                onfocus="clearIfDefaultString(this, &#x27;#{evaluationMessages.search_default_student_search_string}&#x27;)"
+                onkeypress="return submitOnEnter(event, &#x27;editTotalResults:searchSubmitButton&#x27;);"/><f:verbatim>
+&#9;&#9;&#9;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 100}"><f:attribute name="value" value="&amp;nbsp;"/></h:outputText><f:verbatim>
+&#9;&#9;&#9;</f:verbatim><h:commandButton actionListener="#{totalScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" /><f:verbatim>
+&#9;&#9;&#9;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 102}"><f:attribute name="value" value="&amp;nbsp;"/></h:outputText><f:verbatim>
+&#9;&#9;&#9;</f:verbatim><h:commandButton actionListener="#{totalScores.clear}" value="#{evaluationMessages.search_clear}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 103}"/><f:verbatim>
+&#9;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;
+&#32;&#32;</f:verbatim><h:panelGroup layout="block" styleClass="samigo-pager col-md-6" style="text-align: right" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 104}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><sakai:pager id="pager1" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+
+</f:verbatim><h:panelGroup styleClass="total-scores-anon" layout="block" rendered="#{totalScores.anonymous eq &#x27;true&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 106}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 107}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.view}" rendered="#{totalScores.multipleSubmissionsAllowed eq &#x27;true&#x27; }" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 108}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 109}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL2"
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq &#x27;2&#x27; &amp;&amp; totalScores.multipleSubmissionsAllowed eq &#x27;true&#x27; }"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 111}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 112}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH2"
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq &#x27;1&#x27; &amp;&amp; totalScores.multipleSubmissionsAllowed eq &#x27;true&#x27; }"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 114}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 115}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+
+&#9;&#9;</f:verbatim><h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA2" required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq &#x27;4&#x27; &amp;&amp; totalScores.multipleSubmissionsAllowed eq &#x27;true&#x27; }"><f:verbatim>
+&#9;&#9;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 117}"/><f:verbatim>
+&#9;&#9;&#32;&#32;</f:verbatim><f:selectItem itemValue="4" itemLabel="#{evaluationMessages.average_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 118}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:verbatim>
+&#9;&#9;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;
+&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 119}"><f:verbatim>
+&#9;</f:verbatim><sakai:pager id="pager2" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+
+  &lt;!-- STUDENT RESPONSES AND GRADING --&gt;
+  &lt;!-- note that we will have to hook up with the back end to get N at a time --&gt;
+&lt;div class="table"&gt;
+&#32;&#32;</f:verbatim><h:dataTable id="totalScoreTable" value="#{totalScores.agents}" var="description" styleClass="table table-striped table-bordered" columnClasses="textTable"><f:verbatim>
+
+&#9;&lt;!-- Add Submission Attempt Deleter--&gt;
+&#9;</f:verbatim><h:column rendered="#{person.isAdmin || !totalScores.restrictedDelete}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 122}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{commonMessages.delete}" rendered="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 123}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 124}"><f:verbatim> &lt;span class="tier2"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 125}"><f:attribute name="value" value="&lt;a name=&quot;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.lastInitial}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 126}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 127}"><f:attribute name="value" value="&quot;&gt;&lt;/a&gt;"/></h:outputText><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink styleClass="sam-scoretable-deleteattempt" title="#{commonMessages.delete_attempt}" action="totalScores" immediate="true" rendered="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 128}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.assessmentGradingId ne &#x27;-1&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 129}"><f:verbatim>
+&#9;     &lt;span class="fa fa-trash" aria-hidden="true"&gt;&lt;/span&gt;
+&#9;     &lt;span class="sr-only"&gt;</f:verbatim><h:outputText value="#{commonMessages.delete}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 130}"/><f:verbatim>&lt;/span&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.GrantSubmissionListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="studentid" value="#{description.idString}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 131}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="publishedIdd" value="#{totalScores.publishedId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 132}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="gradingData" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 133}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&lt;/span&gt;
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+    &lt;!-- NAME/SUBMISSION ID --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.anonymous eq &#x27;false&#x27; &amp;&amp; totalScores.sortType ne &#x27;lastName&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 134}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortLastName}" immediate="true" id="lastName" action="totalScores"><h:outputText value="#{evaluationMessages.name}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 136}"/><f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:param name="sortBy" value="lastName"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 137}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 138}"/></h:commandLink></f:facet><f:verbatim>
+      &lt;sakai-user-photo user-id='</f:verbatim><h:outputText value="#{description.agentId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 139}"/><f:verbatim>' profile-popup="on"&gt;&lt;/sakai-user-photo&gt;
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 140}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 141}"><f:attribute name="value" value="&lt;a name=&quot;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.lastInitial}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 142}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 143}"><f:attribute name="value" value="&quot;&gt;&lt;/a&gt;"/></h:outputText><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27; || totalScores.allSubmissions eq&#x27;4&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 144}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  rendered="#{(description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27;) &amp;&amp; description.lastInitial ne &#x27;Anonymous&#x27; || totalScores.allSubmissions eq&#x27;4&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 145}"><f:attribute name="value" value=", "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27;  || totalScores.allSubmissions eq&#x27;4&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 146}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq &#x27;Anonymous&#x27; &amp;&amp; (description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27;)}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 147}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true"
+          rendered="#{description.forGrade == &#x27;true&#x27; &amp;&amp;  description.assessmentGradingId ne &#x27;-1&#x27; &amp;&amp; totalScores.allSubmissions!=&#x27;4&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 148}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.lastName}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 149}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  rendered="#{description.lastInitial ne &#x27;Anonymous&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 150}"><f:attribute name="value" value=", "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.firstName}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 151}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq &#x27;Anonymous&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 152}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="studentid" value="#{description.idString}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 153}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="publishedIdd" value="#{totalScores.publishedId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 154}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="gradingData" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 155}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+     &lt;span class="itemAction"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.email != null &amp;&amp; description.email != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 156}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&lt;a href=&quot;mailto:#{description.email}?subject=#{totalScores.assessmentName} #{commonMessages.feedback}&quot;&gt;" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 157}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&lt;span class=&quot;fa fa-envelope&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span class=&quot;sr-only&quot;&gt;#{evaluationMessages.email}&lt;/span&gt;&lt;/a&gt; " escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 158}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{not empty description.alternativeInstructorReviewUrl}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 159}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&lt;a target=&quot;blank&quot; href=&quot;#{description.alternativeInstructorReviewUrl}&quot;&gt;&lt;span class=&quot;fa fa-video-camera&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span class=&quot;sr-only&quot;&gt;#{evaluationMessages.instructor_review}&lt;/span&gt;&lt;/a&gt;" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 160}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+     &lt;/span&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.anonymous eq &#x27;false&#x27; &amp;&amp; totalScores.sortType eq &#x27;lastName&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 161}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortLastName}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 162}"><h:outputText value="#{evaluationMessages.name}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 163}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 164}"/><h:graphicImage alt="#{evaluationMessages.alt_sortLastNameDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 165}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+      &lt;sakai-user-photo user-id='</f:verbatim><h:outputText value="#{description.agentId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 166}"/><f:verbatim>' profile-popup="on"&gt;&lt;/sakai-user-photo&gt;
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 167}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 168}"><f:attribute name="value" value="&lt;a name=&quot;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.lastInitial}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 169}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 170}"><f:attribute name="value" value="&quot;&gt;&lt;/a&gt;"/></h:outputText><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27; || totalScores.allSubmissions eq&#x27;4&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 171}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  rendered="#{(description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27;) &amp;&amp; description.lastInitial ne &#x27;Anonymous&#x27; || totalScores.allSubmissions eq&#x27;4&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 172}"><f:attribute name="value" value=", "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27; ||totalScores.allSubmissions eq &#x27;4&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 173}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq &#x27;Anonymous&#x27; &amp;&amp; (description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27;)}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 174}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true"
+          rendered="#{description.forGrade == &#x27;true&#x27; &amp;&amp; description.assessmentGradingId ne &#x27;-1&#x27; &amp;&amp;  totalScores.allSubmissions!=&#x27;4&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 175}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.lastName}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 176}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  rendered="#{description.lastInitial ne &#x27;Anonymous&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 177}"><f:attribute name="value" value=", "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.firstName}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 178}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq &#x27;Anonymous&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 179}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="studentid" value="#{description.idString}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 180}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="publishedIdd" value="#{totalScores.publishedId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 181}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="gradingData" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 182}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+     &lt;span class="itemAction"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.email != null &amp;&amp; description.email != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 183}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&lt;a href=&quot;mailto:#{description.email}?subject=#{totalScores.assessmentName} #{commonMessages.feedback}&quot;&gt;" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 184}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&lt;span class=&quot;fa fa-envelope&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span class=&quot;sr-only&quot;&gt;#{evaluationMessages.email}&lt;/span&gt;&lt;/a&gt; " escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 185}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{not empty description.alternativeInstructorReviewUrl}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 186}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&lt;a target=&quot;_blank&quot; href=&quot;#{description.alternativeInstructorReviewUrl}&quot;&gt;&lt;span class=&quot;fa fa-video-camera&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span class=&quot;sr-only&quot;&gt;#{evaluationMessages.instructor_review}&lt;/span&gt;&lt;/a&gt;" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 187}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#9; &lt;/span&gt;
+
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.anonymous eq &#x27;false&#x27; &amp;&amp; totalScores.sortType eq &#x27;lastName&#x27; &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 188}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortLastName}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 189}"><h:outputText value="#{evaluationMessages.name}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 190}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 191}"/><h:graphicImage alt="#{evaluationMessages.alt_sortLastNameAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 192}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+      &lt;sakai-user-photo user-id='</f:verbatim><h:outputText value="#{description.agentId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 193}"/><f:verbatim>' profile-popup="on"&gt;&lt;/sakai-user-photo&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 194}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 195}"><f:attribute name="value" value="&lt;a name=&quot;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.lastInitial}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 196}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 197}"><f:attribute name="value" value="&quot;&gt;&lt;/a&gt;"/></h:outputText><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 198}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  rendered="#{(description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27;) &amp;&amp; description.lastInitial ne &#x27;Anonymous&#x27; || totalScores.allSubmissions eq&#x27;4&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 199}"><f:attribute name="value" value=", "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27; || totalScores.allSubmissions eq&#x27;4&#x27; || totalScores.allSubmissions eq&#x27;4&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 200}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq &#x27;Anonymous&#x27; &amp;&amp; (description.assessmentGradingId eq &#x27;-1&#x27; || description.forGrade == &#x27;false&#x27;)}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 201}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true"
+          rendered="#{description.forGrade == &#x27;true&#x27; &amp;&amp; description.assessmentGradingId ne &#x27;-1&#x27; &amp;&amp;  totalScores.allSubmissions!=&#x27;4&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 202}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.lastName}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 203}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  rendered="#{description.lastInitial ne &#x27;Anonymous&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 204}"><f:attribute name="value" value=", "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.firstName}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 205}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq &#x27;Anonymous&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 206}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="studentid" value="#{description.idString}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 207}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="publishedIdd" value="#{totalScores.publishedId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 208}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="gradingData" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 209}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 210}">&lt;br/&gt;</f:verbatim><f:verbatim>
+
+&#9; &lt;span class="itemAction"&gt;
+&#9;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.email != null &amp;&amp; description.email != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 211}"><f:verbatim>
+&#9;&#9;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 212}"><f:attribute name="value" value="&lt;a href=&quot;mailto:"/></h:outputText><f:verbatim>
+&#9;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.email}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 213}"/><f:verbatim>
+&#9;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 214}"><f:attribute name="value" value="?subject="/></h:outputText><f:verbatim>
+&#9;&#9;&#32;</f:verbatim><h:outputText value="#{totalScores.assessmentName} #{commonMessages.feedback}&quot;&gt;" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 215}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="  #{evaluationMessages.email}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 216}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 217}"><f:attribute name="value" value="&lt;/a&gt;"/></h:outputText><f:verbatim>
+&#9;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#9; &lt;/span&gt;
+&#9;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+
+    &lt;!-- ANONYMOUS and ASSESSMENTGRADINGID --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.anonymous eq &#x27;true&#x27; &amp;&amp; totalScores.sortType ne &#x27;assessmentGradingId&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 218}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortSubmissionId}" action="totalScores"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 219}"><h:outputText value="#{evaluationMessages.sub_id}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 220}"/><f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:param name="sortBy" value="assessmentGradingId"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 221}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 222}"/></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 223}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" rendered="#{totalScores.allSubmissions != &#x27;4&#x27; &amp;&amp; description.assessmentGradingId != -1}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 224}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 225}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="studentid" value="#{description.idString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 226}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="studentName" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 227}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="publishedIdd" value="#{totalScores.publishedId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 228}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="gradingData" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 229}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{totalScores.allSubmissions eq &#x27;4&#x27; &amp;&amp; description.assessmentGradingId != -1}" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 230}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{totalScores.allSubmissions != &#x27;4&#x27; &amp;&amp; description.assessmentGradingId == -1}" value="#{evaluationMessages.na}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 231}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.anonymous eq &#x27;true&#x27; &amp;&amp; totalScores.sortType eq &#x27;assessmentGradingId&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 232}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortSubmissionId}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 233}"><h:outputText value="#{evaluationMessages.sub_id}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 234}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 235}"/><h:graphicImage alt="#{evaluationMessages.alt_sortSubmissionIdDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 236}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 237}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true" rendered="#{totalScores.allSubmissions != &#x27;4&#x27; &amp;&amp; description.assessmentGradingId != -1}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 238}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 239}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="studentid" value="#{description.idString}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 240}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="studentName" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 241}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="publishedIdd" value="#{totalScores.publishedId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 242}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="gradingData" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 243}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{totalScores.allSubmissions eq &#x27;4&#x27; &amp;&amp; description.assessmentGradingId != -1}" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 244}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{totalScores.allSubmissions != &#x27;4&#x27; &amp;&amp; description.assessmentGradingId == -1}" value="#{evaluationMessages.na}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 245}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.anonymous eq &#x27;true&#x27; &amp;&amp; totalScores.sortType eq &#x27;assessmentGradingId&#x27; &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 246}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortSubmissionId}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 247}"><h:outputText value="#{evaluationMessages.sub_id}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 248}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 249}"/><h:graphicImage alt="#{evaluationMessages.alt_sortSubmissionIdAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 250}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 251}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true" rendered="#{totalScores.allSubmissions != &#x27;4&#x27; &amp;&amp; description.assessmentGradingId != -1}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 252}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 253}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="studentid" value="#{description.idString}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 254}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="studentName" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 255}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="publishedIdd" value="#{totalScores.publishedId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 256}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="gradingData" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 257}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{totalScores.allSubmissions eq &#x27;4&#x27; &amp;&amp; description.assessmentGradingId != -1}" value="#{description.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 258}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText rendered="#{totalScores.allSubmissions != &#x27;4&#x27; &amp;&amp; description.assessmentGradingId == -1}" value="#{evaluationMessages.na}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 259}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;
+
+   &lt;!-- STUDENT ID --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.anonymous eq &#x27;false&#x27; &amp;&amp; totalScores.sortType!=&#x27;agentDisplayId&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 260}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortUserId}" id="agentDisplayId" action="totalScores" ><h:outputText value="#{evaluationMessages.uid}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 262}"/><f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:param name="sortBy" value="agentDisplayId"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 263}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 264}"/></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.agentDisplayId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 265}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.anonymous eq &#x27;false&#x27; &amp;&amp; totalScores.sortType eq &#x27;agentDisplayId&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 266}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortUserId}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 267}"><h:outputText value="#{evaluationMessages.uid}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 268}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 269}"/><h:graphicImage alt="#{evaluationMessages.alt_sortUserIdDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 270}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.agentDisplayId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 271}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.anonymous eq &#x27;false&#x27; &amp;&amp; totalScores.sortType eq &#x27;agentDisplayId&#x27; &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 272}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortUserId}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 273}"><h:outputText value="#{evaluationMessages.uid}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 274}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 275}"/><h:graphicImage alt="#{evaluationMessages.alt_sortUserIdAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 276}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.agentDisplayId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 277}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;
+
+    &lt;!-- ROLE --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType ne &#x27;role&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 278}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header" ><h:commandLink title="#{evaluationMessages.t_sortRole}" id="role" action="totalScores"><h:outputText value="#{evaluationMessages.role}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 280}"/><f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:param name="sortBy" value="role"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 281}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 282}"/></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.role}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 283}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;role&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 284}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortRole}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 285}"><h:outputText value="#{evaluationMessages.role}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 286}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 287}"/><h:graphicImage alt="#{evaluationMessages.alt_sortRoleDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 288}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.role}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 289}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;role&#x27;  &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 290}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortRole}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 291}"><h:outputText value="#{evaluationMessages.role}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 292}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 293}"/><h:graphicImage alt="#{evaluationMessages.alt_sortRoleAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 294}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.role}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 295}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+
+    &lt;!-- DATE --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType!=&#x27;submittedDate&#x27; &amp;&amp; totalScores.allSubmissions!=&#x27;4&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 296}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortSubmittedDate}" id="submittedDate" action="totalScores"><h:outputText value="#{evaluationMessages.submit_date}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 298}"/><f:actionListener
+          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:param name="sortBy" value="submittedDate"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 299}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 300}"/></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 301}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.attemptDate != null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 302}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.isLate == &#x27;true&#x27; &amp;&amp; ((description.isAutoSubmitted == &#x27;false&#x27; &amp;&amp; !(totalScores.isTimedAssessment eq &#x27;true&#x27; &amp;&amp; totalScores.acceptLateSubmission eq &#x27;false&#x27;))&#10;                                      || (description.isAutoSubmitted == &#x27;true&#x27; &amp;&amp; totalScores.acceptLateSubmission eq &#x27;true&#x27; &amp;&amp; totalScores.isTimedAssessment ne &#x27;true&#x27;))}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 303}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 304}">&lt;br/&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText style="color:red" value="#{evaluationMessages.late}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 305}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.isAutoSubmitted == &#x27;true&#x27; &amp;&amp; totalScores.isTimedAssessment ne &#x27;true&#x27; &amp;&amp; (description.isLate == &#x27;false&#x27; || totalScores.acceptLateSubmission eq &#x27;true&#x27;)}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 306}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 307}">&lt;br/&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText style="color:red" value="#{evaluationMessages.auto_submit}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 308}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.no_submission}" rendered="#{description.attemptDate == null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 309}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;submittedDate&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 310}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortSubmittedDate}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 311}"><h:outputText value="#{evaluationMessages.submit_date}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 312}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 313}"/><h:graphicImage alt="#{evaluationMessages.alt_sortSubmittedDateDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 314}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 315}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.attemptDate != null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 316}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.isLate == &#x27;true&#x27; &amp;&amp; ((description.isAutoSubmitted == &#x27;false&#x27; &amp;&amp; !(totalScores.isTimedAssessment eq &#x27;true&#x27; &amp;&amp; totalScores.acceptLateSubmission eq &#x27;false&#x27;))&#10;                                      || (description.isAutoSubmitted == &#x27;true&#x27; &amp;&amp; totalScores.acceptLateSubmission eq &#x27;true&#x27; &amp;&amp; totalScores.isTimedAssessment ne &#x27;true&#x27;))}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 317}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 318}">&lt;br/&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText style="color:red" value="#{evaluationMessages.late}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 319}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.isAutoSubmitted == &#x27;true&#x27; &amp;&amp; totalScores.isTimedAssessment ne &#x27;true&#x27; &amp;&amp; (description.isLate == &#x27;false&#x27; || totalScores.acceptLateSubmission eq &#x27;true&#x27;)}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 320}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 321}">&lt;br/&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText style="color:red" value="#{evaluationMessages.auto_submit}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 322}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.no_submission}" rendered="#{description.attemptDate == null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 323}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;submittedDate&#x27;  &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 324}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortSubmittedDate}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 325}"><h:outputText value="#{evaluationMessages.submit_date}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 326}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 327}"/><h:graphicImage alt="#{evaluationMessages.alt_sortSubmittedDateAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 328}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 329}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.attemptDate != null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 330}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.isLate == &#x27;true&#x27; &amp;&amp; ((description.isAutoSubmitted == &#x27;false&#x27; &amp;&amp; !(totalScores.isTimedAssessment eq &#x27;true&#x27; &amp;&amp; totalScores.acceptLateSubmission eq &#x27;false&#x27;))&#10;                                      || (description.isAutoSubmitted == &#x27;true&#x27; &amp;&amp; totalScores.acceptLateSubmission eq &#x27;true&#x27; &amp;&amp; totalScores.isTimedAssessment ne &#x27;true&#x27;))}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 331}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 332}">&lt;br/&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText style="color:red" value="#{evaluationMessages.late}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 333}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.isAutoSubmitted == &#x27;true&#x27; &amp;&amp; totalScores.isTimedAssessment ne &#x27;true&#x27; &amp;&amp; (description.isLate == &#x27;false&#x27; || totalScores.acceptLateSubmission eq &#x27;true&#x27;)}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 334}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 335}">&lt;br/&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText style="color:red" value="#{evaluationMessages.auto_submit}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 336}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.no_submission}" rendered="#{description.attemptDate == null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 337}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+    &lt;!-- ANSWERS SUMMARY FOR ONE SELECTION TYPE --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.isOneSelectionType}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 338}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{evaluationMessages.answers_title}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 339}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.attemptDate != null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 340}"><f:verbatim>
+        &lt;div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{totalScores.results[description.assessmentGradingId][0]}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 341}"/><f:verbatim>&amp;nbsp;/&amp;nbsp;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{totalScores.results[description.assessmentGradingId][1]}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 342}"/><f:verbatim>&amp;nbsp;/&amp;nbsp;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{totalScores.results[description.assessmentGradingId][2]}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 343}"/><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+    &lt;!-- TIME --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.isTimedAssessment &amp;&amp; totalScores.sortType!=&#x27;timeElapsed&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 344}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortTime}" id="time" action="totalScores"><h:outputText value="#{evaluationMessages.time}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 346}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:param name="sortBy" value="timeElapsed"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 347}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 348}"/></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.formattedTimeElapsed}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 349}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#9;</f:verbatim><h:column rendered="#{totalScores.isTimedAssessment &amp;&amp; totalScores.sortType==&#x27;timeElapsed&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 350}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortTime}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 351}"><h:outputText value="#{evaluationMessages.time}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 352}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 353}"/><h:graphicImage alt="#{evaluationMessages.alt_sortTimeDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 354}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.formattedTimeElapsed}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 355}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.isTimedAssessment &amp;&amp; totalScores.sortType==&#x27;timeElapsed&#x27;  &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 356}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortTime}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 357}"><h:outputText value="#{evaluationMessages.time}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 358}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 359}"/><h:graphicImage alt="#{evaluationMessages.alt_sortTimeAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 360}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.formattedTimeElapsed}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 361}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+    &lt;!-- TOTAL --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType!=&#x27;totalAutoScore&#x27; &amp;&amp; totalScores.allSubmissions!=&#x27;4&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 362}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortScore}" id="totalAutoScore" action="totalScores"><h:outputText value="#{evaluationMessages.score}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 364}"/><f:param name="sortBy" value="totalAutoScore"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 365}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 366}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.roundedTotalAutoScore}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 367}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;totalAutoScore&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 368}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortScore}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 369}"><h:outputText value="#{evaluationMessages.score}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 370}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 371}"/><h:graphicImage alt="#{evaluationMessages.alt_sortAdjustScoreDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 372}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.roundedTotalAutoScore}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 373}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;totalAutoScore&#x27;  &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 374}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortScore}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 375}"><h:outputText value="#{evaluationMessages.score}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 376}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 377}"/><h:graphicImage alt="#{evaluationMessages.alt_sortAdjustScoreAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 378}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.roundedTotalAutoScore}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 379}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+    &lt;!-- ADJUSTMENT --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType!=&#x27;totalOverrideScore&#x27; &amp;&amp; totalScores.allSubmissions!=&#x27;4&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 380}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortAdjustScore}" id="totalOverrideScore" action="totalScores"><h:outputText value="#{evaluationMessages.adjustment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 382}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:param name="sortBy" value="totalOverrideScore"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 383}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 384}"/></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal" required="false" onchange="toPoint(this.id);" /><f:verbatim>
+&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;totalOverrideScore&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 386}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortAdjustScore}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 387}"><h:outputText value="#{evaluationMessages.adjustment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 388}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 389}"/><h:graphicImage alt="#{evaluationMessages.alt_sortScoreDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 390}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal2" required="false" onchange="toPoint(this.id);" /><f:verbatim>
+&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;totalOverrideScore&#x27;  &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 392}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortAdjustScore}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 393}"><h:outputText value="#{evaluationMessages.adjustment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 394}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 395}"/><h:graphicImage alt="#{evaluationMessages.alt_sortScoreAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 396}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal3" required="false" onchange="toPoint(this.id);" /><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+    &lt;!-- SUBMISSION COUNT (AVERAGE SCORE VIEW) --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.allSubmissions eq &#x27;4&#x27; &amp;&amp; totalScores.sortType!=&#x27;submissionCount&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 398}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortSubmissionCount}" id="submissionCount" action="totalScores" ><h:outputText value="#{evaluationMessages.sub_count}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 400}"/><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:param name="sortBy" value="submissionCount"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 401}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 402}"/></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.submissionCount}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 403}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.allSubmissions eq &#x27;4&#x27; &amp;&amp; totalScores.sortType==&#x27;submissionCount&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 404}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortSubmissionCount}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 405}"><h:outputText value="#{evaluationMessages.sub_count}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 406}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 407}"/><h:graphicImage alt="#{evaluationMessages.alt_sortSubmissionCountDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 408}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.submissionCount}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 409}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.allSubmissions eq &#x27;4&#x27; &amp;&amp; totalScores.sortType==&#x27;submissionCount&#x27;  &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 410}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortSubmissionCount}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 411}"><h:outputText value="#{evaluationMessages.sub_count}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 412}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 413}"/><h:graphicImage alt="#{evaluationMessages.alt_sortSubmissionCountAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 414}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.submissionCount}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 415}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+    &lt;!-- FINAL SCORE --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType!=&#x27;finalScore&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 416}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortFinalScore}" id="finalScore" action="totalScores" ><h:outputText value="#{evaluationMessages.tot}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 418}"/><f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:param name="sortBy" value="finalScore"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 419}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 420}"/></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.roundedFinalScore}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 421}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;finalScore&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 422}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortFinalScore}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 423}"><h:outputText value="#{evaluationMessages.tot}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 424}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 425}"/><h:graphicImage alt="#{evaluationMessages.alt_sortFinalScoreDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 426}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.roundedFinalScore}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 427}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;finalScore&#x27;  &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 428}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:commandLink title="#{evaluationMessages.t_sortFinalScore}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 429}"><h:outputText value="#{evaluationMessages.tot}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 430}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 431}"/><h:graphicImage alt="#{evaluationMessages.alt_sortFinalScoreAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 432}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{description.roundedFinalScore}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 433}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+    &lt;!-- COMMENT --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType!=&#x27;comments&#x27; &amp;&amp; totalScores.allSubmissions!=&#x27;4&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 434}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 435}"><h:commandLink title="#{evaluationMessages.t_sortCommentsForStudent}" id="comments" action="totalScores"><f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><h:outputText value="#{evaluationMessages.comment_for_student}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 437}"/><f:param name="sortBy" value="comments"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 438}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 439}"/></h:commandLink><h:outputText  escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 440}"><f:attribute name="value" value="&amp;nbsp;&amp;nbsp;"/></h:outputText><h:outputLink title="#{evaluationMessages.whats_this_link}"  onclick="javascript:window.open(&#x27;../evaluation/totalScoresCommentPopUp.faces&#x27;,&#x27;CommentForStudent&#x27;,&#x27;width=510,height=515,scrollbars=yes, resizable=yes&#x27;);" onkeypress="javascript:window.open(&#x27;../evaluation/totalScoresCommentPopUp.faces&#x27;,&#x27;CommentForStudent&#x27;,&#x27;width=510,height=515,scrollbars=yes, resizable=yes&#x27;);"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 441}"><f:attribute name="value" value="#"/><h:outputText  value="#{evaluationMessages.whats_this_link}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 442}"/></h:outputLink></h:panelGroup></f:facet><f:verbatim>
+
+&#32;&#32;&#32;</f:verbatim><h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{description.attemptDate != null}" styleClass="awesomplete"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 443}"/><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="awesomplete" disabled="true" cols="30" rendered="#{description.attemptDate == null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 444}"/><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.attemptDate != null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 445}"><f:verbatim>
+   &#9;&#9;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/evaluation/totalScoresAttachment.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 446}"/></ui:include><f:verbatim>
+&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;comments&#x27; &amp;&amp; totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 487}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 488}"><h:commandLink title="#{evaluationMessages.t_sortCommentsForStudent}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 489}"><h:outputText value="#{evaluationMessages.comment_for_student}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 490}"/><f:param name="sortAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 491}"/><h:graphicImage alt="#{evaluationMessages.alt_sortCommentDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 492}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink><h:outputText  escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 493}"><f:attribute name="value" value="&amp;nbsp;&amp;nbsp;"/></h:outputText><h:outputLink title="#{evaluationMessages.whats_this_link}"  onclick="javascript:window.open(&#x27;../evaluation/totalScoresCommentPopUp.faces&#x27;,&#x27;CommentForStudent&#x27;,&#x27;width=510,height=515,scrollbars=yes, resizable=yes&#x27;);" onkeypress="javascript:window.open(&#x27;../evaluation/totalScoresCommentPopUp.faces&#x27;,&#x27;CommentForStudent&#x27;,&#x27;width=510,height=515,scrollbars=yes, resizable=yes&#x27;);"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 494}"><f:attribute name="value" value="#"/><h:outputText  value="#{evaluationMessages.whats_this_link}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 495}"/></h:outputLink></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{description.attemptDate != null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 496}"/><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" disabled="true" cols="30" rendered="#{description.attemptDate == null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 497}"/><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.attemptDate != null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 498}"><f:verbatim>
+   &#9;&#9;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/evaluation/totalScoresAttachment.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 499}"/></ui:include><f:verbatim>
+&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{totalScores.sortType==&#x27;comments&#x27;  &amp;&amp; !totalScores.sortAscending}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 540}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 541}"><h:commandLink title="#{evaluationMessages.t_sortCommentsForStudent}" action="totalScores" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 542}"><h:outputText value="#{evaluationMessages.comment_for_student}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 543}"/><f:param name="sortAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 544}"/><h:graphicImage alt="#{evaluationMessages.alt_sortCommentAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 545}"/><f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /></h:commandLink><h:outputText  escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 546}"><f:attribute name="value" value="&amp;nbsp;&amp;nbsp;"/></h:outputText><h:outputLink title="#{evaluationMessages.whats_this_link}"  onclick="javascript:window.open(&#x27;../evaluation/totalScoresCommentPopUp.faces&#x27;,&#x27;CommentForStudent&#x27;,&#x27;width=510,height=515,scrollbars=yes, resizable=yes&#x27;);" onkeypress="javascript:window.open(&#x27;../evaluation/totalScoresCommentPopUp.faces&#x27;,&#x27;CommentForStudent&#x27;,&#x27;width=510,height=515,scrollbars=yes, resizable=yes&#x27;);"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 547}"><f:attribute name="value" value="#"/><h:outputText  value="#{evaluationMessages.whats_this_link}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 548}"/></h:outputLink></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{description.attemptDate != null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 549}"/><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" disabled="true" cols="30" rendered="#{description.attemptDate == null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 550}"/><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{description.attemptDate != null}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 551}"><f:verbatim>
+   &#9;&#9;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/evaluation/totalScoresAttachment.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 552}"/></ui:include><f:verbatim>
+&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;</f:verbatim></h:dataTable><f:verbatim>
+
+</f:verbatim><h:outputText value="#{evaluationMessages.mult_sub_highest}" rendered="#{totalScores.scoringOption eq &#x27;1&#x27;&amp;&amp; totalScores.multipleSubmissionsAllowed eq &#x27;true&#x27; }" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 593}"/><f:verbatim>
+</f:verbatim><h:outputText value="#{evaluationMessages.mult_sub_last}" rendered="#{totalScores.scoringOption eq &#x27;2&#x27; &amp;&amp; totalScores.multipleSubmissionsAllowed eq &#x27;true&#x27; }" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 594}"/><f:verbatim>
+</f:verbatim><h:outputText value="#{evaluationMessages.mult_sub_average}" rendered="#{totalScores.scoringOption eq &#x27;4&#x27; &amp;&amp; totalScores.multipleSubmissionsAllowed eq &#x27;true&#x27; }" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 595}"/><f:verbatim>
+&lt;/div&gt;
+&lt;p class="act"&gt;
+
+&#32;&#32;&#32;
+&#32;&#32;&#32;</f:verbatim><h:commandButton styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit" rendered="#{totalScores.allSubmissions!=&#x27;4&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 596}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" /><f:verbatim>
+&#32;&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:commandButton value="#{commonMessages.cancel_action}" action="author" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 597}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" /><f:verbatim>
+&#32;&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&lt;/p&gt;
+&lt;/div&gt;
+</f:verbatim></h:form><f:verbatim>
+
+&lt;/div&gt;
+  &lt;!-- end content --&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+&#32;&#32;</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

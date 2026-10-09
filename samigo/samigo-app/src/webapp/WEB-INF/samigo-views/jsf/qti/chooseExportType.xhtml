@@ -1,0 +1,118 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2007 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+&lt;!DOCTYPE html&gt;
+&lt;!-- $Id: importAssessment.jsp 20403 2007-01-18 04:15:06Z ktsao@stanford.edu $
+
+--&gt;
+&#32;&#32;</f:verbatim><f:view><f:verbatim>
+    &lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+      &lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+      &lt;title&gt;</f:verbatim><h:outputText value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>&lt;/title&gt;
+&lt;script&gt;
+function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
+  if ( $("#exportAssessmentForm\\:exportType\\:1").prop("checked") ) {
+    window.open( qtiUrl, '_qti_export', 'toolbar=yes,menubar=yes,personalbar=no,width=600,height=500,scrollbars=yes,resizable=yes');
+  }
+  else if ($("#exportAssessmentForm\\:exportType\\:0").prop("checked")) {
+    window.location = cpUrl;
+  }
+  else if (e2mt === 'false') {
+    window.location = emtUrl;
+  }&#32;
+  else if (confirm('</f:verbatim><h:outputText value="#{authorImportExport.export_confirm}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>')) {
+    window.location = emtUrl;&#32;&#32;
+  }
+}
+&lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body onload="</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>"&gt;
+&lt;div class="portletBody container-fluid"&gt;
+&lt;!-- content... --&gt;
+</f:verbatim><h:form id="exportAssessmentForm"><f:verbatim>
+&#32;&#32;</f:verbatim><h:inputHidden id="assessmentBaseId" value="#{assessmentBean.assessmentId}" /><f:verbatim>
+  &lt;h1&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorImportExport.export_a}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><f:verbatim>
+    &lt;small&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorImportExport.dash} #{assessmentBean.title}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"/><f:verbatim>
+    &lt;/small&gt;
+  &lt;/h1&gt;
+
+
+    &lt;div class="form_label"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>
+      &lt;p class=""&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorImportExport.choose_type_1}" escape="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLink  onclick="window.open(&#x27;http://www.imsglobal.org/question/&#x27;)" onkeypress="window.open(&#x27;http://www.imsglobal.org/question/&#x27;)" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"><f:attribute name="value" value="#"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorImportExport.ims_qti}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"><f:attribute name="value" value=","/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLink  onclick="window.open(&#x27;http://www.imsglobal.org/content/packaging/&#x27;)" onkeypress="window.open(&#x27;http://www.imsglobal.org/content/packaging/&#x27;)" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}"><f:attribute name="value" value="#"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorImportExport.ims_cp}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value=" #{authorImportExport.choose_type_2} " escape="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 17}"/><f:verbatim>
+&#9;&#9;</f:verbatim><h:outputText value="#{authorImportExport.markup_text}" escape="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 18}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorImportExport.choose_type_3}" escape="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 19}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorImportExport.markup_text_note}" escape="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 20}"/><f:verbatim>
+&#9;&#9;&lt;br /&gt;
+      &lt;/p&gt;
+      &lt;p&gt;</f:verbatim><h:outputText value="#{authorImportExport.importExport_warningHeader}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 21}"/><f:verbatim>&lt;/p&gt;
+      &lt;p class="sak-banner-warn"&gt;</f:verbatim><h:outputText value="#{authorImportExport.importExport_warning1}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 22}"/><f:verbatim>&lt;/p&gt;
+      &lt;p class="sak-banner-warn"&gt;</f:verbatim><h:outputText value="#{authorImportExport.importExport_warning2}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 23}"/><f:verbatim>&lt;/p&gt;
+      &lt;p class="sak-banner-warn"&gt;</f:verbatim><h:outputText value="#{authorImportExport.cp_message}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 24}"/><f:verbatim>&lt;/p&gt;
+    &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 25}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{authorImportExport.choose_export_type}" for="exportType"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 26}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="exportType" layout="spread" ><f:attribute name="value" value="2"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemLabel="#{authorImportExport.content_packaging}" itemValue="2" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 28}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemLabel="#{authorImportExport.qti12}" itemValue="1" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 29}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemLabel="#{authorImportExport.markup_text}" itemValue="3" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 30}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGrid id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 31}"><f:verbatim>
+     &#9;</f:verbatim><t:radio renderLogicalId="true" for="exportType" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 32}"/><f:verbatim>
+     &#9;</f:verbatim><t:radio renderLogicalId="true" for="exportType" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 33}"/><f:verbatim>
+     &#9;</f:verbatim><t:radio renderLogicalId="true" for="exportType" index="2"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 34}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGrid><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+    &lt;p class="act"&gt;
+&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton value="#{authorImportExport.export}" type="submit"
+       styleClass="active" onclick="getSelectedType( &#x27;/portal/tool/#{requestScope[&#x27;sakai.tool.placement.id&#x27;]}/jsf/qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}&#x27;,&#10;       &#x27;/samigo-app/servlet/DownloadCP?&amp;assessmentId=#{assessmentBean.assessmentId}&#x27;, &#10;       &#x27;/samigo-app/servlet/ExportMarkupText?&amp;assessmentId=#{assessmentBean.assessmentId}&#x27;, &#x27;#{!assessmentBean.exportable2MarkupText}&#x27;); return false;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 35}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton value="#{commonMessages.cancel_action}" type="submit"
+       action="author" immediate="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 36}"/><f:verbatim>
+  &lt;/p&gt;
+
+&#32;</f:verbatim></h:form><f:verbatim>
+&lt;/div&gt;
+ &lt;!-- end content --&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+&#32;&#32;</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

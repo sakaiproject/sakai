@@ -1,0 +1,1040 @@
+<!--
+***********************************************************************************
+* Copyright (c) ${license.git.copyrightYears} ${holder}
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*             http://opensource.org/licenses/ecl2
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+
+
+&lt;!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+
+
+&#9;
+&#9;
+&#32;&#32;</f:verbatim><f:view><f:verbatim>
+    &lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+      &lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+      &lt;title&gt;</f:verbatim><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>&lt;/title&gt;
+      &lt;script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"&gt;&lt;/script&gt;
+      &lt;script src="/library/js/lang-datepicker/lang-datepicker.js"&gt;&lt;/script&gt;
+      &lt;script src="/samigo-app/js/authoring.js"&gt;&lt;/script&gt;
+      &lt;script src="/samigo-app/js/authoringSecureDeliverySettings.js"&gt;&lt;/script&gt;
+      &lt;script src="/library/js/spinner.js"&gt;&lt;/script&gt;
+      &lt;script&gt;includeWebjarLibrary('bootstrap-multiselect');&lt;/script&gt;
+
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim rendered="#{publishedSettings.gradebookGroupEnabled}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}">
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim>
+
+      &lt;script&gt;
+        $(document).ready(function() {
+          // set up the accordion for settings
+          var accordionPanel = 2;
+          var itemName = "samigo_publishedsettings_" +&#32;</f:verbatim><h:outputText value="#{publishedSettings.assessmentId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>;
+          if (window.sessionStorage &amp;&amp; window.sessionStorage.getItem(itemName)) {
+              accordionPanel = parseInt(window.sessionStorage.getItem(itemName));
+          }
+          $("#jqueryui-accordion").accordion({
+              heightStyle: "content",
+              activate: function(event, ui) {
+                  if (window.sessionStorage) {
+                      window.sessionStorage.setItem(itemName, $("#jqueryui-accordion").accordion("option", "active"));
+                  }
+              },
+              active: accordionPanel,
+              collapsible: true
+          });
+          // This is a sub-accordion inside of the About the Assessment Panel
+          $("#jqueryui-accordion-metadata").accordion({ heightStyle: "content",collapsible: true,active: false });
+          // This is a sub-accordion inside of the Availability and Submission Panel
+          $("#jqueryui-accordion-security").accordion({ heightStyle: "content",collapsible: true,active: false });
+
+&#9;checkNav = function() {
+              enabled = true;
+              if ($("#assessmentSettingsAction\\:itemNavigation\\:1").is(":checked")) {
+                  enabled = false;
+              }
+
+              if (enabled) {
+                        $('#assessmentSettingsAction\\:itemNavigationHelpBlock').hide();
+                        $('#assessmentSettingsAction\\:markForReview1').closest(".row").show();
+                        $('#assessmentSettingsAction\\:assessmentFormat\\:0').closest(".row").show();
+              } else {
+                        $('#assessmentSettingsAction\\:itemNavigationHelpBlock').show();
+                        $('#assessmentSettingsAction\\:markForReview1').prop("checked", false).closest(".row").hide();
+                        $('#assessmentSettingsAction\\:assessmentFormat\\:0').closest(".row").hide();
+              }
+          };
+
+          $('#assessmentSettingsAction\\:itemNavigation\\:0').change(checkNav);
+          $('#assessmentSettingsAction\\:itemNavigation\\:1').change(checkNav);
+          checkNav();
+
+          // Copy to clipboard
+          $("#copyToClipboard").click(function() {
+              copyToClipboardNoScroll(this, "</f:verbatim><h:outputText value="#{publishedSettings.publishedUrl}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:verbatim>");
+          });
+
+          // SAM-2323 jquery-UI datepicker
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:startDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: false,
+              val: '</f:verbatim><h:outputText value="#{publishedSettings.startDate}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"><samigo:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText><f:verbatim>',
+              ashidden: { iso8601: 'startDateISO8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:endDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '</f:verbatim><h:outputText value="#{publishedSettings.dueDate}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"><samigo:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText><f:verbatim>',
+              ashidden: { iso8601: 'endDateISO8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:retractDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '</f:verbatim><h:outputText value="#{publishedSettings.retractDate}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"><samigo:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText><f:verbatim>',
+              ashidden: { iso8601: 'retractDateISO8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:feedbackDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '</f:verbatim><h:outputText value="#{publishedSettings.feedbackDate}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"><samigo:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText><f:verbatim>',
+              ashidden: { iso8601: 'feedbackDateISO8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:feedbackEndDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '</f:verbatim><h:outputText value="#{publishedSettings.feedbackEndDate}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"><samigo:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText><f:verbatim>',
+              ashidden: { iso8601: 'feedbackEndDateISO8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:newEntry-start_date',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '</f:verbatim><h:outputText value="#{publishedSettings.extendedTimeStart}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"><samigo:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText><f:verbatim>',
+              ashidden: { iso8601: 'newEntry-start_date-iso8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:newEntry-due_date',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '</f:verbatim><h:outputText value="#{publishedSettings.extendedTimeDue}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"><samigo:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText><f:verbatim>',
+              ashidden: { iso8601: 'newEntry-due_date-iso8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:newEntry-retract_date',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '</f:verbatim><h:outputText value="#{publishedSettings.extendedTimeRetract}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"><samigo:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText><f:verbatim>',
+              ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
+          });
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+          const releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
+          if (releaseToVal == 'Anonymous Users') {
+              lockdownAnonyGrading(releaseToVal);
+              lockdownGradebook(releaseToVal);
+          }
+          showHideReleaseGroups();
+          checkTimedRadio();
+          checkLastHandling();
+          initTimedRadio();
+          initAnononymousUsers();
+          setAccessibilityAttributes();
+          setExceptionDefault();
+          setSubmissionLimit();
+          disableAllFeedbackCheck();
+
+          // Secure delivery
+          initSecureDeliverySettings(true);
+
+          &lt;!--Initialize bootstrap multiselect--&gt;
+          $("#assessmentSettingsAction\\:groupsForSite").attr("multiple", "multiple");
+
+          var divElem = document.createElement('div');
+          var filterPlaceholder =&#32;</f:verbatim><h:outputText value="&#x27;#{assessmentSettingsMessages.multiselect_filterPlaceholder}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"/><f:verbatim>;
+          divElem.innerHTML = filterPlaceholder;
+          filterPlaceholder = divElem.textContent;
+          var selectAllText =&#32;</f:verbatim><h:outputText value="&#x27;#{assessmentSettingsMessages.select_all_groups}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}"/><f:verbatim>;
+          divElem.innerHTML = selectAllText;
+          selectAllText = divElem.textContent;
+          var nonSelectedText =&#32;</f:verbatim><h:outputText value="&#x27;#{assessmentSettingsMessages.multiselect_nonSelectedText}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}"/><f:verbatim>;
+          divElem.innerHTML = nonSelectedText;
+          nonSelectedText = divElem.textContent;
+          var allSelectedText =&#32;</f:verbatim><h:outputText value="&#x27;#{assessmentSettingsMessages.multiselect_allSelectedText}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"/><f:verbatim>;
+          divElem.innerHTML = allSelectedText;
+          allSelectedText = divElem.textContent;
+          var nSelectedText =&#32;</f:verbatim><h:outputText value="&#x27;#{assessmentSettingsMessages.multiselect_nSelectedText}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 17}"/><f:verbatim>;
+          divElem.innerHTML = nSelectedText;
+          nSelectedText = divElem.textContent;
+          $("#assessmentSettingsAction\\:groupsForSite").multiselect({
+              enableFiltering: true,
+              enableCaseInsensitiveFiltering: true,
+              includeSelectAllOption: true,
+              filterPlaceholder: filterPlaceholder,
+              selectAllText: selectAllText,
+              nonSelectedText: nonSelectedText,
+              allSelectedText: allSelectedText,
+              nSelectedText: nSelectedText,
+              templates: {
+                button: '&lt;button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"&gt;&lt;span class="multiselect-selected-text"&gt;&lt;/span&gt;&lt;i class="si si-caret-down-fill ps-2"&gt;&lt;/i&gt;&lt;/button&gt;',
+                filter: '&lt;div class="multiselect-filter d-flex align-items-center"&gt;&lt;i class="fa fa-sm fa-search text-muted"&gt;&lt;/i&gt;&lt;input type="search" class="multiselect-search form-control" /&gt;&lt;/div&gt;',
+              },
+          });
+
+          const colorTextInput = document.getElementById("assessmentSettingsAction:pickColor");
+          const colorInput = document.getElementById("color-input");
+
+          // The color picker can be disabled.
+          if (colorTextInput &amp;&amp; colorInput) {
+
+            // Initialize the picker if exists a previous value
+            if (colorTextInput.value) {
+              colorInput.value = colorTextInput.value;
+            }
+
+            function updateTextInputColor(event) {
+              colorTextInput.value = colorInput.value;
+            }
+            colorInput.addEventListener("change", updateTextInputColor, false);
+
+            function updateColorInputColor(event) {
+              if (!CSS.supports('color', colorTextInput.value)) {
+                return;
+              }
+              colorInput.value = colorTextInput.value;
+            }
+            colorTextInput.addEventListener("change", updateColorInputColor, false);
+
+          }
+
+          enableDisableToGradebook();
+
+      });
+      &lt;/script&gt;
+
+      &lt;/head&gt;
+    &lt;body onload="</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>"&gt;
+
+&lt;div class="portletBody container-fluid"&gt;
+
+&lt;!-- content... --&gt;
+</f:verbatim><h:form id="assessmentSettingsAction" onsubmit="return editorCheck();"><f:verbatim>
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 19}">&lt;input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_publishedSettings" /&gt;</f:verbatim><f:verbatim>
+&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.assessmentId!=null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 20}"><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 21}">&lt;input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{publishedSettings.assessmentId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 22}"/><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 23}">"/&gt;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;</f:verbatim><h:inputHidden id="assessmentId" value="#{publishedSettings.assessmentId}"/><f:verbatim>
+&#32;&#32;</f:verbatim><h:inputHidden id="blockDivs" value="#{publishedSettings.blockDivs}"/><f:verbatim>
+&#32;&#32;</f:verbatim><h:inputHidden id="itemNavigationUpdated"  ><f:attribute name="value" value="false"/></h:inputHidden><f:verbatim>
+
+  &lt;!-- HEADINGS --&gt;
+&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/author/allHeadings.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 27}"/></ui:include><f:verbatim>
+  &lt;h1&gt;
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{publishedSettings.title}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 54}"/><f:verbatim>
+  &lt;/h1&gt;
+
+  &lt;div class="pull-right"&gt;
+      &lt;a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('</f:verbatim><samigo:literal value="#{samigoViewSupport.panelIdEscaped}"/><f:verbatim>')"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{assessmentSettingsMessages.expandAll}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 55}"/><f:verbatim>
+      &lt;/a&gt;
+      &lt;a href="javascript:void(0)" id="collapseLink" style="display:none" onclick="collapseAccordion('</f:verbatim><samigo:literal value="#{samigoViewSupport.panelIdEscaped}"/><f:verbatim>')"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{assessmentSettingsMessages.collapseAll}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 56}"/><f:verbatim>
+      &lt;/a&gt;
+  &lt;/div&gt;
+  &lt;br/&gt;
+&#32;&#32;
+&#32;&#32;</f:verbatim><h:dataTable value="#{assessmentSettings.errorMessages}" var="message" styleClass="sak-banner-error" rendered="#{assessmentSettings.renderErrorMessage}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 57}"><f:verbatim>
+  &#9;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 58}"><f:verbatim>
+  &#9;&#32;&#32;</f:verbatim><h:outputText value="#{message.detail}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 59}"/><f:verbatim>
+  &#9;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;</f:verbatim></h:dataTable><f:verbatim>
+&#32;&#32;</f:verbatim><h:dataTable value="#{assessmentSettings.infoMessages}" var="message" styleClass="sak-banner-warn" rendered="#{assessmentSettings.renderInfoMessage}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 60}"><f:verbatim>
+  &#9;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 61}"><f:verbatim>
+  &#9;&#32;&#32;</f:verbatim><h:outputText value="#{message.detail}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 62}"/><f:verbatim>
+  &#9;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;</f:verbatim></h:dataTable><f:verbatim>
+
+&lt;div class="tier1" id="jqueryui-accordion"&gt;
+
+</f:verbatim><samigo:hideDivision title="#{assessmentSettingsMessages.heading_about}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 63}"><f:verbatim>
+
+&lt;!-- *** ASSESSMENT INTRODUCTION *** --&gt;
+  &lt;div id="assessment-intro"&gt;
+
+    &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" for="assessment_title" value="#{assessmentSettingsMessages.assessment_title}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 64}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText styleClass="form-control" id="assessment_title" size="80" maxlength="255" value="#{publishedSettings.title}" /><f:verbatim>
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.published_assessment_url}: "
+                        styleClass="form-label col-md-10 form-label" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 66}"/><f:verbatim>
+        &lt;div class=" col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{publishedSettings.publishedUrl}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 67}"/><f:verbatim>
+            &lt;button type="button" id="copyToClipboard" title="</f:verbatim><h:outputText value="#{assessmentSettingsMessages.copyToClipboard}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 68}"/><f:verbatim>"&gt;
+                &lt;span class="fa fa-clipboard" aria-hidden="true"&gt;&lt;/span&gt;
+                &lt;span class="sr-only"&gt;</f:verbatim><h:outputText value="#{assessmentSettingsMessages.copyToClipboard}: #{assessmentSettingsMessages.published_assessment_url}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 69}"/><f:verbatim>&lt;/span&gt;
+            &lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- DESCRIPTION AND ATTACHMENTS TITILE  --&gt;
+    &lt;div class="samigo-subheading"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.assessment_description_and_attachments}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 70}"/><f:verbatim>
+    &lt;/div&gt;
+
+    &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" value="#{assessmentSettingsMessages.assessment_description}" rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 71}"/><f:verbatim>
+
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGrid id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 72}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:wysiwyg rows="100" columns="400" value="#{publishedSettings.description}" hasToggle="yes" mode="author" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 73}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:validateLength maximum="60000"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></samigo:wysiwyg><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGrid><f:verbatim>
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- ASSESSMENT ATTACHMENTS --&gt;
+    &lt;div class="form-group row"&gt;
+    &#9;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/author/publishedSettings_attachment.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 74}"/></ui:include><f:verbatim>
+    &lt;/div&gt;
+
+    &lt;!-- Honor Pledge --&gt;
+    &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge}" rendered="#{publishedSettings.valueMap.honorpledge_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 123}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox id="honor_pledge" value="#{publishedSettings.honorPledge}" rendered="#{publishedSettings.valueMap.honorpledge_isInstructorEditable==true}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{publishedSettings.valueMap.honorpledge_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 125}"/><f:verbatim>
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+
+
+    &lt;!-- *** META *** --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.valueMap.metadataAssess_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 126}"><f:verbatim>
+      &lt;div class="samigo-subheading"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.heading_metadata}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 127}"/><f:verbatim>&#32;
+      &lt;/div&gt;
+        &lt;!-- ASSESSMENT METADATA --&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="samigo-sub-subheading" value="#{assessmentSettingsMessages.assessment_metadata}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 128}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+        &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="keywords" value="#{assessmentSettingsMessages.metadata_keywords}"  styleClass="col-md-10 form-label" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 129}"/><f:verbatim>
+            &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText id="keywords" size="80" value="#{publishedSettings.keywords}" styleClass="form-control"/><f:verbatim>
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="objectives" value="#{assessmentSettingsMessages.metadata_objectives}"  styleClass="col-md-10 form-label" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 131}"/><f:verbatim>
+            &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText id="objectives" value="#{publishedSettings.objectives}" styleClass="form-control"/><f:verbatim>
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+         &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="rubrics" value="#{assessmentSettingsMessages.metadata_rubrics}"  styleClass="col-md-10 form-label" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 133}"/><f:verbatim>
+            &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText id="rubrics" value="#{publishedSettings.rubrics}" styleClass="form-control"/><f:verbatim>
+            &lt;/div&gt;
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#9;&lt;!-- QUESTION METADATA --&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="samigo-sub-subheading" value="#{assessmentSettingsMessages.record_metadata}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 135}"/><f:verbatim>
+        &lt;div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox id="metadataQuestions" rendered="#{publishedSettings.valueMap.metadataQuestions_isInstructorEditable==true}"
+            value="#{publishedSettings.valueMap.hasMetaDataForQuestions}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="metadataQuestions" value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{publishedSettings.valueMap.metadataQuestions_isInstructorEditable==true}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 137}"/><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="metadataQuestionsHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.metadata_questions_info}" /><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+    &lt;!-- TRACKING --&gt;
+    &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-2 form-label" value="#{assessmentSettingsMessages.track_questions_title}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 139}"/><f:verbatim>
+      &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox id="trackQuestions" value="#{publishedSettings.trackQuestions}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="trackQuestions" value="#{assessmentSettingsMessages.track_questions_msg}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 141}"/><f:verbatim>
+      &lt;/div&gt;
+    &lt;/div&gt;
+</f:verbatim></samigo:hideDivision><f:verbatim>&lt;!-- End the About this Assessment category --&gt;
+
+&lt;!-- SECURITY AND PROCTORING --&gt;
+</f:verbatim><samigo:hideDivision title="#{assessmentSettingsMessages.heading_security_proctoring}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 142}"><f:verbatim>
+    &lt;div class="samigo-subheading"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true or assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}" value="#{assessmentSettingsMessages.heading_high_security}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 143}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable!=true and assessmentSettings.valueMap.passwordRequired_isInstructorEditable!=true}" value="#{assessmentSettingsMessages.high_security_none}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 144}"/><f:verbatim>
+    &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.ipAccessType_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 145}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" styleClass="col-md-10 form-label" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 146}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputTextarea value="#{publishedSettings.ipAddresses}" cols="40" rows="5" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 147}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="d-block info-text small" value="#{assessmentSettingsMessages.ip_note}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 148}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="d-block info-text small" value="#{assessmentSettingsMessages.ip_example} #{assessmentSettingsMessages.ip_ex}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 149}"/><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 150}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}" styleClass="col-md-10 form-label" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 151}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText id="password" size="20" value="#{publishedSettings.password}" styleClass="form-control"/><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup layout="block" rendered="#{publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true &amp;&amp; publishedSettings.secureDeliveryAvailable}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 153}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 154}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="secureDeliveryModule" value="#{assessmentSettingsMessages.require_secure_delivery}" styleClass="col-md-2 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 155}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio id="secureDeliveryModule" value="#{publishedSettings.secureDeliveryModule}" layout="pageDirection" onclick="setBlockDivs();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.secureDeliveryModuleSelections}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 157}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 158}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="sebConfigMode" value="#{assessmentSettingsMessages.seb_config_mode}" styleClass="col-md-2 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 159}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio id="sebConfigMode" disabled="true" value="#{publishedSettings.sebConfigMode}" layout="pageDirection" onclick="setBlockDivs();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.sebConfigModeSelections}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 161}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 162}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="sebAllowUserQuitSeb" value="#{assessmentSettingsMessages.seb_allow_user_quit_seb}" styleClass="col-md-2 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 163}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio id="sebAllowUserQuitSeb" disabled="true" value="#{publishedSettings.sebAllowUserQuitSeb}" layout="pageDirection" onclick="setBlockDivs();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.booleanSelections}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 165}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 166}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"
+            styleClass="col-md-2 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 167}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText id="secureDeliveryModuleExitPassword" size="14" value="#{publishedSettings.secureDeliveryModuleExitPassword}"
+                maxlength="14" styleClass="form-control" /><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 169}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="sebShowTaskbar" value="#{assessmentSettingsMessages.seb_show_taskbar}" styleClass="col-md-2 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 170}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio id="sebShowTaskbar" disabled="true" value="#{publishedSettings.sebShowTaskbar}" layout="pageDirection" onclick="setBlockDivs();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.booleanSelections}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 172}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 173}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="sebShowTime" value="#{assessmentSettingsMessages.seb_show_time}" styleClass="col-md-2 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 174}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio id="sebShowTime" disabled="true" value="#{publishedSettings.sebShowTime}" layout="pageDirection" onclick="setBlockDivs();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.booleanSelections}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 176}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 177}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="sebShowKeyboardLayout" value="#{assessmentSettingsMessages.seb_show_keyboard_layout}" styleClass="col-md-2 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 178}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio id="sebShowKeyboardLayout" disabled="true" value="#{publishedSettings.sebShowKeyboardLayout}" layout="pageDirection" onclick="setBlockDivs();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.booleanSelections}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 180}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 181}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="sebShowWifiControl" value="#{assessmentSettingsMessages.seb_show_wifi_control}" styleClass="col-md-2 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 182}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio id="sebShowWifiControl" disabled="true" value="#{publishedSettings.sebShowWifiControl}" layout="pageDirection" onclick="setBlockDivs();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.booleanSelections}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 184}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 185}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="sebAllowAudioControl" value="#{assessmentSettingsMessages.seb_allow_audio_control}" styleClass="col-md-2 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 186}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio id="sebAllowAudioControl" disabled="true" value="#{publishedSettings.sebAllowAudioControl}" layout="pageDirection" onclick="setBlockDivs();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.booleanSelections}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 188}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 189}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="sebAllowSpellChecking" value="#{assessmentSettingsMessages.seb_allow_spell_checking}" styleClass="col-md-2 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 190}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio id="sebAllowSpellChecking" disabled="true" value="#{publishedSettings.sebAllowSpellChecking}" layout="pageDirection" onclick="setBlockDivs();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.booleanSelections}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 192}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.sebConfigMode == &#x27;UPLOAD&#x27;}" styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 193}"><f:verbatim>
+        &lt;label for="sebConfigUpload" class="col-md-2 form-label"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{assessmentSettingsMessages.seb_config_upload}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 194}"/><f:verbatim>
+        &lt;/label&gt;
+        &lt;div class="col-md-10 seb-upload"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLink id="sebConfigUploadLink" rendered="#{publishedSettings.sebConfigFileName != null}" value="/access/content#{publishedSettings.sebConfigUploadId}" target="new_window"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{publishedSettings.sebConfigFileName}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 196}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputLink><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 197}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="sebConfigKey" value="#{assessmentSettingsMessages.seb_config_key}" styleClass="col-md-2 form-label" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 198}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText id="sebConfigKey" styleClass="form-control" value="#{publishedSettings.sebConfigKey}" /><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 200}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="sebExamKeys" value="#{assessmentSettingsMessages.seb_exam_keys}" styleClass="col-md-2 form-label" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 201}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputTextarea id="sebExamKeys" styleClass="form-control" value="#{publishedSettings.sebExamKeys}" cols="40" rows="5" /><f:verbatim>
+          &lt;label class="help-block info-text small"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{assessmentSettingsMessages.seb_exam_keys_upload_published_info}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 203}"/><f:verbatim>
+          &lt;/label&gt;
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+</f:verbatim></samigo:hideDivision><f:verbatim>&lt;!-- END the Security and Proctoring category --&gt;
+
+&lt;!-- AVAILABILITY AND SUBMISSIONS --&gt;
+</f:verbatim><samigo:hideDivision title="#{assessmentSettingsMessages.heading_availability}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 204}"><f:verbatim>&#32;
+  &lt;!-- *** RELEASED TO *** --&gt;
+  &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="releaseTo" styleClass="col-md-10 form-label" value="#{assessmentSettingsMessages.released_to} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 205}"/><f:verbatim>
+      &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu id="releaseTo" disabled="true" value="#{publishedSettings.firstTargetSelected}" onclick="setBlockDivs();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.publishingTargets}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 207}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="releaseToHelp" rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true || assessmentSettings.valueMap.toGradebook_isInstructorEditable==true}"
+                         styleClass="help-block info-text small" value="#{assessmentSettingsMessages.released_to_help}" /><f:verbatim>
+       &lt;/div&gt;
+  &lt;/div&gt;
+
+&#32;&#32;</f:verbatim><h:panelGroup rendered="#{assessmentSettings.gradebookGroupEnabled == true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 209}"><f:verbatim>
+    &lt;div class="sak-banner-info"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.multi_gradebook_use_info}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 210}"></h:outputLabel><f:verbatim>
+    &lt;/div&gt;
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+  &lt;div id="groupDiv" class="groupTable form-group row col-md-offset-2 col-md-10"&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:selectManyListbox id="groupsForSite" disabled="true" value="#{publishedSettings.groupsAuthorized}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.groupsForSite}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 212}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:selectManyListbox><f:verbatim>
+  &lt;/div&gt;
+
+  &lt;!-- NUMBER OF SUBMISSIONS --&gt;
+&#32;&#32;</f:verbatim><h:panelGroup styleClass="row" layout="block" rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 213}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" value="#{assessmentSettingsMessages.submissions_allowed}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 214}"/><f:verbatim>
+      &lt;div class="col-md-10 form-inline"&gt;
+              &lt;!-- Use the custom Tomahawk layout spread to style this radio http://myfaces.apache.org/tomahawk-project/tomahawk12/tagdoc/t_selectOneRadio.html --&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="unlimitedSubmissions" value="#{publishedSettings.unlimitedSubmissions}" layout="spread"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 216}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 217}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+              &lt;ul class="submissions-allowed"&gt;
+                &lt;li class="my-1"&gt;</f:verbatim><t:radio renderLogicalId="true" for="unlimitedSubmissions" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 218}"/><f:verbatim>&lt;/li&gt;
+                &lt;li class="my-1"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:radio renderLogicalId="true" for="unlimitedSubmissions" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 219}"/><f:verbatim>
+                  &lt;span class="submissions-allowed"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText size="5" id="submissions_Allowed" value="#{publishedSettings.submissionsAllowed}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 221}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="submissions_Allowed" value="#{assessmentSettingsMessages.limited_submission}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 222}"/><f:verbatim>
+                  &lt;/span&gt;
+                &lt;/li&gt;
+              &lt;/ul&gt;
+      &lt;/div&gt;
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;
+  &lt;!-- *** DELIVERY DATES *** --&gt;
+  &lt;div class="samigo-subheading"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.availability_title}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 223}"/><f:verbatim>
+  &lt;/div&gt;
+      &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" for="startDate" value="#{assessmentSettingsMessages.assessment_available}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 224}"/><f:verbatim>
+          &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText value="#{publishedSettings.startDateString}" size="25" id="startDate" /><f:verbatim>
+          &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" for="endDate" value="#{assessmentSettingsMessages.assessment_due}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 226}"/><f:verbatim>
+          &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText value="#{publishedSettings.dueDateString}" size="25" id="endDate"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 228}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+          &lt;/div&gt;
+      &lt;/div&gt;
+
+    &lt;!-- LATE HANDLING --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.valueMap.lateHandling_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 229}"><f:verbatim>
+      &lt;div class="row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" value="#{assessmentSettingsMessages.late_accept}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 230}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="lateHandling" value="#{publishedSettings.lateHandling}" onclick="checkLastHandling();" layout="spread"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.no_late}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 232}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.yes_late}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 233}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+        &lt;ul class="late-handling mb-1"&gt;
+          &lt;li class="my-1"&gt;</f:verbatim><t:radio renderLogicalId="true" for="lateHandling" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 234}"/><f:verbatim>&lt;/li&gt;
+          &lt;li class="my-1"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:radio renderLogicalId="true" for="lateHandling" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 235}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="lateHandlingDeadlineLabel" value="#{assessmentSettingsMessages.yes_late_deadline}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 237}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText value="#{publishedSettings.retractDateString}" size="25" id="retractDate"/><f:verbatim>
+          &lt;/li&gt;
+        &lt;/ul&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="lateHandlingHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.late_accept_help}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton type="submit" value="#{assessmentSettingsMessages.button_stop_accepting_now}" action="confirmAssessmentRetract"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 240}"/><f:verbatim>
+      &lt;/div&gt;
+    &lt;/div&gt;
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+    &lt;!-- *** TIMED *** --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.valueMap.timedAssessment_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 241}"><f:verbatim>
+     &lt;div class="row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label mt-3" value="#{assessmentSettingsMessages.assessment_timed}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 242}"/><f:verbatim>
+          &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="selTimeAssess" value="#{publishedSettings.valueMap.hasTimeAssessment}" onclick="checkTimedRadio();setBlockDivs();" layout="spread" ><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="false" itemLabel="#{assessmentSettingsMessages.assessment_not_timed}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 244}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="true" itemLabel="#{assessmentSettingsMessages.assessment_is_timed}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 245}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+          &lt;ul class="selTimeAssess mb-1"&gt;
+            &lt;li&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:radio renderLogicalId="true" for="selTimeAssess" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 246}"/><f:verbatim>
+            &lt;/li&gt;
+            &lt;li&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:radio renderLogicalId="true" for="selTimeAssess" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 247}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="isTimedTimeLimitLabel" value="#{assessmentSettingsMessages.assessment_is_timed_limit} " /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 249}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu id="timedHours" value="#{publishedSettings.timedHours}" ><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.hours}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 251}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 252}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="timedHoursLabel"  value="#{assessmentSettingsMessages.timed_hours} " /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 254}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu id="timedMinutes" value="#{publishedSettings.timedMinutes}" ><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.mins}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 256}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 257}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="timedMinutesLabel" value="#{assessmentSettingsMessages.timed_minutes} " /><f:verbatim>
+            &lt;/li&gt;
+          &lt;/ul&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="selTimeAssessHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.assessment.hasMultipleTimers() &gt; 1}" layout="block" id="multipleTimersInfo" styleClass="sak-banner-warn"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{assessmentSettingsMessages.multiple_timers_detected}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 261}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+          &lt;/div&gt;
+     &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+  &lt;!-- AUTOMATIC SUBMISSION --&gt;
+&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.automaticSubmission_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 262}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label mt-3" value="#{assessmentSettingsMessages.auto_submit}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 263}"/><f:verbatim>
+    &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox id="automaticSubmission" value="#{publishedSettings.autoSubmit}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="automaticSubmission" value="#{assessmentSettingsMessages.auto_submit_help}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 265}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="automaticSubmissionHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.auto_submit_info}" /><f:verbatim>
+    &lt;/div&gt;
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+  &lt;!-- SUBMISSION EMAILS --&gt;
+&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.instructorNotification_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 267}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label mt-3" value="#{assessmentSettingsMessages.instructorNotificationLabel}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 268}"/><f:verbatim>
+    &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="notificationEmailChoices" value="#{publishedSettings.instructorNotification}" layout="spread"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.oneEmail}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 270}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.digestEmail}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 271}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.noEmail}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 272}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+      &lt;ul class="email-notification"&gt;
+        &lt;li class="my-1"&gt;</f:verbatim><t:radio renderLogicalId="true" for="notificationEmailChoices" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 273}"/><f:verbatim>&lt;/li&gt;
+        &lt;li class="my-1"&gt;</f:verbatim><t:radio renderLogicalId="true" for="notificationEmailChoices" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 274}"/><f:verbatim>&lt;/li&gt;
+        &lt;li class="my-1"&gt;</f:verbatim><t:radio renderLogicalId="true" for="notificationEmailChoices" index="2"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 275}"/><f:verbatim>&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+</f:verbatim></samigo:hideDivision><f:verbatim>&lt;!-- END the Availabity and Submissions category --&gt;
+
+</f:verbatim><samigo:hideDivision title="#{assessmentSettingsMessages.heading_extended_time}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 276}"><f:verbatim>
+  &lt;!-- Extended Time --&gt;
+&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/author/inc/publishedExtendedTime.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 277}"/></ui:include><f:verbatim>
+</f:verbatim></samigo:hideDivision><f:verbatim>
+
+</f:verbatim><samigo:hideDivision title="#{assessmentSettingsMessages.heading_grading_feedback}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 372}"><f:verbatim>
+
+  &lt;!-- *** GRADING *** --&gt;
+  &lt;!-- RECORDED SCORE AND MULTIPLES --&gt;
+    &lt;div class="samigo-subheading"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.grading_scoring_title}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 373}"/><f:verbatim>
+    &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.recordedScore_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 374}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" value="#{assessmentSettingsMessages.recorded_score} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 375}"/><f:verbatim>
+      &lt;div class="col-md-10 form-inline"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio value="#{publishedSettings.scoringType}" id="scoringType1" rendered="#{author.canRecordAverage}" layout="pageDirection"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.highest_score}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 377}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.last_score}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 378}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.average_score}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 379}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio value="#{publishedSettings.scoringType}" id="scoringType2" rendered="#{!author.canRecordAverage}" layout="pageDirection"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.highest_score}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 381}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.last_score}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 382}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+      &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+    &lt;!-- info message about the anonymous and gradebook options below, will be shown only if quiz released to "Anonymous Users" --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true || publishedSettings.valueMap.toGradebook_isInstructorEditable==true}"
+                  layout="block" id="gradingOptionsDisabledInfo" styleClass="row sak-banner-info" style="display: none"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{assessmentSettingsMessages.grading_options_disabled_info}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 384}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+    &lt;!--  ANONYMOUS OPTION --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="row" layout="block" rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 385}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" value="#{assessmentSettingsMessages.student_identity_label}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 386}"/><f:verbatim>
+      &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox id="anonymousGrading" disabled="#{publishedSettings.firstTargetSelected == &#x27;Anonymous Users&#x27; || publishedSettings.editPubAnonyGradingRestricted}" value="#{publishedSettings.anonymousGrading}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="anonymousGrading" value="#{assessmentSettingsMessages.student_identity}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 388}"/><f:verbatim>
+      &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;
+    &lt;!-- GRADEBOOK OPTION --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="row" layout="block" rendered="#{publishedSettings.valueMap.toGradebook_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 389}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="toDefaultGradebook" styleClass="col-md-10 form-label mt-3" value="#{assessmentSettingsMessages.gradebook_options}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 390}"/><f:verbatim>
+      &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio id="toDefaultGradebook" value="#{publishedSettings.toDefaultGradebook}"  layout="pageDirection"
+          onchange="enableDisableToGradebook();toggleCategories(this);"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 392}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 393}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.to_selected_gradebook}" itemDisabled="#{!publishedSettings.gradebookEnabled}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 394}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+      &lt;/div&gt;
+      &lt;!-- Gradebook Category (sub-setting) --&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup layout="block" id="toGradebookCategory" styleClass="col-md-10 col-md-offset-2" rendered="#{publishedSettings.categoriesEnabled}" style="#{publishedSettings.toDefaultGradebook == 1 ? &#x27;display:block;&#x27; : &#x27;display:none;&#x27;}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="selectCategory" value="#{assessmentSettingsMessages.gradebook_category_select}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 396}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{!publishedSettings.gradebookGroupEnabled}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 397}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu styleClass="categorySelect" id="selectCategory" value="#{publishedSettings.categorySelected}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.categoriesSelectList}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 399}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.gradebookGroupEnabled}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 400}"><f:verbatim>
+          &lt;sakai-gradebook-item-selector
+            id="category-selector" input-id="assessmentSettingsAction:category_selector"
+            site-id='</f:verbatim><h:outputText value="#{publishedSettings.currentSiteId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 401}"/><f:verbatim>'
+            selected-temp='</f:verbatim><h:outputText value="#{publishedSettings.categorySelected}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 402}"/><f:verbatim>'
+            is-category='true'&gt;
+          &lt;/sakai-gradebook-item-selector&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputHidden id="category_selector" value="#{publishedSettings.categorySelected}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+      &lt;!-- Gradebook Name (sub-setting) --&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup layout="block" id="toGradebookSelected" style="#{publishedSettings.toDefaultGradebook == 3 ? &#x27;display:block;&#x27; : &#x27;display:none;&#x27;}" styleClass="col-md-10 col-md-offset-2"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{!publishedSettings.gradebookGroupEnabled}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 405}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu id="toGradebookName" value="#{publishedSettings.gradebookName}" rendered="#{publishedSettings.firstTargetSelected != &#x27;Anonymous Users&#x27;}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="" itemLabel="#{assessmentSettingsMessages.gradebook_item_select}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 407}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{publishedSettings.existingGradebook}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 408}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.gradebookGroupEnabled}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 409}"><f:verbatim>
+          &lt;sakai-gradebook-item-selector
+            id="gb-selector" input-id="assessmentSettingsAction:gb_selector"
+            site-id='</f:verbatim><h:outputText value="#{publishedSettings.currentSiteId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 410}"/><f:verbatim>'
+            selected-temp='</f:verbatim><h:outputText value="#{publishedSettings.gradebookName}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 411}"/><f:verbatim>'
+            app-name="sakai.samigo" &gt;&lt;/sakai-gradebook-item-selector&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputHidden id="gb_selector" value="#{publishedSettings.gradebookName}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+    &lt;!-- *** FEEDBACK *** --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or publishedSettings.valueMap.feedbackType_isInstructorEditable==true or publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 413}"><f:verbatim>
+    &lt;div class="samigo-subheading mt-4"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.heading_feedback}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 414}"/><f:verbatim>
+    &lt;/div&gt;
+
+    &lt;!-- FEEDBACK AUTHORING --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 415}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" for="feedbackAuthoring" value="#{assessmentSettingsMessages.feedback_level}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 416}"/><f:verbatim>
+      &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="feedbackAuthoring" value="#{publishedSettings.feedbackAuthoring}" layout="spread"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.questionlevel_feedback}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 418}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.sectionlevel_feedback}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 419}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.both_feedback}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 420}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+        &lt;ul class="feedback-authoring mb-1"&gt;
+          &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="feedbackAuthoring" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 421}"/><f:verbatim>&lt;/li&gt;
+          &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="feedbackAuthoring" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 422}"/><f:verbatim>&lt;/li&gt;
+          &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="feedbackAuthoring" index="2"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 423}"/><f:verbatim>&lt;/li&gt;
+        &lt;/ul&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="feedbackAuthoringHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.feedback_level_help}"/><f:verbatim>
+      &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+    &lt;!-- FEEDBACK DELIVERY --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.feedbackType_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 425}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label mt-2" for="feedbackDelivery" value="#{assessmentSettingsMessages.feedback_type}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 426}"/><f:verbatim>
+      &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="feedbackDelivery" value="#{publishedSettings.feedbackDelivery}" onclick="setBlockDivs();disableAllFeedbackCheck();" layout="spread"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.no_feedback}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 428}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.immediate_feedback}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 429}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.on_submission_feedback}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 430}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 431}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+        &lt;ul class="feedback-delivery"&gt;
+          &lt;li class="my-1"&gt;</f:verbatim><t:radio renderLogicalId="true" for="feedbackDelivery" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 432}"/><f:verbatim>&lt;/li&gt;
+          &lt;li class="my-1"&gt;</f:verbatim><t:radio renderLogicalId="true" for="feedbackDelivery" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 433}"/><f:verbatim>&lt;/li&gt;
+          &lt;li class="my-1"&gt;</f:verbatim><t:radio renderLogicalId="true" for="feedbackDelivery" index="2"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 434}"/><f:verbatim>&lt;/li&gt;
+          &lt;li class="my-1"&gt;</f:verbatim><t:radio renderLogicalId="true" for="feedbackDelivery" index="3"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 435}"/><f:verbatim>&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;div id="feedbackByDatePanel" class="feedbackByDatePanel" style="display:none;"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackDate" value="#{assessmentSettingsMessages.feedback_start_date}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 436}"/><f:verbatim>&#32;</f:verbatim><h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" /><f:verbatim>
+            &lt;div class="d-lg-none"&gt;&lt;div class="clearfix"&gt;&lt;/div&gt;&lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackEndDate" value="#{assessmentSettingsMessages.feedback_end_date}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 438}"/><f:verbatim>&#32;</f:verbatim><h:inputText value="#{publishedSettings.feedbackEndDateString}" size="25" id="feedbackEndDate" /><f:verbatim>
+            &lt;div class="clearfix"&gt;&lt;/div&gt;&lt;br/&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{publishedSettings.feedbackScoreThresholdEnabled}" id="feedbackScoreThresholdEnabled"/><f:verbatim>&#32;</f:verbatim><h:outputLabel for="feedbackScoreThresholdEnabled" value="#{assessmentSettingsMessages.feedback_score_threshold}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 441}"/><f:verbatim>&#32;</f:verbatim><h:inputText id="feedbackScoreThreshold" size="4" value="#{publishedSettings.feedbackScoreThreshold}"/><f:verbatim>&amp;#37;
+        &lt;/div&gt;
+      &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;
+    &lt;!-- FEEDBACK COMPONENTS --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 443}"><f:verbatim>
+
+      &lt;div class="form-group row"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" for="feedbackComponentOption" value="#{assessmentSettingsMessages.feedback_components}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 444}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="feedbackComponentOption" value="#{publishedSettings.feedbackComponentOption}" onclick="setBlockDivs();disableOtherFeedbackComponentOption();" layout="pageDirection"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_totalscore_only}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 446}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 447}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+            &lt;div class="respChoice indent1" style="display:none;"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 448}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="samigo-sub-subheading" value="#{assessmentSettingsMessages.feedback_subheading_answers}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 449}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 450}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{publishedSettings.showStudentResponse}" id="feedbackCheckbox11"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackCheckbox1" value="#{assessmentSettingsMessages.student_response}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 452}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 453}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{publishedSettings.showCorrectResponse}" id="feedbackCheckbox13" onclick="changeStatusCorrectResponseCheckbox()"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackCheckbox3" value="#{assessmentSettingsMessages.correct_response}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 455}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline indent1" id="hideCorrectResponse" layout="block" style="display: #{(publishedSettings.showCorrectResponse) ? &#x27;block&#x27; : &#x27;none&#x27;}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{publishedSettings.showCorrection}" id="feedbackCheckbox19"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackCheckbox19" value="#{assessmentSettingsMessages.show_correct_response}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 458}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 459}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{publishedSettings.showQuestionLevelFeedback}" id="feedbackCheckbox12"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackCheckbox2" value="#{assessmentSettingsMessages.question_level_feedback}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 461}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 462}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{publishedSettings.showSelectionLevelFeedback}" id="feedbackCheckbox14"/><f:verbatim>&#32;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackCheckbox4" value="#{assessmentSettingsMessages.selection_level_feedback}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 464}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 465}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="samigo-sub-subheading mt-3" value="#{assessmentSettingsMessages.feedback_subheading_comments}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 466}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 467}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{publishedSettings.showGraderComments}" id="feedbackCheckbox16"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackCheckbox6" value="#{assessmentSettingsMessages.graders_comments}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 469}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="feedbackCheckbox6HelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.graders_comments_info} "/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 471}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="samigo-sub-subheading mt-3" value="#{assessmentSettingsMessages.feedback_subheading_scores}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 472}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 473}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{publishedSettings.showStudentQuestionScore}" id="feedbackCheckbox17"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackCheckbox7" value="#{assessmentSettingsMessages.student_question_score}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 475}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 476}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{publishedSettings.showStudentScore}" id="feedbackCheckbox15"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackCheckbox5" value="#{assessmentSettingsMessages.student_assessment_score}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 478}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 479}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="samigo-sub-subheading mt-3" value="#{assessmentSettingsMessages.feedback_subheading_additonal_info}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 480}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-inline" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 481}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{publishedSettings.showStatistics}" id="feedbackCheckbox18"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedbackCheckbox8" value="#{assessmentSettingsMessages.statistics_and_histogram}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 483}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;</f:verbatim></samigo:hideDivision><f:verbatim>
+
+</f:verbatim><samigo:hideDivision title="#{assessmentSettingsMessages.heading_layout}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 484}"><f:verbatim>
+
+  &lt;!-- *** ASSESSMENT ORGANIZATION *** --&gt;
+&#32;&#32;</f:verbatim><h:panelGroup rendered="#{publishedSettings.valueMap.itemAccessType_isInstructorEditable==true or publishedSettings.valueMap.displayChunking_isInstructorEditable==true or publishedSettings.valueMap.displayNumbering_isInstructorEditable==true }"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 485}"><f:verbatim>
+
+    &lt;!-- NAVIGATION --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.itemAccessType_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 486}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" for="itemNavigation" value="#{assessmentSettingsMessages.navigation}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 487}"/><f:verbatim>
+      &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="itemNavigation" value="#{publishedSettings.itemNavigation}" layout="spread" onclick="setBlockDivs();updateItemNavigation(true);"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 489}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 490}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+        &lt;ul class="layout-navigation mb-1"&gt;
+          &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="itemNavigation" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 491}"/><f:verbatim>&lt;/li&gt;
+          &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="itemNavigation" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 492}"/><f:verbatim>&lt;/li&gt;
+        &lt;/ul&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel id="itemNavigationHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.linear_access_warning} "/><f:verbatim>
+      &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+    &lt;!-- QUESTION LAYOUT --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.displayChunking_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 494}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label mt-2" for="assessmentFormat" value="#{assessmentSettingsMessages.question_layout}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 495}"/><f:verbatim>
+      &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="assessmentFormat" value="#{publishedSettings.assessmentFormat}" layout="spread"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.layout_by_question}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 497}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.layout_by_part}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 498}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.layout_by_assessment}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 499}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+        &lt;ul class="layout-format"&gt;
+          &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="assessmentFormat" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 500}"/><f:verbatim>&lt;/li&gt;
+          &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="assessmentFormat" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 501}"/><f:verbatim>&lt;/li&gt;
+          &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="assessmentFormat" index="2"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 502}"/><f:verbatim>&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+  &lt;!-- *** MARK FOR REVIEW *** --&gt;
+  &lt;!-- *** (disabled for linear assessment) *** --&gt;
+&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.markForReview_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 503}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" value="#{assessmentSettingsMessages.mark_for_review}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 504}"/><f:verbatim>
+    &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox id="markForReview1" value="#{publishedSettings.isMarkForReview}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="markForReview1" value="#{assessmentSettingsMessages.mark_for_review_label}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 506}"/><f:verbatim>
+    &lt;/div&gt;
+
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+  &lt;!-- NUMBERING --&gt;
+&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.displayNumbering_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 507}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" for="itemNumbering" value="#{assessmentSettingsMessages.numbering}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 508}"/><f:verbatim>
+      &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="itemNumbering" value="#{publishedSettings.itemNumbering}" layout="spread"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.continous_numbering}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 510}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.part_numbering}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 511}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+         &lt;ul class="layout-numbering"&gt;
+           &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="itemNumbering" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 512}"/><f:verbatim>&lt;/li&gt;
+           &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="itemNumbering" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 513}"/><f:verbatim>&lt;/li&gt;
+         &lt;/ul&gt;
+      &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+   &lt;!-- Display Scores --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.displayScores_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 514}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="col-md-10 form-label" for="displayScores" value="#{assessmentSettingsMessages.displayScores}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 515}"/><f:verbatim>&#32;
+      &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="displayScores" value="#{publishedSettings.displayScoreDuringAssessments}" layout="spread"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.displayScores_show}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 517}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.displayScores_hide}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 518}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+         &lt;ul class="display-scores"&gt;
+           &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="displayScores" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 519}"/><f:verbatim>&lt;/li&gt;
+           &lt;li&gt;</f:verbatim><t:radio renderLogicalId="true" for="displayScores" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 520}"/><f:verbatim>&lt;/li&gt;
+         &lt;/ul&gt;
+      &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;
+   &lt;!-- *** COLORS AND GRAPHICS *** --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.bgColor_isInstructorEditable==true and publishedSettings.backgroundColorEnabled==true}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 521}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="color-input" styleClass="col-md-2" value="#{assessmentSettingsMessages.background_label}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 522}"/><f:verbatim>
+         &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{publishedSettings.bgColorSelect}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_color}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 524}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText size="10" value="#{publishedSettings.bgColor}" id="pickColor" /><f:verbatim>&lt;/br&gt;
+         &lt;input id="color-input" type="color"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneRadio onclick="uncheckOther(this)" id="background_image" value="#{publishedSettings.bgImageSelect}"  ><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_image}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 527}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneRadio><f:verbatim>&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText size="80" value="#{publishedSettings.bgImage}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 528}"/><f:verbatim>
+      &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;
+
+&lt;!-- *** SUBMISSION MESSAGE *** --&gt;
+</f:verbatim><h:panelGroup rendered="#{publishedSettings.valueMap.submissionMessage_isInstructorEditable==true or publishedSettings.valueMap.finalPageURL_isInstructorEditable==true}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 529}"><f:verbatim>
+&lt;div class="samigo-subheading"&gt;
+&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.heading_submission_message}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 530}"/><f:verbatim>
+&lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup layout="block" styleClass="form-group row" rendered="#{publishedSettings.valueMap.submissionMessage_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 531}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.submission_message}" styleClass="col-md-10 form-label"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 532}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGrid id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 533}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:wysiwyg rows="140" value="#{publishedSettings.submissionMessage}" hasToggle="yes" mode="author" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 534}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:validateLength maximum="4000"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></samigo:wysiwyg><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGrid><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup  layout="block" styleClass="form-group row" rendered="#{publishedSettings.valueMap.finalPageURL_isInstructorEditable==true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 535}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="finalPageUrl" value="#{assessmentSettingsMessages.submission_final_page_url}"  styleClass="col-md-10 form-label" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 536}"/><f:verbatim>
+        &lt;div class="col-md-10"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText size="80" id="finalPageUrl" value="#{publishedSettings.finalPageUrl}" styleClass="form-control"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 538}"/><f:verbatim>
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+
+</f:verbatim></samigo:hideDivision><f:verbatim>&lt;!-- END Layout and Appearance Category --&gt;
+&lt;/div&gt; &lt;!-- END of #jqueryui-accordion --&gt;
+
+ &lt;p class="act"&gt;
+
+  &lt;!-- Save button --&gt;
+&#32;&#32;</f:verbatim><h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();updateItemNavigation(false);SPNR.disableControlsAndSpin(this, null);"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 539}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+&#32;&#32;
+  &lt;!-- Cancel button --&gt;
+&#32;&#32;</f:verbatim><h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="#{author.getFromPage}" rendered="#{author.fromPage != &#x27;editAssessment&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 540}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetPublishedAssessmentAttachmentListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="editAssessment" rendered="#{author.fromPage == &#x27;editAssessment&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 541}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetPublishedAssessmentAttachmentListener" /><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&lt;/p&gt;
+</f:verbatim></h:form><f:verbatim>
+&lt;!-- end content --&gt;
+&lt;/div&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+&#32;&#32;</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

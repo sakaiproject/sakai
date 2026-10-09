@@ -64,7 +64,7 @@ public final class SamigoJsfViewAccess {
                 return false;
             }
         }
-        String view = viewId.replaceFirst("\\.(jsp|faces|jsf|xml)$", "");
+        String view = viewId.replaceFirst("\\.(jsp|xhtml|faces|jsf|xml)$", "");
         if (viewId.startsWith("/jsf/widget/") && viewId.endsWith(".js")) {
             return true;
         }

@@ -1,0 +1,72 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+&lt;!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&#32;
+&lt;!-- $Id$
+
+--&gt;
+&#32;&#32;</f:verbatim><f:view><f:verbatim>
+    &lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+      &lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+      &lt;title&gt;</f:verbatim><h:outputText value="#{deliveryMessages.remove_p_conf}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body onload="</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>"&gt;
+ &lt;!-- content... --&gt;
+
+&#32;</f:verbatim><h:form id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:inputHidden id="showTimer" value="#{delivery.showTimer}"/><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:inputHidden id="mediaId" value="#{mediaBean.mediaId}"/><f:verbatim>
+   &lt;h3&gt;&#32;</f:verbatim><h:outputText  value="#{deliveryMessages.remove_media_conf}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><f:verbatim>&lt;/h3&gt;
+   &lt;div class="sak-banner-warn"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.cert_rem_media}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"/><f:verbatim>
+   &lt;/div&gt;
+   &lt;p&gt;</f:verbatim><h:outputLink title="#{deliveryMessages.t_media}"  onclick="window.open(&#x27;#{mediaBean.mediaUrl}&#x27;,&#x27;new_window&#x27;);" onkeypress="window.open(&#x27;#{mediaBean.mediaUrl}&#x27;,&#x27;new_window&#x27;);" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"><f:attribute name="value" value="#"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{mediaBean.filename}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputLink><f:verbatim>
+   &lt;/p&gt;
+   &lt;p class="act"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton id="remove" type="submit" value="#{commonMessages.remove_action}" action="#{delivery.getOutcome}" styleClass="active"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.shared.RemoveMediaListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton id="cancel" value="#{commonMessages.cancel_action}" type="submit" action="takeAssessment"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton id="save" styleClass="d-none" type="submit" value="#{commonMessages.action_save}"
+          action="#{delivery.saveWork}" rendered="#{delivery.actionString==&#x27;previewAssessment&#x27;&#10;                 || delivery.actionString==&#x27;takeAssessment&#x27;&#10;                 || delivery.actionString==&#x27;takeAssessmentViaUrl&#x27;}" /><f:verbatim>
+   &lt;/p&gt;
+   &lt;!-- HEADING --&gt;
+&#32;&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/delivery/questionProgress.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 12}"/></ui:include><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/delivery/assessmentDeliveryTimer.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 68}"/></ui:include><f:verbatim>
+&#32;</f:verbatim></h:form><f:verbatim>
+ &lt;!-- end content --&gt;
+&lt;!-- end content --&gt;
+
+      &lt;/body&gt;
+    &lt;/html&gt;
+&#32;&#32;</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

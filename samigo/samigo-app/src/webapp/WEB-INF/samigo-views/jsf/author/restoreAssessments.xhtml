@@ -1,0 +1,143 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+&lt;!DOCTYPE html&gt;
+</f:verbatim><f:view><f:verbatim>
+    &lt;html&gt;
+        &lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+            &lt;title&gt;</f:verbatim><h:outputText value="#{authorMessages.restore_assessments}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>&lt;/title&gt;
+        &lt;/head&gt;
+        &lt;body onload="</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>"&gt;
+          &lt;div class="portletBody container-fluid"&gt;
+            &lt;script&gt;includeWebjarLibrary('datatables');&lt;/script&gt;
+            &lt;script src="/samigo-app/js/sortHelper.js"&gt;&lt;/script&gt;
+            &lt;script&gt;
+                document.addEventListener('DOMContentLoaded', function() {
+                    const tableElement = document.getElementById("restoreAssessmentsForm:deletedAssessmentsTable");
+                    const notEmptyTableTd = tableElement?.querySelector("td:not(:empty)");
+                    if (notEmptyTableTd) {
+                        const table = new DataTable(tableElement, {
+                            "paging": true,
+                            "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200,&#32;</f:verbatim><h:outputText value="&#x27;#{authorFrontDoorMessages.assessment_view_all}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>]],
+                            "pageLength": 20,
+                            "order": [[0, "desc"]],
+                            "columns": [
+                                {"orderable": true, "searchable": true, "type": "natural-ci", "orderDataType": "dom-span"},
+                                {"orderable": true, "searchable": true},
+                                {"orderable": true, "searchable": true, "type": "natural-ci", "orderDataType": "dom-span"},
+                                {"orderable": false, "searchable": false}
+                            ],
+                            "language": {
+                                "search":&#32;</f:verbatim><h:outputText value="&#x27;#{dataTablesMessages.search}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>,
+                                "lengthMenu":&#32;</f:verbatim><h:outputText value="&#x27;#{authorFrontDoorMessages.datatables_lengthMenu}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:verbatim>,
+                                "zeroRecords":&#32;</f:verbatim><h:outputText value="&#x27;#{authorFrontDoorMessages.datatables_zeroRecords}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><f:verbatim>,
+                                "info":&#32;</f:verbatim><h:outputText value="&#x27;#{dataTablesMessages.info}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"/><f:verbatim>,
+                                "infoEmpty":&#32;</f:verbatim><h:outputText value="&#x27;#{authorFrontDoorMessages.datatables_infoEmpty}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>,
+                                "infoFiltered":&#32;</f:verbatim><h:outputText value="&#x27;#{authorFrontDoorMessages.datatables_infoFiltered}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>,
+                                "emptyTable":&#32;</f:verbatim><h:outputText value="&#x27;#{dataTablesMessages.infoEmpty}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"/><f:verbatim>,
+                                "paginate": {
+                                    "next":&#32;</f:verbatim><h:outputText value="&#x27;#{dataTablesMessages.paginate_next}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"/><f:verbatim>,
+                                    "previous":&#32;</f:verbatim><h:outputText value="&#x27;#{dataTablesMessages.paginate_previous}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"/><f:verbatim>
+                                },
+                                "aria": {
+                                    "sortAscending":&#32;</f:verbatim><h:outputText value="&#x27;#{dataTablesMessages.aria_sortAscending}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"/><f:verbatim>,
+                                    "sortDescending":&#32;</f:verbatim><h:outputText value="&#x27;#{dataTablesMessages.aria_sortDescending}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"/><f:verbatim>
+                                }
+                            },
+                            "drawCallback": function(oSettings) {
+                                document.querySelectorAll(".select-checkbox").forEach(checkbox =&gt; checkbox.checked = false);
+                                updateRestoreButton();
+                            },
+                            // Match the entered phrase, including spaces, as before the migration.
+                            "search": { "smart": false },
+                            "stateLoadParams": function(settings, data) {
+                                data.search.smart = false;
+                            },
+                            "stateSave": true,
+                            "stateDuration": -1
+                        });
+
+                    }
+
+                    tableElement?.addEventListener("change", event =&gt; {
+                        if (!event.target.matches(".select-checkbox")) return;
+                        updateRestoreButton();
+                    });
+
+                    function updateRestoreButton() {
+                        const restoreButton = document.getElementById("restoreAssessmentsForm:restore-selected");
+                        const hasSelectedAssessments = Boolean(document.querySelector(".select-checkbox:checked"));
+
+                        if (!restoreButton) return;
+
+                        if (hasSelectedAssessments) {
+                            restoreButton.classList.remove("disabled");
+                            restoreButton.classList.add("active");
+                            restoreButton.disabled = false;
+                        } else {
+                            restoreButton.classList.remove("active");
+                            restoreButton.classList.add("disabled");
+                            restoreButton.disabled = true;
+                        }
+                    }
+            });
+            &lt;/script&gt;
+
+            &lt;div class="samigo-container"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:form id="restoreAssessmentsForm"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/author/restoreAssessmentsHeading.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 15}"/></ui:include><f:verbatim>
+                    &lt;div class="page-header"&gt;
+                        &lt;h1&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorMessages.restore_assessments}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 41}"/><f:verbatim>
+                        &lt;/h1&gt;
+                    &lt;/div&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorMessages.restore_assessments_empty}" rendered="#{restoreAssessmentsBean.deletedAssessmentList.isEmpty()}" escape="false" styleClass="sak-banner-info" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 42}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:dataTable cellpadding="0" cellspacing="0" id="deletedAssessmentsTable" value="#{restoreAssessmentsBean.deletedAssessmentList}"
+                        var="deletedAssessment" styleClass="table table-bordered table-striped" rendered="#{!restoreAssessmentsBean.deletedAssessmentList.isEmpty()}"><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 44}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{authorFrontDoorMessages.assessment_title}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 45}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 46}">&lt;div&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " styleClass="highlight" rendered="#{deletedAssessment.draft}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 47}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText styleClass="spanValue" value="#{deletedAssessment.title}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 48}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 49}">&lt;/div&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 50}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{eventLogMessages.id}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 51}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deletedAssessment.id}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 52}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 53}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{authorMessages.restore_assessments_deleted_on}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 54}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 55}">&lt;div&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deletedAssessment.lastModifiedDate}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 56}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deletedAssessment.lastModifiedDate}" styleClass="d-none spanValue" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 57}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime pattern="yyyyMMddHHmmss" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 58}">&lt;/div&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 59}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{authorMessages.restore_assessments_select}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 60}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox value="#{deletedAssessment.selected}" styleClass="select-checkbox"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 61}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:dataTable><f:verbatim>
+                    &lt;div class="clearfix"&gt;&lt;/div&gt;
+                    &lt;p class="act"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton id="restore-selected" value="#{authorMessages.restore_assessments_restore}"
+                            type="submit" action="#{restoreAssessmentsBean.restoreAssessments}" styleClass="disabled" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton value="#{authorMessages.button_cancel}" type="submit" action="#{restoreAssessmentsBean.cancel}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 63}"/><f:verbatim>
+                    &lt;/p&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:form><f:verbatim>
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/body&gt;
+    &lt;/html&gt;
+</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

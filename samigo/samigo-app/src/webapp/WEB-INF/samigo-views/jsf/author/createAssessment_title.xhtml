@@ -1,0 +1,117 @@
+<!--
+**********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+&lt;!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+
+&lt;!--
+* $Id$
+
+--&gt;
+</f:verbatim><f:view><f:verbatim>
+&lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+&lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+    &lt;title&gt;</f:verbatim><h:outputText value="#{authorFrontDoorMessages.auth_front_door}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>&lt;/title&gt;
+&lt;/head&gt;
+&lt;body onload="</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>"&gt;
+&lt;div class="portletBody container-fluid"&gt;
+    &lt;!-- content... --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:form id="authorIndexForm"><f:verbatim>
+        &lt;!-- HEADINGS --&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/author/editAssessmentHeadings.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 3}"/></ui:include><f:verbatim>
+        &lt;script&gt;includeWebjarLibrary('datatables');&lt;/script&gt;
+        &lt;script src="/samigo-app/js/info.js"&gt;&lt;/script&gt;
+        &lt;script src="/library/js/spinner.js"&gt;&lt;/script&gt;
+
+
+        &lt;div class="page-header"&gt;
+            &lt;h1&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{questionPoolMessages.add} #{authorFrontDoorMessages.assessments}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 28}"/><f:verbatim>
+            &lt;/h1&gt;
+        &lt;/div&gt;
+
+        &lt;div class="samigo-container"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup layout="block" styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 29}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:messages rendered="#{! empty facesContext.maximumSeverity}" layout="table" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 30}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+            &lt;div class="col-md-6"&gt;
+                &lt;h2&gt;</f:verbatim><h:outputText value="#{authorFrontDoorMessages.assessment_scratch}" rendered="#{authorization.createAssessment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 31}"/><f:verbatim>&lt;/h2&gt;
+
+                &lt;div class="form-group form-inline"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="title" value="#{authorFrontDoorMessages.assessment_create}" styleClass="required"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 32}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:inputText id="title" maxlength="255" value="#{author.assessTitle}" styleClass="form-control" /><f:verbatim>
+                &lt;/div&gt;
+
+                &lt;div class="form-group"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:selectOneRadio id="creationMode" layout="spread" value="#{author.assessCreationMode}" rendered="#{samLiteBean.visible}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{authorFrontDoorMessages.assessmentBuild}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 35}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{authorFrontDoorMessages.markupText}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 36}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:selectOneRadio><f:verbatim>
+                    &lt;!-- SAM-2487 mark them up manually --&gt;
+                    &lt;ul class="creation-mode-list no-list"&gt;
+                        &lt;li&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:radio renderLogicalId="true" for="creationMode" index="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 37}"/><f:verbatim>
+                        &lt;/li&gt;
+                        &lt;li&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:radio renderLogicalId="true" for="creationMode" index="1"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 38}"/><f:verbatim>
+                        &lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/div&gt;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup layout="block" styleClass="form-group" rendered="#{author.showTemplateList}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 39}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{authorFrontDoorMessages.assessment_choose} " rendered="#{author.showTemplateList}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 40}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu id="assessmentTemplate" value="#{author.assessmentTemplateId}" rendered="#{author.showTemplateList}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="" itemLabel="#{generalMessages.select_menu}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 42}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{author.assessmentTemplateList}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 43}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+                &lt;div class="form-group act"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton id="createnew" styleClass="active" type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}" onclick="SPNR.disableElementAndSpin(this.parentNode.id, this, true)"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div class="or-line col-md-4 my-4"&gt;
+                &lt;span&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{authorFrontDoorMessages.label_or}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 45}"/><f:verbatim>
+                &lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;div class="col-md-5"&gt;
+                &lt;h2&gt;</f:verbatim><h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 46}"/><f:verbatim>&lt;/h2&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" rendered="#{authorization.createAssessment}" action="importAssessment" /><f:verbatim>
+            &lt;/div&gt;
+        &lt;/div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:form><f:verbatim>
+    &lt;!-- end content --&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

@@ -1,0 +1,191 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+&lt;!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&#32;
+&lt;!-- $Id$
+
+--&gt;
+&#32;&#32;</f:verbatim><f:view><f:verbatim>
+    &lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+      &lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+          &lt;title&gt;</f:verbatim><h:outputText value="#{questionPoolMessages.q_mgr}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>&lt;/title&gt;
+          &lt;script&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/js/samigotree.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 2}"/></ui:include><f:verbatim>
+          &lt;/script&gt;
+          &lt;script&gt;
+              function flagFolders() {
+                  collapseAllRows();
+              }
+              window.onload = flagFolders;
+          &lt;/script&gt;
+      &lt;/head&gt;
+&lt;body onload="collapseAllRows();</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>;disabledButton()"&gt;
+</f:verbatim><h:panelGroup layout="block" styleClass="portletBody container-fluid" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"><f:verbatim>
+&lt;!-- content... --&gt;
+</f:verbatim><h:form id="questionpool"><f:verbatim>
+
+&lt;ul class="navIntraTool actionToolbar" role="menu"&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{authorization.createAssessment eq true or authorization.editAnyAssessment eq true or authorization.editOwnAssessment eq true or authorization.gradeAnyAssessment eq true or authorization.gradeOwnAssessment eq true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"><f:verbatim>
+        &lt;li role="menuitem"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="menuitem" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{generalMessages.t_assessment}" rendered="#{questionpool.importToAuthoring eq true}" action="author" immediate="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{generalMessages.assessment}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+                     type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+                     type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+                     type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{generalMessages.t_assessment}" rendered="#{questionpool.importToAuthoring eq false}" action="author"  immediate="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{generalMessages.assessment}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+                     type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener
+                     type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+        &lt;/li&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{authorization.createAssessment eq true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"><f:verbatim>
+        &lt;li role="menuitem"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="menuitem" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{generalMessages.add}" action="#{author.getOutcome}" immediate="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="action" value="create_assessment_title"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{generalMessages.add}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+        &lt;/li&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{authorization.adminTemplate eq true and template.showAssessmentTypes eq true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"><f:verbatim>
+        &lt;li role="menuitem"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="menuitem" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 17}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{generalMessages.t_template}" rendered="#{questionpool.importToAuthoring eq false}" action="template" immediate="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 18}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{generalMessages.template}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 19}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{generalMessages.t_questionPool}" rendered="#{questionpool.importToAuthoring eq true}" action="template" immediate="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 20}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{generalMessages.template}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 21}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+        &lt;/li&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+    &lt;li role="menuitem"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="current" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 22}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{questionPoolMessages.qps}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 23}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+    &lt;/li&gt;
+    &lt;li role="menuitem"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="menuitem" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 24}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true" rendered="#{authorization.adminQuestionPool eq true}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{generalMessages.eventLog}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 26}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+    &lt;/li&gt;
+    &lt;li role="menuitem"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="menuitem" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 27}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true" rendered="#{authorization.adminQuestionPool eq true}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{generalMessages.section_activity}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 29}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+    &lt;/li&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/author/permissionsNav.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 30}"/></ui:include><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{authorization.adminAssessment eq true}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 34}"><f:verbatim>
+        &lt;li role="menuitem"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="menuitem" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 35}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink id="restoreAssessments" accesskey="#{generalMessages.a_restore_assessments}" title="#{generalMessages.t_restore_assessments}" action="restoreAssessments" immediate="true"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{generalMessages.restore_assessments}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 37}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RestoreAssessmentsListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+        &lt;/li&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&lt;/ul&gt;
+
+</f:verbatim><h:panelGroup layout="block" styleClass="page-header" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 38}"><f:verbatim>
+    &lt;h1&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{generalMessages.questionPool}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 39}"/><f:verbatim>
+    &lt;/h1&gt;
+</f:verbatim></h:panelGroup><f:verbatim>
+
+</f:verbatim><h:outputText rendered="#{questionpool.importToAuthoring eq true}" value="#{questionPoolMessages.msg_imp_poolmanager}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 40}"/><f:verbatim>
+
+</f:verbatim><h:outputText escape="false" rendered="#{questionpool.importToAuthoring eq false and authorization.createQuestionPool eq true}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 41}"><f:attribute name="value" value="&lt;p class=&quot;navViewAction&quot;&gt;"/></h:outputText><f:verbatim>
+</f:verbatim><h:commandLink title="#{questionPoolMessages.t_addPool}" rendered="#{questionpool.importToAuthoring eq false and authorization.createQuestionPool eq true}" id="add" immediate="true" action="#{questionpool.addPool}"><f:verbatim>
+&#32;</f:verbatim><h:outputText value="#{questionPoolMessages.add_new_pool}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 43}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="qpid" value="0" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 44}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="outCome" value="poolList" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 45}"/><f:verbatim>
+</f:verbatim></h:commandLink><f:verbatim>
+
+</f:verbatim><h:outputText value=" #{generalMessages.separator}" rendered="#{questionpool.importToAuthoring eq false and authorization.createQuestionPool eq true}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 46}"/><f:verbatim>
+</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 47}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+
+</f:verbatim><h:commandLink title="#{questionPoolMessages.t_importPool}" rendered="#{questionpool.importToAuthoring eq false and authorization.createQuestionPool eq true}" id="import" immediate="true" action="importPool"><f:verbatim>
+&#32;</f:verbatim><h:outputText value="#{questionPoolMessages.t_importPool}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 49}"/><f:verbatim>
+&#32;</f:verbatim><f:param name="qpid" value="0" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 50}"/><f:verbatim>
+&#32;</f:verbatim><f:param name="outCome" value="poolList" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 51}"/><f:verbatim>
+</f:verbatim></h:commandLink><f:verbatim>&#32;
+
+&lt;!-- SAM-2049 --&gt;
+</f:verbatim><h:outputText value=" #{generalMessages.separator}" rendered="#{questionpool.importToAuthoring eq false and authorization.createQuestionPool eq true}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 52}"/><f:verbatim>
+</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 53}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+
+</f:verbatim><h:commandLink title="#{questionPoolMessages.t_transferPool}" rendered="#{questionpool.importToAuthoring eq false and authorization.createQuestionPool eq true}"
+    id="transfer" immediate="true" action="#{questionpool.transferPool}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{questionPoolMessages.transfer_pool_ownership}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 55}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:param name="qpid" value="0"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 56}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:param name="outCome" value="poolList" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 57}"/><f:verbatim>
+</f:verbatim></h:commandLink><f:verbatim>
+&#32;
+</f:verbatim><h:outputText rendered="#{questionpool.importToAuthoring eq false and authorization.createQuestionPool eq true}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 58}"><f:attribute name="value" value="&lt;/p&gt;"/></h:outputText><f:verbatim>
+
+</f:verbatim><h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 59}"/><f:verbatim>
+&#32;
+</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/questionpool/poolTreeTable.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 60}"/></ui:include><f:verbatim>
+
+</f:verbatim><h:panelGroup layout="block" styleClass="act" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 234}"><f:verbatim>
+&#32;
+</f:verbatim><h:commandButton rendered="#{questionpool.importToAuthoring eq false and authorization.deleteOwnQuestionPool eq true}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.delete}" action="#{questionpool.startRemovePool}" styleClass="d-none" ><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:commandButton rendered="#{questionpool.importToAuthoring eq true}"  type="submit" immediate="true" id="cancel" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelImport}"  ><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+
+</f:verbatim></h:form><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+      &lt;/body&gt;
+    &lt;/html&gt;
+&#32;&#32;</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

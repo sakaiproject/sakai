@@ -1,0 +1,70 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>&lt;script&gt;includeWebjarLibrary('select2');&lt;/script&gt;
+
+&lt;input type="hidden" id="tag-data_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}"/><f:verbatim>" value="</f:verbatim><h:outputText value="#{question.tagListToJsonString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>"/&gt;
+&lt;script type="module"&gt;
+    import { tagLabel } from "/samigo-app/js/tag-display.js";
+
+    $(document).ready(function () {
+        $(".tag_selector_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>").select2({
+            width: '50%',
+            disabled: true,
+            escapeMarkup: function (markup) {
+                return markup;
+            }, // let our custom formatter work
+            templateResult: formatRepo_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>,
+            templateSelection: formatRepoSelection_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:verbatim>
+        })
+
+        //Load the item actual tags
+        var arr_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><f:verbatim> =JSON.parse(document.getElementById('tag-data_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"/><f:verbatim>').value);
+        if (arr_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>.length &lt; 1) {
+            $(".tag_div_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>").hide();
+        }
+        for (var i = 0; i &lt; arr_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"/><f:verbatim>.length; i++) {
+            var obj = arr_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"/><f:verbatim>[i];
+            var newOption = new Option(obj["tagLabel"], obj["tagId"], true, true);
+            $(".tag_selector_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"/><f:verbatim>").append(newOption);
+            $('.tag_selector_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"/><f:verbatim> option[value=' + obj["tagId"] + ']').attr("title", obj["tagCollectionName"]);
+        }
+        $(".tag_selector_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"/><f:verbatim>").trigger('change');
+        $(".temporalhide_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}"/><f:verbatim>").show();
+    });
+
+    function formatRepo_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}"/><f:verbatim>(repo) {
+        var $tag_formatted = $(tagLabel(repo.text, repo.collection));
+        return $tag_formatted;
+    }
+
+    function formatRepoSelection_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"/><f:verbatim>(repo) {
+        if (typeof repo.collection != 'undefined') {
+            var $tag_formatted_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 17}"/><f:verbatim> = $(tagLabel(repo.text, repo.collection));
+        } else {
+            var collection_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 18}"/><f:verbatim> = $('.tag_selector_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 19}"/><f:verbatim> option[value=' + repo.id + ']').attr("title");
+            if (typeof collection_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 20}"/><f:verbatim> != 'undefined') {
+                var $tag_formatted_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 21}"/><f:verbatim> = $(tagLabel(repo.text, collection_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 22}"/><f:verbatim>));
+            } else {
+                var $tag_formatted_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 23}"/><f:verbatim> = $(tagLabel(repo.text));
+            }
+        }
+        return $tag_formatted_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 24}"/><f:verbatim>;
+    }
+
+&lt;/script&gt;
+&lt;div class="temporalhide_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 25}"/><f:verbatim>" style="display:none"&gt;
+    &lt;div class="longtext tag_div_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 26}"/><f:verbatim>"
+         style="</f:verbatim><h:outputText value="#{questionScores.showTagsInEvaluationStyle}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 27}"/><f:verbatim>"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel value="#{authorMessages.tag_title}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 28}"/><f:verbatim>&lt;br/&gt;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 29}"><f:verbatim>
+            &lt;select class="tag_selector_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 30}"/><f:verbatim> "
+                    name="tag_selector_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 31}"/><f:verbatim>[]"
+                    id="tag_selector_</f:verbatim><h:outputText value="#{question.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 32}"/><f:verbatim>" multiple="multiple"&gt;
+            &lt;/select&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+    &lt;/div&gt;
+&lt;/div&gt;
+</f:verbatim>
+</ui:composition>

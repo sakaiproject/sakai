@@ -1,0 +1,43 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>&lt;!--
+* $Id$
+
+--&gt;
+
+</f:verbatim><h:outputText value="#{question.text} "  escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}"/><f:verbatim>
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}">&lt;br /&gt;</f:verbatim><f:verbatim>
+</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.file}#{evaluationMessages.column} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>
+  &lt;!-- note that target represent the location where the upload medis will be temporarily stored --&gt;
+  &lt;!-- For ItemGradingData, it is very important that target must be in this format: --&gt;
+  &lt;!-- assessmentXXX/questionXXX/agentId --&gt;
+  &lt;!-- please check the valueChangeListener to get the final destination --&gt;
+&#32;&#32;</f:verbatim><h:inputText size="50"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"><f:attribute name="value" value="  "/></h:outputText><f:verbatim>
+&#32;&#32;</f:verbatim><h:commandButton value="#{evaluationMessages.browse}" type="button" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"/><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"><f:attribute name="value" value="  "/></h:outputText><f:verbatim>
+&#32;&#32;</f:verbatim><h:commandButton value="#{evaluationMessages.upload}" type="button" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>
+&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/evaluation/item/displayTags.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 9}"/></ui:include><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 42}">&lt;br /&gt;</f:verbatim><f:verbatim>
+</f:verbatim>
+</ui:composition>

@@ -1,0 +1,72 @@
+<!--
+<!- -
+$Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
+- ->
+***********************************************************************************
+*
+* Copyright (c) 2008, 2013 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+&lt;script&gt;
+    $(document).ready(function() {
+        var localeLanguage =&#32;</f:verbatim><h:outputText value="&#x27;#{person.localeLanguage}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}"/><f:verbatim>;
+        var localeCountry =&#32;</f:verbatim><h:outputText value="&#x27;#{person.localeCountry}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>;
+        var unlimitedString =&#32;</f:verbatim><h:outputText value="&#x27;#{deliveryMessages.unlimited}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>;
+        var agentId =&#32;</f:verbatim><h:outputText value="&#x27;#{person.id}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>;
+        var maxSeconds = parseInt(</f:verbatim><h:outputText value="&#x27;#{question.duration}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:verbatim>);
+        var attemptsAllowed =&#32;</f:verbatim><h:outputText value="&#x27;#{question.triesAllowed}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><f:verbatim>;
+        var attemptsRemaining = parseInt(</f:verbatim><h:outputText value="&#x27;#{question.attemptsRemaining}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"/><f:verbatim>);
+        var paramSeq =&#32;</f:verbatim><h:outputText value="&#x27;#{param.sequence}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>;
+        var questionId =&#32;</f:verbatim><h:outputText value="&#x27;#{question.itemData.itemId}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>;
+        var questionNumber =&#32;</f:verbatim><h:outputText value="&#x27;#{question.number}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"/><f:verbatim>;
+        var questionTotal =&#32;</f:verbatim><h:outputText value="&#x27;#{part.questions}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"/><f:verbatim>;
+        var assessmentGrading =&#32;</f:verbatim><h:outputText value="&#x27;#{delivery.assessmentGrading.assessmentGradingId}&#x27;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"/><f:verbatim>;
+        var postUrl =&#32;</f:verbatim><h:outputText value="&#x27;#{delivery.protocol}/samigo-app/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}_#{question.itemData.itemId}&#x27;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"/><f:verbatim>;
+        var deliveryProtocol =&#32;</f:verbatim><h:outputText value="&#x27;#{delivery.protocol}&#x27;" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"/><f:verbatim>;
+        var messagesSecs =&#32;</f:verbatim><h:outputText value="&#x27;#{deliveryMessages.secs}&#x27;" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}"/><f:verbatim>;
+        var recordedOn =&#32;</f:verbatim><h:outputText value="&#x27;#{deliveryMessages.recorded_on}&#x27;" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}"/><f:verbatim>;
+
+        var $elem = $(".audioRecordingPopup-" + questionId);
+        var sakaiRecorder = new SakaiRecorder($elem);
+        sakaiRecorder.init({
+            localeLanguage: localeLanguage,
+            localeCountry: localeCountry,
+            unlimitedString: unlimitedString,
+            agentId: agentId,
+            maxSeconds: maxSeconds,
+            attemptsAllowed: attemptsAllowed,
+            attemptsRemaining: attemptsRemaining,
+            paramSeq: paramSeq,
+            questionId: questionId,
+            questionNumber: questionNumber,
+            questionTotal: questionTotal,
+            assessmentGrading: assessmentGrading,
+            postUrl: postUrl,
+            deliveryProtocol: deliveryProtocol,
+            messagesSecs: messagesSecs,
+            recordedOn: recordedOn
+        });
+    });
+&lt;/script&gt;
+
+</f:verbatim><h:outputText escape="false" value="&#10;&lt;input type=&quot;hidden&quot; name=&quot;mediaLocation_#{question.itemData.itemId}&quot; value=&quot;jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}.au&quot;/&gt;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"/><f:verbatim>
+
+</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/delivery/item/audioObject.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 17}"/></ui:include><f:verbatim>
+</f:verbatim>
+</ui:composition>

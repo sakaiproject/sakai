@@ -1,0 +1,33 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<h:panelGroup rendered="#{questionScores.hasAssociatedRubric}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}"><f:verbatim>
+&#9;&lt;div id='</f:verbatim><h:outputText value="#{description.assessmentGradingId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>-inputs'&gt;&lt;/div&gt;
+&#9;&lt;div id='</f:verbatim><h:outputText value="modal#{description.assessmentGradingId}.#{questionScores.itemId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>' style="display:none;overflow:initial"&gt;
+&#9;&#9;</f:verbatim><h:panelGroup rendered="#{questionScores.associatedRubricType == &#x27;1&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"><f:verbatim>
+&#9;&#9;&#9;&lt;sakai-rubric-grading
+&#9;&#9;&#9;&#9;id='</f:verbatim><h:outputText value="#{description.assessmentGradingId}.#{questionScores.itemId}-pub.#{questionScores.publishedId}.#{questionScores.itemId}.#{description.assessmentGradingId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;site-id='</f:verbatim><h:outputText value="#{questionScores.siteId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;tool-id="sakai.samigo"
+&#9;&#9;&#9;&#9;entity-id='</f:verbatim><h:outputText value="pub.#{questionScores.publishedId}.#{questionScores.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;evaluated-item-id='</f:verbatim><h:outputText value="#{description.assessmentGradingId}.#{questionScores.itemId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;evaluated-item-owner-id='</f:verbatim><h:outputText value="#{description.idString}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;item-id='</f:verbatim><h:outputText value="#{description.assessmentGradingId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;</f:verbatim><h:outputText  rendered="#{questionScores.enablePdfExport}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"><f:attribute name="value" value="enable-pdf-export"/></h:outputText><f:verbatim>
+&#9;&#9;&#9;&gt;
+&#9;&#9;&#9;&lt;/sakai-rubric-grading&gt;
+&#9;&#9;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;&#9;</f:verbatim><h:panelGroup rendered="#{questionScores.associatedRubricType == &#x27;2&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"><f:verbatim>
+&#9;&#9;&#9;&lt;sakai-dynamic-rubric
+&#9;&#9;&#9;&#9;id='</f:verbatim><h:outputText value="#{description.assessmentGradingId}.#{questionScores.itemId}-pub.#{questionScores.publishedId}.#{questionScores.itemId}.#{description.assessmentGradingId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;grading-id='</f:verbatim><h:outputText value="#{description.assessmentGradingId}.#{questionScores.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;entity-id='</f:verbatim><h:outputText value="pub.#{questionScores.publishedId}.#{questionScores.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;site-id='</f:verbatim><h:outputText value="#{questionScores.siteId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;evaluated-item-owner-id='</f:verbatim><h:outputText value="#{description.idString}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;previous-grade='</f:verbatim><h:outputText value="#{description.roundedTotalAutoScore}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 17}"/><f:verbatim>'
+&#9;&#9;&#9;&#9;origin='questionScore'&gt;
+&#9;&#9;&#9;&lt;/sakai-dynamic-rubric&gt;
+&#9;&#9;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;&lt;/div&gt;
+</f:verbatim></h:panelGroup><f:verbatim>
+</f:verbatim>
+</ui:composition>

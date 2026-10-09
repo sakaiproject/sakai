@@ -1,0 +1,341 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+&lt;!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+
+&lt;!--
+* $Id$
+
+--&gt;
+&#32;&#32;</f:verbatim><f:view><f:verbatim>
+    &lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+      &lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+      &lt;title&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{delivery.assessmentTitle}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>
+
+      &lt;/title&gt;
+
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/delivery/deliveryjQuery.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 2}"/></ui:include><f:verbatim>
+      &lt;script src="/library/js/spinner.js"&gt;&lt;/script&gt;
+      &lt;/head&gt;
+      &lt;body onload="</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>;"&gt;
+&#32;
+&lt;div class="portletBody container-fluid"&gt;
+&#32;</f:verbatim><h:outputText value="&lt;div style=&#x27;#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}&#x27;&gt;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>
+
+ &lt;!-- content... --&gt;
+</f:verbatim><h:form id="takeAssessmentForm"><f:verbatim>
+&#32;&#32;</f:verbatim><h:inputHidden id="timerId" value="#{delivery.timerId}" rendered="#{delivery.timerId!=null}" /><f:verbatim>
+&#32;&#32;</f:verbatim><h:inputHidden id="sebReturnUrl" value="#{delivery.selectURL}" rendered="#{delivery.sebSetup}" /><f:verbatim>
+
+&lt;!-- Secure Delivery HTML (aka Proctoring or Lockdown)--&gt;
+</f:verbatim><h:panelGroup rendered="#{delivery.actionString!=&#x27;previewAssessment&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText value="#{delivery.secureDeliveryHTMLFragment}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"/><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+
+&lt;!-- DONE BUTTON FOR PREVIEW --&gt;
+</f:verbatim><h:panelGroup rendered="#{delivery.actionString==&#x27;previewAssessment&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"><f:verbatim>
+  &lt;div class="sak-banner-info mb-5"&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.ass_preview}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.sebSetup}" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}"><f:verbatim>
+      &lt;br/&gt;&lt;br/&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.seb_preview_info}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+    &lt;br/&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:commandButton value="#{deliveryMessages.exit_preview}"
+      styleClass="exit-preview-button"
+      action="#{person.cleanResourceIdListInPreview}"
+      type="submit"
+      onclick="return returnToHostUrl(&quot;#{delivery.selectURL}&quot;);"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 17}"/><f:verbatim>
+    &lt;/div&gt;
+</f:verbatim></h:panelGroup><f:verbatim>
+
+  &lt;h1&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_}" rendered="#{delivery.firstTimeTaking}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 18}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.continue_assessment_}" rendered="#{!delivery.firstTimeTaking &amp;&amp; !delivery.timeExpired}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 19}"/><f:verbatim>
+  &lt;/h1&gt;
+
+  &lt;div class="lead"&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="&quot;#{delivery.assessmentTitle}&quot; #{deliveryMessages.t_for} #{delivery.courseName} " escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 20}"/><f:verbatim>
+  &lt;/div&gt;
+
+&#32;&#32;</f:verbatim><h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 21}"/><f:verbatim>
+&#32;&#32;
+  &lt;div class="sak-banner-info"&gt;
+    &lt;!-- ASSESSMENT INTRODUCTION --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{delivery.instructorMessage}" escape="false" rendered="#{delivery.instructorMessage != null &amp;&amp; delivery.instructorMessage != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 22}"/><f:verbatim>
+
+  &lt;!-- ASSESSMENT ATTACHMENTS --&gt;
+&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/delivery/assessment_attachment.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 23}"/></ui:include><f:verbatim>
+
+
+&lt;div&gt;
+</f:verbatim><h:panelGrid columns="1" border="0" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 73}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.sebSetup}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 74}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_seb_required}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 75}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+    &lt;!--  Due Message --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.firstTimeTaking}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 76}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{(delivery.dueDate != null &amp;&amp; delivery.dueDate ne &#x27;&#x27;)}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 77}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_due} " escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 78}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{delivery.dueDate}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 79}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="full" timeStyle="short" timeZone="#{delivery.userTimeZone}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 80}"><f:attribute name="value" value="."/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}" rendered="#{(delivery.dueDate==null || delivery.dueDate eq &#x27;&#x27;)}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 81}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#9;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}" rendered="#{(delivery.dueDate==null || delivery.dueDate eq &#x27;&#x27;) &amp;&amp; !delivery.firstTimeTaking &amp;&amp; !delivery.hasTimeLimit}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 82}"/><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 83}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 84}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+
+    &lt;!--  Time Limit Message --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.hasTimeLimit &amp;&amp; delivery.firstTimeTaking}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 85}"><f:verbatim>
+    &#9;</f:verbatim><h:outputFormat value="#{deliveryMessages.begin_assessment_msg_timed_w_due_date}" escape="false" rendered="#{delivery.deadline != null &amp;&amp; delivery.deadline != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 86}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.timeLimitString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 87}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.deadlineString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 88}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputFormat><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputFormat value="#{deliveryMessages.begin_assessment_msg_timed_wo_due_date}" escape="false" rendered="#{delivery.deadline == null}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 89}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.timeLimitString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 90}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputFormat><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.trackingQuestions}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 91}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_tracking_questions}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 92}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.trackingQuestions}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 93}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_tracking_questions_2}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 94}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputFormat value="#{deliveryMessages.begin_assessment_msg_timed_continue}" escape="false" rendered="#{delivery.hasTimeLimit &amp;&amp; !delivery.firstTimeTaking}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 95}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.beginTimeString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 96}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.adjustedTimedAssesmentDueDateString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 97}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:outputFormat><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputFormat value="#{deliveryMessages.time_expired2}" escape="false" rendered="#{delivery.hasTimeLimit &amp;&amp; !delivery.firstTimeTaking &amp;&amp; delivery.timeExpired}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 98}"/><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_no_time_limit}" rendered="#{!delivery.hasTimeLimit}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 99}"/><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 100}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 101}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+
+&#9;&lt;!--  Assessment Organization Message --&gt;
+&#9;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 102}"><f:verbatim>
+&#9;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_linear}" escape="false" rendered="#{delivery.navigation == 1}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 103}"/><f:verbatim>
+&#9;</f:verbatim><h:outputText value=" #{deliveryMessages.begin_assessment_msg_linear_continue}" escape="false" rendered="#{delivery.navigation == 1 &amp;&amp; !delivery.firstTimeTaking}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 104}"/><f:verbatim>
+&#9;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  rendered="#{delivery.navigation == 1}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 105}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  rendered="#{delivery.navigation == 1}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 106}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 107}"><f:verbatim>
+&#32;&#32;&#32;&#32;
+    &lt;!--  Submissions Allowed Message --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.firstTimeTaking}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 108}"><f:verbatim>
+    &#9;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_unlimited_submission} " rendered="#{delivery.settings.unlimitedAttempts &amp;&amp; !delivery.anonymousLogin}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 109}"/><f:verbatim>
+    &#9;
+    &#9;</f:verbatim><h:outputFormat value="#{deliveryMessages.submission_allowed_1}" escape="false" rendered="#{!delivery.settings.unlimitedAttempts &amp;&amp; delivery.totalSubmissions==0 &amp;&amp; !delivery.anonymousLogin}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 110}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.settings.maxAttempts}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 111}"/><f:verbatim>
+    &#9;</f:verbatim></h:outputFormat><f:verbatim>
+    &#9;
+    &#9;</f:verbatim><h:outputFormat value="#{deliveryMessages.submission_allowed_2}" escape="false" rendered="#{!delivery.settings.unlimitedAttempts &amp;&amp; delivery.totalSubmissions!=0 &amp;&amp; !delivery.anonymousLogin}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 112}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.submissionsRemaining}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 113}"/><f:verbatim>
+    &#9;</f:verbatim></h:outputFormat><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{!delivery.firstTimeTaking}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 114}"><f:verbatim>
+&#32;&#32;&#32;&#32;
+    &#9;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_unlimited_submission} " rendered="#{delivery.settings.unlimitedAttempts &amp;&amp; !delivery.anonymousLogin &amp;&amp; (delivery.deadline == null || delivery.deadline == &#x27;&#x27;)}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 115}"/><f:verbatim>
+    &#9;
+    &#9;</f:verbatim><h:outputFormat value="#{deliveryMessages.begin_assessment_msg_unlimited_submission_continue}" escape="false" rendered="#{delivery.settings.unlimitedAttempts &amp;&amp; !delivery.anonymousLogin &amp;&amp; delivery.deadlineString != null &amp;&amp; delivery.deadlineString != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 116}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.deadlineString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 117}"/><f:verbatim>
+    &#9;</f:verbatim></h:outputFormat><f:verbatim>
+    &#9;
+    &#9;</f:verbatim><h:outputFormat value="#{deliveryMessages.submission_allowed_1}" escape="false" rendered="#{!delivery.settings.unlimitedAttempts &amp;&amp; delivery.totalSubmissions==0 &amp;&amp; !delivery.anonymousLogin &amp;&amp; (delivery.deadlineString == null || delivery.deadlineString == &#x27;&#x27;)}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 118}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.settings.maxAttempts}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 119}"/><f:verbatim>
+    &#9;</f:verbatim></h:outputFormat><f:verbatim>
+    &#9;
+    &#9;</f:verbatim><h:outputFormat value="#{deliveryMessages.submission_allowed_2}" escape="false" rendered="#{!delivery.settings.unlimitedAttempts &amp;&amp; delivery.totalSubmissions!=0 &amp;&amp; !delivery.anonymousLogin &amp;&amp; (delivery.deadlineString == null || delivery.deadlineString == &#x27;&#x27;)}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 120}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.submissionsRemaining}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 121}"/><f:verbatim>
+    &#9;</f:verbatim></h:outputFormat><f:verbatim>
+    &#9;
+    &#9;</f:verbatim><h:outputFormat value="#{deliveryMessages.submission_allowed_1_continue}" escape="false" rendered="#{!delivery.settings.unlimitedAttempts &amp;&amp; delivery.totalSubmissions==0 &amp;&amp; !delivery.anonymousLogin &amp;&amp; delivery.deadlineString != null &amp;&amp; delivery.deadlineString != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 122}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.settings.maxAttempts}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 123}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.deadlineString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 124}"/><f:verbatim>
+    &#9;</f:verbatim></h:outputFormat><f:verbatim>
+    &#9;
+    &#9;</f:verbatim><h:outputFormat value="#{deliveryMessages.submission_allowed_2_continue}" escape="false" rendered="#{!delivery.settings.unlimitedAttempts &amp;&amp; delivery.totalSubmissions!=0 &amp;&amp; !delivery.anonymousLogin &amp;&amp; delivery.deadlineString != null &amp;&amp; delivery.deadlineString != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 125}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.submissionsRemaining}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 126}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.deadlineString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 127}"/><f:verbatim>
+    &#9;</f:verbatim></h:outputFormat><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#9;    &lt;!--  Grading Message --&gt;
+&#9;&#9;</f:verbatim><h:outputText value=" #{deliveryMessages.begin_assessment_msg_highest}" rendered="#{delivery.scoringType == 1 &amp;&amp; (delivery.settings.unlimitedAttempts || delivery.settings.maxAttempts &gt; 1)}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 128}"/><f:verbatim>
+&#9;&#9;</f:verbatim><h:outputText value=" #{deliveryMessages.begin_assessment_msg_latest}" rendered="#{delivery.scoringType == 2 &amp;&amp; (delivery.settings.unlimitedAttempts || delivery.settings.maxAttempts &gt; 1)}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 129}"/><f:verbatim>
+&#9;&#9;</f:verbatim><h:outputText value=" #{deliveryMessages.begin_assessment_msg_average}" rendered="#{delivery.scoringType == 4 &amp;&amp; (delivery.settings.unlimitedAttempts || delivery.settings.maxAttempts &gt; 1)}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 130}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.settings.autoSubmit}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 131}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputFormat value="#{deliveryMessages.begin_assessment_msg_autosubmit_info}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 132}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{delivery.deadlineString}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 133}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputFormat><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 134}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 135}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.recURL != null &amp;&amp; delivery.recURL != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 136}"><f:verbatim>
+ &#9;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.please_read_1} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 137}"/><f:verbatim>
+&#9;&#9;</f:verbatim><h:outputLink value="#{delivery.recURL}" target="_blank" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 138}"><h:outputText value="#{deliveryMessages.please_read_2}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 139}"/></h:outputLink ><f:verbatim>
+&#9;&#9;</f:verbatim><h:outputText value=" #{deliveryMessages.please_read_3}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 140}"/><f:verbatim>&#32;
+&#9;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;
+</f:verbatim></h:panelGrid><f:verbatim>
+&#9;
+</f:verbatim><h:panelGrid rendered="#{!delivery.sebSetup}" columns="2" border="0" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 141}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 142}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 143}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="baPassword" value="#{deliveryMessages.password}" rendered="#{delivery.settings.password ne &#x27;&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 144}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:inputSecret id="baPassword" value="#{delivery.password}" size="20" rendered="#{delivery.settings.password ne &#x27;&#x27;}" /><f:verbatim>
+</f:verbatim></h:panelGrid><f:verbatim>
+
+ &lt;/div&gt;&lt;/div&gt;
+
+&#32;</f:verbatim><h:panelGroup layout="block" styleClass="sak-banner-warn" rendered="#{!delivery.sebSetup}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 146}"><f:verbatim>
+&#9;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_warn_tabs}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 147}"/><f:verbatim>
+&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;
+&#32;</f:verbatim><h:panelGroup layout="block" styleClass="honor-container" rendered="#{delivery.honorPledge &amp;&amp; delivery.firstTimeTaking &amp;&amp; !delivery.sebSetup}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 148}"><f:verbatim>
+&#9;</f:verbatim><h:selectBooleanCheckbox id="honor_pledge" /><f:verbatim>
+&#9;</f:verbatim><h:outputLabel for="honor_pledge" value="#{deliveryMessages.honor_pledge_detail}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 150}"/><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText id="honorPledgeRequired" value="#{deliveryMessages.honor_pledge_select}" styleClass="sak-banner-error" style="display:none"/><f:verbatim>
+
+    &lt;!-- autosubmit - present confirmation when resubmissions can overwrite scores --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup layout="block" styleClass="sak-banner-warn" rendered="#{delivery.totalSubmissions &gt; 0 &amp;&amp; delivery.settings.autoSubmit &amp;&amp; (delivery.scoringType == 2 || delivery.scoringType == 4)}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 152}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_average}" rendered="#{delivery.scoringType == 4}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 153}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_last}" rendered="#{delivery.scoringType == 2}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 154}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup layout="block" styleClass="honor-container" rendered="#{delivery.totalSubmissions &gt; 0 &amp;&amp; delivery.settings.autoSubmit &amp;&amp; (delivery.scoringType == 2 || delivery.scoringType == 4)}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 155}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectBooleanCheckbox id="understand_pledge" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="understand_pledge" value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_understand_checkbox}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 157}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText id="understandPledgeRequired" value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_understand_required}" styleClass="sak-banner-error" style="display:none"/><f:verbatim>
+
+&lt;p class="act"&gt;
+
+&lt;!-- BEGIN ASSESSMENT BUTTON --&gt;
+&lt;!-- When previewing, we don't need to check security. When take the assessment for real, we do --&gt;
+&#32;</f:verbatim><h:commandButton id="beginAssessment1" value="#{deliveryMessages.begin_assessment_}"
+    action="#{delivery.validate}" type="submit" styleClass="active"
+    rendered="#{(delivery.actionString==&#x27;takeAssessment&#x27;&#10;        || delivery.actionString==&#x27;takeAssessmentViaUrl&#x27;)&#10;        &amp;&amp; delivery.navigation != 1 &amp;&amp; delivery.firstTimeTaking&#10;        &amp;&amp; !delivery.sebSetup}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&#32;</f:verbatim><h:commandButton id="beginAssessment2" value="#{deliveryMessages.begin_assessment_}"
+    action="#{delivery.validate}" type="submit" styleClass="active"
+    rendered="#{(delivery.actionString==&#x27;takeAssessment&#x27;&#10;        || delivery.actionString==&#x27;takeAssessmentViaUrl&#x27;)&#10;        &amp;&amp; delivery.navigation == 1 &amp;&amp; delivery.firstTimeTaking&#10;        &amp;&amp; !delivery.sebSetup}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:commandButton id="continueAssessment1" value="#{deliveryMessages.continue_assessment_}"
+    action="#{delivery.validate}" type="submit" styleClass="active"
+    rendered="#{(delivery.actionString==&#x27;takeAssessment&#x27;&#10;             || delivery.actionString==&#x27;takeAssessmentViaUrl&#x27;)&#10;        &amp;&amp; delivery.navigation != 1 &amp;&amp; !delivery.firstTimeTaking &amp;&amp; !delivery.timeExpired&#10;        &amp;&amp; !delivery.sebSetup}"><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:commandButton id="continueAssessment2" value="#{deliveryMessages.continue_assessment_}"
+    action="#{delivery.validate}" type="submit" styleClass="active"
+    rendered="#{(delivery.actionString==&#x27;takeAssessment&#x27;&#10;        || delivery.actionString==&#x27;takeAssessmentViaUrl&#x27;)&#10;        &amp;&amp; delivery.navigation == 1 &amp;&amp; !delivery.firstTimeTaking &amp;&amp; !delivery.timeExpired&#10;        &amp;&amp; !delivery.sebSetup}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}"
+      type="submit" styleClass="active" rendered="#{delivery.actionString==&#x27;previewAssessment&#x27; &amp;&amp; !delivery.sebSetup}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.sebSetup}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 164}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.actionString != &#x27;previewAssessment&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 165}"><f:verbatim>
+      &lt;a id="sebLaunchSeb" class="active" onclick="SPNR.insertSpinnerAfter(this, ['sebDownloadSeb', 'sebDownloadConfiguration', 'takeAssessmentForm:cancel1'], null);"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.seb_launch_seb}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 166}"/><f:verbatim>
+      &lt;/a&gt;
+      &lt;a id="sebDownloadConfiguration" class="button"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.seb_download_configuration}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 167}"/><f:verbatim>
+      &lt;/a&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.actionString == &#x27;previewAssessment&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 168}"><f:verbatim>
+      &lt;a id="sebLaunchSeb" class="button disabled"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.seb_launch_seb}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 169}"/><f:verbatim>
+      &lt;/a&gt;
+      &lt;a id="sebDownloadConfiguration" class="button disabled"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.seb_download_configuration}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 170}"/><f:verbatim>
+      &lt;/a&gt;
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:commandButton id="resetViewHidden" styleClass="hidden"  action="takeAssessmentViaUrl" type="submit"
+      rendered="#{delivery.sebSetup &amp;&amp; delivery.actionString == &#x27;takeAssessmentViaUrl&#x27;}" immediate="true"><f:attribute name="value" value="begin"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SebSetupActionListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:param name="sebSetup" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 172}"/><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&lt;!-- CANCEL BUTTON --&gt;
+&#32;&#32;</f:verbatim><h:commandButton id="cancel1" value="#{commonMessages.cancel_action}" action="select" type="submit"
+      rendered="#{delivery.actionString==&#x27;previewAssessment&#x27;&#10;      || delivery.actionString==&#x27;takeAssessment&#x27;}"
+      disabled="#{delivery.actionString==&#x27;previewAssessment&#x27;}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandButton><f:verbatim>
+
+&lt;/p&gt;
+
+</f:verbatim></h:form><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.sebSetup}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 174}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.actionString != &#x27;previewAssessment&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 175}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLink id="sebDownloadSeb" value="#{delivery.sebDownloadLink}" target="_blank"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.seb_download_seb}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 177}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputLink ><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+  &lt;!-- end content --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+&#32;&#32;</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

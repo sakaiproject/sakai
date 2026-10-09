@@ -285,22 +285,33 @@
   </servlet-mapping>
 
   <!-- BEGIN SAMIGO JSF SECTION-->
-
-  <!-- JSF TAGLIBS -->
-  <jsp-config>
-    <jsp-property-group>
-      <url-pattern>*.jsp</url-pattern>
-      <el-ignored>false</el-ignored>
-      <include-prelude>/include/header.inc</include-prelude>
-    </jsp-property-group>
-  </jsp-config>
-  <!-- JSPs are JSF view templates. External requests must enter through a JSF mapping. -->
+  <!-- View templates must be reached through a JSF mapping. -->
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>JSF templates</web-resource-name>
+      <url-pattern>*.xhtml</url-pattern>
       <url-pattern>*.jsp</url-pattern>
       <url-pattern>*.jspf</url-pattern>
     </web-resource-collection>
     <auth-constraint />
   </security-constraint>
+  <!-- JSP did not add an implicit BeanValidator to every input. -->
+  <context-param>
+    <param-name>jakarta.faces.validator.DISABLE_DEFAULT_BEAN_VALIDATOR</param-name>
+    <param-value>true</param-value>
+  </context-param>
+  <context-param>
+    <param-name>jakarta.faces.FACELETS_LIBRARIES</param-name>
+    <param-value>/WEB-INF/samigo-facelets.taglib.xml;/WEB-INF/upload-facelets.taglib.xml</param-value>
+  </context-param>
+  <filter>
+    <filter-name>samigo-header</filter-name>
+    <filter-class>org.sakaiproject.tool.assessment.ui.facelets.SamigoHeaderFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>samigo-header</filter-name>
+    <servlet-name>Faces Servlet</servlet-name>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
 </web-app>

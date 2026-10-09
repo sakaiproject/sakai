@@ -1,0 +1,297 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+&lt;!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+
+&#32;&#32;</f:verbatim><f:view><f:verbatim>
+    &lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+      &lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+      &lt;title&gt;</f:verbatim><h:outputText
+        value="#{evaluationMessages.title_stat}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body onload="</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>"&gt;
+&lt;!--
+$Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.com $
+
+--&gt;
+&lt;script&gt;
+  $(document).ready(function(){
+    // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
+    var currentLink = $('#histogram\\:detailedStatisticsMenuLink');
+    currentLink.addClass('current');
+    // Remove the link of the current option
+    currentLink.html(currentLink.find('a').text());
+  });
+&lt;/script&gt;
+
+&lt;!-- content... --&gt;
+ &lt;div class="portletBody container-fluid"&gt;
+</f:verbatim><h:form id="histogram"><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:inputHidden id="publishedId" value="#{histogramScores.publishedId}" /><f:verbatim>
+&#32;&#32;</f:verbatim><h:inputHidden id="itemId" value="#{histogramScores.itemId}" /><f:verbatim>
+
+  &lt;!-- HEADINGS --&gt;
+&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/evaluation/evaluationHeadings.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 5}"/></ui:include><f:verbatim>
+&#32;&#32;</f:verbatim><h:panelGroup layout="block" styleClass="page-header" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 29}"><f:verbatim>
+  &lt;h1&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.item_analysis}#{evaluationMessages.column} " escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 30}"/><f:verbatim>
+    &lt;small&gt;</f:verbatim><h:outputText value="#{histogramScores.assessmentName} " escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 31}"/><f:verbatim>&lt;/small&gt;
+  &lt;/h1&gt;
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+    &lt;!-- EVALUATION SUBMENU --&gt;
+&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/evaluation/evaluationSubmenu.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 32}"/></ui:include><f:verbatim>
+&#32;
+</f:verbatim><h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 60}"/><f:verbatim>
+
+  &lt;!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  --&gt;
+  &lt;div class="b5 d-flex justify-content-between my-2"&gt;
+    &lt;div&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav==&#x27;true&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 61}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.view} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 62}"/><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsL"
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq &#x27;2&#x27;}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 64}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 65}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsH"
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq &#x27;1&#x27;}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 67}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 68}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+
+&#9;&#32;</f:verbatim><h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsA"
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq &#x27;4&#x27;}"><f:verbatim>
+&#9;&#32;&#32;&#32;</f:verbatim><f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 70}"/><f:verbatim>
+&#9;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+    &lt;/div&gt;
+    &lt;div class="dropdown"&gt;
+        &lt;button class="btn btn-link dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown"&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.export}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 71}"/><f:verbatim>
+              &lt;span class="caret"&gt;&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;ul class="dropdown-menu row"&gt;
+            &lt;li&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLink value="#{histogramScores.exportItemAnalysisPdf}" styleClass="d-block" title="#{evaluationMessages.export_as_pdf}" target="_blank" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 72}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.export_pdf}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 73}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputLink><f:verbatim>
+            &lt;/li&gt;
+            &lt;li&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLink value="#{histogramScores.exportItemAnalysisXlsx}" styleClass="d-block" title="#{evaluationMessages.export_as_xlsx}" target="_blank" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 74}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{evaluationMessages.export_xlsx}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 75}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputLink><f:verbatim>
+            &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+  &lt;/div&gt;
+
+
+&lt;div class="table-responsive"&gt;
+&#32;&#32;</f:verbatim><h:dataTable value="#{histogramScores.detailedStatistics}" var="item" styleClass="table table-bordered table-striped" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 76}"><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 77}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.question}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 78}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.questionLabel}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 79}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.randomType ==&#x27;false&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 80}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 81}"><f:attribute name="value" value="N"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.numResponses}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 82}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.randomType ==&#x27;true&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 83}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="N(#{histogramScores.numResponses})"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 84}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.numResponses}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 85}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 86}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.pct_correct_of}&lt;br/&gt;#{evaluationMessages.whole_group}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 87}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.percentCorrect}" escape="false"  rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 88}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.showDiscriminationColumn==&#x27;true&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 89}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.pct_correct_of}&lt;br/&gt;#{evaluationMessages.upper_pct}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 90}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.percentCorrectFromUpperQuartileStudents}" escape="false" rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 91}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.showDiscriminationColumn==&#x27;true&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 92}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.pct_correct_of}&lt;br/&gt;#{evaluationMessages.lower_pct}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 93}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.percentCorrectFromLowerQuartileStudents}" escape="false"  rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 94}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.showDiscriminationColumn==&#x27;true&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 95}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.discrim_abbrev}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 96}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.discrimination}" escape="false"  rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 97}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers &gt; 0}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 98}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.difficulty}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 99}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.difficulty}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 100}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers &gt; 0}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 101}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.total_correct}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 102}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.numberOfStudentsWithCorrectAnswers}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 103}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers &gt; 0}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 104}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.total_incorrect}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 105}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.numberOfStudentsWithIncorrectAnswers}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 106}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;0}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 107}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.no_answer}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 108}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.numberOfStudentsWithZeroAnswers}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 109}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#9;
+&#9;</f:verbatim><h:column rendered="#{histogramScores.showObjectivesColumn==&#x27;true&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 110}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.obj}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 111}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.objectives}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 112}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.showObjectivesColumn==&#x27;true&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 113}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{evaluationMessages.keywords}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 114}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.keywords}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 115}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;0}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 116}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 117}"><f:attribute name="value" value="A"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[0].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;0 &amp;&amp; !item.histogramBars[0].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 118}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[0].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;0 &amp;&amp; item.histogramBars[0].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 119}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;1}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 120}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 121}"><f:attribute name="value" value="B"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[1].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;1 &amp;&amp; !item.histogramBars[1].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 122}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[1].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;1 &amp;&amp; item.histogramBars[1].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 123}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;2}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 124}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 125}"><f:attribute name="value" value="C"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[2].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;2 &amp;&amp; !item.histogramBars[2].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 126}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[2].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;2 &amp;&amp; item.histogramBars[2].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 127}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;3}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 128}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 129}"><f:attribute name="value" value="D"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[3].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;3 &amp;&amp; !item.histogramBars[3].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 130}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[3].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;3 &amp;&amp; item.histogramBars[3].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 131}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;4}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 132}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 133}"><f:attribute name="value" value="E"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[4].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;4 &amp;&amp; !item.histogramBars[4].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 134}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[4].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;4 &amp;&amp; item.histogramBars[4].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 135}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;5}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 136}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 137}"><f:attribute name="value" value="F"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[5].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;5 &amp;&amp; !item.histogramBars[5].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 138}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[5].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;5 &amp;&amp; item.histogramBars[5].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 139}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;6}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 140}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 141}"><f:attribute name="value" value="G"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[6].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;6 &amp;&amp; !item.histogramBars[6].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 142}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[6].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;6 &amp;&amp; item.histogramBars[6].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 143}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;7}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 144}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 145}"><f:attribute name="value" value="H"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[7].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;7 &amp;&amp; !item.histogramBars[7].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 146}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[7].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;7 &amp;&amp; item.histogramBars[7].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 147}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;8}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 148}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 149}"><f:attribute name="value" value="I"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[8].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;8 &amp;&amp; !item.histogramBars[8].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 150}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[8].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;8 &amp;&amp; item.histogramBars[8].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 151}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;9}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 152}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 153}"><f:attribute name="value" value="J"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[9].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;9 &amp;&amp; !item.histogramBars[9].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 154}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[9].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;9 &amp;&amp; item.histogramBars[9].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 155}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;10}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 156}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 157}"><f:attribute name="value" value="K"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[10].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;10 &amp;&amp; !item.histogramBars[10].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 158}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[10].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;10 &amp;&amp; item.histogramBars[10].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 159}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;11}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 160}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 161}"><f:attribute name="value" value="L"/></h:outputText></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[11].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;11 &amp;&amp; !item.histogramBars[11].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 162}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.histogramBars[11].numStudents}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;11 &amp;&amp; item.histogramBars[11].isCorrect &amp;&amp; item.showIndividualAnswersInDetailedStatistics}" styleClass="detailedStatsCorrectAnswerText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 163}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column rendered="#{histogramScores.maxNumberOfAnswers&gt;12}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 164}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText escape="false" value="#{histogramScores.undisplayedStudentResponseInItemAnalysisColumnHeader}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 165}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{item.sumOfStudentResponsesInUndisplayedItemAnalysisColumns}" escape="false" rendered="#{histogramScores.maxNumberOfAnswers&gt;12 &amp;&amp; item.histogramBars[12]!=null}" title="#{item.studentResponsesInUndisplayedItemAnalysisColumns}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 166}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;</f:verbatim></h:dataTable><f:verbatim>
+
+
+&lt;!--&#32;
+***************************************************
+***************************************************
+***************************************************
+Above added by gopalrc Nov 2007&#32;
+***************************************************
+***************************************************
+***************************************************
+--&gt;
+
+
+
+
+
+</f:verbatim><h:commandButton value="#{evaluationMessages.return_s}" action="select" type="submit" rendered="#{histogramScores.hasNav==&#x27;false&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 167}"/><f:verbatim>
+&lt;/div&gt;
+</f:verbatim></h:form><f:verbatim>
+&lt;/div&gt;
+  &lt;!-- end content --&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+&#32;&#32;</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

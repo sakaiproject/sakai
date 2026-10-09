@@ -1,0 +1,162 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+&lt;!DOCTYPE html&gt;
+&#32;&#32;</f:verbatim><f:view><f:verbatim>
+    &lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+      &lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+        &lt;title&gt;</f:verbatim><h:outputText  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"><f:attribute name="value" value="EventLog"/></h:outputText><f:verbatim>&lt;/title&gt;
+        &lt;script&gt;includeWebjarLibrary('datatables');&lt;/script&gt;
+        &lt;script src="/samigo-app/js/sortHelper.js"&gt;&lt;/script&gt;
+        &lt;script&gt;
+          var deletedText = '</f:verbatim><h:outputText value="#{eventLogMessages.assessment_deleted}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>';
+        &lt;/script&gt;
+        &lt;script&gt;
+          document.addEventListener('DOMContentLoaded', () =&gt; {
+            const dataTableConfig = JSON.parse('</f:verbatim><h:outputText value="#{eventLog.dataTableConfig.json}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>');
+            dataTableConfig.search = { smart: false };
+            setupDataTable("eventLogId:eventLogTable", dataTableConfig);
+          });
+        &lt;/script&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/js/delivery.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 4}"/></ui:include><f:verbatim>
+        &lt;script type="text/javascript" src="/samigo-app/js/eventInfo.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="/samigo-app/js/dataTables.js"&gt;&lt;/script&gt;
+      &lt;/head&gt;
+    &lt;body onload="</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>;"&gt;
+
+&lt;div class="portletBody container-fluid"&gt;
+&#32;&#32;</f:verbatim><h:form id="eventLogId"><f:verbatim>
+  &lt;!-- HEADINGS --&gt;
+&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/event/eventLogHeadings.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 5}"/></ui:include><f:verbatim>
+&#32;&#32;
+&#32;&#32;</f:verbatim><h:messages rendered="#{! empty facesContext.maximumSeverity}" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 30}"/><f:verbatim>
+
+  &lt;div class="page-header"&gt;
+    &lt;h1&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{eventLogMessages.log}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 31}"/><f:verbatim>
+    &lt;/h1&gt;
+  &lt;/div&gt;
+
+&#32;&#32;</f:verbatim><h:panelGroup styleClass="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1" layout="block" rendered="#{not empty eventLog.eventLogDataList}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 32}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="d-flex flex-wrap flex-sm-nowrap align-items-center" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 33}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel styleClass="text-nowrap" value="#{eventLogMessages.filterBy}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 34}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 35}"><f:attribute name="value" value="&amp;#160;"/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:selectOneMenu styleClass="form-select form-select-sm" value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
+         required="true" onchange="document.forms[0].submit();"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:selectItems value="#{eventLog.assessments}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 37}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:selectOneMenu><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputLink styleClass="button" value="#{eventLog.exportUrl}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 38}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{eventLogMessages.export_csv}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 39}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:outputLink><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+ &lt;div class="table"&gt;
+&#32;</f:verbatim><h:dataTable style="display:none;" id="eventLogTable" styleClass="table table-striped table-bordered" value="#{eventLog.eventLogDataList}"
+         rendered="#{not empty eventLog.eventLogDataList}" var="log"><f:verbatim>
+  &lt;!-- Assessment Title... --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 41}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{eventLogMessages.title}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 42}"/></f:facet><f:verbatim>
+
+&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? &#x27;eventLogDeleted&#x27; : &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 43}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{log.title}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 44}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{eventLogMessages.assessment_deleted}" rendered="#{eventLog.isDeleted(log.assessmentId)}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 45}"/><f:verbatim>
+&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+  &lt;!-- Assessment ID... --&gt;
+&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 46}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{eventLogMessages.id}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 47}"/></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? &#x27;eventLogDeleted&#x27; : &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 48}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{log.assessmentIdStr}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 49}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#9; &lt;!-- UserID... --&gt;
+&#9;&#32;</f:verbatim><h:column  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 50}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{eventLogMessages.user_id}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 51}"/></f:facet><f:verbatim>
+
+&#9;&#32;</f:verbatim><h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? &#x27;eventLogDeleted&#x27; : &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 52}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><h:outputText value="#{log.userDisplay}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 53}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;</f:verbatim></h:column><f:verbatim>
+&#9; &lt;!-- Date Started... --&gt;
+&#9;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 54}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{eventLogMessages.date_startd}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 55}"/></f:facet><f:verbatim>
+
+&#9;&#32;</f:verbatim><h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? &#x27;eventLogDeleted&#x27; : &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 56}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><h:outputText value="#{log.startDate}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 57}"><f:verbatim>
+&#9;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#9;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><h:outputText value="#{log.startDate}" styleClass="hidden spanValue" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 58}"><f:verbatim>
+&#9;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime pattern="yyyyMMddHHmmss" /><f:verbatim>
+&#9;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;</f:verbatim></h:column><f:verbatim>
+&#9;&lt;!-- Date Submitted... --&gt;
+&#9;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 59}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText id="eventLogTable" value="#{eventLogMessages.date_submitted}"/></f:facet><f:verbatim>
+
+&#9;&#32;</f:verbatim><h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? &#x27;eventLogDeleted&#x27; : &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 61}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><h:outputText value="#{log.endDate}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 62}"><f:verbatim>
+&#9;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#9;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><h:outputText value="#{log.endDate}" styleClass="hidden spanValue" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 63}"><f:verbatim>
+&#9;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime pattern="yyyyMMddHHmmss" /><f:verbatim>
+&#9;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;</f:verbatim></h:column><f:verbatim>
+
+&#9;&lt;!-- Duration... --&gt;
+&#9;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 64}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{eventLogMessages.duration}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 65}"/></f:facet><f:verbatim>
+
+&#9;&#32;</f:verbatim><h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? &#x27;eventLogDeleted&#x27; : &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 66}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><h:outputText value="#{log.eclipseTime}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 67}"/><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><h:outputText  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 68}"><f:attribute name="value" value=" "/></h:outputText><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><h:outputText value="#{eventLogMessages.minutes}" rendered="#{log.eclipseTime &gt; 1}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 69}"/><f:verbatim>
+&#9;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{eventLogMessages.minute}" rendered="#{log.eclipseTime &lt; 2}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 70}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;</f:verbatim></h:column><f:verbatim>
+
+&#9;&lt;!-- Errors... --&gt;
+&#9;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 71}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{eventLogMessages.errors}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 72}"/></f:facet><f:verbatim>
+
+&#9;&#32;</f:verbatim><h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? &#x27;eventLogDeleted&#x27; : &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 73}"><f:verbatim>
+&#9;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{log.errorMsg}" rendered="#{!log.isNoErrors}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 74}"><f:verbatim>
+&#9;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.EventLogConverter" /><f:verbatim>
+&#9;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#9;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{log.errorMsg}" styleClass="text-muted" rendered="#{log.isNoErrors}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 75}"><f:verbatim>
+&#9;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.EventLogConverter" /><f:verbatim>
+&#9;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#9;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;</f:verbatim></h:column><f:verbatim>
+
+&#9;&lt;!-- IP Address --&gt;
+&#9;</f:verbatim><h:column rendered="#{eventLog.enabledIpAddress}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 76}"><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><f:facet name="header"><h:outputText value="#{eventLogMessages.ipAddress}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 77}"/></f:facet><f:verbatim>
+
+&#9;&#32;</f:verbatim><h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? &#x27;eventLogDeleted&#x27; : &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 78}"><f:verbatim>
+&#9;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{log.ipAddress}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 79}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;</f:verbatim></h:column><f:verbatim>
+
+&#9;</f:verbatim></h:dataTable><f:verbatim>
+
+&#9;</f:verbatim><h:panelGroup styleClass="sak-banner-info" rendered="#{empty eventLog.eventLogDataList}" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 80}"><f:verbatim>
+&#9;&#9;</f:verbatim><h:outputText value="#{eventLogMessages.no_data}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 81}"/><f:verbatim>
+&#9;</f:verbatim></h:panelGroup><f:verbatim>
+&lt;/div&gt;
+</f:verbatim></h:form><f:verbatim>
+&lt;!-- end content --&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+&#32;&#32;</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

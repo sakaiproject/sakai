@@ -1,0 +1,120 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+
+&lt;!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+
+&lt;!-- $Id$
+
+--&gt;
+</f:verbatim><f:view><f:verbatim>
+&#9;&lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+&lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+&lt;title&gt;</f:verbatim><h:outputText value="#{questionPoolMessages.sol_q}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>&lt;/title&gt;
+&lt;script src="/library/js/spinner.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+document.addEventListener('DOMContentLoaded', function () {
+  // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
+  document.getElementById('solution:questionPoolsLink').parentElement.classList.add('current');
+}, false);
+&lt;/script&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+
+&#9;</f:verbatim><h:form id="solution"><f:verbatim>
+&#9;&#9;&lt;!-- HEADINGS --&gt;
+&#9;&#9;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/evaluation/evaluationHeadings.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 3}"/></ui:include><f:verbatim>
+
+&#9;&#9;&lt;div class="tier2"&gt;
+&#9;&#9;&#9;&lt;div class="page-header"&gt;
+&#9;&#9;&#9;&#9;&lt;h4 class="part-header"&gt;
+&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:outputText value="#{questionPoolMessages.solution_calculated_question}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 27}"/><f:verbatim>
+&#9;&#9;&#9;&#9;&lt;/h4&gt;
+&#9;&#9;&#9;&lt;/div&gt;
+&#9;&#9;&#9;</f:verbatim><t:dataList value="#{questionpool.itemsBean}" var="question"
+                itemStyleClass="page-header question-box"
+                styleClass="question-wrapper" layout="unorderedList" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 28}"><f:verbatim>
+&#9;&#9;&#9;&#9;</f:verbatim><h:panelGroup layout="block"
+                    styleClass="row #{delivery.actionString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 29}"><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:panelGroup layout="block" styleClass="col-sm-6" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 30}"><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:panelGroup layout="block" styleClass="row" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 31}"><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:panelGroup layout="block" styleClass="col-sm-12 input-group" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 32}"><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&lt;p class="input-group-addon m-0"&gt;
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:outputText
+                                        value="#{deliveryMessages.q} 1 #{deliveryMessages.of} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 33}"/><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:outputText   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 34}"><f:attribute name="value" value="1"/></h:outputText><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&lt;/p&gt;
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:inputText readonly="true"
+                                    styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}"
+                                    id="adjustedScore" value="#{question.pointsForEdit}"><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim></h:inputText><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:panelGroup layout="block" styleClass="col-sm-12 input-group" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 36}"><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&lt;p class="samigo-input-group-addon"&gt;
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:outputText
+                                        value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 37}"/><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:outputText value="#{deliveryMessages.pt}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 38}"/><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:message for="adjustedScore" styleClass="sak-banner-error"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 39}"/><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:outputText styleClass="extraCreditLabel"
+                                        rendered="#{question.itemData.isExtraCredit == true}"
+                                        value=" #{deliveryMessages.extra_credit_preview}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 40}"/><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&lt;/p&gt;
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;&#9;&#9;&#9;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;&#9;&#9;&#9;</f:verbatim><h:panelGroup rendered="#{question.itemData.typeId == 15}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 41}"><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&lt;div class="samigo-question-callout"&gt;
+&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><f:subview id="checkSolutionCalculatedQuestion"><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/questionpool/checkSolutionCalculatedQuestion.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 43}"/></ui:include><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim></f:subview><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&lt;/div&gt;
+&#9;&#9;&#9;&#9;</f:verbatim></h:panelGroup><f:verbatim>
+&#9;&#9;&#9;&#9;&lt;p class="act"&gt;
+&#9;&#9;&#9;&#9;&#9;</f:verbatim><h:commandButton id="anotherSolution" styleClass="active"
+                        value="#{questionPoolMessages.another_solution}"
+                        action="#{questionpool.checkSolution}"><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><f:param name="itemid" value="#{question.itemData.itemId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 110}"/><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;&#9;</f:verbatim><f:param name="outCome" value="editPool"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 111}"/><f:verbatim>
+&#9;&#9;&#9;&#9;&#9;</f:verbatim></h:commandButton><f:verbatim>
+&#9;&#9;&#9;&#9;&lt;/p&gt;
+&#9;&#9;&#9;</f:verbatim></t:dataList><f:verbatim>
+
+&#9;&#9;&#9;</f:verbatim><h:commandButton style="act" value="#{commonMessages.cancel_action}"
+                action="#{questionpool.cancelPool}"
+                onclick="SPNR.disableControlsAndSpin(this, null);" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 112}"><f:verbatim>
+&#9;&#9;&#9;&#9;</f:verbatim><f:actionListener
+                    type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" /><f:verbatim>
+&#9;&#9;&#9;&#9;</f:verbatim><f:attribute name="returnToParentPool" value="false" /><f:verbatim>
+&#9;&#9;&#9;</f:verbatim></h:commandButton><f:verbatim>
+&#9;&#9;&lt;/div&gt;
+&#9;</f:verbatim></h:form><f:verbatim>
+&lt;/body&gt;
+&#9;&lt;/html&gt;
+</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

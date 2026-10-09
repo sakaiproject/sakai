@@ -1,0 +1,71 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+&lt;!--
+* $Id: deliverCalculatedQuestion.jsp 59565 2009-04-02 15:30:35Z arwhyte@umich.edu $
+
+--&gt;
+  &lt;!-- ATTACHMENTS --&gt;
+</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/author/preview_item/attachment.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 0}"/></ui:include><f:verbatim>
+
+&lt;div class="sr-only"&gt;
+&#32;&#32;</f:verbatim><h:outputFormat value="#{deliveryMessages.calcq_sr_explanation}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 39}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:param value="#{question.finArray.size()-1}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 40}"/><f:verbatim>
+&#32;&#32;</f:verbatim></h:outputFormat><f:verbatim>
+&lt;/div&gt;
+
+</f:verbatim><samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0" rows="100" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 41}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 42}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText id="calcq-question-text" styleClass="calcq-question-text" value="#{answer.text} " escape="false" ><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 44}">&amp;nbsp;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="si si-check-lg" id="image" rendered="#{answer.isCorrect}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText style="text-decoration: underline" value="#{answer.response}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 46}"/><f:verbatim>
+&#32;&#32;</f:verbatim></h:column><f:verbatim>
+</f:verbatim></samigo:dataLine><f:verbatim>
+
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 47}">&lt;br /&gt;</f:verbatim><f:verbatim>
+
+</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 48}"><f:verbatim>
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 49}">&lt;br /&gt;</f:verbatim><f:verbatim>
+&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 50}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 51}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText id="answerKeyMC" value="#{question.key}" escape="false"/><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 53}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 54}">&lt;br /&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="si si-check-lg" id="imageCheck"></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 56}">&lt;b&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedSC" value="#{authorMessages.correctItemFeedback}#{deliveryMessages.column} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 57}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 58}">&lt;/b&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText id="feedSC" value="#{question.itemData.correctItemFeedbackValue}" escape="false" /><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 60}">&lt;br /&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup styleClass="si si-remove feedBackCross" id="imageCross"></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 62}">&lt;b&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="feedSCI" value="#{authorMessages.incorrectItemFeedback}#{deliveryMessages.column} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 63}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 64}">&lt;/b&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText id="feedSCI" value="#{question.itemData.inCorrectItemFeedbackValue}" escape="false" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+</f:verbatim>
+</ui:composition>

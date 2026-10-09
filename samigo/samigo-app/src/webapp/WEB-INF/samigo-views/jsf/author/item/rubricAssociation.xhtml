@@ -1,0 +1,27 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>&lt;div class="form-group row"&gt;
+    &lt;div class="col-sm-12"&gt;
+        &lt;sakai-rubric-association
+            site-id='</f:verbatim><h:outputText value="#{itemauthor.currentItem.siteId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}"/><f:verbatim>'
+            dont-associate-label='</f:verbatim><h:outputText value="#{assessmentSettingsMessages.dont_associate_label} " id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>'
+            associate-label='</f:verbatim><h:outputText value="#{assessmentSettingsMessages.associate_label} " id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>'
+            associate-label-dyn='</f:verbatim><h:outputText value="#{assessmentSettingsMessages.associate_label_dyn} " id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>'
+            show-dynamic=true
+            tool-id="sakai.samigo"
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{assessmentBean.assessment[&#x27;class&#x27;].simpleName == &#x27;AssessmentFacade&#x27; and itemauthor.itemId != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"><f:verbatim>
+                entity-id='</f:verbatim><h:outputText value="#{assessmentBean.assessmentId}.#{itemauthor.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><f:verbatim>'
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{assessmentBean.assessment[&#x27;class&#x27;].simpleName == &#x27;PublishedAssessmentFacade&#x27; and itemauthor.itemId != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"><f:verbatim>
+                entity-id='</f:verbatim><h:outputText value="pub.#{assessmentBean.assessmentId}.#{itemauthor.itemId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>'
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{itemauthor.rubricStateDetails != &#x27;&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"><f:verbatim>
+                state-details='</f:verbatim><h:outputText value="#{itemauthor.rubricStateDetails}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"/><f:verbatim>'
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+            fine-tune-points='</f:verbatim><h:outputText value="#{assessmentSettingsMessages.option_pointsoverride}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"/><f:verbatim>'
+            hide-student-preview='</f:verbatim><h:outputText value="#{assessmentSettingsMessages.option_studentpreview}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"/><f:verbatim>'&gt;
+        &lt;/sakai-rubric-association&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</f:verbatim>
+</ui:composition>

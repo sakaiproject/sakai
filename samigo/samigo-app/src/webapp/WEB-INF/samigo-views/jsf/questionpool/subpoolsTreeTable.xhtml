@@ -1,0 +1,140 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>&lt;!--
+* $Id$
+
+--&gt;
+</f:verbatim><h:dataTable id="TreeTable" cellpadding="0" cellspacing="0" value="#{questionpool.sortedSubqpools}"
+     var="pool" styleClass="listHier" ><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="col1"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"><h:commandLink title="#{questionPoolMessages.t_sortTitle}" id="sortByTitle" immediate="true" rendered="#{questionpool.sortSubPoolProperty ne &#x27;title&#x27;}" action="#{questionpool.sortSubPoolByColumnHeader}"><f:param name="subPoolOrderBy" value="title" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:param name="subPoolAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><h:outputText value="#{questionPoolMessages.p_name}" rendered="#{questionpool.sortSubPoolProperty ne &#x27;title&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"/></h:commandLink><h:commandLink title="#{questionPoolMessages.t_sortTitle}" immediate="true" rendered="#{questionpool.sortSubPoolProperty eq &#x27;title&#x27; and questionpool.sortSubPoolAscending eq true}" action="#{questionpool.sortSubPoolByColumnHeader}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"><h:outputText value="#{questionPoolMessages.p_name}" styleClass="currentSort" rendered="#{questionpool.sortSubPoolProperty eq &#x27;title&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:param name="subPoolOrderBy" value="title" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"/><f:param name="subPoolAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"/><h:graphicImage alt="#{questionPoolMessages.alt_sortTitleDescending}" rendered="#{questionpool.sortSubPoolAscending eq true}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"/></h:commandLink><h:commandLink title="#{questionPoolMessages.t_sortTitle}" immediate="true" rendered="#{questionpool.sortSubPoolProperty eq &#x27;title&#x27; and questionpool.sortSubPoolAscending eq false}" action="#{questionpool.sortSubPoolByColumnHeader}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"><h:outputText value="#{questionPoolMessages.p_name}" styleClass="currentSort" rendered="#{questionpool.sortSubPoolProperty eq &#x27;title&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"/><f:param name="subPoolOrderBy" value="title" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}"/><f:param name="subPoolAscending" value="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}"/><h:graphicImage alt="#{questionPoolMessages.alt_sortTitleAscending}" rendered="#{questionpool.sortSubPoolAscending eq false}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"/></h:commandLink></h:panelGroup></f:facet><f:verbatim>
+
+</f:verbatim><h:panelGroup styleClass="tier#{questionpool.tree.currentLevel-questionpool.parentPoolSize-1}" id="firstcolumn"><f:verbatim>
+</f:verbatim><h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/><f:verbatim>
+
+</f:verbatim><h:outputLink title="#{questionPoolMessages.t_toggletree}" id="parenttogglelink" onclick="toggleRows(this)"  styleClass="treefolder" rendered="#{questionpool.tree.hasChildList eq true}" ><f:attribute name="value" value="#"/><f:verbatim>
+</f:verbatim><h:graphicImage alt="#{questionPoolMessages.alt_togglelink}" id="spacer_for_mozilla" style="border:0" height="14" width="30"  ><f:attribute name="value" value="/images/delivery/spacer.gif"/></h:graphicImage><f:verbatim>
+</f:verbatim></h:outputLink><f:verbatim>
+
+</f:verbatim><h:outputLink title="#{questionPoolMessages.t_toggletreeEmpty}" id="togglelink"  styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList eq true}" ><f:attribute name="value" value="#"/><f:verbatim>
+</f:verbatim><h:graphicImage id="spacer_for_mozilla1" style="border:0" width="30" height="14"  ><f:attribute name="value" value="/images/delivery/spacer.gif"/></h:graphicImage><f:verbatim>
+</f:verbatim></h:outputLink><f:verbatim>
+
+
+</f:verbatim><h:commandLink title="#{questionPoolMessages.t_editPool}" id="editlink" immediate="true" action="#{questionpool.editPool}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText id="poolnametext" value="#{pool.displayName}" escape="false"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="qpid" value="#{pool.questionPoolId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 25}"/><f:verbatim>
+</f:verbatim></h:commandLink><f:verbatim>
+
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 26}">&lt;br/&gt;</f:verbatim><f:verbatim>
+</f:verbatim><h:graphicImage id="spacer" style="border:0" height="14" width="30"  ><f:attribute name="value" value="/images/delivery/spacer.gif"/></h:graphicImage><f:verbatim>
+&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 28}">&lt;span class="itemAction"&gt;</f:verbatim><f:verbatim>
+
+&lt;!-- Add SubPools --&gt;
+</f:verbatim><h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring eq false and pool.canAddPools eq true}" id="addlink" immediate="true" action="#{questionpool.addPool}"><f:verbatim>&#32;
+&#32;&#32;</f:verbatim><h:outputText id="add" value="#{questionPoolMessages.t_addSubpool}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="qpid" value="#{pool.questionPoolId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 31}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="outCome" value="editPool" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 32}"/><f:verbatim>
+</f:verbatim></h:commandLink><f:verbatim>
+
+</f:verbatim><h:outputText rendered="#{questionpool.importToAuthoring eq false and pool.canCopyPools eq true and pool.canAddPools eq true}" value=" #{questionPoolMessages.separator} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 33}"/><f:verbatim>
+
+&lt;!-- Copy Pool --&gt;
+</f:verbatim><h:commandLink title="#{questionPoolMessages.t_copyPool}" rendered="#{questionpool.importToAuthoring eq false and pool.canCopyPools eq true}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText id="copy" value="#{questionPoolMessages.copy}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="qpid" value="#{pool.questionPoolId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 36}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="outCome" value="editPool" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 37}"/><f:verbatim>
+</f:verbatim></h:commandLink><f:verbatim>
+</f:verbatim><h:outputText rendered="#{questionpool.importToAuthoring eq false and pool.canMovePools eq true and pool.canCopyPools eq true}" value=" #{questionPoolMessages.separator} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 38}"/><f:verbatim>
+
+&lt;!-- Move Pool --&gt;
+</f:verbatim><h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring eq false and pool.canMovePools eq true}" id="movelink" immediate="true" action="#{questionpool.startMovePool}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText id="move" value="#{questionPoolMessages.move}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="qpid" value="#{pool.questionPoolId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 41}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="outCome" value="editPool" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 42}"/><f:verbatim>
+</f:verbatim></h:commandLink><f:verbatim>
+
+
+&lt;!-- Remove Pool --&gt;
+</f:verbatim><h:outputText rendered="#{questionpool.importToAuthoring eq false and pool.canDeletePools eq true and pool.canMovePools eq true}" value=" #{questionPoolMessages.separator} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 43}"/><f:verbatim>
+</f:verbatim><h:commandLink title="#{questionPoolMessages.t_removePool}" rendered="#{questionpool.importToAuthoring eq false and pool.canDeletePools eq true}" id="removelink" immediate="true" action="#{questionpool.confirmRemovePool}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText id="remove" value="#{commonMessages.remove_action}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="qpid" value="#{pool.questionPoolId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 46}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="outCome" value="editPool" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 47}"/><f:verbatim>
+</f:verbatim></h:commandLink><f:verbatim>
+
+&lt;!-- Preview Pool --&gt;
+</f:verbatim><h:outputText rendered="#{questionpool.importToAuthoring eq false and pool.canPreviewQuestions eq true}" value=" #{questionPoolMessages.separator} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 48}"/><f:verbatim>
+</f:verbatim><h:commandLink title="#{questionPoolMessages.t_previewPool}" rendered="#{questionpool.importToAuthoring eq false and pool.canPreviewQuestions eq true}" id="previewlink" immediate="true" action="#{questionpool.startPreviewPool}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText id="preview" value="#{questionPoolMessages.preview}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="qpid" value="#{pool.questionPoolId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 51}"/><f:verbatim>
+</f:verbatim></h:commandLink><f:verbatim>
+
+
+</f:verbatim><h:outputText rendered="#{questionpool.importToAuthoring eq false}" value=" #{questionPoolMessages.separator} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 52}"/><f:verbatim>
+</f:verbatim><h:commandLink title="#{questionPoolMessages.t_exportPool}" rendered="#{questionpool.importToAuthoring eq false}" action="#{questionpool.startExportPool}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 53}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText id="export" value="#{questionPoolMessages.t_exportPool}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="action" value="exportPool"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 55}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="qpid" value="#{pool.questionPoolId}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 56}"/><f:verbatim>
+&#32;&#32;</f:verbatim><f:param name="outCome" value="editPool" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 57}"/><f:verbatim>
+</f:verbatim></h:commandLink><f:verbatim>
+
+&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 58}">&lt;/span&gt;</f:verbatim><f:verbatim>
+
+</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="col2"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 60}"><h:commandLink title="#{questionPoolMessages.t_sortCreator}" id="sortByOwner" immediate="true" rendered="#{questionpool.sortSubPoolProperty ne &#x27;ownerId&#x27;}" action="#{questionpool.sortSubPoolByColumnHeader}"><f:param name="subPoolOrderBy" value="ownerId" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 62}"/><f:param name="subPoolAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 63}"/><h:outputText value="#{questionPoolMessages.creator}" rendered="#{questionpool.sortSubPoolProperty ne &#x27;ownerId&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 64}"/></h:commandLink><h:commandLink title="#{questionPoolMessages.t_sortCreator}" immediate="true" rendered="#{questionpool.sortSubPoolProperty eq &#x27;ownerId&#x27; and questionpool.sortSubPoolAscending eq true}" action="#{questionpool.sortSubPoolByColumnHeader}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 65}"><h:outputText value="#{questionPoolMessages.creator}" styleClass="currentSort" rendered="#{questionpool.sortSubPoolProperty eq &#x27;ownerId&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 66}"/><f:param name="subPoolOrderBy" value="ownerId" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 67}"/><f:param name="subPoolAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 68}"/><h:graphicImage alt="#{questionPoolMessages.alt_sortCreatorDescending}" rendered="#{questionpool.sortSubPoolAscending eq true}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 69}"/></h:commandLink><h:commandLink title="#{questionPoolMessages.t_sortCreator}" immediate="true" rendered="#{questionpool.sortSubPoolProperty eq &#x27;ownerId&#x27; and questionpool.sortSubPoolAscending eq false}" action="#{questionpool.sortSubPoolByColumnHeader}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 70}"><h:outputText value="#{questionPoolMessages.creator}" styleClass="currentSort" rendered="#{questionpool.sortSubPoolProperty eq &#x27;ownerId&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 71}"/><f:param name="subPoolOrderBy" value="ownerId" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 72}"/><f:param name="subPoolAscending" value="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 73}"/><h:graphicImage alt="#{questionPoolMessages.alt_sortCreatorAscending}" rendered="#{questionpool.sortSubPoolAscending eq false}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 74}"/></h:commandLink></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="secondcolumn"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{pool.ownerDisplayName}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 76}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="col3"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 78}"><h:commandLink title="#{questionPoolMessages.t_sortLastModified}" id="sortByLastModified" immediate="true" rendered="#{questionpool.sortSubPoolProperty ne &#x27;lastModified&#x27;}" action="#{questionpool.sortSubPoolByColumnHeader}"><f:param name="subPoolOrderBy" value="lastModified" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 80}"/><f:param name="subPoolAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 81}"/><h:outputText value="#{questionPoolMessages.last_mod}" rendered="#{questionpool.sortSubPoolProperty ne &#x27;lastModified&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 82}"/></h:commandLink><h:commandLink title="#{questionPoolMessages.t_sortLastModified}" immediate="true" rendered="#{questionpool.sortSubPoolProperty eq &#x27;lastModified&#x27; and questionpool.sortSubPoolAscending}" action="#{questionpool.sortSubPoolByColumnHeader}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 83}"><h:outputText value="#{questionPoolMessages.last_mod}" styleClass="currentSort" rendered="#{questionpool.sortSubPoolProperty eq &#x27;lastModified&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 84}"/><f:param name="subPoolOrderBy" value="lastModified" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 85}"/><f:param name="subPoolAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 86}"/><h:graphicImage alt="#{questionPoolMessages.alt_sortLastModifiedDescending}" rendered="#{questionpool.sortSubPoolAscending eq true}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 87}"/></h:commandLink><h:commandLink title="#{questionPoolMessages.t_sortLastModified}" immediate="true" rendered="#{questionpool.sortSubPoolProperty eq &#x27;lastModified&#x27; and questionpool.sortSubPoolAscending eq false}" action="#{questionpool.sortSubPoolByColumnHeader}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 88}"><h:outputText value="#{questionPoolMessages.last_mod}" styleClass="currentSort" rendered="#{questionpool.sortSubPoolProperty eq &#x27;lastModified&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 89}"/><f:param name="subPoolOrderBy" value="lastModified" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 90}"/><f:param name="subPoolAscending" value="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 91}"/><h:graphicImage alt="#{questionPoolMessages.alt_sortLastModifiedAscending}" rendered="#{questionpool.sortSubPoolAscending eq false}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 92}"/></h:commandLink></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="thirdcolumn"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{pool.lastModified}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 94}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="col4"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 96}"><h:commandLink title="#{questionPoolMessages.t_sortNumQuestions}" id="sortByQuestion" immediate="true" rendered="#{questionpool.sortSubPoolProperty ne &#x27;questionSize&#x27;}" action="#{questionpool.sortSubPoolByColumnHeader}"><f:param name="subPoolOrderBy" value="questionSize" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 98}"/><f:param name="subPoolAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 99}"/><h:outputText value="#{questionPoolMessages.qs}" rendered="#{questionpool.sortSubPoolProperty ne &#x27;questionSize&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 100}"/></h:commandLink><h:commandLink title="#{questionPoolMessages.t_sortNumQuestions}" immediate="true" rendered="#{questionpool.sortSubPoolProperty eq &#x27;questionSize&#x27; and questionpool.sortSubPoolAscending eq true}" action="#{questionpool.sortSubPoolByColumnHeader}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 101}"><h:outputText value="#{questionPoolMessages.qs}" styleClass="currentSort" rendered="#{questionpool.sortSubPoolProperty eq &#x27;questionSize&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 102}"/><f:param name="subPoolOrderBy" value="questionSize" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 103}"/><f:param name="subPoolAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 104}"/><h:graphicImage alt="#{questionPoolMessages.alt_sortNumQuestionsDescending}" rendered="#{questionpool.sortSubPoolAscending eq true}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 105}"/></h:commandLink><h:commandLink title="#{questionPoolMessages.t_sortNumQuestions}" immediate="true" rendered="#{questionpool.sortSubPoolProperty eq &#x27;questionSize&#x27; and questionpool.sortSubPoolAscending eq false}" action="#{questionpool.sortSubPoolByColumnHeader}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 106}"><h:outputText value="#{questionPoolMessages.qs}" styleClass="currentSort" rendered="#{questionpool.sortSubPoolProperty eq &#x27;questionSize&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 107}"/><f:param name="subPoolOrderBy" value="questionSize" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 108}"/><f:param name="subPoolAscending" value="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 109}"/><h:graphicImage alt="#{questionPoolMessages.alt_sortNumQuestionAscending}" rendered="#{questionpool.sortSubPoolAscending eq false}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 110}"/></h:commandLink></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="fourthcolumn"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{pool.data.questionPoolItemSize}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 112}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:column id="col5"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 114}"><h:commandLink title="#{questionPoolMessages.t_sortNumSubpools}" id="sortBySubPool" immediate="true" rendered="#{questionpool.sortSubPoolProperty ne &#x27;subPoolSize&#x27;}" action="#{questionpool.sortSubPoolByColumnHeader}"><f:param name="subPoolOrderBy" value="subPoolSize" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 116}"/><f:param name="subPoolAscending" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 117}"/><h:outputText value="#{questionPoolMessages.subps}" rendered="#{questionpool.sortSubPoolProperty ne &#x27;subPoolSize&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 118}"/></h:commandLink><h:commandLink title="#{questionPoolMessages.t_sortNumSubpools}" immediate="true" rendered="#{questionpool.sortSubPoolProperty eq &#x27;subPoolSize&#x27; and questionpool.sortSubPoolAscending eq true}" action="#{questionpool.sortSubPoolByColumnHeader}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 119}"><h:outputText value="#{questionPoolMessages.subps}" styleClass="currentSort" rendered="#{questionpool.sortSubPoolProperty eq &#x27;subPoolSize&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 120}"/><f:param name="subPoolOrderBy" value="subPoolSize" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 121}"/><f:param name="subPoolAscending" value="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 122}"/><h:graphicImage alt="#{questionPoolMessages.alt_sortNumSubpoolsDescending}" rendered="#{questionpool.sortSubPoolAscending eq true}" url="/images/sortascending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 123}"/></h:commandLink><h:commandLink title="#{questionPoolMessages.t_sortNumSubpools}" immediate="true" rendered="#{questionpool.sortSubPoolProperty eq &#x27;subPoolSize&#x27; and questionpool.sortSubPoolAscending eq false}" action="#{questionpool.sortSubPoolByColumnHeader}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 124}"><h:outputText value="#{questionPoolMessages.subps}" styleClass="currentSort" rendered="#{questionpool.sortSubPoolProperty eq &#x27;subPoolSize&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 125}"/><f:param name="subPoolOrderBy" value="subPoolSize" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 126}"/><f:param name="subPoolAscending" value="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 127}"/><h:graphicImage alt="#{questionPoolMessages.alt_sortNumSubpoolsAscending}" rendered="#{questionpool.sortSubPoolAscending eq false}" url="/images/sortdescending.gif" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 128}"/></h:commandLink></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="fifthcolumn"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{pool.subPoolSize}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 130}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+
+
+&#32;&#32;</f:verbatim></h:dataTable><f:verbatim>
+
+</f:verbatim>
+</ui:composition>

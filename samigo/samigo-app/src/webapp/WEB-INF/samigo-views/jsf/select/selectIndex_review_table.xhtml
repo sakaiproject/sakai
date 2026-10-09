@@ -1,0 +1,122 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>&lt;!-- REVIEW TABLE --&gt;
+&lt;div class="table table-sent-assessments"&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><t:dataTable styleClass="table table-hover table-striped table-bordered table-assessments" id="reviewTable" value="#{select.reviewableAssessments}" var="reviewable" summary="#{selectIndexMessages.sum_submittedAssessment}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:column rendered="#{select.displayAllAssessments != 3}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"><h:outputText value="#{selectIndexMessages.title} " styleClass="currentSort"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><h:panelGroup rendered="#{select.displayAllAssessments != &#x27;1&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"><h:outputText  styleClass="displayAllAssessments hidden"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"><f:attribute name="value" value=""/></h:outputText></h:panelGroup></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{reviewable.assessmentTitle}" rendered="#{!reviewable.isRecordedAssessment}" styleClass="d-none"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle" rendered="#{reviewable.isRecordedAssessment &amp;&amp; !reviewable.isAssessmentRetractForEdit &amp;&amp; reviewable.hasAssessmentBeenModified &amp;&amp; select.warnUserOfModification}" title="#{selectIndexMessages.has_been_modified}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText styleClass="highlight fa fa-fw fa-exclamation" rendered="#{reviewable.isRecordedAssessment &amp;&amp; reviewable.isAssessmentRetractForEdit}" title="#{selectIndexMessages.currently_being_edited}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort"  rendered="#{reviewable.isRecordedAssessment}"  escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:column><f:verbatim>
+
+        &lt;!-- STATS creating separate column for stats --&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"><h:outputText value="#{selectIndexMessages.stats}" styleClass="currentSort"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"/></h:panelGroup></f:facet><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{selectIndexMessages.t_histogram}" id="histogram"  action="#{delivery.getOutcome}" immediate="true"
+                    rendered="#{reviewable.feedback eq &#x27;show&#x27; &amp;&amp; reviewable.feedbackComponentOption == &#x27;2&#x27; &amp;&amp; reviewable.statistics &amp;&amp; !reviewable.isAssessmentRetractForEdit &amp;&amp; reviewable.isRecordedAssessment}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="publishedAssessmentId" value="#{reviewable.assessmentId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="hasNav" value="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="allSubmissions" value="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 17}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="actionString" value="reviewAssessment" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 18}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="isFromStudent" value="true" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 19}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.stats} " id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 20}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.feedback eq &#x27;na&#x27; ||  reviewable.feedbackComponentOption == &#x27;1&#x27; || reviewable.isAssessmentRetractForEdit || !reviewable.statistics) &amp;&amp; reviewable.isRecordedAssessment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 21}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:column><f:verbatim>
+        &lt;!-- created separate column for statistics  --&gt;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 22}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 23}"><h:outputText value="#{selectIndexMessages.recorded_score}" styleClass="currentSort"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 24}"/></h:panelGroup></f:facet><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{reviewable.roundedRawScoreToDisplay} " styleClass="currentSort" rendered="#{reviewable.showScore eq &#x27;show&#x27; &amp;&amp; reviewable.isRecordedAssessment &amp;&amp; !reviewable.isAssessmentRetractForEdit}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 25}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  rendered="#{!reviewable.isRecordedAssessment &amp;&amp; reviewable.showScore eq &#x27;show&#x27; &amp;&amp; !reviewable.isAssessmentRetractForEdit}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 26}"><f:attribute name="value" value=""/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.highest_score}" rendered="#{(reviewable.multipleSubmissions eq &#x27;true&#x27; &amp;&amp; reviewable.isRecordedAssessment &amp;&amp; reviewable.scoringOption eq &#x27;1&#x27; &amp;&amp; (reviewable.showScore eq &#x27;show&#x27; || reviewable.showScore eq &#x27;blank&#x27;)) &amp;&amp; !reviewable.isAssessmentRetractForEdit}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 27}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.last_score}" rendered="#{(reviewable.multipleSubmissions eq &#x27;true&#x27; &amp;&amp; reviewable.isRecordedAssessment &amp;&amp; reviewable.scoringOption eq &#x27;2&#x27; &amp;&amp; (reviewable.showScore eq &#x27;show&#x27; || reviewable.showScore eq &#x27;blank&#x27;)) &amp;&amp; !reviewable.isAssessmentRetractForEdit}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 28}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.average_score}" rendered="#{(reviewable.multipleSubmissions eq &#x27;true&#x27; &amp;&amp; reviewable.isRecordedAssessment &amp;&amp; reviewable.scoringOption eq &#x27;4&#x27; &amp;&amp; (reviewable.showScore eq &#x27;show&#x27; || reviewable.showScore eq &#x27;blank&#x27;)) &amp;&amp; !reviewable.isAssessmentRetractForEdit}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 29}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.showScore eq &#x27;na&#x27; || reviewable.isAssessmentRetractForEdit) &amp;&amp; reviewable.isRecordedAssessment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 30}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 31}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 32}"><h:outputText value="#{selectIndexMessages.feedback_date}" styleClass="currentSort"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 33}"/></h:panelGroup></f:facet><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{reviewable.feedbackDate}" styleClass="currentSort" rendered="#{reviewable.feedbackComponentOption == &#x27;2&#x27;  &amp;&amp; reviewable.feedbackDelivery eq &#x27;2&#x27; &amp;&amp; !reviewable.isAssessmentRetractForEdit &amp;&amp; reviewable.isRecordedAssessment}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 34}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  rendered="#{reviewable.feedbackComponentOption == &#x27;2&#x27;  &amp;&amp; reviewable.feedbackDelivery eq &#x27;2&#x27; &amp;&amp; !reviewable.isAssessmentRetractForEdit &amp;&amp; reviewable.isRecordedAssessment &amp;&amp; not empty reviewable.feedbackEndDate}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 35}"><f:attribute name="value" value=" - "/></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{reviewable.feedbackEndDate}" styleClass="currentSort" rendered="#{reviewable.feedbackComponentOption == &#x27;2&#x27;  &amp;&amp; reviewable.feedbackDelivery eq &#x27;2&#x27; &amp;&amp; !reviewable.isAssessmentRetractForEdit &amp;&amp; reviewable.isRecordedAssessment &amp;&amp; not empty reviewable.feedbackEndDate}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 36}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.immediate}" styleClass="currentSort" rendered="#{reviewable.feedbackComponentOption == &#x27;2&#x27;  &amp;&amp; (reviewable.feedbackDelivery eq &#x27;1&#x27; || reviewable.feedbackDelivery eq &#x27;4&#x27;) &amp;&amp; !reviewable.isAssessmentRetractForEdit &amp;&amp; reviewable.isRecordedAssessment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 37}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.feedbackComponentOption == &#x27;1&#x27; || reviewable.feedbackDelivery==null  || reviewable.feedbackDelivery eq &#x27;3&#x27; || reviewable.isAssessmentRetractForEdit) &amp;&amp; reviewable.isRecordedAssessment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 38}"/><f:verbatim>
+
+            &lt;!-- mustansar --&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="#{delivery.getOutcome}" immediate="true"
+                rendered="#{reviewable.feedback == &#x27;show&#x27; &amp;&amp; reviewable.feedbackComponentOption == &#x27;2&#x27; &amp;&amp; !reviewable.isAssessmentRetractForEdit &amp;&amp; select.displayAllAssessments != &#x27;1&#x27; &amp;&amp; !reviewable.isRecordedAssessment }" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 39}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="publishedId" value="#{reviewable.assessmentId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 40}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="assessmentGradingId" value="#{reviewable.assessmentGradingId}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 41}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="nofeedback" value="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 42}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="actionString" value="reviewAssessment" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 43}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText styleClass="currentSort" value="#{commonMessages.feedback}" rendered="#{reviewable.isRecordedAssessment &amp;&amp; select.displayAllAssessments != &#x27;1&#x27; }" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 44}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{commonMessages.feedback}" rendered="#{!reviewable.isRecordedAssessment }" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 45}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+            &lt;!-- mustansar --&gt;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:column rendered="#{select.displayAllAssessments != &#x27;1&#x27;}" headerstyleClass="d-none d-sm-table-cell" styleClass="d-none d-sm-table-cell" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 46}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 47}"><h:outputText value="#{selectIndexMessages.individual_score}" styleClass="currentSort"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 48}"/></h:panelGroup></f:facet><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{reviewable.roundedRawScoreToDisplay} " rendered="#{(reviewable.showScore eq &#x27;show&#x27; &amp;&amp; !reviewable.isAssessmentRetractForEdit) &amp;&amp; !reviewable.isRecordedAssessment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 49}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.not_applicable}" rendered="#{(reviewable.showScore eq &#x27;na&#x27; || reviewable.isAssessmentRetractForEdit) &amp;&amp; !reviewable.isRecordedAssessment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 50}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:column rendered="#{select.displayAllAssessments != &#x27;1&#x27;}" headerstyleClass="d-none d-sm-table-cell" styleClass="d-none d-sm-table-cell" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 51}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 52}"><h:outputText value="#{selectIndexMessages.time} " styleClass="currentSort"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 53}"/></h:panelGroup></f:facet><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 54}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText id="timeElapse" value="#{reviewable.timeElapse}" styleClass="currentSort" rendered="#{reviewable.isRecordedAssessment}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{reviewable.timeElapse}" rendered="#{!reviewable.isRecordedAssessment}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 56}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:column><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><t:column rendered="#{select.displayAllAssessments != &#x27;1&#x27;}" headerstyleClass="d-none d-sm-table-cell" styleClass="d-none d-sm-table-cell" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 57}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:facet name="header"><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 58}"><h:outputText value="#{selectIndexMessages.submitted} " styleClass="currentSort"   id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 59}"/></h:panelGroup></f:facet><f:verbatim>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{reviewable.submissionDate}" styleClass="currentSort" rendered="#{reviewable.isRecordedAssessment}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 60}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{reviewable.submissionDate}" rendered="#{!reviewable.isRecordedAssessment}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 61}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><samigo:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" /><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputText><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></t:column><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></t:dataTable><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><t:div styleClass="sam-asterisks-row" rendered="#{(select.hasAnyAssessmentBeenModified &amp;&amp; select.warnUserOfModification) || select.hasAnyAssessmentRetractForEdit}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 62}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{select.hasAnyAssessmentBeenModified &amp;&amp; select.warnUserOfModification}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 63}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 64}">&lt;p&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 65}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.has_been_modified}" styleClass="highlight" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 66}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 67}">&lt;/p&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup rendered="#{select.hasAnyAssessmentRetractForEdit}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 68}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 69}">&lt;p&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText styleClass="highlight fa fa-fw fa-exclamation" title="#{selectIndexMessages.currently_being_edited}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 70}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{selectIndexMessages.currently_being_edited}" styleClass="highlight" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 71}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 72}">&lt;/p&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></t:div><f:verbatim>
+&lt;/div&gt;
+</f:verbatim>
+</ui:composition>

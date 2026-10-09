@@ -1,0 +1,145 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2011 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>&lt;!--
+
+--&gt;
+
+&lt;script src="/library/webjars/jquery-blockui/2.65/jquery.blockUI.js"&gt;&lt;/script&gt;
+
+&lt;script&gt;
+&#9;var portal = portal || { locale: "</f:verbatim><h:outputText value="#{delivery.localeString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}"/><f:verbatim>" };
+&#9;portal.locale = portal.locale || "</f:verbatim><h:outputText value="#{delivery.localeString}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>";
+&#9;var honorPledgeIsChecked = true;
+&#9;var understandPledgeIsChecked = true;
+&#9;var button_ok = "</f:verbatim><h:outputText value="#{deliveryMessages.button_ok} " id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>";
+&#9;var please_wait = "</f:verbatim><h:outputText value="#{deliveryMessages.please_wait} " id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>";
+&#9;var beginButtonIds = ["takeAssessmentForm:beginAssessment1", "takeAssessmentForm:beginAssessment2", "takeAssessmentForm:beginAssessment3"];
+&#9;var continueButtonIds = ["takeAssessmentForm:continueAssessment1", "takeAssessmentForm:continueAssessment2"];
+&#9;var allAssessmentButtonIds = beginButtonIds.concat(continueButtonIds);
+&#9;var selector = null;
+
+&#9;function enableDisableSubmitButton() {
+&#9;&#9;var honourPledgeRequired = $('#takeAssessmentForm\\:honor_pledge').length &gt; 0;
+&#9;&#9;var understandPledgeRequired = $("#takeAssessmentForm\\:understand_pledge").length &gt; 0;
+
+&#9;&#9;if (honourPledgeRequired) {
+&#9;&#9;&#9;honorPledgeIsChecked = $('#takeAssessmentForm\\:honor_pledge').prop('checked');
+&#9;&#9;}
+&#9;&#9;if (understandPledgeRequired) {
+&#9;&#9;&#9;understandPledgeIsChecked = $('#takeAssessmentForm\\:understand_pledge').prop('checked');
+&#9;&#9;}
+
+&#9;&#9;var enable = false;
+&#9;&#9;if ((honourPledgeRequired &amp;&amp; understandPledgeRequired &amp;&amp; honorPledgeIsChecked &amp;&amp; understandPledgeIsChecked) // both are required, both are checked
+&#9;&#9;&#9;&#9;|| (honourPledgeRequired &amp;&amp; honorPledgeIsChecked &amp;&amp; !understandPledgeRequired)              // honour pledge only required and checked
+&#9;&#9;&#9;&#9;|| (!honourPledgeRequired &amp;&amp; understandPledgeRequired &amp;&amp; understandPledgeIsChecked)) {      // understand (resubmit consequences) pledge only required and checked
+&#9;&#9;&#9;enable = true;
+&#9;&#9;}
+
+&#9;&#9;allAssessmentButtonIds.forEach(function(buttonId) {
+&#9;&#9;&#9;var $button = $('#' + buttonId.replace(/:/g, '\\:'));
+&#9;&#9;&#9;if ($button.length &gt; 0) {
+&#9;&#9;&#9;&#9;if (enable) {
+&#9;&#9;&#9;&#9;&#9;$button.addClass('active');
+&#9;&#9;&#9;&#9;&#9;$button.removeAttr('disabled');
+&#9;&#9;&#9;&#9;} else {
+&#9;&#9;&#9;&#9;&#9;$button.removeClass('active');
+&#9;&#9;&#9;&#9;&#9;$button.attr('disabled','disabled');
+&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;}
+&#9;&#9;});
+&#9;}
+
+&#9;$(document).ready(function(){
+
+&#9;&#9;var timerSave = false;
+
+&#9;&#9;// Find which assessment buttons are present on the page
+&#9;&#9;var availableButtons = [];
+&#9;&#9;allAssessmentButtonIds.forEach(function(buttonId) {
+&#9;&#9;&#9;var $button = $('#' + buttonId.replace(/:/g, '\\:'));
+&#9;&#9;&#9;if ($button.length &gt; 0) {
+&#9;&#9;&#9;&#9;availableButtons.push(buttonId);
+&#9;&#9;&#9;}
+&#9;&#9;});
+&#9;
+&#9;&#9;//Turn off browser autocomplete on all forms
+&#9;&#9;$("form").attr("autocomplete", "off");
+
+&#9;&#9;// If instructor requires honor pledge, we check for it before allowing assessment to start
+&#9;&#9;if($('#takeAssessmentForm\\:honor_pledge').length &gt; 0) {
+&#9;&#9;&#9;honorPledgeIsChecked = false;
+&#9;&#9;&#9;$('#takeAssessmentForm\\:honor_pledge').change(enableDisableSubmitButton);
+&#9;&#9;}
+
+&#9;&#9;// If this student requires an understand (resubmit consequences) pledge, we check for it before allowing assessment to start
+&#9;&#9;if ($("#takeAssessmentForm\\:understand_pledge").length &gt; 0) {
+&#9;&#9;&#9;understandPledgeIsChecked = false;
+&#9;&#9;&#9;$("#takeAssessmentForm\\:understand_pledge").change(enableDisableSubmitButton);
+&#9;&#9;}
+
+&#9;&#9;// Check honor code checkbox, understand (resubmit consequences) pledge checkbox, lock the UI to avoid user double-clicks
+&#9;&#9;$("input.active[type='submit'][class!='noActionButton']").click(function() {
+&#9;&#9;&#9;if (allAssessmentButtonIds.includes($(this).attr('id'))) {
+&#9;&#9;&#9;&#9;var invalid = false;
+&#9;&#9;&#9;&#9;if (!honorPledgeIsChecked) {
+&#9;&#9;&#9;&#9;&#9;$('#takeAssessmentForm\\:honorPledgeRequired').show();
+&#9;&#9;&#9;&#9;&#9;invalid = true;
+&#9;&#9;&#9;&#9;} else {
+&#9;&#9;&#9;&#9;&#9;$('#takeAssessmentForm\\:honorPledgeRequired').hide();
+&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;&#9;if (!understandPledgeIsChecked) {
+&#9;&#9;&#9;&#9;&#9;$('#takeAssessmentForm\\:understandPledgeRequired').show();
+&#9;&#9;&#9;&#9;&#9;invalid = true;
+&#9;&#9;&#9;&#9;} else {
+&#9;&#9;&#9;&#9;&#9;$('#takeAssessmentForm\\:understandPledgeRequired').hide();
+&#9;&#9;&#9;&#9;}
+
+&#9;&#9;&#9;&#9;// If any validation failed, do not continue
+&#9;&#9;&#9;&#9;if (invalid) {
+&#9;&#9;&#9;&#9;&#9;return false;
+&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;}
+&#9;&#9;&#9;if (!timerSave) $.blockUI({ message: '&lt;h3&gt;' + please_wait + ' &lt;img src="/library/image/sakai/spinner.gif" /&gt;&lt;/h3&gt;', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
+&#9;&#9;});
+
+&#9;&#9;// If there's an honour or understand pledge present, disable all assessment buttons by default
+&#9;&#9;if($('#takeAssessmentForm\\:honor_pledge').length &gt; 0 || $("#takeAssessmentForm\\:understand_pledge").length &gt; 0) {
+&#9;&#9;&#9;allAssessmentButtonIds.forEach(function(buttonId) {
+&#9;&#9;&#9;&#9;var $button = $('#' + buttonId.replace(/:/g, '\\:'));
+&#9;&#9;&#9;&#9;if ($button.length &gt; 0) {
+&#9;&#9;&#9;&#9;&#9;$button.removeClass('active');
+&#9;&#9;&#9;&#9;&#9;$button.attr('disabled','disabled');
+&#9;&#9;&#9;&#9;}
+&#9;&#9;&#9;});
+&#9;&#9;}
+
+&#9;&#9;//Disable the back button
+&#9;&#9;disableBackButton("</f:verbatim><h:outputText value="#{deliveryMessages.use_form_navigation}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:verbatim>");
+
+&#9;&#9;if($('#submittedForm\\:renderTimeoutMessage').length &gt; 0){
+&#9;&#9;&#9;showTimerExpiredWarning(function() { ($('#timer-expired-warning').parent()).css('display', 'none');});
+&#9;&#9;}
+&#9;});
+
+&lt;/script&gt;
+</f:verbatim>
+</ui:composition>

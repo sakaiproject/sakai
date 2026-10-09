@@ -1,0 +1,97 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+&lt;!--
+
+--&gt;
+
+&lt;script src="/library/webjars/jquery/1.12.4/jquery.min.js"&gt;&lt;/script&gt;
+&lt;script src="/samigo-app/js/selection.author.preview.js"&gt;&lt;/script&gt;
+&lt;script src="/samigo-app/js/selection.student.preview.js"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css"&gt;
+&lt;link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css"&gt;
+
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}">
+&lt;script&gt;&#9;
+&#9;jQuery(window).load(function(){
+&#9;&#9;&#9;
+&#9;&#9;$('input:hidden[id^=hiddenSerializedCoords_]').each(function(){
+&#9;&#9;&#9;var myregexp = /hiddenSerializedCoords_(\d+)_(\d+)/
+&#9;&#9;&#9;var matches = myregexp.exec(this.id);
+&#9;&#9;&#9;var sequence = matches[1];
+&#9;&#9;&#9;var label = matches[2];
+&#9;&#9;&#9;
+&#9;&#9;&#9;var serializedImageCoords = this.id.replace('hiddenSequence', 'hiddenSerializedCoords').replace(/:/g, '\\:');
+&#9;&#9;&#9;
+&#9;&#9;&#9;var sel = new selectionAuthor({selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'imageMapContainer');
+&#9;&#9;&#9;try {
+&#9;&#9;&#9;&#9;sel.setCoords(jQuery.parseJSON(this.value));
+&#9;&#9;&#9;&#9;sel.setText(label);
+&#9;&#9;&#9;}catch(err){}
+&#9;&#9;&#9;
+&#9;&#9;});&#9;
+&#9;});
+&#9;
+&#9;var selectionList = [];
+&#9;function loadAnswer(answerString) {
+&#9;&#9;for(var i=0; i&lt;selectionList.length; i++)
+&#9;&#9;{
+&#9;&#9;&#9;selectionList[i].remove();
+&#9;&#9;&#9;delete selectionList[i];
+&#9;&#9;}
+&#9;&#9;selectionList = [];
+&#9;&#9;
+&#9;&#9;var tokens = answerString.split('&lt;br/&gt;');
+&#9;&#9;for(var i=0; i&lt;tokens.length; i++)
+&#9;&#9;{
+&#9;&#9;&#9;try
+&#9;&#9;&#9;{
+&#9;&#9;&#9;&#9;var label = tokens[i].substring(0, tokens[i].indexOf(':'));
+&#9;&#9;&#9;&#9;var coords = tokens[i].substring(tokens[i].indexOf(':')+1);
+&#9;&#9;&#9;&#9;var newSelection = new selectionStudent('pointerClass', 'imageMapContainer');
+&#9;&#9;&#9;&#9;newSelection.setCoords(jQuery.parseJSON(coords));
+&#9;&#9;&#9;&#9;newSelection.setText(label);
+&#9;&#9;&#9;&#9;selectionList.push(newSelection);
+&#9;&#9;&#9;}catch(err){}
+&#9;&#9;}
+&#9;}
+&lt;/script&gt;
+</f:verbatim><f:verbatim>
+
+</f:verbatim><h:outputText value="#{question.text}"  escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>
+
+</f:verbatim><h:dataTable value="#{question.itemTextArraySorted}" var="itemText" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"><f:verbatim>
+&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:outputText value="#{itemText.sequence}#{evaluationMessages.dot} #{itemText.text}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"/><f:verbatim>
+&#32;&#32;&#32;</f:verbatim><h:dataTable value="#{itemText.answerArraySorted}" var="answer" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"><f:verbatim>&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"><f:verbatim>&#32;
+&#9;&#32;&#32;&#32;</f:verbatim><h:outputText escape="false" value="&lt;input type=&#x27;hidden&#x27; id=&#x27;hiddenSerializedCoords_#{question.sequence}_#{itemText.sequence}&#x27; value=&#x27;#{answer.text}&#x27; /&gt;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>&#32;
+&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;</f:verbatim></h:dataTable><f:verbatim>
+&#32;</f:verbatim></h:column><f:verbatim>
+</f:verbatim></h:dataTable><f:verbatim>
+
+&lt;div id="imageMapContainer" class='authorImageContainer'&gt;
+    &lt;img id='img' src='</f:verbatim><h:outputText value="#{question.imageMapSrc}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>' alt='</f:verbatim><h:outputText value="#{question.imageMapAltText}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"/><f:verbatim>'/&gt;
+&lt;/div&gt;
+</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/evaluation/item/displayTags.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 10}"/></ui:include><f:verbatim>
+</f:verbatim>
+</ui:composition>

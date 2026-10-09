@@ -1,0 +1,97 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 1.0 (the"License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.opensource.org/licenses/ecl1.php
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>&lt;!-- $Id: gradeStudentResultAttachment.jsp 11254 2006-06-28 03:38:28Z daisyf@stanford.edu $
+
+--&gt;
+
+&lt;script&gt;
+function addAttachments(event, field){
+event.preventDefault();
+var insertlinkid= field.id.replace("addAttachments", "hiddenlink");
+var newindex = 0;
+for (i=0; i&lt;document.links.length; i++) {
+  if(document.links[i].id == insertlinkid)
+  {
+    newindex = i;
+    break;
+  }
+}
+
+document.links[newindex].click();
+}
+
+function addRemoveAttachments(event, field){
+event.preventDefault();
+var insertlinkid= field.id.replace("addRemoveAttachments", "hiddenlink");
+var newindex = 0;
+for (i=0; i&lt;document.links.length; i++) {
+  if(document.links[i].id == insertlinkid)
+  {
+    newindex = i;
+    break;
+  }
+}
+
+document.links[newindex].click();
+}
+
+&lt;/script&gt;
+
+&lt;!-- ASSESSMENT ATTACHMENTS --&gt;
+&#32;</f:verbatim><h:panelGrid border="0" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}"><f:verbatim>
+&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}">&lt;div class="longtext"&gt;</f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.attachments}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>
+&#32;&#32;</f:verbatim><h:panelGroup rendered="#{question.hasItemGradingAttachment}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:dataTable value="#{question.itemGradingAttachmentList}" var="attach" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/shared/mimeicon.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 6}"/></ui:include><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 36}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 37}">&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLink value="#{attach.location}" target="new_window" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 38}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{attach.filename}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 39}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 40}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 41}">&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 42}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:dataTable><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;</f:verbatim><h:panelGroup rendered="#{!question.hasItemGradingAttachment}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 43}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText escape="false" value="#{assessmentSettingsMessages.no_attachments}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 44}"/><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:commandButton tabindex="-1" value="#{assessmentSettingsMessages.add_attachments}" type="button" id="addAttachments" rendered="#{!question.hasItemGradingAttachment}"
+       style="act" onclick="addAttachments(event, this);" onkeypress="addAttachments(event, this);" /><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:commandButton tabindex="-1" value="#{assessmentSettingsMessages.add_remove_attachments}" type="button" id="addRemoveAttachments" rendered="#{question.hasItemGradingAttachment}"
+       style="act" onclick="addRemoveAttachments(event, this);" onkeypress="addRemoveAttachments(event, this);" /><f:verbatim>
+
+&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink tabindex="-1" id="hiddenlink" action="#{studentScores.addAttachmentsRedirect}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="itemGradingId" value="#{question.itemGradingIdForFilePicker}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 48}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreAttachmentListener"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+
+&#32;&#32;</f:verbatim></h:panelGrid><f:verbatim>
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 49}">&lt;/div&gt;</f:verbatim><f:verbatim>
+
+</f:verbatim>
+</ui:composition>

@@ -82,7 +82,7 @@ public class SamigoJsfViewAccessTest {
 
     @Test
     public void creationRequiresTheSpecificPermissionAcrossEveryMapping() {
-        for (String suffix : new String[] {"", ".jsp", ".faces", ".jsf", ".xml"}) {
+        for (String suffix : new String[] {"", ".jsp", ".xhtml", ".faces", ".jsf", ".xml"}) {
             for (String view : new String[] {"/jsf/qti/importAssessment", "/jsf/samlite/samLiteEntry",
                     "/jsf/samlite/samLiteValidation", "/jsf/author/createAssessment_title"}) {
                 assertFalse(view + suffix, SamigoJsfViewAccess.isAllowed(view + suffix, STUDENT::contains));

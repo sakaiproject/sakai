@@ -1,0 +1,100 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2005, 2006, 2013 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+***********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>&lt;!--
+* $Id: audioObject.jsp 6874 2006-03-22 17:01:47Z hquinn@stanford.edu $
+
+--&gt;
+</f:verbatim><h:panelGroup rendered="#{delivery.actionString != &#x27;reviewAssessment&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}"><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:panelGroup layout="block" styleClass="audio-recorder-header" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputFormat value="#{deliveryMessages.audio_recorder_header}" escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:panelGroup layout="block" styleClass="audio-recorder-container" id="audio-recorder"><f:verbatim>
+
+</f:verbatim><h:panelGroup styleClass="sakai-recorder-error sak-banner-error" layout="block" style="display:none" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 4}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputFormat value="#{deliveryMessages.audio_not_allowed} " escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><f:verbatim>&#32;
+</f:verbatim></h:panelGroup><f:verbatim>
+
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}">&lt;div class="audio-popup-question"&gt;</f:verbatim><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputFormat value="#{deliveryMessages.q} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText value="#{question.number}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 8}"/><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputFormat value=" #{deliveryMessages.of} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"/><f:verbatim>&#32;
+&#32;&#32;</f:verbatim><h:outputText value="#{part.questions}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"/><f:verbatim>
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}">&lt;/div&gt;</f:verbatim><f:verbatim>
+
+</f:verbatim><h:panelGroup styleClass="audio-popup-question-text" layout="block" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:outputText value="#{question.text} "  escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"/><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}">&lt;div class="audio-recorder-intro"&gt;</f:verbatim><f:verbatim>
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}">&lt;div class="time-allowed"&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_timelimit}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"><f:verbatim>&#32;</f:verbatim><f:param value="&lt;span class=&quot;audio-time-allowed&quot;&gt; &lt;/span&gt;"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 17}"/><f:verbatim>&#32;</f:verbatim></h:outputFormat><f:verbatim>
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 18}">&lt;/div&gt;</f:verbatim><f:verbatim>
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 19}">&lt;div class="attempts-allowed"&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_attempts_allowed} " escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 20}"/><f:verbatim>&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 21}">&lt;span class="audio-attempts-allowed"&gt; &lt;/span&gt;</f:verbatim><f:verbatim>
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 22}">&lt;/div&gt;</f:verbatim><f:verbatim>
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 23}">&lt;div class="attempts-remaining"&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_attempts_remaining} " escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 24}"/><f:verbatim>&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 25}">&lt;span class="audio-attempts"&gt; &lt;/span&gt;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 26}">&lt;span class="audio-last-attempt" style="display:none"&gt;</f:verbatim><f:verbatim>&#32;</f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_last_attempt} " escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 27}"/><f:verbatim>&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 28}">&lt;/span&gt;</f:verbatim><f:verbatim>
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 29}">&lt;/div&gt;</f:verbatim><f:verbatim>
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 30}">&lt;/div&gt;</f:verbatim><f:verbatim>
+
+</f:verbatim><h:panelGroup layout="block" styleClass="audio-browser-plea" style="display:none" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 31}"><h:outputFormat value=" #{deliveryMessages.audio_recorder_browser_plea}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 32}"/></h:panelGroup><f:verbatim>
+</f:verbatim><h:panelGroup layout="block" styleClass="audio-visual-container" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 33}"><f:verbatim>
+&#32;&#32;</f:verbatim><h:panelGroup layout="block" id="audio-analyzer" styleClass="audio-analyzer" /><f:verbatim>
+&#32;&#32;</f:verbatim><h:panelGroup layout="block" id="playback-analyzer" styleClass="playback-analyzer" style="display:none" /><f:verbatim>
+
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 36}">
+  &lt;div class="audio-controls"&gt;
+    &lt;div class="audio-statusbar" style="display:none"&gt; &lt;/div&gt;
+    &lt;div class="audio-levelbar"&gt; &lt;/div&gt;
+    &lt;div class="audio-timer-wrapper"&gt;
+      &lt;span class="audio-timer"&gt;0:00&lt;/span&gt;
+      &lt;div class="audio-scrubber"&gt; &lt;/div&gt;
+      &lt;span class="audio-max-time"&gt;30&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;button class="audio-record"&gt;</f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_record}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 37}"/><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 38}">&lt;/button&gt;
+    &lt;button class="audio-stop" disabled&gt;</f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_stop}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 39}"/><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 40}">&lt;/button&gt;
+    &lt;button class="audio-play" disabled&gt;</f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_play}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 41}"/><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 42}">&lt;/button&gt;
+    &lt;button class="btn btn-primary text-white audio-upload" disabled&gt;</f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_post}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 43}"/><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 44}">&lt;/button&gt;
+  &lt;/div&gt;
+
+&#32;&#32;
+  &lt;div class="audio-mic-check" style="display:none"&gt;
+    &lt;canvas class="volumemeter" width="16" height="54" style="background-color:#555;display:none"&gt;&lt;/canvas&gt;
+    &lt;button class="mic-check" onclick="microphoneCheck(this)" disabled="disabled"&gt; &lt;/button&gt;
+    &lt;span&gt;</f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_mic_check}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 45}"/><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 46}">&lt;/span&gt;
+  &lt;/div&gt;</f:verbatim><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+
+
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 47}">
+  &lt;audio class="audio-html5" style="display:none"&gt; &lt;/audio&gt;
+  &lt;div class="audio-debug-log" style="display:none"&gt;
+    &lt;h2&gt;Log&lt;/h2&gt;
+    &lt;pre class="log"&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+&#32;&#32;</f:verbatim><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>&lt;!-- End audio-recorder-container --&gt;
+</f:verbatim></h:panelGroup><f:verbatim>
+</f:verbatim>
+</ui:composition>

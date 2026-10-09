@@ -1,0 +1,71 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2008 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+
+
+
+
+&lt;!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+
+&lt;!--
+* $Id: isRetractedForError2.jsp 22618 2007-03-14 19:58:35Z $
+
+--&gt;
+&#32;&#32;</f:verbatim><f:view><f:verbatim>
+    &lt;html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"&gt;
+      &lt;head&gt;</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.head&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.head&#x27;]}"/><f:verbatim>
+      &lt;title&gt;&#32;</f:verbatim><h:outputText value="#{delivery.assessmentTitle}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}"/><f:verbatim>
+      &lt;/title&gt;
+      &lt;/head&gt;
+       &lt;body onload="</f:verbatim><samigo:literal value="#{requestScope[&#x27;html.body.onload&#x27;] == null ? &#x27;null&#x27; : requestScope[&#x27;html.body.onload&#x27;]}"/><f:verbatim>;"&gt;
+
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText  escape="false"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"><f:attribute name="value" value="&lt;a name=&#x27;top&#x27;&gt;&lt;/a&gt;"/></h:outputText><f:verbatim>
+&lt;div class="portletBody"&gt;
+&#32;</f:verbatim><h:outputText value="&lt;div style=&#x27;#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}&#x27;&gt;" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"/><f:verbatim>
+
+&lt;!-- content... --&gt;
+</f:verbatim><h:form id="isRetractedForError2" enctype="multipart/form-data"><f:verbatim>
+
+&lt;!-- JAVASCRIPT --&gt;
+</f:verbatim><ui:include src="/WEB-INF/samigo-views/js/delivery.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 5}"/></ui:include><f:verbatim>
+
+&lt;!-- HEADING --&gt;
+</f:verbatim><f:subview id="assessmentDeliveryHeading"><f:verbatim>
+</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/delivery/assessmentDeliveryHeading.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 6}"/></ui:include><f:verbatim>
+</f:verbatim></f:subview><f:verbatim>
+
+&#32;&#32;</f:verbatim><h:panelGroup styleClass="sak-banner-error" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 81}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGrid  columns="1" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 82}"><f:verbatim>
+&#9;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.is_retracted_for_edit2}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 83}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.feedback_not_available}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 84}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGrid><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+</f:verbatim></h:form><f:verbatim>
+&lt;!-- end content --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+    &lt;/body&gt;
+  &lt;/html&gt;
+</f:verbatim></f:view><f:verbatim>
+</f:verbatim>
+</ui:composition>

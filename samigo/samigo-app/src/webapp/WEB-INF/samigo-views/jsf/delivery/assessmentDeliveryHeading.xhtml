@@ -1,0 +1,116 @@
+<!--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.osedu.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:samigo="http://www.sakaiproject.org/samigo" xmlns:sakai="http://sakaiproject.org/jsf2/sakai" xmlns:corejsf="http://java.sun.com/upload" xmlns:p="http://java.sun.com/jsf/passthrough">
+
+<f:verbatim>
+&lt;!--
+
+--&gt;
+
+</f:verbatim><h:panelGroup rendered="#{delivery.actionString!=&#x27;previewAssessment&#x27; &amp;&amp; delivery.hasTimeLimit}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 0}"><f:verbatim>
+&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 1}">&lt;div style="height:60px;"&gt;&amp;nbsp;&amp;nbsp;&lt;/div&gt;</f:verbatim><f:verbatim>
+</f:verbatim></h:panelGroup><f:verbatim>
+
+
+&lt;h1&gt;
+&#32;&#32;&#32;</f:verbatim><h:outputText value="#{delivery.assessmentTitle}" escape="false" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 2}"/><f:verbatim>
+&lt;/h1&gt;
+
+&lt;div id="timerPosition"&gt;&lt;/div&gt;
+
+
+  &lt;ul class="navIntraTool actionToolbar" role="menu"&gt;
+&#32;&#32;</f:verbatim><h:panelGroup rendered="#{delivery.showFeedbackLink}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 3}"><f:verbatim>
+    &lt;li role="menuitem" class="firstToolBarItem"&gt;&lt;span&gt;
+
+&lt;!-- SHOW FEEDBACK LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:commandLink title="#{commonMessages.feedback}" action="#{delivery.getOutcome}"
+       id="showFeedback" onclick="questionProgress.blockLink(this); saveTime(); serializeImagePoints();"
+       rendered="#{(delivery.actionString==&#x27;takeAssessment&#x27;&#10;                || delivery.actionString==&#x27;takeAssessmentViaUrl&#x27;)}" ><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.show_feedback}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 5}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:param name="showfeedbacknow" value="true"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 6}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.ShowFeedbackActionListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+
+&lt;!-- SHOW FEEDBACK LINK FOR PREVIEW ASSESSMENT --&gt;
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.show_feedback_preview}"
+         rendered="#{delivery.actionString==&#x27;previewAssessment&#x27;}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 7}"/><f:verbatim>
+
+  &lt;/span&gt;&lt;/li&gt;
+&#32;&#32;</f:verbatim></h:panelGroup ><f:verbatim>
+
+
+&lt;!-- TABLE OF CONTENT LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL --&gt;
+  &lt;li role="menuitem"&gt;&lt;span&gt;
+&#32;&#32;</f:verbatim><h:commandLink title="#{deliveryMessages.t_tableOfContents}" action="#{delivery.getOutcome}"
+     id="showTOC" onclick="questionProgress.blockLink(this); saveTime(); serializeImagePoints();"
+     rendered="#{(delivery.actionString==&#x27;takeAssessment&#x27;&#10;                   || delivery.actionString==&#x27;takeAssessmentViaUrl&#x27;)&#10;               &amp;&amp; delivery.navigation ne &#x27;1&#x27;}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.table_of_contents}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 9}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.TableOfContentsActionListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+
+
+&lt;!-- TABLE OF CONTENT LINK FOR PREVIEW ASSESSMENT --&gt;
+&#32;</f:verbatim><h:commandLink title="#{deliveryMessages.t_tableOfContents}" action="tableOfContents" onmouseup="saveTime();"
+    rendered="#{delivery.actionString==&#x27;previewAssessment&#x27;&#10;             &amp;&amp; delivery.navigation ne &#x27;1&#x27;}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 10}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.table_of_contents}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 11}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" /><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+
+
+&lt;!-- RETURN TO ASSESSMENT PAGE LINK FOR REVIEW ASSESSMENT --&gt;
+&#32;&#32;</f:verbatim><h:commandLink action="select" title="#{deliveryMessages.t_returnAssessmentList}"
+     rendered="#{delivery.showReturnToAssessmentLink}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 12}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" /><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{deliveryMessages.button_return_select}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 13}"/><f:verbatim>
+&#32;&#32;</f:verbatim></h:commandLink><f:verbatim>
+  &lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- GRADER COMMENT FOR REVIEW ASSESSMENT --&gt;
+</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 14}">&lt;br /&gt;</f:verbatim><f:verbatim>&#32;
+</f:verbatim><h:panelGrid rendered="#{delivery.feedbackComponent.showGraderComment &amp;&amp; delivery.actionString==&#x27;reviewAssessment&#x27; &#10;&#9;&#9;&#9;&#9;&#9;&amp;&amp; (delivery.graderComment ne &#x27;&#x27; || delivery.hasAssessmentGradingAttachment)}" columns="1" border="0" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 15}"><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim><h:panelGroup id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 16}"><f:verbatim>&#32;&#32;
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.comment}#{deliveryMessages.column} "  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 17}"/><f:verbatim>
+&#9;&#32;&#32;</f:verbatim><h:outputText id="commentSC" value="#{delivery.graderComment}" escape="false" rendered="#{delivery.graderComment ne &#x27;&#x27;}"/><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;&#32;&#32;
+&#9;</f:verbatim><h:panelGroup rendered="#{delivery.hasAssessmentGradingAttachment}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 19}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:dataTable value="#{delivery.assessmentGradingAttachmentList}" var="attach" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 20}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 21}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/shared/mimeicon.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 22}"/></ui:include><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 52}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 53}">&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputLink value="#{attach.location}" target="new_window" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 54}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText value="#{attach.filename}"  id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 55}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:outputLink><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:column id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 56}"><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><f:verbatim id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 57}">&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;</f:verbatim><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim><h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}" id="#{_samigoLegacyPrefix}_#{_samigoLegacyOffset + 58}"/><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:column><f:verbatim>
+&#32;&#32;&#32;&#32;&#32;&#32;</f:verbatim></h:dataTable><f:verbatim>
+&#32;&#32;&#32;&#32;</f:verbatim></h:panelGroup><f:verbatim>
+&#32;&#32;</f:verbatim></h:panelGrid><f:verbatim>
+
+</f:verbatim><ui:include src="/WEB-INF/samigo-views/jsf/delivery/assessmentDeliveryTimer.xhtml"><ui:param name="_samigoLegacyPrefix" value="#{_samigoLegacyPrefix}"/><ui:param name="_samigoLegacyOffset" value="#{_samigoLegacyOffset + 59}"/></ui:include><f:verbatim>
+
+</f:verbatim>
+</ui:composition>
