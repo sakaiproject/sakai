@@ -16,53 +16,83 @@
 
 package org.sakaiproject.tool.assessment.services;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.reset;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.SerializationUtils;
+import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
-import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.assessment.data.dao.assessment.*;
+import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.*;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-
-public class ItemCancellationTest {
+@ContextConfiguration(classes = SamigoCancellationTestConfiguration.class)
+public class ItemCancellationTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 
     private static final double SCORE_MAX_DELTA = 0.0;
 
 
-    private static AtomicLong atomicId;
-    private static PublishedAssessmentService publishedAssessmentService;
+    private long nextId;
+    @Autowired private PublishedAssessmentService publishedAssessmentService;
+    @Autowired private PersistenceService persistenceService;
+    @Autowired private SessionFactory sessionFactory;
+    @Autowired private SiteService siteService;
+    @Autowired private ToolManager toolManager;
+    @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private ApplicationContext applicationContext;
 
+    @BeforeClass
+    public static void initializeLocators() {
+        ComponentManager.testingMode = true;
+    }
 
     @Before
-    public void setUp() {
-        publishedAssessmentService = mock(PublishedAssessmentService.class);
-        doCallRealMethod().when(publishedAssessmentService).preparePublishedItemCancellation(any());
-        doCallRealMethod().when(publishedAssessmentService).preparePublishedItemHash(any());
-
-        atomicId = new AtomicLong();
+    public void setUp() throws Exception {
+        nextId = 0;
+        reset(siteService, toolManager, userDirectoryService);
+        ComponentManager.loadComponent("agentHelper", applicationContext.getBean("agentHelper"));
+        ComponentManager.loadComponent("gradebookServiceHelper", applicationContext.getBean("gradebookServiceHelper"));
+        ComponentManager.loadComponent(org.sakaiproject.grading.api.GradingService.class,
+                applicationContext.getBean(org.sakaiproject.grading.api.GradingService.class));
+        ComponentManager.loadComponent("PersistenceService", persistenceService);
+        ComponentManager.loadComponent(SiteService.class, siteService);
+        ComponentManager.loadComponent(ToolManager.class, toolManager);
+        ComponentManager.loadComponent(UserDirectoryService.class, userDirectoryService);
+        Placement placement = mock(Placement.class);
+        when(placement.getContext()).thenReturn("cancellation-site");
+        when(toolManager.getCurrentPlacement()).thenReturn(placement);
+        User user = mock(User.class);
+        when(user.getId()).thenReturn("instructor");
+        when(userDirectoryService.getCurrentUser()).thenReturn(user);
+        Site site = mock(Site.class);
+        when(site.getGroups()).thenReturn(new ArrayList<>());
+        when(siteService.getSite("cancellation-site")).thenReturn(site);
     }
 
     @Test
@@ -190,45 +220,87 @@ public class ItemCancellationTest {
     }
 
     private void assertItemCancellation(ItemDataIfc[] testItems, ItemDataIfc[] cancelledTestItems, int cancelItemIndex) {
-        // The method getAssessment is called when cancellation is done, we can ignore it
-        when(publishedAssessmentService.getAssessment(anyString())).thenReturn(new AssessmentFacade());
-
-        // Create a mock of publishedAssessment and add one section with out testItems
-        PublishedAssessmentFacade publishedAssessment = mock(PublishedAssessmentFacade.class);
-        List<SectionDataIfc> sectionList = new ArrayList<>();
-        sectionList.add(createSection(SerializationUtils.clone(testItems)));
-        when(publishedAssessment.getSectionArray()).thenReturn((ArrayList<SectionDataIfc>) sectionList);
-
-        // Get testItems from stubbed saveItem method
-        List<ItemDataIfc> savedItemList = new ArrayList<>();
-        doAnswer(invocation -> {
-            ItemDataIfc item = invocation.getArgument(0);
-            savedItemList.add(item);
-            return null;
-        }).when(publishedAssessmentService).saveItem(any());
-
-        // Call cancellation process
-        publishedAssessmentService.preparePublishedItemCancellation(publishedAssessment);
-
-        // Convert "saved" items to array
-        ItemDataIfc[] savedItems = savedItemList.toArray(new ItemDataIfc[savedItemList.size()]);
-
-        // Test if we have same number of items
+        PublishedAssessmentFacade assessment = persistAssessment(testItems);
+        publishedAssessmentService.preparePublishedItemCancellation(assessment);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        List<ItemDataIfc> savedItemList = new ArrayList<>(publishedAssessmentService.preparePublishedItemHash(
+                publishedAssessmentService.getPublishedAssessment(assessment.getId())).values());
+        savedItemList.sort((first, second) -> first.getSequence().compareTo(second.getSequence()));
+        ItemDataIfc[] savedItems = savedItemList.toArray(new ItemDataIfc[0]);
         Assert.assertEquals(cancelledTestItems.length, savedItems.length);
-
-        // Test if item-cancellation has been set
         Assert.assertEquals(cancelledTestItems[cancelItemIndex].getCancellation(), savedItems[cancelItemIndex].getCancellation());
-
-        // Test if items have the same scores
         for (int i = 0; i < testItems.length; i++) {
+            Assert.assertEquals(cancelledTestItems[i].getCancellation(), savedItems[i].getCancellation());
             assertItemScoreEquals(cancelledTestItems[i], savedItems[i]);
-        }
-
-        // Test if items have the same scores set for the answers
-        for (int i = 0; i < testItems.length; i++) {
             assertItemAnswerScoresEqual(cancelledTestItems[i], savedItems[i]);
         }
+    }
 
+    private PublishedAssessmentFacade persistAssessment(ItemDataIfc[] input) {
+        Date now = Date.from(Instant.now());
+        PublishedAssessmentData data = new PublishedAssessmentData();
+        data.setTitle("Cancellation allocation fixture");
+        data.setStatus(1);
+        data.setCreatedBy("instructor");
+        data.setCreatedDate(now);
+        data.setLastModifiedBy("instructor");
+        data.setLastModifiedDate(now);
+        data.setAssessmentMetaDataSet(new HashSet<>());
+        PublishedEvaluationModel evaluation = new PublishedEvaluationModel();
+        evaluation.setAssessment(data);
+        evaluation.setToGradeBook(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString());
+        data.setEvaluationModel(evaluation);
+        PublishedAccessControl access = new PublishedAccessControl();
+        access.setAssessment(data);
+        access.setReleaseTo("cancellation-site");
+        data.setAssessmentAccessControl(access);
+        PublishedSectionData section = new PublishedSectionData(0, 1, "Part", "", 1L, 1, "instructor", now, "instructor", now);
+        section.setAssessment(data);
+        section.setSectionMetaDataSet(new HashSet<>());
+        Set<PublishedItemData> items = new HashSet<>();
+        for (int index = 0; index < input.length; index++) {
+            ItemDataIfc source = input[index];
+            PublishedItemData item = new PublishedItemData();
+            item.setSection(section);
+            item.setSequence(index);
+            item.setTypeId(TypeIfc.TRUE_FALSE);
+            item.setScore(source.getScore());
+            item.setDiscount(0D);
+            item.setCancellation(source.getCancellation());
+            item.setIsFixed(true);
+            item.setIsExtraCredit(false);
+            item.setStatus(1);
+            item.setCreatedBy("instructor");
+            item.setCreatedDate(now);
+            item.setLastModifiedBy("instructor");
+            item.setLastModifiedDate(now);
+            item.setHash("question-" + index);
+            item.setItemMetaDataSet(new HashSet<>());
+            item.setItemAttachmentSet(new HashSet<>());
+            Set<PublishedItemText> texts = new HashSet<>();
+            for (ItemTextIfc originalText : source.getItemTextArray()) {
+                PublishedItemText text = new PublishedItemText(item, originalText.getSequence(), "Question", new HashSet<>());
+                for (AnswerIfc originalAnswer : originalText.getAnswerArray()) {
+                    text.getAnswerSet().add(new PublishedAnswer(text, "True", originalAnswer.getSequence(), "A", true, "",
+                            originalAnswer.getScore(), 100D, 0D));
+                }
+                texts.add(text);
+            }
+            item.setItemTextSet(texts);
+            items.add(item);
+        }
+        section.setItemSet(items);
+        data.setSectionSet(new HashSet<>(Set.of(section)));
+        sessionFactory.getCurrentSession().persist(data);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().persist(new AuthorizationData("cancellation-site", "OWN_PUBLISHED_ASSESSMENT",
+                data.getPublishedAssessmentId().toString(), now, null, "instructor", now, true));
+        sessionFactory.getCurrentSession().persist(new AuthorizationData("cancellation-site", "TAKE_PUBLISHED_ASSESSMENT",
+                data.getPublishedAssessmentId().toString(), now, null, "instructor", now, true));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        return publishedAssessmentService.getPublishedAssessment(data.getPublishedAssessmentId().toString());
     }
 
     private void assertItemScoreEquals(ItemDataIfc item1, ItemDataIfc item2) {
@@ -246,16 +318,6 @@ public class ItemCancellationTest {
                 .toArray();
 
         Assert.assertArrayEquals(item1Scores, item2Scores, SCORE_MAX_DELTA);
-    }
-
-    private SectionDataIfc createSection(ItemDataIfc[] items) {
-        SectionDataIfc section = mock(SectionData.class);
-
-        ArrayList<ItemDataIfc> itemList = new ArrayList<>(Arrays.asList(items));
-
-        when(section.getItemArray()).thenReturn(itemList);
-
-        return section;
     }
 
     private ItemDataIfc createItem(long id, int sequence, Double score, int itemTextCount, int answerCount, int cancellation) {
@@ -276,7 +338,7 @@ public class ItemCancellationTest {
 
     private ItemTextIfc createItemText(Long sequence, Double score, int answerCount) {
         ItemTextIfc itemText = new ItemText();
-        itemText.setId(atomicId.getAndIncrement());
+        itemText.setId(nextId++);
         itemText.setSequence(sequence);
 
         List<AnswerIfc> answerList = new ArrayList<>();
@@ -290,8 +352,8 @@ public class ItemCancellationTest {
 
     private AnswerIfc createAnswer(Long sequence, Double score) {
         AnswerIfc answer = new Answer();
-        answer.setItem(mock(ItemData.class));
-        answer.setId(atomicId.getAndIncrement());
+        answer.setItem(new ItemData());
+        answer.setId(nextId++);
         answer.setSequence(sequence);
         answer.setScore(score);
 

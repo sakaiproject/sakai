@@ -29,11 +29,11 @@ import java.util.Map;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
@@ -948,7 +948,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, true) ) {
 				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
@@ -1010,7 +1010,7 @@ public class LTI13Servlet extends HttpServlet {
 		String authorization = request.getHeader("authorization");
 
 		if (authorization == null || !authorization.startsWith("Bearer")) {
-			log.error("Invalid authorization {}", authorization);
+			log.error("Invalid authorization header");
 			LTI13Util.return400(response, "invalid_authorization");
 			return;
 		}
@@ -1018,7 +1018,7 @@ public class LTI13Servlet extends HttpServlet {
 		// https://stackoverflow.com/questions/7899525/how-to-split-a-string-by-space/7899558
 		String[] parts = authorization.split("\\s+");
 		if (parts.length != 2 || parts[1].length() < 1) {
-			log.error("Bad authorization {}", authorization);
+			log.error("Malformed authorization header");
 			LTI13Util.return400(response, "invalid_authorization");
 			return;
 		}
@@ -1215,6 +1215,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		Site site = null;
 		LtiToolBean tool = null;
+		boolean sendEmptyListInsteadOf403 = false;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
@@ -1253,9 +1254,8 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
-				// checkToolHasPlacements() already logs and writes the 403 response.
-				return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, false) ) {
+				sendEmptyListInsteadOf403 = true;
 			}
 
 		}
@@ -1274,8 +1274,6 @@ public class LTI13Servlet extends HttpServlet {
 		*/
 
 		String maintainRole = site.getMaintainRole();
-
-		PrintWriter out = null;
 
 		SakaiLTIUtil.pushAdvisor();
 		try {
@@ -1305,7 +1303,7 @@ public class LTI13Servlet extends HttpServlet {
 				memberMap.put(member.getUserId(), member);
 			}
 
-			List<User> users = UserDirectoryService.getUsers(userIds);
+			List<User> users = sendEmptyListInsteadOf403 ? new ArrayList<>() : UserDirectoryService.getUsers(userIds);
 
 			String roleMapProp = tool.rolemap;
 			Map<String, String> toolRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
@@ -1346,6 +1344,17 @@ public class LTI13Servlet extends HttpServlet {
 				log.debug("Link: {}", linkHeader);
 			    response.addHeader("Link", linkHeader);
 			}
+
+			JSONObject context = new JSONObject();
+			context.put("id", site.getId());
+			context.put("title", site.getTitle());
+
+			JSONArray responseMembers = new JSONArray();
+			JSONObject membershipResponse = new JSONObject();
+			membershipResponse.put("id",
+					getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement);
+			membershipResponse.put("context", context);
+			membershipResponse.put("members", responseMembers);
 
 			int current = 0;
 			for (User user : users) {
@@ -1439,35 +1448,15 @@ public class LTI13Servlet extends HttpServlet {
 
 				jo.put("sakai_ext", sakai_ext);
 
-				if (out == null) {
-						JSONObject context_obj = new JSONObject();
-						context_obj.put("id", site.getId());
-						context_obj.put("title", site.getTitle());
-
-						response.setContentType(APPLICATION_JSON);
-						out = response.getWriter();
-						out.println("{");
-						String currentUrl = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
-						out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+",");
-						out.println(" \"context\" : ");
-						log.debug("context_obj={}", JacksonUtil.prettyPrint(context_obj));
-						out.print(JacksonUtil.prettyPrint(context_obj));
-						out.println(",");
-						out.println(" \"members\": [");
-				} else {
-						out.println(",");
-				}
-
 				log.debug("jo={}", JacksonUtil.prettyPrint(jo));
 
-				out.print(JacksonUtil.prettyPrint(jo));
+				responseMembers.add(jo);
 				current++;
 
 			}
-			if ( out != null ) {
-				out.println("");
-				out.println(" ] }");
-			}
+			response.setContentType(APPLICATION_JSON);
+			PrintWriter out = response.getWriter();
+			out.println(JacksonUtil.prettyPrint(membershipResponse));
 		} finally {
 			SakaiLTIUtil.popAdvisor();
 		}
@@ -1519,7 +1508,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Don't let a tool access groups unless it is placed *somewhere* in this site
-		if ( ! checkToolHasPlacements(sat.tool_id, site_id, response) ) {
+		if ( ! checkToolHasPlacements(sat.tool_id, site_id, response, true) ) {
 			// checkToolHasPlacements() already logs and writes the 403 response.
 			return;
 		}
@@ -1764,14 +1753,16 @@ public class LTI13Servlet extends HttpServlet {
 		return userExistsInSite;
 	}
 
-	protected static boolean checkToolHasPlacements(Long toolId, String siteId, HttpServletResponse response)
+	protected static boolean checkToolHasPlacements(Long toolId, String siteId, HttpServletResponse response, boolean send403)
 	{
 		List<LtiContentBean> contents =
 			ltiService.getContentsForToolAndSite(toolId, siteId);
 
 		if (contents.isEmpty()) {
 			log.warn("Tool id={} has no placements in site={}", toolId, siteId);
-			LTI13Util.return403(response, "Tool not placed in site");
+			if (send403) {
+			    LTI13Util.return403(response, "Tool not placed in site");
+			}
 			return false;
 		}
 		return true;
@@ -1958,7 +1949,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, true) ) {
 				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
@@ -2066,7 +2057,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, true) ) {
 				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
@@ -2150,6 +2141,7 @@ public class LTI13Servlet extends HttpServlet {
 		Site site = null;
 		LtiToolBean tool = null;
 		LtiContentBean content = null;
+		boolean sendEmptyListInsteadOf403 = false;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
@@ -2188,9 +2180,12 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
-				// checkToolHasPlacements() already logs and writes the 403 response.
-				return;
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, false) ) {
+				if (!all) {
+					LTI13Util.return404(response, "Line item not found");
+					return;
+				}
+				sendEmptyListInsteadOf403 = true;
 			}
 
 		}
@@ -2217,8 +2212,9 @@ public class LTI13Servlet extends HttpServlet {
 			log.debug("filter={}", JacksonUtil.prettyPrint(filter));
 		}
 		boolean gradebookReadonlyView = isGradebookReadonlyView(tool);
-		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter,
-				gradebookReadonlyView);
+		List<SakaiLineItem> toolItems = (sendEmptyListInsteadOf403)
+		    ? new ArrayList<>()
+		    : LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter, gradebookReadonlyView);
 
 		response.setContentType(SakaiLineItem.CONTENT_TYPE_CONTAINER);
 		PrintWriter out = response.getWriter();
@@ -2315,7 +2311,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, true) ) {
 				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}
@@ -2563,7 +2559,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) {
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response, true) ) {
 				// checkToolHasPlacements() already logs and writes the 403 response.
 				return;
 			}

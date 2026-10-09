@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.view.SiteStatsApiUrls;
+import org.sakaiproject.sitestats.api.view.SiteStatsResourceSearchService;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsServerWideReportIds;
 import org.sakaiproject.sitestats.tool.mvc.SiteStatsToolExportService.ExportResult;
@@ -56,6 +57,7 @@ public class SiteStatsController {
     private final SiteStatsToolService toolService;
     private final SiteStatsToolExportService exportService;
     private final MessageSource messageSource;
+    private final SiteStatsResourceSearchService resourceSearchService;
 
     @GetMapping({"/", "/index.html"})
     public String index(RedirectAttributes redirectAttributes) {
@@ -63,7 +65,7 @@ public class SiteStatsController {
     }
 
     @GetMapping("/home")
-    public String overview(@RequestParam(required = false) String siteId, Model model) {
+    public String overview(@RequestParam(name = "siteId", required = false) String siteId, Model model) {
         OverviewResult result = toolService.overviewWithEndpoints(siteId);
         commonModel(model, result.getOverview().getSiteId(), "overview");
         model.addAttribute("overview", result.getOverview());
@@ -75,7 +77,7 @@ public class SiteStatsController {
     }
 
     @GetMapping("/reports")
-    public String reports(@RequestParam(required = false) String siteId, Model model) {
+    public String reports(@RequestParam(name = "siteId", required = false) String siteId, Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);
         commonModel(model, authorizedSiteId, "reports");
         model.addAttribute("reports", toolService.reports(authorizedSiteId));
@@ -83,7 +85,7 @@ public class SiteStatsController {
     }
 
     @GetMapping("/reports/new")
-    public String newReport(@RequestParam(required = false) String siteId, Model model) {
+    public String newReport(@RequestParam(name = "siteId", required = false) String siteId, Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);
         SiteStatsReportForm form = toolService.newReportForm();
         commonReportForm(model, authorizedSiteId, form);
@@ -92,13 +94,21 @@ public class SiteStatsController {
 
     @GetMapping("/reports/users")
     @ResponseBody
-    public List<SiteStatsToolService.NamedOption> reportUsers(@RequestParam(required = false) String siteId,
-            @RequestParam String q) {
+    public List<SiteStatsToolService.NamedOption> reportUsers(@RequestParam(name = "siteId", required = false) String siteId,
+            @RequestParam("q") String q) {
         return toolService.searchReportUsers(siteId, q);
     }
 
+    @GetMapping(value = "/reports/resources", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<List<SiteStatsResourceSearchService.ResourceOption>> reportResources(
+            @RequestParam(name = "siteId", required = false) String siteId) {
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .body(resourceSearchService.resources(toolService.reportSite(siteId)));
+    }
+
     @GetMapping("/reports/{reportId}/edit")
-    public String editReport(@PathVariable long reportId, @RequestParam(required = false) String siteId, Model model) {
+    public String editReport(@PathVariable("reportId") long reportId, @RequestParam(name = "siteId", required = false) String siteId, Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);
         SiteStatsReportForm form = toolService.editReportForm(authorizedSiteId, reportId);
         commonReportForm(model, authorizedSiteId, form);
@@ -106,8 +116,8 @@ public class SiteStatsController {
     }
 
     @PostMapping("/reports/save")
-    public String saveReport(@RequestParam(required = false) String siteId, @ModelAttribute SiteStatsReportForm reportForm,
-            @RequestParam String action, Model model, RedirectAttributes redirectAttributes) {
+    public String saveReport(@RequestParam(name = "siteId", required = false) String siteId, @ModelAttribute SiteStatsReportForm reportForm,
+            @RequestParam("action") String action, Model model, RedirectAttributes redirectAttributes) {
         String authorizedSiteId = toolService.reportSite(siteId);
         String validationCode = toolService.validateReport(authorizedSiteId, reportForm);
         if (validationCode != null) {
@@ -126,7 +136,7 @@ public class SiteStatsController {
     }
 
     @PostMapping("/reports/{reportId}/copy")
-    public String copyReport(@PathVariable long reportId, @RequestParam(required = false) String siteId,
+    public String copyReport(@PathVariable("reportId") long reportId, @RequestParam(name = "siteId", required = false) String siteId,
             RedirectAttributes redirectAttributes) {
         CopiedReport copiedReport = toolService.copyReport(siteId, reportId);
         redirectAttributes.addFlashAttribute("success", message("report_copy_success"));
@@ -134,7 +144,7 @@ public class SiteStatsController {
     }
 
     @PostMapping("/reports/{reportId}/delete")
-    public String deleteReport(@PathVariable long reportId, @RequestParam(required = false) String siteId,
+    public String deleteReport(@PathVariable("reportId") long reportId, @RequestParam(name = "siteId", required = false) String siteId,
             RedirectAttributes redirectAttributes) {
         String authorizedSiteId = toolService.reportSite(siteId);
         toolService.deleteReport(authorizedSiteId, reportId);
@@ -143,7 +153,7 @@ public class SiteStatsController {
     }
 
     @GetMapping("/reports/{reportId}")
-    public String report(@PathVariable long reportId, @RequestParam(required = false) String siteId, Model model) {
+    public String report(@PathVariable("reportId") long reportId, @RequestParam(name = "siteId", required = false) String siteId, Model model) {
         ReportDef report = toolService.reportDefinition(siteId, reportId);
         commonModel(model, report.getSiteId(), "reports");
         model.addAttribute("report", report);
@@ -153,7 +163,7 @@ public class SiteStatsController {
     }
 
     @GetMapping("/reports/preview/{previewId}/edit")
-    public String editPreview(@PathVariable String previewId, @RequestParam(required = false) String siteId,
+    public String editPreview(@PathVariable("previewId") String previewId, @RequestParam(name = "siteId", required = false) String siteId,
             Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);
         commonReportForm(model, authorizedSiteId, toolService.previewReportForm(authorizedSiteId, previewId));
@@ -161,7 +171,7 @@ public class SiteStatsController {
     }
 
     @GetMapping("/reports/preview/{previewId}")
-    public String preview(@PathVariable String previewId, @RequestParam(required = false) String siteId, Model model) {
+    public String preview(@PathVariable("previewId") String previewId, @RequestParam(name = "siteId", required = false) String siteId, Model model) {
         String authorizedSiteId = toolService.reportSite(siteId);
         ReportDef report = toolService.previewReportDefinition(authorizedSiteId, previewId);
         commonModel(model, authorizedSiteId, "reports");
@@ -173,21 +183,21 @@ public class SiteStatsController {
     }
 
     @GetMapping("/reports/{reportId}/export/{format}")
-    public ResponseEntity<byte[]> exportReport(@PathVariable long reportId, @PathVariable String format,
-            @RequestParam(required = false) String siteId) {
+    public ResponseEntity<byte[]> exportReport(@PathVariable("reportId") long reportId, @PathVariable("format") String format,
+            @RequestParam(name = "siteId", required = false) String siteId) {
         String authorizedSiteId = toolService.reportSite(siteId);
         return export(exportService.persistedReport(authorizedSiteId, reportId, format));
     }
 
     @GetMapping("/reports/preview/{previewId}/export/{format}")
-    public ResponseEntity<byte[]> exportPreview(@PathVariable String previewId, @PathVariable String format,
-            @RequestParam(required = false) String siteId) {
+    public ResponseEntity<byte[]> exportPreview(@PathVariable("previewId") String previewId, @PathVariable("format") String format,
+            @RequestParam(name = "siteId", required = false) String siteId) {
         String authorizedSiteId = toolService.reportSite(siteId);
         return export(exportService.previewReport(authorizedSiteId, previewId, format));
     }
 
     @GetMapping("/preferences")
-    public String preferences(@RequestParam(required = false) String siteId, Model model) {
+    public String preferences(@RequestParam(name = "siteId", required = false) String siteId, Model model) {
         PreferencesResult result = toolService.preferences(siteId);
         commonModel(model, result.getSiteId(), "preferences");
         model.addAttribute("preferencesForm", result.getForm());
@@ -199,7 +209,7 @@ public class SiteStatsController {
     }
 
     @PostMapping("/preferences")
-    public String savePreferences(@RequestParam(required = false) String siteId,
+    public String savePreferences(@RequestParam(name = "siteId", required = false) String siteId,
             @ModelAttribute PreferencesForm preferencesForm, RedirectAttributes redirectAttributes) {
         String authorizedSiteId = toolService.reportSite(siteId);
         toolService.savePreferences(authorizedSiteId, preferencesForm);
@@ -208,7 +218,7 @@ public class SiteStatsController {
     }
 
     @GetMapping("/useractivity")
-    public String userActivity(@RequestParam(required = false) String siteId,
+    public String userActivity(@RequestParam(name = "siteId", required = false) String siteId,
             @ModelAttribute UserActivityForm userActivityForm, Model model) {
         SiteStatsToolService.UserActivityResult result = toolService.userActivity(siteId, userActivityForm);
         commonModel(model, result.getSiteId(), "useractivity");
@@ -218,8 +228,8 @@ public class SiteStatsController {
     }
 
     @GetMapping("/useractivity/events/{eventId}")
-    public String userActivityDetails(@PathVariable long eventId,
-            @RequestParam(required = false) String siteId,
+    public String userActivityDetails(@PathVariable("eventId") long eventId,
+            @RequestParam(name = "siteId", required = false) String siteId,
             @ModelAttribute UserActivityForm userActivityForm, Model model) {
         SiteStatsToolService.EventDetailsResult result = toolService.eventDetails(siteId, eventId);
         commonModel(model, result.getSiteId(), "useractivity");
@@ -229,8 +239,8 @@ public class SiteStatsController {
     }
 
     @GetMapping("/admin")
-    public String admin(@RequestParam(required = false) String search, @RequestParam(required = false) String type,
-            @RequestParam(defaultValue = "1") int page, Model model) {
+    public String admin(@RequestParam(name = "search", required = false) String search, @RequestParam(name = "type", required = false) String type,
+            @RequestParam(name = "page", defaultValue = "1") int page, Model model) {
         List<Site> sites = toolService.adminSites(search, type, page);
         commonModel(model, toolService.currentSiteId(), "admin");
         model.addAttribute("sites", sites);
@@ -243,8 +253,8 @@ public class SiteStatsController {
     }
 
     @GetMapping("/serverwide")
-    public String serverWide(@RequestParam String siteId,
-            @RequestParam(defaultValue = SiteStatsServerWideReportIds.MONTHLY_LOGIN) String reportType, Model model) {
+    public String serverWide(@RequestParam("siteId") String siteId,
+            @RequestParam(name = "reportType", defaultValue = SiteStatsServerWideReportIds.MONTHLY_LOGIN) String reportType, Model model) {
         if (!SiteStatsServerWideReportIds.isSupported(reportType)) {
             throw new IllegalArgumentException("Unknown server-wide report");
         }
@@ -272,6 +282,7 @@ public class SiteStatsController {
         toolService.prepareReportForm(form, editorOptions);
         model.addAttribute("reportForm", form);
         model.addAttribute("editorOptions", editorOptions);
+        model.addAttribute("selectedResourcesJson", toolService.selectedResourcesJson(siteId, form));
     }
 
     private void commonModel(Model model, String siteId, String activeMenu) {

@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,6 +42,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitemanage.api.JoinableSetReminderScheduleService;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.time.api.UserTimeService;
@@ -189,6 +190,7 @@ public class SakaiService  {
 
         // Add one list per entity that locks groups.
         List<String> assignmentTitles = new ArrayList<>();
+        List<String> deletedAssignmentTitles = new ArrayList<>();
         List<String> assessmentTitles = new ArrayList<>();
 
         for (String[] groupRealmLock : groupRealmLocks) {
@@ -198,7 +200,11 @@ public class SakaiService  {
                 	AssignmentReferenceReckoner.AssignmentReference reckoner = AssignmentReferenceReckoner.reckoner().reference(objectReference).reckon();
                     try {
                         Assignment ab = assignmentService.getAssignment(reckoner.getId());
-                        assignmentTitles.add(ab.getTitle());
+                        if (Boolean.TRUE.equals(ab.getDeleted())) {
+                            deletedAssignmentTitles.add(ab.getTitle());
+                        } else {
+                            assignmentTitles.add(ab.getTitle());
+                        }
                     } catch (Exception e) {
                         log.error("Cannot find assignment with id {}.", reckoner.getId());
                     }
@@ -217,10 +223,17 @@ public class SakaiService  {
 
         // Add one key per entity that locks groups.
         lockingEntitiesMap.put("assignments", assignmentTitles);
+        lockingEntitiesMap.put("deletedAssignments", deletedAssignmentTitles);
         lockingEntitiesMap.put("assessments", assessmentTitles);
 
         return lockingEntitiesMap;
         
+    }
+
+    public String getAssignmentTrashUrl(Site site) {
+        ToolConfiguration tool = site.getToolForCommonId("sakai.assignment.grades");
+        return tool == null ? null : serverConfigurationService.getPortalUrl() + "/directtool/" + tool.getId()
+                + "?panel=Main&sakai_action=doView_deletedAssignments";
     }
 
     /**

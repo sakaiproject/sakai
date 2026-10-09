@@ -22,11 +22,12 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Transient;
+import org.hibernate.Length;
 
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -103,11 +104,11 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
     @Column(name = "EXTERNAL_APP_NAME")
     private String externalAppName;
 
-    @Column(name = "EXTERNAL_DATA")
+    @Column(name = "EXTERNAL_DATA", length = Length.LONG32)
     @Lob
     private String externalData;
 
-    @Column(name = "LINEITEM_METADATA")
+    @Column(name = "LINEITEM_METADATA", length = Length.LONG32)
     @Lob
     private String lineItemMetadata;
 

@@ -20,14 +20,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
 
-import static org.mockito.Mockito.anyList;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -40,12 +37,13 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LocaleService;
-
 import org.sakaiproject.util.ResourceLoader;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -60,17 +58,16 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Assert;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {AssignmentTestConfiguration.class})
+@RunWith(MockitoJUnitRunner.class)
 public class GradeReportTest {
 
-    @Autowired private FormattedText formattedText;
-    @Autowired private LocaleService localeService;
-    @Autowired private SessionManager sessionManager;
-    @Autowired private SiteService siteService;
-    @Autowired private UserDirectoryService userDirectoryService;
+    @Mock private FormattedText formattedText;
+    @Mock private LocaleService localeService;
+    @Mock private SessionManager sessionManager;
+    @Mock private SiteService siteService;
+    @Mock private UserDirectoryService userDirectoryService;
+    @Mock private AssignmentService assignmentService;
 
-    private AssignmentService assignmentService;
     private ResourceLoader resourceLoader;
     private Site site;
     private GradeSheetExporter exporter;
@@ -83,16 +80,16 @@ public class GradeReportTest {
     public void setUp() {
 
         resourceLoader = mock(ResourceLoader.class);
-        when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
-        when(resourceLoader.getString("download.spreadsheet.column.userid")).thenReturn("User Id");
-        when(resourceLoader.getString("listsub.nosub")).thenReturn(noSub);
+        lenient().when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
+        lenient().when(resourceLoader.getString("download.spreadsheet.column.userid")).thenReturn("User Id");
+        lenient().when(resourceLoader.getString("listsub.nosub")).thenReturn(noSub);
 
         site = mock(Site.class);
-        when(site.getTitle()).thenReturn("XYZ");
-        when(site.getReference()).thenReturn("/site/xyz");
+        lenient().when(site.getTitle()).thenReturn("XYZ");
+        lenient().when(site.getReference()).thenReturn("/site/xyz");
 
         try {
-            when(siteService.getSite("xyz")).thenReturn(site);
+            lenient().when(siteService.getSite("xyz")).thenReturn(site);
         } catch (Exception e) {
             Assert.fail("Failed to setup site service mock");
         }
@@ -121,9 +118,6 @@ public class GradeReportTest {
         assTwo.setDueDate(Instant.now().minus(10, ChronoUnit.HOURS));
         assignments.add(assTwo);
 
-
-        assignmentService = (AssignmentService) mock(AssignmentService.class);
-
         exporter = new GradeSheetExporter();
         exporter.setSiteService(siteService);
         exporter.setAssignmentService(assignmentService);
@@ -136,6 +130,7 @@ public class GradeReportTest {
 
     @Test
     public void noAssignments() {
+        when(assignmentService.getAssignmentsForContext("xyz")).thenReturn(new ArrayList<>());
 
         Optional<Workbook> optionalWorkbook = exporter.getGradesSpreadsheet("contextString=xyz&viewString=all");
         Assert.assertFalse("You should not get a workbook, if there are no assignments for the contextString", optionalWorkbook.isPresent());
@@ -143,10 +138,12 @@ public class GradeReportTest {
 
     @Test
     public void noSubmissions() {
+        lenient().when(sessionManager.getCurrentSessionUserId()).thenReturn("test-user");
+        lenient().when(localeService.getLocaleForSiteAndUser(anyString(), anyString())).thenReturn(Locale.ENGLISH);
 
         when(assignmentService.allowGradeSubmission(anyString())).thenReturn(true);
-
         when(assignmentService.getAssignmentsForContext("xyz")).thenReturn(assignments);
+        when(userDirectoryService.getUsers(anyList())).thenReturn(new ArrayList<>());
 
         Optional<Workbook> optionalWorkbook = exporter.getGradesSpreadsheet("contextString=xyz&viewString=all&byColumns=false");
 
@@ -186,8 +183,10 @@ public class GradeReportTest {
         String userSortName = "Alfred Hitchcock";
         String userDisplayId = "ahitchcock";
 
-        when(assignmentService.allowGradeSubmission(anyString())).thenReturn(true);
+        lenient().when(sessionManager.getCurrentSessionUserId()).thenReturn("test-user");
+        lenient().when(localeService.getLocaleForSiteAndUser(anyString(), anyString())).thenReturn(Locale.ENGLISH);
 
+        when(assignmentService.allowGradeSubmission(anyString())).thenReturn(true);
         when(assignmentService.getAssignmentsForContext("xyz")).thenReturn(assignments);
 
         List<String> submissionUsers = new ArrayList<>();

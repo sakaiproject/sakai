@@ -39,13 +39,13 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.jsoup.nodes.Document;
 
@@ -699,7 +699,6 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
       if (session != null) {
         sb.append("         - User EID  : ").append(session.getUserEid()).append("\n");
         sb.append("         - User ID   : ").append(session.getUserId()).append("\n");
-        sb.append("         - Session ID: ").append(session.getId()).append("\n");
       } else {
         sb.append("         - Session is null. Cannot determine user.\n");
       }
@@ -1365,9 +1364,6 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
   }
 
   public String validatePassword() {
-    log.debug("**** password={}", password);
-    log.debug("**** setting password={}", getSettings().getPassword());
-    
     if (StringUtils.isBlank(password)) {
     	return "passwordAccessError";
     }
@@ -1688,7 +1684,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
    *     valueChangeListener="#{delivery.addMediaToItemGrading}" />
      * @param e
    */
-  public void addMediaToItemGrading(javax.faces.event.ValueChangeEvent e) {
+  public void addMediaToItemGrading(jakarta.faces.event.ValueChangeEvent e) {
     if (isTimeRunning() && getTimeExpired())
       setOutcome("timeExpired");
 
@@ -2488,6 +2484,11 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
 
   public String getPortal(){
    return serverConfigurationService.getString("portalPath");
+  }
+
+  // Needed because beginTakingAssessment.jsp binds the sebReturnUrl hidden input to selectURL:
+  // JSF writes the submitted value back on every form submit. The value is computed, so ignore it.
+  public void setSelectURL(String selectURL) {
   }
 
   public String getSelectURL(){

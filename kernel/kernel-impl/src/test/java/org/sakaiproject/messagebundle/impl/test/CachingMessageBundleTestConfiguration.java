@@ -16,9 +16,10 @@
 package org.sakaiproject.messagebundle.impl.test;
 
 import org.mockito.Mockito;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.sakaiproject.messagebundle.impl.CachingMessageBundleServiceImpl;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,7 +30,7 @@ public class CachingMessageBundleTestConfiguration {
     public MessageBundleService cachingMessageBundleService() {
         CachingMessageBundleServiceImpl messageBundleService = new CachingMessageBundleServiceImpl();
         messageBundleService.setDbMessageBundleService(dbMessageBundleService());
-        messageBundleService.setMemoryService(memoryService());
+        messageBundleService.setCacheManager(cacheManager());
         messageBundleService.init();
         return messageBundleService;
     }
@@ -41,8 +42,7 @@ public class CachingMessageBundleTestConfiguration {
     }
 
     @Bean
-    public MemoryService memoryService() {
-        MemoryService memoryService = new org.sakaiproject.memory.mock.MemoryService();
-        return memoryService;
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager();
     }
 }

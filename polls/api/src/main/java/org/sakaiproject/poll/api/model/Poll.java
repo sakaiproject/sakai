@@ -29,26 +29,29 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.Table;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.springframework.data.PersistableEntity;
 import org.w3c.dom.Document;
@@ -91,12 +94,12 @@ public class Poll implements PersistableEntity<String> {
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
-    @Column(name = "POLL_TEXT", nullable = false)
+    @Column(name = "POLL_TEXT", nullable = false, length = Length.LONG32)
     private String text;
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
-    @Column(name = "POLL_DETAILS")
+    @Column(name = "POLL_DETAILS", length = Length.LONG32)
     private String description;
 
     @Column(name = "POLL_MIN_OPTIONS", nullable = false)
@@ -148,6 +151,22 @@ public class Poll implements PersistableEntity<String> {
         this.voteOpen = Instant.now();
         this.voteClose = Instant.now().plus(7, ChronoUnit.DAYS);
         this.displayResult = "open";
+    }
+
+    /**
+     * Options of this poll in OPTION_ORDER order. Hibernate fills gaps in
+     * OPTION_ORDER (e.g. 0, 2, 3 in legacy data) with null elements, which would
+     * make every caller fail. In that case a copy without the nulls is returned;
+     * otherwise the managed collection is returned, so callers can still reorder
+     * options by modifying it.
+     *
+     * @return the options in OPTION_ORDER order, without nulls
+     */
+    public List<Option> getOptions() {
+        if (options.stream().noneMatch(Objects::isNull)) {
+            return options;
+        }
+        return options.stream().filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**

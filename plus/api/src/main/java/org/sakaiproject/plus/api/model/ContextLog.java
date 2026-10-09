@@ -18,21 +18,21 @@ package org.sakaiproject.plus.api.model;
 
 import java.time.Instant;
 
-import javax.persistence.Column;
-import javax.persistence.Lob;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.JoinColumn;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Basic;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import static javax.persistence.FetchType.LAZY;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Basic;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import org.hibernate.Length;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
+import static jakarta.persistence.FetchType.LAZY;
 
 import org.springframework.data.annotation.CreatedDate;
 
@@ -60,8 +60,7 @@ public class ContextLog implements PersistableEntity<Long> {
 
 	@Id
 	@Column(name = "CONTEXT_LOG_ID")
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "context_log_id_sequence")
-	@SequenceGenerator(name = "context_log_id_sequence", sequenceName = "PLUS_CONTEXT_LOG_S")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "context_log_id_sequence", sequenceName = "PLUS_CONTEXT_LOG_S"))
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -103,7 +102,7 @@ public class ContextLog implements PersistableEntity<Long> {
 	@Lob
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
-	@Column(name = "DEBUG_LOG")
+	@Column(name = "DEBUG_LOG", length = Length.LONG32)
 	private String debugLog;
 
 	public int getPositiveHashCode() { return java.lang.Math.abs(this.hashCode()); }

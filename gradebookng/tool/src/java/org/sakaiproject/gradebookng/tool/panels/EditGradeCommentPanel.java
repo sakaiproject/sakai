@@ -20,7 +20,7 @@ import java.util.Map;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -50,7 +50,7 @@ public class EditGradeCommentPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
     /**
      * -- GETTER --
      *  Getter for the comment string so we can update components on the parent page when the comment is saved here
@@ -60,7 +60,7 @@ public class EditGradeCommentPanel extends BasePanel {
     @Getter
     private String comment;
 
-	public EditGradeCommentPanel(final String id, final IModel<Map<String, Object>> model, final ModalWindow window) {
+	public EditGradeCommentPanel(final String id, final IModel<Map<String, Object>> model, final GbModalWindow window) {
 		super(id, model);
 		this.window = window;
 	}

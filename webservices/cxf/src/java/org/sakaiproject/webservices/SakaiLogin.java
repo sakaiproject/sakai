@@ -15,22 +15,22 @@
  */
 package org.sakaiproject.webservices;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -139,7 +139,7 @@ public class SakaiLogin extends AbstractWebService {
 
                 usageSessionService.login(a.getUid(), id, ipAddress, "SakaiLogin", UsageSessionService.EVENT_LOGIN_WS);
 
-                log.debug("Sakai Web Services Login id={} ip={} session={}", id, ipAddress, s.getId());
+                log.debug("Sakai Web Services Login id={} ip={}", id, ipAddress);
 
                 // retrieve the configured cookie name, if any
                 if (System.getProperty(RequestFilter.SAKAI_COOKIE_PROP) != null) {
@@ -174,7 +174,7 @@ public class SakaiLogin extends AbstractWebService {
                     res.addCookie(c);
                 }
 
-                log.debug("Sakai Web Services Login id={} ip={} session={}", id, ipAddress, s.getId());
+                log.debug("Sakai Web Services Login id={} ip={}", id, ipAddress);
                 return s.getId();
             }
         } catch (AuthenticationException ex) {

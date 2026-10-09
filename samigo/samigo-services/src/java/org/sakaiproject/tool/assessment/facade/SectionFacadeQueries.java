@@ -21,26 +21,31 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import java.util.List;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.Query;
-import org.sakaiproject.tool.assessment.services.PersistenceHelper;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Transactional
-public class SectionFacadeQueries  extends HibernateDaoSupport implements SectionFacadeQueriesAPI {
+public class SectionFacadeQueries implements SectionFacadeQueriesAPI {
 
   @Setter
   private PersistenceHelper persistenceHelper;
+
+
+  @Setter private SessionFactory sessionFactory;
 
   public SectionFacadeQueries () {
   }
@@ -58,23 +63,24 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
   }
 
   public SectionFacade get(Long sectionId) {
-      SectionData section = (SectionData) getHibernateTemplate().load(SectionData.class, sectionId);
+      SectionData section = (SectionData) sessionFactory.getCurrentSession().get(SectionData.class, sectionId);
       return new SectionFacade(section);
   }
 
   public SectionData load(Long sectionId) {
-      return (SectionData) getHibernateTemplate().load(SectionData.class, sectionId);
+      return (SectionData) sessionFactory.getCurrentSession().get(SectionData.class, sectionId);
   }
 
   public void addSectionMetaData(Long sectionId, String label, String value) {
-    SectionData section = (SectionData)getHibernateTemplate().load(SectionData.class, sectionId);
+    Session session = sessionFactory.getCurrentSession();
+    SectionData section = (SectionData) session.get(SectionData.class, sectionId);
     if (section != null) {
 
       SectionMetaData sectionmetadata = new SectionMetaData(section, label, value);
     int retryCount = persistenceHelper.getRetryCount();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().save(sectionmetadata);
+        session.merge(sectionmetadata);
         retryCount = 0;
       }
       catch (Exception e) {
@@ -86,20 +92,23 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
   }
 
   public void deleteSectionMetaData(final Long sectionId, final String label) {
-    final String query = "from SectionMetaData imd where imd.section.sectionId = :id and imd.label = :label";
-    
-    final HibernateCallback<List> hcb = session -> {
-        Query q = session.createQuery(query);
-        q.setParameter("id", sectionId);
-        q.setParameter("label", label);
-        return q.list();
-    };
-    List sectionmetadatalist = getHibernateTemplate().execute(hcb);
+	  
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<SectionMetaData> cq = cb.createQuery(SectionMetaData.class);
+    Root<SectionMetaData> root = cq.from(SectionMetaData.class);
+    cq.where(
+        cb.equal(root.get("section").get("sectionId"), sectionId),
+        cb.equal(root.get("label"), label));
+
+    List<SectionMetaData> sectionmetadatalist = session.createQuery(cq).list();
 
     int retryCount = persistenceHelper.getRetryCount();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().deleteAll(sectionmetadatalist);
+        for (SectionMetaData sectionMetaData : sectionmetadatalist) {
+          session.remove(sectionMetaData);
+        }
         retryCount = 0;
       }
       catch (Exception e) {

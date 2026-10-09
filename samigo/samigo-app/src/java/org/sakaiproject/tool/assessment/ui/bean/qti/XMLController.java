@@ -25,12 +25,12 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.StringTokenizer;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
+
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.ManagedBean;
 
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;

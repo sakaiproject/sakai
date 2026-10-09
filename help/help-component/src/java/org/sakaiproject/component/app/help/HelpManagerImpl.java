@@ -65,8 +65,12 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.sakaiproject.api.app.help.Category;
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.api.app.help.Resource;
@@ -81,11 +85,9 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.UrlResource;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -105,12 +107,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Transactional(transactionManager = "helpTransactionManager")
-public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
+public class HelpManagerImpl implements HelpManager
 {
 
-	private static final String QUERY_GETRESOURCEBYDOCID = "query.getResourceByDocId";
-	private static final String QUERY_GETCATEGORYBYNAME = "query.getCategoryByName";
-	private static final String QUERY_GET_WELCOME_PAGE = "query.getWelcomePage";
 	private static final String DOCID = "docId";
 	private static final String WELCOME_PAGE = "welcomePage";
 	private static final String NAME = "name";
@@ -135,6 +134,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	private Boolean initialized = Boolean.FALSE;
 	private Object initializedLock = new Object();
 
+	@Setter private SessionFactory sessionFactory;
+
     @Getter @Setter private String supportEmailAddress;
 
     @Setter private PreferencesService  preferencesService;
@@ -147,9 +148,9 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 * Store resource
 	 * @see org.sakaiproject.api.app.help.HelpManager#storeResource(org.sakaiproject.api.app.help.Resource)
 	 */
-	public void storeResource(Resource resource)
+	public Resource storeResource(Resource resource)
 	{
-		getHibernateTemplate().saveOrUpdate(resource);
+		return sessionFactory.getCurrentSession().merge(resource);
 	}
 
 	/**
@@ -157,7 +158,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 */
 	public Resource getResource(Long id)
 	{
-		return (ResourceBean) getHibernateTemplate().get(ResourceBean.class, id);
+		return sessionFactory.getCurrentSession().get(ResourceBean.class, id);
 	}
 
 	/**
@@ -169,7 +170,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		if (resource == null) {
 			return;
 		}
-		getHibernateTemplate().delete(resource);
+		sessionFactory.getCurrentSession().remove(resource);
 	}
 
 	/**
@@ -363,7 +364,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 				// if document is coming from corpus then get document name from xml and assign to resource
 				String resourceName = getRestConfiguration().getResourceNameFromCorpusDoc(sb.toString());
 				resource.setName(resourceName);
-				storeResource(resource);
+				resource = (ResourceBean) storeResource(resource);
 			}
 			else if (!"".equals(EXTERNAL_URL))
 			{
@@ -401,8 +402,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			doc.add(new TextField("location", resLocation, Field.Store.YES));
 		}
 
-
-		//doc.add(Field.Keyword("id", resource.getId().toString()));
 		doc.add(new TextField("id", resource.getId().toString(), Field.Store.YES));
 
 		if (getRestConfiguration().getOrganization().equals("sakai"))
@@ -455,7 +454,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
 	public void storeCategory(Category category)
 	{
-		getHibernateTemplate().saveOrUpdate(category);
+		sessionFactory.getCurrentSession().merge(category);
 	}
 
 	/**
@@ -471,24 +470,14 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 */
 	public Resource getResourceByDocId(final String docId)
 	{
-		HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				org.hibernate.query.Query q = session
-				.getNamedQuery(QUERY_GETRESOURCEBYDOCID);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<ResourceBean> cq = cb.createQuery(ResourceBean.class);
+		Root<ResourceBean> root = cq.from(ResourceBean.class);
+		cq.select(root).where(cb.equal(root.get(DOCID), (docId == null) ? null : docId.toLowerCase()));
 
-				q.setParameter(DOCID, (docId == null) ? null : docId.toLowerCase());
-				if (q.list().size() == 0){
-					return null;
-				}
-				else{
-					return (Resource) q.list().get(0);
-				}
-			}
-		};
-		Resource resource = (Resource) getHibernateTemplate().execute(hcb);
-		return resource;
+		List<ResourceBean> resources = session.createQuery(cq).getResultList();
+		return resources.isEmpty() ? null : resources.get(0);
 	}
 
 	/**
@@ -497,12 +486,13 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	public String getWelcomePage()
 	{
 		initialize();
-		HibernateCallback<List<ResourceBean>> hcb = session -> session
-            .getNamedQuery(QUERY_GET_WELCOME_PAGE)
-				.setParameter(WELCOME_PAGE, "true")
-				.list();
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<ResourceBean> cq = cb.createQuery(ResourceBean.class);
+		Root<ResourceBean> root = cq.from(ResourceBean.class);
+		cq.select(root).where(cb.equal(cb.lower(root.get(WELCOME_PAGE)), "true"));
 
-		List<ResourceBean> list = getHibernateTemplate().execute(hcb);
+		List<ResourceBean> list = session.createQuery(cq).getResultList();
         if (list.isEmpty()) {
             return null;
 		}
@@ -516,17 +506,13 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 */
 	public Category getCategoryByName(final String name)
 	{
-		HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				org.hibernate.query.Query q = session
-				.getNamedQuery(QUERY_GETCATEGORYBYNAME);
-				q.setParameter(NAME, (name == null) ? name : name.toLowerCase());
-				return q.uniqueResult();
-			}
-		};
-		return (Category) getHibernateTemplate().execute(hcb);
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<CategoryBean> cq = cb.createQuery(CategoryBean.class);
+		Root<CategoryBean> root = cq.from(CategoryBean.class);
+		cq.select(root).where(cb.equal(cb.lower(root.get(NAME)), (name == null) ? null : name.toLowerCase()));
+		cq.orderBy(cb.asc(root.get("id")));
+		return session.createQuery(cq).uniqueResult();
 	}
 
 	/**
@@ -659,12 +645,10 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
 	private void dropExistingContent() {
 		log.debug("Delete existing content from SAKAI_HELP_RESOURCE_T and SAKAI_HELP_CATEGORY_T");
-		getHibernateTemplate().execute(session -> {
-			// Delete resources first due to foreign key constraint
-			session.createQuery("delete ResourceBean").executeUpdate();
-			session.createQuery("delete CategoryBean").executeUpdate();
-			return null;
-		});
+		Session session = sessionFactory.getCurrentSession();
+		// Delete resources first due to foreign key constraint
+		session.createMutationQuery("delete ResourceBean").executeUpdate();
+		session.createMutationQuery("delete CategoryBean").executeUpdate();
 
 		initialized = Boolean.FALSE;
 		toc = null;
@@ -921,7 +905,9 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			{
 				org.springframework.core.io.Resource resource =
 					new UrlResource(urlResource);  
-				BeanFactory beanFactory = new XmlBeanFactory(resource);
+				DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+				XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
+				reader.loadBeanDefinitions(resource);
 				TableOfContents tocTemp = (TableOfContents) beanFactory.getBean(TOC_API);
 				Set<Category> categories = tocTemp.getCategories();
 				storeRecursive(categories);
@@ -1093,8 +1079,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 					}
 
 					resource.setCategory(category);
+					resource = storeResource(resource);
 					category.getResources().add(resource);
-					storeResource(resource);
 
 					log.info("adding help resource: " + resource + " to category: "
 							+ category.getName());
@@ -1151,8 +1137,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 				resource.setName(currentDocId);
 				Category homeCategory = getCategoryByName("Home");
 				resource.setCategory(homeCategory);
+				resource = storeResource(resource);
 				homeCategory.getResources().add(resource);
-				storeResource(resource);
 			}
 		}
 	}

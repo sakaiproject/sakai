@@ -29,7 +29,7 @@ class AccessibilityTest extends SakaiUiTestBase {
 
     @BeforeEach
     void loginAndOpenPortal() {
-        sakai.login("instructor1");
+        sakai.login("instructor2");
         page.navigate("/portal");
     }
 

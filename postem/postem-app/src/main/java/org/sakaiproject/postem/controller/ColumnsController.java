@@ -21,7 +21,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.TreeMap;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

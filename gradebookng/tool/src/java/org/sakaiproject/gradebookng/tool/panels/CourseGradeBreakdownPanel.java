@@ -19,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -58,10 +58,10 @@ public class CourseGradeBreakdownPanel extends BasePanel {
     protected ServerConfigurationService serverConfigurationService;
 
     private Double overAllPoints = 0D;
-    private final ModalWindow window;
+    private final GbModalWindow window;
     private boolean weightedCategories;
 
-    public CourseGradeBreakdownPanel(final String id, final ModalWindow window) {
+    public CourseGradeBreakdownPanel(final String id, final GbModalWindow window) {
         super(id);
         this.window = window;
         add(new GbFeedbackPanel("items-feedback"));

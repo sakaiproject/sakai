@@ -33,6 +33,11 @@
         <property name="configuration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
     </bean>
 
+    <bean id="org.sakaiproject.ignite.api.CacheAdminService"
+          class="org.sakaiproject.ignite.CacheAdminServiceImpl">
+        <property name="sakaiIgnite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+    </bean>
+
     <!--
     Expiry policy to for when cache objects are considered expired (ttl)
     Default is 120 minutes from when object is created
@@ -68,8 +73,8 @@
     <bean id="org.sakaiproject.ignite.DataRegionConfiguration.SpringRegion"
           class="org.apache.ignite.configuration.DataRegionConfiguration">
         <property name="name" value="spring_region"/>
-        <property name="initialSize" value="#{10L * 1024 * 1024}"/>
-        <property name="maxSize" value="#{100L * 1024 * 1024}"/>
+        <property name="initialSize" value="#{300L * 1024 * 1024}"/>
+        <property name="maxSize" value="#{1024L * 1024 * 1024}"/>
         <property name="pageEvictionMode" value="RANDOM_2_LRU"/>
         <property name="persistenceEnabled" value="false"/>
         <property name="metricsEnabled" value="true"/>
@@ -273,9 +278,9 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.adl.datamodels.nav.SCORM_2004_NAV_DM.mElements"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                <!--<bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="java.net.URL"/>
-                </bean>
+                </bean>-->
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.adl.datamodels.DMDelimiter"/>
                 </bean>

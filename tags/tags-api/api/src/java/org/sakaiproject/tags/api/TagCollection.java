@@ -23,11 +23,14 @@
 package org.sakaiproject.tags.api;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import jakarta.persistence.Index;
+import jakarta.persistence.UniqueConstraint;
+import org.hibernate.Length;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -46,17 +49,23 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "TagServiceCollection")
-@Table(name = "tagservice_collection")
+@Table(name = "tagservice_collection",
+    indexes = @Index(name = "tagservice_collection_siteid", columnList = "siteid"),
+    uniqueConstraints = @UniqueConstraint(name = "tagservice_site_name", columnNames = { "siteid", "name" }))
 public class TagCollection implements PersistableEntity<String> {
 
 
     @Id
     @Column(name = "tagcollectionid", length = 99)
     private String tagCollectionId;
-    @Column(name = "name", length = 255, unique = true)
+    /** Null for a global collection; otherwise its site or pool owner workspace (~userId). */
+    // Pool-owner workspace scopes add ~ to a user ID of up to 99 characters.
+    @Column(name = "siteid", length = 100)
+    private String siteId;
+    @Column(name = "name", length = 255)
     private String name;
     @Lob
-    @Column(name = "description", length = 65535)
+    @Column(name = "description", length = Length.LONG32)
     private String description;
     @Column(name = "createdby", length = 99)
     private String createdBy;
@@ -65,7 +74,7 @@ public class TagCollection implements PersistableEntity<String> {
     @Column(name = "externalsourcename", length = 255, unique = true)
     private String externalSourceName;
     @Lob
-    @Column(name = "externalsourcedescription", length = 65535)
+    @Column(name = "externalsourcedescription", length = Length.LONG32)
     private String externalSourceDescription;
     @Column(name = "lastmodifiedby", length = 99)
     private String lastModifiedBy;

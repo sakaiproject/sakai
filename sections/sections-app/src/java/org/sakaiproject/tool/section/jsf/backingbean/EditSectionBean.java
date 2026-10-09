@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
 
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -103,7 +103,7 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 		if(isInvalidMaxEnrollments()) {
 			if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-					"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}),
+					"jakarta.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}),
 					"editSectionForm:maxEnrollmentInput");
 			validationFailure = true;
 		}
@@ -124,7 +124,7 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 			if( ! meeting.isStartTimeDefault() && super.isInvalidTime(meeting.getStartTimeString())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... start time is invalid");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable:0:meetingsTable:" + 0 + ":startTime");
+						"jakarta.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable:0:meetingsTable:" + 0 + ":startTime");
 				validationFailure = true;
 				invalidTimeEntered = true;
 			}
@@ -132,7 +132,7 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 			if( ! meeting.isEndTimeDefault() && super.isInvalidTime(meeting.getEndTimeString())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is invalid");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable:0:meetingsTable:" + 0 + ":endTime");
+						"jakarta.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable:0:meetingsTable:" + 0 + ":endTime");
 				validationFailure = true;
 				invalidTimeEntered = true;
 			}

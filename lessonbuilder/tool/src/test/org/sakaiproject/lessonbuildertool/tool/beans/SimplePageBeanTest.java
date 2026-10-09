@@ -23,13 +23,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.MockedStatic;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.memory.api.MemoryService;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
@@ -41,15 +37,8 @@ public class SimplePageBeanTest {
     public void before() {
         MessageLocator messageLocator = mock(MessageLocator.class);
         SimplePageToolDao dao = mock(SimplePageToolDao.class);
-        MemoryService memoryService = mock(MemoryService.class);
 
-        try (MockedStatic<ComponentManager> cm = mockStatic(ComponentManager.class);
-             MockedStatic<ServerConfigurationService> scs = mockStatic(ServerConfigurationService.class)) {
-            cm.when(() -> ComponentManager.get("org.sakaiproject.memory.api.MemoryService")).thenReturn(memoryService);
-            scs.when(() -> ServerConfigurationService.getString("lessonbuilder.html.types", "html,xhtml,htm,xht")).thenReturn("html,xhtml,htm,xht");
-            simplePageBean = new SimplePageBean();
-        }
-
+        simplePageBean = new SimplePageBean();
         simplePageBean.setMessageLocator(messageLocator);
         simplePageBean.setSimplePageToolDao(dao);
 

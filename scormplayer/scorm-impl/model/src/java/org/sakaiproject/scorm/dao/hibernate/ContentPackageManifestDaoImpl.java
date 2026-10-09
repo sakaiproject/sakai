@@ -17,24 +17,30 @@ package org.sakaiproject.scorm.dao.hibernate;
 
 import java.io.Serializable;
 
+import lombok.Setter;
+
+import org.hibernate.SessionFactory;
+
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ContentPackageManifestDaoImpl extends HibernateDaoSupport implements ContentPackageManifestDao
+public class ContentPackageManifestDaoImpl implements ContentPackageManifestDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	@Override
 	public ContentPackageManifest load(Serializable id)
 	{
-		return (ContentPackageManifest) getHibernateTemplate().load(ContentPackageManifest.class, id);
+		return sessionFactory.getCurrentSession().getReference(ContentPackageManifest.class, id);
 	}
 
 	@Override
 	public Serializable save(ContentPackageManifest manifest)
 	{
-		return getHibernateTemplate().save(manifest);
+		sessionFactory.getCurrentSession().persist(manifest);
+		return manifest.getId();
 	}
 }

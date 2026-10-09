@@ -39,13 +39,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
-import javax.faces.model.SelectItem;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
+import jakarta.faces.model.SelectItem;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -674,9 +674,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
         String localDateTime = LocalDateTime.now().plusSeconds(tokenValiditySeconds).toString();
         String sessionId = sessionManager.getCurrentSession().getId();
         String secureTokenString = sessionId+"|"+localDateTime;
-        log.debug("Encrypting secured token {}", secureTokenString);
         String secureToken = URLEncoder.encode(encryptionUtilityService.encrypt(secureTokenString), StandardCharsets.UTF_8.name());
-        log.debug("Encrypted token with value {}", secureToken);
         delivery.setSecureToken(secureToken);
       }
     } catch (Exception ex) {

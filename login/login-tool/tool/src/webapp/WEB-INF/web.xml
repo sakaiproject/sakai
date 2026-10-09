@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+<web-app id="WebApp_9" version="5.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
     <display-name>xlogin</display-name>
@@ -27,15 +27,6 @@
          <filter-name>springSecurityFilterChain</filter-name>
          <filter-class>org.sakaiproject.login.springframework.SafeDelegatingFilterProxy</filter-class>
      </filter>
-
-     <filter-mapping>
-         <filter-name>springSecurityFilterChain</filter-name>
-         <url-pattern>/container/*</url-pattern>
-         <dispatcher>REQUEST</dispatcher>
-         <dispatcher>FORWARD</dispatcher>
-         <dispatcher>INCLUDE</dispatcher>
-     </filter-mapping>
-
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>sakai.login</servlet-name>
@@ -46,15 +37,18 @@
 
     <filter-mapping>
         <filter-name>sakai.request.container</filter-name>
-        <servlet-name>sakai.login.container</servlet-name>
+        <url-pattern>/container/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
-    
-    <filter-mapping>
-        <filter-name>sakai.request.container</filter-name>
-        <servlet-name>sakai.logout.container</servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
+
+    <!-- Establish Sakai request/session context before authentication and logout. -->
+     <filter-mapping>
+         <filter-name>springSecurityFilterChain</filter-name>
+         <url-pattern>/container/*</url-pattern>
+         <dispatcher>REQUEST</dispatcher>
+         <dispatcher>FORWARD</dispatcher>
+         <dispatcher>INCLUDE</dispatcher>
+     </filter-mapping>
 
     <servlet>
         <servlet-name>sakai.login</servlet-name>

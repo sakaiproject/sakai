@@ -24,23 +24,23 @@ import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.BatchSize;
 
 import lombok.Data;
@@ -64,15 +64,14 @@ public class SyllabusData implements Comparable<SyllabusData> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "syllabus_data_sequence")
-    @SequenceGenerator(name = "syllabus_data_sequence", sequenceName = "SyllabusDataImpl_SEQ")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "syllabus_data_sequence", sequenceName = "SyllabusDataImpl_SEQ"))
     private Long syllabusId;
 
     @Version
     private Integer lockId;
 
     @Lob
-    @Column(length = 16777215)
+    @Column(length = Length.LONG32)
     private String asset;
 
     @Column(length = 128)

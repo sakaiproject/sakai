@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
@@ -147,7 +147,7 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
 
         // Check if assessment is set; No? -> ERROR -> return SUCCESS
         if (assessment == null) {
-            log.error("Assessment is null, returning SUCCESS. Session: [{}]", request != null ? request.getSession().getId() : null);
+            log.error("Assessment is null, returning SUCCESS");
             return PhaseStatus.SUCCESS;
         }
 
@@ -221,7 +221,7 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
             PhaseStatus status, Locale locale) {
 
         if (assessment == null) {
-            log.error("Assessment is null, returning empty. Session: [{}]", request != null ? request.getSession().getId() : null);
+            log.error("Assessment is null, returning empty");
             return "";
         }
 

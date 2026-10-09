@@ -19,13 +19,12 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 
 import org.sakaiproject.conversations.api.model.ConversationsComment;
 import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
@@ -68,11 +67,14 @@ public class ConversationsCommentRepositoryImpl extends SpringCrudRepositoryImpl
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<ConversationsComment> delete = cb.createCriteriaDelete(ConversationsComment.class);
-        Root<ConversationsComment> comment = delete.from(ConversationsComment.class);
-        delete.where(cb.equal(comment.get("post").get("id"), postId));
+        CriteriaQuery<ConversationsComment> query = cb.createQuery(ConversationsComment.class);
+        Root<ConversationsComment> comment = query.from(ConversationsComment.class);
+        query.where(cb.equal(comment.get("post").get("id"), postId));
 
-        return session.createQuery(delete).executeUpdate();
+        // Remove managed comments so they no longer reference the post when it is deleted.
+        List<ConversationsComment> comments = session.createQuery(query).getResultList();
+        comments.forEach(session::remove);
+        return comments.size();
     }
 
     @Transactional
@@ -105,10 +107,13 @@ public class ConversationsCommentRepositoryImpl extends SpringCrudRepositoryImpl
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<ConversationsComment> delete = cb.createCriteriaDelete(ConversationsComment.class);
-        Root<ConversationsComment> comment = delete.from(ConversationsComment.class);
-        delete.where(cb.equal(comment.get("topic").get("id"), topicId));
+        CriteriaQuery<ConversationsComment> query = cb.createQuery(ConversationsComment.class);
+        Root<ConversationsComment> comment = query.from(ConversationsComment.class);
+        query.where(cb.equal(comment.get("topic").get("id"), topicId));
 
-        return session.createQuery(delete).executeUpdate();
+        // Remove managed comments so they no longer reference the topic when it is deleted.
+        List<ConversationsComment> comments = session.createQuery(query).getResultList();
+        comments.forEach(session::remove);
+        return comments.size();
     }
 }

@@ -24,22 +24,21 @@ import java.util.Map;
 import org.sakaiproject.grading.api.GradingScaleDefinition;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Index;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OrderColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -55,8 +54,7 @@ public class GradingScale implements PersistableEntity<Long>, Comparable<Object>
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_grading_scale_id_sequence")
-    @SequenceGenerator(name = "gb_grading_scale_id_sequence", sequenceName = "GB_GRADING_SCALE_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_grading_scale_id_sequence", sequenceName = "GB_GRADING_SCALE_S"))
     private Long id;
 
     @Column(name = "VERSION", nullable = false)

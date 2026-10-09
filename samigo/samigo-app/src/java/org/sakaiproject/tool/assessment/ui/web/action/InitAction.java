@@ -21,7 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.web.action;
 
-import javax.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServlet;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;

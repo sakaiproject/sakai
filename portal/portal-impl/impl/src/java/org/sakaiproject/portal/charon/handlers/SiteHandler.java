@@ -34,8 +34,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -957,9 +957,8 @@ public class SiteHandler extends WorksiteHandler
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
 			rcontext.put(PortalConstants.PROP_SIDEBAR_COLLAPSED, Boolean.valueOf(sidebarCollapsed));
-			if (expandedSite.equals(siteId)) {
-				rcontext.put(PortalConstants.PROP_CURRENT_EXPANDED, Boolean.valueOf(currentExpanded));
-			}
+			rcontext.put(PortalConstants.PROP_CURRENT_EXPANDED,
+					Boolean.valueOf(StringUtils.equals(expandedSite, siteId) && currentExpanded));
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(

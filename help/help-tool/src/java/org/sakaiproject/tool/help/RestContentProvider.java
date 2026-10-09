@@ -31,7 +31,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;

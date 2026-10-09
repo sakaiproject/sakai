@@ -24,15 +24,14 @@ package org.sakaiproject.content.impl.converters;
 import java.io.InputStream;
 import java.io.IOException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,16 +48,16 @@ public class LoolFileConverter {
         httpPost.setEntity(multipart);
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpResponse response = client.execute(httpPost);
-            final int statusCode = response.getStatusLine().getStatusCode();
-            
-            if (statusCode == HttpStatus.SC_OK) {
-                return EntityUtils.toByteArray(response.getEntity());
-            } else {
-                log.error("File conversion failed with HTTP status code: {}. URL: {}", 
-                    statusCode, baseUrl + "/lool/convert-to/pdf");
-                return null;
-            }
+            return client.execute(httpPost, response -> {
+                final int statusCode = response.getCode();
+                if (statusCode == HttpStatus.SC_OK) {
+                    return EntityUtils.toByteArray(response.getEntity());
+                } else {
+                    log.error("File conversion failed with HTTP status code: {}. URL: {}",
+                        statusCode, baseUrl + "/lool/convert-to/pdf");
+                    return null;
+                }
+            });
         } catch (IOException e) {
             log.warn("Error during file conversion: {}", e.getMessage(), e);
             return null;

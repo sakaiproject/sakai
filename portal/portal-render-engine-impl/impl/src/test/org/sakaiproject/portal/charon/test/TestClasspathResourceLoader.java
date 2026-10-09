@@ -22,6 +22,7 @@
 package org.sakaiproject.portal.charon.test;
 
 import java.io.InputStream;
+import java.io.Reader;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -36,24 +37,32 @@ public class TestClasspathResourceLoader extends ClasspathResourceLoader
 {
 
 	/**
-	 * 
+	 *
 	 */
 	public TestClasspathResourceLoader()
 	{
 		// TODO Auto-generated constructor stub
 	}
 	/* (non-Javadoc)
-	 * @see org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader#getResourceStream(java.lang.String)
+	 * @see org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader#getResourceReader(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public synchronized InputStream getResourceStream(String arg0) throws ResourceNotFoundException
+	public synchronized Reader getResourceReader(String arg0, String encoding) throws ResourceNotFoundException
 	{
-		InputStream in =  super.getResourceStream(arg0);
-		if ( in == null ) {
-			in =  this.getClass().getResourceAsStream(arg0);
-		}
-		if ( in == null ) {
-			log.error("Failed to load "+arg0);
+		Reader in;
+		try {
+			in = super.getResourceReader(arg0, encoding);
+		} catch (ResourceNotFoundException e) {
+			InputStream is = this.getClass().getResourceAsStream(arg0);
+			if (is == null) {
+				log.error("Failed to load "+arg0);
+				throw e;
+			}
+			try {
+				in = buildReader(is, encoding);
+			} catch (java.io.IOException ioe) {
+				throw new ResourceNotFoundException("Failed to load " + arg0, ioe);
+			}
 		}
 		return in;
 	}

@@ -1,6 +1,6 @@
 <%@ page import="java.io.PrintWriter" %>
-<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
-                 javax.faces.el.*, org.sakaiproject.tool.messageforums.ui.*"%>
+<%@ page import="java.util.*, jakarta.faces.context.*, jakarta.faces.application.*,
+                 jakarta.faces.el.*, org.sakaiproject.tool.messageforums.ui.*"%>
 
 <%
 	/** if MyWorkspace, display wait page. **/

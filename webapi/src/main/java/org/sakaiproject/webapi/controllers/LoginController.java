@@ -36,11 +36,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Slf4j
 @Setter
@@ -91,7 +91,7 @@ public class LoginController extends AbstractSakaiApiController {
 
             usageSessionService.login(a.getUid(), username, ipAddress, "/api/login", UsageSessionService.EVENT_LOGIN_WS);
 
-            log.debug("/api/login username={} ip={} session={}", username, ipAddress, s.getId());
+            log.debug("/api/login username={} ip={}", username, ipAddress);
 
             // retrieve the configured cookie name, if any
             if (System.getProperty(RequestFilter.SAKAI_COOKIE_PROP) != null) {
@@ -124,7 +124,7 @@ public class LoginController extends AbstractSakaiApiController {
                 response.addCookie(c);
             }
 
-            log.debug("/api/login username={} ip={} session={}", username, ipAddress, s.getId());
+            log.debug("/api/login username={} ip={}", username, ipAddress);
             return ResponseEntity.ok(s.getId());
         }
 	}

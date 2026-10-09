@@ -327,7 +327,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	        	//get current sessionId to use as the key.
 	        	//this allows the anon user to also have locale settings 
 	        	String sessionId = getSessionManager().getCurrentSession().getId();
-	        	log.debug("Retrieving locale for sessionId: " + sessionId);
+				log.debug("Retrieving locale from session");
 	            loc = (Locale) getSessionManager().getCurrentSession().getAttribute(LOCALE_SESSION_KEY+sessionId);
 	        
 	        } catch (NullPointerException e) {
@@ -456,7 +456,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			String sessionId = getSessionManager().getCurrentSession().getId();
 
 			if (log.isDebugEnabled()) {
-				log.debug("Setting locale into session: " + sessionId);
+				log.debug("Setting locale into session");
 			}
 			
 			getSessionManager().getCurrentSession().setAttribute(LOCALE_SESSION_KEY+sessionId,loc);

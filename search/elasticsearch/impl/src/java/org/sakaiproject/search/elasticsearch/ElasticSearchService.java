@@ -18,6 +18,7 @@ package org.sakaiproject.search.elasticsearch;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -92,7 +93,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BasicConfigItem;
-import org.springframework.util.SocketUtils;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -298,7 +298,22 @@ import lombok.extern.slf4j.Slf4j;
         } catch (IOException ioe) {
             log.warn("Can't use port {}, {}", port, ioe.toString());
         }
-        return findAvailableTcpPort(host, SocketUtils.findAvailableTcpPort(49152));
+        return findAvailableTcpPort(host, findAvailableTcpPortFrom(host, 49152));
+    }
+
+    private int findAvailableTcpPortFrom(String host, int minPort) {
+        InetAddress address = InetAddresses.forString(host);
+
+        for (int port = minPort; port <= 65535; port++) {
+            try (ServerSocket serverSocket = new ServerSocket(port, 0, address)) {
+                return port;
+            } catch (IOException ioe) {
+                log.warn("Can't use port {}, {}", port, ioe.toString());
+            }
+        }
+
+        throw new IllegalStateException(
+            "No available TCP port found in range " + minPort + "-65535");
     }
 
     public void registerIndexBuilder(ElasticSearchIndexBuilder indexBuilder) {

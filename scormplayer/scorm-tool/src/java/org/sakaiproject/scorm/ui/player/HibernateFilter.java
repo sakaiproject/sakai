@@ -29,7 +29,7 @@ public class HibernateFilter extends OpenSessionInViewFilter
 	{
 		Session session = super.openSession(sessionFactory);
 		//set the FlushMode to auto in order to save objects.
-		session.setFlushMode(FlushMode.AUTO);
+		session.setHibernateFlushMode(FlushMode.AUTO);
 		return session;
 	}
 }

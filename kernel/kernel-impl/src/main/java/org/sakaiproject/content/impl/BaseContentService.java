@@ -71,8 +71,8 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
@@ -146,7 +146,6 @@ import org.sakaiproject.entity.api.serialize.EntityReader;
 import org.sakaiproject.entity.api.serialize.EntityReaderHandler;
 import org.sakaiproject.entity.api.serialize.EntitySerializer;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
-import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -164,8 +163,6 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.exception.ZipFileNumberException;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -216,7 +213,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  */
 @Slf4j
-public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer, ContentExistsAware,
+public abstract class BaseContentService implements ContentHostingService, ContextObserver, EntityTransferrer, ContentExistsAware,
 SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 {
 	protected static final long END_OF_TIME = 8000L * 365L * 24L * 60L * 60L * 1000L;
@@ -311,9 +308,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	@Autowired
-	protected MemoryService memoryService;
 
  	@Autowired
  	protected SessionManager sessionManager;
@@ -13112,54 +13106,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds);
 		
 	} // Storage
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * CacheRefresher implementation (no container)
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Get a new value for this key whose value has already expired in the cache.
-	 * 
-	 * @param key
-	 *        The key whose value has expired and needs to be refreshed.
-	 * @param oldValue
-	 *        The old exipred value of the key.
-	 * @param event
-	 *        The event which triggered this refresh.
-	 * @return a new value for use in the cache for this key; if null, the entry will be removed.
-	 */
-	public Object refresh(Object key, Object oldValue, Event event)
-	{
-		Object rv = null;
-
-		// key is a reference
-		Reference ref = entityManager.newReference((String) key);
-		String id = ref.getId();
-
-		log.debug("refresh(): key {} id : {}", key, ref.getId());
-
-		// get from storage only (not cache!)
-		boolean collectionHint = id.endsWith(Entity.SEPARATOR);
-		if (collectionHint)
-		{
-			rv = m_storage.getCollection(id);
-		}
-		else
-		{
-			try
-			{
-				rv = m_storage.getResource(id);
-			}
-			catch (TypeException e)
-			{
-				log.error("Type Exception",e);
-			}
-		}
-
-		return rv;
-
-	} // refresh
-
 
 	/* Content Hosting Handlers are not implemented in the Base Content Service */
 	public boolean isContentHostingHandlersEnabled()

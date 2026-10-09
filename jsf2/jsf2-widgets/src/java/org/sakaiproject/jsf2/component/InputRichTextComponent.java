@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.jsf2.component;
 
-import javax.faces.component.UIInput;
+import jakarta.faces.component.UIInput;
 
 /**
  * <p>Formerly RichTextEditArea.java</p>

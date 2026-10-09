@@ -1,4 +1,4 @@
-FROM maven:3.9-eclipse-temurin-17 AS build
+FROM maven:3.9-eclipse-temurin-21 AS build
 
 ARG release=master
 ARG GIT_CACHEBUST=1
@@ -16,7 +16,7 @@ WORKDIR /deploy/sakai
 RUN mvn clean install --no-transfer-progress -T 1C sakai:deploy-exploded -Dmaven.test.skip=true -Dsakai.skip.webcomponents.tests=true 
 RUN mvn clean && rm -rf /root/.m2/repository 
 
-FROM tomcat:9-jdk17-temurin
+FROM tomcat:9-jdk21-temurin
 
 COPY tomcat/conf/* /usr/local/tomcat/conf/
 

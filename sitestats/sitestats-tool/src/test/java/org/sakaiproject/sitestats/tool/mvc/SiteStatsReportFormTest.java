@@ -11,6 +11,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -28,4 +29,12 @@ public class SiteStatsReportFormTest {
         assertEquals(today.minusDays(7), form.getWhenFrom());
         assertEquals(today, form.getWhenTo());
     }
+    @Test
+    public void parsesResourceIdsConsistentlyAcrossLineEndingsAndBlankLines() {
+        SiteStatsReportForm form = new SiteStatsReportForm();
+        assertEquals(List.of(), form.resourceIdList());
+        form.setWhatResourceIds(" /group/site/one.txt \r\n \r/group/site/two.txt\n\n");
+        assertEquals(List.of("/group/site/one.txt", "/group/site/two.txt"), form.resourceIdList());
+    }
+
 }

@@ -8,7 +8,7 @@
 		destroy-method="destroy">
 
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
 		
 		<!-- Required. Uses Unboundid SingleServerSet by default. Easy to modify code to use FailoverServerSet or RoundRobinServerSet. -->
 		<property name="ldapHost">

@@ -5,45 +5,73 @@ name: Playwright E2E Browser Tests
 on:
   pull_request:
 
+concurrency:
+  group: playwright-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   sakai-deploy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
+      MAVEN_ARGS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
       NODE_OPTIONS: "--disable-warning=DEP0169"
       PLAYWRIGHT_BROWSER: "chromium"
+      TOMCAT_VERSION: "10.1.60"
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
-      - name: JDK 17
-        uses: actions/setup-java@v4
+      - name: JDK 21
+        uses: actions/setup-java@v6.0.1
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
 
-      - name: Restore Maven local repository cache
+      - name: Restore master Maven repository cache
         id: cache-maven-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6.1.0
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-playwright-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-m2-
+          # Relative paths and cross-OS archives let all runners share this repository.
+          path: .m2/repository
+          enableCrossOsArchive: true
+          key: sakai-m2-master
+          restore-keys: sakai-m2-master-
 
       - name: Maven cache status
-        run: echo "Maven cache hit = ${{ steps.cache-maven-restore.outputs.cache-hit }}"
+        run: echo "Restored Maven cache = ${{ steps.cache-maven-restore.outputs.cache-matched-key }}"
 
-      - name: Node 20
-        uses: actions/setup-node@v4
+      - name: Node 24
+        uses: actions/setup-node@v7.0.0
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Resolve Playwright Java version
         id: playwright-version
         run: |
           PLAYWRIGHT_VERSION=$(mvn -B -ntp -q -Pe2e -pl e2e-tests help:evaluate -Dexpression=playwright.version -DforceStdout | tail -n1)
           echo "value=$PLAYWRIGHT_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Tomcat distribution
+        id: cache-tomcat
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: .cache/tomcat
+          key: ${{ runner.os }}-tomcat-${{ env.TOMCAT_VERSION }}
+
+      - name: Download Tomcat distribution
+        if: steps.cache-tomcat.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .cache/tomcat
+          curl -fSL --retry 3 -o ".cache/tomcat/apache-tomcat-$TOMCAT_VERSION.tar.gz" \
+            "https://archive.apache.org/dist/tomcat/tomcat-10/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz"
+
+      - name: Save Tomcat distribution cache
+        if: steps.cache-tomcat.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .cache/tomcat
+          key: ${{ steps.cache-tomcat.outputs.cache-primary-key }}
 
       - name: Build with Maven
         env:
@@ -56,26 +84,20 @@ jobs:
           export TOMCAT_DIR=$PWD/tomcat
           mkdir $TOMCAT_DIR
           cd $TOMCAT_DIR
-          curl -s -o tomcat.tar.gz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.122/bin/apache-tomcat-9.0.122.tar.gz
-          tar --strip-components=1 -xzf tomcat.tar.gz
-          git clone https://github.com/sakaiproject/nightly-config.git sakai
-          cp sakai/setenv.sh bin/setenv.sh
-          cp sakai/cypress.properties sakai/sakai.properties
-          cp -f sakai/context.xml conf/context.xml
-          cp -f sakai/catalina.properties conf/catalina.properties
+          tar --strip-components=1 -xzf "../.cache/tomcat/apache-tomcat-$TOMCAT_VERSION.tar.gz"
+          mkdir -p sakai
+          NIGHTLY_CONFIG_URL=https://raw.githubusercontent.com/sakaiproject/nightly-config/master
+          curl --fail --silent --show-error --location --retry 3 --parallel \
+            --output bin/setenv.sh "$NIGHTLY_CONFIG_URL/setenv.sh" \
+            --output sakai/sakai.properties "$NIGHTLY_CONFIG_URL/cypress.properties" \
+            --output conf/context.xml "$NIGHTLY_CONFIG_URL/context.xml" \
+            --output conf/catalina.properties "$NIGHTLY_CONFIG_URL/catalina.properties"
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai";
           cd ..
           mvn -B -ntp -V -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
           bin/catalina.sh start
-
-      - name: Save Maven local repository cache
-        if: always() && steps.cache-maven-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ steps.cache-maven-restore.outputs.cache-primary-key }}
 
       - name: Wait for Sakai
         run: |
@@ -91,10 +113,10 @@ jobs:
           exit 1
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-java-${{ steps.playwright-version.outputs.value }}
+          key: ${{ runner.os }}-playwright-java-${{ steps.playwright-version.outputs.value }}-chromium-shell
 
       - name: Install Playwright CLI package
         run: |
@@ -108,19 +130,21 @@ jobs:
           npm --prefix .playwright-cli install --no-audit --no-fund --save-exact playwright@${{ steps.playwright-version.outputs.value }}
 
       - name: Install Playwright system dependencies
-        run: ./.playwright-cli/node_modules/.bin/playwright install-deps
+        run: ./.playwright-cli/node_modules/.bin/playwright install-deps chromium
 
       - name: Install Playwright browser
-        run: ./.playwright-cli/node_modules/.bin/playwright install chromium
+        run: ./.playwright-cli/node_modules/.bin/playwright install chromium --only-shell
 
       - name: Run Playwright Java tests
         env:
+          # Browser setup above installs the Chromium headless shell required by CI.
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
           # Match Sakai's serverUrl so redirects preserve the browser's session cookie.
           PLAYWRIGHT_BASE_URL: http://localhost:8080
         run: |
           set -o pipefail
           mkdir -p e2e-tests/target
-          mvn -B -ntp -V -Pe2e test 2>&1 | tee e2e-tests/target/playwright-java-run.log
+          mvn -B -ntp -V -Pe2e -Dsakai.test.forks=4 test 2>&1 | tee e2e-tests/target/playwright-java-run.log
 
       - name: Check number of MySQL statements
         if: always()
@@ -130,7 +154,7 @@ jobs:
 
       - name: Upload Tomcat log for review
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: tomcat-log
           path: tomcat/logs/catalina.out
@@ -146,7 +170,7 @@ jobs:
           : > "$FAILED_MAP_FILE"
           if [ -d e2e-tests/target/playwright-artifacts ]; then
             mkdir -p playwright-java-artifacts/playwright-artifacts
-            rsync -a --prune-empty-dirs --exclude 'video/' \
+            rsync -a --prune-empty-dirs \
               e2e-tests/target/playwright-artifacts/ \
               playwright-java-artifacts/playwright-artifacts/
           fi
@@ -198,11 +222,6 @@ jobs:
                 if [ -f "$test_dir/trace.zip" ]; then
                   cp "$test_dir/trace.zip" "playwright-java-artifacts/failure-media/$rel_dir/"
                 fi
-                if [ -d "$test_dir/video" ]; then
-                  mkdir -p "playwright-java-artifacts/playwright-artifacts/$rel_dir"
-                  cp -R "$test_dir/video" "playwright-java-artifacts/playwright-artifacts/$rel_dir/"
-                  cp -R "$test_dir/video" "playwright-java-artifacts/failure-media/$rel_dir/"
-                fi
               done < <(find e2e-tests/target/playwright-artifacts -mindepth 1 -maxdepth 1 -type d -name "${key}-*" 2>/dev/null | sort)
             done < "$FAILED_KEYS_FILE"
           fi
@@ -231,7 +250,7 @@ jobs:
       - name: Upload Playwright Java artifacts
         id: upload-playwright-java-artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: playwright-java-artifacts
           path: playwright-java-artifacts
@@ -240,7 +259,7 @@ jobs:
       - name: Upload Playwright Java failure media
         id: upload-playwright-java-failure-media
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: playwright-java-failure-media
           path: playwright-java-artifacts/failure-media
@@ -266,25 +285,20 @@ jobs:
             if [ -f playwright-java-artifacts/failed-test-artifacts.txt ]; then
               echo ""
               echo "### Failing Tests"
-              echo "| Test | Artifact Directory | Screenshot | Trace | Video |"
-              echo "| --- | --- | --- | --- | --- |"
+              echo "| Test | Artifact Directory | Screenshot | Trace |"
+              echo "| --- | --- | --- | --- |"
               while IFS='|' read -r key rel_dir; do
                 [ -z "$key" ] && continue
                 [ -z "$rel_dir" ] && continue
                 screenshot="no"
                 trace="no"
-                video="no"
                 if [ -f "playwright-java-artifacts/failure-media/$rel_dir/final.png" ]; then
                   screenshot="yes"
                 fi
                 if [ -f "playwright-java-artifacts/failure-media/$rel_dir/trace.zip" ]; then
                   trace="yes"
                 fi
-                if [ -d "playwright-java-artifacts/failure-media/$rel_dir/video" ] \
-                  && [ -n "$(find "playwright-java-artifacts/failure-media/$rel_dir/video" -type f -print -quit)" ]; then
-                  video="yes"
-                fi
-                echo "| \`$key\` | \`$rel_dir\` | $screenshot | $trace | $video |"
+                echo "| \`$key\` | \`$rel_dir\` | $screenshot | $trace |"
               done < playwright-java-artifacts/failed-test-artifacts.txt
               echo ""
               echo "Open a trace locally with \`npx playwright show-trace trace.zip\`."

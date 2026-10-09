@@ -26,9 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
@@ -36,6 +33,8 @@ import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.cover.ToolManager;
 
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -155,6 +154,7 @@ public class AuthorizationBean extends SpringBeanAutowiringSupport implements Se
 
     adminPrivilege = adminAssessmentPrivilege || adminQuestionPoolPrivilege || adminTemplatePrivilege;
     addAdminPrivilege(adminPrivilege, "admin.privilege", siteId);
+    initializedPerm = true;
   }
 
   public boolean canTakeAssessment(String siteId)

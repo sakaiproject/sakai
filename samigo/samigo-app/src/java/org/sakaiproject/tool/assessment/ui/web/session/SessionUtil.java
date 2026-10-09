@@ -21,9 +21,9 @@
 
 package org.sakaiproject.tool.assessment.ui.web.session;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpSession;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,8 +49,8 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
  *
  * @author  Jarrod Lannan
  * @version $Revision$
- * @see     javax.servlet.http.HttpSession
- * @see     javax.servlet.http.HttpSession#setMaxInactiveInterval(int)
+ * @see     jakarta.servlet.http.HttpSession
+ * @see     jakarta.servlet.http.HttpSession#setMaxInactiveInterval(int)
  *
  */
 @Slf4j
@@ -110,7 +110,7 @@ public class SessionUtil {
 
         if (interval > session.getMaxInactiveInterval()){
           if (log.isDebugEnabled()){
-            log.debug("begin_assessment: Setting session " + session.getId() + " inactive interval= " + interval + " seconds");
+            log.debug("Setting assessment session inactive interval={} seconds", interval);
           }
           /** store current interval value */
           session.setAttribute(EXTERNAL_APP_INTERVAL, Integer.valueOf(session.getMaxInactiveInterval()));
@@ -125,7 +125,7 @@ public class SessionUtil {
         else{
           session.removeAttribute(EXTERNAL_APP_INTERVAL);
           if (log.isDebugEnabled()){
-            log.debug("end_assessment: Setting session " + session.getId() + " inactive interval= " + returnVal + " seconds");
+            log.debug("Restoring assessment session inactive interval={} seconds", returnVal);
           }
           /** set to value of interval before taking */
           session.setMaxInactiveInterval(returnVal.intValue());

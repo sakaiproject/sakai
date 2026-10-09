@@ -8,7 +8,6 @@
 			init-method="init"
 			destroy-method="destroy">
 
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
@@ -18,6 +17,7 @@
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 
 		<property name="autoDdl"><value>${auto.ddl}</value></property>

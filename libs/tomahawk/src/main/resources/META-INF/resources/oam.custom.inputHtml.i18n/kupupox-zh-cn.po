@@ -1,0 +1,327 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2009-07-08 09:15+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: panjunyong <panjy@zopechina.com>\n"
+"Language-Team: CZUG i18n team <panjy@czug.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: zh-cn\n"
+"Language-Name: Chinese\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: kupu\n"
+"Generated-By: zope/app/translation_files/extract.py\n"
+
+#. Default: "Add column"
+#: kupu/common/kupu.pox:135
+msgid "Add column"
+msgstr "添加列"
+
+#. Default: "Add row"
+#: kupu/common/kupu.pox:119
+msgid "Add row"
+msgstr "添加行"
+
+#. Default: "Add table"
+#: kupu/common/kupu.pox:111
+msgid "Add table"
+msgstr "添加表单"
+
+#. Default: "Browser not supported!"
+#: kupu/common/kupu.pox:303
+msgid "Browser not supported!"
+msgstr "浏览器不支持！"
+
+#. Default: "Can only preview web urls"
+#: kupu/common/kupu.pox:231
+msgid "Can only preview web urls"
+msgstr ""
+
+#. Default: "Cleaning up HTML..."
+#: kupu/common/kupu.pox:447
+msgid "Cleaning up HTML..."
+msgstr "正在清理HTML..."
+
+#. Default: "Cleanup done, sending document to server"
+#: kupu/common/kupu.pox:271
+msgid "Cleanup done, sending document to server"
+msgstr "清理完成，发送文档到服务器"
+
+#. Default: "Color chosen"
+#: kupu/common/kupu.pox:55
+msgid "Color chosen"
+msgstr "颜色已选择"
+
+#. Default: "Copy"
+#: kupu/common/kupu.pox:39
+msgid "Copy"
+msgstr "复制"
+
+#. Default: "Copying from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:15
+msgid "Copying from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr ""
+
+#. Default: "Could not set status bar message, check your browser\'s security settings."
+#: kupu/common/kupu.pox:191
+msgid "Could not set status bar message, check your browser\'s security settings."
+msgstr ""
+
+#. Default: "Couldn\'t set design mode. Kupu will not work on this browser."
+#: kupu/common/kupu.pox:335
+msgid "Couldn\'t set design mode. Kupu will not work on this browser."
+msgstr ""
+
+#. Default: "Create image"
+#: kupu/common/kupu.pox:103
+msgid "Create image"
+msgstr "创建图片"
+
+#. Default: "Create link"
+#: kupu/common/kupu.pox:95
+msgid "Create link"
+msgstr "创建链接"
+
+#. Default: "Cut"
+#: kupu/common/kupu.pox:31
+msgid "Cut"
+msgstr "剪切"
+
+#. Default: "Cutting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:7
+msgid "Cutting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr ""
+
+#. Default: "Delete Table"
+#: kupu/common/kupu.pox:151
+msgid "Delete Table"
+msgstr "删除表格"
+
+#. Default: "Delete column"
+#: kupu/common/kupu.pox:143
+msgid "Delete column"
+msgstr "删除列"
+
+#. Default: "Delete link"
+#: kupu/common/kupu.pox:87
+msgid "Delete link"
+msgstr "删除链接"
+
+#. Default: "Delete row"
+#: kupu/common/kupu.pox:127
+msgid "Delete row"
+msgstr "删除行"
+
+#. Default: "Discard changes? If you click OK, any changes you have made will be lost."
+#: kupu/common/kupu.pox:215
+msgid "Discard changes? If you click OK, any changes you have made will be lost."
+msgstr ""
+
+#. Default: "Document saved"
+#: kupu/common/kupu.pox:327
+msgid "Document saved"
+msgstr "文档已经保存"
+
+#. Default: "Editor initialized"
+#: kupu/common/kupu.pox:423
+msgid "Editor initialized"
+msgstr "编辑器已经初始化"
+
+#. Default: "Editor not initialized yet!"
+#: kupu/common/kupu.pox:295
+msgid "Editor not initialized yet!"
+msgstr "编辑器还没有初始化！"
+
+#. Default: "End node offset detected in a node without children!"
+#: kupu/common/kupu.pox:383
+msgid "End node offset detected in a node without children!"
+msgstr ""
+
+#. Default: "End offset out of range!"
+#: kupu/common/kupu.pox:399
+msgid "End offset out of range!"
+msgstr "结束偏移超出范围！"
+
+#. Default: "Error loading data, status ${status}"
+#: kupu/common/kupu.pox:463
+msgid "Error loading data, status ${status}"
+msgstr "加载数据错，状态 ${status}"
+
+#. Default: "Error loading translation (status ${status} ), falling back to english"
+#: kupu/common/kupu.pox:479
+msgid "Error loading translation (status ${status} ), falling back to english"
+msgstr "翻译加载错误（状态${status}），回退到英语"
+
+#. Default: "Error saving document"
+#: kupu/common/kupu.pox:319
+msgid "Error saving document"
+msgstr "保存文档出错"
+
+#. Default: "Error saving your data.\nResponse status: ${status}.\nCheck your server log for more information."
+#: kupu/common/kupu.pox:311
+msgid "Error saving your data.\nResponse status: ${status}.\nCheck your server log for more information."
+msgstr ""
+
+#. Default: "Invalid table size"
+#: kupu/common/kupu.pox:159
+msgid "Invalid table size"
+msgstr "无效的表格大小"
+
+#. Default: "No destination URL available!"
+#: kupu/common/kupu.pox:247
+msgid "No destination URL available!"
+msgstr "没有目的URL！"
+
+#. Default: "No element found in the config island!"
+#: kupu/common/kupu.pox:359
+msgid "No element found in the config island!"
+msgstr "在配置岛中没有发现元素！"
+
+#. Default: "No head in document!"
+#: kupu/common/kupu.pox:63
+msgid "No head in document!"
+msgstr ""
+
+#. Default: "No parentcolumn found!"
+#: kupu/common/kupu.pox:175
+msgid "No parentcolumn found!"
+msgstr "没有发现父列"
+
+#. Default: "No row to delete"
+#: kupu/common/kupu.pox:167
+msgid "No row to delete"
+msgstr "没有要删除的行"
+
+#. Default: "Not inside a definition list element!"
+#: kupu/common/kupu.pox:207
+msgid "Not inside a definition list element!"
+msgstr "不在一个定义列表元素中！"
+
+#. Default: "Not inside a row!"
+#: kupu/common/kupu.pox:223
+msgid "Not inside a row!"
+msgstr ""
+
+#. Default: "Not inside a table!"
+#: kupu/common/kupu.pox:183
+msgid "Not inside a table!"
+msgstr ""
+
+#. Default: "Not inside link"
+#: kupu/common/kupu.pox:79
+msgid "Not inside link"
+msgstr "不是内部链接"
+
+#. Default: "Offset out of document range"
+#: kupu/common/kupu.pox:407
+msgid "Offset out of document range"
+msgstr "偏移超出了文档范围"
+
+#. Default: "Paste"
+#: kupu/common/kupu.pox:47
+msgid "Paste"
+msgstr "粘贴"
+
+#. Default: "Pasting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+#: kupu/common/kupu.pox:23
+msgid "Pasting from JavaScript is disabled on your Mozilla due to security settings. For more information, read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+msgstr "由于安全性设置，JavaScript粘贴功能在您的Mozilla中被禁止了。更多信息，请阅读read http://www.mozilla.org/editor/midasdemo/securityprefs.html"
+
+#. Default: "Please wait while saving document..."
+#: kupu/common/kupu.pox:255
+msgid "Please wait while saving document..."
+msgstr "正在保存文档，请等待..."
+
+#. Default: "Properties modified"
+#: kupu/common/kupu.pox:71
+msgid "Properties modified"
+msgstr "属性已经修改"
+
+#. Default: "Request sent to server"
+#: kupu/common/kupu.pox:279
+msgid "Request sent to server"
+msgstr "请求已经发送到服务器"
+
+#. Default: "Right click to copy link"
+#: kupu/common/kupu.pox:239
+msgid "Right click to copy link"
+msgstr ""
+
+#. Default: "Selection not inside the node!"
+#: kupu/common/kupu.pox:367
+msgid "Selection not inside the node!"
+msgstr ""
+
+#. Default: "Sending request to server"
+#: kupu/common/kupu.pox:287
+msgid "Sending request to server"
+msgstr "发送请求到服务器"
+
+#. Default: "Source edit tool initialized"
+#: kupu/common/kupu.pox:439
+msgid "Source edit tool initialized"
+msgstr "源代码编辑工具已经初始化"
+
+#. Default: "Start node offset detected in a node without children!"
+#: kupu/common/kupu.pox:375
+msgid "Start node offset detected in a node without children!"
+msgstr ""
+
+#. Default: "Start offset out of range!"
+#: kupu/common/kupu.pox:391
+msgid "Start offset out of range!"
+msgstr "开始偏移超出范围！"
+
+#. Default: "Starting HTML cleanup"
+#: kupu/common/kupu.pox:263
+msgid "Starting HTML cleanup"
+msgstr "开始HTML清理"
+
+#. Default: "There was a problem initializing the drawers. Most likely the XSLT or XML files aren\'t available. If this is not the Kupu demo version, check your files or the service that provide them (error: ${error})."
+#: kupu/common/kupu.pox:415
+msgid "There was a problem initializing the drawers. Most likely the XSLT or XML files aren\'t available. If this is not the Kupu demo version, check your files or the service that provide them (error: ${error})."
+msgstr ""
+
+#. Default: "There were no errors."
+#: kupu/common/kupu.pox:455
+msgid "There were no errors."
+msgstr "没有错误。"
+
+#. Default: "This feature requires pop-ups to be enabled on your browser!"
+#: kupu/common/kupu.pox:471
+msgid "This feature requires pop-ups to be enabled on your browser!"
+msgstr "这个功能要求您的浏览器打款弹出窗口功能!"
+
+#. Default: "Unsupported browser!"
+#: kupu/common/kupu.pox:343
+msgid "Unsupported browser!"
+msgstr "不支持的浏览器！"
+
+#. Default: "View source"
+#: kupu/common/kupu.pox:199
+msgid "View source"
+msgstr "查看源代码"
+
+#. Default: "You are leaving the editor. Do you want to save your changes?"
+#: kupu/common/kupu.pox:431
+msgid "You are leaving the editor. Do you want to save your changes?"
+msgstr ""
+
+#. Default: "click to fold"
+#: kupu/common/kupu.pox:495
+msgid "click to fold"
+msgstr ""
+
+#. Default: "click to unfold"
+#: kupu/common/kupu.pox:487
+msgid "click to unfold"
+msgstr ""
+
+#. Default: "exception ${message} while registering an event handler for element ${element}, event ${event}, method ${method}"
+#: kupu/common/kupu.pox:351
+msgid "exception ${message} while registering an event handler for element ${element}, event ${event}, method ${method}"
+msgstr "当为元素 ${element}、事件${event}、方法${method} 注册一个事件处理器时，发生异常 ${message} "
+

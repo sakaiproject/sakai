@@ -25,10 +25,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.IOException;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -149,7 +149,18 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	{
 		log.debug("reset()");
 		outStream = new ServletByteOutputStream();
-		writer = new PrintWriter(outStream);
+		writer = new PrintWriter(outStream)
+		{
+			@Override
+			public void close()
+			{
+				// Don't actually close: this writer is reused across multiple
+				// fragments (header/body/footer) during response buffering.
+				// Really closing it marks the internal StreamEncoder as closed,
+				// causing subsequent writes to be silently dropped.
+				flush();
+			}
+		};
 	}
 
 	/**

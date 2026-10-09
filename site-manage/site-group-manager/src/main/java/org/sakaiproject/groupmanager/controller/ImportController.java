@@ -27,14 +27,14 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.StringJoiner;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -73,7 +73,7 @@ public class ImportController {
     }
 
     @PostMapping(value = "/importGroups", consumes = "multipart/form-data")
-    public String showImportGroups(@RequestParam(required=false) String groupUploadedText, Model model, HttpServletRequest req) {
+    public String showImportGroups(@RequestParam(value = "groupUploadedText", required = false) String groupUploadedText, Model model, HttpServletRequest req) {
         log.debug("showImportGroups called with value {}", groupUploadedText);
 
         // Variable definition

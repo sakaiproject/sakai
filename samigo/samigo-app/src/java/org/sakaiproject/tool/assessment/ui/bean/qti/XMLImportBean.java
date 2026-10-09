@@ -34,19 +34,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.ManagedProperty;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
@@ -66,11 +66,11 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
-
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Bean for QTI Import Data</p>
@@ -96,6 +96,12 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
   private String uploadFileName;
   private String importType;
   private String pathToData;
+  @Autowired
+  @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+  private transient ServerConfigurationService serverConfigurationService;
+  @Autowired
+  @Qualifier("org.sakaiproject.util.api.FormattedText")
+  private transient FormattedText formattedText;
   @ManagedProperty(value="#{author}")
   private AuthorBean authorBean;
   @ManagedProperty(value="#{assessmentBean}")
@@ -128,7 +134,7 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
 	  String uploadFile = (String) e.getNewValue();
 
 	  if (uploadFile!= null && uploadFile.startsWith("SizeTooBig:")) {
-		  Long sizeMax = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "20480"));
+		  Long sizeMax = Long.valueOf(serverConfigurationService.getString("samigo.sizeMax", "20480"));
 		  String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), Math.round(sizeMax.floatValue()/1024));
 	      FacesMessage message = new FacesMessage(sizeTooBigMessage);
 	      FacesContext.getCurrentInstance().addMessage(null, message);
@@ -170,16 +176,19 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
   
   public void importAssessment(String uploadFile, boolean isCP, boolean isRespondus)
   {
+	if (!authorizationBean.isUserAllowedToCreateAssessment()) {
+		throw new SecurityException("Assessment import requires assessment.createAssessment");
+	}
 	String filename = uploadFile;
 	String unzipLocation = null;
 	boolean fileNotFound = false;
-	if (isCP) {
-		ImportService importService = new ImportService();
-		unzipLocation = importService.unzipImportFile(uploadFile);
-		filename = unzipLocation + "/" + importService.getQtiFilename();
-	}
     try
     {
+      if (isCP) {
+        ImportService importService = new ImportService(serverConfigurationService, AgentFacade.getAgentString());
+        unzipLocation = importService.unzipImportFile(uploadFile);
+        filename = Path.of(unzipLocation).resolve(importService.getQtiFilename()).toString();
+      }
       processFile(filename, uploadFile, isRespondus);
     }
     catch (FileNotFoundException fnfex)
@@ -190,13 +199,14 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
     }
     catch (Exception ex)
     {
+      log.warn("QTI assessment import failed for user {}", AgentFacade.getAgentString(), ex);
       FacesMessage message = new FacesMessage( rb.getString("import_err") );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
     finally {
       boolean success = false;    	
       // remove unsuccessful file
-      if (!fileNotFound) {
+      if (!fileNotFound && (!isCP || unzipLocation != null)) {
         log.debug("****Clean up file: "+filename);
         File f1 = new File(filename);
         success = f1.delete();
@@ -210,8 +220,9 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
           if (!success) {
         	  log.error ("Failed to delete file " + uploadFile);
           }
-    	  File f3 = new File(unzipLocation);
-    	  deleteDirectory(f3);
+          if (unzipLocation != null) {
+            deleteDirectory(new File(unzipLocation));
+          }
       }
     }
   }
@@ -368,7 +379,7 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
     Iterator iter = list.iterator();
 	while (iter.hasNext()) {
 		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-		assessmentFacade.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+		assessmentFacade.setTitle(formattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 		try {
 			String lastModifiedDateDisplay = tu.getDateTimeWithTimezoneConversion(assessmentFacade.getLastModifiedDate());
 			assessmentFacade.setLastModifiedDateForDisplay(lastModifiedDateDisplay);  
@@ -504,7 +515,7 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
     String uploadFile = (String) e.getNewValue();
 
     if (StringUtils.isNotBlank(uploadFile) && StringUtils.startsWith(uploadFile, "SizeTooBig:")) {
-        Long sizeMax = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "20480"));
+        Long sizeMax = Long.valueOf(serverConfigurationService.getString("samigo.sizeMax", "20480"));
         String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), Math.round(sizeMax.floatValue()/1024));
         FacesMessage message = new FacesMessage(sizeTooBigMessage);
         FacesContext.getCurrentInstance().addMessage(null, message);
@@ -542,30 +553,34 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
    */
   private void importPool(String uploadFile, boolean isCP, boolean isRespondus) {
 
+    if (!authorizationBean.getCreateQuestionPool()) {
+        throw new SecurityException("Question pool import requires assessment.questionpool.create");
+    }
+
     // Get the file name
     String fileName = uploadFile;
     String unzipLocation = null;
     boolean fileNotFound = false;
-    if (isCP) {
-        ImportService importService = new ImportService();
-        unzipLocation = importService.unzipImportFile(uploadFile);
-        fileName = unzipLocation + File.separator + importService.getQtiFilename();
-    }
-
     try {
+        if (isCP) {
+            ImportService importService = new ImportService(serverConfigurationService, AgentFacade.getAgentString());
+            unzipLocation = importService.unzipImportFile(uploadFile);
+            fileName = Path.of(unzipLocation).resolve(importService.getQtiFilename()).toString();
+        }
         processPoolFile(fileName, uploadFile, isRespondus);
     } catch (FileNotFoundException fnfex) {
         fileNotFound = true;
         FacesMessage message = new FacesMessage( rb.getString("import_qti_not_found") );
         FacesContext.getCurrentInstance().addMessage(null, message);
     } catch (Exception ex) {
+        log.warn("QTI question pool import failed for user {}", AgentFacade.getAgentString(), ex);
         FacesMessage message = new FacesMessage( rb.getString("import_err") );
         FacesContext.getCurrentInstance().addMessage(null, message);
     }
     finally {
         boolean success = false;
         // remove unsuccessful file
-        if (!fileNotFound) {
+        if (!fileNotFound && (!isCP || unzipLocation != null)) {
           log.debug("****Clean up file: {}", fileName);
           File f1 = new File(fileName);
           success = f1.delete();
@@ -579,8 +594,9 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
             if (!success) {
                 log.warn("Failed to delete file {}", uploadFile);
             }
-            File f3 = new File(unzipLocation);
-            deleteDirectory(f3);
+            if (unzipLocation != null) {
+                deleteDirectory(new File(unzipLocation));
+            }
         }
     }
   }

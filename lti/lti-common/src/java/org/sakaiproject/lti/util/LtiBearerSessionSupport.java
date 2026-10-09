@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.lti.util;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,7 +48,7 @@ public class LtiBearerSessionSupport {
 
         request.setAttribute(LtiBearerSessionConstants.REQUEST_ATTR_LTI_SESSION, ltiSession);
 
-        log.debug("LTI bearer mini-session toolId={} sessionId={}", sat.tool_id, ltiSession.getId());
+        log.debug("LTI bearer mini-session toolId={}", sat.tool_id);
         return ltiSession;
     }
 

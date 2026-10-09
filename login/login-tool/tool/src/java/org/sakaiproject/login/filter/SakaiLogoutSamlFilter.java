@@ -24,8 +24,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Performs a logout of Sakai invalidating the {@link Session}
@@ -54,7 +54,7 @@ public class SakaiLogoutSamlFilter extends SecurityContextLogoutHandler {
             Session session = sessionManager.getCurrentSession();
 
             if (session != null) {
-                log.debug("SAML logout invalidating sakai session: {}", session.getId());
+                log.debug("SAML logout invalidating Sakai session");
                 usageSessionService.logout();
             }
         }

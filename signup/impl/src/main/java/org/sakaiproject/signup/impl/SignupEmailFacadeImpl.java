@@ -37,9 +37,9 @@ package org.sakaiproject.signup.impl;
 import java.io.File;
 import java.util.*;
 
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.mail.MessagingException;
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
+import jakarta.mail.MessagingException;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;

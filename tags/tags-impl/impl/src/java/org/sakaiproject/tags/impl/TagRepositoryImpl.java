@@ -24,18 +24,30 @@ package org.sakaiproject.tags.impl;
 
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.TypedQuery;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.tags.api.TagRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
 public class TagRepositoryImpl extends SpringCrudRepositoryImpl<Tag, String> implements TagRepository {
     @Override
+    public List<TagSummary> findAvailableInSite(String siteId) {
+        return sessionFactory.getCurrentSession().createQuery(
+            "select new org.sakaiproject.tags.api.TagSummary(t.tagId, t.tagCollectionId, t.tagLabel, c.name, t.description) "
+            + "from TagServiceTag t, TagServiceCollection c "
+            + "where t.tagCollectionId = c.tagCollectionId and (c.siteId is null or c.siteId = :site) "
+            + "order by t.tagLabel, c.name", TagSummary.class)
+            .setParameter("site", siteId).getResultList();
+    }
+
+    @Override
     public List<Tag> findAssociatedTags(String collectionId, String itemId) {
-        return query("select t from TagServiceTag t, TagAssociation a "
-            + "where t.tagId = a.tagId and t.tagCollectionId = :collection and a.itemId = :item")
+        return query("select t from TagServiceTag t, TagAssociation a, TagServiceCollection c "
+            + "where t.tagId = a.tagId and t.tagCollectionId = c.tagCollectionId and a.itemId = :item "
+            + "and (t.tagCollectionId = :collection or c.siteId = :collection or c.siteId = concat('~', :collection) or c.siteId is null)")
             .setParameter("collection", collectionId).setParameter("item", itemId).getResultList();
     }
 

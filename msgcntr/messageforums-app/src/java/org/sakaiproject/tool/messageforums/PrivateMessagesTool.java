@@ -92,17 +92,18 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
-import javax.faces.FactoryFinder;
-import javax.faces.application.ApplicationFactory;
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.el.ELContext;
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.FactoryFinder;
+import jakarta.faces.application.ApplicationFactory;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.text.ParseException;
 import java.io.Serializable;
@@ -128,7 +129,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @ManagedBean(name="PrivateMessagesTool")
 @SessionScoped
-public class PrivateMessagesTool {
+public class PrivateMessagesTool implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private static final String MESSAGECENTER_PRIVACY_URL = "messagecenter.privacy.url";
   private static final String MESSAGECENTER_PRIVACY_TEXT = "messagecenter.privacy.text";
@@ -194,7 +197,7 @@ public class PrivateMessagesTool {
   private Boolean fromPreview = false;
 
   /**
-   *Dependency Injected 
+   *Dependency Injected
    */
   @Setter
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager\"]}")
@@ -323,7 +326,7 @@ public class PrivateMessagesTool {
     this.detailMsg = detailMsg;
     if (detailMsg == null || (!fromPreview && !detailMsg.getIsPreview() && !detailMsg.getIsPreviewReply() && !detailMsg.getIsPreviewReplyAll() && !detailMsg.getIsPreviewForward())) {
       this.selectedTags = detailMsg != null && detailMsg.getMsg().getId() != null && isCanUseTags()
-          ? String.join(",", tagService.getTagAssociationIds(getUserId(), String.valueOf(detailMsg.getMsg().getId())))
+          ? String.join(",", tagService.getTagAssociationIds(getSiteId(), String.valueOf(detailMsg.getMsg().getId())))
           : "";
       fromPreview = false;
     } else if (detailMsg.getIsPreview() || detailMsg.getIsPreviewReply() || detailMsg.getIsPreviewReplyAll() || detailMsg.getIsPreviewForward()) {
@@ -458,10 +461,10 @@ public class PrivateMessagesTool {
   private final DraftRecipientsDelegate drDelegate;
   
   @Getter @Setter
-  public String schedulerSendDateString;
+  private String schedulerSendDateString;
 
   @Getter
-  public Date openDate;
+  private Date openDate;
   @Getter @Setter
   private boolean booleanSchedulerSend = false;
 
@@ -3278,8 +3281,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     log.debug("msgId " + msgId + " - selectedTags " + selectedTags);
     if (msgId != null && ServerConfigurationService.getBoolean("tagservice.enable.integrations", true) && isInstructor() && selectedTags != null) {
       List<String> tagIds = Arrays.asList(selectedTags.split(","));
-      tagService.updateTagAssociations(getUserId(), String.valueOf(msgId), tagIds, false);
-      selectedTags = String.join(",", tagService.getTagAssociationIds(getUserId(), String.valueOf(msgId)));
+      tagService.updateTagAssociations(getSiteId(), String.valueOf(msgId), tagIds, true);
+      selectedTags = String.join(",", tagService.getTagAssociationIds(getSiteId(), String.valueOf(msgId)));
     }
   }
 
@@ -4060,8 +4063,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public Object lookupBean(String beanName) {
     ApplicationFactory applicationFactory = (ApplicationFactory) FactoryFinder.getFactory(FactoryFinder.APPLICATION_FACTORY);
 
-    return (Serializable) applicationFactory.getApplication().getVariableResolver()
-        .resolveVariable(FacesContext.getCurrentInstance(), beanName);
+    FacesContext context = FacesContext.getCurrentInstance();
+    ELContext elContext = context.getELContext();
+
+    return (Serializable) elContext.getELResolver()
+        .getValue(elContext, null, beanName);
   }
 
   public void processPvtMsgParentFolderMove(ValueChangeEvent event)
@@ -4211,7 +4217,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     List<String> selectedTagsList = selectedTags != null ? Arrays.asList(selectedTags.split(",")) : new ArrayList<>();
     if(searchOnTags && CollectionUtils.isNotEmpty(selectedTagsList)) {
         tempPvtMsgLs = ((List<PrivateMessage>)tempPvtMsgLs).stream().filter(pm -> {
-                List<String> tagIds = tagService.getTagAssociationIds(getUserId(), String.valueOf(pm.getId()));
+                List<String> tagIds = tagService.getTagAssociationIds(getSiteId(), String.valueOf(pm.getId()));
                 return (tagIds.containsAll(selectedTagsList));
         }).collect(Collectors.toList());
     }
@@ -4258,27 +4264,27 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
 
   @Getter @Setter
-  public boolean searchOnBody=false ;
+  private boolean searchOnBody=false ;
   @Getter @Setter
-  public boolean searchOnSubject=true;  //default is search on Subject
+  private boolean searchOnSubject=true;  //default is search on Subject
   @Getter @Setter
-  public boolean searchOnLabel= false ;
+  private boolean searchOnLabel= false ;
   @Getter @Setter
-  public boolean searchOnAuthor=false;
+  private boolean searchOnAuthor=false;
   @Getter @Setter
-  public boolean searchOnDate=false;
+  private boolean searchOnDate=false;
   @Getter @Setter
-  public boolean searchOnTags=false;
+  private boolean searchOnTags=false;
   @Getter @Setter
-  public Date searchFromDate;
+  private Date searchFromDate;
   @Getter @Setter
-  public Date searchToDate;
+  private Date searchToDate;
   @Getter @Setter
-  public String selectedSearchLabel="pvt_priority_normal";
+  private String selectedSearchLabel="pvt_priority_normal";
   @Getter @Setter
-  public String searchFromDateString;
+  private String searchFromDateString;
   @Getter @Setter
-  public String searchToDateString; 
+  private String searchToDateString;
 
   //////////////        HELPER      //////////////////////////////////
   /**
@@ -4322,7 +4328,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       }
         dbean.setSendToStringDecorated(createDecoratedSentToDisplay(dbean));
 
-      List<String> tagLabels = tagService.getAssociatedTagsForItem(getUserId(), String.valueOf(element.getId())).stream().map(Tag::getTagLabel).collect(Collectors.toList());
+      List<String> tagLabels = tagService.getAssociatedTagsForItem(getSiteId(), String.valueOf(element.getId())).stream().map(Tag::getTagLabel).collect(Collectors.toList());
       dbean.setTagList(tagLabels);
 
       decLs.add(dbean) ;
@@ -5112,5 +5118,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    if(booleanSchedulerSend && StringUtils.isNotBlank(openDateISO8601)) {
 		    this.schedulerSendDateString = openDateISO8601;
 		}
+	}
+
+	public boolean isThreadedView() {
+		return "threaded".equals(selectView);
 	}
 }

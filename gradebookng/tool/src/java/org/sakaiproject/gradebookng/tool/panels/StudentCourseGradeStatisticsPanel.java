@@ -16,7 +16,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -29,10 +29,10 @@ public class StudentCourseGradeStatisticsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 	private final CourseGradeTransferBean studentGrade;
 
-	public StudentCourseGradeStatisticsPanel(final String id, final ModalWindow window,
+	public StudentCourseGradeStatisticsPanel(final String id, final GbModalWindow window,
 			final CourseGradeTransferBean courseGrade) {
 		super(id);
 		this.window = window;

@@ -90,7 +90,7 @@ New file **webapp/META-INF/context.xml**
 <Context>
     <Resource name="BeanManager" 
         auth="Container"
-        type="javax.enterprise.inject.spi.BeanManager"
+        type="jakarta.enterprise.inject.spi.BeanManager"
         factory="org.jboss.weld.resources.ManagerObjectFactory" />
 </Context>
 ```

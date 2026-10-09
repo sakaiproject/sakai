@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ $Id: defineInclude.xml 804043 2009-08-13 22:08:44Z lu4242 $
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="kupu">
+<head>
+</head>
+<body>
+<composite:interface componentType="org.apache.myfaces.InputHtml">
+</composite:interface>
+<composite:implementation>
+    <div style="display: none;">
+    <h:outputText escape="false" value="#{cc.kupuConfig}"/>
+    </div>
+  
+    <t:htmlTag value="div" styleClass="kupu-fulleditor">
+    <f:param name="xmlns:i18n" value="http://xml.zope.org/namespaces/i18n"/>
+    <f:param name="i18n:domain" value="kupu"/>
+      
+    <div class="kupu-tb" id="toolbar">
+      
+    <span id="kupu-tb-buttons" class="kupu-tb-buttons">
+      
+    <span class="kupu-tb-buttongroup kupu-logo" style="float: right" id="kupu-logo">
+      <button type="button" class="kupu-logo" title="Kupu 1.4" i18n:attributes="title title_logo;" accesskey="k" onclick="window.open('http://kupu.oscom.org');">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup" style="float: right" id="kupu-zoom">
+      <button type="button" class="kupu-zoom" id="kupu-zoom-button" i18n:attributes="title title_zoom;" title="Zoom: Access key (Alt or Ctrl) + X" accesskey="x">&#160;</button>
+    </span>
+  
+    <select id="kupu-tb-styles">
+      <option value="P" i18n:translate="Normal">
+        Normal paragraph
+      </option>
+      <option value="H1">
+        <span i18n:translate="Heading 1">Heading 1</span>
+      </option>
+      <option value="H2">
+        <span i18n:translate="Heading 2">Heading 2</span>
+      </option>
+      <option value="H3">
+        <span i18n:translate="Heading 3">Heading 3</span>
+      </option>
+      <option value="H4">
+        <span i18n:translate="Heading 4">Heading 4</span>
+      </option>
+      <option value="H5">
+        <span i18n:translate="Heading 5">Heading 5</span>
+      </option>
+      <option value="H6">
+        <span i18n:translate="Heading 6">Heading 6</span>
+      </option>
+      <option value="PRE" i18n:translate="Formatted">
+        Formatted
+      </option>
+    </select>
+  
+    <span class="kupu-tb-buttongroup">
+      <button type="button" class="kupu-save" id="kupu-save-button" title="save: alt-s" i18n:attributes="title title_save_alts;" accesskey="s">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup" id="kupu-bg-basicmarkup">
+      <button type="button" class="kupu-bold" id="kupu-bold-button" title="Bold: Access key (Alt or Ctrl) + B" i18n:attributes="title title_bold;" accesskey="b">&#160;</button>
+      <button type="button" class="kupu-italic" id="kupu-italic-button" title="Italic: Access key (Alt or Ctrl) + I" i18n:attributes="title title_italic;" accesskey="i">&#160;</button>
+      <button type="button" class="kupu-underline" id="kupu-underline-button" title="Underline: Access key (Alt or Ctrl) + U" i18n:attributes="title title_underline;" accesskey="u">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup" id="kupu-bg-subsuper">
+      <button type="button" class="kupu-subscript" id="kupu-subscript-button" title="Subscript: Access key (Alt or Ctrl) + -" i18n:attributes="title title_subscript;" accesskey="-">&#160;</button>
+      <button type="button" class="kupu-superscript" id="kupu-superscript-button" title="Superscript: Access key (Alt or Ctrl) + +" i18n:attributes="title title_superscript;" accesskey="+">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup" id="kupu-bg-color">
+      
+      <button type="button" class="kupu-forecolor" id="kupu-forecolor-button" title="text color: alt-f" i18n:attributes="title title_text_color;" accesskey="f">&#160;</button>
+      <button type="button" class="kupu-hilitecolor" id="kupu-hilitecolor-button" title="background color: alt-h" i18n:attributes="title title_back_color;" accesskey="h">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup" id="kupu-bg-justify">
+      <button type="button" class="kupu-justifyleft" id="kupu-justifyleft-button" title="Left justify: Access key (Alt or Ctrl) + L" i18n:attributes="title title_ljust;" accesskey="l">&#160;</button>
+      <button type="button" class="kupu-justifycenter" id="kupu-justifycenter-button" title="Center justify: Access key (Alt or Ctrl) + C" i18n:attributes="title title_center;" accesskey="c">&#160;</button>
+      <button type="button" class="kupu-justifyright" id="kupu-justifyright-button" title="Right justify: Access key (Alt or Ctrl) + R" i18n:attributes="title title_rjust;" accesskey="r">&#160;</button>
+    </span>
+  
+              <span class="kupu-tb-buttongroup" id="kupu-bg-list">
+      
+      <button type="button" class="kupu-insertorderedlist" title="Numbered list: Access key (Alt or Ctrl) + #" id="kupu-list-ol-addbutton" i18n:attributes="title title_numlist;" accesskey="#">&#160;</button>
+      <button type="button" class="kupu-insertunorderedlist" title="Unordered list: Access key (Alt or Ctrl) + *" id="kupu-list-ul-addbutton" i18n:attributes="title title_unorderedlist;" accesskey="*">&#160;</button>
+              </span>
+  
+    <span class="kupu-tb-buttongroup" id="kupu-bg-definitionlist">
+      
+      <button type="button" class="kupu-insertdefinitionlist" title="Definition list: Access key (Alt or Ctrl) + =" id="kupu-list-dl-addbutton" i18n:attributes="title title_deflist;" accesskey="=">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup" id="kupu-bg-indent">
+      <button type="button" class="kupu-outdent" id="kupu-outdent-button" title="Decrease quote level: Access key (Alt or Ctrl) + &lt;" i18n:attributes="title title_decrease_quote;" accesskey="&lt;">&#160;</button>
+      <button type="button" class="kupu-indent" id="kupu-indent-button" title="Increase quote level: Access key (Alt or Ctrl) + &gt;" i18n:attributes="title title_increase_quote;" accesskey="&gt;">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup">
+      <button type="button" class="kupu-image" id="kupu-imagelibdrawer-button" title="Insert image" i18n:attributes="title title_insert_image;">&#160;</button>
+      <button type="button" class="kupu-inthyperlink" id="kupu-linklibdrawer-button" title="Insert internal link" i18n:attributes="title title_insert_internal_link;">&#160;</button>
+      <button type="button" class="kupu-exthyperlink" id="kupu-linkdrawer-button" title="Insert external link" i18n:attributes="title title_insert_external_link;">&#160;</button>
+      <button type="button" class="kupu-anchors" id="kupu-anchors" title="Insert anchors" i18n:attributes="title title_insert_anchors;">&#160;</button>
+      <button type="button" class="kupu-table" id="kupu-tabledrawer-button" title="Insert table" i18n:attributes="title title_insert_table;">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup" id="kupu-bg-remove">
+      <button type="button" class="kupu-removeimage invisible" id="kupu-removeimage-button" title="Remove image" i18n:attributes="title title_removeimage;">&#160;</button>
+      <button type="button" class="kupu-removelink invisible" id="kupu-removelink-button" title="Remove link" i18n:attributes="title title_removelink;">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup" id="kupu-bg-undo">
+      <button type="button" class="kupu-undo" id="kupu-undo-button" title="Undo: Access key (Alt or Ctrl) + Z" i18n:attributes="title title_undo;" accesskey="z">&#160;</button>
+      <button type="button" class="kupu-redo" id="kupu-redo-button" title="Redo: Access key (Alt or Ctrl) + Y" i18n:attributes="title title_redo;" accesskey="y">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup kupu-spellchecker-span" id="kupu-spellchecker">
+      <button type="button" class="kupu-spellchecker" id="kupu-spellchecker-button" title="Check spelling" i18n:attributes="title title_check_spelling;">&#160;</button>
+    </span>
+  
+    <span class="kupu-tb-buttongroup kupu-source-span" id="kupu-source">
+      <button type="button" class="kupu-source" id="kupu-source-button" style="#{cc.allowEditSource?'':'display: none'}" title="Switch between visual editor and HTML view" i18n:attributes="title toggle_source_view;" accesskey="h">&#160;</button>
+    </span>
+  
+    </span>
+  
+    <select id="kupu-ulstyles" class="kupu-ulstyles">
+      <option value="disc" i18n:translate="list-disc">&#9679;</option>
+      <option value="square" i18n:translate="list-square">&#9632;</option>
+      <option value="circle" i18n:translate="list-circle">&#9675;</option>
+      <option value="none" i18n:translate="list-nobullet">no bullet</option>
+    </select>
+    <select id="kupu-olstyles" class="kupu-olstyles">
+      <option value="decimal" i18n:translate="list-decimal">1</option>
+      <option value="upper-roman" i18n:translate="list-upperroman">I</option>
+      <option value="lower-roman" i18n:translate="list-lowerroman">i</option>
+      <option value="upper-alpha" i18n:translate="list-upperalpha">A</option>
+      <option value="lower-alpha" i18n:translate="list-loweralpha">a</option>
+    </select>
+  
+    
+    <div style="display:block;" class="kupu-librarydrawer-parent">
+      <iframe style="display:none" class="kupu-anchorframe" src="javascript:''">
+      </iframe>
+    </div>
+  
+    <div id="kupu-linkdrawer" class="kupu-drawer kupu-linkdrawer">
+      <h1 class="kupu-drawer-title" i18n:translate="title_external_link">External Link</h1>
+
+      <div id="kupu-linkdrawer-addlink" class="kupu-panels kupu-linkdrawer-addlink">
+         <ul class="kupu-tabs">
+            <li class="kupu-linkdrawer-addlink selected"><a href="#" i18n:translate="tab_link">Link to url</a></li>
+            <li class="kupu-linkdrawer-embed"><a href="#" i18n:translate="tab_embed">Embed external object</a></li>
+         </ul>
+         <table class="kupu-tabbed">
+            <tbody class="kupu-addlink">
+               <tr>
+                  <td>
+                     <div class="kupu-toolbox-label">
+                        
+                        <span i18n:translate="label_link_text">
+                           Link the highlighted text to this URL:
+                        </span>
+                     </div>
+                     <input class="kupu-toolbox-st kupu-linkdrawer-input" type="text" onkeypress="return HandleDrawerEnter(event, 'linkdrawer-preview');"/>
+                  </td>
+                  <td class="kupu-preview-button">
+                     <button class="kupu-dialog-button" type="button" id="linkdrawer-preview" onclick="drawertool.current_drawer.preview()" i18n:translate="button_preview">Preview</button>
+                  </td>
+               </tr>
+               <tr class="kupu-linkdrawer-anchors" style="display:none">
+                  <td colspan="2">
+                     <label i18n:translate="label_anchor" for="anchorselect">Anchor</label>
+                     <select id="anchorselect"><option i18n:translate="opt_top_of_page" value="">top of page (default)</option></select>
+                  </td>
+               </tr>
+               <tr><td colspan="2" align="center">
+                  <div class="watermark"><span i18n:translate="watermark_preview">Preview</span></div>
+                  <iframe frameborder="1" scrolling="auto" width="440" height="198" class="kupu-linkdrawer-preview" src="javascript:''">
+                  </iframe>
+                  </td>
+               </tr>
+            </tbody>
+            <tbody class="kupu-embed">
+               <tr>
+                  <td>
+                     <div class="kupu-toolbox-label">
+                        
+                        <span i18n:translate="help_paste_here">
+                           Paste &lt;object&gt; or &lt;embed&gt; tag here:
+                        </span>
+                     </div>
+                     <textarea class="kupu-toolbox-st kupu-embed-input" i18n:translate="placeholder_html_code">[insert arbitrary HTML code here]</textarea>
+                  </td>
+               </tr>
+               <tr>
+                  <td i18n:translate="custom_html_help">
+                  You may use this box to insert custom snippets of
+                  HTML code. There is no guarantee that any code
+                  inserted in this way will be preserved when you save
+                  your edits. To select an existing object from IE click on
+                  the border, from Firefox double click it.
+                  </td>
+               </tr>
+            </tbody>
+        </table>
+
+        <div class="kupu-dialogbuttons">
+          <button class="kupu-dialog-button" type="button" onclick="drawertool.current_drawer.save()" i18n:translate="button_ok">Ok</button>
+          <button class="kupu-dialog-button" type="button" onclick="drawertool.closeDrawer()" i18n:translate="button_cancel">Cancel</button>
+        </div>
+
+      </div>
+    </div>
+  
+    <div id="kupu-tabledrawer" class="kupu-drawer kupu-tabledrawer">
+    <h1 class="kupu-drawer-title" i18n:translate="tabledrawer_title">Table</h1>
+    <div class="kupu-panels">
+      <table width="300">
+        <tr class="kupu-panelsrow">
+          <td class="kupu-panel">
+            
+            <div class="kupu-tabledrawer-addtable">
+              <table>
+                <tr>
+                  <th i18n:translate="tabledrawer_class_label" class="kupu-toolbox-label">Table Class</th>
+                  <td>
+                    <select class="kupu-tabledrawer-addclasschooser">
+                      <option i18n:translate="Plain" value="plain">Plain</option>
+                      <option i18n:translate="Listing" value="listing">Listing</option>
+                      <option i18n:translate="Grid" value="grid">Grid</option>
+                      <option i18n:translate="Data" value="data">Data</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th i18n:translate="tabledrawer_rows_label" class="kupu-toolbox-label">Rows</th>
+                  <td><input type="text" class="kupu-tabledrawer-newrows" onkeypress="return HandleDrawerEnter(event);"/></td>
+                </tr>
+                <tr>
+                  <th i18n:translate="tabledrawer_columns_label" class="kupu-toolbox-label">Columns</th>
+                  <td><input type="text" class="kupu-tabledrawer-newcols" onkeypress="return HandleDrawerEnter(event);"/></td>
+                </tr>
+                <tr>
+                  <th class="kupu-toolbox-label"> </th>
+                  <td>
+                    <input class="kupu-tabledrawer-makeheader" type="checkbox" checked="checked" onkeypress="return HandleDrawerEnter(event);" id="tabledrawer_makeheader"/>
+                    <label i18n:translate="tabledrawer_headings_label" for="tabledrawer_makeheader">
+                      Create Headings
+                    </label>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="kupu-toolbox-label"> </th>
+                  <td>
+                      <button class="kupu-dialog-button" type="button" i18n:translate="tabledrawer_add_table_button" onclick="drawertool.current_drawer.createTable()">Add Table</button>
+                      <button class="kupu-dialog-button" type="button" i18n:translate="tabledrawer_fix_tables_button" onclick="drawertool.current_drawer.fixAllTables()">Fix All Tables</button>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            
+            <div class="kupu-tabledrawer-edittable">
+              <table>
+                <tr>
+                  <th class="kupu-toolbox-label" i18n:translate="tabledrawer_class_label">Table Class</th>
+                  <td>
+                    <select class="kupu-tabledrawer-editclasschooser" onchange="drawertool.current_drawer.setTableClass(this.options[this.selectedIndex].value)">
+                      <option i18n:translate="Plain" value="plain">Plain</option>
+                      <option i18n:translate="Listing" value="listing">Listing</option>
+                      <option i18n:translate="Grid" value="grid">Grid</option>
+                      <option i18n:translate="Data" value="data">Data</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="kupu-toolbox-label" i18n:translate="tabledrawer_alignment_label">Current column alignment</th>
+                  <td>
+                    <select id="kupu-tabledrawer-alignchooser" class="kupu-tabledrawer-alignchooser" onchange="drawertool.current_drawer.tool.setColumnAlign(this.options[this.selectedIndex].value)">
+                      <option i18n:translate="tabledrawer_left_option" value="left">Left</option>
+                      <option i18n:translate="tabledrawer_center_option" value="center">Center</option>
+                      <option i18n:translate="tabledrawer_right_option" value="right">Right</option>
+                      </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="kupu-toolbox-label" i18n:translate="tabledrawer_column_label">Column</th>
+                  <td>
+                    <button class="kupu-dialog-button" type="button" i18n:translate="tabledrawer_add_button" onclick="drawertool.current_drawer.addTableColumn()">Add</button>
+                    <button class="kupu-dialog-button" type="button" i18n:translate="tabledrawer_remove_button" onclick="drawertool.current_drawer.delTableColumn()">Remove</button>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="kupu-toolbox-label" i18n:translate="tabledrawer_row_label">Row</th>
+                  <td>
+                    <button class="kupu-dialog-button" type="button" i18n:translate="tabledrawer_add_button" onclick="drawertool.current_drawer.addTableRow()">Add</button> 
+                    <button class="kupu-dialog-button" type="button" i18n:translate="tabledrawer_remove_button" onclick="drawertool.current_drawer.delTableRow()">Remove</button>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="kupu-toolbox-label" i18n:translate="tabledrawer_table_label">Table</th>
+                  <td>
+                    <button class="kupu-dialog-button" type="button" i18n:translate="tabledrawer_fix_button" onclick="drawertool.current_drawer.fixTable()">Fix</button> 
+                    <button class="kupu-dialog-button" type="button" i18n:translate="tabledrawer_remove_button" onclick="drawertool.current_drawer.delTable()">Remove</button> 
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <div class="kupu-dialogbuttons">
+        <button class="kupu-dialog-button" type="button" i18n:translate="tabledrawer_close_button" onclick="drawertool.closeDrawer(this)">Close</button>
+      </div>
+    </div>
+    </div>
+
+  
+    <div id="kupu-anchordrawer" class="kupu-drawer kupu-anchordrawer">
+      <h1 class="kupu-drawer-title" i18n:translate="anchordrawer_title">Anchors</h1>
+      <div class="kupu-panels kupu-ins-bm">
+         <ul class="kupu-tabs">
+            <li class="kupu-ins-bm selected"><a href="#" i18n:translate="tab_link_anchor">Link to anchor</a></li>
+            <li class="kupu-anchor" ><a href="#" i18n:translate="tab_manage_anchors">Manage Anchors</a></li>
+            <li class="kupu-toc" ><a href="#" i18n:translate="tab_toc">Table of contents</a></li>
+         </ul>
+        <table class="kupu-tabbed" cellspacing="0">
+          <tr>
+            <td class="kupu-bm-select">
+              <select id="kupu-bm-sel1" size="10"> </select>
+            </td>
+            <td>
+              <div class="kupu-bm-heading">
+                <div class="kupu-bm-tablestyle invis-ins-bm invis-anchor">
+                  <label i18n:translate="label_table_style" for="kupu-bm-outcls">
+                    Table style
+                  </label>
+                  <select id="kupu-bm-outcls" size="1">
+                    <option value="" i18n:translate="Normal">Normal paragraph</option>
+                  </select>
+                </div>
+                <div class="kupu-bm-numbering invis-ins-bm invis-anchor">
+                  <label i18n:translate="label_numbering" for="kupu-bm-number">
+                    Numbering
+                  </label>
+                  <input type="checkbox" class="hide-ins-bm hide-anchor" checked="checked" id="kupu-bm-number"/>
+                </div>
+                <div class="invis-ins-bm">
+                   <label for="kupu-bm-checkall">
+                      <em i18n:translate="label_toggle_all">toggle all</em>
+                   </label>
+                   <input type="checkbox" class="hide-ins-bm" checked="checked" id="kupu-bm-checkall"/>
+                </div>
+              </div>
+              <div class="kupu-bm-paras">&#160;</div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <select id="kupu-bm-sel2" size="1" class="hide-ins-bm hide-anchor">
+                <option value="" i18n:translate="opt_2nd_style">(optional 2nd style)</option>
+              </select>
+            </td>
+            <td>
+               <div class="kupu-bm-help">
+                  <span class="hide-anchor hide-toc discreet" i18n:translate="create_anchor_link_help">
+                     Select a paragraph style then choose a paragraph and Ok to insert a link to that location.
+                  </span>
+                  <span class="hide-ins-bm hide-anchor discreet" i18n:translate="create_toc_help">
+                     Select one or two paragraph styles, then Ok to insert a table of contents.
+                  </span>
+                  <span class="hide-ins-bm hide-toc discreet" i18n:translate="create_anchor_help">
+                     Anchors are created for checked paragraphs and
+                     removed for unchecked paragraphs when you press Ok.
+                     Anchors in use on this page may not be deleted.
+                  </span>
+              </div>
+            </td>
+          </tr>
+        </table>
+        <div class="kupu-dialogbuttons">
+          <button class="kupu-dialog-button" type="button" onclick="drawertool.current_drawer.save()" i18n:translate="button_ok">Ok</button>
+          <button class="kupu-dialog-button" type="button" onclick="drawertool.closeDrawer()" i18n:translate="button_cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  
+  
+    </div>
+  
+    <div class="kupu-toolboxes" id="kupu-toolboxes" style="#{cc.showAnyToolBox?'':'display: none'}">
+      
+    <div class="kupu-toolbox" id="kupu-toolbox-properties" style="#{cc.showPropertiesToolBox?'':'display: none'}">
+      <h1 class="kupu-toolbox-heading" i18n:translate="title_properties">Properties</h1>
+
+      <div>
+        <div class="kupu-toolbox-label" i18n:translate="label_title">Title:</div>
+        <input class="wide" id="kupu-properties-title"/>
+        <div class="kupu-toolbox-label" i18n:translate="label_description">Description:</div>
+        <textarea class="wide" id="kupu-properties-description"> </textarea>
+      </div>
+    </div>
+  
+    <div class="kupu-toolbox" id="kupu-toolbox-links" style="#{cc.showLinksToolBox?'':'display: none'}">
+      <h1 class="kupu-toolbox-heading" i18n:translate="label_links">Links</h1>
+
+      <div id="kupu-toolbox-addlink">
+        <div class="kupu-toolbox-label">
+          
+          <span i18n:translate="label_link_text">
+            Link the highlighted text to this URL:
+          </span>
+        </div>
+
+        <input id="kupu-link-input" class="wide" type="text"/>
+        <div class="kupu-toolbox-buttons">
+          <button type="button" id="kupu-link-button" class="kupu-toolbox-action" i18n:translate="button_makelink">Make Link</button>
+        </div>
+      </div>
+    </div>
+  
+    <div class="kupu-toolbox" id="kupu-toolbox-images" style="#{cc.showImagesToolBox?'':'display: none'}">
+      <h1 class="kupu-toolbox-heading" i18n:translate="title_images">Images</h1>
+
+      <div>
+        <div class="kupu-toolbox-label">
+          <span i18n:translate="label_image_class">Image class:</span>
+        </div>
+        <select class="wide" id="kupu-image-float-select">
+          <option value="image-inline" i18n:translate="opt_inline">Inline</option>
+          <option value="image-left" i18n:translate="opt_left">Left</option>
+          <option value="image-right" i18n:translate="opt_right">Right</option>
+        </select>
+
+        <div class="kupu-toolbox-label">
+          <span i18n:translate="label_insert_image_url">Insert image at the following URL:</span>
+        </div>
+        <input id="kupu-image-input" value="kupuimages/kupu_icon.gif" class="wide" type="text"/>
+
+        <div class="kupu-toolbox-buttons">
+          <button type="button" id="kupu-image-addbutton" class="kupu-toolbox-action" i18n:translate="button_insert_image">Insert Image</button>
+        </div>
+      </div>
+    </div>
+  
+    <div class="kupu-toolbox" id="kupu-toolbox-tables" style="#{cc.showTablesToolBox?'':'display: none'}">
+      <h1 class="kupu-toolbox-heading" i18n:translate="title_tables">Tables</h1>
+
+      <div>
+      <div class="kupu-toolbox-label">
+        <span i18n:translate="label_table_class">Table Class:</span>
+        <select class="wide" id="kupu-table-classchooser"> </select>
+      </div>
+
+      <div id="kupu-toolbox-addtable" class="kupu-toolbox-addtable">
+        <div class="kupu-toolbox-label" i18n:translate="label_rows">Rows:</div>
+        <input class="wide" type="text" id="kupu-table-newrows"/>
+
+        <div class="kupu-toolbox-label" i18n:translate="label_columns">Columns:</div>
+        <input class="wide" type="text" id="kupu-table-newcols"/>
+
+        <div class="kupu-toolbox-label">
+          <span i18n:translate="label_headings">Headings:</span>
+          <input name="kupu-table-makeheader" id="kupu-table-makeheader" type="checkbox"/>
+          <label for="kupu-table-makeheader" i18n:translate="label_create">Create</label>
+        </div>
+
+        <div class="kupu-toolbox-buttons">
+          <button type="button" id="kupu-table-fixall-button" i18n:translate="button_fix_table">Fix Table</button> 
+          <button type="button" id="kupu-table-addtable-button" i18n:translate="button_add_table">Add Table</button> 
+        </div>
+
+      </div>
+
+      <div id="kupu-toolbox-edittable" class="kupu-toolbox-edittable">
+      
+          <div class="kupu-toolbox-label">
+            <span i18n:translate="label_col_align">Col Align:</span>
+            <select class="wide" id="kupu-table-alignchooser">
+              <option value="left" i18n:translate="tabledrawer_left_option">Left</option>
+              <option value="center" i18n:translate="tabledrawer_center_option">Center</option>
+              <option value="right" i18n:translate="tabledrawer_right_option">Right</option>
+            </select>
+          </div>
+      
+          <div class="kupu-toolbox-buttons">
+            <br/>
+            <button type="button" id="kupu-table-addcolumn-button" i18n:translate="button_add_column">Add Column</button>
+            <button type="button" id="kupu-table-delcolumn-button" i18n:translate="button_remove_column">Remove Column</button>
+            
+            <br/>
+            <button type="button" id="kupu-table-addrow-button" i18n:translate="button_add_row">Add Row</button>
+            <button type="button" id="kupu-table-delrow-button" i18n:translate="button_remove_row">Remove Row</button>
+          
+            <button type="button" id="kupu-table-fix-button" i18n:translate="button_fix_table">Fix Table</button>
+            <button type="button" id="kupu-table-del-button" i18n:translate="button_remove_table">Remove Table</button>
+          </div>
+          
+      </div>
+      </div>
+
+    </div>
+  
+    <div class="kupu-toolbox" id="kupu-toolbox-cleanupexpressions" style="#{cc.showCleanupExpressionsToolBox?'':'display: none'}">
+      <h1 class="kupu-toolbox-heading" i18n:translate="title_cleanup_expressions">Cleanup expressions</h1>
+
+      <div>
+        <div class="kupu-toolbox-label">
+          <span i18n:translate="label_select_cleanup">
+            Select a cleanup action:
+          </span>
+        </div>
+
+        <select id="kupucleanupexpressionselect" class="kupu-toolbox-st">
+        </select>
+        <div style="text-align: center">
+          <button type="button" id="kupucleanupexpressionbutton" class="kupu-toolbox-action" i18n:translate="perform_action">Perform action</button>
+        </div>
+      </div>
+    </div>
+  
+    <div class="kupu-toolbox" id="kupu-toolbox-debug" style="#{cc.showDebugToolBox?'':'display: none'}">
+      <h1 class="kupu-toolbox-heading" i18n:translate="title_debug_log">Debug Log</h1>
+      <div id="kupu-toolbox-debuglog" class="kupu-toolbox-label">
+      </div>
+    </div>
+  
+    </div>
+  
+    <table id="kupu-colorchooser" class="kupu-colorchooser" cellpadding="0" cellspacing="0" style="position: fixed; border-style: solid; border-color: black; border-width: 1px;">
+    </table>
+  
+    <div style="#{cc.showAnyToolBox?'':'margin-right: 0.3em'}" class="kupu-editorframe #{cc.styleClass}">
+      <iframe id="#{cc.clientId}_iframe" class="kupu-editor-iframe" frameborder="0" scrolling="auto" onmouseover="myFacesKupuReactivateDesignMode(this)" onfocus="myFacesKupuReactivateDesignMode(this)">
+      </iframe>
+      <textarea class="kupu-editor-textarea" id="kupu-editor-textarea"> </textarea>
+    </div>
+  
+    </t:htmlTag>
+    
+    <script type="text/javascript"><!--
+        myFacesKupuSet('#{cc.encodedText}','#{cc.clientId}','#{cc.formId}','');
+    //--></script>
+</composite:implementation>
+</body>
+</html>

@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.profile2.impl.test;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.hibernate.SessionFactory;
 

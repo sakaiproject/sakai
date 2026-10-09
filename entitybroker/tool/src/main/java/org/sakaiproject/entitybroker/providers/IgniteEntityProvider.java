@@ -40,6 +40,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.ignite.api.CacheAdminService;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,7 @@ public class IgniteEntityProvider extends AbstractEntityProvider implements Acti
 
     @Setter private IgniteSpringBean ignite;
     @Setter private DeveloperHelperService developerHelperService;
+    @Setter private CacheAdminService cacheAdminService;
 
     @Override
     public String getEntityPrefix() {
@@ -133,6 +135,20 @@ public class IgniteEntityProvider extends AbstractEntityProvider implements Acti
         } else {
             return new ActionReturn((Object) ("The cache [" + cacheName + "] does not exist please supply a valid cache name"));
         }
+    }
+
+    @EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+    public ActionReturn clearAllCaches(EntityView view) {
+        requiresAdmin();
+        cacheAdminService.clearAllCaches();
+        log.info("Cleared all caches by user {}", developerHelperService.getCurrentUserId());
+        return new ActionReturn((Object) ("Cleared all caches at " + LocalDateTime.now()));
+    }
+
+    @EntityCustomAction(viewKey=EntityView.VIEW_LIST)
+    public ActionReturn status(EntityView view) {
+        requiresAdmin();
+        return new ActionReturn((Object) cacheAdminService.getStatus());
     }
 
     @EntityCustomAction(viewKey= EntityView.VIEW_LIST)

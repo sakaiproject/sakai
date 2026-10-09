@@ -5,3 +5,4 @@ import "@sakai-ui/sakai-sitestats/sakai-sitestats-tool-filter.js";
 import "@sakai-ui/sakai-sitestats/sakai-sitestats-highlights.js";
 import "@sakai-ui/sakai-sitestats/sakai-sitestats-chart.js";
 import "@sakai-ui/sakai-sitestats/sakai-sitestats-table.js";
+import "@sakai-ui/sakai-sitestats/sakai-sitestats-resource-search.js";

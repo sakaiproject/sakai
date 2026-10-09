@@ -53,10 +53,10 @@ public class EventsController extends AbstractSakaiApiController {
     }
 
     @PostMapping("/users/me/pushEndpoint")
-    public ResponseEntity setPushEndpoint(@RequestParam String endpoint,
-                                            @RequestParam(required = false) String auth,
-                                            @RequestParam(required = false) String userKey,
-                                            @RequestParam(required = false) String browserFingerprint) {
+    public ResponseEntity setPushEndpoint(@RequestParam("endpoint") String endpoint,
+                                            @RequestParam(name = "auth", required = false) String auth,
+                                            @RequestParam(name = "userKey", required = false) String userKey,
+                                            @RequestParam(name = "browserFingerprint", required = false) String browserFingerprint) {
 
 		checkSakaiSession();
 

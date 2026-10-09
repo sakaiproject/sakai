@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +40,6 @@ import org.sakaiproject.login.api.LoginRenderEngine;
 import org.sakaiproject.login.api.LoginService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.velocity.util.SLF4JLogChute;
 
 @Slf4j
 public class VelocityLoginRenderEngine implements LoginRenderEngine {
@@ -72,8 +71,6 @@ public class VelocityLoginRenderEngine implements LoginRenderEngine {
 		vengine = new VelocityEngine();
 
 		vengine.setApplicationAttribute(ServletContext.class.getName(), context);
-
-		vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, new SLF4JLogChute());
 
 		Properties p = new Properties();
 		InputStream in = this.getClass().getResourceAsStream(loginConfig);
@@ -158,7 +155,7 @@ public class VelocityLoginRenderEngine implements LoginRenderEngine {
 		{
 			vengine.getTemplate("/vm/" + skin + "/macros.vm");
 		}
-		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm",
+		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm", RuntimeConstants.ENCODING_DEFAULT,
 				((VelocityLoginRenderContext) rcontext).getVelocityContext(), out);
 	}
 

@@ -27,14 +27,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.velocity.util.SLF4JLogChute;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -134,7 +133,6 @@ public class ControllerServlet2 extends HttpServlet
 			vengine = new VelocityEngine();
 
 			vengine.setApplicationAttribute(ServletContext.class.getName(), sc);
-			vengine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, new SLF4JLogChute());
 
 			Properties p = new Properties();
 			is = this.getClass().getResourceAsStream("searchvelocity.config");
@@ -271,7 +269,7 @@ public class ControllerServlet2 extends HttpServlet
 
 			response.setContentType(contentType);
 			response.setCharacterEncoding(characterEncoding);
-			vengine.mergeTemplate(filePath, vc, response.getWriter());
+			vengine.mergeTemplate(filePath, characterEncoding, vc, response.getWriter());
 
 			request.removeAttribute(Tool.NATIVE_URL);
 		}

@@ -24,13 +24,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.faces.component.UIColumn;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIData;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.el.ValueBinding;
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIColumn;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIData;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 
 import com.sun.faces.renderkit.Attribute;
 import com.sun.faces.renderkit.html_basic.HtmlBasicRenderer;
@@ -219,8 +218,8 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 		}
 		UIData data = (UIData) component;
 
-		ValueBinding msgsBinding = component.getValueBinding("value");
-		List msgBeanList = (List) msgsBinding.getValue(context);
+		ValueExpression msgsBinding = component.getValueExpression("value");
+		List msgBeanList = (List) msgsBinding.getValue(context.getELContext());
 
 		// Set up variables we will need
 		String columnClasses[] = getColumnClasses(data);

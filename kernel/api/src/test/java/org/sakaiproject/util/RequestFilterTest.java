@@ -28,15 +28,14 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ClosingException;
-import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.Principal;
 
 import static org.junit.Assert.assertFalse;
@@ -56,7 +55,6 @@ public class RequestFilterTest {
     @Mock private Session session;
     @Mock private SessionManager sessionManager;
     @Mock private ThreadLocalManager threadLocalManager;
-    @Mock private RebuildBreakdownService rebuildBreakdownService;
 
     private RequestFilter filter;
 
@@ -68,7 +66,6 @@ public class RequestFilterTest {
         componentManagerMock.when(() -> ComponentManager.get(SessionManager.class)).thenReturn(sessionManager);
         componentManagerMock.when(() -> ComponentManager.get(ThreadLocalManager.class)).thenReturn(threadLocalManager);
         componentManagerMock.when(() -> ComponentManager.get(ServerConfigurationService.class)).thenReturn(serverConfigurationService);
-        componentManagerMock.when(() -> ComponentManager.get(RebuildBreakdownService.class)).thenReturn(rebuildBreakdownService);
 
         filter = new RequestFilter();
     }
@@ -194,8 +191,6 @@ public class RequestFilterTest {
         Mockito.when(sessionManager.getSession("paramSession")).thenReturn(session);
         Session newSession = Mockito.mock(Session.class);
         Mockito.when(sessionManager.startSession()).thenReturn(newSession);
-        Mockito.when(sessionManager.startSession("paramSession")).thenReturn(session);
-        Mockito.when(rebuildBreakdownService.rebuildSession(session)).thenReturn(false);
 
         filter.assureSession(request, response);
 

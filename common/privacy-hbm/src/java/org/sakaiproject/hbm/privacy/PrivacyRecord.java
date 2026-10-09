@@ -21,17 +21,16 @@
 
 package org.sakaiproject.hbm.privacy;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -57,8 +56,7 @@ public class PrivacyRecord
 {
 	@Id
 	@Column(name = "id")
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "privacy_record_sequence")
-	@SequenceGenerator(name = "privacy_record_sequence", sequenceName = "PrivacyRecordImpl_SEQ")
+	@NativeGenerator(sequenceForm = @SequenceGenerator(name = "privacy_record_sequence", sequenceName = "PrivacyRecordImpl_SEQ"))
 	private Long surrogateKey;
 
 	@Version

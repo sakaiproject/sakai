@@ -25,9 +25,9 @@ package org.sakaiproject.rubrics.impl.repository;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 import org.hibernate.Session;
 import org.sakaiproject.rubrics.api.model.Rubric;
@@ -67,7 +67,7 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
         CriteriaQuery<ToolItemRubricAssociation> query = cb.createQuery(ToolItemRubricAssociation.class);
         Root<ToolItemRubricAssociation> ass = query.from(ToolItemRubricAssociation.class);
         query.where(cb.and(cb.equal(ass.get("itemId"), itemId),
-                            cb.equal(ass.get("rubric"), rubricId)));
+                            cb.equal(ass.get("rubric").get("id"), rubricId)));
 
         return session.createQuery(query).uniqueResultOptional();
     }
@@ -79,7 +79,7 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<ToolItemRubricAssociation> query = cb.createQuery(ToolItemRubricAssociation.class);
         Root<ToolItemRubricAssociation> ass = query.from(ToolItemRubricAssociation.class);
-        query.where(cb.equal(ass.get("rubric"), rubricId));
+        query.where(cb.equal(ass.get("rubric").get("id"), rubricId));
 
         return session.createQuery(query).list();
     }

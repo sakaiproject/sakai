@@ -18,13 +18,13 @@ function GradebookGradeSummary($content, blockout, modalTitle) {
   this.setupCategoryToggles();
   this.setupPopovers();
 
-  this.$modal = this.$content.closest(".wicket-modal");
+  this.$modal = this.$content.closest(".gb-modal-dialog");
 
   if (this.$modal.length > 0 && this.$modal.is(":visible")) {
     this.setupWicketModal();
   } else {
     setTimeout($.proxy(function() {
-      this.$modal = this.$content.closest(".wicket-modal");
+      this.$modal = this.$content.closest(".gb-modal-dialog");
       if (this.$modal.length > 0 && this.$modal.is(":visible")) {
         this.setupWicketModal();
       } else {
@@ -53,12 +53,13 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
 
 GradebookGradeSummary.prototype.updateTitle = function() {
   if (this.modalTitle) {
-    this.$modal.find("h3[class='w_captionText']").html(this.modalTitle);
+    this.$modal.find(".gb-modal-title").html(this.modalTitle);
   }
 };
 
 
 GradebookGradeSummary.prototype.setupTabs = function() {
+  var self = this;
   // if blockout, then confirmation required when changing tabs
   if (this.blockout) {
     var $otherTab = this.$content.find(".nav.nav-tabs li:not(.active) a");
@@ -74,13 +75,13 @@ GradebookGradeSummary.prototype.setupTabs = function() {
       $confirmationModal.on("click", ".btn-student-summary-continue", function() {
         $otherTab.trigger("click");
       });
-      $(document.body).append($confirmationModal);
+      self.$modal.append($confirmationModal);
       const modal = new bootstrap.Modal($confirmationModal).toggle();
-      $confirmationModal.on("hidden.bs.modal", function() {
+      $confirmationModal[0].addEventListener("hidden.bs.modal", function() {
         $confirmationModal.remove();
         $cloneOfTab.focus();
       });
-      $confirmationModal.on("shown.bs.modal", function() {
+      $confirmationModal[0].addEventListener("shown.bs.modal", function() {
         $confirmationModal.find(".btn-student-summary-cancel").focus();
       });
     });
@@ -165,14 +166,15 @@ GradebookGradeSummary.prototype.setupFixedFooter = function() {
 
 
 GradebookGradeSummary.prototype.setupMask = function() {
-  var $mask = this.$modal.siblings(".wicket-mask-transparent, .wicket-mask-dark");
+  var $mask = this.$modal.closest(".gb-modal-overlay");
   if (this.blockout) {
     // Darken the mask
-    $mask.removeClass("wicket-mask-transparent").addClass("wicket-mask-dark");
-    // Add a blur effect to the main page container
-    $("#pageBody").addClass("gb-blur");
+    $mask.removeClass("gb-modal-overlay-transparent");
+    // Blur the grades behind the inline dialog, keeping the dialog itself clear.
+    document.querySelectorAll("#grades-toolbar-1, #gradebookGradesToolbar, #gradeTableWrapper, #gradeTableCaption")
+      .forEach(element => element.classList.add("gb-blur"));
   } else {
-    $mask.removeClass("wicket-mask-dark").addClass("wicket-mask-transparent");
+    $mask.addClass("gb-modal-overlay-transparent");
     GradebookGradeSummaryUtils.clearBlur();
   }
 };
@@ -198,34 +200,43 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
       $confirmationModal.on("click", ".btn-student-summary-continue", function() {
         self.$modal.find(".gb-summary-close").trigger("click");
       });
-      $(document.body).append($confirmationModal);
+      self.$modal.append($confirmationModal);
       const modal = new bootstrap.Modal($confirmationModal).toggle();
-      $confirmationModal.on("hidden.bs.modal", function() {
+      $confirmationModal[0].addEventListener("hidden.bs.modal", function() {
         $confirmationModal.remove();
         self.$content.find(".gb-summary-fake-close").focus();
       });
-      $confirmationModal.on("shown.bs.modal", function() {
+      $confirmationModal[0].addEventListener("shown.bs.modal", function() {
         $confirmationModal.find(".btn-student-summary-cancel").focus();
       });
 
       return false;
-    } else {
-      if ($(this).data("clickCallback")) {
-        $(this).data("clickCallback")();
-      }
-
-      return true;
     }
   }
 
-  self.$modal.find(".w_close, .gb-summary-fake-close").each(function() {
-    if (this.onclick) {
-      $(this).data("clickCallback", this.onclick);
-      this.onclick = null;
+  const dialog = self.$modal[0];
+  // Wicket 10 binds Ajax handlers externally; intercept before they close the dialog.
+  if (dialog._gradeSummaryCloseHandler) {
+    dialog.removeEventListener("click", dialog._gradeSummaryCloseHandler, true);
+    dialog.removeEventListener("keydown", dialog._gradeSummaryCloseHandler, true);
+  }
+  dialog._gradeSummaryCloseHandler = event => {
+    const closeClick = event.type === "click"
+      && event.target.closest(".gb-modal-close, .gb-summary-fake-close");
+    const escape = event.type === "keydown" && event.key === "Escape";
+    if (self.blockout && (closeClick || escape)) {
+      event.stopImmediatePropagation();
+      const confirmation = dialog.querySelector(".gb-grade-summary-close-confirmation");
+      if (escape && confirmation) {
+        event.preventDefault();
+        bootstrap.Modal.getInstance(confirmation)?.hide();
+      } else {
+        showConfirmation(event);
+      }
     }
-  });
-
-  self.$modal.find(".w_close, .gb-summary-fake-close").off("click").on("click", showConfirmation);
+  };
+  dialog.addEventListener("click", dialog._gradeSummaryCloseHandler, true);
+  dialog.addEventListener("keydown", dialog._gradeSummaryCloseHandler, true);
 };
 
 
@@ -243,7 +254,7 @@ GradebookGradeSummary.prototype.setupModalPrint = function() {
     var $button = this.$content.find(".gb-summary-print");
     $button.off("click").on("click", function() {
       self._print(
-        self.$modal.find("h3[class*='w_captionText']")[0].outerHTML,
+        self.$modal.find(".gb-modal-title")[0].outerHTML,
         self.$content.find(".gb-summary-grade-panel")[0].outerHTML,
         self.$content);
     });
@@ -391,8 +402,7 @@ GradebookGradeSummary.prototype.setupGroupedTableSorting = function(table) {
 
 GradebookGradeSummary.prototype.positionModalAtTop = function($modal) {
     // position the modal at the top of the viewport
-    // taking into account the current scroll offset
-    $modal.closest('.wicket-modal').css('top', 30 + $(window).scrollTop() + "px");
+    $modal.closest('.gb-modal-dialog').css('margin-top', '30px');
 };
 
 
