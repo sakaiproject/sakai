@@ -829,7 +829,7 @@
     
     <navigation-case>
       <from-outcome>downloadFileSubmissions</from-outcome>
-      <to-view-id>/jsf/evaluation/downloadFileSubmissions.jsp</to-view-id>
+      <to-view-id>/jsf/evaluation/exportResponses.jsp</to-view-id>
     </navigation-case>
     
     <navigation-case>

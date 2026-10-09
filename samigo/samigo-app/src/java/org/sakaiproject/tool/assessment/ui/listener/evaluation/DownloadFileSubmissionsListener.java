@@ -78,7 +78,7 @@ public class DownloadFileSubmissionsListener implements ActionListener {
 			Iterator iter2 = sdata.getItemArraySortedForGrading().iterator();
 			while (iter2.hasNext()) {
 				ItemDataIfc idata = (ItemDataIfc) iter2.next();
-				if (TypeIfc.FILE_UPLOAD.equals(idata.getTypeId())) {
+				if (TypeIfc.FILE_UPLOAD.equals(idata.getTypeId()) || TypeIfc.AUDIO_RECORDING.equals(idata.getTypeId())) {
 					fileUploadQuestionMap.put(idata.getItemId(), idata);
 				}
 			}
