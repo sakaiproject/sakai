@@ -1165,7 +1165,8 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			queryString = "from PublishedAssessmentData p where p.status = :status order by p." + orderBy;
 		}
 		PagingUtilQueriesAPI pagingUtilQueries = PersistenceService.getInstance().getPagingUtilQueries();
-		List<PublishedAssessmentData> pageList = pagingUtilQueries.getAll(pageSize, pageNumber, queryString, status);
+		List<PublishedAssessmentData> pageList = pagingUtilQueries.getAll(pageSize, pageNumber, queryString,
+				status.equals(PublishedAssessmentFacade.ANY_STATUS) ? null : status);
 		log.debug("**** pageList=" + pageList);
 		List<PublishedAssessmentFacade> assessmentList = new ArrayList();
 		for (PublishedAssessmentData a : pageList) {

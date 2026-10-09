@@ -759,11 +759,8 @@ public class MessageForumSynopticBean {
 		for (Object [] nonMIcount: nonMICounts)
 		{
 			Integer nonMIReadCount = nonMIReadCountsMap.get((String) nonMIcount[0]);
-				if (nonMIReadCount != null)
-			{
-				// Need to subtract int values, not Integer
-				nonMIcount[1] = ((Long) nonMIcount[1]).intValue() - nonMIReadCount;
-			}
+			nonMIcount[1] = ((Number) nonMIcount[1]).intValue()
+					- (nonMIReadCount != null ? nonMIReadCount : 0);
 		}
 		
 		return nonMICounts;
@@ -830,7 +827,7 @@ public class MessageForumSynopticBean {
 						
 							Object [] finalCount = new Object [2];
 							finalCount[0] = count[0];
-							finalCount[1] = count[2];
+							finalCount[1] = ((Number) count[2]).intValue();
 						
 							compiledDFMessageCounts.add(finalCount);
 						}
@@ -1064,7 +1061,7 @@ public class MessageForumSynopticBean {
 				// ************ checking for unread private messages for this site ************  
 				if (siteId.equals(pmCounts[0])) {
 					if (isMessagesPageInSite(site)) {
-						dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
+						dcms.setUnreadPrivateAmt(((Number) pmCounts[1]).intValue());
 						hasPrivate = true;						
 					}
 					else {
@@ -1074,7 +1071,7 @@ public class MessageForumSynopticBean {
 
 						if (area != null) {
 							if (area.getEnabled().booleanValue()) {
-								dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
+								dcms.setUnreadPrivateAmt(((Number) pmCounts[1]).intValue());
 								hasPrivate = true;
 							}
 							else {

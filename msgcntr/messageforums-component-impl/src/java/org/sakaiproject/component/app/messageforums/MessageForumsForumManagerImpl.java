@@ -1951,24 +1951,9 @@ public class MessageForumsForumManagerImpl implements MessageForumsForumManager 
 
 			cq.select(topic).where(predicates.toArray(new Predicate[0]));
 
-			List resultSet = session.createQuery(cq)
+			return new ArrayList<>(session.createQuery(cq)
 				.setParameter("contextId", contextId)
-				.list();
-
-			List<Topic> topicList = new ArrayList<>();
-			for (Object objResultArray : resultSet)
-			{
-				Object[] resultArray = (Object[]) objResultArray;
-				for (Object result : resultArray)
-				{
-					if (result instanceof Topic)
-					{
-						topicList.add((Topic) result);
-						break;
-					}
-				}
-			}
-			return topicList;
+				.getResultList());
 		}
 
 		public List<Topic> getAnonymousTopicsInSite(final String contextId)

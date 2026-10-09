@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.facade.util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -30,7 +29,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.query.Query;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,23 +49,12 @@ public class PagingUtilQueries implements PagingUtilQueriesAPI {
     HibernateCriteriaBuilder cb = session.getCriteriaBuilder();
     CriteriaQuery<Object> criteria = cb.createQuery(queryString, Object.class);
     Query<Object> q = session.createQuery(criteria);
-    List page = new ArrayList<>();
     if (value != null) {
-      q.setParameter(0, value.intValue());
+      q.setParameter("status", value);
     }
-    try (ScrollableResults<Object> assessmentList = q.scroll()) {
-      if (assessmentList.first()){ // check that result set is not empty
-        int first = pageSize * (pageNumber - 1);
-        int i = 0;
-        assessmentList.setRowNumber(first);
-        assessmentList.beforeFirst();
-        while ( (pageSize > i++) && assessmentList.next()){
-          log.debug("**** add "+i);
-          page.add(assessmentList.get());
-        }
-      }
-    }
-    return page;
+    return q.setFirstResult(pageSize * (pageNumber - 1))
+        .setMaxResults(pageSize)
+        .getResultList();
   }
   
   public List getAll(final int pageSize, final int pageNumber,
