@@ -33,9 +33,7 @@
 
 	if(selectedUserId != null && !"".equals(selectedUserId)){
 		isDialogBox = true;
-		statsBean.selectedSiteUserId = selectedUserId;
-		//set up default settings:
-		statsBean.processActionStatisticsUserHelper();	
+		statsBean.processActionStatisticsUser();
 	}
 %>
 
