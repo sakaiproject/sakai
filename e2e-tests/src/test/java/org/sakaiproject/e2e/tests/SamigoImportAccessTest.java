@@ -52,15 +52,16 @@ class SamigoImportAccessTest extends SakaiUiTestBase {
                 "samlite/samLiteValidation", "print/printAssessment", "author/createAssessment_title",
                 "evaluation/totalScores", "questionpool/poolList", "template/templateIndex",
                 "event/eventLog", "section-activity/sectionActivity"}) {
-            for (String suffix : new String[] {"", ".faces", ".jsf", ".xml", ".jsp"}) {
+            for (String suffix : new String[] {"", ".faces", ".jsf", ".xml", ".jsp", ".xhtml"}) {
                 assertForbidden(tool + "/jsf/" + view + suffix);
             }
         }
         String base = SakaiEnvironment.baseUrl();
-        for (String suffix : new String[] {".faces", ".jsf", ".xml", ".jsp"}) {
+        for (String suffix : new String[] {".faces", ".jsf", ".xml", ".jsp", ".xhtml"}) {
             assertForbidden(base + "/samigo-app/jsf/qti/importAssessment" + suffix);
         }
         assertForbidden(base + "/samigo-app/faces/jsf/qti/importAssessment.jsp");
+        assertForbidden(base + "/samigo-app/faces/jsf/qti/importAssessment.xhtml");
         Matcher placement = Pattern.compile(".*/tool/([^/?]+)").matcher(tool);
         if (!placement.matches()) {
             throw new AssertionError("Cannot determine tool placement: " + tool);

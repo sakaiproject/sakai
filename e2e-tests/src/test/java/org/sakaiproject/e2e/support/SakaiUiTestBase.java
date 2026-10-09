@@ -23,6 +23,9 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.Tracing;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -44,12 +47,14 @@ public abstract class SakaiUiTestBase {
     protected Page page;
     protected SakaiHelper sakai;
     private String artifactSlug;
+    private String migrationStep;
+    private final List<String> migrationPageErrors = new ArrayList<>();
     private APIRequestContext fixtureRequest;
 
     @RegisterExtension
     final AfterEachCallback artifacts = extension -> tearDown(extension.getExecutionException().isPresent());
 
-    protected static final Path ARTIFACT_ROOT = Path.of("target", "playwright-artifacts");
+    protected static final Path ARTIFACT_ROOT = Path.of(System.getProperty("sakai.test.artifacts", "target/playwright-artifacts"));
 
     @BeforeAll
     static void launchBrowser() throws Exception {
@@ -81,6 +86,7 @@ public abstract class SakaiUiTestBase {
     @BeforeEach
     void createContext(TestInfo testInfo) throws Exception {
         artifactSlug = slug(testInfo);
+        migrationStep = migrationStep(testInfo);
         Path testDir = ARTIFACT_ROOT.resolve(artifactSlug);
         Files.createDirectories(testDir);
 
@@ -98,7 +104,13 @@ public abstract class SakaiUiTestBase {
         context = activeBrowser.newContext(contextOptions);
         // setLocale() only affects navigator.language/Intl in the browser; Sakai negotiates
         // its UI language server-side from the Accept-Language header, so it must be set here too.
-        context.setExtraHTTPHeaders(Map.of("Accept-Language", "en-US,en;q=0.9"));
+        String migrationCapture = System.getProperty("samigo.equivalence.suiteOutput");
+        if (migrationCapture == null) {
+            context.setExtraHTTPHeaders(Map.of("Accept-Language", "en-US,en;q=0.9"));
+        } else {
+            context.setExtraHTTPHeaders(Map.of("Accept-Language", "en-US,en;q=0.9",
+                "X-Sakai-Equivalence-Step", migrationStep(testInfo)));
+        }
         context.setDefaultTimeout(30_000);
         context.setDefaultNavigationTimeout(120_000);
 
@@ -107,7 +119,11 @@ public abstract class SakaiUiTestBase {
             .setSnapshots(true)
             .setSources(true));
 
+        migrationPageErrors.clear();
         page = context.newPage();
+        if (migrationCapture != null) {
+            page.onPageError(migrationPageErrors::add);
+        }
         fixtureRequest = playwright.request().newContext(new APIRequest.NewContextOptions()
             .setBaseURL(SakaiEnvironment.baseUrl()).setIgnoreHTTPSErrors(true));
         sakai = new SakaiHelper(page, SakaiEnvironment.baseUrl(), fixtureRequest);
@@ -137,12 +153,16 @@ public abstract class SakaiUiTestBase {
         }
 
         try {
-            if (context != null) {
-                context.close();
-            }
+            captureMigrationSnapshot();
         } finally {
-            if (fixtureRequest != null) {
-                fixtureRequest.dispose();
+            try {
+                if (context != null) {
+                    context.close();
+                }
+            } finally {
+                if (fixtureRequest != null) {
+                    fixtureRequest.dispose();
+                }
             }
         }
         if (!failed) {
@@ -150,6 +170,35 @@ public abstract class SakaiUiTestBase {
             Files.deleteIfExists(testDir);
         }
         artifactSlug = null;
+    }
+
+    private void captureMigrationSnapshot() throws IOException {
+        String migrationCapture = System.getProperty("samigo.equivalence.suiteOutput");
+        if (migrationCapture != null && page != null && !page.isClosed()) {
+            Path destination = Path.of(migrationCapture);
+            Files.createDirectories(destination);
+            String step = migrationStep;
+            String snapshot = (String) page.evaluate("""
+                () => {
+                  const content = document.getElementById('content') || document.body;
+                  return JSON.stringify({path:location.pathname,
+                    forms:[...content.querySelectorAll('form')].map(form => ({id:form.id, action:form.getAttribute('action'),
+                      controls:[...form.querySelectorAll('input,select,textarea,button')]
+                        .filter(e=>!['jakarta.faces.ViewState','sakai_csrf_token'].includes(e.name))
+                        .map(e=>({tag:e.tagName,id:e.id,name:e.name,type:e.type,value:e.value,checked:e.checked??null,
+                          disabled:e.disabled,options:e.options?[...e.options].map(o=>({value:o.value,text:o.text,selected:o.selected})):null})),
+                      labels:[...form.querySelectorAll('label')].map(e=>({for:e.htmlFor,text:e.innerText})),
+                      messages:[...form.querySelectorAll('.sak-banner-error,.validate')].map(e=>e.innerText),text:form.innerText})),
+                    scripts:[...document.scripts].filter(e=>e.src).map(e=>new URL(e.src).pathname),
+                    stylesheets:[...document.querySelectorAll('link[rel=stylesheet]')].map(e=>new URL(e.href).pathname)});
+                }
+                """);
+            Files.writeString(destination.resolve(step + ".json"), snapshot);
+            Files.writeString(destination.resolve(step + ".html"), (String) page.evaluate(
+                "() => (document.getElementById('content') || document.body).innerHTML"));
+            Files.writeString(destination.resolve(step + "-errors.json"), (String) page.evaluate(
+                "errors => JSON.stringify(errors)", migrationPageErrors));
+        }
     }
 
     private static BrowserType browserType(Playwright playwrightInstance, String browserName) {
@@ -161,6 +210,12 @@ public abstract class SakaiUiTestBase {
             return playwrightInstance.firefox();
         }
         return playwrightInstance.chromium();
+    }
+
+    private static String migrationStep(TestInfo testInfo) {
+        String className = testInfo.getTestClass().map(Class::getSimpleName).orElse("unknown");
+        String methodName = testInfo.getTestMethod().map(method -> method.getName()).orElse("unknown");
+        return (className + "-" + methodName).toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9-]", "-");
     }
 
     private static String slug(TestInfo testInfo) {

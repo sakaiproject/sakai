@@ -50,10 +50,15 @@ import com.microsoft.playwright.options.LoadState;
 class SamigoTest extends SakaiUiTestBase {
 
     private static String sakaiUrl;
-    private static final String RUN_ID = Long.toString(System.currentTimeMillis());
+    private static final String RUN_ID = System.getProperty("samigo.test.runId", Long.toString(System.currentTimeMillis()));
     private static final String SAMIGO_TITLE = "Playwright Quiz " + RUN_ID;
     private static final String ESSAY_TITLE = "Essay with Rubric " + RUN_ID;
     private static final String RUBRIC_TITLE = "Playwright Samigo Rubric " + RUN_ID;
+
+    private static LocalDateTime fixtureTime() {
+        String fixedTime = System.getProperty("samigo.test.fixtureTime");
+        return fixedTime == null ? LocalDateTime.now() : LocalDateTime.parse(fixedTime);
+    }
 
     private String ensureCourseUrl() {
         if (sakaiUrl != null && !sakaiUrl.isBlank()) {
@@ -162,8 +167,8 @@ class SamigoTest extends SakaiUiTestBase {
         }
 
         DateTimeFormatter dateTime12h = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US);
-        String availableDate = LocalDateTime.now().minusDays(1).format(dateTime12h).toLowerCase(Locale.US);
-        String dueDate = LocalDateTime.now().plusYears(2).format(dateTime12h).toLowerCase(Locale.US);
+        String availableDate = fixtureTime().minusDays(1).format(dateTime12h).toLowerCase(Locale.US);
+        String dueDate = fixtureTime().plusYears(2).format(dateTime12h).toLowerCase(Locale.US);
         sakai.selectDate("#assessmentSettingsAction\\:startDate", availableDate);
         sakai.selectDate("#assessmentSettingsAction\\:endDate", dueDate);
 
@@ -194,7 +199,7 @@ class SamigoTest extends SakaiUiTestBase {
     @Test
     @Order(3)
     void canPreviewDraftAssessmentWithoutLeavingExtraAssessmentsBehind() {
-        String previewTitle = "Playwright Preview " + System.currentTimeMillis();
+        String previewTitle = "Playwright Preview " + RUN_ID;
 
         String courseUrl = ensureCourseUrl();
         sakai.login("instructor1");
@@ -316,7 +321,7 @@ class SamigoTest extends SakaiUiTestBase {
     @Order(7)
     void canAddAndEditQuestionPools() {
         String courseUrl = ensureCourseUrl();
-        String poolName = "Playwright Pool " + System.currentTimeMillis();
+        String poolName = "Playwright Pool " + RUN_ID;
 
         sakai.login("instructor1");
         page.navigate(courseUrl);

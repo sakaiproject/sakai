@@ -19,6 +19,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <sakai.test.reportsDirectory>${project.build.directory}/surefire-reports</sakai.test.reportsDirectory>
     <axe.core.version>4.11.3</axe.core.version>
     <junit.jupiter.version>5.12.1</junit.jupiter.version>
     <playwright.version>1.63.0</playwright.version>
@@ -73,6 +74,7 @@
         <configuration>
           <forkCount>${sakai.test.forks}</forkCount>
           <reuseForks>true</reuseForks>
+          <reportsDirectory>${sakai.test.reportsDirectory}</reportsDirectory>
           <includes>
             <include>**/*Test.java</include>
           </includes>
