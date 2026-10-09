@@ -83,8 +83,6 @@ OSID
 ./org/sakaiproject/tool/assessment/osid: osid implementations, shielded from application by facades
 ./org/sakaiproject/tool/assessment/osid/assessment:
 ./org/sakaiproject/tool/assessment/osid/assessment/impl:
-./org/sakaiproject/tool/assessment/osid/authz:
-./org/sakaiproject/tool/assessment/osid/authz/impl:
 ./org/sakaiproject/tool/assessment/osid/impl:
 ./org/sakaiproject/tool/assessment/osid/questionpool:
 ./org/sakaiproject/tool/assessment/osid/questionpool/impl:

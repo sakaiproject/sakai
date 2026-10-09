@@ -30,11 +30,7 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 
 /**
  *
- * <p>Description:
- * This is a context implementation helper delegate interface for
- * the AgentFacade class.  Using Spring injection via the integrationContext.xml
- * selected by the build process to find the implementation.
- * </p>
+ * <p>Description: Provides Samigo access to Sakai users and site roles.</p>
  * <p>Sakai Project Copyright (c) 2005</p>
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
@@ -73,7 +69,6 @@ public interface AgentHelper extends Serializable
 
   public String getDisplayNameByAgentId(String agentId);
 
-  public boolean isIntegratedEnvironment();
 
   public Map getUserRolesFromContextRealm(Collection inUsers);
 

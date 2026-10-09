@@ -52,7 +52,6 @@ import org.jsoup.nodes.Document;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.portal.util.PortalUtils;
@@ -66,7 +65,6 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -82,12 +80,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.DataException;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.SaLengthException;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -108,7 +106,6 @@ import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGrading
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
-import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -116,12 +113,23 @@ import org.sakaiproject.util.ResourceLoader;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /* For delivery: Delivery backing bean */
 @Slf4j
 @ManagedBean(name="delivery")
 @SessionScoped
-public class DeliveryBean implements Serializable {
+public class DeliveryBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
 
   public static final String LINEAR_ACCESS = "1";
   public static final int TAKE_ASSESSMENT = 1;
@@ -132,21 +140,37 @@ public class DeliveryBean implements Serializable {
 
   private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
 
-  private final EventTrackingService eventTrackingService;
-  private final FormattedText formattedText;
-  private final PreferencesService preferencesService;
-  private final ServerConfigurationService serverConfigurationService;
-  private final SessionManager sessionManager;
-  private final SiteService siteService;
-  private final ToolManager toolManager;
-  private final UserTimeService userTimeService;
+  @Autowired
+  @Qualifier("org.sakaiproject.event.api.EventTrackingService")
+  private EventTrackingService eventTrackingService;
+  @Autowired
+  @Qualifier("org.sakaiproject.util.api.FormattedText")
+  private FormattedText formattedText;
+  @Autowired
+  @Qualifier("org.sakaiproject.user.api.PreferencesService")
+  private PreferencesService preferencesService;
+  @Autowired
+  @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+  private ServerConfigurationService serverConfigurationService;
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.SessionManager")
+  private SessionManager sessionManager;
+  @Autowired
+  @Qualifier("org.sakaiproject.site.api.SiteService")
+  private SiteService siteService;
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.ToolManager")
+  private ToolManager toolManager;
+  @Autowired
+  @Qualifier("org.sakaiproject.time.api.UserTimeService")
+  private UserTimeService userTimeService;
 
-  private final String questionProgressUnansweredPath;
-  private final String questionProgressAnsweredPath;
-  private final String questionProgressMardPath;
-  private final String accessbase;
-  private final String mathjaxSrcPath;
-  private final String recPath;
+  private String questionProgressUnansweredPath;
+  private String questionProgressAnsweredPath;
+  private String questionProgressMardPath;
+  private String accessbase;
+  private String mathjaxSrcPath;
+  private String recPath;
 
   @Getter @Setter
   private String assessmentId;
@@ -544,14 +568,7 @@ public class DeliveryBean implements Serializable {
   private String sebLaunchLink;
 
   public DeliveryBean() {
-    this(ComponentManager.get(EventTrackingService.class),
-         ComponentManager.get(FormattedText.class),
-         ComponentManager.get(PreferencesService.class),
-         ComponentManager.get(ServerConfigurationService.class),
-         ComponentManager.get(SessionManager.class),
-         ComponentManager.get(SiteService.class),
-         ComponentManager.get(ToolManager.class),
-         ComponentManager.get(UserTimeService.class));
+    initialize();
   }
 
   public DeliveryBean(EventTrackingService eventTrackingService,
@@ -571,6 +588,10 @@ public class DeliveryBean implements Serializable {
     this.toolManager = toolManager;
     this.userTimeService = userTimeService;
 
+    initialize();
+  }
+
+  private void initialize() {
     accessbase = serverConfigurationService.getAccessUrl();
     recPath = serverConfigurationService.getString("samigo.recommendations.path");
     mathjaxSrcPath = serverConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP);
@@ -879,7 +900,7 @@ public class DeliveryBean implements Serializable {
 	  // finish secure delivery
 	  setSecureDeliveryHTMLFragment( "" );
 	  setBlockDelivery( false );
-	  SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+	  SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
 	  if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(assessmentId))) {
 		  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
 		  if (moduleExists(moduleId)) {
@@ -1357,8 +1378,6 @@ public class DeliveryBean implements Serializable {
   public void validateSecureDeliveryPhase(Phase phase) {
     String moduleId = getSecureDeliveryModuleId();
 
-    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-
     if (moduleId != null) {
       HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 
@@ -1371,8 +1390,6 @@ public class DeliveryBean implements Serializable {
 
   private String getSecureDeliveryModuleId() {
     String moduleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
-
-    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
 
     boolean isSecureDeliveryAvailable = secureDeliveryService.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId());
     boolean moduleExists = moduleExists(moduleId);
@@ -1560,7 +1577,7 @@ public class DeliveryBean implements Serializable {
             messageKey = "secure_delivery_error_take_message";
     }
 
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
     String moduleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
 
     if (moduleExists(moduleId))
@@ -1629,7 +1646,7 @@ public class DeliveryBean implements Serializable {
   }
 
   public boolean isSebActive() {
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
     return secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(assessmentId))
         && StringUtils.equals(SecureDeliverySeb.MODULE_NAME, publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY));
   }
@@ -1771,7 +1788,6 @@ public class DeliveryBean implements Serializable {
                         GradingService gradingService){
     // 1. create a media record
     File media = new File(mediaLocation);
-    String mimeType = MimeTypesLocator.getInstance().getContentType(media);
     MediaData mediaData;
     log.debug("***6a. addMediaToItemGrading, itemGradinDataId={}", itemGradingData.getItemGradingId());
     // 1b. get filename
@@ -1791,7 +1807,7 @@ public class DeliveryBean implements Serializable {
       byte[] mediaByte = getMediaStream(mediaLocation);
       mediaData = new MediaData(itemGradingData, mediaByte,
                                 Long.valueOf(mediaByte.length + ""),
-                                mimeType, "description", null,
+                                null, "description", null,
                                 updatedFilename, false, 1,
                                 agent, new Date(),
                                 agent, new Date(), null);
@@ -2401,8 +2417,7 @@ public class DeliveryBean implements Serializable {
     }
 
     String siteId = fromUrl ? publishedAssessment.getOwnerSiteId() : AgentFacade.getCurrentSiteId();
-    return PersistenceService.getInstance()
-        .getAuthzQueriesFacade()
+    return authzQueriesFacade
         .hasPrivilege(SamigoConstants.AUTHZ_TAKE_ASSESSMENT, siteId);
   }
 

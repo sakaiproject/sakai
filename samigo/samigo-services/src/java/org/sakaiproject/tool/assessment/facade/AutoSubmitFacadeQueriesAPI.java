@@ -34,7 +34,6 @@ public interface AutoSubmitFacadeQueriesAPI
 	 * Persist updates to a single assessment attempt/submission to the database. This includes updating the attempt,
 	 * the Gradebook integration, and the Samigo event log, as well as firing an event to trigger the email notification system.
 	 * @param adata the data for this attempt/submission
-	 * @param updateGrades if integration with Gradebook is a possibility
 	 * @param agfq service for persisting the attempt
 	 * @param assessment the assessment
 	 * @param currentTime timestamp when the job started
@@ -43,6 +42,6 @@ public interface AutoSubmitFacadeQueriesAPI
 	 * @param sectionSetMap map of assessment id to assessment sections (aka parts)
 	 * @return true if all processing succeeded
 	 */
-	public boolean processAttempt(AssessmentGradingData adata, boolean updateGrades, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
+	public boolean processAttempt(AssessmentGradingData adata, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
 			Date currentTime, String lastAgentId, Long lastPublishedAssessmentId, Map<Long, Set<PublishedSectionData>> sectionSetMap);
 }

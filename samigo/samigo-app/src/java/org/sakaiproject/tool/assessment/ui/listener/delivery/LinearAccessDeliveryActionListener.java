@@ -36,12 +36,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -59,13 +56,11 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 public class LinearAccessDeliveryActionListener extends DeliveryActionListener
   implements ActionListener
 {
-  private final EventTrackingService eventTrackingService = ComponentManager.get( EventTrackingService.class );
 
   /**
    * ACTION.
@@ -118,7 +113,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     	  }
           
           // #3. secure delivery START phase
-          SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+          SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
           if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(id))) {
               String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
               if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
@@ -195,7 +190,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
           eventLogData.setAssessmentId(Long.valueOf(id));
           eventLogData.setProcessId(delivery.getAssessmentGradingId());
           eventLogData.setStartDate(new Date());
-          eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+          eventLogData.setTitle(formattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
           eventLogData.setUserEid(agentEid); 
           String site_id= AgentFacade.getCurrentSiteId();
           if(site_id == null) {

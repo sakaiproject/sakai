@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import org.sakaiproject.tool.assessment.services.PersistenceHelper;
+import org.sakaiproject.grading.api.GradingService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +55,6 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -108,10 +109,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
@@ -131,6 +130,28 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFacadeQueriesAPI {
+
+  @Setter
+  private RubricsService rubricsService;
+
+  @Setter
+  private GradebookServiceHelper gbsHelper;
+
+  @Setter
+  private GradingService gradebookService;
+
+  @Setter
+  private ExtendedTimeFacade extendedTimeFacade;
+
+  @Setter
+  private PersistenceHelper persistenceHelper;
+
+  @Setter
+  private PagingUtilQueriesAPI pagingUtilQueries;
+
+  @Setter
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
+
 
 	@Setter private SiteService siteService;
 	@Setter private ToolManager toolManager;
@@ -835,19 +856,11 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			String toGradebook = publishedAssessment.getEvaluationModel()
 					.getToGradeBook();
 
-			boolean integrated = IntegrationContextFactory.getInstance()
-					.isIntegrated();
-			org.sakaiproject.grading.api.GradingService g = null;
-			if (integrated) {
-				g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
-						"org.sakaiproject.grading.api.GradingService");
-			}
+			org.sakaiproject.grading.api.GradingService g = gradebookService;
 
 			// write authorization
 			createAuthorization(publishedAssessment);
 
-			GradebookServiceHelper gbsHelper = IntegrationContextFactory
-					.getInstance().getGradebookServiceHelper();
 
 			if (toGradebook != null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 				try {
@@ -908,18 +921,18 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
 		// 3. give selected site right to view Published Assessment
 		final String qualifierIdString = p.getPublishedAssessmentId().toString();
-		PersistenceService.getInstance().getAuthzQueriesFacade()
+		authzQueriesFacade
 				.createAuthorization(AgentFacade.getCurrentSiteId(), "OWN_PUBLISHED_ASSESSMENT", qualifierIdString);
 
 		// 4. create authorization for the target
 		log.debug("** agentId={}", s);
-		PersistenceService.getInstance().getAuthzQueriesFacade()
+		authzQueriesFacade
 				.createAuthorization(s, "TAKE_PUBLISHED_ASSESSMENT", qualifierIdString);
-		PersistenceService.getInstance().getAuthzQueriesFacade()
+		authzQueriesFacade
 				.createAuthorization(s, "VIEW_PUBLISHED_ASSESSMENT_FEEDBACK", qualifierIdString);
-		PersistenceService.getInstance().getAuthzQueriesFacade()
+		authzQueriesFacade
 				.createAuthorization(s, "GRADE_PUBLISHED_ASSESSMENT", qualifierIdString);
-		PersistenceService.getInstance().getAuthzQueriesFacade()
+		authzQueriesFacade
 				.createAuthorization(s, "VIEW_PUBLISHED_ASSESSMENT", qualifierIdString);
 	}
 	
@@ -927,7 +940,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	 * Creates Authorizations for Selected Groups
 	 */
 	public void createAuthorizationForSelectedGroups(PublishedAssessmentData publishedAssessment) {
-	    AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+	    AuthzQueriesFacadeAPI authz = authzQueriesFacade;
 		String qualifierIdString = publishedAssessment.getPublishedAssessmentId().toString();
 		authz.createAuthorization(AgentFacade.getCurrentSiteId(), "OWN_PUBLISHED_ASSESSMENT", qualifierIdString);
 		authz.createAuthorization(AgentFacade.getCurrentSiteId(), "VIEW_PUBLISHED_ASSESSMENT", qualifierIdString);
@@ -1164,7 +1177,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		if (!status.equals(PublishedAssessmentFacade.ANY_STATUS)) {
 			queryString = "from PublishedAssessmentData p where p.status = :status order by p." + orderBy;
 		}
-		PagingUtilQueriesAPI pagingUtilQueries = PersistenceService.getInstance().getPagingUtilQueries();
+
 		List<PublishedAssessmentData> pageList = pagingUtilQueries.getAll(pageSize, pageNumber, queryString,
 				status.equals(PublishedAssessmentFacade.ANY_STATUS) ? null : status);
 		log.debug("**** pageList=" + pageList);
@@ -1194,7 +1207,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			if (action == null || action.equals("preview")) {
 				delete(assessment);
 				// remove authorization
-				PersistenceService.getInstance().getAuthzQueriesFacade()
+				authzQueriesFacade
 					.removeAuthorizationByQualifier(
 						assessment.getPublishedAssessmentId().toString(),
 						true);
@@ -1204,7 +1217,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
 				try {
 					assessment = saveOrUpdate(assessment);
-					RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
+
 					rubricsService.softDeleteRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 				} catch (Exception e) {
 					log.warn("Error updating assessment or rubrics: {}", e.toString());
@@ -1246,7 +1259,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	}
 
 	public void deleteAllSecuredIP(PublishedAssessmentIfc assessment) {
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				Long assessmentId = assessment.getPublishedAssessmentId();
@@ -1275,7 +1288,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				}
 			} catch (Exception e) {
 				log.warn("problem deleting ip address: " + e.toString());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 	}
@@ -1288,7 +1301,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			data = (PublishedAssessmentData) assessment;
 		}
 
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
@@ -1300,7 +1313,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update assessment: {}", e.toString());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 				if (retryCount == 0) {
 					throw e;
 				}
@@ -1704,7 +1717,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			AgentFacade agent = null;
 			Long assessmentId;
 			String userId = AgentFacade.getAnonymousId();
-			boolean hasAllGroupsPrivilege = PersistenceService.getInstance().getAuthzQueriesFacade()
+			boolean hasAllGroupsPrivilege = authzQueriesFacade
 				.hasPrivilege(SamigoConstants.AUTHZ_ASSESSMENT_ALL_GROUPS, siteAgentId);
 			Site site = null;
 			Collection<Group> siteGroups = new ArrayList<>();
@@ -2017,7 +2030,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	}
 
 	public void saveOrUpdateMetaData(PublishedMetaData meta) {
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
@@ -2025,7 +2038,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update meta data: " + e.toString());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 	}
@@ -2418,10 +2431,10 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		else
 			data = (PublishedAssessmentData) assessment;
 
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
-				ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
+
 				if (extendedTimeFacade != null) {
 					extendedTimeFacade.deleteEntriesForPub(data);
 				}
@@ -2430,7 +2443,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem removing publishedAssessment: {}", e.toString());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 	}
@@ -3030,7 +3043,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		AssessmentBaseIfc data = publishedAssessmentFacade.getData();
 		data.setLastModifiedBy(AgentFacade.getAgentString());
 		data.setLastModifiedDate(new Date());
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
@@ -3038,13 +3051,13 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem update assessment: " + e.toString());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 	}
 
 	public void saveOrUpdateSection(SectionFacade section) {
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
@@ -3052,7 +3065,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update section: " + e.toString());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 	}
@@ -3083,7 +3096,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
 
 		sectionSet.add(section);
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
@@ -3091,7 +3104,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update assessment: {}", e.getMessage());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 		return new PublishedSectionFacade(section);
@@ -3138,7 +3151,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	}
 
 	public void saveOrUpdatePublishedAccessControl(AssessmentAccessControlIfc publishedAccessControl) {
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
@@ -3146,7 +3159,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update publishedAccessControl data: {}", e.toString());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 	}
@@ -3196,7 +3209,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	 */
 	private Map<String, String> getReleaseToGroups(Map groupsForSite, Long assessmentId) {
 		Map<String, String> releaseToGroups = new HashMap();
-		AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+		AuthzQueriesFacadeAPI authz = authzQueriesFacade;
 		List authorizations = authz.getAuthorizationByFunctionAndQualifier("TAKE_PUBLISHED_ASSESSMENT", assessmentId.toString());
 		if (authorizations != null && authorizations.size()>0) {
 			Iterator authsIter = authorizations.iterator();
@@ -3330,7 +3343,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	}
 	
 	public void removeAssessmentAttachment(Long assessmentAttachmentId) {
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
@@ -3355,7 +3368,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem deleting assessment attachment with ID {}: {}", assessmentAttachmentId, e.toString());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 	}
@@ -3402,7 +3415,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 	}
 
 	public void removeSectionAttachment(Long sectionAttachmentId) {
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				Session session = sessionFactory.getCurrentSession();
@@ -3425,7 +3438,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem deleting section attachment with ID {}: {}", sectionAttachmentId, e.toString());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 	}
@@ -3752,17 +3765,16 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			assessment.setLastModifiedDate(new Date());
 			assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
 
-			RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
 			rubricsService.restoreRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedAssessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 
-			int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+			int retryCount = persistenceHelper.getRetryCount();
 			while (retryCount > 0) {
 				try {
 					session.merge(assessment);
 					retryCount = 0;
 				} catch (Exception e) {
 					log.warn("problem updating assessment: " + e.getMessage());
-					retryCount = PersistenceService.getInstance().getPersistenceHelper()
+					retryCount = persistenceHelper
 							.retryDeadlock(e, retryCount);
 				}
 			}

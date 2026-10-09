@@ -54,7 +54,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
@@ -90,6 +89,9 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>
@@ -113,9 +115,14 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class HistogramListener
+public class HistogramListener extends SpringBeanAutowiringSupport
   implements ActionListener, ValueChangeListener
 {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	private static final ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	private static final String HOT_SPOT_ITEM_BLANK_VALUE = "undefined";
@@ -334,7 +341,7 @@ public class HistogramListener
 						   delivery.setOutcome("histogramScores");
 						   delivery.setSecureDeliveryHTMLFragment( "" );
 						   delivery.setBlockDelivery( false );
-						   SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+						   SecureDeliveryServiceAPI secureDelivery = secureDeliveryService;
 						   if ( secureDelivery.isSecureDeliveryAvaliable() ) {
 				            	  				            	 
 							   String moduleId = pub.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );

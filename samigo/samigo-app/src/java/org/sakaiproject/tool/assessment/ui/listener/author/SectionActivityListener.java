@@ -41,19 +41,30 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
-import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionActivityBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 
 @Slf4j
-public class SectionActivityListener implements ActionListener, ValueChangeListener
+public class SectionActivityListener extends SpringBeanAutowiringSupport implements ActionListener, ValueChangeListener
 {
+
+  @Autowired
+  @Qualifier("PublishedAssessmentFacadeQueries")
+  private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
+
+    @Autowired
+    @Qualifier("sectionAwareServiceHelper")
+    private SectionAwareServiceHelper sectionAwareServiceHelper;
+
     private BeanSort bs;
 
     public SectionActivityListener()
@@ -65,7 +76,7 @@ public class SectionActivityListener implements ActionListener, ValueChangeListe
         log.debug("*****Log: inside SectionActivityListener =debugging ActionEvent: " + ae);
 
         // get service and managed bean    
-        GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+        SectionAwareServiceHelper service = sectionAwareServiceHelper;
         SectionActivityBean sab = (SectionActivityBean) ContextUtil.lookupBean("sectionActivity");
 
         List<EnrollmentRecord> list = service.getAvailableEnrollments(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString());
@@ -130,13 +141,13 @@ public class SectionActivityListener implements ActionListener, ValueChangeListe
             Double finalScore = agd.getFinalScore();
             Long assessmentGradingId = agd.getAssessmentGradingId();
 
-            PublishedAssessmentData assessmentData =PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().loadPublishedAssessment(publishAssessmentId);
+            PublishedAssessmentData assessmentData =publishedAssessmentFacadeQueries.loadPublishedAssessment(publishAssessmentId);
 
             // sectionSet of publishedAssessment is defined as lazy loading in
             // Hibernate, so we need to initialize them. Unfortunately the current
             // spring-1.0.2.jar does not support HibernateTemplate.intialize(Object)
             // so we need to do it ourselves
-            Set<PublishedSectionData> sectionSet = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(assessmentData);
+            Set<PublishedSectionData> sectionSet = publishedAssessmentFacadeQueries.getSectionSetForAssessment(assessmentData);
             assessmentData.setSectionSet(sectionSet);
 
             Double maxScore = assessmentData.getTotalScore();

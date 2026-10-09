@@ -30,7 +30,6 @@ import jakarta.faces.model.SelectItem;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
@@ -42,7 +41,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentD
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
@@ -58,23 +56,30 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 @Slf4j
-public class RepublishAssessmentListener implements ActionListener {
+public class RepublishAssessmentListener extends SpringBeanAutowiringSupport implements ActionListener {
 
-		private final CalendarServiceHelper calendarService;
-		private final TaskService taskService;
+    @Autowired
+    @Qualifier("calendarServiceHelper")
+    private CalendarServiceHelper calendarService;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.tasks.api.TaskService")
+    private TaskService taskService;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.samigo.api.SamigoAvailableNotificationService")
+    private SamigoAvailableNotificationService samigoAvailableNotificationService;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.event.api.EventTrackingService")
+    private EventTrackingService eventTrackingService;
+
 	    private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-	    private final SamigoAvailableNotificationService samigoAvailableNotificationService;
-	    private final EventTrackingService eventTrackingService;
-
-    public RepublishAssessmentListener() {
-        // Prefer fetching services in the constructor to avoid initialization in a static-like context
-        this.calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
-        this.taskService = ComponentManager.get(TaskService.class);
-        this.samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
-        this.eventTrackingService = ComponentManager.get(EventTrackingService.class);
-    }
 
 	@Override
 	public void processAction(ActionEvent ae) throws AbortProcessingException {

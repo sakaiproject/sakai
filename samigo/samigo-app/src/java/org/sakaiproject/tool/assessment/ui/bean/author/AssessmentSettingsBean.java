@@ -68,7 +68,6 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
@@ -88,14 +87,11 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
-import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
@@ -119,12 +115,31 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="assessmentSettings")
 @SessionScoped
 public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
-    private static final IntegrationContextFactory integrationContextFactory =
-      IntegrationContextFactory.getInstance();
-    private static final GradebookServiceHelper gbsHelper =
-      integrationContextFactory.getGradebookServiceHelper();
-    private static final boolean integrated =
-      integrationContextFactory.isIntegrated();
+
+  @Autowired
+  @Qualifier("sectionAwareServiceHelper")
+  private SectionAwareServiceHelper sectionAwareServiceHelper;
+
+
+  @Autowired
+  @Qualifier("org.sakaiproject.section.api.SectionAwareness")
+  private SectionAwareness sectionAwareness;
+
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade")
+  private ExtendedTimeFacade extendedTimeFacade;
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
+    @Autowired
+    @Qualifier("gradebookServiceHelper")
+    private GradebookServiceHelper gbsHelper;
     private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
   /** Use serialVersionUID for interoperability. */
@@ -325,6 +340,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   public AssessmentSettingsBean() {
   }
 
+
+
     public void setAssessment(AssessmentFacade assessment) {
     try {
       // Clear cached gradebook items when loading a new assessment
@@ -377,7 +394,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
             this.bgImageSelect=null;
 	    this.bgColorSelect="1";
 	}
-        ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
         this.extendedTimes = extendedTimeFacade.getEntriesForAss(assessment.getData());
 
         resetExtendedTime();
@@ -526,7 +542,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       this.attachmentList = assessment.getAssessmentAttachmentList();
       
       // secure delivery
-      SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
       this.secureDeliveryAvailable = secureDeliveryService.isSecureDeliveryAvaliable();
       this.secureDeliveryModuleSelections = getSecureDeliverModuleSelections();
       this.secureDeliveryModule = (String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
@@ -1708,7 +1723,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       String userId = AgentFacade.getAnonymousId();
       try {
           Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
-          GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+          SectionAwareServiceHelper service = sectionAwareServiceHelper;
           if (service.isUserAbleToGradeAll(site.getId(), userId)) {
               return getGroupsForSite();
           }
@@ -1773,7 +1788,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 	 if (noGroupSelectedError || groupsAuthorized != null) {
 		 return groupsAuthorized;
 	 }
-	 AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+	 AuthzQueriesFacadeAPI authz = authzQueriesFacade;
 	 if (authz!=null){
 		 List authorizations = authz.getAuthorizationByFunctionAndQualifier("TAKE_ASSESSMENT", getAssessmentId().toString());
 		 if (authorizations != null && authorizations.size()>0) {
@@ -1866,7 +1881,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
   public SelectItem[] getSecureDeliverModuleSelections() {
 	  
-	  SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
 	  Set<RegisteredSecureDeliveryModuleIfc> modules = secureDeliveryService.getSecureDeliveryModules( new ResourceLoader().getLocale() );
  
 	  List<SelectItem> selections = new ArrayList<>();
@@ -1985,7 +1999,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
 		try {
 			site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
-			SectionAwareness sectionAwareness = PersistenceService.getInstance().getSectionAwareness();
 			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
 			Map<String, String> studentTargets = new HashMap<>();
 			Map<String, String> orderedStudents = new HashMap<>();

@@ -30,12 +30,15 @@ import jakarta.faces.event.ActionListener;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.shared.MediaService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.MediaBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
+import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueriesAPI;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>
@@ -44,8 +47,12 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListe
  * @version $Id$
  */
 
-public class RemoveMediaListener implements ActionListener
+public class RemoveMediaListener extends SpringBeanAutowiringSupport implements ActionListener
 {
+
+  @Autowired
+  @Qualifier("AssessmentGradingFacadeQueries")
+  private AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries;
 
   public RemoveMediaListener()
   {
@@ -72,7 +79,7 @@ public class RemoveMediaListener implements ActionListener
     Long itemGradingId = mediaBean.getItemGradingId();
     Long mediaIdLong = new Long(mediaId);
 
-    ItemGradingData itemGradingData = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().getItemGradingData(itemGradingId);
+    ItemGradingData itemGradingData = assessmentGradingFacadeQueries.getItemGradingData(itemGradingId);
     if (itemGradingData == null) {
       throw new IllegalArgumentException("Bad itemGradingId in remove media: " + itemGradingId);
     }
@@ -81,7 +88,7 @@ public class RemoveMediaListener implements ActionListener
       throw new IllegalArgumentException("User mis-match on grading item " + itemGradingId + " " + itemGradingData.getAgentId() + " " +  AgentFacade.getAgentString());
     }
 
-    List<MediaData> mediaList = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().getMediaArray(itemGradingId);
+    List<MediaData> mediaList = assessmentGradingFacadeQueries.getMediaArray(itemGradingId);
     
     boolean found = false;
     for (MediaData md: mediaList) {

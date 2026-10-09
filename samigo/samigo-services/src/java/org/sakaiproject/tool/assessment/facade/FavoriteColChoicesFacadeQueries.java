@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.tool.assessment.facade;
 
+import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,7 +23,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +35,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 public class FavoriteColChoicesFacadeQueries implements FavoriteColChoicesFacadeQueriesAPI {
+
+  @Setter
+  private PersistenceHelper persistenceHelper;
+
 
     @Setter private SessionFactory sessionFactory;
 
@@ -60,14 +64,14 @@ public class FavoriteColChoicesFacadeQueries implements FavoriteColChoicesFacade
                 session.remove(fChoice);
             }
         }
-        int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+        int retryCount = persistenceHelper.getRetryCount().intValue();
         while (retryCount > 0) {
             try {
                 session.persist(choices);
                 retryCount = 0;
             } catch (Exception e) {
                 log.warn("problem saving favoriteColChoices: " + e.getMessage());
-                retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+                retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
     }

@@ -274,7 +274,7 @@ public class ShowMediaServlet extends HttpServlet
     String agentIdString = AgentFacade.getAgentString();
     if (agentIdString == null || agentIdString.equals("")){ // try this
       PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
-			   "person", req, res);
+			   "person", req, res, getServletContext());
       agentIdString = person.getAnonymousId();
     }
     return agentIdString;

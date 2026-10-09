@@ -49,7 +49,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.grading.api.Assignment;
@@ -61,10 +60,8 @@ import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig.ConfigMode;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -88,11 +85,9 @@ import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
@@ -107,6 +102,9 @@ import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>2
@@ -115,21 +113,36 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class SavePublishedSettingsListener
+public class SavePublishedSettingsListener extends SpringBeanAutowiringSupport
 implements ActionListener
 {
-	private static final GradebookServiceHelper gbsHelper =
-		IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-	private static final boolean integrated =
-		IntegrationContextFactory.getInstance().isIntegrated();
-	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+
+  @Autowired
+  @Qualifier("org.sakaiproject.grading.api.GradingService")
+  private org.sakaiproject.grading.api.GradingService gradebookService;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade")
+  private ExtendedTimeFacade extendedTimeFacade;
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
+	@Autowired
+	@Qualifier("gradebookServiceHelper")
+	private GradebookServiceHelper gbsHelper;
+	@Autowired
+	@Qualifier("calendarServiceHelper")
+	private CalendarServiceHelper calendarService;
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
+	@Autowired
+	@Qualifier("org.sakaiproject.samigo.api.SamigoAvailableNotificationService")
+	private SamigoAvailableNotificationService samigoAvailableNotificationService;
+	@Autowired
+	@Qualifier("org.sakaiproject.event.api.EventTrackingService")
 	private EventTrackingService eventTrackingService;
 
-	public SavePublishedSettingsListener() {
-		eventTrackingService = ComponentManager.get(EventTrackingService.class);	
-	}
 
 	public void processAction(ActionEvent ae) throws AbortProcessingException
 	{
@@ -175,7 +188,6 @@ implements ActionListener
 		}
 
 		//userNotification
-		ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
 		List<ExtendedTime> oldExtendedTimes = extendedTimeFacade.getEntriesForPub(assessment.getData());
 		Date oldStartDate  = assessment.getAssessmentAccessControl().getStartDate();
 
@@ -227,7 +239,6 @@ implements ActionListener
 	    assessment.setSecuredIPAddressSet(ipSet);
 	    
 	    // k. secure delivery settings
-	    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
 	    String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, encryptedPassword);
@@ -569,7 +580,7 @@ implements ActionListener
 		}
 
 		org.sakaiproject.grading.api.GradingService gradingService =
-			(org.sakaiproject.grading.api.GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			gradebookService;
 
 		boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(AgentFacade.getCurrentSiteId());
 		boolean isReleaseToSelectedGroups = assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
@@ -876,7 +887,7 @@ implements ActionListener
 		saveAssessmentSettings.updateMetaWithValueMap(assessment, h);
 
 		org.sakaiproject.grading.api.GradingService gradingService =
-			(org.sakaiproject.grading.api.GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			gradebookService;
 
 		boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(AgentFacade.getCurrentSiteId());
 
@@ -909,7 +920,6 @@ implements ActionListener
 		  assessment.updateAssessmentToGradebookNameMetaData("");
 		}
 
-		ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
 		extendedTimeFacade.saveEntriesPub(assessment.getData(), assessmentSettings.getExtendedTimes());
 
 		// i. set Graphics
@@ -947,10 +957,7 @@ implements ActionListener
         // b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
         //    exception are indication that the assessment is already in the Gradebook or there is nothing
         //    to remove.
-        org.sakaiproject.grading.api.GradingService gradingServiceApi = null;
-        if (integrated) {
-            gradingServiceApi = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.grading.api.GradingService");
-        }
+        org.sakaiproject.grading.api.GradingService gradingServiceApi = gradebookService;
 
         PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
 

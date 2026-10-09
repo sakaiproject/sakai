@@ -37,7 +37,6 @@ import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
@@ -85,7 +84,10 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     @Before
     public void setup() throws Exception {
         reset(gradebookService, siteService, toolManager, userDirectoryService);
-        SpringBeanLocator.setApplicationContext(applicationContext);
+        ComponentManager.loadComponent("agentHelper", applicationContext.getBean("agentHelper"));
+        ComponentManager.loadComponent("gradebookServiceHelper", applicationContext.getBean("gradebookServiceHelper"));
+        ComponentManager.loadComponent(org.sakaiproject.grading.api.GradingService.class,
+                applicationContext.getBean(org.sakaiproject.grading.api.GradingService.class));
         ComponentManager.loadComponent("PersistenceService", persistenceService);
         ComponentManager.loadComponent(SiteService.class, siteService);
         ComponentManager.loadComponent(ToolManager.class, toolManager);
