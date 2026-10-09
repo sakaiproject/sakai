@@ -1,7 +1,7 @@
 <%@ page import="org.sakaiproject.tool.app.scheduler.SchedulerTool" %>
 <%@ page import="org.sakaiproject.api.app.scheduler.ConfigurableJobProperty" %>
 <%@ page import="org.sakaiproject.tool.app.scheduler.ConfigurablePropertyWrapper" %>
-<%@ page import="javax.faces.component.UIComponent" %>
+<%@ page import="jakarta.faces.component.UIComponent" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>

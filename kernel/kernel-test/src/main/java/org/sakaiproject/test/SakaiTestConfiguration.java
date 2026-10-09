@@ -25,7 +25,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitiator;
 import org.hsqldb.jdbcDriver;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -35,7 +34,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
@@ -67,8 +67,9 @@ public abstract class SakaiTestConfiguration {
         srb.applySetting(org.hibernate.cfg.Environment.DATASOURCE, dataSource);
         srb.applySettings(hibernateProperties());
         StandardServiceRegistry sr = srb.build();
-        sr.getService(MutableIdentifierGeneratorFactoryInitiator.INSTANCE.getServiceInitiated())
-                .register("uuid2", AssignableUUIDGenerator.class);
+        sfb.addProperties(new Properties() {{
+            setProperty("hibernate.type.preferred_uuid_jdbc_type", "CHAR");
+        }});
         getAdditionalHibernateMappings().processAdditionalMappings(sfb);
         return sfb.buildSessionFactory(sr);
     }
@@ -126,9 +127,9 @@ public abstract class SakaiTestConfiguration {
         return mock(FunctionManager.class);
     }
 
-    @Bean(name = "org.sakaiproject.memory.api.MemoryService")
-    public MemoryService memoryService() {
-        return mock(MemoryService.class);
+    @Bean(name = "org.sakaiproject.ignite.SakaiCacheManager")
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager();
     }
 
     @Bean(name = "org.sakaiproject.authz.api.SecurityService")

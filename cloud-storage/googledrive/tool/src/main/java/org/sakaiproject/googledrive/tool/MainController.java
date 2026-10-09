@@ -13,7 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.googledrive.tool;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +43,7 @@ public class MainController {
 	private SessionManager sessionManager;
 
 	@RequestMapping(value = {"/", "/index"}, method = RequestMethod.GET)
-	public String showIndex(@RequestParam(required=false) String code, Model model) {
+	public String showIndex(@RequestParam(value = "code", required = false) String code, Model model) {
 		log.debug("GoogleDriveServlet : Called the main servlet.");
 		String userId = sessionManager.getCurrentSessionUserId();
 		Object pickerRedirectUrlObject = sessionManager.getCurrentSession().getAttribute(GoogleDriveService.GOOGLEDRIVE_REDIRECT_URI);

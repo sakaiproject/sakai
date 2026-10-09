@@ -43,8 +43,8 @@
 			<artifactId>sakai-component-manager</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javax.portlet</groupId>
@@ -77,7 +77,7 @@
             <artifactId>sakai-grading-api</artifactId>
         </dependency>
 		<dependency>
-				<groupId>org.hibernate</groupId>
+				<groupId>org.hibernate.orm</groupId>
 				<artifactId>hibernate-core</artifactId>
 			</dependency>
 		<dependency>
@@ -121,8 +121,8 @@
 			<artifactId>jjwt-jackson</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>

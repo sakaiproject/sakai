@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,13 +46,13 @@ public class TagsController extends AbstractSakaiApiController {
 	private SecurityService securityService;
 
 	@PostMapping(value = "/sites/{siteId}/tools/{tool}/tags", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Tag> createTags(@PathVariable String siteId, @PathVariable String tool, @RequestBody List<Tag> tags) {
+	public List<Tag> createTags(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @RequestBody List<Tag> tags) {
 		checkSakaiSession();
 		return tagService.createSiteTags(siteId, tool, tags);
 	}
 
 	@GetMapping(value = "/sites/{siteId}/tools/{tool}/tags/{collectionId}/items/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<Tag> getTagsForItem(@PathVariable String siteId, @PathVariable String tool, @PathVariable String collectionId, @PathVariable String itemId) {
+	public Iterable<Tag> getTagsForItem(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @PathVariable("collectionId") String collectionId, @PathVariable("itemId") String itemId) {
 		checkSakaiSession();
 		checkAccess(siteId, tool);
 
@@ -61,7 +61,7 @@ public class TagsController extends AbstractSakaiApiController {
 	}
 	
 	@GetMapping(value = "/sites/{siteId}/tools/{tool}/tags/{collectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<TagSummary> getTagsForCollection(@PathVariable String siteId, @PathVariable String tool, @PathVariable String collectionId) {
+	public Iterable<TagSummary> getTagsForCollection(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @PathVariable("collectionId") String collectionId) {
 		checkSakaiSession();
 		checkAccess(siteId, tool);
 

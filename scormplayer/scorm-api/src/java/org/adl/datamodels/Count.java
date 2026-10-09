@@ -57,6 +57,12 @@ public class Count extends DMElement {
 	private int mCount = 0;
 
 	/**
+	 * Constructor for Hibernate.
+	 */
+	protected Count() {
+	}
+
+	/**
 	 * Constructs a <code>_count</code> keyword data model element describing
 	 * the number of sub-elements being maintained by the parent data model
 	 * element.

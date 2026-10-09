@@ -21,13 +21,17 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.misc;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import java.io.Serializable;
+
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* Build Information. */
 @ManagedBean(name="buildinfo")
 @SessionScoped
-public class BuildInfoBean {
+public class BuildInfoBean implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   private String buildVersion;
   private String buildTime;
   private String buildTag;

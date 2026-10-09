@@ -59,7 +59,6 @@ import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.impl.report.ReportManagerImpl;
@@ -122,7 +121,7 @@ public class SiteStatsTestConfiguration {
             mock(org.sakaiproject.sitestats.impl.view.SiteStatsSamigoLookup.class);
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    public SessionFactory sessionFactory(Properties hibernateProperties) throws IOException {
+    public SessionFactory sessionFactory(@Qualifier("hibernateProperties") Properties hibernateProperties) throws IOException {
         LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
         hibernateMappings.processAdditionalMappings(sfb);
         sfb.addProperties(hibernateProperties);
@@ -269,10 +268,9 @@ public class SiteStatsTestConfiguration {
         return mock(LinkMigrationHelper.class);
     }
 
-    @Bean(name = "org.sakaiproject.memory.api.MemoryService")
-    public MemoryService memoryService() {
-        MemoryService memoryService = new org.sakaiproject.memory.mock.MemoryService();
-        return memoryService;
+    @Bean(name = "org.sakaiproject.ignite.SakaiCacheManager")
+    public org.springframework.cache.CacheManager cacheManager() {
+        return new org.springframework.cache.concurrent.ConcurrentMapCacheManager();
     }
 
     @Bean(name = "org.sakaiproject.user.api.PreferencesService")

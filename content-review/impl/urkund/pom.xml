@@ -75,12 +75,8 @@
 
 		<!-- httpclient -->
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpmime</artifactId>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 		</dependency>
 
 		<!-- Apache commons dependencies -->
@@ -93,8 +89,8 @@
 			<artifactId>commons-validator</artifactId>
 		</dependency>
 		<dependency>
-	        <groupId>javax.servlet</groupId>
-	        <artifactId>javax.servlet-api</artifactId>
+	        <groupId>jakarta.servlet</groupId>
+	        <artifactId>jakarta.servlet-api</artifactId>
 	    </dependency>
 
 		<!-- Spring and Hibernate dependencies. -->
@@ -103,14 +99,8 @@
 			<artifactId>spring-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
+			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-core</artifactId>
-		</dependency>
-
-		<!-- Required for hibernate 3 HQL queries -->
-		<dependency>
-			<groupId>antlr</groupId>
-			<artifactId>antlr</artifactId>
 		</dependency>
 
 		<!-- testing dependencies -->
@@ -119,8 +109,8 @@
 			<artifactId>hsqldb</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>jta</artifactId>
+			<groupId>jakarta.transaction</groupId>
+			<artifactId>jakarta.transaction-api</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

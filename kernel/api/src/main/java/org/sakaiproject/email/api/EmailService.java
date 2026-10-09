@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
 
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.user.api.User;
@@ -151,10 +151,10 @@ public interface EmailService
 	 * @throws AddressValidationException
 	 *             If any addresses are found to be invalid that prevent all the messages from being send.
 	 *             Examples are reply-to address and from address.. This is checked when
-	 *             converting to {@link javax.mail.internet.InternetAddress}.
+	 *             converting to {@link jakarta.mail.internet.InternetAddress}.
 	 * @throws NoRecipientsException
 	 * @return {@link java.util.List} of recipients that were found to be invalid per to
-	 *         {@link javax.mail.internet.InternetAddress}.
+	 *         {@link jakarta.mail.internet.InternetAddress}.
 	 * @deprecated use {@link #send(EmailMessage, true)}
 	 */
 	@Deprecated
@@ -172,11 +172,11 @@ public interface EmailService
 	 * @throws AddressValidationException
 	 *             If any addresses are found to be invalid that prevent all the messages from being send.
 	 *             Examples are reply-to address and from address.. This is checked when
-	 *             converting to {@link javax.mail.internet.InternetAddress}.
+	 *             converting to {@link jakarta.mail.internet.InternetAddress}.
 	 * @throws NoRecipientsException
 	 * @throws MessagingException
 	 * @return {@link java.util.List} of recipients that were found to be invalid per to
-	 *         {@link javax.mail.internet.InternetAddress}.
+	 *         {@link jakarta.mail.internet.InternetAddress}.
 	 */
 
 	List<EmailAddress> send(EmailMessage message, boolean messagingException) throws AddressValidationException,

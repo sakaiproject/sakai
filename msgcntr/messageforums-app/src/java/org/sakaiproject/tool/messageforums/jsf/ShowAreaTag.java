@@ -20,11 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.jsf;
 
-import javax.faces.component.UIComponent;
-import javax.faces.el.ValueBinding;
-import javax.faces.webapp.UIComponentTag;
-import javax.faces.application.Application;
-import javax.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
+import jakarta.el.ValueExpression;
+import jakarta.faces.application.Application;
+import jakarta.faces.context.FacesContext;
 
 /**
  * @author Chen Wen
@@ -36,6 +36,10 @@ public class ShowAreaTag extends UIComponentTag
   private String value;
   private String hideBorder;
   private String showInputTextArea;
+  
+  private static boolean isEL(String val) {
+    return val.startsWith("#{") && val.endsWith("}");
+  }
   
   public void setvalue(String value)
   {
@@ -101,14 +105,14 @@ public class ShowAreaTag extends UIComponentTag
   {
     super.release();
     
-    value = null;
+    value = hideBorder = showInputTextArea = null;
   }
   
   public static void setString(UIComponent component, String attributeName,
       String attributeValue)
   {
     if (attributeValue == null) return;
-    if (UIComponentTag.isValueReference(attributeValue)) setValueBinding(
+    if (isEL(attributeValue)) setValueBinding(
         component, attributeName, attributeValue);
     else
       component.getAttributes().put(attributeName, attributeValue);
@@ -119,8 +123,8 @@ public class ShowAreaTag extends UIComponentTag
   {
     FacesContext context = FacesContext.getCurrentInstance();
     Application app = context.getApplication();
-    ValueBinding vb = app.createValueBinding(attributeValue);
-    component.setValueBinding(attributeName, vb);
+    ValueExpression vb = app.getExpressionFactory().createValueExpression(context.getELContext(), attributeValue, Object.class);
+    component.setValueExpression(attributeName, vb);
   }
 }
 

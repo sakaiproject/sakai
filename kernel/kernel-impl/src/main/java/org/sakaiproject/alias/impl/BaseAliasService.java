@@ -46,7 +46,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
@@ -121,7 +120,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class BaseAliasService implements AliasService, SingleStorageUser {
 
-    @Setter protected MemoryService memoryService;
     @Setter protected ServerConfigurationService serverConfigurationService;
     @Setter protected EntityManager entityManager;
     @Setter protected SecurityService securityService;

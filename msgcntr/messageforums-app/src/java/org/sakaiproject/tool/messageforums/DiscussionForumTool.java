@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.messageforums;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -47,22 +48,22 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
-import javax.faces.bean.ManagedProperty;
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.component.UIData;
-import javax.faces.component.UIInput;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.persistence.OptimisticLockException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIData;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
@@ -164,7 +165,6 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.RoleIdComparator;
-
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -190,7 +190,9 @@ import static org.sakaiproject.component.app.messageforums.dao.hibernate.Message
 @Getter
 @ManagedBean(name="ForumTool")
 @SessionScoped
-public class DiscussionForumTool {
+public class DiscussionForumTool implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   /**
    * List individual forum details
@@ -432,7 +434,7 @@ public class DiscussionForumTool {
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MembershipManager\"]}")
   private MembershipManager membershipManager;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.PermissionLevelManager\"]}")
-  private PermissionLevelManager permissionLevelManager; 
+  private PermissionLevelManager permissionLevelManager;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.EmailNotificationManager\"]}")
   private EmailNotificationManager emailNotificationManager;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager\"]}")
@@ -6245,7 +6247,7 @@ public class DiscussionForumTool {
     return null;
   } 
 
-  public String currentChange;
+  private String currentChange;
   public void setCurrentChange(String newChange){
 	currentChange = newChange;
   }

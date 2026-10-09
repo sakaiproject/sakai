@@ -645,7 +645,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 		String uuid = nextUuid();
 		final MySession session = new MySession(sessionComponent,uuid,threadLocalManager,idManager,
 				sessionComponent,sessionListener,sessionComponent.getInactiveInterval(),new MyNonPortableSession(),
-				new MutableLong(System.currentTimeMillis()), null) {
+				new MutableLong(System.currentTimeMillis())) {
 			
 			// Make eclipse warnings go away and define this
 			private static final long serialVersionUID = 1L;
@@ -692,7 +692,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 		};
 		final MySession session = new MySession(sessionComponent,uuid,threadLocalManager,idManager,
 				sessionComponent,sessionListener,sessionComponent.getInactiveInterval(),new MyNonPortableSession(),
-				expirationTimeSuggestion, null);
+				expirationTimeSuggestion);
 		return session;
 	}
 	
@@ -703,7 +703,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 		String uuid = nextUuid();
 		final MySession session = new MySession(sessionComponent,uuid,threadLocalManager,idManager,
 				sessionComponent,sessionListener,sessionComponent.getInactiveInterval(),new MyNonPortableSession(),
-				new MutableLong(System.currentTimeMillis()), null) {
+				new MutableLong(System.currentTimeMillis())) {
 			private long superGetLastAccessedTime() {
 				return super.getLastAccessedTime();
 			}

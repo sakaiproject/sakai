@@ -111,10 +111,10 @@ import java.util.Vector;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -821,19 +821,19 @@ public class DavServlet extends HttpServlet
 	{
 
 		// Are we being processed by a RequestDispatcher.include()?
-		if (request.getAttribute("javax.servlet.include.request_uri") != null)
+		if (request.getAttribute("jakarta.servlet.include.request_uri") != null)
 		{
-			String result = (String) request.getAttribute("javax.servlet.include.path_info");
-			if (result == null) result = (String) request.getAttribute("javax.servlet.include.servlet_path");
+			String result = (String) request.getAttribute("jakarta.servlet.include.path_info");
+			if (result == null) result = (String) request.getAttribute("jakarta.servlet.include.servlet_path");
 			if ((result == null) || (result.equals(""))) result = "/";
 			return (result);
 		}
 
 		// Are we being processed by a RequestDispatcher.forward()?
-		if (request.getAttribute("javax.servlet.forward.request_uri") != null)
+		if (request.getAttribute("jakarta.servlet.forward.request_uri") != null)
 		{
-			String result = (String) request.getAttribute("javax.servlet.forward.path_info");
-			if (result == null) result = (String) request.getAttribute("javax.servlet.forward.servlet_path");
+			String result = (String) request.getAttribute("jakarta.servlet.forward.path_info");
+			if (result == null) result = (String) request.getAttribute("jakarta.servlet.forward.servlet_path");
 			if ((result == null) || (result.equals(""))) result = "/";
 			return (result);
 		}
@@ -2428,7 +2428,7 @@ public class DavServlet extends HttpServlet
 	    // dump all the name spaces and their prefix
 	    for (String namespace: spaces.keySet())
 		writer.write(" xmlns:" + spaces.get(namespace) + "=\"" + namespace + "\"");
-	    writer.write("><D:response><D:href>" + javax.servlet.http.HttpUtils.getRequestURL(req) + "</D:href>");
+	    writer.write("><D:response><D:href>" + req.getRequestURL() + "</D:href>");
 	    // now output properties, claiming we did it
 	    for (String pname: props) {
 		writer.write("<D:propstat><D:prop><" + pname + "/></D:prop><D:status>HTTP/1.1 201 OK</D:status></D:propstat>");
@@ -4298,10 +4298,10 @@ public class DavServlet extends HttpServlet
 		// Generating href element
 		generatedXML.writeElement("D", "href", XMLWriter.OPENING);
 
-		String href = (String) req.getAttribute("javax.servlet.forward.servlet_path");
+		String href = (String) req.getAttribute("jakarta.servlet.forward.servlet_path");
 		if (href == null)
 		{
-			href = (String) req.getAttribute("javax.servlet.include.servlet_path");
+			href = (String) req.getAttribute("jakarta.servlet.include.servlet_path");
 		}
 		if (href == null)
 		{

@@ -26,11 +26,12 @@ import lombok.Setter;
 import org.sakaiproject.jsf2.util.JSFDepends;
 import org.sakaiproject.jsf2.util.TagUtil;
 
-import javax.faces.component.UIComponent;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.webapp.UIComponentTag;
 
 @Getter
 @Setter
-public class ToolBarItemTag extends JSFDepends.CommandButtonTag
+public class ToolBarItemTag extends UIComponentTag
 {
 
     /**
@@ -68,9 +69,9 @@ public class ToolBarItemTag extends JSFDepends.CommandButtonTag
         return "org.sakaiproject.user.jsf.ToolBarItem";
     }
 
-//    public String getComponentType() {
-//        return "javax.faces.Command";
-//    }
+    public String getComponentType() {
+        return "jakarta.faces.Command";
+    }
 
 }
 

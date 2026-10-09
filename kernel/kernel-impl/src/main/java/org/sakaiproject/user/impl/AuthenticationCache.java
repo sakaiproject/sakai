@@ -30,10 +30,11 @@ import java.util.Random;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
+
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 
 /**
@@ -53,8 +54,8 @@ import org.sakaiproject.user.api.AuthenticationException;
 @Slf4j
 public class AuthenticationCache {
     @Setter
-    private MemoryService memoryService;
-    private Cache<String, AuthenticationRecord> authCache = null;
+    private CacheManager cacheManager;
+    private Cache authCache = null;
     /**
      * List of algorithms to attempt to use, best ones should come first.
      */
@@ -64,17 +65,16 @@ public class AuthenticationCache {
 
     public void init() {
         log.info("INIT");
-        authCache = memoryService.getCache("org.sakaiproject.user.api.AuthenticationManager");
+        authCache = cacheManager.getCache("org.sakaiproject.user.api.AuthenticationManager");
     }
 
     public void destroy() {
-        if (authCache != null) authCache.close();
     }
 
 	/**
 	* The central cache object, should be injected
 	*/
-	public void setAuthCache(Cache<String, AuthenticationRecord> authCache) {
+	public void setAuthCache(Cache authCache) {
 		this.authCache = authCache;
 		if (log.isDebugEnabled() && (authCache != null)) log.debug("authCache ");
 	}
@@ -82,7 +82,7 @@ public class AuthenticationCache {
 	public Authentication getAuthentication(String authenticationId, String password)
 			throws AuthenticationException {
 		Authentication auth = null;
-		AuthenticationRecord record = authCache.get(authenticationId);
+		AuthenticationRecord record = authCache.get(authenticationId, AuthenticationRecord.class);
 		if (record != null) {
 			byte[] salt = new byte[saltLength];
 			System.arraycopy(record.encodedPassword, 0, salt, 0, salt.length);
@@ -99,7 +99,7 @@ public class AuthenticationCache {
 				// Since the passwords didn't match, we're no longer getting repeats,
 				// and so the record should be removed.
                 log.debug("getAuthentication: record for authenticationId={} failed password check", authenticationId);
-				authCache.remove(authenticationId);
+				authCache.evict(authenticationId);
 			}
 		}
 		return auth;
@@ -115,12 +115,12 @@ public class AuthenticationCache {
 
 	
 	public void removeAuthentification(String authentificationId) {
-		authCache.remove(authentificationId);
+		authCache.evict(authentificationId);
 	}
-	
+
 	protected void putAuthenticationRecord(String authenticationId, String password,
 			Authentication authentication) {
-		if (authCache.containsKey(authenticationId)) {
+		if (authCache.get(authenticationId, AuthenticationRecord.class) != null) {
 			// Don't indefinitely renew the cached record -- we want to force
 			// real authentication after the timeout.
 		} else {

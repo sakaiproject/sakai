@@ -25,10 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.Area;
@@ -56,6 +52,10 @@ import org.sakaiproject.tool.messageforums.SynopticSiteSemesterComparator;
 import org.sakaiproject.tool.messageforums.SynopticSitesPreferencesComparator;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.cover.PreferencesService;
+
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.RequestScoped;
+import jakarta.faces.bean.ManagedBean;
 
 @Slf4j
 @ManagedBean(name="mfSynopticBeanLite")

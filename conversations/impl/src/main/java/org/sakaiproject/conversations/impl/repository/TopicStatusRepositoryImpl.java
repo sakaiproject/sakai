@@ -20,12 +20,11 @@ import java.util.Optional;
 
 import org.hibernate.Session;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.CriteriaQuery;
 //import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.Root;
 
 import org.sakaiproject.conversations.api.model.TopicStatus;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
@@ -56,11 +55,14 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<TopicStatus> delete = cb.createCriteriaDelete(TopicStatus.class);
-        Root<TopicStatus> status = delete.from(TopicStatus.class);
-        delete.where(cb.equal(status.get("topic").get("id"), topicId));
+        CriteriaQuery<TopicStatus> query = cb.createQuery(TopicStatus.class);
+        Root<TopicStatus> status = query.from(TopicStatus.class);
+        query.where(cb.equal(status.get("topic").get("id"), topicId));
 
-        return session.createQuery(delete).executeUpdate();
+        // Remove managed statuses so they no longer reference the topic when it is deleted.
+        List<TopicStatus> statuses = session.createQuery(query).getResultList();
+        statuses.forEach(session::remove);
+        return statuses.size();
     }
 
     @Transactional(readOnly = true)

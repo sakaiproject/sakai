@@ -15,16 +15,15 @@
  */
 package org.sakaiproject.meetings.api.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -43,8 +42,7 @@ public class MeetingProperty {
 
     @Id
     @Column(name = "prop_id")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "meeting_property_sequence")
-    @SequenceGenerator(name = "meeting_property_sequence", sequenceName = "MEETING_PROPERTY_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "meeting_property_sequence", sequenceName = "MEETING_PROPERTY_S"))
     private Long id;
 
     @ManyToOne(cascade = CascadeType.ALL)

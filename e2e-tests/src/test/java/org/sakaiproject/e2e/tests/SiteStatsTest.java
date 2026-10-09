@@ -24,6 +24,7 @@ import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FormData;
 import com.microsoft.playwright.options.FilePayload;
@@ -454,7 +455,9 @@ class SiteStatsTest extends SakaiUiTestBase {
         page.onRequest(request -> {
             if (request.url().contains("/reports/resources?")) metadataRequests.add(request.url());
         });
-        search.fill("reading");
+        Response resourcesResponse = page.waitForResponse(
+            response -> response.url().contains("/reports/resources?"), () -> search.fill("reading"));
+        assertEquals(200, resourcesResponse.status(), "Resource metadata request must succeed");
         Locator matches = component.locator("#resource-results li");
         assertThat(matches).hasCount(20);
         assertThat(component.locator("[role=status]")).containsText("Showing the first 20 matches. Refine your search.");

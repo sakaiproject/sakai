@@ -27,7 +27,6 @@
               <sakai:pager totalItems="#{schedulerTool.eventPager.totalItems}"
                            firstItem="#{schedulerTool.eventPager.firstItem}"
                            pageSize="#{schedulerTool.eventPager.pageSize}"
-                           valueChangeListener="#{schedulerTool.eventPager.handleValueChange}"
                            textItem="#{msgs.events}"
                            accesskeys="true"
                            immediate="true"/>

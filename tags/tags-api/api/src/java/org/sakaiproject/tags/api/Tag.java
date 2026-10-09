@@ -23,14 +23,14 @@
 package org.sakaiproject.tags.api;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -39,6 +39,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -68,7 +69,7 @@ public class Tag implements PersistableEntity<String> {
     @Column(name = "taglabel", length = 255)
     private String tagLabel;
     @Lob
-    @Column(name = "description", length = 65535)
+    @Column(name = "description", length = Length.LONG32)
     private String description;
     @Column(name = "createdby", length = 99)
     private String createdBy;
@@ -81,7 +82,7 @@ public class Tag implements PersistableEntity<String> {
     @Column(name = "externalid", length = 255)
     private String externalId;
     @Lob
-    @Column(name = "alternativelabels", length = 65535)
+    @Column(name = "alternativelabels", length = Length.LONG32)
     private String alternativeLabels;
     @Column(name = "externalcreation")
     private Boolean externalCreation;
@@ -94,12 +95,12 @@ public class Tag implements PersistableEntity<String> {
     @Column(name = "parentid", length = 255)
     private String parentId;
     @Lob
-    @Column(name = "externalhierarchycode", length = 65535)
+    @Column(name = "externalhierarchycode", length = Length.LONG32)
     private String externalHierarchyCode;
     @Column(name = "externaltype", length = 255)
     private String externalType;
     @Lob
-    @Column(name = "data", length = 65535)
+    @Column(name = "data", length = Length.LONG32)
     private String data;
     @Transient
     private String collectionName;

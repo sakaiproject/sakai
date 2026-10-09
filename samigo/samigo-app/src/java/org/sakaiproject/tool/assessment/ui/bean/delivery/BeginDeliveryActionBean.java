@@ -15,16 +15,21 @@
  */
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import java.io.Serializable;
+
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
+
 @ManagedBean(name="beginDeliveryActionBean")
 @SessionScoped
-public class BeginDeliveryActionBean {
-    
+public class BeginDeliveryActionBean implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+
     public String startAssessment() {
         DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
         

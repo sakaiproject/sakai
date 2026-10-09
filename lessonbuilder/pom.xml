@@ -29,10 +29,6 @@
 
         <sakai.yaft.version>1.3.0-SNAPSHOT</sakai.yaft.version>
         <sakai.yaft.scope>provided</sakai.yaft.scope>
-        <sakai.mneme.version>2.1.2</sakai.mneme.version>
-        <sakai.mneme.scope>provided</sakai.mneme.scope>
-        <sakai.assignment2.version>1.0-rc-1</sakai.assignment2.version>
-        <sakai.assignment2.scope>provided</sakai.assignment2.scope>
     </properties>
 
     <dependencyManagement>

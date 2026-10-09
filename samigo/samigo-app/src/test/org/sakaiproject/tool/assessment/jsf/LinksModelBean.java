@@ -21,8 +21,8 @@
 package org.sakaiproject.tool.assessment.jsf;
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.faces.bean.SessionScoped;
 
 @ManagedBean(name="multilinks")
 @SessionScoped

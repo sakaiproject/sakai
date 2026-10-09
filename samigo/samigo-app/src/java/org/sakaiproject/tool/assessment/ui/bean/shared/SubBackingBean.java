@@ -26,8 +26,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 @ManagedBean(name="subbackingbean")
 @SessionScoped

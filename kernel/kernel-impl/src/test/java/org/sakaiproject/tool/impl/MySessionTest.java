@@ -28,8 +28,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
 
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.junit.Test;
@@ -635,7 +635,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 
 		public MyTestableSession(SessionComponent outer, String sessionId, ThreadLocalManager threadLocalManager,
 				IdManager idManager, SessionAttributeListener sessionListener,  NonPortableSession nps) {
-			super(outer, sessionId, threadLocalManager, idManager, outer, sessionListener, outer.getInactiveInterval(),nps,new MutableLong(System.currentTimeMillis()), null);
+			super(outer, sessionId, threadLocalManager, idManager, outer, sessionListener, outer.getInactiveInterval(),nps,new MutableLong(System.currentTimeMillis()));
 		}
 
 		@Override

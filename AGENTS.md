@@ -92,7 +92,7 @@
 - **Test Naming**: When a test verifies a public API or service contract, name the test class after the API/interface under test rather than the implementation class.
 - **Spring Test Wiring**: For service tests, prefer loading the same Spring component wiring used by the running application when practical. Put reusable mocks and bean overrides in test configuration rather than remocking the same dependencies in each test.
 - **UI Flow Changes**: When changing user-visible UI flows (navigation, forms, submissions, dialogs, or interactive behavior), add or update a Playwright test in `e2e-tests/src/test/java/org/sakaiproject/e2e/tests` that covers the changed flow. If a Playwright test is not practical, document why in the PR description.
-- **Java Version**: Java 17 for master (Java 11 was used for Sakai 22 and Sakai 23)
+- **Java Version**: Java 21 for master (Java 11 was used for Sakai 22 and Sakai 23)
 - **Pull Request Workflow**: "Squash and Merge" for single issues, "Rebase and Merge" for multiple issues
 - **No `var` in Java**: Do not use local variable type inference (`var`) in Java code. Always declare explicit types (e.g., `List<String> names = new ArrayList<>();` not `var names = new ArrayList<String>();`).
    - Enforced: The build runs a Checkstyle rule during `mvn validate` to fail on `var` usages. To bypass in emergencies only, run with `-Dcheckstyle.skip=true` (not recommended for commits).

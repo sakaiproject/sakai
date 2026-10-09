@@ -32,6 +32,24 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class ToolOrderTest extends SakaiUiTestBase {
 
     @Test
+    void canExpandToolNavigationAfterSwitchingSites() {
+        sakai.login("instructor1");
+        String firstSiteUrl = sakai.createCourse("instructor1", List.of("sakai.announcements"));
+        String secondSiteUrl = sakai.createCourse("instructor1", List.of("sakai.resources"));
+
+        page.navigate(secondSiteUrl);
+        sakai.toolClick("Resources");
+        page.navigate(firstSiteUrl);
+
+        Locator expandButton = page.locator(
+            "li.site-list-item.is-current-site button[data-bs-toggle='collapse']").first();
+        assertThat(expandButton).hasAttribute("aria-expanded", Pattern.compile("true|false"));
+        sakai.toolClick("Announcements");
+        assertThat(page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText("Add")).first()).isVisible();
+    }
+
+    @Test
     void toolOrderImmediateActionsPersist() {
         sakai.login("instructor1");
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai.announcements", "sakai.resources"));

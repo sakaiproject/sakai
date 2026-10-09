@@ -17,11 +17,11 @@ package org.sakaiproject.poll.impl.repository;
 
 import java.util.Collections;
 import java.util.List;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
@@ -60,7 +60,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         CriteriaQuery<Vote> query = cb.createQuery(Vote.class);
         Root<Vote> root = query.from(Vote.class);
 
-        Predicate optionPredicate = cb.equal(root.get("option"), optionId);
+        Predicate optionPredicate = cb.equal(root.get("option").get("id"), optionId);
 
         query.select(root)
                 .where(optionPredicate);

@@ -21,9 +21,9 @@
 
 package org.sakaiproject.tool.assessment.ui.web.session;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpSession;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,8 +50,8 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
  *
  * @author  Jarrod Lannan
  * @version $Revision$
- * @see     javax.servlet.http.HttpSession
- * @see     javax.servlet.http.HttpSession#setMaxInactiveInterval(int)
+ * @see     jakarta.servlet.http.HttpSession
+ * @see     jakarta.servlet.http.HttpSession#setMaxInactiveInterval(int)
  *
  */
 @Slf4j

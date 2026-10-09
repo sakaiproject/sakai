@@ -19,15 +19,25 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
+import lombok.Setter;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ContentPackageDaoImpl extends HibernateDaoSupport implements ContentPackageDao
+public class ContentPackageDaoImpl implements ContentPackageDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	@Override
 	public int countContentPackages(String context, String name)
 	{
@@ -50,17 +60,18 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 	@Override
 	public List<ContentPackage> find(String context)
 	{
-		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where context = :context and deleted = :deleted ").toString();
-		return getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(statement)
-				.setParameter("context", context)
-				.setParameter("deleted", false)
-				.getResultList();
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<ContentPackage> query = cb.createQuery(ContentPackage.class);
+		Root<ContentPackage> root = query.from(ContentPackage.class);
+		query.select(root).where(cb.equal(root.get("context"), context), cb.equal(root.get("deleted"), false));
+		return session.createQuery(query).getResultList();
 	}
 
 	@Override
 	public ContentPackage load(long id)
 	{
-		return (ContentPackage) getHibernateTemplate().load(ContentPackage.class, id);
+		return sessionFactory.getCurrentSession().getReference(ContentPackage.class, id);
 	}
 
 	/**
@@ -71,32 +82,25 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 	@Override
 	public ContentPackage loadByResourceId(String resourceId)
 	{
-		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where resourceId = :id and deleted = :deleted ").toString();
-		List<ContentPackage> result = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(statement)
-			.setParameter("id", resourceId)
-			.setParameter("deleted", false)
-			.getResultList();
-
-		if (result.isEmpty())
-		{
-			return null;
-		}
-		else
-		{
-			return result.get(0);
-		}
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<ContentPackage> query = cb.createQuery(ContentPackage.class);
+		Root<ContentPackage> root = query.from(ContentPackage.class);
+		query.select(root).where(cb.equal(root.get("resourceId"), resourceId), cb.equal(root.get("deleted"), false));
+		List<ContentPackage> result = session.createQuery(query).getResultList();
+		return result.isEmpty() ? null : result.get(0);
 	}
 
 	@Override
 	public void remove(ContentPackage contentPackage)
 	{
 		contentPackage.setDeleted(true);
-		getHibernateTemplate().saveOrUpdate(contentPackage);
+		sessionFactory.getCurrentSession().merge(contentPackage);
 	}
 
 	@Override
 	public void save(ContentPackage contentPackage)
 	{
-		getHibernateTemplate().saveOrUpdate(contentPackage);
+		sessionFactory.getCurrentSession().merge(contentPackage);
 	}
 }

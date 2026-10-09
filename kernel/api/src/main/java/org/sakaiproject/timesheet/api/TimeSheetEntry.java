@@ -17,14 +17,13 @@ package org.sakaiproject.timesheet.api;
 
 import java.time.Instant;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.hibernate.annotations.Type;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -41,8 +40,7 @@ import lombok.EqualsAndHashCode;
 public class TimeSheetEntry implements PersistableEntity<Long> {
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "timesheet_sequence")
-    @SequenceGenerator(name = "timesheet_sequence", sequenceName = "TIMESHEET_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "timesheet_sequence", sequenceName = "TIMESHEET_S"))
     @EqualsAndHashCode.Include
     private Long id;
 
@@ -52,7 +50,6 @@ public class TimeSheetEntry implements PersistableEntity<Long> {
     @Column(name = "USER_ID", length = 99)
     private String userId;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "START_TIME", nullable = false)
     private Instant startTime;
 

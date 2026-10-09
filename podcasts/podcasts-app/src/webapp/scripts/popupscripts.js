@@ -2,7 +2,9 @@
 // el is element to where popover should be placed and where it gets activeted by click
 // message is the content, the popup will display
 function initializePopover(elId, message) {
-	$('#'+elId).popover({
+	const element = document.getElementById(elId);
+	if (!element) return;
+	bootstrap.Popover.getOrCreateInstance(element, {
 		placement:'bottom',
 		content: message
 	});
@@ -11,7 +13,7 @@ function initializePopover(elId, message) {
 //Copy to Clipboard
 function copyToClipboard(elId) {
   /* Get the text field */
-  var copyText = document.getElementById(elId);
+  const copyText = document.getElementById(elId);
 
   copyText.select();
   copyText.setSelectionRange(0, 99999); /*For mobile devices*/

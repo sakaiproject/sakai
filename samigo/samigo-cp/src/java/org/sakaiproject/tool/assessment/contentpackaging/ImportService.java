@@ -33,6 +33,11 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.ServletContext;
+
 import javax.xml.parsers.DocumentBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -26,6 +26,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.app.event.ReferenceInsertionEventHandler;
+import org.apache.velocity.context.Context;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -46,9 +47,9 @@ public class ExcludeEscapeHtmlReference implements ReferenceInsertionEventHandle
 		ignore.put("${request.getAttribute(\"sakai.html.head\")}","1");
         }
 	/* (non-Javadoc)
-	 * @see org.apache.velocity.app.event.ReferenceInsertionEventHandler#referenceInsert(java.lang.String, java.lang.Object)
+	 * @see org.apache.velocity.app.event.ReferenceInsertionEventHandler#referenceInsert(org.apache.velocity.context.Context, java.lang.String, java.lang.Object)
 	 */
-	public Object referenceInsert(String name, Object value)
+	public Object referenceInsert(Context context, String name, Object value)
 	{
 		if ( ignore .get(name) != null || name.contains("rlb.") ||
 				name.contains("util.escapeHtml") ||

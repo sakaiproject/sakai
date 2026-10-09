@@ -25,13 +25,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import org.sakaiproject.config.api.HibernateConfigItem;
 import org.sakaiproject.config.api.HibernateConfigItemDao;
@@ -48,9 +46,11 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Transactional
-public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements HibernateConfigItemDao {
+public class HibernateConfigItemDaoImpl implements HibernateConfigItemDao {
     private static String SAKAI_CONFIG_ITEM_SQL = "sakai_config_item";
     private SqlService sqlService;
+
+    @Setter private SessionFactory sessionFactory;
 
     private boolean autoDdl;
 
@@ -75,7 +75,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
     @Override
     public void create(HibernateConfigItem item) {
         if (item != null) {
-            currentSession().save(item);
+            sessionFactory.getCurrentSession().save(item);
         }
     }
 
@@ -88,7 +88,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return null;
         }
 
-        return (HibernateConfigItem) currentSession().get(HibernateConfigItem.class, id);
+        return (HibernateConfigItem) sessionFactory.getCurrentSession().get(HibernateConfigItem.class, id);
     }
 
     /* (non-Javadoc)
@@ -100,7 +100,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return;
         }
 
-        currentSession().update(item);
+        sessionFactory.getCurrentSession().update(item);
     }
 
     /* (non-Javadoc)
@@ -112,7 +112,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return;
         }
 
-        currentSession().delete(item);
+        sessionFactory.getCurrentSession().delete(item);
     }
 
     /* (non-Javadoc)
@@ -122,11 +122,12 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
         if (node == null) {
             return -1;
         }
-        Criteria criteria = currentSession().createCriteria(HibernateConfigItem.class)
-                                    .setProjection(Projections.rowCount())
-                                    .add(Restrictions.eq("node", node));
+        Long count = sessionFactory.getCurrentSession()
+            .createQuery("select count(*) from HibernateConfigItem where node = :node", Long.class)
+            .setParameter("node", node)
+            .uniqueResult();
 
-        return ((Number) criteria.uniqueResult()).intValue();
+        return count != null ? count.intValue() : 0;
     }
 
     /* (non-Javadoc)
@@ -137,12 +138,13 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
         if (node == null || name == null) {
             return -1;
         }
-        Criteria criteria = currentSession().createCriteria(HibernateConfigItem.class)
-                                    .setProjection(Projections.rowCount())
-                                    .add(Restrictions.eq("node", node))
-                                    .add(Restrictions.eq("name", name));
+        Long count = sessionFactory.getCurrentSession()
+            .createQuery("select count(*) from HibernateConfigItem where node = :node and name = :name", Long.class)
+            .setParameter("node", node)
+            .setParameter("name", name)
+            .uniqueResult();
 
-        return ((Number) criteria.uniqueResult()).intValue();
+        return count != null ? count.intValue() : 0;
     }
 
     /* (non-Javadoc)
@@ -170,7 +172,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return;
         }
 
-        currentSession().saveOrUpdate(item);
+        sessionFactory.getCurrentSession().saveOrUpdate(item);
     }
 
     /* (non-Javadoc)
@@ -183,25 +185,44 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return Collections.emptyList();
         }
 
-        Criteria criteria = currentSession().createCriteria(HibernateConfigItem.class);
-        criteria.add(Restrictions.eq("node", node)); // TODO make this search by null also
-        if (name != null && name.length() > 0) {
-            criteria.add(Restrictions.eq("name", name));
+        StringBuilder hql = new StringBuilder("from HibernateConfigItem where node = :node");
+        if (name != null && !name.isEmpty()) {
+            hql.append(" and name = :name");
         }
         if (defaulted != null) {
-            criteria.add(Restrictions.eq("defaulted", defaulted));
+            hql.append(" and defaulted = :defaulted");
         }
         if (registered != null) {
-            criteria.add(Restrictions.eq("registered", registered));
+            hql.append(" and registered = :registered");
         }
         if (dynamic != null) {
-            criteria.add(Restrictions.eq("dynamic", dynamic));
+            hql.append(" and dynamic = :dynamic");
         }
         if (secured != null) {
-            criteria.add(Restrictions.eq("secured", secured));
+            hql.append(" and secured = :secured");
         }
+
+        Query<HibernateConfigItem> query = sessionFactory.getCurrentSession()
+            .createQuery(hql.toString(), HibernateConfigItem.class)
+                .setParameter("node", node);
+        if (name != null && !name.isEmpty()) {
+            query.setParameter("name", name);
+        }
+        if (defaulted != null) {
+            query.setParameter("defaulted", defaulted);
+        }
+        if (registered != null) {
+            query.setParameter("registered", registered);
+        }
+        if (dynamic != null) {
+            query.setParameter("dynamic", dynamic);
+        }
+        if (secured != null) {
+            query.setParameter("secured", secured);
+        }
+
         // TODO throw away cases where node is null AND node is set (only keep node is set) - use order by name & node
-        return criteria.list();
+        return query.list();
     }
 
     /* (non-Javadoc)
@@ -210,18 +231,29 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
     @SuppressWarnings("unchecked")
     @Override
     public List<HibernateConfigItem> findPollOnByNode(String node, Date onOrAfter, Date before) {
-        Criteria criteria = currentSession().createCriteria(HibernateConfigItem.class)
-                                    .add(Restrictions.eq("node", node));
+        StringBuilder hql = new StringBuilder("from HibernateConfigItem where node = :node");
+
         if (onOrAfter == null && before == null) {
-            criteria.add(Restrictions.isNotNull("pollOn"));
+            hql.append(" and pollOn is not null");
         } else {
             if (onOrAfter != null) {
-                criteria.add(Restrictions.ge("pollOn", onOrAfter));
+                hql.append(" and pollOn >= :onOrAfter");
             }
             if (before != null) {
-                criteria.add(Restrictions.lt("pollOn", before));
+                hql.append(" and pollOn < :before");
             }
         }
-        return criteria.list();
+
+        Query<HibernateConfigItem> query = sessionFactory.getCurrentSession()
+            .createQuery(hql.toString(), HibernateConfigItem.class)
+            .setParameter("node", node);
+        if (onOrAfter != null) {
+            query.setParameter("onOrAfter", onOrAfter);
+        }
+        if (before != null) {
+            query.setParameter("before", before);
+        }
+
+        return query.list();
     }
 }

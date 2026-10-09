@@ -19,10 +19,10 @@ package org.sakaiproject.commons.api;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.memory.api.Cache;
+import org.springframework.cache.Cache;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;

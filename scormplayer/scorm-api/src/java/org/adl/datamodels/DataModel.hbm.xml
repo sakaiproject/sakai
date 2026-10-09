@@ -84,7 +84,7 @@
 	
 	
 	
-	<class name="java.net.URL" table="SCORM_URL">
+	<!--<class name="java.net.URL" table="SCORM_URL">
 		<cache usage="nonstrict-read-write"/>
 		<id column="URL_ID" type="long">
             <generator class="native">
@@ -104,6 +104,6 @@
 		
 		<property name="ref" column="REF" />
 	
-	</class>
+	</class>-->
 	
 </hibernate-mapping>

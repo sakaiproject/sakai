@@ -23,13 +23,14 @@
 package org.sakaiproject.tags.api;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-import javax.persistence.Index;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import jakarta.persistence.Index;
+import jakarta.persistence.UniqueConstraint;
+import org.hibernate.Length;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -64,7 +65,7 @@ public class TagCollection implements PersistableEntity<String> {
     @Column(name = "name", length = 255)
     private String name;
     @Lob
-    @Column(name = "description", length = 65535)
+    @Column(name = "description", length = Length.LONG32)
     private String description;
     @Column(name = "createdby", length = 99)
     private String createdBy;
@@ -73,7 +74,7 @@ public class TagCollection implements PersistableEntity<String> {
     @Column(name = "externalsourcename", length = 255, unique = true)
     private String externalSourceName;
     @Lob
-    @Column(name = "externalsourcedescription", length = 65535)
+    @Column(name = "externalsourcedescription", length = Length.LONG32)
     private String externalSourceDescription;
     @Column(name = "lastmodifiedby", length = 99)
     private String lastModifiedBy;

@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -60,8 +61,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -94,12 +93,15 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 	private SessionManager sessionManager;
 
 	@Setter
-	private MemoryService memoryService;
+	private org.springframework.cache.CacheManager cacheManager;
 
-	private Cache<String, Drive> googledriveUserCache;
-	private Cache<String, List<GoogleDriveItem>> driveRootItemsCache;
-	private Cache<String, List<GoogleDriveItem>> driveChildrenItemsCache;
-	private Cache<String, GoogleDriveItem> driveItemsCache;
+	// holds a live Drive API client (HTTP transport + credentials) - each node needs its own and
+	// it can never be marshalled (Ignite always marshals into off-heap page memory regardless of
+	// cache mode, local or distributed), so this is a plain in-JVM map, not an Ignite cache.
+	private final Map<String, Drive> googledriveUserCache = new ConcurrentHashMap<>();
+	private org.springframework.cache.Cache driveRootItemsCache;
+	private org.springframework.cache.Cache driveChildrenItemsCache;
+	private org.springframework.cache.Cache driveItemsCache;
 
 	private String redirectUri = null;
 
@@ -158,10 +160,9 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 			log.error("Error while trying to init Google Drive configuration. {} ", e.getMessage());
 		}
 
-		driveRootItemsCache = memoryService.<String, List<GoogleDriveItem>>getCache("org.sakaiproject.googledrive.service.driveRootItemsCache");
-		driveChildrenItemsCache = memoryService.<String, List<GoogleDriveItem>>getCache("org.sakaiproject.googledrive.service.driveChildrenItemsCache");
-		googledriveUserCache = memoryService.<String, Drive>getCache("org.sakaiproject.googledrive.service.googledriveUserCache");
-		driveItemsCache = memoryService.<String, GoogleDriveItem>getCache("org.sakaiproject.googledrive.service.driveItemsCache");
+		driveRootItemsCache = cacheManager.getCache("org.sakaiproject.googledrive.service.driveRootItemsCache");
+		driveChildrenItemsCache = cacheManager.getCache("org.sakaiproject.googledrive.service.driveChildrenItemsCache");
+		driveItemsCache = cacheManager.getCache("org.sakaiproject.googledrive.service.driveItemsCache");
 	}
 
 	// Checks if the user's tenant has Google credentials.
@@ -282,7 +283,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		if(!this.isGoogleDriveEnabledForUser()){
 			return null;
 		}
-		List<GoogleDriveItem> cachedItems = driveRootItemsCache.get(userId);
+		List<GoogleDriveItem> cachedItems = driveRootItemsCache.get(userId, List.class);
 		if(cachedItems != null) {
 			log.debug("getDriveRootItems : Returning cached items {} ", cachedItems);
 			return cachedItems;
@@ -332,7 +333,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 			return null;
 		}
 		String cacheId = userId + "#" + itemId;
-		List<GoogleDriveItem> cachedItems = driveChildrenItemsCache.get(cacheId);
+		List<GoogleDriveItem> cachedItems = driveChildrenItemsCache.get(cacheId, List.class);
 		if(cachedItems != null) {
 			log.debug("getDriveChildrenItems : Returning cached items {}", cachedItems);
 			return cachedItems;
@@ -383,7 +384,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		if(!this.isGoogleDriveEnabledForUser()){
 			return null;
 		}
-		GoogleDriveItem cachedItem = driveItemsCache.get(itemId);
+		GoogleDriveItem cachedItem = driveItemsCache.get(itemId, GoogleDriveItem.class);
 		if(cachedItem != null){
 			log.debug("getDriveItem : Returning cached gdi {}", cachedItem);
 			return cachedItem;
@@ -450,7 +451,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		log.debug("cleanGoogleDriveCacheForUser {}", userId);
 		// clean caches
 		googledriveUserCache.remove(userId);
-		driveRootItemsCache.remove(userId);
+		driveRootItemsCache.evict(userId);
 		driveChildrenItemsCache.clear();
 		driveItemsCache.clear();
 	}

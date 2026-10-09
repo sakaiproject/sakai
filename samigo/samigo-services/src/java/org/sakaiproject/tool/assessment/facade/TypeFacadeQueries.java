@@ -26,23 +26,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.osid.shared.Type;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.shared.extension.TypeExtension;
+import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional
-public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacadeQueriesAPI {
+public class TypeFacadeQueries implements TypeFacadeQueriesAPI {
 
   private Map<Long, TypeFacade> typeFacadeMap;
   private List<TypeFacade> itemTypes;
+  @Setter private SessionFactory sessionFactory;
 
   public TypeFacadeQueries() {
   }
@@ -134,7 +140,13 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
 	private List<TypeD> getAllTypes() {
-    	return (List<TypeD>) getHibernateTemplate().find("from TypeD");
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<TypeD> cq = cb.createQuery(TypeD.class);
+        Root<TypeD> root = cq.from(TypeD.class);
+        cq.select(root);
+
+        return session.createQuery(cq).list();
     }
 
     /**
@@ -172,14 +184,17 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * @return List
      */
     public List getListByAuthorityDomain(final String authority, final String domain) {
-        HibernateCallback<List> hcb = session -> {
-            Query q = session.createQuery("from TypeD as t where t.authority = :auth and t.domain = :domain");
-            q.setParameter("auth", authority);
-            q.setParameter("domain", domain);
-            q.setCacheable(true);
-            return q.list();
-        };
-        return getHibernateTemplate().execute(hcb);
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<TypeD> cq = cb.createQuery(TypeD.class);
+        Root<TypeD> root = cq.from(TypeD.class);
+        cq.where(
+                cb.equal(root.get("authority"), authority),
+                cb.equal(root.get("domain"), domain));
+        Query<TypeD> q = session.createQuery(cq);
+        q.setCacheable(true);
+
+        return q.list();
     }
 
     public List getFacadeListByAuthorityDomain(String authority, String domain) {

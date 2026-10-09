@@ -118,7 +118,7 @@
     <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
     <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
     <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
-    <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+    <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
     <property name="postRepository" ref="org.sakaiproject.conversations.api.repository.ConversationsPostRepository" />
     <property name="postReactionRepository" ref="org.sakaiproject.conversations.api.repository.PostReactionRepository" />
     <property name="postReactionTotalRepository" ref="org.sakaiproject.conversations.api.repository.PostReactionTotalRepository" />

@@ -15,9 +15,9 @@
  */
 package org.sakaiproject.jsf2.tag;
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.webapp.UIComponentTag;
 
 import org.sakaiproject.jsf2.util.TagUtil;
 
@@ -27,7 +27,7 @@ public class SeparatedListTag extends UIComponentTag {
    private String styleClass;
    
    public String getComponentType() {
-      return ("javax.faces.Output");
+      return ("jakarta.faces.Output");
    }
 
    public String getRendererType() {

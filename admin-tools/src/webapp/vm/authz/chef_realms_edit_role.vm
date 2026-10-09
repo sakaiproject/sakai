@@ -51,8 +51,8 @@
 		</h4>	
 		#foreach ($lock in $allLocks)
 			<div class="checkbox">
-				<label for="lock$velocityCount">
-					<input type="checkbox" name="locks" id="lock$velocityCount" value="$lock" #if($role.AllowedFunctions.contains($lock))checked="checked"#end />
+				<label for="lock$foreach.count">
+					<input type="checkbox" name="locks" id="lock$foreach.count" value="$lock" #if($role.AllowedFunctions.contains($lock))checked="checked"#end />
 					$lock
 				</label>
 			</div>

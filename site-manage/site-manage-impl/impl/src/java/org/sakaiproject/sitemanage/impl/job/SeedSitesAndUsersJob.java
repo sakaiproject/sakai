@@ -126,9 +126,9 @@ public class SeedSitesAndUsersJob implements Job {
 	private final Faker faker = new Faker();
 	private final Random randomGenerator = new Random();
 
-	private Map<String, User> students;
-	private Map<String, User> instructors;
-	private Map<String, Site> sites;
+	private Map<String, User> students = new HashMap<>();
+	private Map<String, User> instructors = new HashMap<>();
+	private Map<String, Site> sites = new HashMap<>();
 
 	public void init() {
 		numberOfSites = serverConfigurationService.getInt("site.seed.create.sites", 5);
@@ -390,12 +390,13 @@ public class SeedSitesAndUsersJob implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		log.info("SeedSitesAndUsersJob started.");
 		
-		students = new HashMap<>();
-		instructors = new HashMap<>();
-		sites = new HashMap<>();
+		this.students = new HashMap<>();
+		this.instructors = new HashMap<>();
+		this.sites = new HashMap<>();
 
 		Session session = sessionManager.getCurrentSession();
-		String currentUser = session.getUserId();
+		String originalUserId = session.getUserId();
+		String originalUserEid = session.getUserEid();
 		
 		session.setUserId("admin");
 		session.setUserEid("admin");
@@ -416,17 +417,12 @@ public class SeedSitesAndUsersJob implements Job {
 			seedData();
 		} catch (Exception e) {
 			log.error("executing job: ", e);
+		} finally {
+			securityService.popAdvisor(securityAdvisor);
+			session.setUserId(originalUserId);
+			session.setUserEid(originalUserEid);
 		}
-		
-		securityService.popAdvisor(securityAdvisor);
-		
-		session.setUserId(currentUser);
-		session.setUserEid(currentUser);
-		
-		students = null;
-		instructors = null;
-		sites = null;
-		
+
 		log.info("SeedSitesAndUsersJob completed.");
 	}
 

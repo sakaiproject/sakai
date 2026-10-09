@@ -20,7 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.assignment.api.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.hibernate.Length;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,13 +39,12 @@ import lombok.NoArgsConstructor;
 public class AssignmentNoteItem {
 
     @Lob
-    @Column(name = "NOTE")
+    @Column(name = "NOTE", length = Length.LONG32)
     public String note;
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "assignment_note_item_sequence")
-    @SequenceGenerator(name = "assignment_note_item_sequence", sequenceName = "ASN_NOTE_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "assignment_note_item_sequence", sequenceName = "ASN_NOTE_S"))
     private Long id;
 
     @Column(name = "ASSIGNMENT_ID", nullable = false)

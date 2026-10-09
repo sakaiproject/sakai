@@ -24,13 +24,16 @@ package uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
+
+import lombok.Setter;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import uk.ac.cam.caret.sakai.rwiki.message.model.RwikiMessageImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.MessageDao;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Message;
@@ -39,7 +42,10 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 /**
  * @author ieb
  */
-public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
+@Transactional(readOnly = true)
+public class MessageDaoImpl implements MessageDao {
+	@Setter private SessionFactory sessionFactory;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -73,16 +79,14 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Message.class).add(
-							Expression.eq("pagespace", pageSpace)).list();
-				}
-			};
-			return (List) getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RwikiMessageImpl> cq = cb.createQuery(RwikiMessageImpl.class);
+			Root<RwikiMessageImpl> root = cq.from(RwikiMessageImpl.class);
+
+			cq.select(root).where(cb.equal(root.get("pagespace"), pageSpace));
+
+			return session.createQuery(cq).getResultList();
 		}
 		finally
 		{
@@ -108,17 +112,18 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Message.class).add(
-							Expression.eq("pagespace", pageSpace)).add(
-							Expression.eq("pagename", pageName)).list();
-				}
-			};
-			return (List) getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RwikiMessageImpl> cq = cb.createQuery(RwikiMessageImpl.class);
+			Root<RwikiMessageImpl> root = cq.from(RwikiMessageImpl.class);
+
+			cq.select(root)
+				.where(cb.and(
+					cb.equal(root.get("pagespace"), pageSpace),
+					cb.equal(root.get("pagename"), pageName)
+				));
+
+			return session.createQuery(cq).getResultList();
 		}
 		finally
 		{
@@ -142,16 +147,14 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Message.class).add(
-							Expression.eq("user", user)).list();
-				}
-			};
-			return (List) getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RwikiMessageImpl> cq = cb.createQuery(RwikiMessageImpl.class);
+			Root<RwikiMessageImpl> root = cq.from(RwikiMessageImpl.class);
+
+			cq.select(root).where(cb.equal(root.get("user"), user));
+
+			return session.createQuery(cq).getResultList();
 		}
 		finally
 		{
@@ -169,7 +172,14 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 	@Transactional
 	public void update(Object o)
 	{
-		getHibernateTemplate().saveOrUpdate(o);
+		Session session = sessionFactory.getCurrentSession();
+		if (o instanceof RwikiMessageImpl message && message.getId() == null)
+		{
+			session.persist(message);
+		} else
+		{
+			o = session.merge(o);
+		}
 	}
 
 	/*
@@ -186,16 +196,14 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao {
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(Message.class).add(
-							Expression.eq("sessionid", session)).list();
-				}
-			};
-			return (List) getHibernateTemplate().execute(callback);
+			Session s = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = s.getCriteriaBuilder();
+			CriteriaQuery<RwikiMessageImpl> cq = cb.createQuery(RwikiMessageImpl.class);
+			Root<RwikiMessageImpl> root = cq.from(RwikiMessageImpl.class);
+
+			cq.select(root).where(cb.equal(root.get("sessionid"), session));
+
+			return s.createQuery(cq).getResultList();
 		}
 		finally
 		{

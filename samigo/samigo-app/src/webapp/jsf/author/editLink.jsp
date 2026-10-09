@@ -14,7 +14,7 @@
 <%@ page import="org.sakaiproject.site.api.Site" %>
 <%@ page import="org.sakaiproject.site.api.ToolConfiguration" %>
 <%@ page import="org.sakaiproject.site.cover.SiteService" %>
-<%@ page import="javax.faces.context.FacesContext" %>
+<%@ page import="jakarta.faces.context.FacesContext" %>
 
 <%
 

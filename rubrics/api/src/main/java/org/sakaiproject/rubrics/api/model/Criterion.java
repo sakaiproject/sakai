@@ -26,22 +26,23 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -67,15 +68,14 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 public class Criterion implements PersistableEntity<Long>, Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_crit_seq")
-    @SequenceGenerator(name="rbc_crit_seq", sequenceName="rbc_crit_seq")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_crit_seq", sequenceName="rbc_crit_seq"))
     @JsonIgnore
     private Long id;
 
     @JacksonXmlProperty(isAttribute = true)
     private String title;
 
-    @Lob
+    @Lob @Column(length = Length.LONG32)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JacksonXmlCData
     private String description;

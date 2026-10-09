@@ -18,13 +18,14 @@ package org.sakaiproject.plus.api.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Lob;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Basic;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import static javax.persistence.FetchType.LAZY;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Basic;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import org.hibernate.Length;
+import static jakarta.persistence.FetchType.LAZY;
 
 import java.time.Instant;
 
@@ -58,7 +59,7 @@ public class BaseLTI implements Serializable {
 
 	@Basic(fetch=LAZY)
 	@Lob
-	@Column(name = "DEBUG_LOG")
+	@Column(name = "DEBUG_LOG", length = Length.LONG32)
 	private String debugLog;
 
 	@Column(name = "CREATED_AT", nullable = true)
@@ -93,7 +94,7 @@ public class BaseLTI implements Serializable {
 
 	@Basic(fetch=LAZY)
 	@Lob
-	@Column(name = "JSON")
+	@Column(name = "JSON", length = Length.LONG32)
 	private String json;
 
 	@PrePersist

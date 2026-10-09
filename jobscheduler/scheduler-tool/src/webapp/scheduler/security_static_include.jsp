@@ -1,5 +1,5 @@
-<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
-                 javax.faces.el.*, org.sakaiproject.component.*, org.sakaiproject.authz.api.*" %>
+<%@ page import="java.util.*, jakarta.faces.context.*, jakarta.faces.application.*,
+                 jakarta.faces.el.*, org.sakaiproject.component.*, org.sakaiproject.authz.api.*" %>
 <%--
          errorPage="error.jsp" %>
 --%>                 

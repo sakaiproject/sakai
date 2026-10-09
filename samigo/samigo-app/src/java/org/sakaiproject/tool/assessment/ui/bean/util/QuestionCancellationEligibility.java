@@ -17,7 +17,7 @@ package org.sakaiproject.tool.assessment.ui.bean.util;
 
 import java.util.Map;
 import java.util.function.BooleanSupplier;
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;

@@ -22,6 +22,7 @@
 package org.sakaiproject.chat2.tool;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -33,16 +34,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
-import javax.faces.validator.ValidatorException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.PostConstruct;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.validator.ValidatorException;
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.chat2.model.ChatChannel;
@@ -76,7 +78,9 @@ import lombok.extern.slf4j.Slf4j;
 @Getter @Setter
 @ManagedBean(name="ChatTool")
 @SessionScoped
-public class ChatTool {
+public class ChatTool implements Serializable {
+
+   private static final long serialVersionUID = 1L;
 
    private static final String IFRAME_ROOM_USERS = "Presence";
    
@@ -160,7 +164,7 @@ public class ChatTool {
    
    // Used for fetching user's default language locale
    ResourceLoader rl = new ResourceLoader();
-   
+
    protected void setupTool() {
       
       Placement placement = getToolManager().getCurrentPlacement();

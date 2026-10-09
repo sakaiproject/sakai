@@ -16,6 +16,7 @@
 
 package org.sakaiproject.user.impl;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -29,8 +30,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -58,8 +57,6 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.lti.api.LtiBearerSessionConstants;
 import org.sakaiproject.lti.api.LtiBearerSessions;
 import org.sakaiproject.lti13.util.SakaiAccessToken;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
@@ -88,6 +85,8 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -129,10 +128,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	protected final String M_curUserKey = getClass().getName() + ".currentUser";
 
 	/** A cache of users */
-	protected Cache<String, UserEdit> m_callCache = null;
+	protected Cache m_callCache = null;
 
 	/** A cache of users' id/eid map */
-	protected Cache<String, String> m_userCache = null;
+	protected Cache m_userCache = null;
 
 	/** Optional service to provide site-specific aliases for a user's display ID and display name. */
 	protected ContextualUserDisplayService m_contextualUserDisplayService = null;
@@ -532,7 +531,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	@Setter protected SecurityService securityService;
 	@Setter protected FunctionManager functionManager;
 	@Setter protected SessionManager sessionManager;
-	@Setter protected MemoryService memoryService;
+	@Setter protected CacheManager cacheManager;
 	@Setter protected EventTrackingService eventTrackingService;
 	@Setter protected AuthzGroupService authzGroupService;
 	@Setter protected TimeService timeService;
@@ -569,14 +568,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 
             // caching for users
-            m_userCache = memoryService.getCache("org.sakaiproject.user.api.UserDirectoryService");
-            m_callCache = memoryService.getCache("org.sakaiproject.user.api.UserDirectoryService.callCache");
-            if (!m_callCache.isDistributed()) {
-                // KNL_1229 use an Observer for cache cleanup when the cache is not distributed
-                log.info("Creating user callCache observer for event based cache expiration (for local caches)");
-                m_userCacheObserver = new UserCacheObserver();
-                eventTrackingService.addObserver(m_userCacheObserver);
-            }
+            m_userCache = cacheManager.getCache("org.sakaiproject.user.api.UserDirectoryService");
+            m_callCache = cacheManager.getCache("org.sakaiproject.user.api.UserDirectoryService.callCache");
 
 			// register as an entity producer
 			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -631,36 +624,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 	}
 
-    /**
-     * KNL-1229 Supports legacy event based cache expiration
-     */
-    UserCacheObserver m_userCacheObserver;
-
-    /**
-     * KNL-1229 Allow for legacy event based cache expiration
-     * Only used when distributed caches are not in use
-     */
-    class UserCacheObserver implements Observer {
-        @Override
-        public void update(Observable observable, Object o) {
-            if (o instanceof Event) {
-                Event event = (Event) o;
-                if (event.getResource() != null && (
-                    SECURE_UPDATE_USER_OWN.equals(event.getEvent())
-                    || SECURE_UPDATE_USER_ANY.equals(event.getEvent())
-                    || SECURE_REMOVE_USER.equals(event.getEvent())
-                    )
-                ) {
-                    String userRef = event.getResource();
-                    UserEdit u = getCachedUser(userRef);
-                    String oldEid = u != null ? u.getEid() : null;
-                    removeCachedUser(userRef, oldEid);
-                }
-            }
-
-        }
-    }
-
 	/**
 	 * Returns to uninitialized state. You can use this method to release resources thet your Service allocated when Turbine shuts down.
 	 */
@@ -671,8 +634,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_provider = null;
 		m_anon = null;
 		m_passwordPolicyProvider = null;
-		m_callCache.close();
-		m_userCacheObserver = null;
 
 		log.info("destroy()");
 	}
@@ -1838,10 +1799,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		UserEdit userEdit = null;
 		if (m_callCache != null)
 		{
-			Object cachedRef = m_callCache.get(ref);
-			if (cachedRef != null)
+			UserSnapshot snapshot = m_callCache.get(ref, UserSnapshot.class);
+			if (snapshot != null)
 			{
-				userEdit = (UserEdit) cachedRef;
+				userEdit = fromSnapshot(snapshot);
 			}
 		}
 		return userEdit;
@@ -1852,7 +1813,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// KNL-1241 removed caching in threadlocal
 		if (m_callCache != null)
 		{
-			m_callCache.put(ref, user);
+			m_callCache.put(ref, ((BaseUserEdit) user).toSnapshot());
 		}
 	}
 
@@ -1860,12 +1821,73 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		if (m_callCache != null)
 		{
-			m_callCache.remove(ref);
+			m_callCache.evict(ref);
 		}
 
 		if (m_userCache != null && StringUtils.isNotBlank(eid))
 		{
-			m_userCache.remove(IDCACHE + eid);
+			m_userCache.evict(IDCACHE + eid);
+		}
+	}
+
+	/**
+	 * Rebuild a (non-editable) BaseUserEdit from a cached snapshot. BaseUserEdit itself can't
+	 * be cached directly since it's a non-static inner class carrying an implicit reference to
+	 * this service.
+	 */
+	private BaseUserEdit fromSnapshot(UserSnapshot snapshot)
+	{
+		BaseUserEdit user = new BaseUserEdit(snapshot.id, snapshot.eid);
+		user.m_firstName = snapshot.firstName;
+		user.m_lastName = snapshot.lastName;
+		user.m_email = snapshot.email;
+		user.m_pw = snapshot.pw;
+		user.m_type = snapshot.type;
+		user.m_createdUserId = snapshot.createdUserId;
+		user.m_lastModifiedUserId = snapshot.lastModifiedUserId;
+		user.m_createdInstant = snapshot.createdInstant;
+		user.m_lastModifiedInstant = snapshot.lastModifiedInstant;
+		user.m_properties = snapshot.properties;
+		return user;
+	}
+
+	/**
+	 * A cacheable, static (no enclosing-instance reference) snapshot of a BaseUserEdit's
+	 * read-only state, for storing in the distributed cache in place of BaseUserEdit itself.
+	 */
+	static class UserSnapshot implements Serializable
+	{
+		private static final long serialVersionUID = 1L;
+
+		final String id;
+		final String eid;
+		final String firstName;
+		final String lastName;
+		final String email;
+		final String pw;
+		final String type;
+		final String createdUserId;
+		final String lastModifiedUserId;
+		final Instant createdInstant;
+		final Instant lastModifiedInstant;
+		final BaseResourcePropertiesEdit properties;
+
+		UserSnapshot(String id, String eid, String firstName, String lastName, String email, String pw, String type,
+				String createdUserId, String lastModifiedUserId, Instant createdInstant, Instant lastModifiedInstant,
+				BaseResourcePropertiesEdit properties)
+		{
+			this.id = id;
+			this.eid = eid;
+			this.firstName = firstName;
+			this.lastName = lastName;
+			this.email = email;
+			this.pw = pw;
+			this.type = type;
+			this.createdUserId = createdUserId;
+			this.lastModifiedUserId = lastModifiedUserId;
+			this.createdInstant = createdInstant;
+			this.lastModifiedInstant = lastModifiedInstant;
+			this.properties = properties;
 		}
 	}
 
@@ -2325,6 +2347,20 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			m_properties = new BaseResourcePropertiesEdit();
 			m_properties.addAll(user.getProperties());
 			((BaseResourcePropertiesEdit) m_properties).setLazy(((BaseResourceProperties) user.getProperties()).isLazy());
+		}
+
+		/**
+		 * Capture this user's state as a cacheable snapshot (see UserSnapshot).
+		 */
+		UserSnapshot toSnapshot()
+		{
+			// force any lazy properties to resolve before caching: BaseResourceProperties.m_lazy
+			// is transient, so a distributed cache round trip silently resets it to false while
+			// leaving m_props empty if we cache a still-lazy properties object.
+			getProperties();
+			return new UserSnapshot(m_id, m_eid, m_firstName, m_lastName, m_email, m_pw, m_type,
+					m_createdUserId, m_lastModifiedUserId, m_createdInstant, m_lastModifiedInstant,
+					(BaseResourcePropertiesEdit) m_properties);
 		}
 
 		/**

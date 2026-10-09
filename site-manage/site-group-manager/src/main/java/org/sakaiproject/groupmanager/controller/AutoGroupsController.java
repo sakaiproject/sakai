@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -119,7 +119,7 @@ public class AutoGroupsController {
     }
 
     @PostMapping(value = "/autogroups/submitStep2")
-    public String submitStep2(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(required=false) String wizardAction) {
+    public String submitStep2(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(value = "wizardAction", required = false) String wizardAction) {
         log.debug("submitStep2() called with values {} and action {}.", autoGroupsForm, wizardAction);
 
         // If the submit was done by a back button or link, redirect to the previous step with the wizard values.
@@ -178,7 +178,7 @@ public class AutoGroupsController {
     }
 
     @PostMapping(value = "/autogroups/submitStep3")
-    public String submitStep3(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(required=false) String wizardAction) {
+    public String submitStep3(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(value = "wizardAction", required = false) String wizardAction) {
         log.debug("submitStep3() called with values {} and action {}.", autoGroupsForm, wizardAction);
 
         // If the submit was done by a back button, redirect to the previous step with the wizard values.
@@ -401,7 +401,7 @@ public class AutoGroupsController {
     }
 
     @PostMapping(value="/autogroups/confirmAutoGroups")
-    public String confirmAutoGroups(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(required=false) String serializedAutoGroupsMap, @RequestParam(required=false) String wizardAction) {
+    public String confirmAutoGroups(Model model, @ModelAttribute AutoGroupsForm autoGroupsForm, @RequestParam(value = "serializedAutoGroupsMap", required = false) String serializedAutoGroupsMap, @RequestParam(value = "wizardAction", required = false) String wizardAction) {
         log.debug("confirmAutoGroups() called with values {} and action {}.", autoGroupsForm, wizardAction);
 
         // If the submit was done by a back button, redirect to the previous step with the wizard values.

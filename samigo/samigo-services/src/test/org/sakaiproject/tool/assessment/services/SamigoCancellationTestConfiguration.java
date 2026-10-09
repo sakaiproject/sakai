@@ -124,10 +124,12 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
         return queries;
     }
 
-    @Bean(initMethod = "setTypeFacadeMap")
+    @Bean
     public TypeFacadeQueries typeFacadeQueries() {
         TypeFacadeQueries queries = new TypeFacadeQueries();
         queries.setSessionFactory(sessionFactory());
+        PlatformTransactionManager manager = applicationContext.getBean("transactionManager", PlatformTransactionManager.class);
+        new TransactionTemplate(manager).executeWithoutResult(status -> queries.setTypeFacadeMap());
         return queries;
     }
 

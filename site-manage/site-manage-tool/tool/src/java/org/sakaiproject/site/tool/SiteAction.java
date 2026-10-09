@@ -64,9 +64,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -143,8 +143,7 @@ import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.Group;
@@ -813,7 +812,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final String GB_GROUP_PROPERTY = "gb-group";
 
-	private Cache m_userSiteCache;
 	private ImportService importService;
 	private List prefLocales;
 	private Locale dateFormattingLocale;
@@ -837,7 +835,7 @@ public class SiteAction extends PagedResourceActionII {
 	private LTIService ltiService;
 	private LinkMigrationHelper linkMigrationHelper;
 	private LocaleService localeService;
-	private MemoryService memoryService;
+	private CacheManager cacheManager;
 	private PreferencesService preferencesService;
 	private PrivacyManager privacyManager;
 	private PublishingSiteScheduleService publishingSiteScheduleService;
@@ -878,7 +876,7 @@ public class SiteAction extends PagedResourceActionII {
 		linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
 		localeService = ComponentManager.get(LocaleService.class);
 		ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		memoryService = ComponentManager.get(MemoryService.class);
+		cacheManager = (CacheManager) ComponentManager.get("org.sakaiproject.ignite.SakaiCacheManager");
 		preferencesService = ComponentManager.get(PreferencesService.class);
 		privacyManager = ComponentManager.get(PrivacyManager.class);
 		publishingSiteScheduleService = ComponentManager.get(PublishingSiteScheduleService.class);
@@ -915,9 +913,10 @@ public class SiteAction extends PagedResourceActionII {
 		PRIVATE_SITE_TYPES_SAK_PROP = serverConfigurationService.getStrings("site.types.privateOnly");
 
 		showOrphanedMembers = serverConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
-		m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.siteService.userSiteCache");
-		memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.enabled");
-		memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.instances");
+		if (cacheManager != null) {
+			org.springframework.cache.Cache gradebookGroupEnabledCacheOnInit = cacheManager.getCache("org.sakaiproject.tool.gradebook.group.enabled");
+			if (gradebookGroupEnabledCacheOnInit != null) gradebookGroupEnabledCacheOnInit.clear();
+		}
 
 		defaultPublishType = serverConfigurationService.getString("site.setup.publish.default", SITE_PUBLISH_TYPE_MANUAL);
 		if (!StringUtils.equalsAny(defaultPublishType, SITE_PUBLISH_TYPE_AUTO, SITE_PUBLISH_TYPE_SCHEDULED, SITE_PUBLISH_TYPE_MANUAL)) {
@@ -1876,6 +1875,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("homeToolId", TOOL_ID_HOME);
 			context.put("toolsByGroup", (LinkedHashMap<String,List>) state.getAttribute(STATE_TOOL_GROUP_LIST));
+			context.put(STATE_TOOL_REGISTRATION_SELECTED_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST));
 			
 			context.put("toolGroupMultiples", getToolGroupMultiples(state, (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST)));
 			
@@ -6601,6 +6601,18 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// If this is a new site add these selected tools as the default
 		List<String> selectedTools = toolGroup.values().stream().flatMap(list -> list.stream().filter(MyTool::getSelected).map(MyTool::getId)).collect(Collectors.toList());
 		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, selectedTools);
+		toolRegistrationSelectedList = selectedTools;
+	}
+	// siteToolsIntoState already recorded the site's current tools. Apply that
+	// onto the catalog so Manage Tools checkboxes render as checked.
+	if (toolRegistrationSelectedList != null) {
+		for (List<MyTool> tools : toolGroup.values()) {
+			for (MyTool tool : tools) {
+				if (toolRegistrationSelectedList.contains(tool.getId())) {
+					tool.selected = true;
+				}
+			}
+		}
 	}
 	return toolGroup;
 }
@@ -9612,12 +9624,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				}
 				authzGroupService.save(realmEdit);
 
-				// SAK-41181
-				usersDeleted.stream().map(ud -> ud.substring(4)).collect(Collectors.toList()).forEach(ud -> {
-					log.debug("Removing user uuid {} from the user site cache", ud);
-					m_userSiteCache.remove(ud);
-				});
-				
+				// SAK-41181 used to evict removed users' entries from a "user site list" cache
+				// here (m_userSiteCache, keyed under
+				// "org.sakaiproject.site.api.siteService.userSiteCache"), but that was never the
+				// same cache instance BaseSiteService actually reads from (USER_SITE_CACHE,
+				// "org.sakaiproject.site.api.SiteService.userSiteCache" - note the capitalization
+				// difference) and was never populated either, so it was a no-op against an empty,
+				// unrelated cache. BaseSiteService's own update() observer already documents this
+				// exact "membership drop" case as an accepted gap covered by the visit-denied path
+				// and TTL expiry (see comment above BaseSiteService.update()'s event switch), not
+				// something that needs an explicit eviction here.
+
 				// do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
 				// but seems to be a better solution than call this multiple time for every update
 				if (!userAuditList.isEmpty())
@@ -11818,11 +11835,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 				}
 
-				if (memoryService != null) {
-					Cache gradebookGroupEnabledCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.enabled");
-					Cache gradebookGroupInstancesCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.instances");
+				if (cacheManager != null) {
+					org.springframework.cache.Cache gradebookGroupEnabledCache = cacheManager.getCache("org.sakaiproject.tool.gradebook.group.enabled");
 					if (gradebookGroupEnabledCache != null) gradebookGroupEnabledCache.clear();
-					if (gradebookGroupInstancesCache != null) gradebookGroupInstancesCache.clear();
 				}
 			}else if (choice.equals(TOOL_ID_SITEINFO)) {
 				hasSiteInfo = true;

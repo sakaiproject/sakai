@@ -16,8 +16,8 @@
 
 package org.sakaiproject.chat2.tool;
 
-import javax.faces.application.NavigationHandler;
-import javax.faces.context.FacesContext;
+import jakarta.faces.application.NavigationHandler;
+import jakarta.faces.context.FacesContext;
 
 /**
  * @author chrismaurer

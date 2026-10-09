@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +31,11 @@ import org.sakaiproject.grading.api.repository.CommentRepository;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
 
 public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Long>  implements CommentRepository {
 
@@ -59,11 +58,15 @@ public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Lon
     @Transactional(readOnly = true)
     public List<Comment> findByGradableObjectAndStudentIdIn(GradebookAssignment assignment, Collection<String> studentIds) {
 
-        return (List<Comment>) sessionFactory.getCurrentSession()
-            .createCriteria(Comment.class)
-            .add(Restrictions.eq("gradableObject", assignment))
-            .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
-            .list();
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Comment> query = cb.createQuery(Comment.class);
+        Root<Comment> comment = query.from(Comment.class);
+        query.where(cb.and(
+            cb.equal(comment.get("gradableObject"), assignment),
+            comment.get("studentId").in(studentIds)
+        ));
+        return session.createQuery(query).list();
     }
 
     @Transactional(readOnly = true)

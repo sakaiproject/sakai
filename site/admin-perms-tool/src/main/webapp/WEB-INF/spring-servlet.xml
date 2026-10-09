@@ -32,6 +32,7 @@
                 /*/sitePerms.htm=sitePermsController
             </value>
         </property>
+        <property name="patternParser"><null/></property>
     </bean>
 
     <!-- Spring view mappings -->

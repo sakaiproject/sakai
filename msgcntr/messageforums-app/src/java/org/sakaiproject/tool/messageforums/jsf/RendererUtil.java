@@ -29,13 +29,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIForm;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.el.ValueBinding;
-import javax.faces.model.SelectItem;
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIForm;
+import jakarta.faces.component.UIViewRoot;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.model.SelectItem;
 
 /**
  * Common static utility methods that help in implementing JSF tags.
@@ -56,16 +56,16 @@ public class RendererUtil
     public static void setAttribute(FacesContext context, UIComponent component, String name,
             Object value)
     {
-        ValueBinding binding = component.getValueBinding(name);
+        ValueExpression binding = component.getValueExpression(name);
         if (binding != null)
         {
             try
             {
-                binding.setValue(context, value);
+                binding.setValue(context.getELContext(), value);
             } catch (IllegalArgumentException e)
             {
                 // try setting the value as a String
-                binding.setValue(context, String.valueOf(value));
+                binding.setValue(context.getELContext(), String.valueOf(value));
             }
         } else
         {
@@ -89,9 +89,9 @@ public class RendererUtil
             return ret;
 
         // next check the value bindings
-        ValueBinding vb = component.getValueBinding(name);
+        ValueExpression vb = component.getValueExpression(name);
         if (vb != null)
-            ret = vb.getValue(context);
+            ret = vb.getValue(context.getELContext());
 
         return ret;
     }

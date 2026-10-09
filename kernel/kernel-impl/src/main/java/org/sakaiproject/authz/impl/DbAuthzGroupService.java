@@ -21,6 +21,7 @@
 
 package org.sakaiproject.authz.impl;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,7 +58,6 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseDbFlatStorage;
@@ -65,6 +65,7 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.cache.Cache;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -236,8 +237,15 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 
 		try
 		{
-			// The observer will be notified whenever there are new events. Priority observers get notified first, before normal observers.
-			eventTrackingService.addPriorityObserver(this);
+			// Local-only is sufficient: update() is pure cache eviction now (authzUserGroupIdsCache/
+			// m_realmRoleGRCache/realmLocksCache are all Ignite-shared), so the synchronous local
+			// notification on whichever node handles the mutation already evicts the shared cache
+			// entries cluster-wide. Was previously a priority observer to run before regular
+			// observers of the same SECURE_*_AUTHZ_GROUP events on the same node; addLocalObserver
+			// has no separate priority tier, but no other observer of these events was found to
+			// read AuthzGroupService role/member data (checked ConversationsServiceImpl/
+			// roster2's SakaiProxyImpl, which only evict their own unrelated caches).
+			eventTrackingService.addLocalObserver(this);
 
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
@@ -252,10 +260,10 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 			cacheRoleNames();
 			cacheFunctionNames();
 
-			m_realmRoleGRCache = memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache");
-			authzUserGroupIdsCache = memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache");
-			maintainRolesCache = memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache");
-			realmLocksCache = memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmLocksCache");
+			m_realmRoleGRCache = cacheManager.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache");
+			authzUserGroupIdsCache = cacheManager.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache");
+			maintainRolesCache = cacheManager.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache");
+			realmLocksCache = cacheManager.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmLocksCache");
 
             //get the set of maintain roles and cache them on startup
             getMaintainRoles();
@@ -306,10 +314,6 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 	{
 		// done with event watching
 		eventTrackingService.deleteObserver(this);
-
-		authzUserGroupIdsCache.close();
-		maintainRolesCache.close();
-		realmLocksCache.close();
 
 		log.info(this +".destroy()");
 	}
@@ -627,11 +631,11 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 				}
 
 				for (String user : getAuthzUsersInGroups(new HashSet<String>(Arrays.asList(realmId)))) {
-					authzUserGroupIdsCache.remove(user);
+					authzUserGroupIdsCache.evict(user);
 				}
 
-				m_realmRoleGRCache.remove(realmId);
-				realmLocksCache.remove(realmId);
+				m_realmRoleGRCache.evict(realmId);
+				realmLocksCache.evict(realmId);
 			} else {
 				// This should never happen as the events we generate should always have
 				// a /realm/ prefix on the resource.
@@ -754,7 +758,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 		 */
 		public DbStorage(EntityManager entityManager, SiteService siteService)
 		{
-			super(m_realmTableName, m_realmIdFieldName, m_realmReadFieldNames, m_realmPropTableName, m_useExternalLocks, null, sqlService);
+			super(m_realmTableName, m_realmIdFieldName, m_realmReadFieldNames, m_realmPropTableName, m_useExternalLocks, null, sqlService, cacheManager);
 			m_reader = this;
 
 			setDbidField(m_realmDbidField);
@@ -848,7 +852,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 				super.readProperties(conn, realm.getKey(), realm.m_properties);
 			}
 
-			Map <String, Map> realmRoleGRCache = (Map<String, Map>)m_realmRoleGRCache.get(realm.getId());
+			Map <String, Map> realmRoleGRCache = m_realmRoleGRCache.get(realm.getId(), Map.class);
 
 			if (log.isDebugEnabled()) {
 				log.debug("realmRoleGRCache: found {} in cache? {}", realm.getId(), (realmRoleGRCache != null));
@@ -858,7 +862,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 				// KNL-1037 read the cached role and membership information
 				Map<String, Role> roles = new HashMap<String, Role>();
 				
-				// dehydrate to SimpleRoles, which can be stored in a distributed Terracotta cache
+				// dehydrate to SimpleRoles, which can be stored in a distributed cache
 				Map<String, SimpleRole> roleProperties = realmRoleGRCache.get(REALM_ROLES_CACHE);
 				for (java.util.Map.Entry<String, SimpleRole> mapEntry : roleProperties.entrySet()) {
 					roles.put(mapEntry.getKey(), new BaseRole(mapEntry.getValue()));
@@ -992,7 +996,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 			    });
 
 				Map<String, Map> payLoad = new HashMap<String, Map>();
-				// rehydrate from SimpleRole, which can be stored in a Terracotta cache
+				// rehydrate from SimpleRole, which can be stored in a distributed cache
 				Map<String, SimpleRole> roleProperties = new HashMap<String, SimpleRole>();
 				for (java.util.Map.Entry<String, BaseRole> entry : ((Map<String, BaseRole>) realm.m_roles).entrySet()) {
 					roleProperties.put(entry.getKey(), entry.getValue().exportToSimpleRole());
@@ -1004,7 +1008,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 			}
 
 			// RealmLock handling
-			Set<RealmLock> cachedRealmLock = (Set<RealmLock>) realmLocksCache.get(realm.getId());
+			Set<RealmLock> cachedRealmLock = realmLocksCache.get(realm.getId(), Set.class);
 
 			if (log.isDebugEnabled()) {
 				log.debug("cachedRealmLock: found {} in cache? {}", realm.getId(), (cachedRealmLock != null));
@@ -1088,7 +1092,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 				return new ArrayList(); // empty list
 
 			// first consult the cache
-			UserAndGroups uag = (UserAndGroups) authzUserGroupIdsCache.get(userid);
+			UserAndGroups uag = authzUserGroupIdsCache.get(userid, UserAndGroups.class);
 			if (uag != null) {
 				List<String> result = uag.getRealmQuery(new HashSet<String>(authzGroupIds));
 				log.debug(uag.toString());
@@ -3122,8 +3126,8 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 
             Set<String> maintainRoles = null;
 
-            if (maintainRolesCache != null && maintainRolesCache.containsKey("maintainRoles")) {
-                maintainRoles = (Set<String>) maintainRolesCache.get("maintainRoles");
+            if (maintainRolesCache != null) {
+                maintainRoles = maintainRolesCache.get("maintainRoles", Set.class);
             }
             if(maintainRoles == null) {
                 String sql = dbAuthzGroupSql.getMaintainRolesSql();
@@ -3138,7 +3142,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
             return new RealmLock(key, reference, lockMode);
         }
 
-		private class UserAndGroups
+		private static class UserAndGroups implements Serializable
 		{
 			String user;
 			long total;
@@ -3367,7 +3371,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService implements Observ
 		@Data
 		@AllArgsConstructor
 		@EqualsAndHashCode
-		class RealmLock {
+		static class RealmLock implements Serializable {
 
 			private Integer key;
 			private String reference;

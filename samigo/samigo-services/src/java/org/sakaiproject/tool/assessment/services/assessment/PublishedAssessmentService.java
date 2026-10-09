@@ -252,8 +252,13 @@ public class PublishedAssessmentService extends AssessmentService{
 
   public void saveAssessment(PublishedAssessmentFacade assessment) {
     try{
-      PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-        saveOrUpdate(assessment);
+        PublishedAssessmentData savedData = PersistenceService.getInstance()
+                .getPublishedAssessmentFacadeQueries()
+                .saveOrUpdate(assessment);
+
+        if (assessment.getPublishedAssessmentId() == null && savedData != null) {
+            assessment.setPublishedAssessmentId(savedData.getPublishedAssessmentId());
+        }
     }
     catch (Exception e) {
       log.error(e.getMessage(), e);

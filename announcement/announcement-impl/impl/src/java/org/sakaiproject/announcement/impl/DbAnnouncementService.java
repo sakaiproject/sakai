@@ -153,7 +153,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.parseBoolean(value);
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
