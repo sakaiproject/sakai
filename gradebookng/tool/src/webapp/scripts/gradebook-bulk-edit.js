@@ -68,20 +68,23 @@ GBBE.showConfirmation = function() {
     $confirmationModal.one("click", ".gb-bulk-edit-continue", function() {
         GBBE.performRealSubmit();
     });
-    $(document.body).append($confirmationModal);
+    GBBE.$content.closest(".gb-modal-dialog").append($confirmationModal);
 
-    $confirmationModal.on("hidden.bs.modal", function() {
+    $confirmationModal[0].addEventListener("hidden.bs.modal", function() {
         $confirmationModal.remove();
     });
-    $confirmationModal.on("show.bs.modal", function() {
-        const $formModal = GBBE.$content.closest(".wicket-modal");
+    $confirmationModal[0].addEventListener("show.bs.modal", function() {
+        const $formModal = GBBE.$content.closest(".gb-modal-dialog");
         $confirmationModal.css("marginTop", $formModal.offset().top + 40);
     });
 
-    $confirmationModal.on("shown.bs.modal", function() {
+    $confirmationModal[0].addEventListener("shown.bs.modal", function() {
         $confirmationModal.find(".gb-bulk-edit-cancel").focus();
     });
 
+    $confirmationModal[0].addEventListener("keydown", event => {
+        if (event.key === "Escape") event.stopPropagation();
+    });
     const modal = new bootstrap.Modal($confirmationModal).toggle();
 };
 
