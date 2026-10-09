@@ -387,10 +387,6 @@
       <to-view-id>/jsf/delivery/submitted.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>reviewAssessment</from-outcome>
-      <to-view-id>/jsf/delivery/reviewAssessment.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>reviewAssessmentError</from-outcome>
       <to-view-id>/jsf/delivery/reviewAssessmentError.jsp</to-view-id>
     </navigation-case>
@@ -451,10 +447,6 @@
     <navigation-case>
       <from-outcome>editAssessment</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>previewAssessment</from-outcome>
-      <to-view-id>/jsf/author/previewAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>printAssessment</from-outcome>
