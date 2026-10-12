@@ -1,7 +1,7 @@
 {
   "name": "Sakai (MariaDB)",
   "dockerComposeFile": [
-    "../docker/docker-compose.yml",
+    "../docker-compose.yml",
     "docker-compose.yml"
   ],
   "service": "dev",

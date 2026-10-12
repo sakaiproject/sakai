@@ -1,18 +1,14 @@
 # Sakai local development stack (compose-first).
 #
-# Database only (host JDK/Tomcat):
-#   docker compose up db
+# From the repository root:
 #
-# Dev loop (recommended): Tomcat + MariaDB, deploy from the host without rebuilding images
-#   docker compose --profile dev up
-#   ./bin/deploy.sh                  # first time: full reactor into ../.docker-deploy
-#   ./bin/deploy.sh -pl assignment -am   # later: one module, then ./bin/tomcat.sh restart
+#   podman compose up db
+#   podman compose up --build              # MariaDB + baked Sakai image
+#   podman compose --profile dev up        # MariaDB + volume-mounted Tomcat (iterative)
+#   ./docker/bin/deploy.sh                 # exploded deploy into .docker-deploy
+#   ./docker/bin/tomcat.sh restart
 #
-# Full baked image (slow; clean/CI-style runs):
-#   docker compose --profile image up --build
-#
-# JDBC inside Compose uses host "db".
-# JDBC from host Tomcat (db only) uses 127.0.0.1:53306 (see README).
+# Do not run the default Sakai image and --profile dev together (both use port 8080).
 
 services:
   db:
@@ -24,7 +20,7 @@ services:
     ports:
       - "127.0.0.1:53306:3306"
     volumes:
-      - ./mysql/scripts:/docker-entrypoint-initdb.d:ro
+      - ./docker/mysql/scripts:/docker-entrypoint-initdb.d:ro
       - sakai-db-data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
@@ -35,7 +31,7 @@ services:
     networks:
       - sakai
 
-  # Long-lived Tomcat for day-to-day work. Host Maven writes into ../.docker-deploy;
+  # Long-lived Tomcat for day-to-day work. Host Maven writes into .docker-deploy;
   # this service mounts those artifacts — no image rebuild to pick up code changes.
   tomcat:
     profiles: ["dev"]
@@ -51,25 +47,24 @@ services:
       JPDA_ADDRESS: "*:8000"
       JPDA_TRANSPORT: dt_socket
     volumes:
-      - ./tomcat/conf/server.xml:/usr/local/tomcat/conf/server.xml:ro
-      - ./tomcat/conf/context.xml:/usr/local/tomcat/conf/context.xml:ro
-      - ./tomcat/conf/catalina.properties:/usr/local/tomcat/conf/catalina.properties:ro
-      - ./tomcat/bin/setenv.sh:/usr/local/tomcat/bin/setenv.sh:ro
-      - ./tomcat/sakai:/usr/local/tomcat/sakai:ro
-      - ../.docker-deploy/webapps:/usr/local/tomcat/webapps
-      - ../.docker-deploy/components:/usr/local/tomcat/components
-      - ../.docker-deploy/lib:/usr/local/tomcat/lib
+      - ./docker/tomcat/conf/server.xml:/usr/local/tomcat/conf/server.xml:ro
+      - ./docker/tomcat/conf/context.xml:/usr/local/tomcat/conf/context.xml:ro
+      - ./docker/tomcat/conf/catalina.properties:/usr/local/tomcat/conf/catalina.properties:ro
+      - ./docker/tomcat/bin/setenv.sh:/usr/local/tomcat/bin/setenv.sh:ro
+      - ./docker/tomcat/sakai:/usr/local/tomcat/sakai:ro
+      - ./.docker-deploy/webapps:/usr/local/tomcat/webapps
+      - ./.docker-deploy/components:/usr/local/tomcat/components
+      - ./.docker-deploy/lib:/usr/local/tomcat/lib
       - sakai-tomcat-logs:/usr/local/tomcat/logs
     command: ["catalina.sh", "jpda", "run"]
     networks:
       - sakai
 
-  # Optional all-in-one image build (not used for iterative coding).
+  # Default full stack: build Sakai from this checkout and run on Tomcat 10.1.
   sakai:
-    profiles: ["image"]
     container_name: sakai-tomcat
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile
     ports:
       - "8080:8080"

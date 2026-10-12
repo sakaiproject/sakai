@@ -1,8 +1,8 @@
 # Override for VS Code / Codespaces: add a lightweight "dev" workspace and
-# skip building the full Sakai runtime image unless profile "full-image" is set.
+# skip the baked Sakai image unless you explicitly start it.
 services:
   sakai:
-    profiles: ["full-image"]
+    profiles: ["image"]
 
   dev:
     image: mcr.microsoft.com/devcontainers/base:jammy

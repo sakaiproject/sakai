@@ -6,24 +6,28 @@ The `master` branch is the current development line (Java 21, Tomcat 10.1). Othe
 
 ## Quick start (Docker Compose)
 
-The fastest day-to-day path is the Compose **dev** profile: MariaDB + Tomcat with a host-side exploded deploy (no image rebuild to pick up code changes). From the repository root:
+From the repository root (Docker or Podman):
 
 ```bash
-cd docker
-./bin/tomcat.sh up          # MariaDB + Tomcat (JPDA on 8000)
-./bin/deploy.sh             # first time: full Maven build into ../.docker-deploy
-./bin/tomcat.sh restart     # load the deploy
-./bin/tomcat.sh logs
+# Full stack — builds Sakai from this checkout (first build is slow)
+podman compose up --build
+# or: docker compose up --build
 ```
 
-Then open http://localhost:8080/portal. After editing a module:
+Then open http://localhost:8080/portal.
+
+For day-to-day coding without rebuilding images, use the **dev** profile (host Maven → exploded deploy → restart Tomcat):
 
 ```bash
-./bin/deploy.sh -pl assignment -am
-./bin/tomcat.sh restart
+./docker/bin/tomcat.sh up
+./docker/bin/deploy.sh
+./docker/bin/tomcat.sh restart
+# later, after editing a module:
+./docker/bin/deploy.sh -pl assignment -am
+./docker/bin/tomcat.sh restart
 ```
 
-Other modes: `docker compose up db` (DB only for a host Tomcat), or `docker compose --profile image up --build` (full image; slow). Details in [docker/README.md](docker/README.md).
+DB only for a host Tomcat: `podman compose up db`. Details in [docker/README.md](docker/README.md).
 
 VS Code / Codespaces users can also open the thin Dev Container in [`.devcontainer/`](.devcontainer/), which reuses the same Compose file.
 

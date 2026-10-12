@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
-# Build Sakai (or a module) and sakai:deploy-exploded into ../.docker-deploy for the
-# Compose "dev" Tomcat service. Does not rebuild Docker images.
+# Build Sakai (or a module) and sakai:deploy-exploded into .docker-deploy for the
+# Compose "dev" Tomcat service. Does not rebuild container images.
 #
-# Usage (from docker/ or repo root):
-#   ./bin/deploy.sh
-#   ./bin/deploy.sh -pl assignment -am
-#   ./docker/bin/deploy.sh -pl profile2 -am -DskipTests=true
+# Usage (from repo root):
+#   ./docker/bin/deploy.sh
+#   ./docker/bin/deploy.sh -pl assignment -am
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOCKER_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-ROOT_DIR="$(cd "${DOCKER_DIR}/.." && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 DEPLOY_DIR="${ROOT_DIR}/.docker-deploy"
 
 mkdir -p "${DEPLOY_DIR}/webapps" "${DEPLOY_DIR}/components" "${DEPLOY_DIR}/lib"

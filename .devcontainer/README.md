@@ -1,11 +1,11 @@
 # Sakai Dev Container
 
-Thin VS Code / Codespaces / Dev Containers setup that reuses [`docker/docker-compose.yml`](../docker/docker-compose.yml).
+Thin VS Code / Codespaces / Dev Containers setup that reuses the root [`docker-compose.yml`](../docker-compose.yml).
 
 - Starts the Compose **`db`** (MariaDB) service
 - Opens a **`dev`** workspace with JDK 21 and Maven
 - Downloads Tomcat 10.1 into `~/sakai-tomcat` and points JDBC at hostname `db`
-- Does **not** build the full Sakai runtime image by default (that remains `docker compose up --build` from [`docker/`](../docker/))
+- Does **not** build the full Sakai runtime image by default (use `podman compose up --build` / `docker compose up --build` from the repo root for that)
 
 ## Usage
 
