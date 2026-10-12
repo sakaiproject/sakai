@@ -1027,9 +1027,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     });
   });
 
-  // On mousedown Tabulator moves its default top-left range to the pressed cell, firing rangeChanged
-  // part way through. cellMouseDown fires just before that, so remember the pressed cell until Tabulator
-  // has handled the mousedown, so that transient range doesn't scroll the table away from the click.
+  // Ignore the transient top-left range Tabulator fires on mousedown before the pressed cell
   let pressedCell = null;
   GbGradeTable.instance.on("cellMouseDown", (event, cell) => {
     pressedCell = cell.getElement();
@@ -2776,8 +2774,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
       left: leftOffset
     }).toggle();
 
-    // The table wrapper scrolls, so flip the summary above the cell when it would be clipped below.
-    // Anchor by bottom so a comment that loads afterwards grows upwards rather than over the cell.
+    // Flip above the cell when clipped below, anchored by bottom so a late-loading comment grows upwards
     const outerWrapper = $metadata.closest(".gradeTableOuterWrapper")[0];
     if (outerWrapper && $metadata.is(":visible")) {
       const visibleBottom = outerWrapper.getBoundingClientRect().top + outerWrapper.clientHeight;
