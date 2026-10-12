@@ -1,115 +1,108 @@
-# Sakai Docker Deployment Examples
+# Sakai Docker / Compose
 
-A collection of tools and examples to demonstrate building and deploying Sakai using Docker and/or Docker Swarm.
+Compose-first local development for Sakai on **Java 21** and **Tomcat 10.1**.
 
-### Features
-Features of the files you will find here:
+## Requirements
 
-* Multiple build types: 
-  * From source 
+- [Docker](https://docs.docker.com/get-docker/) with Compose v2 (`docker compose`)
+- For the **dev** profile: **JDK 21** and Maven 3.9+ on the host (or use `./mvnw` from the repo root)
 
-#### Table of Contents
-- [Quick install Docker (Linux, new server/workstation)](#quick-install-docker--linux--new-server-workstation-)
-- [Building the Image](#building-the-image)
-  * [From source (github tag/branch)](#from-source--github-tag-branch-)
+## Quick start (recommended: dev profile)
 
-
-# Quick install Docker (Linux, new server/workstation)
-Docker provides an installation script for most Linux distributions, With Ubuntu and RHEL/CentOS being the most used. 
-This script is located at https://get.docker.com/ and has the following instructions at the top of the file:
-
-    This script is meant for quick & easy install via:
-    $ `curl -fsSL https://get.docker.com -o get-docker.sh`
-    $ `sh get-docker.sh`
-
-# Building the Image
-There is currently one variant of this docker build, to build from source code.
-
-## From source (github tag/branch)
-The source build uses a multi-stage build, building an intermediate image with JDK and Maven in which to build Sakai, then building a Tomcat image using only the binary artifacts from the build container. This creates a smaller Sakai image that does not include Maven and all the build time libraries, source, etc.
-
-To build from source under bash, use these steps:
+Iterative coding without rebuilding images. From this `docker/` directory:
 
 ```bash
-    cd docker
+# 1. Start MariaDB + Tomcat (empty deploy dir is fine at first)
+./bin/tomcat.sh up
 
-    docker build --build-arg GIT_CACHEBUST=$(date +%s) \
-    --build-arg release=master -t sakai \
-    -f ./Dockerfile.source .
+# 2. Full build + exploded deploy into ../.docker-deploy (slow once)
+./bin/deploy.sh
+
+# 3. Restart Tomcat to pick up the deploy
+./bin/tomcat.sh restart
+./bin/tomcat.sh logs
 ```
 
-Under Windows PowerShell use:
+Open http://localhost:8080/portal.
 
-```powershell
-    cd docker
+### Day-to-day change loop
 
-    docker build `
-      --build-arg GIT_CACHEBUST=$(Get-Date -UFormat %s) `
-      --build-arg release=master -t sakai `
-      -f .\Dockerfile.source .
-```
-
-substituting "master" for the branch/tag you wish to build
-
- 1. Upon completion you can execute `docker image ls sakai` to verify it's creation
-    *     $ docker image ls sakai
-          REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-          sakai        latest    ac16fc4db9dd   About a minute ago   1.86GB
-
-You can choose a repository and branch as follows:
-
-To build from source under bash, use these steps:
+After editing a module (example: Assignments):
 
 ```bash
-    docker build --build-arg GIT_CACHEBUST=$(date +%s) \
-       --build-arg repository=https://github.com/csev/sakai.git \
-       --build-arg release=SAK-52129 -t sak-52129 -f ./Dockerfile.source .
+./bin/deploy.sh -pl assignment -am
+./bin/tomcat.sh restart
 ```
 
-Under Windows PowerShell use:
+This is **not** Spring Boot live reload. Sakai still needs a Tomcat restart after Java/component deploys. The win is: no Docker image rebuild, module-scoped Maven, exploded deploy, JPDA on port `8000` for IDE HotSwap of method bodies.
 
-```powershell
-    docker build `
-      --build-arg repository=https://github.com/csev/sakai.git `
-      --build-arg release=SAK-52129 `
-      --build-arg GIT_CACHEBUST=$(Get-Date -UFormat %s) `
-      -t sak-52129 `
-      -f .\Dockerfile.source .
-```
-
-List your images by
-
- 1. Execute `docker images` to see your images
-
-
-# Running this image
-
-## Starting MariaDB/MySQL
-You'll need to have MySQL/MariaDB started up first. The default config of the sakai.properties if for MariaDB on localhost.
-
-Here's a sample to startup MySQL from Docker
+### Database only (host Tomcat)
 
 ```bash
-	# May want to include an opt for docker rm sakai-mariadb
-	# Start it if we've already created it, unless we want to re-create
-	docker run -p 127.0.0.1:53306:3306 -d --name="sakai-mariadb" --pull always \
-	    -e "MARIADB_ROOT_PASSWORD=sakairoot" \
-	    -v "./mysql/scripts:/docker-entrypoint-initdb.d" \
-	    -d mariadb:10 --lower-case-table-names=1 || docker start "sakai-mariadb"
+docker compose up db
 ```
 
-```powershell
-	# May want to include an opt for docker rm sakai-mariadb
-	# Start it if we've already created it, unless we want to re-create
-	docker run -p 127.0.0.1:53306:3306 -d --name="sakai-mariadb" --pull always `
-	    -e "MARIADB_ROOT_PASSWORD=sakairoot" `
-	    -v "./mysql/scripts:/docker-entrypoint-initdb.d" `
-	    -d mariadb:10 --lower-case-table-names=1 || docker start "sakai-mariadb"
+MariaDB listens on `127.0.0.1:53306`. Point host Tomcat at it using [`tomcat/sakai/sakai.properties.host-example`](tomcat/sakai/sakai.properties.host-example):
+
+```properties
+url@javax.sql.BaseDataSource=jdbc:mariadb://127.0.0.1:53306/sakai?useUnicode=true&characterEncoding=UTF-8
+username@javax.sql.BaseDataSource=sakai
+password@javax.sql.BaseDataSource=ironchef
 ```
 
+| Role | User | Password |
+|------|------|----------|
+| Root | `root` | `sakairoot` |
+| App | `sakai` | `ironchef` |
 
-## Starting up Sakai and linking to Maria 
-    `docker run --rm -p 8080:8080 --name sakai-tomcat --link sakai-mariadb sakai`
+Reset the database (destructive):
 
-    `docker run --rm -p 8080:8080 --name sakai-tomcat --link sakai-mariadb sak-52129`
+```bash
+docker compose down -v
+docker compose up db
+```
 
+### Full baked image (optional)
+
+Clean / CI-style run that compiles inside Docker (slow; not for daily coding):
+
+```bash
+docker compose --profile image up --build
+```
+
+## Services
+
+| Service | Profile | Image / build | Ports | Notes |
+|---------|---------|---------------|-------|--------|
+| `db` | (always) | `mariadb:10` | `127.0.0.1:53306` → `3306` | Init scripts in `mysql/scripts/` |
+| `tomcat` | `dev` | `tomcat:10.1-jdk21-temurin` | `8080`, `8000` (JPDA) | Mounts `../.docker-deploy/{webapps,components,lib}` |
+| `sakai` | `image` | build via [`Dockerfile.source`](Dockerfile.source) | `8080` | All-in-one image; slow rebuild |
+
+Helpers: [`bin/deploy.sh`](bin/deploy.sh), [`bin/tomcat.sh`](bin/tomcat.sh).
+
+## JDBC hosts
+
+| Where Tomcat runs | JDBC host |
+|-------------------|-----------|
+| Compose `tomcat` / `sakai` service | `db` ([`tomcat/sakai/sakai.properties`](tomcat/sakai/sakai.properties)) |
+| Host process + Compose `db` only | `127.0.0.1:53306` ([host-example](tomcat/sakai/sakai.properties.host-example)) |
+
+## Dockerfile
+
+[`Dockerfile.source`](Dockerfile.source) is used only by the `image` profile:
+
+1. **Build** — `maven:3.9-eclipse-temurin-21`, `sakai:deploy-exploded` into `/deploy`
+2. **Runtime** — `tomcat:10.1-jdk21-temurin` with conf from `tomcat/`
+
+## Dev Containers
+
+[`.devcontainer/`](../.devcontainer/) is a thin VS Code / Codespaces wrapper around this Compose file. Prefer the **dev** profile above if you already have JDK/Maven on the host.
+
+## Troubleshooting
+
+- **Port in use** — stop whatever is bound to `8080`, `8000`, or `53306`.
+- **Empty portal / missing apps** — run `./bin/deploy.sh` then `./bin/tomcat.sh restart`.
+- **DB user missing after SQL changes** — init scripts run only on an empty volume; `docker compose down -v` then bring services back.
+- **Sakai cannot reach DB in Compose** — hostname must be `db`, not `localhost`.
+- **Host Tomcat cannot reach DB** — use `127.0.0.1:53306` with `docker compose up db`.
+- **Do not use `--profile dev` and `--profile image` together** — both bind host port `8080`.
