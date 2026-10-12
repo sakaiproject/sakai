@@ -13,7 +13,8 @@
 services:
   db:
     image: mariadb:10
-    container_name: sakai-db
+    # No fixed container_name — avoids clashes when the Compose project name changes
+    # (e.g. after moving compose from docker/ to the repo root).
     command: ["--lower-case-table-names=1", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
     environment:
       MARIADB_ROOT_PASSWORD: sakairoot
@@ -36,7 +37,6 @@ services:
   tomcat:
     profiles: ["dev"]
     image: tomcat:10.1-jdk21-temurin
-    container_name: sakai-tomcat-dev
     depends_on:
       db:
         condition: service_healthy
@@ -62,16 +62,14 @@ services:
 
   # Default full stack: build Sakai from this checkout and run on Tomcat 10.1.
   sakai:
-    container_name: sakai-tomcat
     build:
       context: .
       dockerfile: docker/Dockerfile
       args:
-        # Auto-size Maven heap to ~75% of the build container/cgroup memory.
-        # If you still see "Java heap space", raise the Podman/Docker VM RAM
-        # (often 8g+) or override, e.g.:
-        #   MAVEN_OPTS: "-Xms2g -Xmx8g -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
-        MAVEN_OPTS: "-XX:InitialRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=512m"
+        # Auto-size Maven heap to ~75% of the build container memory.
+        # If you still see Java heap space errors, raise the Podman/Docker VM RAM to 8g+ or override yourself here:
+        # MAVEN_OPTS: "-Xms2g -Xmx8g -XX:TieredStopAtLevel=1"
+        MAVEN_OPTS: "-XX:InitialRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=512m"
         MAVEN_THREADS: "2"
     ports:
       - "8080:8080"
@@ -88,5 +86,6 @@ volumes:
   sakai-tomcat-logs:
 
 networks:
+  # Project-scoped (e.g. sakai_sakai); do not pin a global name — that collides
+  # across Compose projects and forces external: true.
   sakai:
-    name: sakai-local

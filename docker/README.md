@@ -106,3 +106,14 @@ podman compose build --build-arg MAVEN_OPTS="-Xms2g -Xmx8g -XX:+TieredCompilatio
 - **Port in use** — stop whatever is on `8080`, `8000`, or `53306`.
 - **Empty portal on dev profile** — run `./docker/bin/deploy.sh` then `./docker/bin/tomcat.sh restart`.
 - **DB init only on empty volume** — `podman compose down -v` to recreate.
+- **Sakai cannot reach DB in Compose** — hostname must be `db`, not `localhost`.
+- **Host Tomcat cannot reach DB** — use `127.0.0.1:53306` with Compose `db` only.
+- **Do not run default `sakai` and `--profile dev` together** — both bind host port `8080`.
+- **Container name already in use / network exists but was not created for project** — leftovers from an older Compose layout. Clean up once, then retry:
+
+```bash
+podman rm -f sakai-db sakai-tomcat sakai-tomcat-dev 2>/dev/null || true
+podman network rm sakai-local 2>/dev/null || true
+podman compose down --remove-orphans
+podman compose up --build
+```
