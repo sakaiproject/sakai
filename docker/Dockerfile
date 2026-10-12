@@ -4,8 +4,10 @@
 
 FROM maven:3.9-eclipse-temurin-21 AS build
 
-ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
-ENV JAVA_OPTS="-XX:ReservedCodeCacheSize=512m"
+# Use most of the build container's RAM (cgroup-aware). Override via compose
+# build args if needed, e.g. MAVEN_OPTS: "-Xms2g -Xmx8g ...".
+ARG MAVEN_OPTS="-XX:InitialRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=512m"
+ENV MAVEN_OPTS=${MAVEN_OPTS}
 
 COPY docker/maven/settings.xml /usr/share/maven/conf/settings.xml
 
@@ -15,7 +17,9 @@ WORKDIR /deploy/sakai
 # Copy the full reactor; .dockerignore keeps this manageable.
 COPY . .
 
-RUN mvn clean install --no-transfer-progress -T 1C sakai:deploy-exploded \
+# Cap parallel modules to limit peak heap during WAR/component assembly.
+ARG MAVEN_THREADS=2
+RUN mvn clean install --no-transfer-progress -T ${MAVEN_THREADS} sakai:deploy-exploded \
       -Dmaven.test.skip=true \
       -Dsakai.skip.webcomponents.tests=true \
       -Dmaven.tomcat.home=/deploy \

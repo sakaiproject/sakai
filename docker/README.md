@@ -83,6 +83,19 @@ Multi-stage build used by the default `sakai` service:
 
 `COPY docker/...` paths are relative to the **repo root** build context (not because Compose is nested under `docker/`).
 
+### Build memory
+
+The image build sets `MAVEN_OPTS` with `-XX:MaxRAMPercentage=75.0` so Maven uses most of the build container’s memory, and caps parallel modules (`MAVEN_THREADS=2`) to reduce peak heap during WAR assembly.
+
+If you still get `Java heap space`:
+
+1. Give the Podman machine / Docker Desktop VM more RAM (8g+ is typical for a full Sakai build).
+2. Rebuild with a fixed heap, for example:
+
+```bash
+podman compose build --build-arg MAVEN_OPTS="-Xms2g -Xmx8g -XX:+TieredCompilation -XX:TieredStopAtLevel=1" sakai
+```
+
 ## Dev Containers
 
 [`.devcontainer/`](../.devcontainer/) reuses the root Compose file and adds a lightweight `dev` workspace service.

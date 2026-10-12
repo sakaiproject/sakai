@@ -66,6 +66,13 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+      args:
+        # Auto-size Maven heap to ~75% of the build container/cgroup memory.
+        # If you still see "Java heap space", raise the Podman/Docker VM RAM
+        # (often 8g+) or override, e.g.:
+        #   MAVEN_OPTS: "-Xms2g -Xmx8g -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+        MAVEN_OPTS: "-XX:InitialRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=512m"
+        MAVEN_THREADS: "2"
     ports:
       - "8080:8080"
     depends_on:
