@@ -4,8 +4,7 @@
 
 FROM maven:3.9-eclipse-temurin-21 AS build
 
-# Use most of the build container's RAM (cgroup-aware). Override via compose
-# build args if needed, e.g. MAVEN_OPTS: "-Xms2g -Xmx8g ...".
+# Single source of truth for build JVM/Maven memory (override with --build-arg).
 ARG MAVEN_OPTS="-XX:InitialRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=512m"
 ENV MAVEN_OPTS=${MAVEN_OPTS}
 

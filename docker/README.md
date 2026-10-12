@@ -85,7 +85,7 @@ Multi-stage build used by the default `sakai` service:
 
 ### Build memory
 
-The image build sets `MAVEN_OPTS` with `-XX:MaxRAMPercentage=75.0` so Maven uses most of the build container’s memory, and caps parallel modules (`MAVEN_THREADS=2`) to reduce peak heap during WAR assembly.
+Defaults for `MAVEN_OPTS` and `MAVEN_THREADS` are defined only in [`Dockerfile`](Dockerfile) (not duplicated in Compose). Maven uses ~75% of the build container’s RAM and caps parallel modules at 2.
 
 If you still get `Java heap space`:
 
