@@ -3,7 +3,7 @@
 # From the repository root:
 #
 #   podman compose up db -d
-#   podman compose build sakai && podman compose up -d   # prefer build then up -d
+#   podman compose build app && podman compose up -d     # prefer build then up -d
 #   podman compose --profile dev up -d                   # volume-mounted Tomcat
 #   ./docker/bin/deploy.sh
 #   ./docker/bin/tomcat.sh restart

@@ -43,7 +43,7 @@ Day-to-day:
 
 This is **not** Spring Boot live reload — restart Tomcat after Java/component deploys. JPDA is on port `8000`.
 
-Do not run `compose up --build` (default `sakai` service) and `--profile dev` at the same time; both bind `8080`.
+Do not run the default `app` service and `--profile dev` at the same time; both bind `8080`.
 
 ## Database only (host Tomcat)
 
@@ -96,7 +96,7 @@ If you still get `Java heap space`:
 2. Rebuild with a fixed heap, for example:
 
 ```bash
-podman compose build --build-arg MAVEN_OPTS="-Xms2g -Xmx8g -XX:+TieredCompilation -XX:TieredStopAtLevel=1" sakai
+podman compose build --build-arg MAVEN_OPTS="-Xms2g -Xmx8g -XX:+TieredCompilation -XX:TieredStopAtLevel=1" app
 ```
 
 ## Dev Containers
