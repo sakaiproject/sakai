@@ -61,16 +61,12 @@ services:
       - sakai
 
   # Default full stack: build Sakai from this checkout and run on Tomcat 10.1.
+  # Maven heap/thread defaults live in docker/Dockerfile only; override with
+  #   podman compose build --build-arg MAVEN_OPTS="..." sakai
   sakai:
     build:
       context: .
       dockerfile: docker/Dockerfile
-      args:
-        # Auto-size Maven heap to ~75% of the build container memory.
-        # If you still see Java heap space errors, raise the Podman/Docker VM RAM to 8g+ or override yourself here:
-        # MAVEN_OPTS: "-Xms2g -Xmx8g -XX:TieredStopAtLevel=1"
-        MAVEN_OPTS: "-XX:InitialRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=512m"
-        MAVEN_THREADS: "2"
     ports:
       - "8080:8080"
     depends_on:
