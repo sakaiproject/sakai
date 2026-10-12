@@ -76,7 +76,7 @@ docker compose --profile image up --build
 |---------|---------|---------------|-------|--------|
 | `db` | (always) | `mariadb:10` | `127.0.0.1:53306` → `3306` | Init scripts in `mysql/scripts/` |
 | `tomcat` | `dev` | `tomcat:10.1-jdk21-temurin` | `8080`, `8000` (JPDA) | Mounts `../.docker-deploy/{webapps,components,lib}` |
-| `sakai` | `image` | build via [`Dockerfile.source`](Dockerfile.source) | `8080` | All-in-one image; slow rebuild |
+| `sakai` | `image` | build via [`Dockerfile`](Dockerfile) | `8080` | All-in-one image; slow rebuild |
 
 Helpers: [`bin/deploy.sh`](bin/deploy.sh), [`bin/tomcat.sh`](bin/tomcat.sh).
 
@@ -89,7 +89,7 @@ Helpers: [`bin/deploy.sh`](bin/deploy.sh), [`bin/tomcat.sh`](bin/tomcat.sh).
 
 ## Dockerfile
 
-[`Dockerfile.source`](Dockerfile.source) is used only by the `image` profile:
+[`Dockerfile`](Dockerfile) is used only by the `image` profile:
 
 1. **Build** — `maven:3.9-eclipse-temurin-21`, `sakai:deploy-exploded` into `/deploy`
 2. **Runtime** — `tomcat:10.1-jdk21-temurin` with conf from `tomcat/`

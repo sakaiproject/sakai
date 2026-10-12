@@ -70,7 +70,7 @@ services:
     container_name: sakai-tomcat
     build:
       context: ..
-      dockerfile: docker/Dockerfile.source
+      dockerfile: docker/Dockerfile
     ports:
       - "8080:8080"
     depends_on:
