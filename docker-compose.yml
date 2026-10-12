@@ -2,19 +2,20 @@
 #
 # From the repository root:
 #
-#   podman compose up db
-#   podman compose up --build              # MariaDB + baked Sakai image
-#   podman compose --profile dev up        # MariaDB + volume-mounted Tomcat (iterative)
-#   ./docker/bin/deploy.sh                 # exploded deploy into .docker-deploy
+#   podman compose up db -d
+#   podman compose build sakai && podman compose up -d   # prefer build then up -d
+#   podman compose --profile dev up -d                   # volume-mounted Tomcat
+#   ./docker/bin/deploy.sh
 #   ./docker/bin/tomcat.sh restart
 #
-# Do not run the default Sakai image and --profile dev together (both use port 8080).
+# Do not run the default app image and --profile dev together (both use port 8080).
+
+name: sakai
 
 services:
   db:
     image: mariadb:10
-    # No fixed container_name — avoids clashes when the Compose project name changes
-    # (e.g. after moving compose from docker/ to the repo root).
+    # No fixed container_name — avoids clashes when the Compose project name changes.
     command: ["--lower-case-table-names=1", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
     environment:
       MARIADB_ROOT_PASSWORD: sakairoot
@@ -24,11 +25,12 @@ services:
       - ./docker/mysql/scripts:/docker-entrypoint-initdb.d:ro
       - sakai-db-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 10s
+      # Simple ping — more reliable under Podman than healthcheck.sh + innodb_initialized.
+      test: ["CMD", "healthcheck.sh", "--connect"]
+      interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 20s
+      retries: 30
+      start_period: 30s
     networks:
       - sakai
 
@@ -61,9 +63,10 @@ services:
       - sakai
 
   # Default full stack: build Sakai from this checkout and run on Tomcat 10.1.
-  # Maven heap/thread defaults live in docker/Dockerfile only; override with
-  #   podman compose build --build-arg MAVEN_OPTS="..." sakai
-  sakai:
+  # Explicit image tag avoids Compose default "sakai-sakai".
+  # Maven heap/thread defaults live in docker/Dockerfile only.
+  app:
+    image: sakai:local
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -72,8 +75,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      CATALINA_OPTS: "-Xms2g -Xmx2g"
     networks:
       - sakai
 
@@ -82,6 +83,5 @@ volumes:
   sakai-tomcat-logs:
 
 networks:
-  # Project-scoped (e.g. sakai_sakai); do not pin a global name — that collides
-  # across Compose projects and forces external: true.
+  # Project-scoped; do not pin a global name.
   sakai:

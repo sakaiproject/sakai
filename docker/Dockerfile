@@ -1,6 +1,6 @@
 # Build Sakai from the repository root context, then run on Tomcat 10.1 / JDK 21.
-# Prefer (from repo root): podman compose up --build
-#   build.context = .  /  dockerfile = docker/Dockerfile
+# Prefer (from repo root): podman compose build app && podman compose up -d
+#   build.context = .  /  dockerfile = docker/Dockerfile  /  image = sakai:local
 
 FROM maven:3.9-eclipse-temurin-21 AS build
 

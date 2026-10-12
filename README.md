@@ -9,12 +9,14 @@ The `master` branch is the current development line (Java 21, Tomcat 10.1). Othe
 From the repository root (Docker or Podman):
 
 ```bash
-# Full stack — builds Sakai from this checkout (first build is slow)
-podman compose up --build
-# or: docker compose up --build
+# Full stack — build can take a long time; use -d so the CLI does not look hung
+podman compose build app
+podman compose up -d
+# or: docker compose build app && docker compose up -d
+podman compose logs -f app
 ```
 
-Then open http://localhost:8080/portal.
+Then open http://localhost:8080/portal (wait for “Server startup” in the logs).
 
 For day-to-day coding without rebuilding images, use the **dev** profile (host Maven → exploded deploy → restart Tomcat):
 

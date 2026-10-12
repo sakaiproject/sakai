@@ -1,7 +1,7 @@
 # Override for VS Code / Codespaces: add a lightweight "dev" workspace and
 # skip the baked Sakai image unless you explicitly start it.
 services:
-  sakai:
+  app:
     profiles: ["image"]
 
   dev:
