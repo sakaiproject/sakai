@@ -1027,6 +1027,15 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     });
   });
 
+  // On mousedown Tabulator moves its default top-left range to the pressed cell, firing rangeChanged
+  // part way through. cellMouseDown fires just before that, so remember the pressed cell until Tabulator
+  // has handled the mousedown, so that transient range doesn't scroll the table away from the click.
+  let pressedCell = null;
+  GbGradeTable.instance.on("cellMouseDown", (event, cell) => {
+    pressedCell = cell.getElement();
+    queueMicrotask(() => pressedCell = null);
+  });
+
    GbGradeTable.instance.on("rangeChanged", function (range) {
     const colIndex = range._range.end.col;
     const rowIndex = range._range.end.row;
@@ -1036,6 +1045,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     if (!cell) return;
 
     const cellElement = cell.getElement();
+    if (pressedCell && cellElement !== pressedCell) return;
 
     
     const tableContainer = document.querySelector('.tabulator-tableholder');
@@ -2760,10 +2770,24 @@ GbGradeTable.setupCellMetaDataSummary = function() {
       $metadata.find(".gb-metadata-notifications li.gb-metadata-comment-notification").hide();
     }
 
-    $metadata.css({
+    $metadata.removeClass("gb-metadata-above").css({
       top: topOffset,
+      bottom: "",
       left: leftOffset
     }).toggle();
+
+    // The table wrapper scrolls, so flip the summary above the cell when it would be clipped below.
+    // Anchor by bottom so a comment that loads afterwards grows upwards rather than over the cell.
+    const outerWrapper = $metadata.closest(".gradeTableOuterWrapper")[0];
+    if (outerWrapper && $metadata.is(":visible")) {
+      const visibleBottom = outerWrapper.getBoundingClientRect().top + outerWrapper.clientHeight;
+      if ($cell[0].getBoundingClientRect().bottom + $metadata.outerHeight() > visibleBottom) {
+        $metadata.addClass("gb-metadata-above").css({
+          top: "auto",
+          bottom: $("#gradeTableWrapper").innerHeight() - (cellOffset.top - wrapperOffset.top) + 5
+        });
+      }
+    }
   }
 
   // on mouse click on notification, toggle metadata summary

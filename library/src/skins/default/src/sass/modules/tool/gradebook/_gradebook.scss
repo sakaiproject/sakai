@@ -395,6 +395,13 @@
     border-width: 10px;
     margin-left: -10px;
   }
+  .gb-metadata.gb-metadata-above:after,
+  .gb-metadata.gb-metadata-above:before {
+    bottom: auto;
+    top: 100%;
+    border-bottom-color: transparent;
+    border-top-color: var(--sakai-border-color);
+  }
   .gb-metadata .gb-metadata-close:before {
     position: absolute;
     right: 5px;
