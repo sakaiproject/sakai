@@ -22,9 +22,6 @@ package org.sakaiproject.accountvalidator.impl.service;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormat;
-import org.joda.time.format.PeriodFormatter;
 import org.sakaiproject.accountvalidator.api.exception.ValidationException;
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
@@ -49,6 +46,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.DurationFormat;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -254,9 +252,14 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
 	private String getFormattedExpirationMinutes() {
 		int expirationMinutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
-		Period period = new Period(expirationMinutes * 60 * 1000L);
-		PeriodFormatter periodFormatter = PeriodFormat.wordBased(resourceLoader.getLocale());
-		return periodFormatter.print(period);
+		return formatExpirationMinutes(expirationMinutes, resourceLoader.getLocale());
+	}
+
+	/**
+	 * Package-private for unit tests.
+	 */
+	String formatExpirationMinutes(int expirationMinutes, java.util.Locale locale) {
+		return DurationFormat.formatMinutes(expirationMinutes, locale);
 	}
 
 	// Set other details for ValidationAccount and save

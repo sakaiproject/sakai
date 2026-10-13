@@ -25,15 +25,16 @@
 package org.adl.datamodels.datatypes;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.adl.datamodels.DMDelimiter;
 import org.adl.datamodels.DMErrorCodes;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * <br><br>
@@ -142,27 +143,31 @@ public class DateTimeValidatorImpl extends DateTimeValidator implements Serializ
 	 */
 	@Override
 	public boolean compare(String iFirst, String iSecond, List<DMDelimiter> iDelimiters) {
-
-		boolean equal = true;
-
-		DateTimeFormatter dtp = ISODateTimeFormat.dateTimeParser();
-
 		try {
-			// Parse the first string and remove the sub-seconds
-			DateTime dt1 = dtp.parseDateTime(iFirst);
-			dt1 = new DateTime(dt1.getYear(), dt1.getMonthOfYear(), dt1.getDayOfMonth(), dt1.getHourOfDay(), dt1.getMinuteOfHour(), dt1.getSecondOfMinute(), 0);
-
-			// Parse the second string and remove the sub-seconds
-			DateTime dt2 = dtp.parseDateTime(iSecond);
-			dt2 = new DateTime(dt2.getYear(), dt2.getMonthOfYear(), dt2.getDayOfMonth(), dt2.getHourOfDay(), dt2.getMinuteOfHour(), dt2.getSecondOfMinute(), 0);
-
-			equal = dt1.equals(dt2);
-		} catch (Exception e) {
-			// String format error -- these cannot be equal
-			equal = false;
+			return parseToSecondPrecision(iFirst).equals(parseToSecondPrecision(iSecond));
+		} catch (DateTimeParseException e) {
+			return false;
 		}
+	}
 
-		return equal;
+	/**
+	 * Parses a SCORM/ISO-8601 date-time string and truncates sub-second fields.
+	 * Accepts offset date-times, local date-times, and date-only values.
+	 */
+	static LocalDateTime parseToSecondPrecision(String value) {
+		String trimmed = value.trim();
+		try {
+			// Keep the local fields from the string (same approach as the former Joda parse).
+			return OffsetDateTime.parse(trimmed).toLocalDateTime().withNano(0);
+		} catch (DateTimeParseException ignored) {
+			// try local date-time next
+		}
+		try {
+			return LocalDateTime.parse(trimmed).withNano(0);
+		} catch (DateTimeParseException ignored) {
+			// try date-only next
+		}
+		return LocalDate.parse(trimmed).atStartOfDay();
 	}
 
 	/**
