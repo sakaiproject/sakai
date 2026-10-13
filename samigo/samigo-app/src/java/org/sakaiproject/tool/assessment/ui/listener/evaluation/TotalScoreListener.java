@@ -365,20 +365,19 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
 			while (itemIter.hasNext()) {
 				PublishedItemData item = (PublishedItemData) itemIter.next();
 				Long typeId = item.getTypeId();
-				if (typeId.equals(TypeIfc.ESSAY_QUESTION) 
-						|| typeId.equals(TypeIfc.AUDIO_RECORDING))
-				{ 
-					bean.setIsAutoScored(false); 
+				if (typeId.equals(TypeIfc.ESSAY_QUESTION)
+						|| typeId.equals(TypeIfc.AUDIO_RECORDING)
+						|| typeId.equals(TypeIfc.FILE_UPLOAD))
+				{
+					bean.setIsAutoScored(false);
 					isAutoScored = false;
 				}
-				
-				if (typeId.equals(TypeIfc.FILE_UPLOAD))
-				{ 
-					bean.setIsAutoScored(false); 
-					isAutoScored = false;
+
+				if (typeId.equals(TypeIfc.FILE_UPLOAD) || typeId.equals(TypeIfc.AUDIO_RECORDING))
+				{
 					bean.setHasFileUpload(true);
 					hasFileUpload = true;
-					break; 
+					break;
 				}
 			}
 		}
