@@ -102,7 +102,7 @@ The `sakai` symlink targets `sakai-mariadb` for the MariaDB **and MySQL** varian
 Relevant details:
 
 - HTTP connector listens on **8080** (`server.xml`), shutdown port `8005`.
-- `bin/setenv.sh` configures the JVM: `-Xms2g -Xmx2g`, generational ZGC, `sakai.home` pointing at the `sakai` folder, demo mode enabled, timezone `Europe/Madrid`, encoding/locale `es_ES` and UTF-8.
+- `bin/setenv.sh` configures the JVM: `-Xms2g -Xmx2g`, generational ZGC, `sakai.home` pointing at the `sakai` folder, demo mode enabled, timezone `US/Eastern`, encoding/locale `en_US` and UTF-8.
 - `sakai.properties` in each `sakai-<variant>` folder points to the database host `dblocal` (the compose service name), so never change it to `localhost` inside the container.
 
 ## Database bootstrap

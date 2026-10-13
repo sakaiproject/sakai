@@ -73,8 +73,8 @@ CATALINA_OPTS="$CATALINA_OPTS -Dsakai.demo=true"
 CATALINA_OPTS="$CATALINA_OPTS -Dhttp.agent=Sakai"
 
 # Timezone some examples for the U.S.:  US/Eastern, US/Central, US/Mountain, US/Pacific, US/Arizona
-CATALINA_OPTS="$CATALINA_OPTS -Duser.timezone=Europe/Madrid"
-CATALINA_OPTS="$CATALINA_OPTS -Dfile.encoding=UTF-8 -Duser.language=es -Duser.region=ES"
+CATALINA_OPTS="$CATALINA_OPTS -Duser.timezone=US/Eastern"
+CATALINA_OPTS="$CATALINA_OPTS -Dfile.encoding=UTF-8 -Duser.language=en -Duser.region=US"
 
 # Sets the cookie name
 CATALINA_OPTS="$CATALINA_OPTS -Dsakai.cookieName=SAKAIID"
