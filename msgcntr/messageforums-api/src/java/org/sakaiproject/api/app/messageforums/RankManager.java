@@ -37,7 +37,10 @@ public interface RankManager {
 
     public List findRanksByContextIdUserId(final String contextId, final String userid);
 
-    public void saveRank(Rank rank);
+    /**
+     * @return the saved rank, or the unchanged rank when ranks are disabled
+     */
+    public Rank saveRank(Rank rank);
 
     public RankImage createRankImage();
 
