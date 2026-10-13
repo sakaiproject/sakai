@@ -776,7 +776,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
             try {
                 saveMediaToContent(mediaData);
                 Session session = sessionFactory.getCurrentSession();
-                session.merge(mediaData);
+                mediaData = session.merge(mediaData);
                 retryCount = 0;
             } catch (Exception e) {
                 log.warn("problem saving media: " + e.toString());
