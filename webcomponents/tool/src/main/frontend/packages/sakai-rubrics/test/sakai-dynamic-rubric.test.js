@@ -1,7 +1,7 @@
 import "../sakai-dynamic-rubric.js";
 import { expect, fixture, html, waitUntil, elementUpdated } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
-import { mockTranslations } from "../../../test/migrated-components-i18n.js";
+import { mockTranslations } from "../../../test/component-i18n.js";
 
 const evaluationUrl = "/api/sites/site/rubric-evaluations/tools/sakai.samigo/items/entity/evaluations/grade/owners/student";
 const rubric = { id: "rubric", title: "pub.published.item", criteria: [

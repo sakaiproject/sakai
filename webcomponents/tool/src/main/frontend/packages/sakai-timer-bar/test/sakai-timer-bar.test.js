@@ -2,7 +2,7 @@ import "../sakai-timer-bar.js";
 import { expect, fixture, html, waitUntil, elementUpdated } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
 import sinon from "sinon";
-import { mockTranslations } from "../../../test/migrated-components-i18n.js";
+import { mockTranslations } from "../../../test/component-i18n.js";
 
 describe("sakai-timer-bar", () => {
   let clock;

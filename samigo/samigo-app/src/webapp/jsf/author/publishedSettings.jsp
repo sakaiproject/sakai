@@ -746,12 +746,12 @@
           </h:selectOneMenu>
         </h:panelGroup>
         <h:panelGroup rendered="#{publishedSettings.gradebookGroupEnabled}">
-          <sakai-multi-gradebook
+          <sakai-gradebook-item-selector
             id="category-selector" input-id="assessmentSettingsAction:category_selector"
             site-id='<h:outputText value="#{publishedSettings.currentSiteId}" />'
             selected-temp='<h:outputText value="#{publishedSettings.categorySelected}" />'
             is-category='true'>
-          </sakai-multi-gradebook>
+          </sakai-gradebook-item-selector>
           <h:inputHidden id="category_selector" value="#{publishedSettings.categorySelected}" />
         </h:panelGroup>
       </h:panelGroup>
@@ -765,11 +765,11 @@
           </h:selectOneMenu>
         </h:panelGroup>
         <h:panelGroup rendered="#{publishedSettings.gradebookGroupEnabled}">
-          <sakai-multi-gradebook
+          <sakai-gradebook-item-selector
             id="gb-selector" input-id="assessmentSettingsAction:gb_selector"
             site-id='<h:outputText value="#{publishedSettings.currentSiteId}" />'
             selected-temp='<h:outputText value="#{publishedSettings.gradebookName}" />'
-            app-name="sakai.samigo" ></sakai-multi-gradebook>
+            app-name="sakai.samigo" ></sakai-gradebook-item-selector>
           <h:inputHidden id="gb_selector" value="#{publishedSettings.gradebookName}" />
         </h:panelGroup>
       </h:panelGroup>

@@ -26,7 +26,7 @@
         </script>
         <script src="/library/js/sakai-reminder.js"></script>
         <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
-        <script type="module" src="/webcomponents/bundles/multi-gradebook.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+        <script type="module" src="/webcomponents/bundles/gradebook-item-selector.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <h:form id="msgForum">
             <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
@@ -155,14 +155,14 @@
                 <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>
             </h:panelGroup>
             <h:panelGroup layout="block" styleClass="row" rendered="#{ForumTool.gradebookGroupEnabled}">
-                <sakai-multi-gradebook
+                <sakai-gradebook-item-selector
                         id="gb-selector" input-id="msgForum:gb_selector"
                         app-name="sakai.forums"
                         site-id='<h:outputText value="#{ForumTool.siteId}" />'
                         user-id='<h:outputText value="#{ForumTool.selectedGradedUserId}" />'
                         group-id='<h:outputText value="#{ForumTool.groupId}" />'
                         selected-temp='<h:outputText value="#{ForumTool.selectedAssign}" />'
-                </sakai-multi-gradebook>
+                </sakai-gradebook-item-selector>
                 <h:inputHidden id="gb_selector" value="#{ForumTool.currentChange}" />
             </h:panelGroup>
             <h:panelGrid id="grade-message-options" styleClass="jsfFormTable" columns="1" columnClasses="shorttext spinnerBesideContainer" border="0">

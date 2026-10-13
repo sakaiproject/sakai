@@ -19,7 +19,7 @@
 	<script src="/messageforums-tool/js/messages.js"></script>
 	<script src="/messageforums-tool/js/datetimepicker.js"></script>
 	<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-	<script type="module" src="/webcomponents/bundles/multi-gradebook.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+	<script type="module" src="/webcomponents/bundles/gradebook-item-selector.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	<script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	
@@ -395,14 +395,14 @@
 					</h:panelGroup>
 				</f:subview>
 			    <f:subview id="group_view" rendered="#{ForumTool.gradebookGroupEnabled}">
-					<sakai-multi-gradebook
+					<sakai-gradebook-item-selector
 						id="gb-selector" input-id="revise:group_view:topic_assignments"
 						app-name="sakai.forums"
 						site-id='<h:outputText value="#{ForumTool.siteId}" />'
 						user-id='<h:outputText value="#{ForumTool.userId}" />'
 						group-id='<h:outputText value="#{ForumTool.groupId}" />'
 						selected-temp='<h:outputText value="#{ForumTool.selectedTopic.gradeAssign}" />'>
-					</sakai-multi-gradebook>
+					</sakai-gradebook-item-selector>
 					<h:inputHidden id="topic_assignments" value="#{ForumTool.selectedTopic.gradeAssign}" />
 				</f:subview>
 			</h:panelGroup>

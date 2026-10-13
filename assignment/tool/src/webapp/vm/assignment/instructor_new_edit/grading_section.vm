@@ -105,11 +105,11 @@ This section contains the options for grading this assignment, including rubrics
 
 						<div id="categoryList" class="indnt3" style="display: none;">
 							#if ($isGradebookGroupEnabled)
-								<sakai-multi-gradebook id="category-selector" input-id="$name_Category"
+								<sakai-gradebook-item-selector id="category-selector" input-id="$name_Category"
 									site-id="$siteId"
 									selected-temp="$!selectedCategories"
 									is-category='true'>
-								</sakai-multi-gradebook>
+								</sakai-gradebook-item-selector>
 								<input type="hidden" name="$name_Category" id="$name_Category" value="$!selectedCategories" />
 							#end
 
@@ -143,7 +143,7 @@ This section contains the options for grading this assignment, including rubrics
 							<label for="gradebookItemSelect" class="sr-only">$tlang.getString("grading.select")</label>
 
 							#if ($isGradebookGroupEnabled)
-								<sakai-multi-gradebook id="gb-selector" input-id="gb_selector" site-id='$siteId' selected-temp="$!selectedGradebook" app-name="sakai.assignment.grades" ></sakai-multi-gradebook>
+								<sakai-gradebook-item-selector id="gb-selector" input-id="gb_selector" site-id='$siteId' selected-temp="$!selectedGradebook" app-name="sakai.assignment.grades" ></sakai-gradebook-item-selector>
 								<input type="hidden" id="gb_selector" name="$!gb_selector" value="$!selectedGradebook" />
 							#else
 								<select name="$!name_AssociateGradebookAssignment" id="gradebookItemSelect">

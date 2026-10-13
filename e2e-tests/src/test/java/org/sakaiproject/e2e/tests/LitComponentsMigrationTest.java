@@ -165,11 +165,11 @@ class LitComponentsMigrationTest {
     void gradebookSelectionUpdatesTheToolFormWithOneItemPerGradebook() {
         openFixture("""
             <form><input type="hidden" id="selected" name="gradebooks" value="a1">
-              <sakai-multi-gradebook site-id="site"
-                  selected-temp="a1" input-id="selected"></sakai-multi-gradebook>
+              <sakai-gradebook-item-selector site-id="site"
+                  selected-temp="a1" input-id="selected"></sakai-gradebook-item-selector>
             </form>
             """);
-        Locator search = page.locator("sakai-multi-gradebook sakai-tag-selector input");
+        Locator search = page.locator("sakai-gradebook-item-selector sakai-tag-selector input");
         search.click();
         page.getByRole(AriaRole.OPTION, new Page.GetByRoleOptions().setName("Group A - Quiz").setExact(true)).click();
         assertThat(page.locator("#selected")).hasValue("a2");

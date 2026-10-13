@@ -47,12 +47,12 @@ most commong pathways our users will be taking through our component, and edge c
 # Shared tool components
 
 The portal's `base.js` bundle registers the following Lit components. Tool pages that load
-the gradebook selector separately can use `bundles/multi-gradebook.js`.
+the gradebook selector separately can use `bundles/gradebook-item-selector.js`.
 
 | Component | Package | Integration |
 | --- | --- | --- |
 | `sakai-timer-bar` | `sakai-timer-bar` | Samigo countdown; posts `SAVE` and `END` messages with the timer's `id` to the parent window. |
-| `sakai-multi-gradebook` | `sakai-multi-gradebook` | Searches gradebook items/categories and allows one selection per gradebook. `input-id` names the host form's comma-separated hidden input. The `change` event contains `detail.value`, the selected items. |
+| `sakai-gradebook-item-selector` | `sakai-gradebook-item-selector` | Searches gradebook items/categories and allows one selection per gradebook. `input-id` names the host form's comma-separated hidden input. The `change` event contains `detail.value`, the selected items. |
 | `sakai-condition-editor`, `sakai-condition-picker` | `sakai-conditions` | Lessons score conditions and AND/OR prerequisite trees. Context changes reload the data through the existing conditions API. |
 | `sakai-dynamic-rubric` | `sakai-rubrics` | Samigo ad hoc criteria and evaluation. `cancel()` restores saved selections; `release()` returns a promise for the evaluation save. |
 

@@ -3,7 +3,7 @@ import { html, nothing } from "lit";
 import "@sakai-ui/sakai-tag-selector/sakai-tag-selector.js";
 
 /** Searchable gradebook selection with at most one item/category per gradebook. */
-export class SakaiMultiGradebook extends SakaiShadowElement {
+export class SakaiGradebookItemSelector extends SakaiShadowElement {
 
   static properties = {
     siteId: { attribute: "site-id", type: String },
@@ -30,7 +30,7 @@ export class SakaiMultiGradebook extends SakaiShadowElement {
   }
 
   updated(changed) {
-    if ([ "siteId", "isCategory", "userId", "groupId", "appName" ].some(name => changed.has(name))) {
+    if ([ "siteId", "isCategory", "userId", "groupId", "appName", "_i18n" ].some(name => changed.has(name))) {
       this._loadItems();
     } else if (changed.has("selectedTemp")) {
       this._restoreSelection();
@@ -100,8 +100,11 @@ export class SakaiMultiGradebook extends SakaiShadowElement {
     this.dispatchEvent(new CustomEvent("change", { detail: { value }, bubbles: true, composed: true }));
   }
 
+  shouldUpdate() {
+    return !!this._i18n;
+  }
+
   render() {
-    if (!this._i18n) { return nothing; }
     if (this._error) {
       return html`<p role="alert">${this._i18n.load_error}
         <button type="button" @click=${this._loadItems}>${this._i18n.retry}</button></p>`;

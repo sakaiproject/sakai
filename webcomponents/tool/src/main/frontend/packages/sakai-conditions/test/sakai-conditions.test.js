@@ -2,7 +2,7 @@ import "../sakai-condition-editor.js";
 import "../sakai-condition-picker.js";
 import { expect, fixture, html, waitUntil, elementUpdated } from "@open-wc/testing";
 import fetchMock from "fetch-mock";
-import { mockTranslations } from "../../../test/migrated-components-i18n.js";
+import { mockTranslations } from "../../../test/component-i18n.js";
 
 const itemUrl = "/api/sites/site/conditions?toolId=sakai.lessonbuildertool&itemId=target";
 const score = { id: "score", siteId: "site", itemId: "source", type: "SCORE", operator: "GREATER_THAN", argument: "10" };

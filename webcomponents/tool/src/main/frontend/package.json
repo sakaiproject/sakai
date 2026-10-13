@@ -46,7 +46,7 @@
     "@sakai-ui/sakai-jump-to-top": "workspace:*",
     "@sakai-ui/sakai-lti-iframe": "workspace:*",
     "@sakai-ui/sakai-lti-popup": "workspace:*",
-    "@sakai-ui/sakai-multi-gradebook": "workspace:*",
+    "@sakai-ui/sakai-gradebook-item-selector": "workspace:*",
     "@sakai-ui/sakai-notifications": "workspace:*",
     "@sakai-ui/sakai-permissions": "workspace:*",
     "@sakai-ui/sakai-picture-changer": "workspace:*",

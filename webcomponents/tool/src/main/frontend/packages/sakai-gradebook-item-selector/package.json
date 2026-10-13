@@ -1,7 +1,7 @@
 {
-  "name": "@sakai-ui/sakai-multi-gradebook",
+  "name": "@sakai-ui/sakai-gradebook-item-selector",
   "version": "3.0.6",
-  "description": "Sakai multi gradebook components",
+  "description": "Sakai gradebook item and category selector",
   "main": "index.js",
   "license": "ECL-2.0",
   "scripts": {
