@@ -16,8 +16,12 @@
 package org.sakaiproject.util;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,8 +71,33 @@ public final class Zip {
         String portableName = relativeName(name);
         Path root = directory.toRealPath();
         try {
-            Path destination = root.resolve(portableName).toFile().getCanonicalFile().toPath();
-            if (!destination.startsWith(root) || destination.equals(root)) {
+            Path destination = root;
+            for (Path component : root.getFileSystem().getPath(portableName)) {
+                if (".".equals(component.toString())) {
+                    continue;
+                }
+                if ("..".equals(component.toString())) {
+                    destination = destination.getParent();
+                } else {
+                    destination = destination.resolve(component);
+                    boolean exists;
+                    try {
+                        // Inspect the link itself so a dangling link cannot look like a new file.
+                        Files.readAttributes(destination, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+                        exists = true;
+                    } catch (NoSuchFileException e) {
+                        exists = false;
+                    }
+                    if (exists) {
+                        // Resolve existing ancestors even when the final output file is not created yet.
+                        destination = destination.toRealPath();
+                    }
+                }
+                if (destination == null || !destination.startsWith(root)) {
+                    throw new InvalidEntryException("Path escapes ZIP archive directory");
+                }
+            }
+            if (destination.equals(root)) {
                 throw new InvalidEntryException("Path escapes ZIP archive directory");
             }
             return destination;

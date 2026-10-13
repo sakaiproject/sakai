@@ -66,6 +66,32 @@ public class ZipTest {
         Files.createSymbolicLink(root.resolve("link"), outside);
         assertThrows(IOException.class, () -> Zip.resolveEntryPath(root, "link/file.xml"));
         assertThrows(IOException.class, () -> Zip.resolveContainedPath(root, "link/file.xml"));
+        assertThrows(IOException.class, () -> Zip.resolveEntryPath(root, "link/missing/nested/file.xml"));
+        assertThrows(IOException.class, () -> Zip.resolveContainedPath(root, "link/../file.xml"));
+        Path outsideFile = Files.createFile(outside.resolve("existing.xml"));
+        Files.createSymbolicLink(root.resolve("file-link.xml"), outsideFile);
+        assertThrows(IOException.class, () -> Zip.resolveEntryPath(root, "file-link.xml"));
+    }
+
+    @Test
+    public void rejectsDanglingSymlinks() throws IOException {
+        Path root = temporary.newFolder("root").toPath();
+        Files.createSymbolicLink(root.resolve("link"), root.resolve("missing"));
+        assertThrows(IOException.class, () -> Zip.resolveEntryPath(root, "link"));
+        assertThrows(IOException.class, () -> Zip.resolveEntryPath(root, "link/file.xml"));
+        assertThrows(IOException.class, () -> Zip.resolveContainedPath(root, "link/../file.xml"));
+    }
+
+    @Test
+    public void resolvesSymlinksWithinRootBeforeParentSegments() throws IOException {
+        Path root = temporary.newFolder("root").toPath().toRealPath();
+        Path nested = Files.createDirectories(root.resolve("folder/nested"));
+        Files.createSymbolicLink(root.resolve("link"), nested);
+        assertEquals(nested.resolve("missing/file.xml"), Zip.resolveEntryPath(root, "link/missing/file.xml"));
+        assertEquals(root.resolve("folder/file.xml"), Zip.resolveContainedPath(root, "link/../file.xml"));
+        Path file = Files.createFile(nested.resolve("existing.xml"));
+        Files.createSymbolicLink(root.resolve("file-link.xml"), file);
+        assertEquals(file, Zip.resolveEntryPath(root, "file-link.xml"));
     }
 
     @Test
