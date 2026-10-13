@@ -744,6 +744,15 @@ public class BasicEmailService implements EmailService
 	}
 
 	private void transportMessage(Session session, List<Address[]> messageSets, Collection<String> headers, MimeMessage msg) {
+		MimeMessage preparedMessage;
+		try {
+			msg.saveChanges();
+			// Encode MIME content before handing the message to a background thread.
+			preparedMessage = new MimeMessage(msg);
+		} catch (MessagingException e) {
+			log.warn("Unable to prepare email for delivery", e);
+			return;
+		}
 		// Create a CompletableFuture to handle the asynchronous operation
 		CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
 			long time1 = 0;
@@ -762,7 +771,6 @@ public class BasicEmailService implements EmailService
 				Transport transport = session.getTransport(protocol);
 
 				if (log.isDebugEnabled()) time2 = System.currentTimeMillis();
-				msg.saveChanges();
 
 				if (log.isDebugEnabled()) time3 = System.currentTimeMillis();
 				if (smtpUser != null && smtpPassword != null) {
@@ -780,7 +788,7 @@ public class BasicEmailService implements EmailService
 
 					try
 					{
-						transport.sendMessage(msg, toAddresses);
+						transport.sendMessage(preparedMessage, toAddresses);
 
 						// if we need to use the connection for just one send, and we have more, close and re-open
 						if ((oneMessagePerConnection) && (i.hasNext()))
