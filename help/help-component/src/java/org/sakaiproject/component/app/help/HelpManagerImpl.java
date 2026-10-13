@@ -454,7 +454,15 @@ public class HelpManagerImpl implements HelpManager
 
 	public void storeCategory(Category category)
 	{
-		sessionFactory.getCurrentSession().merge(category);
+		Session session = sessionFactory.getCurrentSession();
+		if (category.getId() == null)
+		{
+			session.persist(category);
+		}
+		else
+		{
+			session.merge(category);
+		}
 	}
 
 	/**
