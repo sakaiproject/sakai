@@ -101,7 +101,7 @@
     <h:outputLink title="#{evaluationMessages.select_all}" styleClass="samigo-download-select-all" onclick="toggleChecked(); return false;" value="#" rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 1}">
       <h:outputText value="#{evaluationMessages.select_all}" />
     </h:outputLink>
-    <h:dataTable value="#{downloadFileSubmissions.fileUploadQuestionList}" var="question" styleClass="samigo-download-questions" columnClasses="downloanQuestionCheckbox,downloanQuestionDescription">
+    <h:dataTable value="#{downloadFileSubmissions.fileUploadQuestionList}" var="question" styleClass="samigo-download-questions" columnClasses="#{downloadFileSubmissions.fileUploadQuestionListSize > 1 ? 'downloanQuestionCheckbox,downloanQuestionDescription' : 'downloanQuestionDescription'}">
       <h:column rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 1}">
         <h:selectManyCheckbox value="" id="questionCheckbox">
           <f:selectItem itemValue="#{question.itemIdString}" />
