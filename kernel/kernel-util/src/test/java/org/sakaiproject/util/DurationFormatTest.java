@@ -66,4 +66,17 @@ public class DurationFormatTest {
 		String formatted = DurationFormat.formatMinutes(60, null);
 		assertEquals(DurationFormat.formatMinutes(60, Locale.getDefault()), formatted);
 	}
+
+	@Test
+	public void unsupportedLocaleUsesBaseBundleNotJvmDefault() {
+		Locale previousDefault = Locale.getDefault();
+		try {
+			Locale.setDefault(Locale.FRANCE);
+			// No Italian duration bundle: must use base English, not JVM default French.
+			assertEquals("1 hour", DurationFormat.formatMinutes(60, Locale.ITALIAN));
+			assertEquals("1 hour and 30 minutes", DurationFormat.formatMinutes(90, Locale.ITALIAN));
+		} finally {
+			Locale.setDefault(previousDefault);
+		}
+	}
 }

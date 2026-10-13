@@ -143,6 +143,9 @@ public class DateTimeValidatorImpl extends DateTimeValidator implements Serializ
 	 */
 	@Override
 	public boolean compare(String iFirst, String iSecond, List<DMDelimiter> iDelimiters) {
+		if (iFirst == null || iSecond == null) {
+			return false;
+		}
 		try {
 			return parseToSecondPrecision(iFirst).equals(parseToSecondPrecision(iSecond));
 		} catch (DateTimeParseException e) {

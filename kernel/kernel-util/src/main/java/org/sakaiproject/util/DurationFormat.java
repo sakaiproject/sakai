@@ -49,7 +49,12 @@ public final class DurationFormat {
 		long hours = duration.toHours();
 		long minutes = duration.toMinutesPart();
 
-		ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE, effectiveLocale);
+		// No JVM-default locale fallback: unsupported locales resolve to the base bundle only.
+		ResourceBundle bundle = ResourceBundle.getBundle(
+				BUNDLE,
+				effectiveLocale,
+				DurationFormat.class.getClassLoader(),
+				ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 		List<String> parts = new ArrayList<>(2);
 		if (hours > 0) {
 			parts.add(MessageFormat.format(bundle.getString(hours == 1L ? "hour" : "hours"), hours));

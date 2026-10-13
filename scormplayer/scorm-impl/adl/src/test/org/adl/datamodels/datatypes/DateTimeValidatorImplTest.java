@@ -39,6 +39,13 @@ public class DateTimeValidatorImplTest {
 	}
 
 	@Test
+	public void compareNullReturnsFalse() {
+		assertFalse(validator.compare(null, "2012-07-26T12:00:00", Collections.emptyList()));
+		assertFalse(validator.compare("2012-07-26T12:00:00", null, Collections.emptyList()));
+		assertFalse(validator.compare(null, null, Collections.emptyList()));
+	}
+
+	@Test
 	public void parseToSecondPrecisionTruncatesNanos() {
 		LocalDateTime parsed = DateTimeValidatorImpl.parseToSecondPrecision("2012-07-26T12:00:00.999");
 		assertEquals(LocalDateTime.of(2012, 7, 26, 12, 0, 0), parsed);
