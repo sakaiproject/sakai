@@ -1,0 +1,22 @@
+services:
+
+  devcontainer:
+    image: mcr.microsoft.com/devcontainers/base:jammy
+    command: sleep infinity
+    environment:
+      - CATALINA_HOME=/usr/local/sdkman/candidates/tomcat/current
+      - CATALINA_BASE=/home/vscode/sakai-tomcat
+      - PATH=$CATALINA_HOME/bin:$PATH
+      - MAVEN_OPTS=-Dmaven.tomcat.home=/home/vscode/sakai-tomcat
+    volumes:
+      - ../:/workspaces/app:cached
+      - maven-cache-vol:/home/vscode/.m2
+    networks:
+      - backend-local
+    depends_on:
+      - dblocal
+
+volumes:
+    maven-cache-vol:
+networks:
+    backend-local:
