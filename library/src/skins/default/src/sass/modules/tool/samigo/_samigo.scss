@@ -484,6 +484,130 @@
 		margin: $standard-spacing 0 0 0;
 	}
 
+	.samigo-export-block {
+		margin-top: $standard-spacing;
+		color: var(--sakai-text-color-1);
+	}
+
+	.samigo-export-files {
+		margin-top: $standard-spacing;
+		padding-top: $standard-spacing;
+		border-top: 1px solid var(--sakai-border-color);
+		color: var(--sakai-text-color-1);
+	}
+
+	.samigo-download-heading {
+		margin: 0 0 $standard-spacing 0;
+		font-size: 1rem;
+		font-weight: bold;
+		color: var(--sakai-text-color-1);
+	}
+
+	.samigo-download-select-all {
+		display: inline-block;
+		margin-bottom: $standard-space;
+	}
+
+	.samigo-download-questions {
+		width: 100%;
+		border: 0;
+		border-collapse: separate;
+		border-spacing: 0 $standard-space;
+		background: transparent;
+
+		> tbody > tr > td {
+			vertical-align: top;
+			padding: $standard-space 0;
+			background: transparent;
+			border: 0;
+			color: var(--sakai-text-color-1);
+		}
+	}
+
+	.samigo-download-qmeta {
+		font-weight: bold;
+		color: var(--sakai-text-color-1);
+		margin-left: $standard-space;
+	}
+
+	.samigo-download-qtype {
+		margin-left: $standard-space;
+		font-size: 0.85em;
+		font-weight: normal;
+		color: var(--sakai-text-color-2);
+	}
+
+	.samigo-download-qtext {
+		margin-top: $standard-space;
+		margin-left: $standard-space;
+		color: var(--sakai-text-color-1);
+
+		img {
+			max-width: 100%;
+			height: auto;
+		}
+
+		p:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	.samigo-download-audience,
+	.samigo-download-sections {
+		table {
+			margin: 0;
+			border: 0;
+			background: transparent;
+		}
+
+		td {
+			border: 0;
+			background: transparent;
+		}
+
+		label {
+			margin-left: $standard-space;
+			font-weight: normal;
+			color: var(--sakai-text-color-1);
+		}
+	}
+
+	.samigo-download-sections {
+		display: none;
+		margin-top: $standard-space;
+		margin-left: calc(16px + $standard-space + $standard-space);
+		padding-left: $standard-spacing;
+		border-left: 1px solid var(--sakai-border-color);
+
+		&.is-open {
+			display: block;
+		}
+	}
+
+	.downloanQuestionCheckbox {
+		width: 1%;
+		white-space: nowrap;
+
+		table,
+		td {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			background: transparent;
+		}
+	}
+
+	.samigo-export-block > .act,
+	.samigo-export-files > .act {
+		margin: $standard-spacing 0 0 0;
+	}
+
+	.samigo-export-lead {
+		display: block;
+		margin: 0;
+		color: var(--sakai-text-color-1);
+	}
+
 	.jqplot-target {
 		color: var(--sakai-text-color-1);
 		font-family: var(--sakai-font-family);
