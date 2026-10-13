@@ -4257,7 +4257,11 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             Session session = sessionFactory.getCurrentSession();
             for (AttachmentIfc attachment : list) {
                 if (attachment != null) {
-                    session.merge(attachment);
+                    if (attachment.getAttachmentId() == null || attachment.getAttachmentId() == 0) {
+                        session.persist(attachment);
+                    } else {
+                        session.merge(attachment);
+                    }
                 }
             }
         } catch (Exception e) {

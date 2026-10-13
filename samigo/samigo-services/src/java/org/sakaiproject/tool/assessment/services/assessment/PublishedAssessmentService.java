@@ -256,9 +256,7 @@ public class PublishedAssessmentService extends AssessmentService{
                 .getPublishedAssessmentFacadeQueries()
                 .saveOrUpdate(assessment);
 
-        if (assessment.getPublishedAssessmentId() == null && savedData != null) {
-            assessment.setPublishedAssessmentId(savedData.getPublishedAssessmentId());
-        }
+        assessment.setData(savedData);
     }
     catch (Exception e) {
       log.error(e.getMessage(), e);

@@ -335,12 +335,11 @@ public class AssessmentService {
 	}
 
 	public void update(AssessmentFacade assessment) {
-		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.saveOrUpdate(assessment);
+		saveAssessment(assessment);
 	}
 
-	public void save(AssessmentTemplateData template) {
-		PersistenceService.getInstance().getAssessmentFacadeQueries()
+	public AssessmentTemplateData save(AssessmentTemplateData template) {
+		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.saveOrUpdate(template);
 	}
 
@@ -350,8 +349,9 @@ public class AssessmentService {
 	}
 
 	public void saveAssessment(AssessmentFacade assessment) {
-		PersistenceService.getInstance().getAssessmentFacadeQueries()
+		AssessmentData savedData = PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.saveOrUpdate(assessment);
+		assessment.updateData(savedData);
 	}
 
 	public void deleteAssessmentTemplate(Long assessmentId) {

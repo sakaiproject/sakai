@@ -352,6 +352,7 @@ public class SaveAssessmentSettings
 
     // jj. save assessment first, then deal with ip
     assessmentService.saveAssessment(assessment);
+    control = (AssessmentAccessControl) assessment.getAssessmentAccessControl();
     assessmentService.deleteAllSecuredIP(assessment);
 
     // k. set ipAddresses
