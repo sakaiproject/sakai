@@ -4838,6 +4838,11 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
+
 		List allzipList = new Vector();
 		List finalzipList = new Vector();
 		List directcopyList = new Vector();
