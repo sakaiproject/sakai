@@ -1297,6 +1297,7 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 				} else {
 					data = session.merge(data);
 				}
+				Hibernate.initialize(data.getSectionSet());
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update assessment: {}", e.toString());
