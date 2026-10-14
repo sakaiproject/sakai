@@ -347,7 +347,8 @@ public class RankManagerImpl implements RankManager {
             String tempString = cr.getUrl();
             attach.setAttachmentUrl(resourceUrlEscaping(tempString));
 
-            return session.merge(attach);
+            session.persist(attach);
+            return attach;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return null;
