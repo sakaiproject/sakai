@@ -24,6 +24,9 @@ import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.mapping.MappingException;
 import org.exolab.castor.util.LocalConfiguration;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.UnmarshalHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -117,7 +120,12 @@ abstract class AbstractCastorDescriptorService {
             unmarshaller.setIgnoreExtraElements(getIgnoreExtraElements());
 
             if(is!=null) {
-                object = unmarshaller.unmarshal(Xml.createSecureDocumentBuilderFactory().newDocumentBuilder().parse(is));
+                UnmarshalHandler handler = unmarshaller.createHandler();
+                // Castor descriptor mappings use unqualified element names.
+                XMLReader reader = Xml.createSecureXMLReader(false);
+                reader.setContentHandler(Unmarshaller.getContentHandler(handler));
+                reader.parse(new InputSource(is));
+                object = handler.getObject();
             }
         }
         catch (IOException e) {
