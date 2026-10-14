@@ -41,6 +41,13 @@ public final class MapperFactory {
     public static final int DEFAULT_MAX_XML_ATTRIBUTES_PER_ELEMENT = ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT;
     public static final int DEFAULT_MAX_XML_ATTRIBUTE_LENGTH = ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH;
 
+    // XML callers that do not request Java-time handling need not load its optional module.
+    private static final class JavaTimeSupport {
+        private static com.fasterxml.jackson.databind.Module createModule() {
+            return new JavaTimeModule();
+        }
+    }
+
     private MapperFactory() {
         throw new AssertionError("Utility class should not be instantiated");
     }
@@ -163,7 +170,7 @@ public final class MapperFactory {
          * @return this builder for chaining
          */
         public JsonMapperBuilder registerJavaTimeModule() {
-            mapper.registerModule(new JavaTimeModule());
+            mapper.registerModule(JavaTimeSupport.createModule());
             return this;
         }
 
@@ -295,7 +302,7 @@ public final class MapperFactory {
          * @return this builder for chaining
          */
         public XmlMapperBuilder registerJavaTimeModule() {
-            xmlMapper.registerModule(new JavaTimeModule());
+            xmlMapper.registerModule(JavaTimeSupport.createModule());
             return this;
         }
 
