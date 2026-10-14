@@ -87,7 +87,22 @@ import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.*;
+import org.sakaiproject.util.Authentication;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.CalendarChannelReferenceMaker;
+import org.sakaiproject.util.CalendarReferenceToChannelConverter;
+import org.sakaiproject.util.DefaultEntityHandler;
+import org.sakaiproject.util.DoubleStorageUser;
+import org.sakaiproject.util.EntityCollections;
+import org.sakaiproject.util.EntryProvider;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.MergeConfig;
+import org.sakaiproject.util.MergedList;
+import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SAXEntityReader;
+import org.sakaiproject.util.Validator;
+// Use Sakai's XML utility; ical4j also defines an Xml calendar property.
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 
@@ -96,7 +111,6 @@ import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 
 import org.sakaiproject.calendar.impl.writers.CalendarIcalExporter;
-import org.sakaiproject.util.MergeConfig;
 
 /**
  * <p>
