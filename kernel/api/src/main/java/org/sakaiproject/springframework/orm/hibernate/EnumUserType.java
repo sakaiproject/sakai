@@ -44,17 +44,9 @@ public class EnumUserType<E extends Enum<E>> implements UserType
     private Class<E>
         myClass = null;
 
-    private static final int[]
-        SQL_TYPES = {Types.VARCHAR};
-
     protected EnumUserType (Class<E> c)
     {
         myClass = c;
-    }
-
-    public int[] sqlTypes()
-    {
-        return SQL_TYPES;
     }
 
     public Class returnedClass()
@@ -63,8 +55,8 @@ public class EnumUserType<E extends Enum<E>> implements UserType
     }
 
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] strings, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
-        String name = resultSet.getString(strings[0]);
+    public Object nullSafeGet(ResultSet resultSet, int position, SharedSessionContractImplementor session, Object owner) throws HibernateException, SQLException {
+        String name = resultSet.getString(position);
         E result = null;
 
         if (!resultSet.wasNull())
@@ -129,4 +121,9 @@ public class EnumUserType<E extends Enum<E>> implements UserType
 
         return x.equals(y);
     }
+
+	@Override
+	public int getSqlType() {
+		return Types.VARCHAR;
+	}
 }

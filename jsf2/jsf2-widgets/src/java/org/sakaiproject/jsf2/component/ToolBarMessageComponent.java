@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.jsf2.component;
 
-import javax.faces.component.UIOutput;
+import jakarta.faces.component.UIOutput;
 
 
 public class ToolBarMessageComponent extends UIOutput

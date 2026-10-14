@@ -19,8 +19,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;

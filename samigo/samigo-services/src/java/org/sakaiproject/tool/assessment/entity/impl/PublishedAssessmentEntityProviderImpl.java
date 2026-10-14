@@ -32,7 +32,6 @@ import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProv
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
@@ -64,7 +63,6 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
 
   private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
   private SecurityService securityService;
-  private GradingServiceAPI gradingService = null;
   
   public String getEntityPrefix() {
     return ENTITY_PREFIX;

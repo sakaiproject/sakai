@@ -19,8 +19,8 @@ import java.util.Optional;
 
 import org.hibernate.Session;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 
 import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.repository.SettingsRepository;

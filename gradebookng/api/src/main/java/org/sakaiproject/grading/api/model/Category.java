@@ -22,17 +22,16 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -49,8 +48,7 @@ public class Category implements PersistableEntity<Long>, Serializable {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_category_id_sequence")
-    @SequenceGenerator(name = "gb_category_id_sequence", sequenceName = "GB_CATEGORY_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_category_id_sequence", sequenceName = "GB_CATEGORY_S"))
     private Long id;
 
     @Column(name = "VERSION", nullable = false)

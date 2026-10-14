@@ -155,7 +155,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public void deleteAllSecuredIP(PublishedAssessmentIfc assessment);
 
-  public void saveOrUpdate(PublishedAssessmentIfc assessment) throws Exception;
+  public PublishedAssessmentData saveOrUpdate(PublishedAssessmentIfc assessment) throws Exception;
 
   public void delete(PublishedAssessmentIfc assessment);
 

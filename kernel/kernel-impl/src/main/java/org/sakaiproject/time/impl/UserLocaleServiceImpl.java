@@ -15,10 +15,11 @@
  */
 package org.sakaiproject.time.impl;
 
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
+
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -34,18 +35,18 @@ import java.util.Objects;
 public class UserLocaleServiceImpl {
 
     // Cache of userIds to Locales
-    private Cache<String, String> userLocaleCache;
+    private Cache userLocaleCache;
 
     private SessionManager sessionManager;
-    private MemoryService memoryService;
+    private CacheManager cacheManager;
     private ResourceLoader resourceLoader;
 
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 
-    public void setMemoryService(MemoryService memoryService) {
-        this.memoryService = memoryService;
+    public void setCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
     }
 
     public void setResourceLoader(ResourceLoader resourceLoader) {
@@ -54,9 +55,9 @@ public class UserLocaleServiceImpl {
 
     public void init() {
         Objects.requireNonNull(sessionManager);
-        Objects.requireNonNull(memoryService);
+        Objects.requireNonNull(cacheManager);
         Objects.requireNonNull(resourceLoader);
-        userLocaleCache = memoryService.getCache("org.sakaiproject.time.impl.BasicTimeService.userLocaleCache");
+        userLocaleCache = cacheManager.getCache("org.sakaiproject.time.impl.BasicTimeService.userLocaleCache");
     }
 
     public String getLocalLocale() {
@@ -64,7 +65,7 @@ public class UserLocaleServiceImpl {
         if (userId == null) {
             return Locale.getDefault().toString();
         }
-        String locale = userLocaleCache.get(userId);
+        String locale = userLocaleCache.get(userId, String.class);
         if (locale == null) {
             // Load the user's locale
             locale = resourceLoader.getLocale().toString();
@@ -74,7 +75,7 @@ public class UserLocaleServiceImpl {
     }
 
     public boolean clearLocalLocale(String userId) {
-        userLocaleCache.remove(userId);
+        userLocaleCache.evict(userId);
         return true;
     }
 }

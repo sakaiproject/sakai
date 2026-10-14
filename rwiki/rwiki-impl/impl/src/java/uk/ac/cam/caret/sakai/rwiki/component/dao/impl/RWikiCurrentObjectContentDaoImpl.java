@@ -22,12 +22,17 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.List;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.criterion.Expression;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectContentImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiObjectContentDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiCurrentObjectContent;
@@ -38,18 +43,24 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 // FIXME: Component
 @Slf4j
 @Transactional(readOnly = true)
-public class RWikiCurrentObjectContentDaoImpl extends HibernateDaoSupport
+public class RWikiCurrentObjectContentDaoImpl
 		implements RWikiObjectContentDao
 {
+	@Setter private SessionFactory sessionFactory;
+
 	public RWikiObjectContent getContentObject(final RWikiObject parent)
 	{
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback<List> callback = session -> session.createCriteria(
-                    RWikiCurrentObjectContent.class).add(
-                    Expression.eq("rwikiid", parent.getId())).list();
-			List found = getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiCurrentObjectContentImpl> cq = cb.createQuery(RWikiCurrentObjectContentImpl.class);
+			Root<RWikiCurrentObjectContentImpl> root = cq.from(RWikiCurrentObjectContentImpl.class);
+
+			cq.select(root).where(cb.equal(root.get("rwikiid"), parent.getId()));
+
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0)
 			{
 				log.debug("Found {} objects with id {}", found.size(), parent.getId());
@@ -78,9 +89,7 @@ public class RWikiCurrentObjectContentDaoImpl extends HibernateDaoSupport
 	@Transactional
 	public void update(RWikiObjectContent content)
 	{
-		RWikiCurrentObjectContentImpl impl = (RWikiCurrentObjectContentImpl) content;
-		getHibernateTemplate().saveOrUpdate(impl);
-
+		sessionFactory.getCurrentSession().merge(content);
 	}
 
 }

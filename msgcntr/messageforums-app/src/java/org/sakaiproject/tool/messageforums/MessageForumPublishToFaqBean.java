@@ -21,9 +21,9 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import jakarta.annotation.PostConstruct;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -53,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data
 @NoArgsConstructor
-@ManagedBean(name = MessageForumPublishToFaqBean.NAME)
+@ManagedBean(name=MessageForumPublishToFaqBean.NAME)
 @SessionScoped
 @EqualsAndHashCode(callSuper = false)
 public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport implements Serializable {

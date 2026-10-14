@@ -75,6 +75,8 @@ public class TagServiceTestConfiguration extends SakaiTestConfiguration {
         DataSource dataSource = super.dataSource();
         // Use the pre-JPA schema: this must work without recreating existing tables.
         new ResourceDatabasePopulator(new ClassPathResource("db/migration/hsqldb.sql")).execute(dataSource);
+        new JdbcTemplate(dataSource).execute("ALTER TABLE tagservice_collection ADD siteid VARCHAR(100)");
+        new JdbcTemplate(dataSource).execute("ALTER TABLE tagservice_collection DROP CONSTRAINT name_UNIQUE");
         new JdbcTemplate(dataSource).execute("CREATE TABLE tagservice_tagassociation (id VARCHAR(99) PRIMARY KEY, "
             + "tag_id VARCHAR(255), item_id VARCHAR(255), UNIQUE(tag_id, item_id))");
         return dataSource;

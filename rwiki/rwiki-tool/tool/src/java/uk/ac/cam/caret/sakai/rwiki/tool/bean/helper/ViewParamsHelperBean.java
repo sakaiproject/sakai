@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 

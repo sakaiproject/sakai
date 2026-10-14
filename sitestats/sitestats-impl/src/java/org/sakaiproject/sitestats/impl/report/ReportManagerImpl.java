@@ -61,12 +61,14 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.WorkbookUtil;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Expression;
+import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -78,8 +80,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -117,7 +119,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Transactional
-public class ReportManagerImpl extends HibernateDaoSupport implements ReportManager, Observer {
+public class ReportManagerImpl implements ReportManager, Observer {
+
+	@Setter private SessionFactory sessionFactory;
 
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
 
@@ -141,10 +145,10 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	@Setter private ToolManager toolManager;
 	@Setter private UserTimeService userTimeService;
 	@Setter private EventTrackingService eventTrackingService;
-	@Setter private MemoryService memoryService;
-	
+	@Setter private CacheManager cacheManager;
+
 	/** Caching */
-	private Cache<String, Object> cacheReportDef = null;
+	private Cache cacheReportDef = null;
 	
 	public void init(){
 		boolean testsEnabled = BooleanUtils.toBoolean(System.getProperty("sakai.tests.enabled"));
@@ -154,7 +158,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 
 		// Initialize cacheReportDef and event observer for cacheReportDef invalidation across cluster
 		eventTrackingService.addPriorityObserver(this);
-		cacheReportDef = memoryService.getCache(ReportDef.class.getName());
+		cacheReportDef = cacheManager.getCache(ReportDef.class.getName());
 		
 		// Initialize FopFactory (moved from static initializer)
 		// Create a factory with default configuration
@@ -190,22 +194,22 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				
 				// expire report with specified id
 				log.debug("Expiring report for id: "+siteId);
-				cacheReportDef.remove(id);
-				
+				cacheReportDef.evict(id);
+
 				// expire list of site reports
 				log.debug("Expiring report lists for site: "+siteId);
-				cacheReportDef.remove( new KeyReportDefList(siteId, true, true).toString() );
-				cacheReportDef.remove( new KeyReportDefList(siteId, true, false).toString() );
-				cacheReportDef.remove( new KeyReportDefList(siteId, false, true).toString() );
-				cacheReportDef.remove( new KeyReportDefList(siteId, false, false).toString() );
+				cacheReportDef.evict( new KeyReportDefList(siteId, true, true).toString() );
+				cacheReportDef.evict( new KeyReportDefList(siteId, true, false).toString() );
+				cacheReportDef.evict( new KeyReportDefList(siteId, false, true).toString() );
+				cacheReportDef.evict( new KeyReportDefList(siteId, false, false).toString() );
 
 				// expire list of predefined reports
 				// required as event contains siteId and not null (which identifies predefined reports)
 				log.debug("Expiring predefined report lists");
-				cacheReportDef.remove( new KeyReportDefList(null, true, true).toString() );
-				cacheReportDef.remove( new KeyReportDefList(null, true, false).toString() );
-				cacheReportDef.remove( new KeyReportDefList(null, false, true).toString() );
-				cacheReportDef.remove( new KeyReportDefList(null, false, false).toString() );
+				cacheReportDef.evict( new KeyReportDefList(null, true, true).toString() );
+				cacheReportDef.evict( new KeyReportDefList(null, true, false).toString() );
+				cacheReportDef.evict( new KeyReportDefList(null, false, true).toString() );
+				cacheReportDef.evict( new KeyReportDefList(null, false, false).toString() );
 			}
 		}
 	}
@@ -505,15 +509,14 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	 */
 	public ReportDef getReportDefinition(final long id) {
 		ReportDef reportDef = null;
-		Object cached = cacheReportDef.get(String.valueOf(id));
+		Object cached = cacheReportDef.get(String.valueOf(id), Object.class);
 		if(cached != null){
 			reportDef = (ReportDef) cached;
 		}else{
-				HibernateCallback<ReportDef> hcb = session -> session.get(ReportDef.class, Long.valueOf(id));
 			Object o;
 			try{
-				o = getHibernateTemplate().execute(hcb);
-			}catch(DataAccessException e){
+				o = sessionFactory.getCurrentSession().get(ReportDef.class, id);
+			}catch(DataAccessException | HibernateException e){
 				o = null;
 			}
 			if(o != null) {
@@ -582,7 +585,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		}
 
 		try {
-			getHibernateTemplate().saveOrUpdate(reportDef);
+			ReportDef mergedReportDef  = sessionFactory.getCurrentSession().merge(reportDef);
+			reportDef.setId(mergedReportDef.getId());
 			cacheReportDef.clear();
 			String siteId = reportDef.getSiteId();
 			if (siteId == null) {
@@ -590,7 +594,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			}
 			statsManager.logEvent(reportDef, isNew ? StatsManager.LOG_ACTION_NEW : StatsManager.LOG_ACTION_EDIT, siteId, false);
 			return true;
-		} catch (DataAccessException dae) {
+		} catch (DataAccessException | HibernateException dae) {
 			log.error("Could not save report definition: {}", dae.getMessage(), dae);
 		}
 		return false;
@@ -601,9 +605,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	 */
 	public boolean removeReportDefinition(final ReportDef reportDef) {
 		try {
-			ReportDef persistedReportDef = getHibernateTemplate().get(ReportDef.class, reportDef.getId());
+			ReportDef persistedReportDef = sessionFactory.getCurrentSession().get(ReportDef.class, reportDef.getId());
 			if (persistedReportDef != null) {
-				getHibernateTemplate().delete(persistedReportDef);
+				sessionFactory.getCurrentSession().remove(persistedReportDef);
 				cacheReportDef.clear();
 				String siteId = persistedReportDef.getSiteId();
 				if (siteId == null) {
@@ -612,7 +616,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				statsManager.logEvent(persistedReportDef, StatsManager.LOG_ACTION_DELETE, siteId, false);
 				return true;
 			}
-		} catch (DataAccessException e) {
+		} catch (DataAccessException | HibernateException e) {
 			log.error("Could not delete report definition {} for site {}",
 					reportDef.getId(), reportDef.getSiteId(), e);
 		}
@@ -625,28 +629,26 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	public List<ReportDef> getReportDefinitions(final String siteId, final boolean includedPredefined, final boolean includeHidden) {
 		List<ReportDef> reportDefs = null;
 		KeyReportDefList key = new KeyReportDefList(siteId, includedPredefined, includeHidden);
-		Object cached = cacheReportDef.get(key.toString());
+		Object cached = cacheReportDef.get(key.toString(), Object.class);
 		if(cached != null) {
 			reportDefs = (List<ReportDef>) cached;
 			log.debug("Getting report list from cache for site "+siteId);
 		}else{
-			HibernateCallback<List<ReportDef>> hcb = session -> {
-                Criteria c = session.createCriteria(ReportDef.class);
-                if(siteId != null) {
-                    if(includedPredefined) {
-                        c.add(Expression.or(Expression.eq("siteId", siteId), Expression.isNull("siteId")));
-                    }else{
-                        c.add(Expression.eq("siteId", siteId));
-                    }
-                }else{
-                    c.add(Expression.isNull("siteId"));
-                }
-                if(!includeHidden) {
-                    c.add(Expression.eq("hidden", false));
-                }
-                return c.list();
-            };
-			reportDefs = getHibernateTemplate().execute(hcb);
+			CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+			CriteriaQuery<ReportDef> cq = cb.createQuery(ReportDef.class);
+			Root<ReportDef> root = cq.from(ReportDef.class);
+			Predicate sitePredicate;
+			if (siteId != null) {
+				sitePredicate = cb.equal(root.get("siteId"), siteId);
+				if (includedPredefined) {
+					sitePredicate = cb.or(sitePredicate, root.get("siteId").isNull());
+				}
+			} else {
+				sitePredicate = root.get("siteId").isNull();
+			}
+			cq.select(root).where(includeHidden ? sitePredicate
+				: cb.and(sitePredicate, cb.isFalse(root.get("hidden"))));
+			reportDefs = sessionFactory.getCurrentSession().createQuery(cq).getResultList();
 			if(reportDefs != null) {
 				for(ReportDef reportDef : reportDefs) {
 					try{
@@ -724,7 +726,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
                     Site site = siteService.getSite(se.getSiteId());
                     row.createCell(ix++).setCellValue(site.getTitle());
                 } catch (IdUnusedException e) {
-                    logger.debug("can't find site with id: " + se.getSiteId());
+                    log.debug("can't find site with id: " + se.getSiteId());
                     row.createCell(ix++).setCellValue(se.getSiteId().toString());
                 }
             }
@@ -930,7 +932,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
                     Site site = siteService.getSite(se.getSiteId());
                     appendQuoted(sb, site.getTitle());
                 } catch (IdUnusedException e) {
-                    logger.debug("can't find site with id: " +se.getSiteId());
+                    log.debug("can't find site with id: " +se.getSiteId());
                     appendQuoted(sb, se.getSiteId());
                 }
                 isFirst=false;
@@ -1433,19 +1435,19 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					try{
 						if(resourceId.endsWith("/")) {
 							if(StatsManager.RESOURCES_DIR.equals(resourceId) || resourceId.equals(resourcesCollectionId)) {
-								buff.append(toolManager.getTool(StatsManager.RESOURCES_TOOLID).getTitle());
+								buff.append(SiteStatsResourceLabels.rootLabel(StatsManager.RESOURCES_DIR, toolManager, resourceLoader));
 							}else if(StatsManager.DROPBOX_DIR.equals(resourceId) || resourceId.equals(dropboxCollectionId)) {
-								buff.append(toolManager.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
+								buff.append(SiteStatsResourceLabels.rootLabel(StatsManager.DROPBOX_DIR, toolManager, resourceLoader));
 							}else if(resourceId.startsWith(dropboxCollectionId)) {
-								buff.append(toolManager.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
+								buff.append(SiteStatsResourceLabels.rootLabel(StatsManager.DROPBOX_DIR, toolManager, resourceLoader));
 								buff.append(": ");
 								ContentCollection cc = contentHostingService.getCollection(resourceId);
 								String ccName = cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
 								buff.append(ccName);
 							}else if(StatsManager.ATTACHMENTS_DIR.equals(resourceId) || resourceId.equals(attachmentsCollectionId)) {
-								buff.append(resourceLoader.getString("report_content_attachments"));
+								buff.append(SiteStatsResourceLabels.rootLabel(StatsManager.ATTACHMENTS_DIR, toolManager, resourceLoader));
 							}else if(resourceId.startsWith(attachmentsCollectionId)) {
-								buff.append(resourceLoader.getString("report_content_attachments"));
+								buff.append(SiteStatsResourceLabels.rootLabel(StatsManager.ATTACHMENTS_DIR, toolManager, resourceLoader));
 								buff.append(": ");
 								ContentCollection cc = contentHostingService.getCollection(resourceId);
 								String ccName = cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	

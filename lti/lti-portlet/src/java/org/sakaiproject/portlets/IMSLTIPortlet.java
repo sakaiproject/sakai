@@ -55,7 +55,7 @@ import javax.portlet.PortletSession;
 import javax.portlet.ReadOnlyException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import org.sakaiproject.lti.LocalEventTrackingService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;

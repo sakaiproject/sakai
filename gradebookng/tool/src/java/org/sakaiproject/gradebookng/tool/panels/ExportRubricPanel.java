@@ -28,7 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.model.IModel;
@@ -75,9 +75,9 @@ public class ExportRubricPanel extends BasePanel {
 	private String toolId = "sakai.gradebookng";
 	private String gradebookAssignmentId;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 
-	public ExportRubricPanel(final String id, final IModel<Long> model, final ModalWindow window, JsonNode params) {
+	public ExportRubricPanel(final String id, final IModel<Long> model, final GbModalWindow window, JsonNode params) {
 		super(id);
 		this.window = window;
 		this.receivedParams = params;

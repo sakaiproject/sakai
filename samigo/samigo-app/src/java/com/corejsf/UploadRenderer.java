@@ -27,19 +27,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.servlet.ServletContext;
-import javax.faces.FacesException;
-import javax.faces.component.EditableValueHolder;
-import javax.faces.component.UIComponent;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.el.ValueBinding;
-import javax.faces.render.Renderer;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
+import jakarta.servlet.ServletContext;
 
-import org.apache.commons.fileupload.FileItem;
+import jakarta.el.ValueExpression;
+import jakarta.faces.FacesException;
+import jakarta.faces.component.EditableValueHolder;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.render.Renderer;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
+
+import org.apache.commons.fileupload2.core.FileItem;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -98,8 +99,8 @@ public class UploadRenderer extends Renderer {
     }
 
     Object target;
-    ValueBinding binding = component.getValueBinding("target");
-    if (binding != null) target = binding.getValue(context);
+    ValueExpression binding = component.getValueExpression("target");
+    if (binding != null) target = binding.getValue(context.getELContext());
     else target = component.getAttributes().get("target");
 
     String repositoryPath = serverConfigurationService.getString("samigo.answerUploadRepositoryPath", "${sakai.home}/samigo/answerUploadRepositoryPath/");
@@ -161,12 +162,12 @@ public class UploadRenderer extends Renderer {
     private class WrappedUpload {
 
         private Part part;
-        private FileItem fileItem;
+        private FileItem<?> fileItem;
 
         private WrappedUpload(Object upload) {
 
             if (upload instanceof Part) this.part = (Part) upload;
-            if (upload instanceof FileItem) this.fileItem = (FileItem) upload;
+            if (upload instanceof FileItem) this.fileItem = (FileItem<?>) upload;
         }
 
         public long getSize() {
@@ -187,7 +188,7 @@ public class UploadRenderer extends Renderer {
 
             if (part != null) part.write(filePath);
             if (fileItem != null) {
-                fileItem.write(new File(filePath));
+                fileItem.write(new File(filePath).toPath());
             }
         }
     }

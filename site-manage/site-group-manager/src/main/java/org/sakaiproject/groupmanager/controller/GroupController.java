@@ -69,11 +69,11 @@ public class GroupController {
 
     @RequestMapping(value = "/group")
     public String showGroup(Model model, 
-    		@RequestParam(required=false) String groupId,
-    		@RequestParam(required=false) String filterByGroupId,
-    		@RequestParam(required=false) String currentTitle,
-    		@RequestParam(required=false) String currentDescription,
-    		@RequestParam(required=false) Boolean currentShowAllUsers) {
+    		@RequestParam(value = "groupId", required = false) String groupId,
+    		@RequestParam(value = "filterByGroupId", required = false) String filterByGroupId,
+    		@RequestParam(value = "currentTitle", required = false) String currentTitle,
+    		@RequestParam(value = "currentDescription", required = false) String currentDescription,
+    		@RequestParam(value = "currentShowAllUsers", required = false) Boolean currentShowAllUsers) {
         log.debug("showGroup called with groupId {}.", groupId);
 
         Optional<Site> siteOptional = sakaiService.getCurrentSite();

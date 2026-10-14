@@ -433,6 +433,11 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-1300', '!plussite', 'Statistics', 
 INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-1310', '!plussite-1300', '!plussite', 'sakai.sitestats', 1, 'Statistics', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-1310', 'sakai-portal:visible', 'false' );
 
+-- Global tag collection management in the Admin Workspace.
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-2100', '!admin', 'Tags', '0', 25, '0');
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-2110', '!admin-2100', '!admin', 'sakai.tagservice', 1, 'Tags', NULL);
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!admin', '!admin-2110', 'customTitle', 'Tags');
+
 -- Create the mercury site.
 
 INSERT INTO SAKAI_SITE VALUES('mercury', 'mercury site', null, null, null, '', '', null, 1, 0, 0, null, 'admin', 'admin', NOW(), NOW(), 0, 0, 0, 0, null);

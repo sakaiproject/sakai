@@ -1,0 +1,13 @@
+div.kupu-fulleditor .kupu-editor-iframe {
+	height: 100%;
+	border: silver solid 1px;
+}
+div.kupu-fulleditor .kupu-editor-textarea {
+	height: 100%;
+}
+.kupu-fulleditor{
+	padding-bottom: 42px;
+}
+div.kupu-fulleditor-zoomed .kupu-editor-iframe{
+   background-color: white;
+}

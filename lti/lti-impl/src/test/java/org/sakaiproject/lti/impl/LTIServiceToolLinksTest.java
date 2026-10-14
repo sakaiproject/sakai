@@ -20,6 +20,8 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
@@ -181,7 +183,7 @@ public class LTIServiceToolLinksTest extends AbstractTransactionalJUnit4SpringCo
         for (int i = -1; i <= 1; i++) {
             LtiContent content = content(tool, "site-a", i == 0 ? "literal%_!quote'" : "Other", null);
             sessionFactory.getCurrentSession().flush();
-            jdbcTemplate.update("update lti_content set created_at = ? where id = ?", Timestamp.from(target.plusSeconds(i)), content.getId());
+            jdbcTemplate.update("update lti_content set created_at = ? where id = ?", Timestamp.valueOf(LocalDateTime.ofInstant(target.plusSeconds(i), ZoneOffset.UTC)), content.getId());
         }
         sessionFactory.getCurrentSession().clear();
         String date = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.FRANCE)

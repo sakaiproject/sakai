@@ -17,14 +17,13 @@ package org.sakaiproject.messaging.api.model;
 
 import java.time.Instant;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -44,8 +43,7 @@ public class UserNotification implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_notification_id_sequence")
-    @SequenceGenerator(name = "user_notification_id_sequence", sequenceName = "USER_NOTIFICATIONS_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "user_notification_id_sequence", sequenceName = "USER_NOTIFICATIONS_S"))
     @EqualsAndHashCode.Include
     private Long id;
 
@@ -71,11 +69,9 @@ public class UserNotification implements PersistableEntity<Long> {
     private String url;
 
     @Column(name="EVENT_DATE", nullable = false)
-    @Type(type = "org.hibernate.type.InstantType")
     private Instant eventDate;
 
     @Column(name="END_DATE")
-    @Type(type = "org.hibernate.type.InstantType")
     private Instant endDate;
 
     @Column(name="DEFERRED", nullable = false)

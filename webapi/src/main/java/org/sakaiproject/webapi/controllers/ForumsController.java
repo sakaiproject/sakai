@@ -89,7 +89,7 @@ public class ForumsController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/forums/summary", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List> getSiteForums(@PathVariable String siteId) throws UserNotDefinedException {
+    public Map<String, List> getSiteForums(@PathVariable("siteId") String siteId) throws UserNotDefinedException {
 
         return Map.of("forums", msgCenterManager.getSiteSynopticMsgcntrItems(List.of(checkSakaiSession().getUserId()), siteId)
                 .stream().filter(countFilter).map(handler).collect(Collectors.toList()));

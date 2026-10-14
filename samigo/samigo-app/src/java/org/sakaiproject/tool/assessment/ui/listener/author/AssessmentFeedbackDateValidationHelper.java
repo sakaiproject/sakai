@@ -21,8 +21,8 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;

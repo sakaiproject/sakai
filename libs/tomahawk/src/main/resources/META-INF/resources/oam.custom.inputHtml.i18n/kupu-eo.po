@@ -1,0 +1,1060 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2007 Plone Foundation, Inc.
+# Jan Ulrich Hasecke <jan.ulrich@hasecke.com>, 2007.
+# Kalle Kniivilä, 2007
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2009-11-14 16:53+0000\n"
+"PO-Revision-Date: 2007-08-15 15:05+0200\n"
+"Last-Translator: Jan Ulrich Hasecke <jan.ulrich@hasecke.com>\n"
+"Language-Team: Kupu i18n team\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: eo\n"
+"Language-Name: Esperanto\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: kupu\n"
+"Generated-By: zope/app/translation_files/extract.py\n"
+
+msgid "Call-out"
+msgstr ""
+
+msgid "Clear floats"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "Current folder"
+msgstr ""
+
+#. Default: "Data"
+#: kupu/default/drawers.kupu:156
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:270
+msgid "Data"
+msgstr "Datoj"
+
+msgid "Discreet"
+msgstr ""
+
+msgid "Even row"
+msgstr ""
+
+msgid "Fancy grid listing"
+msgstr ""
+
+msgid "Fancy listing"
+msgstr ""
+
+msgid "Fancy vertical listing"
+msgstr ""
+
+#. Default: "Formatted"
+#: kupu/default/toolbar.kupu:84
+msgid "Formatted"
+msgstr "Formatita"
+
+#. Default: "Grid"
+#: kupu/default/drawers.kupu:155
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:269
+msgid "Grid"
+msgstr "Krado"
+
+msgid "Heading"
+msgstr ""
+
+#. Default: "Heading 1"
+#: kupu/default/toolbar.kupu:67
+msgid "Heading 1"
+msgstr "Subtitolo 1"
+
+#. Default: "Heading 2"
+#: kupu/default/toolbar.kupu:70
+msgid "Heading 2"
+msgstr "Subtitolo 2"
+
+#. Default: "Heading 3"
+#: kupu/default/toolbar.kupu:73
+msgid "Heading 3"
+msgstr "Subtitolo 3"
+
+#. Default: "Heading 4"
+#: kupu/default/toolbar.kupu:76
+msgid "Heading 4"
+msgstr "Subtitolo 4"
+
+#. Default: "Heading 5"
+#: kupu/default/toolbar.kupu:79
+msgid "Heading 5"
+msgstr "Subtitolo 5"
+
+#. Default: "Heading 6"
+#: kupu/default/toolbar.kupu:82
+msgid "Heading 6"
+msgstr "Subtitolo 6"
+
+msgid "Heading cell"
+msgstr ""
+
+msgid "Highlight"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "Home"
+msgstr ""
+
+msgid "Invisible grid"
+msgstr ""
+
+#. Default: "Listing"
+#: kupu/default/drawers.kupu:154
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:268
+msgid "Listing"
+msgstr "Listo"
+
+msgid "Literal"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "My recent items"
+msgstr ""
+
+#. Default: "Normal paragraph"
+#: kupu/default/drawers.kupu:312
+#: kupu/default/toolbar.kupu:63
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:152
+#, fuzzy
+msgid "Normal"
+msgstr "Normala"
+
+msgid "Odd row"
+msgstr ""
+
+msgid "Page break (print only)"
+msgstr ""
+
+#. Default: "Plain"
+#: kupu/default/drawers.kupu:153
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:267
+msgid "Plain"
+msgstr "Simpla"
+
+msgid "Pull-quote"
+msgstr ""
+
+#: kupu/plone/plonelibrarytool.py
+msgid "Recent items"
+msgstr ""
+
+msgid "Subdued grid"
+msgstr ""
+
+msgid "Subheading"
+msgstr ""
+
+#. Default: "Anchors"
+#: kupu/default/drawers.kupu:289
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:359
+msgid "anchordrawer_title"
+msgstr "Ankroj"
+
+#. Default: "Add Column"
+#: kupu/default/toolboxes.kupu:139
+msgid "button_add_column"
+msgstr "Aldonu kolumnon"
+
+#. Default: "Add Row"
+#: kupu/default/toolboxes.kupu:145
+msgid "button_add_row"
+msgstr "Aldonu linion"
+
+#. Default: "Add Table"
+#: kupu/default/toolboxes.kupu:120
+msgid "button_add_table"
+msgstr "Aldonu tabelon"
+
+#. Default: "Cancel"
+#: kupu/common/kupudrawers/drawer.xsl:139
+#: kupu/default/drawers.kupu:130
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:248
+msgid "button_cancel"
+msgstr "Interrompi"
+
+#. Default: "Fix Table"
+#: kupu/default/toolboxes.kupu:118
+msgid "button_fix_table"
+msgstr "Adaptu tabelon"
+
+#. Default: "Insert Image"
+#: kupu/default/toolboxes.kupu:81
+msgid "button_insert_image"
+msgstr "Enmetu bildon"
+
+#. Default: "Make Link"
+#: kupu/default/toolboxes.kupu:50
+msgid "button_makelink"
+msgstr "Faru ligon"
+
+#. Default: "Ok"
+#: kupu/common/kupudrawers/drawer.xsl:135
+#: kupu/default/drawers.kupu:127
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:247
+msgid "button_ok"
+msgstr "Ok"
+
+#. Default: "Preview"
+#: kupu/default/drawers.kupu:79
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:206
+msgid "button_preview"
+msgstr "Antaŭvidu"
+
+#. Default: "Reload"
+#: kupu/common/kupudrawers/drawer.xsl:143
+msgid "button_reload"
+msgstr ""
+
+#. Default: "Remove Column"
+#: kupu/default/toolboxes.kupu:141
+msgid "button_remove_column"
+msgstr "Formetu kolumnon"
+
+#. Default: "Remove Row"
+#: kupu/default/toolboxes.kupu:147
+msgid "button_remove_row"
+msgstr "Formetu linion"
+
+#. Default: "Remove Table"
+#: kupu/default/toolboxes.kupu:152
+msgid "button_remove_table"
+msgstr "Formetu tabelon"
+
+#. Default: "Convert to HTML and edit with the visual editor"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:492
+#: kupu/plone/wysiwyg_support.kupu:77
+msgid "convert-to-kupu"
+msgstr "Anstataŭigi al HTML kaj redakti per grafika redaktilo"
+
+#. Default: "Anchors are created for checked paragraphs and removed for unchecked paragraphs when you press Ok. Anchors in use on this page may not be deleted."
+#: kupu/default/drawers.kupu:345
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:411
+msgid "create_anchor_help"
+msgstr "Ankroj estas kreita por selektitaj alineoj kaj formetita por ne selektitaj alineoj, sed vi alklakas Ok. Uzitaj ankroj sur tiu ĉi paĝo ne estu formetitaj."
+
+#. Default: "Select a paragraph style then choose a paragraph and Ok to insert a link to that location."
+#: kupu/default/drawers.kupu:339
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:405
+msgid "create_anchor_link_help"
+msgstr "Selektu alinean stilon, poste elektu alineon kaj Ok por enmeti ligon al tiu loko."
+
+#. Default: "Select one or two paragraph styles, then Ok to insert a table of contents."
+#: kupu/default/drawers.kupu:342
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:408
+msgid "create_toc_help"
+msgstr "Elektu unu aŭ du alineajn stiloj kaj tiam alklaku Ok por enmeti enhavotabelon."
+
+#. Default: "You may use this box to insert custom snippets of HTML code. There is no guarantee that any code inserted in this way will be preserved when you save your edits. To select an existing object from IE click on the border, from Firefox double click it."
+#: kupu/default/drawers.kupu:115
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:235
+msgid "custom_html_help"
+msgstr "Vi povas uzi tiun keston por enmeti laŭvolajn erojn da HTML-kodo. Ne estas garantita, ke la kodo estas savita. Por elekti ekzistantan objekton de IE alklaku kadron, de Firefox duoble klaku ĝin."
+
+#. Default: "Drawer"
+#: kupu/common/kupudrawers/drawer.xsl:31
+msgid "default_drawer_title"
+msgstr ""
+
+#. Default: "My recently edited items."
+#: kupu/plone/kupu_plone_layer/kupumyitems.xml.pt:16
+msgid "descr_myitems"
+msgstr "Miaj antaŭ mallonge redaktitaj eroj"
+
+#. Default: "Recently published items."
+#: kupu/plone/kupu_plone_layer/kupurecentitems.xml.pt:16
+msgid "descr_recentitems"
+msgstr "Antaŭ mallonge publikitaj eroj."
+
+#. Default: "Search results."
+#: kupu/plone/kupu_plone_layer/kupusearch.xml.pt:18
+msgid "descr_search_results"
+msgstr "Serĉrezultoj"
+
+#. Default: "Current selection."
+#: kupu/plone/kupu_plone_layer/kupuselection.xml.pt:22
+msgid "descr_selected"
+msgstr "Aktuala rubriko"
+
+#. Default: "<em>...fetching anchors...</em>"
+#: kupu/common/kupudrawers/drawer.xsl:510
+msgid "fetching_anchors"
+msgstr ""
+
+#. Default: "Edit with visual editor"
+#: kupu/plone/body.kupu:95
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:472
+msgid "force-kupu"
+msgstr "Redakti kun grafika redaktilo"
+
+#. Default: "HTML"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:506
+#: kupu/plone/wysiwyg_support.kupu:107
+msgid "format_html"
+msgstr "HTML"
+
+#. Default: "My Items"
+#: kupu/plone/kupu_plone_layer/kupumyitems.xml.pt:15
+msgid "heading_myitems"
+msgstr "Miaj eroj"
+
+#. Default: "Recent Items"
+#: kupu/plone/kupu_plone_layer/kupurecentitems.xml.pt:15
+msgid "heading_recentitems"
+msgstr "Ĵusaj eroj"
+
+#. Default: "Selected"
+#: kupu/plone/kupu_plone_layer/kupuselection.xml.pt:21
+msgid "heading_selected"
+msgstr "Selektitaj"
+
+#. Default: "If you are unsure of which format to use, just select Plain Text and type the document as you usually do."
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:497
+#: kupu/plone/wysiwyg_support.kupu:86
+msgid "help_format"
+msgstr "Se vi ne certas, kiun formaton uzi, nur selektu Simpla Teksto kaj tipu kiel kutime."
+
+#. Default: "Paste &lt;object&gt; or &lt;embed&gt; tag here:"
+#: kupu/default/drawers.kupu:105
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:227
+msgid "help_paste_here"
+msgstr "Enmetu &lt;object&gt; aŭ &lt;embed&gt; kodon ĉi tien:"
+
+#. Default: "Alignment"
+#: kupu/common/kupudrawers/drawer.xsl:355
+msgid "image_alignment"
+msgstr ""
+
+#. Default: "Caption"
+#: kupu/common/kupudrawers/drawer.xsl:383
+msgid "imagedrawer_caption_label"
+msgstr ""
+
+#. Default: "Inline"
+#: kupu/common/kupudrawers/drawer.xsl:370
+msgid "imagedrawer_inline"
+msgstr ""
+
+#. Default: "Left"
+#: kupu/common/kupudrawers/drawer.xsl:363
+msgid "imagedrawer_left"
+msgstr ""
+
+#. Default: "Right"
+#: kupu/common/kupudrawers/drawer.xsl:377
+msgid "imagedrawer_right"
+msgstr ""
+
+#. Default: "(${width} by ${height})"
+#: kupu/common/kupudrawers/drawer.xsl:293
+msgid "imagedrawer_size"
+msgstr ""
+
+#. Default: "Size"
+#: kupu/common/kupudrawers/drawer.xsl:399
+msgid "imagedrawer_size_2"
+msgstr ""
+
+#. Default: "Style"
+#: kupu/common/kupudrawers/drawer.xsl:414
+msgid "imagedrawer_style"
+msgstr ""
+
+#. Default: "Insert Image"
+#: kupu/common/kupudrawers/drawer.xsl:62
+msgid "imagedrawer_title"
+msgstr ""
+
+#. Default: "Text equivalent"
+#: kupu/common/kupudrawers/drawer.xsl:435
+msgid "imagedrawer_upload_alt_text"
+msgstr ""
+
+#. Default: "Description"
+#: kupu/common/kupudrawers/drawer.xsl:547
+msgid "imagedrawer_upload_desc_label"
+msgstr ""
+
+#. Default: "Select an image from your computer and click ok to have it automatically uploaded to selected folder and inserted into the editor."
+#: kupu/common/kupudrawers/drawer.xsl:571
+msgid "imagedrawer_upload_instructions"
+msgstr ""
+
+#. Default: "Upload image here..."
+#: kupu/common/kupudrawers/drawer.xsl:244
+msgid "imagedrawer_upload_link"
+msgstr ""
+
+#. Default: "Title"
+#: kupu/common/kupudrawers/drawer.xsl:543
+msgid "imagedrawer_upload_title_label"
+msgstr ""
+
+#. Default: "Upload to: ${folder}"
+#: kupu/common/kupudrawers/drawer.xsl:561
+msgid "imagedrawer_upload_to_label"
+msgstr ""
+
+#. Default: "Search"
+#: kupu/common/kupudrawers/drawer.xsl:84
+msgid "kupudrawer_search"
+msgstr ""
+
+#. Default: "Anchor"
+#: kupu/default/drawers.kupu:86
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:211
+msgid "label_anchor"
+msgstr "Ankro"
+
+#. Default: "Col Align:"
+#: kupu/default/toolboxes.kupu:129
+msgid "label_col_align"
+msgstr "Ĝustigo:"
+
+#. Default: "Columns:"
+#: kupu/default/toolboxes.kupu:104
+msgid "label_columns"
+msgstr "Kolumnoj:"
+
+#. Default: "Create"
+#: kupu/default/toolboxes.kupu:113
+msgid "label_create"
+msgstr "Kreu"
+
+#. Default: "Description:"
+#: kupu/default/toolboxes.kupu:26
+msgid "label_description"
+msgstr "Priskribo:"
+
+#. Default: "Format"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:495
+#: kupu/plone/wysiwyg_support.kupu:84
+msgid "label_format"
+msgstr "Formato"
+
+#. Default: "Headings:"
+#: kupu/default/toolboxes.kupu:108
+msgid "label_headings"
+msgstr "Subtitoloj:"
+
+#. Default: "Image class:"
+#: kupu/default/toolboxes.kupu:64
+msgid "label_image_class"
+msgstr "Bildklaso"
+
+#. Default: "Insert image at the following URL:"
+#: kupu/default/toolboxes.kupu:73
+msgid "label_insert_image_url"
+msgstr "Enmetu bildon de tiu ĉi retadreso:"
+
+#. Default: "Link the highlighted text to this URL:"
+#: kupu/default/drawers.kupu:71
+#: kupu/default/toolboxes.kupu:40
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:199
+msgid "label_link_text"
+msgstr "Ligu la markitan tekston al tiu ĉi retadreso:"
+
+#. Default: "Links"
+#: kupu/default/toolboxes.kupu:35
+msgid "label_links"
+msgstr "Ligoj"
+
+#. Default: "Numbering"
+#: kupu/default/drawers.kupu:316
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:382
+msgid "label_numbering"
+msgstr "Numerado"
+
+#. Default: "Rows:"
+#: kupu/default/toolboxes.kupu:101
+msgid "label_rows"
+msgstr "Linioj:"
+
+#. Default: "Select a cleanup action:"
+#: kupu/default/toolboxes.kupu:178
+msgid "label_select_cleanup"
+msgstr "Elektu purig-agon:"
+
+#. Default: "Table Class:"
+#: kupu/default/toolboxes.kupu:96
+msgid "label_table_class"
+msgstr "Klaso de tabelo:"
+
+#. Default: "Table style"
+#: kupu/default/drawers.kupu:308
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:374
+msgid "label_table_style"
+msgstr "Stilo de tabelo"
+
+#. Default: "Title:"
+#: kupu/default/toolboxes.kupu:24
+msgid "label_title"
+msgstr "Titolo:"
+
+#. Default: "toggle all"
+#: kupu/default/drawers.kupu:323
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:389
+msgid "label_toggle_all"
+msgstr "baskulu ĉiujn"
+
+#. Default: "Link to anchor"
+#: kupu/common/kupudrawers/drawer.xsl:499
+msgid "linkdrawer_anchor"
+msgstr ""
+
+#. Default: "Name"
+#: kupu/common/kupudrawers/drawer.xsl:473
+msgid "linkdrawer_name_label"
+msgstr ""
+
+#. Default: "Target"
+#: kupu/common/kupudrawers/drawer.xsl:480
+msgid "linkdrawer_target_label"
+msgstr ""
+
+#. Default: "Insert Link"
+#: kupu/common/kupudrawers/drawer.xsl:63
+msgid "linkdrawer_title"
+msgstr ""
+
+#. Default: "○"
+#: kupu/default/toolbar.kupu:28
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:168
+#: kupu/plone/toolbar.kupu:138
+msgid "list-circle"
+msgstr "○"
+
+#. Default: "1"
+#: kupu/default/toolbar.kupu:32
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:172
+#: kupu/plone/toolbar.kupu:142
+msgid "list-decimal"
+msgstr "decimalo"
+
+#. Default: "●"
+#: kupu/default/toolbar.kupu:26
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:166
+#: kupu/plone/toolbar.kupu:136
+msgid "list-disc"
+msgstr "●"
+
+#. Default: "a"
+#: kupu/default/toolbar.kupu:40
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:176
+#: kupu/plone/toolbar.kupu:150
+msgid "list-loweralpha"
+msgstr "minuskla litera"
+
+#. Default: "i"
+#: kupu/default/toolbar.kupu:36
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:174
+#: kupu/plone/toolbar.kupu:146
+msgid "list-lowerroman"
+msgstr "minuskla romana"
+
+#. Default: "no bullet"
+#: kupu/default/toolbar.kupu:29
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:169
+#: kupu/plone/toolbar.kupu:139
+msgid "list-nobullet"
+msgstr "nenio"
+
+#. Default: "■"
+#: kupu/default/toolbar.kupu:27
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:167
+#: kupu/plone/toolbar.kupu:137
+msgid "list-square"
+msgstr "■"
+
+#. Default: "A"
+#: kupu/default/toolbar.kupu:38
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:175
+#: kupu/plone/toolbar.kupu:148
+msgid "list-upperalpha"
+msgstr "majuskla litera"
+
+#. Default: "I"
+#: kupu/default/toolbar.kupu:34
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:173
+#: kupu/plone/toolbar.kupu:144
+msgid "list-upperroman"
+msgstr "majuskla romana"
+
+#. Default: "Locate"
+#: kupu/plone/kupu_plone_layer/kupumyitems.xml.pt:21
+#: kupu/plone/kupu_plone_layer/kupurecentitems.xml.pt:21
+#: kupu/plone/kupu_plone_layer/kupusearch.xml.pt:21
+msgid "locate_content"
+msgstr "Lokalizi"
+
+#. Default: "(optional 2nd style)"
+#: kupu/default/drawers.kupu:334
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:400
+msgid "opt_2nd_style"
+msgstr "(ebla dua stilo)"
+
+#. Default: "Inline"
+#: kupu/default/toolboxes.kupu:67
+msgid "opt_inline"
+msgstr "Meze"
+
+#. Default: "Left"
+#: kupu/default/toolboxes.kupu:68
+msgid "opt_left"
+msgstr "Maldekstre"
+
+#. Default: "Right"
+#: kupu/default/toolboxes.kupu:69
+msgid "opt_right"
+msgstr "Dekstre"
+
+#. Default: "top of page (default)"
+#: kupu/default/drawers.kupu:87
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:212
+msgid "opt_top_of_page"
+msgstr "kapo de paĝo (apriore)"
+
+#. Default: "Perform action"
+#: kupu/default/toolboxes.kupu:186
+msgid "perform_action"
+msgstr "Faru operacion"
+
+#. Default: "[insert arbitrary HTML code here]"
+#: kupu/default/drawers.kupu:109
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:231
+msgid "placeholder_html_code"
+msgstr "[enmetu laŭvole HTML-kodon ĉi tie]"
+
+#. Default: "Plain Text"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:509
+#: kupu/plone/wysiwyg_support.kupu:116
+msgid "plain_text"
+msgstr "Simpla teksto"
+
+#. Default: "Structured Text"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:503
+#: kupu/plone/wysiwyg_support.kupu:98
+msgid "structured_text"
+msgstr "Strukturita teksto"
+
+#. Default: "Edit without visual editor"
+#: kupu/plone/body.kupu:76
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:446
+msgid "suppress-kupu"
+msgstr "Redakti sen grafika redaktilo"
+
+#. Default: "Embed external object"
+#: kupu/default/drawers.kupu:62
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:191
+msgid "tab_embed"
+msgstr "Enmeti eksternan objekton"
+
+#. Default: "Link to url"
+#: kupu/default/drawers.kupu:59
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:190
+msgid "tab_link"
+msgstr "Ligi al retadreso"
+
+#. Default: "Link to anchor"
+#: kupu/default/drawers.kupu:292
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:362
+msgid "tab_link_anchor"
+msgstr "Ligi al ankro"
+
+#. Default: "Manage Anchors"
+#: kupu/default/drawers.kupu:295
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:363
+msgid "tab_manage_anchors"
+msgstr "Administri ankrojn"
+
+#. Default: "Table of contents"
+#: kupu/default/drawers.kupu:298
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:364
+msgid "tab_toc"
+msgstr "Enhavo"
+
+#. Default: "Add"
+#: kupu/default/drawers.kupu:233
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:328
+msgid "tabledrawer_add_button"
+msgstr "Aldonu"
+
+#. Default: "Add Table"
+#: kupu/default/drawers.kupu:185
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:294
+msgid "tabledrawer_add_table_button"
+msgstr "Aldonu tabelon"
+
+#. Default: "Current column alignment"
+#: kupu/default/drawers.kupu:215
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:316
+msgid "tabledrawer_alignment_label"
+msgstr "Aktuala aranĝo por kolumnoj"
+
+#. Default: "Center"
+#: kupu/default/drawers.kupu:222
+#: kupu/default/toolboxes.kupu:132
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:320
+msgid "tabledrawer_center_option"
+msgstr "Centrita"
+
+#. Default: "Table Class"
+#: kupu/default/drawers.kupu:150
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:264
+msgid "tabledrawer_class_label"
+msgstr "Klaso de tabelo"
+
+#. Default: "Close"
+#: kupu/default/drawers.kupu:277
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:352
+msgid "tabledrawer_close_button"
+msgstr "Fermu"
+
+#. Default: "Column"
+#: kupu/default/drawers.kupu:230
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:326
+msgid "tabledrawer_column_label"
+msgstr "Kolumno"
+
+#. Default: "Columns"
+#: kupu/default/drawers.kupu:165
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:279
+msgid "tabledrawer_columns_label"
+msgstr "Kolumnoj"
+
+#. Default: "Fix"
+#: kupu/default/drawers.kupu:261
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:342
+msgid "tabledrawer_fix_button"
+msgstr "Adaptu"
+
+#. Default: "Fix All Tables"
+#: kupu/default/drawers.kupu:189
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:295
+msgid "tabledrawer_fix_tables_button"
+msgstr "Adaptu ĉiujn tabelojn"
+
+#. Default: "Create Headings"
+#: kupu/default/drawers.kupu:176
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:286
+msgid "tabledrawer_headings_label"
+msgstr "Kreu subtitoloj"
+
+#. Default: "Left"
+#: kupu/default/drawers.kupu:220
+#: kupu/default/toolboxes.kupu:131
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:319
+msgid "tabledrawer_left_option"
+msgstr "Maldekstre"
+
+#. Default: "Remove"
+#: kupu/default/drawers.kupu:237
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:329
+msgid "tabledrawer_remove_button"
+msgstr "Formetu"
+
+#. Default: "Right"
+#: kupu/default/drawers.kupu:224
+#: kupu/default/toolboxes.kupu:133
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:321
+msgid "tabledrawer_right_option"
+msgstr "Dekstre"
+
+#. Default: "Row"
+#: kupu/default/drawers.kupu:244
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:333
+msgid "tabledrawer_row_label"
+msgstr "Linio"
+
+#. Default: "Rows"
+#: kupu/default/drawers.kupu:161
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:275
+msgid "tabledrawer_rows_label"
+msgstr "Linioj"
+
+#. Default: "Table"
+#: kupu/default/drawers.kupu:258
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:340
+msgid "tabledrawer_table_label"
+msgstr "Tabelo"
+
+#. Default: "Table"
+#: kupu/default/drawers.kupu:141
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:255
+msgid "tabledrawer_title"
+msgstr "Tabelo"
+
+#. Default: "Kupu Editor Test Page"
+#: kupu/default/body.kupu:14
+msgid "testpage_title"
+msgstr "Testpaĝo de redaktilo Kupu"
+
+#. Default: "background color: alt-h"
+#: kupu/default/colorchooser.kupu:25
+#: kupu/plone/colorchooser.kupu:18
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:105
+msgid "title_back_color"
+msgstr "fona koloro: alt-h"
+
+#. Default: "Bold: Access key (Alt or Ctrl) + B"
+#: kupu/default/toolbar.kupu:92
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:94
+#: kupu/plone/toolbar.kupu:34
+msgid "title_bold"
+msgstr "Grasa: Stirklavo (Alt aŭ Ctrl) + B"
+
+#. Default: "Center justify: Access key (Alt or Ctrl) + C"
+#: kupu/default/toolbar.kupu:116
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:110
+#: kupu/plone/toolbar.kupu:61
+msgid "title_center"
+msgstr "Centrita: Stirklavo (Alt aŭ  Ctrl) + C"
+
+#. Default: "Check spelling"
+#: kupu/default/spellchecker.kupu:17
+msgid "title_check_spelling"
+msgstr "Kontrolu literumon"
+
+#. Default: "Cleanup expressions"
+#: kupu/default/toolboxes.kupu:173
+msgid "title_cleanup_expressions"
+msgstr "Purigu ordonojn"
+
+#. Default: "Debug Log"
+#: kupu/default/toolboxes.kupu:164
+msgid "title_debug_log"
+msgstr "Sencimiga protokolo"
+
+#. Default: "Decrease quote level: Access key (Alt or Ctrl) + <"
+#: kupu/default/toolbar.kupu:148
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:126
+#: kupu/plone/toolbar.kupu:97
+msgid "title_decrease_quote"
+msgstr "Malaltigu cit-nivelon: Stirklavo (Alt aŭ Ctrl) + <"
+
+#. Default: "Definition list: Access key (Alt or Ctrl) + ="
+#: kupu/default/toolbar.kupu:140
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:122
+#: kupu/plone/toolbar.kupu:89
+msgid "title_deflist"
+msgstr "Listo de difinoj: Stirklavo (Alt aŭ Ctrl) + ="
+
+#. Default: "External Link"
+#: kupu/default/drawers.kupu:54
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:186
+msgid "title_external_link"
+msgstr "Ekstera ligo"
+
+#. Default: "reload current page using kupu to edit this field"
+#: kupu/plone/body.kupu:95
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:472
+msgid "title_force_kupu"
+msgstr "reŝargu la aktualan paĝon uzante Kupu por redakti tiun kampon"
+
+#. Default: "Images"
+#: kupu/default/toolboxes.kupu:60
+msgid "title_images"
+msgstr "Bildoj"
+
+#. Default: "Increase quote level: Access key (Alt or Ctrl) + >"
+#: kupu/default/toolbar.kupu:151
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:127
+#: kupu/plone/toolbar.kupu:101
+msgid "title_increase_quote"
+msgstr "Altigu cit-nivelon: Stirklavo (Alt aŭ Ctrl) + >"
+
+#. Default: "Insert anchors"
+#: kupu/default/drawers.kupu:31
+#: kupu/plone/drawers.kupu:35
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:134
+msgid "title_insert_anchors"
+msgstr "Enmetu ankrojn"
+
+#. Default: "Insert external link"
+#: kupu/default/drawers.kupu:29
+#: kupu/plone/drawers.kupu:30
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:133
+msgid "title_insert_external_link"
+msgstr "Enmetu eksteran ligon"
+
+#. Default: "Insert image"
+#: kupu/default/drawers.kupu:23
+#: kupu/plone/drawers.kupu:20
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:131
+msgid "title_insert_image"
+msgstr "Enmetu bildon"
+
+#. Default: "Insert internal link"
+#: kupu/default/drawers.kupu:27
+#: kupu/plone/drawers.kupu:25
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:132
+msgid "title_insert_internal_link"
+msgstr "Enmetu ligon"
+
+#. Default: "Insert table"
+#: kupu/default/drawers.kupu:34
+#: kupu/plone/drawers.kupu:39
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:135
+msgid "title_insert_table"
+msgstr "Enmetu tabelon"
+
+#. Default: "Italic: Access key (Alt or Ctrl) + I"
+#: kupu/default/toolbar.kupu:94
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:95
+#: kupu/plone/toolbar.kupu:38
+msgid "title_italic"
+msgstr "Kursiva: Stirklavo (Alt auc Ctrl) + I"
+
+#. Default: "Left justify: Access key (Alt or Ctrl) + L"
+#: kupu/default/toolbar.kupu:112
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:109
+#: kupu/plone/toolbar.kupu:57
+msgid "title_ljust"
+msgstr "Maldekstre: Stirklavo (Alt aŭ Ctrl) + L"
+
+#. Default: "Kupu 1.4"
+#: kupu/default/toolbar.kupu:55
+msgid "title_logo"
+msgstr "Kupu 1.4"
+
+#. Default: "Numbered list: Access key (Alt or Ctrl) + #"
+#: kupu/default/toolbar.kupu:128
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:116
+#: kupu/plone/toolbar.kupu:75
+msgid "title_numlist"
+msgstr "Numera listo: Stirklavo (Alt aŭ Ctrl) + #"
+
+#. Default: "Properties"
+#: kupu/default/toolboxes.kupu:20
+msgid "title_properties"
+msgstr "Ecoj"
+
+#. Default: "Redo: Access key (Alt or Ctrl) + Y"
+#: kupu/default/toolbar.kupu:162
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:140
+#: kupu/plone/toolbar.kupu:114
+msgid "title_redo"
+msgstr "Refaru: Stirklavo (Alt aŭ Ctrl) + Y"
+
+#. Default: "Remove image"
+#: kupu/default/toolbar.kupu:170
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:159
+#: kupu/plone/toolbar.kupu:157
+msgid "title_removeimage"
+msgstr "Forigi bildon"
+
+#. Default: "Remove link"
+#: kupu/default/toolbar.kupu:173
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:160
+#: kupu/plone/toolbar.kupu:161
+msgid "title_removelink"
+msgstr "Forigi ligon"
+
+#. Default: "Right justify: Access key (Alt or Ctrl) + R"
+#: kupu/default/toolbar.kupu:119
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:111
+#: kupu/plone/toolbar.kupu:65
+msgid "title_rjust"
+msgstr "Dekstre: Stirklavo: (Alt aŭ Ctrl) + R"
+
+#. Default: "Save"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:90
+#: kupu/plone/save.kupu:15
+msgid "title_save"
+msgstr "Konservu"
+
+#. Default: "save: alt-s"
+#: kupu/default/save.kupu:14
+msgid "title_save_alts"
+msgstr "Konservu: alt-s"
+
+#. Default: "Check spelling"
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:144
+#: kupu/plone/spellchecker.kupu:14
+msgid "title_spelling"
+msgstr "Kontrolu literumon"
+
+#. Default: "Subscript: Access key (Alt or Ctrl) + -"
+#: kupu/default/toolbar.kupu:103
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:99
+#: kupu/plone/toolbar.kupu:46
+msgid "title_subscript"
+msgstr "Subskribo: Stirklavo (Alt aŭ Ctrl) + -"
+
+#. Default: "Superscript: Access key (Alt or Ctrl) + +"
+#: kupu/default/toolbar.kupu:105
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:100
+#: kupu/plone/toolbar.kupu:49
+msgid "title_superscript"
+msgstr "Superskribo: Stirklavo (Alt aŭ Ctrl) + +"
+
+#. Default: "reload current page without kupu"
+#: kupu/plone/body.kupu:76
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:446
+msgid "title_suppress_kupu"
+msgstr "reŝargu la nunan paĝon sen Kupu"
+
+#. Default: "Tables"
+#: kupu/default/toolboxes.kupu:92
+msgid "title_tables"
+msgstr "Tabeloj"
+
+#. Default: "text color: alt-f"
+#: kupu/default/colorchooser.kupu:21
+#: kupu/plone/colorchooser.kupu:13
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:104
+msgid "title_text_color"
+msgstr "tekstkoloro: alt-f"
+
+#. Default: "Underline: Access key (Alt or Ctrl) + U"
+#: kupu/default/toolbar.kupu:96
+msgid "title_underline"
+msgstr "Substreko: Stirklavo (Alt aŭ Ctrl) + U"
+
+#. Default: "Undo: Access key (Alt or Ctrl) + Z"
+#: kupu/default/toolbar.kupu:159
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:139
+#: kupu/plone/toolbar.kupu:110
+msgid "title_undo"
+msgstr "Malfari: Stirklavo (Alt aŭ Ctrl) + Z"
+
+#. Default: "Unordered list: Access key (Alt or Ctrl) + *"
+#: kupu/default/toolbar.kupu:131
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:117
+#: kupu/plone/toolbar.kupu:79
+msgid "title_unorderedlist"
+msgstr "Neordigita listo: Stirklavo (Alt aŭ Ctrl) + *"
+
+#. Default: "Zoom: Access key (Alt or Ctrl) + X"
+#: kupu/default/toolbar.kupu:47
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:86
+#: kupu/plone/toolbar.kupu:25
+msgid "title_zoom"
+msgstr "Proksimigi: Stirklavo (Alt aŭ Ctrl) + X"
+
+#. Default: "Switch between visual editor and HTML view"
+#: kupu/default/sourceedit.kupu:23
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:148
+#: kupu/plone/sourceedit.kupu:18
+msgid "toggle_source_view"
+msgstr "redakti HTML-kodon"
+
+#. Default: "top of page (default)"
+#: kupu/common/kupudrawers/drawer.xsl:509
+msgid "top_of_page"
+msgstr ""
+
+#. Default: "Preview"
+#: kupu/default/drawers.kupu:92
+#: kupu/plone/kupu_plone_layer/kupu_wysiwyg_support.html:216
+msgid "watermark_preview"
+msgstr "Antaŭrigardi"
+

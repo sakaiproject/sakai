@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 

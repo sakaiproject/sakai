@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,7 +39,6 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,7 +53,6 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.ImportException;
-import org.sakaiproject.memory.impl.EhcacheMemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -63,7 +62,8 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.api.FormattedText;
 
-import net.sf.ehcache.CacheManager;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
 /**
  * EntityManager shouldn't have to be Mocked as it's simple enough to have a real instance
@@ -120,19 +120,12 @@ public class BaseExternalCalendarSubscriptionTest {
         // Enable the service
         when(serverConfigurationService.getBoolean(SAK_PROP_EXTSUBSCRIPTIONS_ENABLED, true)).thenReturn(true);
 
-        cacheManager = new CacheManager();
-        EhcacheMemoryService ehcacheMemoryService = new EhcacheMemoryService(cacheManager, serverConfigurationService);
-        ehcacheMemoryService.init();
+        cacheManager = new ConcurrentMapCacheManager();
 
         when(importer.getDefaultColumnMap(CalendarImporterService.ICALENDAR_IMPORT)).thenReturn(Collections.emptyMap());
 
-        service.setMemoryService(ehcacheMemoryService);
+        service.setCacheManager(cacheManager);
         service.init();
-    }
-
-    @After
-    public void tearDown() {
-        cacheManager.shutdown();
     }
 
     @Test
@@ -149,6 +142,13 @@ public class BaseExternalCalendarSubscriptionTest {
         }
         TimeRange range = mock(TimeRange.class);
         when(range.clone()).thenReturn(range);
+        Time rangeTime = mock(Time.class);
+        when(range.firstTime()).thenReturn(rangeTime);
+        when(range.lastTime()).thenReturn(rangeTime);
+        // Reconstructing from the cache goes through TimeService rather than reusing the
+        // live TimeRange/Time (see BaseExternalCalendarSubscriptionService.toLiveDetails()).
+        when(timeService.newTime(anyLong())).thenReturn(rangeTime);
+        when(timeService.newTimeRange(any(Time.class), any(Time.class))).thenReturn(range);
         // All the actual implementations need services to function, would be useful to have one that didn't
         CalendarEventEdit event = mock(CalendarEventEdit.class);
         when(event.getRange()).thenReturn(range);

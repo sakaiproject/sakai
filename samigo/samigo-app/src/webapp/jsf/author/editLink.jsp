@@ -14,17 +14,17 @@
 <%@ page import="org.sakaiproject.site.api.Site" %>
 <%@ page import="org.sakaiproject.site.api.ToolConfiguration" %>
 <%@ page import="org.sakaiproject.site.cover.SiteService" %>
-<%@ page import="javax.faces.context.FacesContext" %>
+<%@ page import="jakarta.faces.context.FacesContext" %>
 
 <%
 
-         DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", request, response);
-         PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet("person", request, response);
-         AuthorBean author = (AuthorBean) ContextUtil.lookupBeanFromExternalServlet("author", request, response);
+         DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", request, response, application);
+         PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet("person", request, response, application);
+         AuthorBean author = (AuthorBean) ContextUtil.lookupBeanFromExternalServlet("author", request, response, application);
          author.setIsEditPendingAssessmentFlow(false);
          String publishedAssessmentId = ContextUtil.lookupParam("publishedAssessmentId");
          AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBeanFromExternalServlet(
-                "assessmentBean", request, response);
+                "assessmentBean", request, response, application);
          assessmentBean.setAssessmentId(publishedAssessmentId);
 
 
@@ -39,7 +39,7 @@
 	 ToolConfiguration tool = site.getToolForCommonId("sakai.samigo");
 
          AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet(
-                                                                         "authorization", request, response);
+                                                                         "authorization", request, response, application);
          if (authzBean.getAuthzMap().size()==0){
 	     authzBean.addAllPrivilege(site.getId());
          }

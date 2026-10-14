@@ -97,6 +97,14 @@ public class TagFormsTest {
     }
 
     @Test
+    public void ordinaryCollectionsHaveNoExternalSourceIdentifier() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setParameter("name", "Objectives");
+        request.setParameter("externalSourceName", "  ");
+        assertNull(TagCollectionForm.fromRequest(null, request).toTagCollection().getExternalSourceName());
+    }
+
+    @Test
     public void explicitZeroAndFalseRemainDistinctFromNull() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter("externalCreationDate", "0");

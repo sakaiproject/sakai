@@ -41,8 +41,10 @@
         <param name="sequence">SAM_ASSESSMENTGRADING_ID_S</param>
       </generator>
     </id>
-    <property name="publishedAssessmentId" column="PUBLISHEDASSESSMENTID" not-null="true" type="long" index="SAM_PUBLISHEDASSESSMENT_I" />
-    <property name="agentId" type="string" length="99" column="AGENTID" not-null="true" />
+    <!-- agentId is declared before publishedAssessmentId on purpose: Hibernate adds the columns of a
+         shared index in declaration order, and SAM_ASSGRAD_AID_PUBASSEID_T is (AGENTID, PUBLISHEDASSESSMENTID). -->
+    <property name="agentId" type="string" length="99" column="AGENTID" not-null="true" index="SAM_ASSGRAD_AID_PUBASSEID_T" />
+    <property name="publishedAssessmentId" column="PUBLISHEDASSESSMENTID" not-null="true" type="long" index="SAM_PUBLISHEDASSESSMENT_I,SAM_ASSGRAD_AID_PUBASSEID_T" />
     <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="false" />
     <property name="isLate" type="boolean" column="ISLATE" not-null="true" />
     <property name="forGrade" type="boolean" column="FORGRADE" not-null="true" />

@@ -18,9 +18,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>jakarta.mail</artifactId>
-      <scope>test</scope>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler</groupId>
@@ -127,6 +126,10 @@
       <artifactId>jackson-databind</artifactId>
     </dependency>
     <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
     </dependency>
@@ -149,15 +152,20 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-core</artifactId>
     </dependency>
     <dependency>

@@ -8,13 +8,13 @@
     <div class="page-header"><h1 th:text="#{index.header.grouplist}"></h1></div>
     <div class="sak-banner-info" th:if="${groupList.isEmpty()}" th:text="#{index.warning.groupempty}">No groups in this site.</div>
     <div class="sak-banner-error" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
-    <div class="instruction" th:if="${anyGroupLocked}"><span class="si si-locked" aria-hidden="true"></span> - <span aria-hidden="true" th:text="#{index.table.grouplocked.info}"></span></div>
+    <div class="instruction" th:if="${anyGroupLocked}"><span class="si si-locked" aria-hidden="true"></span> - <span th:text="#{index.table.grouplocked.info}"></span></div>
     <form th:if="${!groupList.isEmpty()}" id="group-manager-form" action="#" th:action="@{/removeGroups}" th:object="${mainForm}" method="post">
       <table id="groupTable" class="table table-striped table-bordered table-hover">
         <thead>
           <tr>
             <th th:text="#{index.table.grouptitle}">Group Title</th>
-            <th class="d-none d-sm-table-cell" th:if="${anyGroupLocked}" th:text="#{index.table.grouplockedby}">Locked By</th>
+            <th th:if="${anyGroupLocked}" th:text="#{index.table.grouplockedby}">Locked By</th>
             <th th:text="#{index.table.joinableset}">Joinable set</th>
             <th class="d-none d-sm-table-cell" th:text="#{index.table.restrictions}">Restrictions</th>
             <th class="d-none d-sm-table-cell" th:text="#{index.table.groupsize}">Size (Max)</th>
@@ -32,8 +32,16 @@
               <a th:if="${!lockedGroupList.contains(group.id)}" th:href="@{/group(groupId=${group.id})}" th:text="${group.title}"></a>
               <span th:if="${lockedGroupList.contains(group.id)}" th:text="${group.title}"></span>
             </td>
-            <td class="d-none d-sm-table-cell" th:if="${anyGroupLocked}">
+            <td th:if="${anyGroupLocked}">
               <div th:if="${lockedGroupsEntityMap.get(group.id) != null }">
+                <div th:if="${lockedGroupsEntityMap.get(group.id).get('deletedAssignments') != null and !lockedGroupsEntityMap.get(group.id).get('deletedAssignments').isEmpty()}">
+                  <strong th:text="#{index.table.assignments.trash}"></strong>
+                  <ul>
+                    <li th:each="assignment : ${lockedGroupsEntityMap.get(group.id).get('deletedAssignments')}" th:text="${assignment}"></li>
+                  </ul>
+                  <p th:text="#{index.table.assignments.trash.info}"></p>
+                  <a th:if="${assignmentTrashUrl != null}" th:href="${assignmentTrashUrl}" th:text="#{index.table.assignments.trash.open}"></a>
+                </div>
                 <div th:if="${lockedGroupsEntityMap.get(group.id).get('assignments') != null and !lockedGroupsEntityMap.get(group.id).get('assignments').isEmpty()}">
                   <span class="group-locked-info collapsed" data-bs-toggle="collapse" th:data-bs-target="|#lockingassignments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assignments}" th:aria-label="#{index.table.assignments}"></span>
                   <div th:id="|lockingassignments-${group.id}|" class="collapse">

@@ -28,8 +28,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
 
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.junit.Test;
@@ -86,6 +86,24 @@ import static org.mockito.Mockito.*;
  *
  */
 public class MySessionTest extends BaseSessionComponentTest {
+
+	@Test
+	public void testStringRepresentationDoesNotExposeAuthenticationId() {
+		String sessionId = "authentication-session-marker";
+		Session session = sessionComponent.startSession(sessionId);
+		session.setUserId("user-marker");
+		session.setUserEid("eid-marker");
+		session.setAttribute("sakai.csrf.token", "csrf-marker");
+		session.setAttribute("sakai.locale." + sessionId, "locale-marker");
+
+		String description = session.toString();
+		assertFalse(description.contains(sessionId));
+		assertFalse(description.contains("csrf-marker"));
+		assertFalse(description.contains("locale-marker"));
+		assertTrue(description.contains("user-marker"));
+		assertEquals(sessionId, session.getId());
+		assertEquals("csrf-marker", session.getAttribute("sakai.csrf.token"));
+	}
 
 	@Test
 	public void testCreatedInExpectedState() throws Exception {
@@ -617,7 +635,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 
 		public MyTestableSession(SessionComponent outer, String sessionId, ThreadLocalManager threadLocalManager,
 				IdManager idManager, SessionAttributeListener sessionListener,  NonPortableSession nps) {
-			super(outer, sessionId, threadLocalManager, idManager, outer, sessionListener, outer.getInactiveInterval(),nps,new MutableLong(System.currentTimeMillis()), null);
+			super(outer, sessionId, threadLocalManager, idManager, outer, sessionListener, outer.getInactiveInterval(),nps,new MutableLong(System.currentTimeMillis()));
 		}
 
 		@Override

@@ -90,8 +90,8 @@ public class ProfileController extends AbstractSakaiApiController {
 
     @GetMapping(value = "/users/{userId}/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProfileTransferBean> getUserProfile(
-            @PathVariable String userId,
-            @RequestParam(required = false) String siteId) throws UserNotDefinedException {
+            @PathVariable("userId") String userId,
+            @RequestParam(value = "siteId", required = false) String siteId) throws UserNotDefinedException {
 
         if (StringUtils.equals(userId, "blank")) {
             return ResponseEntity.noContent().build();
@@ -117,7 +117,7 @@ public class ProfileController extends AbstractSakaiApiController {
     }
 
     @PatchMapping(value = "/users/{userId}/profile", consumes = "application/json-patch+json", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProfileTransferBean> patchProfile(@PathVariable String userId, @RequestBody JsonPatch patch) {
+    public ResponseEntity<ProfileTransferBean> patchProfile(@PathVariable("userId") String userId, @RequestBody JsonPatch patch) {
 
         checkSakaiSession();
         profileService.assertCanModifyProfile(userId);
@@ -151,7 +151,7 @@ public class ProfileController extends AbstractSakaiApiController {
     }
 
     @GetMapping(path = { "/users/{userId}/profile/image", "/users/{userId}/profile/image/{imageType}" }, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<byte[]> getProfileImage(@PathVariable String userId, @PathVariable(required = false) String imageType, @RequestParam(required = false) String siteId) {
+    public ResponseEntity<byte[]> getProfileImage(@PathVariable("userId") String userId, @PathVariable(value = "imageType", required = false) String imageType, @RequestParam(value = "siteId", required = false) String siteId) {
 
         String currentUserId = checkSakaiSession().getUserId();
 
@@ -166,7 +166,7 @@ public class ProfileController extends AbstractSakaiApiController {
                 : profileService.getProfileImage(userId,
                         StringUtils.equals("thumb", imageType) ? ProfileConstants.PROFILE_IMAGE_THUMBNAIL : ProfileConstants.PROFILE_IMAGE_MAIN,
                         siteId);
-        
+
         if (image == null) {
             return ResponseEntity.notFound().build();
         }
@@ -196,12 +196,12 @@ public class ProfileController extends AbstractSakaiApiController {
                 log.warn("Invalid profile image URL for user {}: {}", userId, e.getMessage());
             }
         }
-        
+
         return ResponseEntity.badRequest().build();
     }
 
     @PostMapping(value = "/users/{userId}/profile/image")
-    public ResponseEntity<String> putProfileImage(@PathVariable String userId, @RequestParam String base64) {
+    public ResponseEntity<String> putProfileImage(@PathVariable("userId") String userId, @RequestParam("base64") String base64) {
 
         JSONObject result = new JSONObject();
 
@@ -221,7 +221,7 @@ public class ProfileController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/users/{userId}/profile/image/details", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getProfileImageDetails(@PathVariable String userId) {
+    public ResponseEntity<String> getProfileImageDetails(@PathVariable("userId") String userId) {
 
         JSONObject result = new JSONObject();
 
@@ -241,7 +241,7 @@ public class ProfileController extends AbstractSakaiApiController {
     }
 
     @DeleteMapping(value = "/users/{userId}/profile/image")
-    public ResponseEntity<String> removeProfileImage(@PathVariable String userId) {
+    public ResponseEntity<String> removeProfileImage(@PathVariable("userId") String userId) {
 
         checkSakaiSession();
 
@@ -251,14 +251,14 @@ public class ProfileController extends AbstractSakaiApiController {
     }
 
     @GetMapping(path = "/users/{userId}/profile/pronunciation", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<byte[]> getNamePronunciation(@PathVariable String userId) {
+    public ResponseEntity<byte[]> getNamePronunciation(@PathVariable("userId") String userId) {
 
         MimeTypeByteArray data = profileService.getUserNamePronunciation(userId);
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(data.getMimeType())).body(data.getBytes());
     }
 
     @DeleteMapping(path = "/users/{userId}/profile/pronunciation")
-    public ResponseEntity<String> removeNamePronunciation(@PathVariable String userId) {
+    public ResponseEntity<String> removeNamePronunciation(@PathVariable("userId") String userId) {
 
         checkSakaiSession();
 

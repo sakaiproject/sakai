@@ -44,8 +44,10 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.tags.api.Errors;
 import org.sakaiproject.tags.api.I18n;
 import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.tags.api.TagAssociation;
 import org.sakaiproject.tags.api.TagAssociationRepository;
 import org.sakaiproject.tags.api.TagCollection;
@@ -85,6 +87,105 @@ public class TagServiceImpl implements TagService {
     @Override
     public void init() {
         functionManager.registerFunction(TAGSERVICE_MANAGE_PERMISSION);
+    }
+
+    @Override
+    public List<TagSummary> getTagsForSite(String siteId) {
+        if (StringUtils.isBlank(siteId)) {
+            throw new IllegalArgumentException("Site ID must not be blank");
+        }
+        return tagRepository.findAvailableInSite(siteId);
+    }
+
+    @Override
+    public List<TagCollection> getTagCollectionsForSite(String siteId) {
+        return tagCollectionRepository.findAvailableInSite(siteId).stream()
+            .map(collection -> collection.toBuilder().build()).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean canManageCollection(String siteId, String collectionId) {
+        if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())) {
+            return false;
+        }
+        return tagCollectionRepository.findById(collectionId)
+            .map(collection -> securityService.isSuperUser() || (StringUtils.isNotBlank(siteId)
+                && siteId.equals(collection.getSiteId())
+                && securityService.unlock(TAGSERVICE_MANAGE_PERMISSION, SiteService.REFERENCE_ROOT + "/" + siteId)))
+            .orElse(false);
+    }
+
+    @Override
+    public void checkCollectionAccess(String siteId, String collectionId) {
+        TagCollection collection = tagCollectionRepository.findById(collectionId)
+            .orElseThrow(() -> new TagServiceException("No collection with id " + collectionId));
+        if (!securityService.isSuperUser() && !Objects.equals(siteId, collection.getSiteId())
+                && collection.getSiteId() != null) {
+            throw new SecurityException("Collection is not available in site " + siteId);
+        }
+    }
+
+    private void checkCollectionManagement(String siteId, String collectionId) {
+        if (!canManageCollection(siteId, collectionId)) {
+            throw new SecurityException("Current user cannot manage collection " + collectionId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public String saveTagCollection(String siteId, TagCollection collection) {
+        if (collection.getTagCollectionId() == null) {
+            if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())
+                    || (!securityService.isSuperUser()
+                    && (StringUtils.isBlank(siteId) || "!admin".equals(siteId) || !securityService.unlock(TAGSERVICE_MANAGE_PERMISSION,
+                        SiteService.REFERENCE_ROOT + "/" + siteId)))) {
+                throw new SecurityException("Current user cannot create collections in site " + siteId);
+            }
+            // The Admin Workspace creates global collections; course/project tools create local ones.
+            String scope = "!admin".equals(siteId) ? null : siteId;
+            return createTagCollection(collection.toBuilder().siteId(scope).build());
+        }
+        checkCollectionManagement(siteId, collection.getTagCollectionId());
+        updateTagCollection(collection);
+        return collection.getTagCollectionId();
+    }
+
+    private void checkCollectionName(String scope, TagCollection collection) {
+        boolean duplicate = tagCollectionRepository.findAvailableInSite(scope).stream()
+            .anyMatch(existing -> Objects.equals(scope, existing.getSiteId())
+                && Objects.equals(existing.getName(), collection.getName())
+                && !Objects.equals(existing.getTagCollectionId(), collection.getTagCollectionId()));
+        if (duplicate) {
+            throw new IllegalArgumentException("Collection name already exists in this scope");
+        }
+    }
+
+    @Override
+    @Transactional
+    public String saveTag(String siteId, Tag tag) {
+        checkCollectionManagement(siteId, tag.getTagCollectionId());
+        if (tag.getTagId() == null) {
+            return createTag(tag);
+        }
+        Tag original = getTag(tag.getTagId()).orElseThrow(() -> new TagServiceException("No tag with id " + tag.getTagId()));
+        checkCollectionManagement(siteId, original.getTagCollectionId());
+        updateTag(tag);
+        return tag.getTagId();
+    }
+
+    @Override
+    @Transactional
+    public void deleteTag(String siteId, String tagId) {
+        Tag tag = getTag(tagId).orElseThrow(() -> new TagServiceException("No tag with id " + tagId));
+        checkCollectionManagement(siteId, tag.getTagCollectionId());
+        deleteTag(tagId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteTagCollection(String siteId, String collectionId) {
+        checkCollectionManagement(siteId, collectionId);
+        deleteTagCollection(collectionId);
     }
 
     @Override
@@ -128,6 +229,15 @@ public class TagServiceImpl implements TagService {
                 continue;
             }
 
+            boolean global = getTagCollection(tag.getTagCollectionId())
+                .map(collection -> collection.getSiteId() == null).orElse(false);
+            if (global) {
+                duplicatedTags.add(tag);
+                if (targetItemId != null) {
+                    associateExistingTag(targetItemId, tag.getTagId());
+                }
+                continue;
+            }
             Tag duplicatedTag = Tag.builder()
                 .tagCollectionId(targetCollectionId)
                 .tagLabel(tag.getTagLabel())
@@ -172,6 +282,13 @@ public class TagServiceImpl implements TagService {
             String value = StringUtils.left(selection, TAG_MAX_LABEL);
             // Interpret mixed UI input here; the explicit operations never guess its meaning.
             if (tagRepository.existsById(value)) {
+                Tag selected = tagRepository.findById(value).get();
+                TagCollection selectedCollection = tagCollectionRepository.findById(selected.getTagCollectionId())
+                    .orElseThrow(() -> new SecurityException("Tag collection is unavailable: " + selected.getTagCollectionId()));
+                if (!Objects.equals(selected.getTagCollectionId(), collectionId) && selectedCollection.getSiteId() != null
+                        && !Objects.equals(selectedCollection.getSiteId(), isSite ? collectionId : "~" + collectionId)) {
+                    throw new SecurityException("Tag is not available in this collection context");
+                }
                 associateExistingTag(itemId, value);
             } else {
                 createAndAssociateTag(collectionId, itemId, value, isSite);
@@ -192,6 +309,7 @@ public class TagServiceImpl implements TagService {
         String description = isSite ? i18n.tFormatted("site_collection", collectionId) : i18n.t("user_collection");
         createTagCollection(TagCollection.builder()
             .tagCollectionId(collectionId)
+            .siteId(isSite ? collectionId : "~" + collectionId)
             .name(collectionId)
             .description(description)
             .build());
@@ -309,8 +427,7 @@ public class TagServiceImpl implements TagService {
                 || !securityService.unlock(permission, SiteService.REFERENCE_ROOT + "/" + siteId)) {
             throw new SecurityException("Current user cannot create tags in site " + siteId);
         }
-        if (tags == null || tags.stream().anyMatch(tag -> tag == null
-                || StringUtils.isBlank(tag.getTagLabel()) || tag.getTagLabel().length() > TAG_MAX_LABEL
+        if (tags == null || tags.stream().anyMatch(tag -> validateTag(tag).hasErrors()
                 || StringUtils.isNotBlank(tag.getTagId()))) {
             throw new IllegalArgumentException("New tags must have no ID and a label between 1 and 255 characters");
         }
@@ -329,11 +446,27 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public Errors validateTag(Tag tag) {
+        Errors errors = new Errors();
+        if (tag == null || StringUtils.isBlank(tag.getTagLabel())) {
+            errors.addError("tagLabel", "tag_label_required");
+        } else if (tag.getTagLabel().length() > TAG_MAX_LABEL) {
+            errors.addError("tagLabel", "tag_label_too_long");
+        }
+        return errors;
+    }
+
+    private void requireValidTag(Tag tag) {
+        Errors errors = validateTag(tag);
+        if (errors.hasErrors()) {
+            throw new IllegalArgumentException("Invalid tag: " + errors.toMap());
+        }
+    }
+
+    @Override
     @Transactional
     public String createTag(Tag tag) {
-        if (StringUtils.isBlank(tag.getTagLabel())) {
-            throw new IllegalArgumentException("Tag label must not be blank");
-        }
+        requireValidTag(tag);
         requireTagCollection(tag.getTagCollectionId());
         tag.setTagId(null);
         tag.setCreatedBy(sessionManager.getCurrentSessionUserId());
@@ -351,6 +484,8 @@ public class TagServiceImpl implements TagService {
         if (StringUtils.isBlank(collection.getName())) {
             throw new IllegalArgumentException("Collection name must not be blank");
         }
+        checkCollectionName(collection.getSiteId(), collection);
+        collection.setExternalSourceName(StringUtils.trimToNull(collection.getExternalSourceName()));
         if (collection.getTagCollectionId() == null) {
             collection.setTagCollectionId(UUID.randomUUID().toString());
         }
@@ -366,9 +501,7 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public void updateTag(Tag tag) {
-        if (StringUtils.isBlank(tag.getTagLabel())) {
-            throw new IllegalArgumentException("Tag label must not be blank");
-        }
+        requireValidTag(tag);
         Tag original = tagRepository.findById(tag.getTagId())
             .orElseThrow(() -> new TagServiceException("No tag with id " + tag.getTagId()));
         requireTagCollection(tag.getTagCollectionId());
@@ -402,6 +535,8 @@ public class TagServiceImpl implements TagService {
         }
         TagCollection original = tagCollectionRepository.findById(collection.getTagCollectionId())
             .orElseThrow(() -> new TagServiceException("No collection with id " + collection.getTagCollectionId()));
+        checkCollectionName(original.getSiteId(), collection);
+        collection.setExternalSourceName(StringUtils.trimToNull(collection.getExternalSourceName()));
         boolean generateEvent = hasContentChanges(collection, original);
         original.setName(collection.getName());
         original.setDescription(collection.getDescription());

@@ -82,8 +82,8 @@ import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -4114,6 +4114,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("confirmMessage", assignments.size() > 1 ? rb.getString(multipleConfirmMessage) : rb.getString(singleConfirmMessage));
         context.put("currentTime", Instant.now());
         context.put("submissionCountTable", submissionCountTable);
+        context.put("showGroupLockConsequences", operation == BulkOperation.DELETE);
 
         String template = getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_BULK_OPERATION;
@@ -11099,20 +11100,19 @@ public class AssignmentAction extends PagedResourceActionII {
                     a = assignmentService.getAssignment(id);
 
                     if (a != null) {
-                        a.setDeleted(false);
-                        assignmentService.updateAssignment(a);
+                        a = assignmentService.restoreAssignment(id);
 
                         rubricsService.restoreRubricAssociation(AssignmentConstants.TOOL_ID, id);
 
                         // restore email reminder only if reminder is set and the due date is after 1 day
-                        if (BooleanUtils.toBoolean(a.getProperties().get(NEW_ASSIGNMENT_REMINDER_EMAIL))
+                        if (!a.getDraft() && BooleanUtils.toBoolean(a.getProperties().get(NEW_ASSIGNMENT_REMINDER_EMAIL))
                                 && a.getDueDate() != null
                                 && Instant.now().plus(1, ChronoUnit.DAYS).isBefore(a.getDueDate())) {
                             assignmentDueReminderService.scheduleDueDateReminder(a.getId());
                         }
 
                         // Restore gradebook item only if assignment was previously associated
-                        if (StringUtils.equals(a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK), GRADEBOOK_INTEGRATION_ASSOCIATE)) {
+                        if (!a.getDraft() && StringUtils.equals(a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK), GRADEBOOK_INTEGRATION_ASSOCIATE)) {
                             String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
                             Site site = siteService.getSite(siteId);
 

@@ -50,6 +50,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.hibernate.Hibernate;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -535,10 +536,10 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
     }
 
     @Override
-    public void updateSignupMeetings(List<SignupMeeting> meetings, boolean isOrganizer) throws Exception {
+    public List<SignupMeeting> updateSignupMeetings(List<SignupMeeting> meetings, boolean isOrganizer) throws Exception {
 
         if (meetings == null || meetings.isEmpty()) {
-            return;
+            return List.of();
         }
 
         SignupMeeting oneMeeting = meetings.get(0);
@@ -548,26 +549,25 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         // if null, only consider an organizer-updating case (higher requirement level)
         if (permission == null) {
             if (isAllowToUpdate(sessionManager.getCurrentSessionUserId(), oneMeeting.getCurrentSiteId(), oneMeeting)) {
-                repository.updateAll(meetings);
-                return;
+                return retainMeetingMetadata(meetings, repository.updateAll(meetings));
             }
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         }
 
         if (isOrganizer) {
-            if (permission.isUpdate()) repository.updateAll(meetings);
+            if (permission.isUpdate()) return retainMeetingMetadata(meetings, repository.updateAll(meetings));
             else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         } else {
-            if (permission.isAttend()) repository.updateAll(meetings);
+            if (permission.isAttend()) return retainMeetingMetadata(meetings, repository.updateAll(meetings));
             else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.attend", "SignupTool");
         }
     }
 
     @Override
-    public void updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots, boolean isOrganizer) throws Exception {
+    public List<SignupMeeting> updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots, boolean isOrganizer) throws Exception {
 
         if (meetings == null || meetings.isEmpty()) {
-            return;
+            return List.of();
         }
 
         SignupMeeting oneMeeting = meetings.get(0);
@@ -577,19 +577,44 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         // if null, only consider an organizer-updating case (higher requirement level)
         if (permission == null) {
             if (isAllowToUpdate(sessionManager.getCurrentSessionUserId(), oneMeeting.getCurrentSiteId(), oneMeeting)) {
-                repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots);
-                return;
+                return retainMeetingMetadata(meetings, repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots));
             }
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         }
 
         if (isOrganizer) {
-            if (permission.isUpdate()) repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots);
+            if (permission.isUpdate()) return retainMeetingMetadata(meetings, repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots));
             else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         } else {
-            if (permission.isAttend()) repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots);
+            if (permission.isAttend()) return retainMeetingMetadata(meetings, repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots));
             else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.attend", "SignupTool");
         }
+    }
+
+    private List<SignupMeeting> retainMeetingMetadata(List<SignupMeeting> meetings, List<SignupMeeting> savedMeetings) {
+        for (int i = 0; i < meetings.size(); i++) {
+            SignupMeeting meeting = meetings.get(i);
+            SignupMeeting savedMeeting = savedMeetings.get(i);
+            // Hibernate merge copies persistent state, but the calendar and email flows also need this metadata.
+            savedMeeting.setPermission(meeting.getPermission());
+            savedMeeting.setSendEmailToSelectedPeopleOnly(meeting.getSendEmailToSelectedPeopleOnly());
+            savedMeeting.setRepeatNum(meeting.getRepeatNum());
+            savedMeeting.setApplyToAllRecurMeetings(meeting.isApplyToAllRecurMeetings());
+            savedMeeting.setCurrentSiteId(meeting.getCurrentSiteId());
+            savedMeeting.setRepeatUntil(meeting.getRepeatUntil());
+            savedMeeting.setInMultipleCalendarBlocks(meeting.isInMultipleCalendarBlocks());
+            savedMeeting.setVevent(meeting.getVevent());
+            if (Hibernate.isInitialized(meeting.getSignupTimeSlots())) {
+                for (int j = 0; j < meeting.getSignupTimeSlots().size(); j++) {
+                    SignupTimeslot timeslot = meeting.getSignupTimeSlots().get(j);
+                    SignupTimeslot savedTimeslot = savedMeeting.getSignupTimeSlots().get(j);
+                    savedTimeslot.setStartTimeString(timeslot.getStartTimeString());
+                    savedTimeslot.setEndTimeString(timeslot.getEndTimeString());
+                    savedTimeslot.setVevent(timeslot.getVevent());
+                }
+            }
+        }
+        return savedMeetings;
     }
 
     @Override

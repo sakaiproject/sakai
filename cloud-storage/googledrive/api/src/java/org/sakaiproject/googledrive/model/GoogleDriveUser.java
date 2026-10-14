@@ -15,11 +15,12 @@
  */
 package org.sakaiproject.googledrive.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import org.hibernate.Length;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,9 +33,9 @@ public class GoogleDriveUser {
     private String sakaiUserId;
     @Column(unique=true)
     private String googleDriveUserId;
-    @Lob
+    @Lob @Column(length = Length.LONG32)
     private String token;
-    @Lob
+    @Lob @Column(length = Length.LONG32)
     private String refreshToken;    
     private String googleDriveName;
 

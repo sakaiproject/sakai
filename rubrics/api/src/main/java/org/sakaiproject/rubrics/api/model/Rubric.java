@@ -28,18 +28,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -70,8 +69,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable {
 
     @Id
-    @SequenceGenerator(name="rbc_seq",sequenceName = "rbc_seq")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator ="rbc_seq" )
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_seq",sequenceName = "rbc_seq"))
     @JsonIgnore
     private Long id;
 

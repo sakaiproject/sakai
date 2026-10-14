@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.descriptors.portlet.PortletInfoDD;

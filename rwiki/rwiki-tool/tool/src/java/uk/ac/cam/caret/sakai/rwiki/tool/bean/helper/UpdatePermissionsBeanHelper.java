@@ -21,7 +21,7 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.bean.helper;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.UpdatePermissionsBean;

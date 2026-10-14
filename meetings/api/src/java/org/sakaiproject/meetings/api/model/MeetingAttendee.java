@@ -15,15 +15,14 @@
  */
 package org.sakaiproject.meetings.api.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -42,8 +41,7 @@ public class MeetingAttendee {
 
     @Id
     @Column(name = "attendee_id")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "meeting_attendee_sequence")
-    @SequenceGenerator(name = "meeting_attendee_sequence", sequenceName = "MEETING_ATTENDEE_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "meeting_attendee_sequence", sequenceName = "MEETING_ATTENDEE_S"))
     private Long id;
 
     @ManyToOne

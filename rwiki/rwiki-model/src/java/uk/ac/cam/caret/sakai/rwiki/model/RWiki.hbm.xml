@@ -18,7 +18,7 @@
 		</id>
 		<property name="rwikiid" length="36" not-null="true" index="irwikicurrentcontent_rwi" />
 		<!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
-		<property name="content" not-null="false" type="materialized_clob" length="16777215" access="field"/>
+		<property name="content" not-null="false" type="materialized_clob" length="2147483647" access="field"/>
 	</class>
 
 	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectContentImpl" table="rwikihistorycontent">
@@ -28,7 +28,7 @@
 		</id>
 		<property name="rwikiid" length="36" not-null="true" index="irwikihistorycontent_rwi"/>
 		<!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
-		<property name="content" not-null="false" type="materialized_clob" length="16777215" access="field"/>
+		<property name="content" not-null="false" type="materialized_clob" length="2147483647" access="field"/>
 	</class>
 
 	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectImpl" table="rwikihistory" >

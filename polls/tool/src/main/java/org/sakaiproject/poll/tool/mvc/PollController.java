@@ -32,6 +32,7 @@ import java.util.Set;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -56,19 +57,22 @@ public class PollController {
     private final MessageSource messageSource;
     private final UserTimeService userTimeService;
     private final PollPermissionsService pollPermissionsService;
+    private final FormattedText formattedText;
 
     public PollController(PollsService pollsService,
                           SessionManager sessionManager,
                           ToolManager toolManager,
                           MessageSource messageSource,
                           @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
-                          PollPermissionsService pollPermissionsService) {
+                          PollPermissionsService pollPermissionsService,
+                          FormattedText formattedText) {
         this.pollsService = pollsService;
         this.sessionManager = sessionManager;
         this.toolManager = toolManager;
         this.messageSource = messageSource;
         this.userTimeService = userTimeService;
         this.pollPermissionsService = pollPermissionsService;
+        this.formattedText = formattedText;
     }
 
     @GetMapping({"/", "/votePolls"})
@@ -152,7 +156,7 @@ public class PollController {
 
             rows.add(new PollRow(
                     poll.getId(),
-                    poll.getText(),
+                    formattedText.unEscapeHtml(poll.getText()),
                     canVote,
                     canEdit,
                     canDelete,

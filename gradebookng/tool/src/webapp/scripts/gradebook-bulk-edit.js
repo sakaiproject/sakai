@@ -58,6 +58,10 @@ GBBE.init = function(contentId) {
     GBBE.$realSubmit = $(document.getElementById("gb-bulk-edit-real-submit"));
 
     GBBE.$fakeSubmit.off('click').on('click', GBBE.handleFakeSubmit);
+
+    $(document).off('click.gbbe').on('click.gbbe', '.gb-bulk-edit-continue', function() {
+        GBBE.performRealSubmit();
+    });
 };
 
 GBBE.showConfirmation = function() {
@@ -65,31 +69,31 @@ GBBE.showConfirmation = function() {
     const modalTemplate = TrimPath.parseTemplate(templateHtml);
     const $confirmationModal = $(modalTemplate.process());
 
-    $confirmationModal.one("click", ".gb-bulk-edit-continue", function() {
-        GBBE.performRealSubmit();
-    });
-    $(document.body).append($confirmationModal);
+    GBBE.$content.closest(".gb-modal-dialog").append($confirmationModal);
 
-    $confirmationModal.on("hidden.bs.modal", function() {
+    $confirmationModal[0].addEventListener("hidden.bs.modal", function() {
         $confirmationModal.remove();
     });
-    $confirmationModal.on("show.bs.modal", function() {
-        const $formModal = GBBE.$content.closest(".wicket-modal");
+    $confirmationModal[0].addEventListener("show.bs.modal", function() {
+        const $formModal = GBBE.$content.closest(".gb-modal-dialog");
         $confirmationModal.css("marginTop", $formModal.offset().top + 40);
     });
 
-    $confirmationModal.on("shown.bs.modal", function() {
+    $confirmationModal[0].addEventListener("shown.bs.modal", function() {
         $confirmationModal.find(".gb-bulk-edit-cancel").focus();
     });
 
-    const modal = new bootstrap.Modal($confirmationModal).toggle();
+    $confirmationModal[0].addEventListener("keydown", event => {
+        if (event.key === "Escape") event.stopPropagation();
+    });
+    const modal = new bootstrap.Modal($confirmationModal[0]).toggle();
 };
 
 GBBE.performRealSubmit = function() {
     GBBE.$fakeSubmit.hide();
-    GBBE.$realSubmit.toggleClass("hide");
+    GBBE.$realSubmit.removeClass("d-none");
     GBBE.$realSubmit.trigger("click");
-    GBBE.$content.find(":input").prop("disabled", true);
+    GBBE.$content.find(":input").not(GBBE.$realSubmit).prop("disabled", true);
 };
 
 GBBE.handleFakeSubmit = function(event) {

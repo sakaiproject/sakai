@@ -31,11 +31,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -312,13 +312,13 @@ public class StudentScoreUpdateListener
 
     public void updateAttachment(DeliveryBean delivery){
     	List<SectionContentsBean> parts = delivery.getPageContents().getPartsContents();
-    	List<ItemGradingAttachment> attachmentList = new ArrayList();
     	for (SectionContentsBean part : parts) {
     		List<ItemContentsBean> items = part.getItemContents();
     		for (ItemContentsBean question : items) {
     			List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
     			log.debug("Gradingarray length2 = " + gradingarray.size());
     			for (ItemGradingData itemGradingData : gradingarray) {
+					List<ItemGradingAttachment> attachmentList = new ArrayList<>();
 					Set<ItemGradingAttachment> oldList = itemGradingData.getItemGradingAttachmentSet();
     				List<ItemGradingAttachment> newList = question.getItemGradingAttachmentList();
     				if ((oldList == null || oldList.isEmpty()) && (newList == null || newList.isEmpty())) {

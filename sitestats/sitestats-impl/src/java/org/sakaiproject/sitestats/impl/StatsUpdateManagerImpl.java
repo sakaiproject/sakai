@@ -35,19 +35,16 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.hibernate.type.StringType;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
@@ -80,8 +77,6 @@ import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.api.presence.Presence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -95,7 +90,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Transactional
-public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runnable, StatsUpdateManager, Observer, StatsUpdateManagerMXBean {
+public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Observer, StatsUpdateManagerMXBean {
+
+	@Setter private SessionFactory sessionFactory;
 
 	/** Spring bean members */
 	@Getter private boolean				collectThreadEnabled				= true;
@@ -176,7 +173,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		buff.append(", collect administrator events: ").append(collectAdminEvents);
 		buff.append(", collect events only for sites with SiteStats: ").append(collectEventsForSiteWithToolOnly);
 		buff.append(", collect detailed events: ").append(collectDetailedEvents);
-		logger.info(buff.toString());
+		log.info(buff.toString());
 		
 		initialized = true;
 		setCollectThreadEnabled(collectThreadEnabled);
@@ -277,12 +274,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 
         try {
-			getHibernateTemplate().execute(session -> {
-				session.saveOrUpdate(jobRun);
-				return null;
-			});
+			sessionFactory.getCurrentSession().persist(jobRun);
 			return true;
-		} catch(DataAccessException dae) {
+		} catch(DataAccessException | HibernateException dae) {
 			log.error("Could not save job: {}", dae.getMessage(), dae);
 		}
 		return false;
@@ -292,37 +286,36 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	 * @see org.sakaiproject.sitestats.api.StatsUpdateManager#getLatestJobRun()
 	 */
 	public JobRun getLatestJobRun() throws Exception {
-		JobRun r = getHibernateTemplate().execute(session -> {
-            JobRun jobRun = null;
-            Criteria c = session.createCriteria(JobRunImpl.class);
-            c.setMaxResults(1);
-            c.addOrder(Order.desc("id"));
-            List jobs = c.list();
-            if(jobs != null && jobs.size() > 0){
-                jobRun = (JobRun) jobs.get(0);
-            }
-            return jobRun;
-        });
-		return r;
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<JobRunImpl> cq = cb.createQuery(JobRunImpl.class);
+		Root<JobRunImpl> root = cq.from(JobRunImpl.class);
+		cq.select(root);
+		cq.orderBy(cb.desc(root.get("id")));
+		List<JobRunImpl> jobs = session.createQuery(cq).setMaxResults(1).list();
+		if(jobs != null && !jobs.isEmpty()) {
+			return (JobRun) jobs.get(0);
+		}
+		return null;
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsUpdateManager#getEventDateFromLatestJobRun()
 	 */
 	public Date getEventDateFromLatestJobRun() throws Exception {
-		Date r = getHibernateTemplate().execute(session -> {
-            Criteria c = session.createCriteria(JobRunImpl.class);
-            c.add(Restrictions.isNotNull("lastEventDate"));
-            c.setMaxResults(1);
-            c.addOrder(Order.desc("id"));
-            List jobs = c.list();
-            if(jobs != null && jobs.size() > 0){
-                JobRun jobRun = (JobRun) jobs.get(0);
-                return jobRun.getLastEventDate();
-            }
-            return null;
-        });
-		return r;
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<JobRunImpl> cq = cb.createQuery(JobRunImpl.class);
+		Root<JobRunImpl> root = cq.from(JobRunImpl.class);
+		cq.select(root);
+		cq.where(root.get("lastEventDate").isNotNull());
+		cq.orderBy(cb.desc(root.get("id")));
+		List<JobRunImpl> jobs = session.createQuery(cq).setMaxResults(1).list();
+		if(jobs != null && !jobs.isEmpty()) {
+			JobRun jobRun = (JobRun) jobs.get(0);
+			return jobRun.getLastEventDate();
+		}
+		return null;
 	}
 	
 	
@@ -683,24 +676,15 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 
 					if (creatorUserId == null) {
 						// It wasn't. Look it up in the db.
-						final String hql = "select s.userId "
-							+ "from LessonBuilderStatImpl as s "
-							+ "where s.siteId = :siteid "
-							+ "and s.pageAction = :pageAction "
-							+ "and s.pageRef = :pageRef ";
-
-						final String finalPageRef = resourceRef;
-
-						// New files
-						HibernateCallback<List<String>> hcb1 = session -> {
-                            Query q = session.createQuery(hql);
-                            q.setParameter("siteid", siteId, StringType.INSTANCE);
-                            q.setParameter("pageAction", "create", StringType.INSTANCE);
-                            q.setParameter("pageRef", finalPageRef, StringType.INSTANCE);
-                            return q.list();
-                        };
-
-						List<String> creatorUserIds = getHibernateTemplate().execute(hcb1);
+						Session session = sessionFactory.getCurrentSession();
+						CriteriaBuilder cb = session.getCriteriaBuilder();
+						CriteriaQuery<String> cq = cb.createQuery(String.class);
+						Root<LessonBuilderStatImpl> root = cq.from(LessonBuilderStatImpl.class);
+						cq.select(root.get("userId")).where(
+							cb.equal(root.get("siteId"), siteId),
+							cb.equal(root.get("pageAction"), "create"),
+							cb.equal(root.get("pageRef"), resourceRef));
+						List<String> creatorUserIds = session.createQuery(cq).getResultList();
 
 						if (creatorUserIds.size() > 0) {
 							creatorUserId = creatorUserIds.get(0);
@@ -745,7 +729,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				// populate presence map with begin events
 				if (statsManager.getEnableSitePresences()) {
 					// get the saved begin date if there is an open session
-					Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+					Session session = sessionFactory.getCurrentSession();
 					Integer savedOpenSessions = doGetOpenSessions(session, siteId, userId);
 					Optional<Instant> savedBegin = doGetSavedBegin(session, siteId, userId);
 
@@ -866,13 +850,22 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 		
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	private boolean doUpdateConsolidatedEvents() {
+		lock.lock();
+		try {
+			return doUpdateConsolidatedEventsInternal();
+		} finally {
+			lock.unlock();
+		}
+	}
 
 	// ################################################################
 	// Db update methods
 	// ################################################################	
 	@SuppressWarnings("unchecked")
-	private synchronized boolean doUpdateConsolidatedEvents() {
+	private synchronized boolean doUpdateConsolidatedEventsInternal() {
 		long startTime = System.currentTimeMillis();
 		if(eventStatMap.size() > 0 || resourceStatMap.size() > 0
 				|| activityMap.size() > 0 || uniqueVisitsMap.size() > 0 
@@ -880,111 +873,108 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				|| serverStatMap.size() > 0 || userStatMap.size() > 0 || detailedEvents.size() > 0) {
 
 		    try {
-				getHibernateTemplate().execute(session -> {
-                    // do: EventStat
-                    if(eventStatMap.size() > 0) {
-                        Collection<EventStat> tmp1 = null;
-                        synchronized(eventStatMap){
-                            tmp1 = eventStatMap.values();
-                            eventStatMap = Collections.synchronizedMap(new HashMap<String, EventStat>());
-                        }
-                        doUpdateEventStatObjects(session, tmp1);
+				Session session = sessionFactory.getCurrentSession();
+                // do: EventStat
+                if(eventStatMap.size() > 0) {
+                    Collection<EventStat> tmp1 = null;
+                    synchronized(eventStatMap){
+                        tmp1 = eventStatMap.values();
+                        eventStatMap = Collections.synchronizedMap(new HashMap<String, EventStat>());
                     }
+                    doUpdateEventStatObjects(session, tmp1);
+                }
 
-                    // do: DetailedEvents
-                    if (detailedEvents.size() > 0) {
-                        List<DetailedEvent> detailedEventsCopy;
-                        synchronized(detailedEvents) {
-                            detailedEventsCopy = detailedEvents;
-                            detailedEvents = Collections.synchronizedList(new ArrayList<>());
-                        }
-                        doSaveDetailedEvents(session, detailedEventsCopy);
+                // do: DetailedEvents
+                if (detailedEvents.size() > 0) {
+                    List<DetailedEvent> detailedEventsCopy;
+                    synchronized(detailedEvents) {
+                        detailedEventsCopy = detailedEvents;
+                        detailedEvents = Collections.synchronizedList(new ArrayList<>());
                     }
+                    doSaveDetailedEvents(session, detailedEventsCopy);
+                }
 
-                    // do: ResourceStat
-                    if(resourceStatMap.size() > 0) {
-                        Collection<ResourceStat> tmp2 = null;
-                        synchronized(resourceStatMap){
-                            tmp2 = resourceStatMap.values();
-                            resourceStatMap = Collections.synchronizedMap(new HashMap<String, ResourceStat>());
-                        }
-                        doUpdateResourceStatObjects(session, tmp2);
+                // do: ResourceStat
+                if(resourceStatMap.size() > 0) {
+                    Collection<ResourceStat> tmp2 = null;
+                    synchronized(resourceStatMap){
+                        tmp2 = resourceStatMap.values();
+                        resourceStatMap = Collections.synchronizedMap(new HashMap<String, ResourceStat>());
                     }
+                    doUpdateResourceStatObjects(session, tmp2);
+                }
 
-                    // do: Lessons ResourceStat
-                    if (lessonBuilderStatMap.size() > 0) {
-                        Collection<LessonBuilderStat> tmp3 = null;
-                        synchronized (lessonBuilderStatMap) {
-                            tmp3 = lessonBuilderStatMap.values();
-                            lessonBuilderStatMap = Collections.synchronizedMap(new HashMap<String, LessonBuilderStat>());
-                        }
-                        doUpdateLessonBuilderStatObjects(session, tmp3);
+                // do: Lessons ResourceStat
+                if (lessonBuilderStatMap.size() > 0) {
+                    Collection<LessonBuilderStat> tmp3 = null;
+                    synchronized (lessonBuilderStatMap) {
+                        tmp3 = lessonBuilderStatMap.values();
+                        lessonBuilderStatMap = Collections.synchronizedMap(new HashMap<String, LessonBuilderStat>());
                     }
+                    doUpdateLessonBuilderStatObjects(session, tmp3);
+                }
 
-                    // do: SiteActivity
-                    if(activityMap.size() > 0) {
-                        Collection<SiteActivity> tmp3 = null;
-                        synchronized(activityMap){
-                            tmp3 = activityMap.values();
-                            activityMap = Collections.synchronizedMap(new HashMap<String, SiteActivity>());
-                        }
-                        doUpdateSiteActivityObjects(session, tmp3);
+                // do: SiteActivity
+                if(activityMap.size() > 0) {
+                    Collection<SiteActivity> tmp3 = null;
+                    synchronized(activityMap){
+                        tmp3 = activityMap.values();
+                        activityMap = Collections.synchronizedMap(new HashMap<String, SiteActivity>());
                     }
+                    doUpdateSiteActivityObjects(session, tmp3);
+                }
+
+                // do: SiteVisits
+                if(uniqueVisitsMap.size() > 0 || visitsMap.size() > 0) {
+                    // determine unique visits for event related sites
+                    Map<UniqueVisitsKey, Integer> tmp4;
+                    synchronized(uniqueVisitsMap){
+                        tmp4 = uniqueVisitsMap;
+                        uniqueVisitsMap = Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
+                    }
+                    tmp4 = doGetSiteUniqueVisits(session, tmp4);
 
                     // do: SiteVisits
-                    if(uniqueVisitsMap.size() > 0 || visitsMap.size() > 0) {
-                        // determine unique visits for event related sites
-                        Map<UniqueVisitsKey, Integer> tmp4;
-                        synchronized(uniqueVisitsMap){
-                            tmp4 = uniqueVisitsMap;
-                            uniqueVisitsMap = Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
+                    if(visitsMap.size() > 0) {
+                        Collection<SiteVisits> tmp5 = null;
+                        synchronized(visitsMap){
+                            tmp5 = visitsMap.values();
+                            visitsMap = Collections.synchronizedMap(new HashMap<String, SiteVisits>());
                         }
-                        tmp4 = doGetSiteUniqueVisits(session, tmp4);
-
-                        // do: SiteVisits
-                        if(visitsMap.size() > 0) {
-                            Collection<SiteVisits> tmp5 = null;
-                            synchronized(visitsMap){
-                                tmp5 = visitsMap.values();
-                                visitsMap = Collections.synchronizedMap(new HashMap<String, SiteVisits>());
-                            }
-                            doUpdateSiteVisitsObjects(session, tmp5, tmp4);
-                        }
+                        doUpdateSiteVisitsObjects(session, tmp5, tmp4);
                     }
+                }
 
-                    // do: SitePresences
-                    Collection<SitePresenceRecord> tmp6;
-                    lock.lock();
-                    try {
+                // do: SitePresences
+                if(presencesMap.size() > 0) {
+                    Collection<SitePresenceRecord> tmp6 = null;
+                    synchronized(presencesMap){
                         tmp6 = presencesMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
                         presencesMap = Collections.synchronizedMap(new HashMap<SitePresenceKey, List<SitePresenceRecord>>());
-                    } finally {
-                        lock.unlock();
                     }
                     doUpdateSitePresencesObjects(session, tmp6);
+                }
 
-                    // do: ServerStats
-                    if(serverStatMap.size() > 0) {
-                        Collection<ServerStat> tmp7 = null;
-                        synchronized(serverStatMap){
-                            tmp7 = serverStatMap.values();
-                            serverStatMap = Collections.synchronizedMap(new HashMap<String, ServerStat>());
-                        }
-                        doUpdateServerStatObjects(session, tmp7);
+                // do: ServerStats
+                if(serverStatMap.size() > 0) {
+                    Collection<ServerStat> tmp7 = null;
+                    synchronized(serverStatMap){
+                        tmp7 = serverStatMap.values();
+                        serverStatMap = Collections.synchronizedMap(new HashMap<String, ServerStat>());
                     }
+                    doUpdateServerStatObjects(session, tmp7);
+                }
 
-                    // do: UserStats
-                    if(userStatMap.size() > 0) {
-                        Collection<UserStat> tmp8 = null;
-                        synchronized(userStatMap){
-                            tmp8 = userStatMap.values();
-                            userStatMap = Collections.synchronizedMap(new HashMap<String, UserStat>());
-                        }
-                        doUpdateUserStatObjects(session, tmp8);
+                // do: UserStats
+                if(userStatMap.size() > 0) {
+                    Collection<UserStat> tmp8 = null;
+                    synchronized(userStatMap){
+                        tmp8 = userStatMap.values();
+                        userStatMap = Collections.synchronizedMap(new HashMap<String, UserStat>());
                     }
-                    return null;
-            	});
-			} catch(DataAccessException dae) {
+                    doUpdateUserStatObjects(session, tmp8);
+                }
+			} catch(DataAccessException | HibernateException dae) {
 				return false;
 			}
 			long endTime = System.currentTimeMillis();
@@ -1004,19 +994,23 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			String eExistingSiteId = null;
 			EventStat eExisting = null;
 			try{
-				Criteria c = session.createCriteria(EventStatImpl.class);
-				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
-				c.add(Restrictions.eq("eventId", eUpdate.getEventId()));
-				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<EventStatImpl> cq = cb.createQuery(EventStatImpl.class);
+				Root<EventStatImpl> root = cq.from(EventStatImpl.class);
+				cq.select(root).where(
+					cb.equal(root.get("siteId"), eUpdate.getSiteId()),
+					cb.equal(root.get("eventId"), eUpdate.getEventId()),
+					cb.equal(root.get("userId"), eUpdate.getUserId()),
+					cb.equal(root.get("date"), eUpdate.getDate()));
+				Query<EventStatImpl> q = session.createQuery(cq);
 				try{
-					eExisting = (EventStat) c.uniqueResult();
+					eExisting = (EventStat) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (EventStat) c.list().get(0);
+							eExisting = (EventStat) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1038,7 +1032,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				log.warn("Failed to event:"+ eUpdate.getEventId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
-					session.saveOrUpdate(eExisting);
+					session.merge(eExisting);
 		}
 	}
 
@@ -1060,20 +1054,24 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			ResourceStat eExisting = null;
 			String eExistingSiteId = null;
 			try{
-				Criteria c = session.createCriteria(ResourceStatImpl.class);
-				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
-				c.add(Restrictions.eq("resourceRef", eUpdate.getResourceRef()));
-				c.add(Restrictions.eq("resourceAction", eUpdate.getResourceAction()));
-				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<ResourceStatImpl> cq = cb.createQuery(ResourceStatImpl.class);
+				Root<ResourceStatImpl> root = cq.from(ResourceStatImpl.class);
+				cq.select(root).where(
+					cb.equal(root.get("siteId"), eUpdate.getSiteId()),
+					cb.equal(root.get("resourceRef"), eUpdate.getResourceRef()),
+					cb.equal(root.get("resourceAction"), eUpdate.getResourceAction()),
+					cb.equal(root.get("userId"), eUpdate.getUserId()),
+					cb.equal(root.get("date"), eUpdate.getDate()));
+				Query<ResourceStatImpl> q = session.createQuery(cq);
 				try{
-					eExisting = (ResourceStat) c.uniqueResult();
+					eExisting = (ResourceStat) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (ResourceStat) c.list().get(0);
+							eExisting = (ResourceStat) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1094,7 +1092,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				log.warn("Failed to event:"+ eUpdate.getId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
-					session.saveOrUpdate(eExisting);
+					session.merge(eExisting);
 		}
 	}
 
@@ -1109,20 +1107,24 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			LessonBuilderStat eExisting = null;
 			String eExistingSiteId = null;
 			try {
-				Criteria c = session.createCriteria(LessonBuilderStatImpl.class);
-				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
-				c.add(Restrictions.eq("pageRef", eUpdate.getPageRef()));
-				c.add(Restrictions.eq("pageAction", eUpdate.getPageAction()));
-				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<LessonBuilderStatImpl> cq = cb.createQuery(LessonBuilderStatImpl.class);
+				Root<LessonBuilderStatImpl> root = cq.from(LessonBuilderStatImpl.class);
+				cq.select(root).where(
+					cb.equal(root.get("siteId"), eUpdate.getSiteId()),
+					cb.equal(root.get("pageRef"), eUpdate.getPageRef()),
+					cb.equal(root.get("pageAction"), eUpdate.getPageAction()),
+					cb.equal(root.get("userId"), eUpdate.getUserId()),
+					cb.equal(root.get("date"), eUpdate.getDate()));
+				Query<LessonBuilderStatImpl> q = session.createQuery(cq);
 				try {
-					eExisting = (LessonBuilderStat) c.uniqueResult();
+					eExisting = (LessonBuilderStat) q.uniqueResult();
 				} catch (HibernateException ex){
 					try {
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (LessonBuilderStat) c.list().get(0);
+							eExisting = (LessonBuilderStat) q.list().get(0);
 						} else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1144,7 +1146,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				log.warn("Failed to event:"+ eUpdate.getId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
-				session.saveOrUpdate(eExisting);
+				session.merge(eExisting);
 		}
 	}
 	
@@ -1158,18 +1160,22 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			SiteActivity eExisting = null;
 			String eExistingSiteId = null;
 			try{
-				Criteria c = session.createCriteria(SiteActivityImpl.class);
-				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
-				c.add(Restrictions.eq("eventId", eUpdate.getEventId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<SiteActivityImpl> cq = cb.createQuery(SiteActivityImpl.class);
+				Root<SiteActivityImpl> root = cq.from(SiteActivityImpl.class);
+				cq.select(root).where(
+					cb.equal(root.get("siteId"), eUpdate.getSiteId()),
+					cb.equal(root.get("eventId"), eUpdate.getEventId()),
+					cb.equal(root.get("date"), eUpdate.getDate()));
+				Query<SiteActivityImpl> q = session.createQuery(cq);
 				try{
-					eExisting = (SiteActivity) c.uniqueResult();
+					eExisting = (SiteActivity) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (SiteActivity) c.list().get(0);
+							eExisting = (SiteActivity) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1191,7 +1197,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
-					session.saveOrUpdate(eExisting);
+					session.merge(eExisting);
 		}
 	}
 	
@@ -1205,17 +1211,21 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			SiteVisits eExisting = null;
 			String eExistingSiteId = null;
 			try{
-				Criteria c = session.createCriteria(SiteVisitsImpl.class);
-				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<SiteVisitsImpl> cq = cb.createQuery(SiteVisitsImpl.class);
+				Root<SiteVisitsImpl> root = cq.from(SiteVisitsImpl.class);
+				cq.select(root).where(
+					cb.equal(root.get("siteId"), eUpdate.getSiteId()),
+					cb.equal(root.get("date"), eUpdate.getDate()));
+				Query<SiteVisitsImpl> q = session.createQuery(cq);
 				try{
-					eExisting = (SiteVisits) c.uniqueResult();
+					eExisting = (SiteVisits) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (SiteVisits) c.list().get(0);
+							eExisting = (SiteVisits) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1239,7 +1249,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				log.warn("Failed to event:"+ eUpdate.getId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
-					session.saveOrUpdate(eExisting);
+					session.merge(eExisting);
 		}
 	}
 
@@ -1252,17 +1262,21 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			ServerStat eUpdate = i.next();
 			ServerStat eExisting = null;
 			try{
-				Criteria c = session.createCriteria(ServerStatImpl.class);
-				c.add(Restrictions.eq("eventId", eUpdate.getEventId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<ServerStatImpl> cq = cb.createQuery(ServerStatImpl.class);
+				Root<ServerStatImpl> root = cq.from(ServerStatImpl.class);
+				cq.select(root).where(
+					cb.equal(root.get("eventId"), eUpdate.getEventId()),
+					cb.equal(root.get("date"), eUpdate.getDate()));
+				Query<ServerStatImpl> q = session.createQuery(cq);
 				try{
-					eExisting = (ServerStat) c.uniqueResult();
+					eExisting = (ServerStat) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (ServerStat) c.list().get(0);
+							eExisting = (ServerStat) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1282,7 +1296,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}catch(Exception ex){
 				log.warn("Failed to event:"+ eUpdate.getEventId(), ex);
 			}
-			session.saveOrUpdate(eExisting);
+			session.merge(eExisting);
 		}
 	}
 	
@@ -1296,17 +1310,21 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			UserStat eExisting = null;
 			String eExistingUserId = null;
 			try{
-				Criteria c = session.createCriteria(UserStatImpl.class);
-				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
-				c.add(Restrictions.eq("date", eUpdate.getDate()));
+				CriteriaBuilder cb = session.getCriteriaBuilder();
+				CriteriaQuery<UserStatImpl> cq = cb.createQuery(UserStatImpl.class);
+				Root<UserStatImpl> root = cq.from(UserStatImpl.class);
+				cq.select(root).where(
+					cb.equal(root.get("userId"), eUpdate.getUserId()),
+					cb.equal(root.get("date"), eUpdate.getDate()));
+				Query<UserStatImpl> q = session.createQuery(cq);
 				try{
-					eExisting = (UserStat) c.uniqueResult();
+					eExisting = (UserStat) q.uniqueResult();
 				}catch(HibernateException ex){
 					try{
-						List events = c.list();
+						List events = q.list();
 						if ((events!=null) && (events.size()>0)){
 							log.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (UserStat) c.list().get(0);
+							eExisting = (UserStat) q.list().get(0);
 						}else{
 							log.debug("No result found", ex);
 							eExisting = null;
@@ -1330,7 +1348,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			
 			if(StringUtils.isNotBlank(eExistingUserId)) {
-				session.saveOrUpdate(eExisting);
+				session.merge(eExisting);
 			}
 			
 		}
@@ -1340,24 +1358,23 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		Iterator<UniqueVisitsKey> i = map.keySet().iterator();
 		while(i.hasNext()){
 			UniqueVisitsKey key = i.next();
-			Query q = session.createQuery("select count(distinct s.userId) " + 
-					"from EventStatImpl as s " +
-					"where s.siteId = :siteid " +
-					"and s.eventId = 'pres.begin' " +
-					"and s.date = :idate");
-			q.setString("siteid", key.siteId);
-			q.setDate("idate", key.date);
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+			Root<EventStatImpl> root = cq.from(EventStatImpl.class);
+			cq.select(cb.countDistinct(root.get("userId"))).where(
+				cb.equal(root.get("siteId"), key.siteId),
+				cb.equal(root.get("eventId"), "pres.begin"),
+				cb.equal(root.get("date"), key.date));
+			Query<Long> q = session.createQuery(cq);
 			Integer uv = 1;
 			try{
-				uv = (Integer) q.uniqueResult();
-			}catch(ClassCastException ex){
-				uv = (int) ((Long) q.uniqueResult()).longValue();
+				uv = q.uniqueResult().intValue();
 			}catch(HibernateException ex){
 				try{
 					List visits = q.list();
 					if ((visits!=null) && (visits.size()>0)){
 						log.debug("More than 1 result when unique result expected.", ex);
-						uv = (Integer) q.list().get(0);
+						uv = q.list().get(0).intValue();
 					}else{
 						log.debug("No result found", ex);
 						uv = 1;
@@ -1592,16 +1609,20 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	@SuppressWarnings("unchecked")
 	private SitePresence doGetSitePresence(Session session, String siteId, String userId, Date date) {
 		SitePresence eDb = null;
-		Criteria c = session.createCriteria(SitePresenceImpl.class);
-		c.add(Restrictions.eq("siteId", siteId));
-		c.add(Restrictions.eq("userId", userId));
-		c.add(Restrictions.eq("date", date));
-		
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SitePresenceImpl> cq = cb.createQuery(SitePresenceImpl.class);
+		Root<SitePresenceImpl> root = cq.from(SitePresenceImpl.class);
+		cq.select(root).where(
+			cb.equal(root.get("siteId"), siteId),
+			cb.equal(root.get("userId"), userId),
+			cb.equal(root.get("date"), date));
+		Query<SitePresenceImpl> q = session.createQuery(cq);
+
 		try{
-			eDb = (SitePresence) c.uniqueResult();
+			eDb = (SitePresence) q.uniqueResult();
 		}catch(HibernateException ex){
 			try{
-				List es = c.list();
+				List es = q.list();
 				if(es != null && es.size() > 0){
 					log.debug("More than 1 result when unique result expected.", ex);
 					eDb = (SitePresence) es.get(0);
@@ -1671,15 +1692,19 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private SitePresenceTotal doGetSitePresenceTotal(Session session, String siteId, String userId) {
 
 		SitePresenceTotal eDb = null;
-		Criteria c = session.createCriteria(SitePresenceTotalImpl.class);
-		c.add(Restrictions.eq("siteId", siteId));
-		c.add(Restrictions.eq("userId", userId));
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SitePresenceTotalImpl> cq = cb.createQuery(SitePresenceTotalImpl.class);
+		Root<SitePresenceTotalImpl> root = cq.from(SitePresenceTotalImpl.class);
+		cq.select(root).where(
+			cb.equal(root.get("siteId"), siteId),
+			cb.equal(root.get("userId"), userId));
+		Query<SitePresenceTotalImpl> q = session.createQuery(cq);
 
 		try {
-			eDb = (SitePresenceTotal) c.uniqueResult();
+			eDb = (SitePresenceTotal) q.uniqueResult();
 		} catch (HibernateException ex) {
 			try {
-				List es = c.list();
+				List es = q.list();
 				if (es != null && es.size() > 0) {
 					log.debug("More than 1 result when unique result expected.", ex);
 					eDb = (SitePresenceTotal) es.get(0);

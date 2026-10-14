@@ -21,18 +21,18 @@
 
 package org.sakaiproject.messagebundle.api;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Lob;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Lob;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import org.hibernate.Length;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -58,8 +58,7 @@ public class MessageBundleProperty {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "message_bundle_property_sequence")
-    @SequenceGenerator(name = "message_bundle_property_sequence", sequenceName = "SAKAI_MESSAGEBUNDLE_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "message_bundle_property_sequence", sequenceName = "SAKAI_MESSAGEBUNDLE_S"))
     private Long id;
 
     @Column(name = "BASENAME", length = 150, nullable = false)
@@ -75,11 +74,11 @@ public class MessageBundleProperty {
     private String propertyName;
 
     @Lob
-    @Column(name = "PROP_VALUE")
+    @Column(name = "PROP_VALUE", length = Length.LONG32)
     private String value;
 
     @Lob
-    @Column(name = "DEFAULT_VALUE")
+    @Column(name = "DEFAULT_VALUE", length = Length.LONG32)
     private String defaultValue;
 
     public MessageBundleProperty(String baseName, String moduleName, String locale, String propertyName) {

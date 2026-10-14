@@ -31,11 +31,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.faces.model.SelectItemGroup;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.model.SelectItemGroup;
 
 import lombok.Getter;
 import lombok.Setter;

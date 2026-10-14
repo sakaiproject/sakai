@@ -28,10 +28,10 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -369,19 +369,18 @@ public class AccessServlet extends VmServlet
 			// Check if the securetoken param has been sent from the client.
 			if (StringUtils.isNotBlank(secureTokenParameter)) {
 				try {
-					log.debug("The secure token parameter has been received {}", secureTokenParameter);
+					log.debug("Received secure file token parameter");
 					String decryptedToken = encryptionUtilityService.decrypt(secureTokenParameter);
 					String[] tokenParts = decryptedToken.split("\\|");
 					String decryptedSessionValue = tokenParts[0];
 					String decryptedDateValue = tokenParts[1];
-					log.debug("The decryptedSessionValue is {}", decryptedSessionValue);
 					log.debug("The decryptedDateValue is {}", decryptedDateValue);
 					LocalDateTime decryptedTokenValidity = LocalDateTime.parse(decryptedDateValue);
 					boolean isValidSession = sessionManager.getCurrentSession().getId().equals(decryptedSessionValue);
 					boolean isValidTime = LocalDateTime.now().isBefore(decryptedTokenValidity);
 					// If the time-based token is correct and the file contains the secured property, serve the file.
 					if (isValidSession && isValidTime) {
-						log.debug("The token {} is valid for the ref {}", secureTokenParameter, ref);
+						log.debug("Secure file token is valid for reference {}", ref);
 						// get the properties - but use a security advisor to avoid needing end-user permission to the resource
 						SecurityAdvisor securityAdvisor = new SecurityAdvisor() {
 							public SecurityAdvice isAllowed(String userId, String function, String reference) {

@@ -26,7 +26,7 @@
 		</property>
 	</bean>
 	<!-- Declaring Resolvers here. Decision must be made in Request Scope -->
-	<bean name="commonsMultipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+	<bean name="commonsMultipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver" />
 	<bean name="blankMultipartResolver" class="uk.org.ponder.springutil.BlankMultipartResolver" />
 
 	<bean id="sakai-ContextProxy" parent="RSACStringBridge">

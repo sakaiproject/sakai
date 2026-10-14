@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.component.ValueHolder;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.render.Renderer;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.component.ValueHolder;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.render.Renderer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;

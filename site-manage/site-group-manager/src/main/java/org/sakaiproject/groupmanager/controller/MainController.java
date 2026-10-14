@@ -27,9 +27,9 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
@@ -237,6 +237,7 @@ public class MainController {
         model.addAttribute("lockedForDeletionGroupList", lockedForDeletionGroupList);
         model.addAttribute("anyGroupLocked", anyGroupLocked);
         model.addAttribute("lockedGroupsEntityMap", lockedGroupsEntityMap);
+        model.addAttribute("assignmentTrashUrl", sakaiService.getAssignmentTrashUrl(site));
         model.addAttribute("groupMemberMap", groupMemberMap);
         model.addAttribute("groupJoinableSetMap", groupJoinableSetMap);
         model.addAttribute("joinableSetOpenDateMap", joinableSetOpenDateMap);

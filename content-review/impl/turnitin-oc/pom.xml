@@ -57,12 +57,8 @@
 			<artifactId>sakai-assignment-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpasyncclient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpmime</artifactId>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -73,8 +69,8 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
@@ -85,8 +81,8 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>jta</artifactId>
+			<groupId>jakarta.transaction</groupId>
+			<artifactId>jakarta.transaction-api</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -120,12 +116,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
+			<artifactId>spring-context</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
+			<artifactId>spring-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -134,7 +129,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
+			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-core</artifactId>
 		</dependency>
 	</dependencies>

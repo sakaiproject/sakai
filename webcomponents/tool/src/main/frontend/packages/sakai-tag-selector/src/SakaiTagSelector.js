@@ -102,7 +102,8 @@ export class SakaiTagSelector extends SakaiShadowElement {
   get _choices() {
     const query = this._query.trim().toLowerCase();
     const options = this._availableOptions;
-    const choices = options.filter(tag => tag.name.toLowerCase().includes(query));
+    // Global vocabularies can contain thousands of tags; search the catalog, render a short list.
+    const choices = options.filter(tag => tag.name.toLowerCase().includes(query)).slice(0, 50);
     const label = this._query.replaceAll(",", "").trim();
     if (this.addNew && label && !options.some(tag => tag.name.toLowerCase() === label.toLowerCase() || tag.code === label)) {
       choices.push({ name: label, code: label, create: true });

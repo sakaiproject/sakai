@@ -16,8 +16,8 @@
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -55,25 +55,20 @@
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
-	<dependency>
-	    <groupId>org.springframework.security.extensions</groupId>
-	    <artifactId>spring-security-saml2-core</artifactId>
-	    <version>1.0.10.RELEASE</version>
-        <exclusions>
-            <exclusion>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>commons-httpclient</groupId>
-                <artifactId>commons-httpclient</artifactId>
-            </exclusion>
-        </exclusions>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-saml2-service-provider</artifactId>
+      <version>${sakai.spring.security.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
     </dependency>
       <dependency>
-          <groupId>org.jasig.cas.client</groupId>
+          <groupId>org.apereo.cas.client</groupId>
           <artifactId>cas-client-core</artifactId>
-          <version>3.6.4</version>
+          <version>4.0.4</version>
       </dependency>
       <dependency>
           <groupId>org.springframework</groupId>
@@ -124,16 +119,16 @@
           <version>${sakai.spring.security.version}</version>
       </dependency>
       <dependency>
-	      <groupId>aopalliance</groupId>
-	      <artifactId>aopalliance</artifactId>
-	      <scope>provided</scope>
-      </dependency>
-      <dependency>
           <groupId>org.sakaiproject.portal</groupId>
           <artifactId>sakai-portal-api</artifactId>
       </dependency>
   </dependencies>
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources>
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>

@@ -5,7 +5,7 @@
  */
 package org.sakaiproject.sitestats.impl.view;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 
 import lombok.Setter;
 

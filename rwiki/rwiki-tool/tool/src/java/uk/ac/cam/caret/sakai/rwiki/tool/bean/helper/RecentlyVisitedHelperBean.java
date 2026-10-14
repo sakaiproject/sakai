@@ -21,9 +21,9 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.bean.helper;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 

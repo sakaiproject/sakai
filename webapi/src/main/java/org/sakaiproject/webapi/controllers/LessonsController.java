@@ -81,7 +81,7 @@ public class LessonsController extends AbstractSakaiApiController {
 
     // lessonId = itemId of lesson's root page
     @DeleteMapping(value = "/sites/{siteId}/lessons/{lessonId}/items")
-    public ResponseEntity<String> deleteLessonItems(@PathVariable String siteId, @PathVariable Long lessonId) {
+    public ResponseEntity<String> deleteLessonItems(@PathVariable("siteId") String siteId, @PathVariable("lessonId") Long lessonId) {
         String userId = checkSakaiSession().getUserId();
         checkSite(siteId);
 
@@ -140,7 +140,7 @@ public class LessonsController extends AbstractSakaiApiController {
     }
 
     @DeleteMapping("/sites/{siteId}/lessons/{lessonId}/conditions")
-    public ResponseEntity<String> deleteLessonConditions(@PathVariable String siteId, @PathVariable Long lessonId) {
+    public ResponseEntity<String> deleteLessonConditions(@PathVariable("siteId") String siteId, @PathVariable("lessonId") Long lessonId) {
         String userId = checkSakaiSession().getUserId();
         Site site = checkSite(siteId);
 
@@ -175,7 +175,7 @@ public class LessonsController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/lessons/{lessonId}/items/bulk", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<LessonItemRestBean>> createLessonItems(@PathVariable String siteId, @PathVariable Long lessonId,
+    public ResponseEntity<List<LessonItemRestBean>> createLessonItems(@PathVariable("siteId") String siteId, @PathVariable("lessonId") Long lessonId,
             @RequestBody List<LessonItemRestBean> lessonItems) {
         String userId = checkSakaiSession().getUserId();
         checkSite(siteId);

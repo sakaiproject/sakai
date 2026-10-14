@@ -35,8 +35,8 @@
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
@@ -62,11 +62,6 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>taglibs</groupId>
-            <artifactId>standard</artifactId>
-            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -12,7 +12,7 @@
 
 		<property name="title" column="TITLE" />
 		<property name="resourceId" column="RESOURCE_ID" />
-		<property name="manifestId" column="MANIFEST_ID" />
+		<property name="manifestId" column="MANIFEST_ID" type="long" />
 		<property name="manifestResourceId" column="MANIFEST_RESOURCE_ID" />
 		<property name="context" column="CONTEXT" />
 		<property name="url" column="URL" />

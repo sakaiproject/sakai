@@ -47,40 +47,6 @@ public class ReversiblePropertyOverrideConfigurer extends PropertyOverrideConfig
 		super.setBeanNameSeparator(beanNameSeparator);
 	}
 
-    /* NOTE: this was meant to fix https://jira.sakaiproject.org/browse/KNL-791
-     * but it fails because factory.getType will return interfaces sometimes instead of the underlying
-     * bean class type and this causes the method to fail to identify that the setter exists (since it
-     * often does not on the interface). Notably, this fails for ehcache Cache beans since spring reports
-     * the class type as EhCache and not Cache.
-     * 
-	@Override
-	protected void applyPropertyValue(ConfigurableListableBeanFactory factory, String beanName, String property, String value) {
-	    // check if the bean has this property which can be set
-	    Class<?> beanClass = factory.getType(beanName);
-	    boolean exists = ReflectionUtils.findField(beanClass, property) != null;
-	    if (!exists) {
-	        String setProperty = "set"+Character.toUpperCase(property.charAt(0))+(property.length() > 1 ? property.substring(1) : "");
-	        Method[] methods = ReflectionUtils.getAllDeclaredMethods(beanClass);
-	        ArrayList<String> l = new ArrayList<String>();
-	        for (int i = 0; i < methods.length; i++) {
-                Method method = methods[i];
-                l.add(method.getName());
-                if (method.getName().equals(setProperty) && method.getParameterTypes().length == 1) {
-                    exists = true;
-                    break;
-                }
-            }
-            log.warn("KNL-791 ("+property+") to bean ("+beanName+") class ("+beanClass.getCanonicalName()+"): "+l);
-	    }
-	    if (exists) {
-	        log.info("Applying property ("+property+"="+value+") to bean ("+beanName+")");
-	        super.applyPropertyValue(factory, beanName, property, value);
-	    } else {
-            log.warn("Skipping configured bean property ("+property+"="+value+") for bean ("+beanName+"), no property with name ("+property+") could be found");
-	    }
-	}
-	*/
-
 	public boolean isBeanNameAtEnd() {
 		return beanNameAtEnd;
 	}

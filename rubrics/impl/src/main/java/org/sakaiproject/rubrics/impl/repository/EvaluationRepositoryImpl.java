@@ -30,11 +30,11 @@ import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
 
 import org.hibernate.Session;
 
@@ -50,6 +50,20 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         query.where(cb.equal(eval.get("associationId"), associationId));
 
         return session.createQuery(query).list();
+    }
+
+    @Override
+    public Optional<Evaluation> findFirstByAssociationIdAndOwnerId(Long associationId, String ownerId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> eval = query.from(Evaluation.class);
+        query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
+                            cb.equal(eval.get("ownerId"), ownerId)));
+
+        return session.createQuery(query).setMaxResults(1).uniqueResultOptional();
     }
 
     public Optional<Evaluation> findByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId) {

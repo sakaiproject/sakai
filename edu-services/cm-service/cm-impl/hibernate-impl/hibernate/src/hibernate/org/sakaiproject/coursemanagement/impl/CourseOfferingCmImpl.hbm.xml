@@ -51,8 +51,8 @@
     </query>
     
     <query name="findActiveCourseOfferingsInCanonicalCourse">
-    <![CDATA[from CourseOfferingCmImpl where start_date<=:now
-    	and end_date>=:now and class_discr='org.sakaiproject.coursemanagement.impl.CourseOfferingCmImpl'
+    <![CDATA[from CourseOfferingCmImpl where startDate<=:now
+    	and endDate>=:now
     	and canonicalCourse=:canonicalCourse
     ]]>
     </query>

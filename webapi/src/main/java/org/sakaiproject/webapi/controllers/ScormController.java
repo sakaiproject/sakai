@@ -80,7 +80,7 @@ public class ScormController extends AbstractSakaiApiController {
     }
 
     @GetMapping(path = "/sessions/{sessionId}")
-    public ScormSessionResponse getSession(@PathVariable String sessionId) {
+    public ScormSessionResponse getSession(@PathVariable("sessionId") String sessionId) {
 
         checkSakaiSession();
 
@@ -90,7 +90,7 @@ public class ScormController extends AbstractSakaiApiController {
     }
 
     @PostMapping(path = "/sessions/{sessionId}/nav", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ScormSessionResponse navigate(@PathVariable String sessionId, @RequestBody ScormNavigationPayload payload) {
+    public ScormSessionResponse navigate(@PathVariable("sessionId") String sessionId, @RequestBody ScormNavigationPayload payload) {
 
         checkSakaiSession();
 
@@ -106,7 +106,8 @@ public class ScormController extends AbstractSakaiApiController {
     }
 
     @PostMapping(path = "/sessions/{sessionId}/runtime", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ScormRuntimeResponse runtime(@PathVariable String sessionId, @RequestBody ScormRuntimePayload payload) {
+    public ScormRuntimeResponse runtime(@PathVariable("sessionId") String sessionId, @RequestBody ScormRuntimePayload payload) {
+
         checkSakaiSession();
 
         if (StringUtils.isBlank(payload.getMethod())) {
@@ -130,7 +131,7 @@ public class ScormController extends AbstractSakaiApiController {
     }
 
     @DeleteMapping(path = "/sessions/{sessionId}")
-    public void closeSession(@PathVariable String sessionId) {
+    public void closeSession(@PathVariable("sessionId") String sessionId) {
 
         checkSakaiSession();
         scormLaunchService.closeSession(sessionId);

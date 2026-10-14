@@ -16,7 +16,6 @@
 package org.sakaiproject.sitestats.tool.mvc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -101,8 +100,7 @@ public class SiteStatsReportFormValidator {
             return "sitestats_report_configuration_invalid";
         }
         if (ReportManager.WHAT_RESOURCES.equals(form.getWhat()) && form.isWhatLimitedResourceIds()
-                && Arrays.stream(StringUtils.defaultString(form.getWhatResourceIds()).split("[\\r\\n]+"))
-                        .noneMatch(StringUtils::isNotBlank)) {
+                && form.resourceIdList().isEmpty()) {
             return "report_err_noresources";
         }
         if (!ReportConfigurationRules.isWhenTypeAllowed(form.getWhen())) {

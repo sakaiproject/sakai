@@ -22,7 +22,7 @@
             <artifactId>samigo-hibernate</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
@@ -118,12 +118,20 @@
             <version>3.4</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>

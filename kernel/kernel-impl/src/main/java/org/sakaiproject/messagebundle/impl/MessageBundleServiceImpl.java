@@ -35,14 +35,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
@@ -112,34 +108,41 @@ public class MessageBundleServiceImpl implements MessageBundleService {
     @Override
     @Transactional(readOnly = true)
     public int getSearchCount(String searchQuery, String module, String baseName, String locale) {
-        Number count = 0;
-        Criteria query = sessionFactory.getCurrentSession().createCriteria(MessageBundleProperty.class);
         try {
+            StringBuilder hql = new StringBuilder("select count(*) from MessageBundleProperty where 1=1");
             if (StringUtils.isNotEmpty(searchQuery)) {
-                query.add(Restrictions.disjunction()
-                        .add(Restrictions.ilike("defaultValue", searchQuery, MatchMode.ANYWHERE))
-                        .add(Restrictions.ilike("value", searchQuery, MatchMode.ANYWHERE))
-                        .add(Restrictions.ilike("propertyName", searchQuery, MatchMode.ANYWHERE)));
+                hql.append(" and (lower(defaultValue) like :searchQuery or lower(value) like :searchQuery or lower(propertyName) like :searchQuery)");
             }
             if (StringUtils.isNotEmpty(module)) {
-                query.add(Restrictions.eq("moduleName", module));
+                hql.append(" and moduleName = :module");
             }
             if (StringUtils.isNotEmpty(baseName)) {
-                query.add(Restrictions.eq("baseName", baseName));
+                hql.append(" and baseName = :baseName");
             }
             if (StringUtils.isNotEmpty(locale)) {
-                query.add(Restrictions.eq("locale", locale));
+                hql.append(" and locale = :locale");
             }
-            query.setProjection(Projections.rowCount());
-            try {
-                count = (Number) query.uniqueResult();
-            } catch (HibernateException e) {
-                throw new RuntimeException(e.getMessage(), e);
+
+            Query<Long> query = sessionFactory.getCurrentSession().createQuery(hql.toString(), Long.class);
+            if (StringUtils.isNotEmpty(searchQuery)) {
+               query.setParameter("searchQuery", "%" + searchQuery.toLowerCase() + "%");
             }
+            if (StringUtils.isNotEmpty(module)) {
+                query.setParameter("module", module);
+            }
+            if (StringUtils.isNotEmpty(baseName)) {
+                query.setParameter("baseName", baseName);
+            }
+            if (StringUtils.isNotEmpty(locale)) {
+                query.setParameter("locale", locale);
+            }
+
+            Long count = query.uniqueResult();
+            return count != null ? count.intValue() : 0;
         } catch (Exception e) {
             log.error("problem searching the message bundle data", e);
         }
-        return count.intValue();
+        return 0;
     }
 
     /**
@@ -209,28 +212,36 @@ public class MessageBundleServiceImpl implements MessageBundleService {
     @Override
     @Transactional(readOnly = true)
     public List<MessageBundleProperty> search(String searchQuery, String module, String baseName, String locale) {
-
-        Criteria query = sessionFactory.getCurrentSession().createCriteria(MessageBundleProperty.class);
-
         try {
+           StringBuilder hql = new StringBuilder("from MessageBundleProperty where 1=1");
             if (StringUtils.isNotEmpty(searchQuery)) {
-                query.add(Restrictions.disjunction()
-                        .add(Restrictions.ilike("defaultValue", searchQuery, MatchMode.ANYWHERE))
-                        .add(Restrictions.ilike("value", searchQuery, MatchMode.ANYWHERE))
-                        .add(Restrictions.ilike("propertyName", searchQuery, MatchMode.ANYWHERE)));
+                hql.append(" and (lower(defaultValue) like :searchQuery or lower(value) like :searchQuery or lower(propertyName) like :searchQuery)");
             }
             if (StringUtils.isNotEmpty(module)) {
-                query.add(Restrictions.eq("moduleName", module));
+                hql.append(" and moduleName = :module");
             }
             if (StringUtils.isNotEmpty(baseName)) {
-                query.add(Restrictions.eq("baseName", baseName));
+                hql.append(" and baseName = :baseName");
             }
             if (StringUtils.isNotEmpty(locale)) {
-                query.add(Restrictions.eq("locale", locale));
+                hql.append(" and locale = :locale");
             }
 
-            return (List<MessageBundleProperty>) query.list();
+            Query<MessageBundleProperty> query = sessionFactory.getCurrentSession().createQuery(hql.toString(), MessageBundleProperty.class);
+            if (StringUtils.isNotEmpty(searchQuery)) {
+                query.setParameter("searchQuery", "%" + searchQuery.toLowerCase() + "%");
+            }
+            if (StringUtils.isNotEmpty(module)) {
+                query.setParameter("module", module);
+            }
+            if (StringUtils.isNotEmpty(baseName)) {
+                query.setParameter("baseName", baseName);
+            }
+            if (StringUtils.isNotEmpty(locale)) {
+                query.setParameter("locale", locale);
+            }
 
+            return query.list();
         } catch (Exception e) {
             log.error("problem searching the message bundle data", e);
         }
@@ -348,20 +359,32 @@ public class MessageBundleServiceImpl implements MessageBundleService {
     @Transactional(readOnly = true)
     public List<MessageBundleProperty> getAllProperties(String locale, String basename, String module) {
 
-        Criteria query = sessionFactory.getCurrentSession().createCriteria(MessageBundleProperty.class);
+        StringBuilder hql = new StringBuilder("from MessageBundleProperty where 1=1");
+
+        if (StringUtils.isNotEmpty(locale)) {
+            hql.append(" and locale = :locale");
+        }
+        if (StringUtils.isNotEmpty(basename)) {
+            hql.append(" and baseName = :baseName");
+        }
+        if (StringUtils.isNotEmpty(module)) {
+            hql.append(" and moduleName = :module");
+        }
+
+        Query<MessageBundleProperty> query = sessionFactory.getCurrentSession().createQuery(hql.toString(), MessageBundleProperty.class);
         query.setCacheable(true);
 
         if (StringUtils.isNotEmpty(locale)) {
-            query.add(Restrictions.eq("locale", locale));
+            query.setParameter("locale", locale);
         }
         if (StringUtils.isNotEmpty(basename)) {
-            query.add(Restrictions.eq("baseName", basename));
+            query.setParameter("baseName", basename);
         }
         if (StringUtils.isNotEmpty(module)) {
-            query.add(Restrictions.eq("moduleName", module));
+            query.setParameter("module", module);
         }
 
-        return (List<MessageBundleProperty>) query.list();
+        return query.list();
     }
 
     @Override
@@ -399,24 +422,19 @@ public class MessageBundleServiceImpl implements MessageBundleService {
     @Override
     @Transactional(readOnly = true)
     public List<String> getAllModuleNames() {
-        Criteria query = sessionFactory.getCurrentSession().createCriteria(MessageBundleProperty.class)
-                .setProjection(Projections.distinct(Projections.property("moduleName")))
-                .addOrder(Order.asc("moduleName"));
+        Query<String> query = sessionFactory.getCurrentSession()
+            .createQuery("select distinct moduleName from MessageBundleProperty order by moduleName asc", String.class);
         query.setCacheable(true);
-
-        List<String> results = (List<String>) query.list();
-        return results;
+        return query.list();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<String> getAllBaseNames() {
-        Criteria query = sessionFactory.getCurrentSession().createCriteria(MessageBundleProperty.class)
-                .setProjection(Projections.distinct(Projections.property("baseName")))
-                .addOrder(Order.asc("baseName"));
-        List<String> results = (List<String>) query.list();
-        return results;
-
+        Query<String> query = sessionFactory.getCurrentSession()
+            .createQuery("select distinct baseName from MessageBundleProperty order by baseName asc", String.class);
+        query.setCacheable(true);
+        return query.list();
     }
 
     @Override
@@ -461,7 +479,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
         if (sortField == SORT_FIELD_BASENAME) {
             sortFieldName = "baseName";
         }
-        org.hibernate.Query query = null;
+        org.hibernate.query.Query query = null;
         String queryString = "from MessageBundleProperty where value != null order by " + sortFieldName + " " + orderBy;
         try {
             query = sessionFactory.getCurrentSession().createQuery(queryString);

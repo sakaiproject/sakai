@@ -318,8 +318,11 @@ public class SiteManageServiceImpl implements SiteManageService {
                 if (supportedTools != null) {
                     for (String toolId : supportedTools) {
                         if (selectedTools.contains(toolId)) {
+                            // Duplicate copies settings and permissions without opting into publication.
                             transferrer.getTransferOptions().ifPresent(options ->
-                                toolOptions.put(toolId, Map.of(fromSiteId, new ArrayList<>(options))));
+                                toolOptions.put(toolId, Map.of(fromSiteId, options.stream()
+                                    .filter(option -> !EntityTransferrer.PUBLISH_OPTION.equals(option))
+                                    .collect(Collectors.toList()))));
                         }
                     }
                 }

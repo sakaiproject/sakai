@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.scorm.ui;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.request.Request;

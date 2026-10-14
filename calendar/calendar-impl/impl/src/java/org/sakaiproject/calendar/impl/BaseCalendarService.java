@@ -24,17 +24,15 @@ package org.sakaiproject.calendar.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -67,7 +65,6 @@ import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -76,9 +73,6 @@ import org.sakaiproject.event.api.*;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Site;
@@ -145,7 +139,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	@Setter protected ServerConfigurationService serverConfigurationService;
 	@Setter protected AliasService aliasService;
 	@Setter protected SiteService siteService;
-	@Setter protected MemoryService memoryService;
 	@Setter protected IdManager idManager;
 	@Setter protected SecurityService securityService;
 	@Setter protected AuthzGroupService authzGroupService;
@@ -161,7 +154,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	
 	public static final String SAKAI = "Sakai";
 	
-	private Cache<String, Calendar> cache = null;
+	private Map<String, Calendar> calendrCache = new ConcurrentHashMap<>();
 	
 	/**
 	 * Access this service from the inner classes.
@@ -281,13 +274,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			CalendarEdit cal = editCalendar(ref);
 			cal.setExportEnabled(enable);
 			commitCalendar(cal);
-			
-			//Update the cache object if exists
-			if(cache != null) {
-				if(cache.containsKey(ref)) {
-					cache.put(ref,cal);
-				}
-			}
 		}
 		catch ( Exception e)
 		{
@@ -542,11 +528,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		functionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR, true);
 		functionManager.registerFunction(AUTH_OPTIONS_CALENDAR, true);
 		functionManager.registerFunction(AUTH_VIEW_AUDIENCE, true);
-		
-		// setup cache
-		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);
-		cacheConfig.setStatisticsEnabled(true);
-		cache = this.memoryService.createCache("org.sakaiproject.calendar.cache", cacheConfig);
+
 		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", MapTimeZoneCache.class.getName());
 
 		eventTrackingService.addObserver(this);
@@ -624,18 +606,17 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	protected Calendar findCalendar(String ref)
 	{
 		Calendar calendar = null;
-			
-		//check cache
-		if(cache != null) {
-			if(cache.containsKey(ref)) {
-				calendar = (Calendar)cache.get(ref);
+
+		if (StringUtils.isNotBlank(ref)) {
+			// check cache
+			calendar = calendrCache.get(ref);
+
+			// if calendar is null, it's not in the cache, get it from storage and cache it
+			if (calendar == null) {
+				calendar = m_storage.getCalendar(ref);
+				// don't cache negative results
+				if (calendar != null) calendrCache.put(ref, calendar);
 			}
-		}
-		
-		//if calendar is still null, it's not in the cache, get it from storage and cache it
-		if(calendar == null) {
-			calendar = m_storage.getCalendar(ref);
-			cache.put(ref, calendar);
 		}
 		
 		return calendar;
@@ -2028,7 +2009,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		if (arg instanceof Event) {
 			Event event = (Event) arg;
 			if (EVENT_MODIFY_CALENDAR.equals(event.getEvent())) {
-				cache.remove(event.getResource());
+				calendrCache.remove(event.getResource());
 			}
 		}
 	}

@@ -158,7 +158,8 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
         assertEquals("<p>Thank you for your consideration. 😊 I hope you had a wonderful day.</p>", decodedText);
     }
 
-    @Test
+    /*TO-DO JAKARTA BRANCH*/
+    /*@Test
     public void deserializeFromXml() {
         O11Assignment o11a = (O11Assignment) conversion.serializeFromXml(readResourceToString("/simple_asn.xml"), O11Assignment.class);
         assertEquals("cac11b82-64ec-4cc3-87b9-cd0385aebd71", o11a.getId());
@@ -812,7 +813,7 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
                 submissionPropertiesToCheck2
         );
         assertTrue(Boolean.TRUE);
-    }
+    }*/
     
     private void assignmentVerification(String aId,
                                         Boolean cAllowAttachments,

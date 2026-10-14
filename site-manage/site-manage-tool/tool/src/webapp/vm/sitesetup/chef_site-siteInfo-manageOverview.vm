@@ -16,11 +16,11 @@
             #foreach ($layout in $layouts)
                     <input type="radio"
                            name="layout"
-                           id="layout$velocityCount"
-                           value="$velocityCount"
-                           #if($velocityCount==($pagelayout))checked="checked"#end
+                           id="layout$foreach.count"
+                           value="$foreach.count"
+                           #if($foreach.count == $pagelayout)checked="checked"#end
                            onclick="document.manageOverviewForm.option.value='layout'; document.manageOverviewForm.submit();"/>
-                    <label for="layout$velocityCount">$layout</label> <br />
+                    <label for="layout$foreach.count">$layout</label> <br />
             #end
             </div>
         </div>

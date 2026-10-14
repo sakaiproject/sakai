@@ -16,7 +16,8 @@
 package org.sakaiproject.assignment.api.model;
 
 import java.io.Serializable;
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,8 +33,7 @@ public class PeerAssessmentAttachment implements Serializable {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "peer_assessment_attachment_sequence")
-    @SequenceGenerator(name = "peer_assessment_attachment_sequence", sequenceName = "ASN_PEER_ATTACH_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "peer_assessment_attachment_sequence", sequenceName = "ASN_PEER_ATTACH_S"))
     private Long id;
 
     @Column(name = "SUBMISSION_ID", nullable = false)

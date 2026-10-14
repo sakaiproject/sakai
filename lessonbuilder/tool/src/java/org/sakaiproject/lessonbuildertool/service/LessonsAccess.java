@@ -43,8 +43,6 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -58,25 +56,12 @@ import org.sakaiproject.user.api.UserDirectoryService;
 // In general this will be used by services such as /access or /direct
 @Slf4j
 public class LessonsAccess {
-    // caching
-    private static Cache<String, Set<?>> cache = null;
-    // currently using 10 sec. The real goal is to prevent continual
-    // reevaluation of items as we follow different paths. I.e. we mostly
-    // care about it during a single transaction. But I'm using the normal
-    // default of 10 min
-    protected static final int DEFAULT_EXPIRATION = 60 * 10;
-    // I have tested with useCache = true. I believe it works.
-    // But there's been such a long history of problems caused by it that I
-    // it's safest to leave it off for 2.10
-    static final boolean useCache = true;
-
     // Sakai Service Beans
     @Setter private SimplePageToolDao dao;
     @Setter private MessageLocator messageLocator;
     @Setter private AuthzGroupService authzGroupService;
     @Setter private SecurityService securityService;
-    @Setter private MemoryService memoryService;
-    @Setter private SessionManager sessionManager; 
+    @Setter private SessionManager sessionManager;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private UserTimeService userTimeService;
@@ -91,33 +76,16 @@ public class LessonsAccess {
     @Setter private LessonEntity bltiEntity;
 
     public void init() {
-	if (useCache) {
-	cache = memoryService
-	    .getCache("org.sakaiproject.lessonbuildertool.service.LessonsAccess.cache");
-	}
         log.info("init()");
     }
 
     public void destroy() {
         log.info("destroy()");
-	if (useCache) {
-	cache.close();
-	cache = null;
-	}
     }
 
-    // my best estimate is about 100 bytes / call. The maximum likely chain is 
+    // my best estimate is about 100 bytes / call. The maximum likely chain is
     // 100. So that could put 10K on the stack. With 1 G stacks I think that's OK
 
-    /*
-      main entry to this is getItemPaths(item, [])
-
-      null means no constraints
-      [], i.e. empty set, means impossible
-      otherwise return a list of paths to get to it. Only one needs to work
-      pageId == null if path has no prerequisites
-    */
-    
     /*
 
       A path represents all the group constraints on getting to an item.
@@ -140,7 +108,7 @@ public class LessonsAccess {
       our job. That won't let them look ahead, unfortunately, but that's inherent in using
       prerequisites.
 
-      Note that the path is independent of user, so we can usefully cache the values.
+      Note that the path is independent of user.
 
     */
 
@@ -150,63 +118,9 @@ public class LessonsAccess {
 	ArrayList<Set<String>>groups;
     }
 
-    /* 
-     * clone a set of paths.
-     * The code in getPagePaths and getItemPaths modifies paths.
-     * For that reason when we pull something from the cache we have to clone it,
-     *   so changes aren't made to the cached copy
-     * Similarly, we have to clone the copy we put in the cache, since other code
-     *   is going to modify the copy we return
-     */
-
-    public Set<Path>clonePath(Set<Path> paths) {
-	if (paths == null)
-	    return null;
-
-	Set<Path> ret = new HashSet<Path>();
-
-	for (Path path:paths) {
-	    Path newPath = new Path();
-	    newPath.itemId = path.itemId;
-	    newPath.topLevel = path.topLevel;
-	    if (path.groups == null)
-		newPath.groups = null;
-	    else {
-		newPath.groups = new ArrayList<Set<String>>();
-		for (Set<String>groupIds: path.groups) {
-		    Set<String>newGroups = new HashSet<String>();
-		    for (String group: groupIds)
-			newGroups.add(group);
-		    newPath.groups.add(newGroups);
-		}
-	    }
-	    ret.add(newPath);
-	}
-	
-	return ret;
-    }
-
-
-    public String printPath(Set<Path> paths) {
-	String ret = "";
-	if (paths == null)
-	    return "null";
-	for (Path path: paths) {
-	    if (ret.length() > 0) {
-		ret = ret + ",";
-	    }
-	    if (path.groups == null)
-		ret = ret + "null";
-	    else
-		ret = ret + path.groups.toString();
-	}
-	return ret;
-    }
-
     // the code for access is broken into 3 parts:
     //
     // 1) getPagePaths returns accessibility data that is the same for all users.
-    // that means that we can reasonably cache it, and get a good performance improvement.
     //
     // 2) isPageAccessible interprets the results of getPathPaths for a given user.
     //
@@ -230,11 +144,8 @@ public class LessonsAccess {
     }
 
     // usePrerequisites is normally used. However for GradebookInfo, we just
-    // use group restrictions. We count an item for the student even if 
+    // use group restrictions. We count an item for the student even if
     // they can't get there yet because of prerequisites
-    //   Cache only if usePrerequisites = false. We can't cache both or the cache
-    // can have more than one value for a given page, and it's really the case
-    // without we care about because of the gradebook
     Set<Path> getPagePaths(long pageId, Set<Long>seen, boolean usePrerequisites) {
 	// if pageid is 0 this is a top level page. No further constraints
 	Set<Path> ret = new HashSet<Path>();
@@ -258,16 +169,7 @@ public class LessonsAccess {
 	    return ret;
 	}
 
-	if (useCache && !usePrerequisites) {
-	    Set<Path> cached = (Set<Path>)cache.get(Long.toString(pageId));
-	    // need to copy the cached object because some of the code changes it
-	    // unfortunately clone of a hashset is shallow, so have to do this ourselves
-	    if (cached != null) {
-		return clonePath(cached);
-	    }
-	}
-
-	if (usePrerequisites && 
+	if (usePrerequisites &&
 	    (page.isHidden() || (page.getReleaseDate() != null && page.getReleaseDate().after(new Date())))) {
 	    // not released. Say inaccessible. The assumption is that this is being used only
 	    // for students. Obviously the instructor can bypass release control.
@@ -335,39 +237,7 @@ public class LessonsAccess {
 
 	seen.remove(pageId);
 
-	// only cache final results, not intermediate computations
-	// in some situations with loops the intermediate calculations can be wrong
-	if (useCache && !usePrerequisites && seen.size() == 0)
-	    cache.put(Long.toString(pageId), clonePath(ret));
 	return ret;
-    }
-
-    /* for the moment, no one calling this needs prerequsite checking */
-
-    public Set<Path> getItemPaths(long itemId) {
-
-	SimplePageItem item = dao.findItem(itemId);
-
-	String itemGroupString = item.getGroups();
-	Set<String>itemGroups = null;
-	if (itemGroupString != null && itemGroupString.length() > 0)
-	    itemGroups = new HashSet<String>(Arrays.asList(itemGroupString.split(",")));
-	
-	long pageId = item.getPageId();
-	
-	Set<Path> paths = getPagePaths(pageId, false);
-
-	for (Path path: paths) {
-	    if (itemGroups == null)
-		; // leave path.groups as is
-	    else if (path.groups == null) {
-		path.groups = new ArrayList<Set<String>>();
-		path.groups.add(itemGroups);
-	    } else
-		path.groups.add(itemGroups);
-	}
-
-	return paths;
     }
 
     // in testing this code, not that ispageaccessible will sometimes return true
@@ -469,26 +339,10 @@ public class LessonsAccess {
 
     public SimplePageBean makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage) {
 	if (simplePageBean == null) {
-	    simplePageBean = new SimplePageBean();
-	    simplePageBean.setMessageLocator(messageLocator);
-	    simplePageBean.setToolManager(toolManager);
-	    simplePageBean.setSecurityService(securityService);
-	    simplePageBean.setSessionManager(sessionManager);
-	    simplePageBean.setSiteService(siteService);
-	    simplePageBean.setContentHostingService(contentHostingService);
-	    simplePageBean.setSimplePageToolDao(dao);
-	    simplePageBean.setForumEntity(forumEntity);
-	    simplePageBean.setQuizEntity(quizEntity);
-	    simplePageBean.setAssignmentEntity(assignmentEntity);
-	    simplePageBean.setBltiEntity(bltiEntity);
-	    simplePageBean.setGradebookIfc(gradebookIfc);
+	    simplePageBean = new SimplePageBean(true);
 	    simplePageBean.setCurrentSiteId(siteId);
 	    simplePageBean.setCurrentPage(currentPage);
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());
-	    simplePageBean.setUserTimeService(userTimeService);
-	    simplePageBean.setUserDirectoryService(userDirectoryService);
-	    simplePageBean.setConditionService(conditionService);
-	    simplePageBean.init();
 	}
 
 	return simplePageBean;

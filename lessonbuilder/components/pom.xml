@@ -52,13 +52,8 @@
             <artifactId>search-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
-        </dependency>
-        <!-- Required for hibernate 3 HQL queries -->
-        <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -76,6 +71,10 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
 	        <version>${json.simple.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

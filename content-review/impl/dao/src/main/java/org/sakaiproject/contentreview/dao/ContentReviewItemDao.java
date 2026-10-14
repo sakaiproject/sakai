@@ -15,16 +15,17 @@
  */
 package org.sakaiproject.contentreview.dao;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 public class ContentReviewItemDao extends HibernateCommonDao<ContentReviewItem> {
 	
@@ -32,93 +33,105 @@ public class ContentReviewItemDao extends HibernateCommonDao<ContentReviewItem> 
 	public List<ContentReviewItem> findByProviderAnyMatching(Integer providerId, String contentId, String userId, String siteId, String taskId,
 			String externalId, Long status, Integer errorCode) {
 
-		Criteria c = sessionFactory.getCurrentSession()
-				.createCriteria(ContentReviewItem.class)
-				.add(Restrictions.eq("providerId", providerId));
+		CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<ContentReviewItem> cq = cb.createQuery(ContentReviewItem.class);
+		Root<ContentReviewItem> root = cq.from(ContentReviewItem.class);
 
-		if (contentId != null) c.add(Restrictions.eq("contentId", contentId));
-		if (userId != null) c.add(Restrictions.eq("userId", userId));
-		if (siteId != null) c.add(Restrictions.eq("siteId", siteId));
-		if (taskId != null) c.add(Restrictions.eq("taskId", taskId));
-		if (externalId != null) c.add(Restrictions.eq("externalId", externalId));
-		if (status != null) c.add(Restrictions.eq("status", status));
-		if (errorCode != null) c.add(Restrictions.eq("errorCode", errorCode));
+		List<Predicate> predicates = new ArrayList<>();
+		predicates.add(cb.equal(root.get("providerId"), providerId));
+		if (contentId != null) predicates.add(cb.equal(root.get("contentId"), contentId));
+		if (userId != null) predicates.add(cb.equal(root.get("userId"), userId));
+		if (siteId != null) predicates.add(cb.equal(root.get("siteId"), siteId));
+		if (taskId != null) predicates.add(cb.equal(root.get("taskId"), taskId));
+		if (externalId != null) predicates.add(cb.equal(root.get("externalId"), externalId));
+		if (status != null) predicates.add(cb.equal(root.get("status"), status));
+		if (errorCode != null) predicates.add(cb.equal(root.get("errorCode"), errorCode));
 
-		return c.list();
+		cq.where(predicates.toArray(new Predicate[0]));
+
+		return sessionFactory.getCurrentSession()
+				.createQuery(cq)
+				.getResultList();
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List<ContentReviewItem> findByProviderGroupedBySiteAndTask(Integer providerId) {
 
-		Criteria c = sessionFactory.getCurrentSession()
-				.createCriteria(ContentReviewItem.class)
-				.add(Restrictions.eq("providerId", providerId))
-				.setProjection( Projections.projectionList()
-						.add(Projections.groupProperty("siteId"))
-						.add(Projections.groupProperty("taskId")));
+		String hql = "SELECT DISTINCT i.siteId, i.taskId FROM ContentReviewItem i WHERE i.providerId = :providerId";
+		List<Object[]> results = sessionFactory.getCurrentSession()
+				.createQuery(hql, Object[].class)
+				.setParameter("providerId", providerId)
+				.list();
 
-		return c.list();
+		return results.stream().map(row -> {
+			ContentReviewItem item = new ContentReviewItem();
+			item.setSiteId((String) row[0]);
+			item.setTaskId((String) row[1]);
+			return item;
+		}).collect(Collectors.toList());
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<String> findByProviderGroupedBySite(Integer providerId) {
 
-		Criteria c = sessionFactory.getCurrentSession()
-				.createCriteria(ContentReviewItem.class)
-				.add(Restrictions.eq("providerId", providerId))
-				.setProjection( Projections.projectionList()
-							.add(Projections.groupProperty("siteId"))
-							.add(Projections.max("id").as("maxId"))
-						)
-				.addOrder(Order.desc("maxId"))
-				.setMaxResults(999);
+		String hql = "SELECT i.siteId FROM ContentReviewItem i WHERE i.providerId = :providerId " +
+				 "GROUP BY i.siteId ORDER BY MAX(i.id) DESC";
 
-		List<Object[]> listOfObjects = c.list();
-		return listOfObjects.stream().map(o -> o[0]).map(Objects::toString).collect(Collectors.toList());
+		return sessionFactory.getCurrentSession()
+				.createQuery(hql, String.class)
+				.setParameter("providerId", providerId)
+				.setMaxResults(999)
+				.list();
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<ContentReviewItem> findByProviderAwaitingReports(Integer providerId) {
 
-		Criteria c = sessionFactory.getCurrentSession()
-				.createCriteria(ContentReviewItem.class)
-				.add(Restrictions.eq("providerId", providerId))
-				.add(Restrictions.in("status", ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE, ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE));
-		
-		return c.list();
+		String hql = "FROM ContentReviewItem i WHERE i.providerId = :providerId " +
+				"AND i.status IN (:status1, :status2)";
+
+		return sessionFactory.getCurrentSession()
+				.createQuery(hql, ContentReviewItem.class)
+				.setParameter("providerId", providerId)
+				.setParameter("status1", ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE)
+				.setParameter("status2", ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE)
+				.list();
 	}
 	
 	public Optional<ContentReviewItem> findByProviderAndContentId(Integer providerId, String contentId) {
 
-		Criteria c = sessionFactory.getCurrentSession()
-				.createCriteria(ContentReviewItem.class)
-				.add(Restrictions.eq("providerId", providerId))
-				.add(Restrictions.eq("contentId", contentId));
-		
-		return Optional.ofNullable((ContentReviewItem) c.uniqueResult());
+		String hql = "FROM ContentReviewItem i WHERE i.providerId = :providerId AND i.contentId = :contentId";
+
+		return sessionFactory.getCurrentSession()
+				.createQuery(hql, ContentReviewItem.class)
+				.setParameter("providerId", providerId)
+				.setParameter("contentId", contentId)
+				.uniqueResultOptional();
 	}
 	
 	public Optional<ContentReviewItem> findByProviderAndExternalId(Integer providerId, String externalId) {
 
-		Criteria c = sessionFactory.getCurrentSession()
-				.createCriteria(ContentReviewItem.class)
-				.add(Restrictions.eq("providerId", providerId))
-				.add(Restrictions.eq("externalId", externalId));
-		
-		return Optional.ofNullable((ContentReviewItem) c.uniqueResult());
+		String hql = "FROM ContentReviewItem i WHERE i.providerId = :providerId AND i.externalId = :externalId";
+
+		return sessionFactory.getCurrentSession()
+				.createQuery(hql, ContentReviewItem.class)
+				.setParameter("providerId", providerId)
+				.setParameter("externalId", externalId)
+				.uniqueResultOptional();
 	}
 
 	public Optional<ContentReviewItem> findByProviderSingleItemToSubmit(Integer providerId) {
 
-		Calendar calendar = Calendar.getInstance();
-		
-		Criteria c = sessionFactory.getCurrentSession()
-				.createCriteria(ContentReviewItem.class)
-				.add(Restrictions.eq("providerId", providerId))
-				.add(Restrictions.in("status", ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE))
-				.add(Restrictions.lt("nextRetryTime", calendar.getTime()))
-				.setMaxResults(1);
-		
-		return Optional.ofNullable((ContentReviewItem) c.uniqueResult());
+		String hql = "FROM ContentReviewItem i WHERE i.providerId = :providerId " +
+				"AND i.status IN (:status1, :status2) AND i.nextRetryTime < :now";
+
+		return sessionFactory.getCurrentSession()
+				.createQuery(hql, ContentReviewItem.class)
+				.setParameter("providerId", providerId)
+				.setParameter("status1", ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE)
+				.setParameter("status2", ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE)
+				.setParameter("now", Calendar.getInstance().getTime())
+				.setMaxResults(1)
+				.uniqueResultOptional();
 	}
 }

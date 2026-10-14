@@ -22,10 +22,10 @@ package org.sakaiproject.signup.tool.jsf;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.html.HtmlGraphicImage;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.html.HtmlGraphicImage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 
 import org.apache.myfaces.component.UserRoleUtils;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;

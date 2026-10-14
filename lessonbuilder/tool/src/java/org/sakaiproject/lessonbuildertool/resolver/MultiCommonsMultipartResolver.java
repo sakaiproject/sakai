@@ -15,97 +15,37 @@
  */
 package org.sakaiproject.lessonbuildertool.resolver;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.fileupload.FileItem;
-
-import org.springframework.http.MediaType;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
+import org.sakaiproject.util.SakaiMultipartResolver;
 
-/**
- * Created by neelam on 8/3/2015.
- * This class extends CommonsMultipartResolver's parseFileItems() method to upload multiple files coming from same form input name.
- * Used this link to fix the problem : Reference : http://dhruba.name/2008/12/27/implementing-single-and-multiple-file-multipart-uploads-using-spring-25/
- */
-@Slf4j
-public class MultiCommonsMultipartResolver extends CommonsMultipartResolver {
-    public MultiCommonsMultipartResolver(){
-    }
-    public MultiCommonsMultipartResolver(ServletContext servletContext) {
-        super(servletContext);
-    }
+import jakarta.servlet.http.HttpServletRequest;
+
+public class MultiCommonsMultipartResolver extends SakaiMultipartResolver {
 
     @Override
-    protected MultipartParsingResult parseFileItems(List<FileItem> fileItems, String encoding) {
-        MultiValueMap<String, MultipartFile> multipartFiles = new LinkedMultiValueMap<String, MultipartFile>();
-        Map<String, String[]> multipartParameters = new HashMap<String, String[]>();
-        Map<String, String> multipartParameterContentTypes = new HashMap<String, String>();
-
-        // Extract multipart files and multipart parameters.
-        for (FileItem fileItem : fileItems) {
-            if (fileItem.isFormField()) {
-                String value;
-                String partEncoding = determineEncoding(fileItem.getContentType(), encoding);
-                if (partEncoding != null) {
-                    try {
-                        value = fileItem.getString(partEncoding);
-                    }
-                    catch (UnsupportedEncodingException ex) {
-                        if (log.isWarnEnabled()) {
-                            log.warn("Could not decode multipart item '" + fileItem.getFieldName() +
-                                    "' with encoding '" + partEncoding + "': using platform default");
-                        }
-                        value = fileItem.getString();
-                    }
-                }
-                else {
-                    value = fileItem.getString();
-                }
-                String[] curParam = multipartParameters.get(fileItem.getFieldName());
-                if (curParam == null) {
-                    // simple form field
-                    multipartParameters.put(fileItem.getFieldName(), new String[] {value});
-                }
-                else {
-                    // array of simple form fields
-                    String[] newParam = StringUtils.addStringToArray(curParam, value);
-                    multipartParameters.put(fileItem.getFieldName(), newParam);
-                }
-                multipartParameterContentTypes.put(fileItem.getFieldName(), fileItem.getContentType());
-            }
-            else {
-                // multipart file field
-                CommonsMultipartFile file = new CommonsMultipartFile(fileItem);
-                multipartFiles.add(fileItem.getName(), file);
-                if (log.isDebugEnabled()) {
-                    log.debug("Found multipart file [" + file.getName() + "] of size " + file.getSize() +
-                            " bytes with original filename [" + file.getOriginalFilename() + "], stored " +
-                            file.getStorageDescription());
-                }
+    public MultipartHttpServletRequest resolveMultipart(HttpServletRequest request) throws MultipartException {
+        MultipartHttpServletRequest multipartRequest = super.resolveMultipart(request);
+        // RSF consumes getFileMap(), so retain every file submitted under the same field name.
+        Map<String, MultipartFile> files = new LinkedHashMap<>();
+        for (List<MultipartFile> fieldFiles : multipartRequest.getMultiFileMap().values()) {
+            for (MultipartFile file : fieldFiles) {
+                files.put(Integer.toString(files.size()), file);
             }
         }
-        return new MultipartParsingResult(multipartFiles, multipartParameters, multipartParameterContentTypes);
-    }
-
-    private String determineEncoding(String contentTypeHeader, String defaultEncoding) {
-        if (!StringUtils.hasText(contentTypeHeader)) {
-            return defaultEncoding;
-        }
-        MediaType contentType = MediaType.parseMediaType(contentTypeHeader);
-        Charset charset = contentType.getCharset();
-        return (charset != null ? charset.name() : defaultEncoding);
+        return new DefaultMultipartHttpServletRequest(multipartRequest, multipartRequest.getMultiFileMap(),
+                Collections.emptyMap(), Collections.emptyMap()) {
+            @Override
+            public Map<String, MultipartFile> getFileMap() {
+                return files;
+            }
+        };
     }
 }

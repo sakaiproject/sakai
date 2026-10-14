@@ -30,7 +30,6 @@ import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -737,8 +736,8 @@ public class GradebookPage extends BasePage {
 
 	
 	private static class CloseOnESCBehavior extends AbstractDefaultAjaxBehavior {
-        private final ModalWindow modal;
-        public CloseOnESCBehavior(ModalWindow modal) {
+        private final GbModalWindow modal;
+        public CloseOnESCBehavior(GbModalWindow modal) {
             this.modal = modal;
         }    
         @Override

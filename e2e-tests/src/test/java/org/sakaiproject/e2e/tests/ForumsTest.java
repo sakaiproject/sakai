@@ -94,6 +94,25 @@ class ForumsTest extends SakaiUiTestBase {
 
     @Test
     @Order(3)
+    void canOpenAuthoredMessageStatistics() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Discussion");
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
+            .setName("Statistics & Grading").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
+            .setName("Statistics & Grading by Topic").setExact(true)).click();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
+            .setName(TOPIC_TITLE).setExact(true)).click();
+        String statisticsUrl = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
+            .setName("Instructor1, Sakai").setExact(true)).getAttribute("href");
+        page.navigate(java.net.URI.create(page.url()).resolve(statisticsUrl).toString());
+        assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions()
+            .setName("Instructor1, Sakai (instructor1)").setExact(true))).isVisible();
+    }
+
+    @Test
+    @Order(4)
     void deletedTopicHasNoActiveLessonsLink() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);

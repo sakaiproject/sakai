@@ -17,8 +17,8 @@ package org.sakaiproject.microsoft.api.converters;
 
 import java.util.Map;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 import org.apache.commons.lang3.StringUtils;
 

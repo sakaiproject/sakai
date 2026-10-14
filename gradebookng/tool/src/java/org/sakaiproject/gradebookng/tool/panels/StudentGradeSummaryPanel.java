@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -45,7 +44,7 @@ public class StudentGradeSummaryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ModalWindow window;
+	private final GbModalWindow window;
 
 	public StudentGradeSummaryPanel(final String id, final IModel<Map<String, Object>> model, final GbModalWindow window) {
 		super(id, model);

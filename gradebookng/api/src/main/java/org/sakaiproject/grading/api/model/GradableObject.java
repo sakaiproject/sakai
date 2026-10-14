@@ -19,20 +19,19 @@ package org.sakaiproject.grading.api.model;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -56,8 +55,7 @@ public abstract class GradableObject implements Serializable {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_gradable_object_id_sequence")
-    @SequenceGenerator(name = "gb_gradable_object_id_sequence", sequenceName = "GB_GRADABLE_OBJECT_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_gradable_object_id_sequence", sequenceName = "GB_GRADABLE_OBJECT_S"))
     @EqualsAndHashCode.Include
     @ToString.Include
     protected Long id;

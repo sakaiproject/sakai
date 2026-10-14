@@ -19,8 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -68,7 +68,7 @@ public class MainController {
 	}
 	
 	@RequestMapping(value = {"/token"}, method = RequestMethod.GET)
-	public String doToken(@RequestParam(required=false) String code, @RequestParam(required=false) String state, Model model) {
+	public String doToken(@RequestParam(value = "code", required = false) String code, @RequestParam(value = "state", required = false) String state, Model model) {
 		log.debug("Authorization Token endpoint");
 		
 		String userId = sakaiProxy.getCurrentUserId();

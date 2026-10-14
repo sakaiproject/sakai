@@ -1,0 +1,677 @@
+/******************************************************************************/
+/* Default theme                                                              */
+/******************************************************************************/
+
+/* PART I: Detailed Day Renderer */
+
+div.schedule-detailed-default {
+ 	border-style: solid;
+	border-width: 1px;
+	border-color: rgb(153,153,153);
+	width: 100%;
+}
+
+div.schedule-detailed-default table.background {
+    background-color: rgb(255,255,255);
+}
+
+div.schedule-detailed-default td.gutter {
+    background-color: rgb(181,200,207);
+    color: rgb(0,0,0);
+    text-align: right;
+    vertical-align: top;
+}
+
+div.schedule-detailed-default table.background th.header {
+    font-family: Verdana, Arial, Helvetica, Sans-Serif;
+    font-size: 10px;
+    color: rgb(0,0,0);
+    text-align: center;
+    vertical-align: middle;
+}
+
+div.schedule-detailed-default table.background th.header {
+    background-color: rgb(181,200,207);
+}
+
+div.schedule-detailed-default th.header .date, div.schedule-detailed-default th.header .holiday {
+  text-align: center;
+}
+
+div.schedule-detailed-default th.header .date {
+	text-decoration: none;
+}
+
+div.schedule-detailed-default th.header .holiday {
+}
+
+div.schedule-detailed-default td.gutter span.hours {
+    font-size: 26px;
+}
+
+div.schedule-detailed-default td.gutter span.minutes {
+    font-size: 13px;
+}
+
+div.schedule-detailed-default table.background td.even,
+div.schedule-detailed-default table.background td.uneven,
+div.schedule-detailed-default table.background td.free {
+    font-family: Verdana, Arial, Helvetica, Sans-Serif;
+    font-size: 10px;
+    text-align: left;
+    color: rgb(0,0,0);
+    vertical-align: top;
+}
+
+div.schedule-detailed-default table.background td.uneven {
+    background-color: rgb(240,240,240);
+}
+
+div.schedule-detailed-default table.background td.even {
+    background-color: rgb(235,235,235);
+}
+
+div.schedule-detailed-default table.background td.free {
+	background-color: rgb(221,221,221);
+}
+
+div.schedule-detailed-default .entry, div.schedule-detailed-default div.entry-selected {
+  background-color: rgb(255,255,255);
+  text-align: center;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 11px;
+  vertical-align: middle;
+  border-color: rgb(153,153,153);
+  text-decoration: none;
+}
+
+div.schedule-detailed-default a.entry:hover,
+div.schedule-detailed-default div.entry-selected {
+  border-color: rgb(153,0,0);
+}
+
+div.schedule-detailed-default div.entry-selected div.text {
+  border-left: solid rgb(153,0,0) 5.0px;
+}
+
+div.schedule-detailed-default .entry span.subtitle,
+div.schedule-detailed-default .entry-selected span.subtitle {
+	font-style: italic;
+	font-size: 9px;
+}
+
+div.schedule-detailed-default .entry span.title,
+div.schedule-detailed-default .entry-selected span.title {
+	font-size: 11px;
+}
+
+
+
+/* PART II: Compact Renderer */
+div.schedule-compact-default {
+	width: 100%;
+	background-color: rgb(153,153,153);
+}
+
+div.schedule-compact-default table.month th.header {
+    background-color: rgb(181,200,207);	
+	font-family: Verdana, Arial, Helvetica, Sans-Serif;
+}
+
+div.schedule-compact-default .day {
+  background-color: rgb(255,255,255);
+}
+
+div.schedule-compact-default .day .header {
+  background-color: rgb(181,200,207);
+  font-size: 10px;
+  color: rgb(0,0,0);
+  text-align: left;
+  vertical-align: middle;
+}
+div.schedule-compact-default .day .header a {
+	display: block;
+}
+
+div.schedule-compact-default .content td {
+  background-color: rgb(255,255,255);
+  color: rgb(0,0,0);
+  text-align: left;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 11px;
+  padding: 1px;
+  border-color: rgb(255,255,255);
+  border-width: 1.0px;
+  border-style: solid;  
+}
+
+div.schedule-compact-default a {
+  text-decoration: none;
+  color: rgb(0,0,0);
+  text-align: left;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 11px;
+}
+
+div.schedule-compact-default .content td.selected {
+  background-color: rgb(153,0,0);
+  border-color: rgb(153,0,0);
+  color: rgb(255,255,255);
+}
+
+div.schedule-compact-default td.inactive-day .content {
+  background-color: rgb(221,221,221);
+  visibility: visible;
+}
+
+div.schedule-compact-default td.inactive-day .content td {
+  background-color: rgb(221,221,221);
+  border-color: rgb(221,221,221);
+}
+
+div.schedule-compact-default td.inactive-day .content td.selected {
+  background-color: rgb(153,0,0);
+  border-color: rgb(153,0,0);
+  color: rgb(255,255,255);
+}
+
+div.schedule-compact-default td.inactive-day .header {
+  background-color: rgb(221,221,221);
+  visibility: visible;
+}
+
+
+/******************************************************************************/
+/* Evolution theme                                                            */
+/******************************************************************************/
+/* PART I: Detailed Day Renderer */
+
+div.schedule-detailed-evolution {
+ 	border-style: solid;
+	border-width: 1px;
+	border-color: rgb(255,255,255);
+	width: 100%;
+}
+
+div.schedule-detailed-evolution table.background {
+    background-color: rgb(172,172,172);
+}
+
+div.schedule-detailed-evolution td.gutter {
+    background-color: rgb(246,246,246);
+    color: rgb(0,0,0);
+    text-align: right;
+    vertical-align: top;
+}
+
+div.schedule-detailed-evolution table.background th.header, div.schedule-detailed-evolution table.foreground th.header {
+    font-family: Verdana, Arial, Helvetica, Sans-Serif;
+    font-size: 10px;
+    color: rgb(0,0,0);
+    text-align: center;
+    vertical-align: middle;
+}
+
+div.schedule-detailed-evolution table.background th.header {
+    background-color: rgb(246,246,246);
+}
+
+div.schedule-detailed-evolution th.header .date, div.schedule-detailed-evolution th.header .holiday {
+  text-align: center;
+}
+
+div.schedule-detailed-evolution th.header .date {
+	text-decoration: none;
+}
+
+div.schedule-detailed-evolution th.header .holiday {
+}
+
+div.schedule-detailed-evolution td.gutter span.hours {
+    font-size: 26px;
+}
+
+div.schedule-detailed-evolution td.gutter span.minutes {
+    font-size: 13px;
+}
+
+div.schedule-detailed-evolution table.background td.even,
+div.schedule-detailed-evolution table.background td.uneven,
+div.schedule-detailed-evolution table.background td.free {
+    font-family: Verdana, Arial, Helvetica, Sans-Serif;
+    font-size: 10px;
+    text-align: left;
+    color: rgb(0,0,0);
+    vertical-align: top;
+}
+
+div.schedule-detailed-evolution table.background td.uneven {
+    background-color: rgb(255,255,255);
+}
+
+div.schedule-detailed-evolution table.background td.even {
+    background-color: rgb(255,255,255);
+}
+
+div.schedule-detailed-evolution table.background td.free {
+	background-color: rgb(217,217,217);
+}
+
+div.schedule-detailed-evolution .entry, div.schedule-detailed-evolution div.entry-selected {
+  background-color: rgb(190,206,221);
+  text-align: center;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 11px;
+  vertical-align: middle;
+  border-color: rgb(172,172,172);
+  text-decoration: none;
+}
+
+div.schedule-detailed-evolution a.entry:hover,
+div.schedule-detailed-evolution div.entry-selected {
+  border-color: rgb(100,132,164);
+}
+
+div.schedule-detailed-evolution div.entry-selected div.text {
+  border-left: solid rgb(100,132,164) 5.0px;
+}
+
+div.schedule-detailed-evolution .entry span.subtitle,
+div.schedule-detailed-evolution .entry-selected span.subtitle {
+	font-style: italic;
+	font-size: 9px;
+}
+
+div.schedule-detailed-evolution .entry span.title,
+div.schedule-detailed-evolution .entry-selected span.title {
+	font-size: 11px;
+}
+
+
+
+/* PART II: Compact Renderer */
+div.schedule-compact-evolution {
+	width: 100%;
+    background-color: rgb(172,172,172);
+}
+
+div.schedule-compact-evolution table.month .header {
+    background-color: rgb(246,246,246);
+	font-family: Verdana, Arial, Helvetica, Sans-Serif;
+}
+
+div.schedule-compact-evolution .day {
+  background-color: rgb(255,255,255);
+}
+
+div.schedule-compact-evolution .day .header {
+  background-color: rgb(255,255,255);
+  font-size: 10px;
+  color: rgb(0,0,0);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom-color: rgb(172,172,172);
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+div.schedule-compact-evolution .day .header a {
+	display: block;
+}
+
+div.schedule-compact-evolution .content td {
+  background-color: rgb(255,255,255);
+  color: rgb(0,0,0);
+  text-align: left;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 11px;
+  padding: 1px;
+  border-color: rgb(255,255,255);
+  border-width: 1.0px;
+  border-style: solid;  
+}
+
+div.schedule-compact-evolution a {
+  text-decoration: none;
+  color: rgb(0,0,0);
+  text-align: left;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 11px;
+}
+
+div.schedule-compact-evolution .content td.selected {
+  background-color: rgb(190,206,221);
+  border-color: rgb(190,206,221);
+}
+
+div.schedule-compact-evolution td.inactive-day .content {
+  background-color: rgb(238,235,231);
+  visibility: visible;
+}
+
+div.schedule-compact-evolution td.inactive-day .content td {
+  background-color: rgb(238,235,231);
+  border-color: rgb(238,235,231);
+}
+
+div.schedule-compact-evolution td.inactive-day .content td.selected {
+  background-color: rgb(190,206,221);
+  border-color: rgb(190,206,221);
+}
+
+div.schedule-compact-evolution td.inactive-day .header {
+  background-color: rgb(238,235,231);
+  visibility: visible;
+}
+
+
+/******************************************************************************/
+/* Outlook XP theme                                                           */
+/******************************************************************************/
+/* PART I: Detailed Day Renderer */
+
+div.schedule-detailed-outlookxp {
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(128,128,128);
+    width: 100%;
+}
+
+div.schedule-detailed-outlookxp table.background {
+    background-color: rgb(128,128,128);
+}
+
+div.schedule-detailed-outlookxp td.gutter {
+    background-color: rgb(219,216,209);
+    color: rgb(0,0,0);
+    text-align: right;
+    vertical-align: top;
+}
+
+div.schedule-detailed-outlookxp table.background th.header, div.schedule-detailed-outlookxp table.foreground th.header {
+    font-family: Verdana, Arial, Helvetica, Sans-Serif;
+    font-size: 10px;
+    color: rgb(0,0,0);
+    text-align: center;
+    vertical-align: middle;
+}
+
+div.schedule-detailed-outlookxp table.background th.header {
+    background-color: rgb(219,216,209);
+}
+
+div.schedule-detailed-outlookxp th.header .date, div.schedule-detailed-outlookxp th.header .holiday {
+  text-align: center;
+}
+
+div.schedule-detailed-outlookxp th.header .date {
+	text-decoration: none;
+}
+
+div.schedule-detailed-outlookxp th.header .holiday {
+}
+
+div.schedule-detailed-outlookxp td.gutter span.hours {
+    font-size: 26px;
+}
+
+div.schedule-detailed-outlookxp td.gutter span.minutes {
+    font-size: 13px;
+}
+
+div.schedule-detailed-outlookxp table.background td.even,
+div.schedule-detailed-outlookxp table.background td.uneven,
+div.schedule-detailed-outlookxp table.background td.free {
+    font-family: Verdana, Arial, Helvetica, Sans-Serif;
+    font-size: 10px;
+    text-align: left;
+    color: rgb(128,128,128);
+    vertical-align: top;
+}
+
+div.schedule-detailed-outlookxp table.background td.uneven {
+    background-color: rgb(255,255,143);
+}
+
+div.schedule-detailed-outlookxp table.background td.even {
+    background-color: rgb(255,255,143);
+}
+
+div.schedule-detailed-outlookxp table.background td.free {
+    background-color: rgb(239,240,112);
+}
+
+div.schedule-detailed-outlookxp .entry, div.schedule-detailed-outlookxp div.entry-selected {
+  background-color: rgb(255,255,255);
+  text-align: center;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 11px;
+  vertical-align: middle;
+  border-color: rgb(0,0,0);
+  text-decoration: none;
+}
+
+div.schedule-detailed-outlookxp a.entry:hover,
+div.schedule-detailed-outlookxp div.entry-selected {
+  border-color: rgb(1,2,217);
+}
+
+div.schedule-detailed-outlookxp div.entry-selected div.text {
+  border-left: solid rgb(1,2,217) 5.0px;
+}
+
+div.schedule-detailed-outlookxp .entry span.subtitle,
+div.schedule-detailed-outlookxp .entry-selected span.subtitle {
+    font-style: italic;
+    font-size: 9px;
+}
+
+div.schedule-detailed-outlookxp .entry span.title,
+div.schedule-detailed-outlookxp .entry-selected span.title {
+    font-size: 11px;
+}
+
+
+
+/* PART II: Compact Renderer */
+div.schedule-compact-outlookxp {
+    width: 100%;
+    background-color: rgb(128,128,128);
+}
+
+div.schedule-compact-outlookxp table.month .header {
+    background-color: rgb(219,216,209);
+	font-family: Verdana, Arial, Helvetica, Sans-Serif;
+}
+
+div.schedule-compact-outlookxp .day {
+  background-color: rgb(255,255,255);
+}
+
+div.schedule-compact-outlookxp .day .header {
+  background-color: rgb(219,216,209);
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 10px;
+  color: rgb(0,0,0);
+  text-align: left;
+  vertical-align: middle;
+}
+div.schedule-compact-outlookxp .day .header a {
+	display: block;
+}
+
+div.schedule-compact-outlookxp .content td {
+  background-color: rgb(255,255,255);
+  color: rgb(0,0,0);
+  text-align: left;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 11px;
+  padding: 1px;
+}
+
+div.schedule-compact-outlookxp a {
+  text-decoration: none;
+  color: rgb(0,0,0);
+  text-align: left;
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  font-size: 11px;
+}
+
+div.schedule-compact-outlookxp .content td.selected {
+  background-color: rgb(1,2,217);
+  border-color: rgb(1,2,217);
+  color: rgb(255,255,255);
+}
+
+div.schedule-compact-outlookxp td.inactive-day .content {
+  background-color: rgb(219,216,209);
+  visibility: visible;
+}
+
+div.schedule-compact-outlookxp td.inactive-day .content td {
+  background-color: rgb(219,216,209);
+  border-color: rgb(219,216,209);
+}
+
+div.schedule-compact-outlookxp td.inactive-day .content td.selected {
+  background-color: rgb(1,2,217);
+  border-color: rgb(1,2,217);
+  color: rgb(255,255,255);
+}
+
+
+div.schedule-compact-outlookxp td.inactive-day .header {
+  background-color: rgb(219,216,209);
+  visibility: visible;
+}
+
+
+
+
+/******************************************************************************/
+/* Everything after this line is not yet themed                               */
+/******************************************************************************/
+
+
+/* Part III: Planner renderer */
+div.planner {
+ 	border-style: solid;
+	border-width: 1px;
+	border-color: rgb(163,177,140);
+	position: relative;
+	width: 100%;
+	left: 0px;
+}
+
+div.planner table.background {
+    background-color: rgb(255,255,255);
+}
+
+div.planner div.background td.gutter, div.planner div.foreground td.gutter {
+    color: rgb(0,0,0);
+    text-align: right;
+}
+
+div.planner div.background td.gutter {
+    background-color: rgb(205,214,198);
+}
+
+
+div.planner div.background td.header, div.planner div.foreground td.header, div.planner div.background td.hours {
+    font-family: Verdana, Arial, Helvetica, Sans-Serif;
+    font-size: 10px;
+    color: rgb(0,0,0);
+    text-align: center;
+    vertical-align: middle;
+    border-style: none;
+    border-width: 0px;
+}
+
+div.planner div.background td.hours {
+	border-color: rgb(255,255,255);
+    background-color: rgb(205,214,198);
+}
+
+div.planner div.foreground td.hours {
+    text-align: center;
+    vertical-align: middle;
+}
+
+div.planner div.background td.header {
+    background-color: rgb(205,214,198);
+}
+
+div.planner div.background div.header span.date {
+  text-align: left;
+  font-weight: bold;
+  vertical-align: top;
+}
+
+div.planner div.background div.header span.holiday {
+  text-align: left;
+  vertical-align: top;
+}
+
+div.planner div.background div.header span.hours {
+  text-align: left;
+  vertical-align: middle;
+}
+
+div.planner td.gutter span.title {
+    font-family: Verdana, Arial, Helvetica, Sans-Serif;
+    vertical-align: middle;
+    padding: 1px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+div.planner td.even, div.planner td.uneven, div.planner td.free {
+    border-color : rgb(255,255,255);
+    font-family: Verdana, Arial, Helvetica, Sans-Serif;
+    font-size: 10px;
+    text-align: center;
+}
+
+div.planner td.uneven {
+    background-color: rgb(240,244,233);
+    color: rgb(240,244,233);
+}
+
+div.planner td.even {
+    background-color: rgb(235,239,228);
+    color: rgb(235,239,228);
+}
+
+div.planner td.free {
+	background-color: rgb(215,219,208);
+	color: rgb(215,219,208);
+}
+
+div.planner table.foreground td.row {
+  border-color: rgb(255,255,255);
+}
+
+div.planner div.row div.entry {
+  background-color: rgb(0,0,255);
+  vertical-align: middle;
+  text-decoration: none;
+}
+
+
+
+/* PART IV: Tooltips */
+div.domTT {
+    border: 1px solid #333366;
+    background-color: #333366;
+}
+div.domTT .caption {
+    font-family: Verdana, Helvetica;
+    font-size: 10px;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+div.domTT .contents {
+    font-size: 10px;
+    font-family: Verdana, Helvetica;
+    padding: 2px;
+    background-color: #F1F1FF;
+}

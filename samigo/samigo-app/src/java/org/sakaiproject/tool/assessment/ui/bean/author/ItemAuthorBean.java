@@ -43,20 +43,21 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.bean.ManagedBean;
+import jakarta.servlet.ServletContext;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.tool.assessment.util.TagJson;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -98,7 +99,6 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -202,24 +202,7 @@ public class ItemAuthorBean implements Serializable {
     private String tagListToJsonString(Set<ItemTagIfc> tagsListToConvert){
 
 
-      String tagsListToJson = "[";
-      if (tagsListToConvert!=null) {
-        Iterator<ItemTagIfc> i = tagsListToConvert.iterator();
-        Boolean more = false;
-        while (i.hasNext()) {
-          if (more) {
-            tagsListToJson += ",";
-          }
-          ItemTagIfc tagToShow = (ItemTagIfc) i.next();
-          String tagId = tagToShow.getTagId();
-          String tagLabel = tagToShow.getTagLabel();
-          String tagCollectionName = tagToShow.getTagCollectionName();
-          tagsListToJson += "{\"tagId\":\"" + tagId + "\",\"tagLabel\":\"" + tagLabel + "\",\"tagCollectionName\":\"" + tagCollectionName + "\"}";
-          more = true;
-        }
-      }
-      tagsListToJson += "]";
-      return tagsListToJson;
+      return TagJson.serialize(tagsListToConvert == null ? null : tagsListToConvert.stream().map(TagJson::fromTag).toList());
     }
 
 
@@ -1137,7 +1120,7 @@ public class ItemAuthorBean implements Serializable {
   }
 
   public String getShowTagsStyle() {
-    if (ServerConfigurationService.getBoolean("samigo.author.usetags", Boolean.FALSE)){
+    if (ServerConfigurationService.getBoolean("samigo.author.usetags", ServerConfigurationService.getBoolean("tagservice.enable.integrations", true))){
       return "";
     }else{
       return "display:none;";
@@ -1393,7 +1376,7 @@ public class ItemAuthorBean implements Serializable {
 	   *     target="jsf/upload_tmp/assessment#{assessmentBean.assessmentId}/question#{itemauthor.currentItem.itemId}/#{person.eid}"
 	   *     valueChangeListener="#{itemauthor.addImageToQuestion}" />
 	   */
-	  public void addImageToQuestion(javax.faces.event.ValueChangeEvent e)
+	  public void addImageToQuestion(jakarta.faces.event.ValueChangeEvent e)
 	  {
 
 	    String mediaLocation = (String) e.getNewValue();
@@ -1437,7 +1420,6 @@ public class ItemAuthorBean implements Serializable {
 			});
 			File media = new File(mediaLocation);
 			byte[] mediaByte = getMediaStream(mediaLocation);
-			String mimeType = MimeTypesLocator.getInstance().getContentType(media);
 			
 			String fullname = media.getName().trim();
 			String collectionId = getPrivateCollection();
@@ -1446,7 +1428,7 @@ public class ItemAuthorBean implements Serializable {
 			ResourcePropertiesEdit resourceProperties = AssessmentService.getContentHostingService().newResourceProperties();
 			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fullname);
 			
-			AssessmentService.getContentHostingService().addResource(collectionId+fullname, mimeType, mediaByte, resourceProperties, NotificationService.NOTI_NONE);
+			AssessmentService.getContentHostingService().addResource(collectionId+fullname, null, mediaByte, resourceProperties, NotificationService.NOTI_NONE);
 		}catch(Exception e)	{
 			log.warn(e.getMessage(), e);
 		}

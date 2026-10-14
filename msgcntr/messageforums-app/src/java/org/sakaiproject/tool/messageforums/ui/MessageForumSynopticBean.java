@@ -28,11 +28,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.RequestScoped;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.bean.ManagedBean;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -202,7 +202,7 @@ public class MessageForumSynopticBean {
 	/** Preferences service (injected dependency) */
 	@ManagedProperty(value="#{Components[\"org.sakaiproject.user.api.PreferencesService\"]}")
 	protected PreferencesService preferencesService = null;
-	
+
 	/** Dependency Injected   */
 	@ManagedProperty(value="#{Components[\"org.sakaiproject.site.api.SiteService\"]}")
 	private SiteService siteService;
@@ -236,7 +236,7 @@ public class MessageForumSynopticBean {
 	/** Needed to grab unread counts for sites current user has group membership in */
 	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsForumManager\"]}")
 	private MessageForumsForumManager forumsManager;
-	
+
 	/** Needed to get topics if tool within a site */
 	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager\"]}")
 	private DiscussionForumManager forumManager;
@@ -252,7 +252,7 @@ public class MessageForumSynopticBean {
 	/** Needed to set up the counts for the private messages and forums */
 	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
 	private AreaManager areaManager;
-	
+
 	/** Needed to determine if user has read permission of topic */
 	@ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager\"]}")
 	private UIPermissionsManager uiPermissionsManager;
@@ -759,11 +759,8 @@ public class MessageForumSynopticBean {
 		for (Object [] nonMIcount: nonMICounts)
 		{
 			Integer nonMIReadCount = nonMIReadCountsMap.get((String) nonMIcount[0]);
-				if (nonMIReadCount != null)
-			{
-				// Need to subtract int values, not Integer
-				nonMIcount[1] = ((Long) nonMIcount[1]).intValue() - nonMIReadCount;
-			}
+			nonMIcount[1] = ((Number) nonMIcount[1]).intValue()
+					- (nonMIReadCount != null ? nonMIReadCount : 0);
 		}
 		
 		return nonMICounts;
@@ -830,7 +827,7 @@ public class MessageForumSynopticBean {
 						
 							Object [] finalCount = new Object [2];
 							finalCount[0] = count[0];
-							finalCount[1] = count[2];
+							finalCount[1] = ((Number) count[2]).intValue();
 						
 							compiledDFMessageCounts.add(finalCount);
 						}
@@ -1064,7 +1061,7 @@ public class MessageForumSynopticBean {
 				// ************ checking for unread private messages for this site ************  
 				if (siteId.equals(pmCounts[0])) {
 					if (isMessagesPageInSite(site)) {
-						dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
+						dcms.setUnreadPrivateAmt(((Number) pmCounts[1]).intValue());
 						hasPrivate = true;						
 					}
 					else {
@@ -1074,7 +1071,7 @@ public class MessageForumSynopticBean {
 
 						if (area != null) {
 							if (area.getEnabled().booleanValue()) {
-								dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
+								dcms.setUnreadPrivateAmt(((Number) pmCounts[1]).intValue());
 								hasPrivate = true;
 							}
 							else {

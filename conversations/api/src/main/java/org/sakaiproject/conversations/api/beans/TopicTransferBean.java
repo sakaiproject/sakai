@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.conversations.api.beans;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.conversations.api.model.Metadata;
 import org.sakaiproject.conversations.api.beans.TagTransferBean;
 import org.sakaiproject.conversations.api.model.ConversationsTopic;
@@ -156,7 +157,7 @@ public class TopicTransferBean implements Entity {
     public ConversationsTopic asTopic() {
 
         ConversationsTopic topic = new ConversationsTopic();
-        topic.setId(this.id);
+        topic.setId(StringUtils.trimToNull(this.id));
         topic.setSiteId(this.siteId);
         topic.setTitle(this.title);
         topic.setAboutReference(this.aboutReference);

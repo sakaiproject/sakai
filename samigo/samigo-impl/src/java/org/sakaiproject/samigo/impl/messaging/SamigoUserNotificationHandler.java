@@ -15,31 +15,46 @@
  */
 package org.sakaiproject.samigo.impl.messaging;
 
+import static org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_TAKE_ASSESSMENT;
+import static org.sakaiproject.samigo.util.SamigoConstants.EVENT_ASSESSMENT_AVAILABLE;
+import static org.sakaiproject.samigo.util.SamigoConstants.EVENT_ASSESSMENT_DELETE;
+import static org.sakaiproject.samigo.util.SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE;
+import static org.sakaiproject.samigo.util.SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REMOVE;
+import static org.sakaiproject.samigo.util.SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_RETRACTED;
+import static org.sakaiproject.samigo.util.SamigoConstants.TOOL_ID;
+
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-
-
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -48,10 +63,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import static org.sakaiproject.samigo.util.SamigoConstants.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.Root;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SamigoUserNotificationHandler extends AbstractUserNotificationHandler {
+
+  @Setter
+  private ExtendedTimeFacade extendedTimeFacade;
 
     public static Pattern idPattern = Pattern.compile("siteId=(\\S*),\\s*\\S*\\s*publishedAssessmentId=(\\S*)", Pattern.CASE_INSENSITIVE);
     private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
@@ -70,7 +91,6 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
     public List<String> getHandledEvents() {
         return Arrays.asList(EVENT_ASSESSMENT_AVAILABLE, EVENT_PUBLISHED_ASSESSMENT_RETRACTED, EVENT_ASSESSMENT_UPDATE_AVAILABLE,EVENT_ASSESSMENT_DELETE, EVENT_PUBLISHED_ASSESSMENT_REMOVE);
     }
-
 
     @Override
     public Optional<List<UserNotificationData>> handleEvent(Event e) {
@@ -91,7 +111,6 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
         }
         String releaseTo = pub.getAssessmentAccessControl().getReleaseTo();
 
-        ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
         List<ExtendedTime> extendedTimes = extendedTimeFacade.getEntriesForPub(pub.getData());
 
         Map<String, String> selectedGroups = pub.getReleaseToGroups();
@@ -161,13 +180,24 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
         }
 
         if(!siteUsers.isEmpty()){
-            try{
+            try {
                 TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
                 transactionTemplate.execute(status -> {
-                    sessionFactory.getCurrentSession().createQuery("delete UserNotification where EVENT in :events and REF = :ref and TO_USER in :toUsers")
-                            .setParameterList("events", new String[]{EVENT_ASSESSMENT_AVAILABLE, EVENT_ASSESSMENT_UPDATE_AVAILABLE})
-                            .setString("ref", ref)
-                            .setParameterList("toUsers", siteUsers).executeUpdate();
+                    org.hibernate.Session session = sessionFactory.getCurrentSession();
+                    CriteriaBuilder cb = session.getCriteriaBuilder();
+
+                    CriteriaDelete<UserNotification> delete = cb.createCriteriaDelete(UserNotification.class);
+                    Root<UserNotification> root = delete.from(UserNotification.class);
+
+                    delete.where(
+                        cb.and(
+                            root.get("event").in(EVENT_ASSESSMENT_AVAILABLE, EVENT_ASSESSMENT_UPDATE_AVAILABLE),
+                            cb.equal(root.get("ref"), ref),
+                            root.get("toUser").in(siteUsers)
+                        )
+                    );
+
+                    session.createQuery(delete).executeUpdate();
                     return null;
                 });
             }catch (Exception e2){
@@ -202,13 +232,24 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
 
         String ref = "siteId="+siteId+", assessmentId=" +assignment.getAssessmentId()+", publishedAssessmentId="+ assignment.getPublishedAssessmentId();
         if(!users.isEmpty()){
-            try{
+            try {
                 TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
                 transactionTemplate.execute(status -> {
-                    sessionFactory.getCurrentSession().createQuery("delete UserNotification where EVENT in :events and REF = :ref and TO_USER in :toUsers")
-                            .setParameterList("events", new String[]{EVENT_ASSESSMENT_AVAILABLE, EVENT_ASSESSMENT_UPDATE_AVAILABLE})
-                            .setString("ref", ref)
-                            .setParameterList("toUsers", users).executeUpdate();
+                    org.hibernate.Session session = sessionFactory.getCurrentSession();
+                    CriteriaBuilder cb = session.getCriteriaBuilder();
+
+                    CriteriaDelete<UserNotification> delete = cb.createCriteriaDelete(UserNotification.class);
+                    Root<UserNotification> root = delete.from(UserNotification.class);
+
+                    delete.where(
+                        cb.and(
+                            root.get("event").in(EVENT_ASSESSMENT_AVAILABLE, EVENT_ASSESSMENT_UPDATE_AVAILABLE),
+                            cb.equal(root.get("ref"), ref),
+                            root.get("toUser").in(users)
+                        )
+                    );
+
+                    session.createQuery(delete).executeUpdate();
                     return null;
                 });
             }catch (Exception e3){
@@ -309,7 +350,7 @@ public class SamigoUserNotificationHandler extends AbstractUserNotificationHandl
         return transactionTemplate.execute(status -> {
             Long bhWithRef = (Long) sessionFactory.getCurrentSession()
                     .createQuery("select count(*) from UserNotification where ref = :ref and event = :event and toUser = :toUser")
-                    .setString("ref", ref).setString("event", EVENT_ASSESSMENT_AVAILABLE).setString("toUser", toUser).uniqueResult();
+                    .setParameter("ref", ref).setParameter("event", EVENT_ASSESSMENT_AVAILABLE).setParameter("toUser", toUser).uniqueResult();
             return bhWithRef > 0;
         });
     }

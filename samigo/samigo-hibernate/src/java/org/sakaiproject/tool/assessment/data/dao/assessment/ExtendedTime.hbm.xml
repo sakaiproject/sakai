@@ -29,18 +29,18 @@
     </query>
 
     <query name="getEntriesForAss">
-        <![CDATA[FROM ExtendedTime eTime JOIN FETCH eTime.assessment WHERE eTime.assessment =:assessmentId]]>
+        <![CDATA[FROM ExtendedTime eTime JOIN FETCH eTime.assessment WHERE eTime.assessment.assessmentBaseId =:assessmentId]]>
     </query>
 
     <query name="getEntriesForPub">
-        <![CDATA[FROM ExtendedTime eTime JOIN FETCH eTime.pubAssessment WHERE eTime.pubAssessment = :publishedId]]>
+        <![CDATA[FROM ExtendedTime eTime JOIN FETCH eTime.pubAssessment WHERE eTime.pubAssessment.publishedAssessmentId = :publishedId]]>
     </query>
 
     <query name="getEntriesForPubNUser">
-        <![CDATA[FROM ExtendedTime eTime WHERE eTime.pubAssessment = :publishedId AND eTime.user = :userId]]>
+        <![CDATA[FROM ExtendedTime eTime WHERE eTime.pubAssessment.publishedAssessmentId = :publishedId AND eTime.user = :userId]]>
     </query>
 
     <query name="getEntriesForPubNGroup">
-        <![CDATA[FROM ExtendedTime eTime WHERE eTime.pubAssessment = :publishedId AND eTime.group = :groupId]]>
+        <![CDATA[FROM ExtendedTime eTime WHERE eTime.pubAssessment.publishedAssessmentId = :publishedId AND eTime.group = :groupId]]>
     </query>
 </hibernate-mapping>

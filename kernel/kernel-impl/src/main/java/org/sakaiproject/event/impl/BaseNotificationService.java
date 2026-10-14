@@ -43,8 +43,6 @@ import org.sakaiproject.event.api.NotificationLockedException;
 import org.sakaiproject.event.api.NotificationNotDefinedException;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
@@ -101,7 +99,7 @@ import lombok.extern.slf4j.Slf4j;
  * @see NotificationEdit
  */
 @Slf4j
-public abstract class BaseNotificationService implements NotificationService, Observer, SingleStorageUser, CacheRefresher, ApplicationContextAware {
+public abstract class BaseNotificationService implements NotificationService, Observer, SingleStorageUser, ApplicationContextAware {
     
     protected Storage storage = null; // Storage manager for this service
     protected String relativeAccessPoint = null; // The initial portion of a relative access point URL
@@ -112,7 +110,6 @@ public abstract class BaseNotificationService implements NotificationService, Ob
     @Setter protected ApplicationContext applicationContext;
     @Setter protected EventTrackingService eventTrackingService;
     @Setter protected IdManager idManager;
-    @Setter protected MemoryService memoryService;
     @Setter protected ServerConfigurationService serverConfigurationService;
 
     /**
@@ -447,20 +444,6 @@ public abstract class BaseNotificationService implements NotificationService, Ob
     public Object[] storageFields(Entity r) {
         return null;
     }
-
-    @Override
-    public Object refresh(Object key, Object oldValue, Event event) {
-        // key is a reference, but our storage wants an id
-        String id = notificationId((String) key);
-
-        // get this from storage
-        Notification notification = storage.get(id);
-
-        log.debug("key [{}]--[{}]", key, id);
-
-        return notification;
-    }
-
 
     protected interface Storage {
         /**

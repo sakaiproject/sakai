@@ -20,12 +20,11 @@
 
   <script>includeLatestJQuery('podOptions.jsp');</script>
   <script>
-      $(document).ready(function(){
-          initializePopover("podMainForm\\:popover", "<h:outputText value="#{msgs.popup_text}" />");
-          var menuLink = $('#podcastOptionsMenuLink');
-          var menuLinkSpan = menuLink.closest('span');
-          menuLinkSpan.addClass('current');
-          menuLinkSpan.html(menuLink.text());
+      document.addEventListener('DOMContentLoaded', function(){
+          const menuLink = document.getElementById('podcastOptionsMenuLink');
+          const menuLinkSpan = menuLink.closest('span');
+          menuLinkSpan.classList.add('current');
+          menuLinkSpan.textContent = menuLink.textContent;
   });
   </script>
 

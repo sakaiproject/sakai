@@ -16,10 +16,13 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.Cookie;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
@@ -45,6 +48,15 @@ class RubricsTest extends SakaiUiTestBase {
     @Order(2)
     void canCreateRubricAndSetTitle() {
         sakai.createRubric("instructor1", sakaiUrl);
+
+        assertEquals("undefined", page.evaluate("typeof window.sakaiSessionId"));
+        String html = page.content();
+        for (Cookie cookie : context.cookies()) {
+            if (cookie.httpOnly) {
+                String sessionId = cookie.value.split("\\.", 2)[0];
+                assertFalse(html.contains(sessionId), "Rubrics page must not disclose authentication cookies");
+            }
+        }
 
         page.locator("input[title=\"Rubric Title\"]:visible").first().fill(RUBRIC_TITLE);
         page.locator("button:visible").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Save", Pattern.CASE_INSENSITIVE))).first().click(new Locator.ClickOptions().setForce(true));

@@ -109,7 +109,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
 
     @GetMapping(value = "/sites/{siteId}/entities/assessments", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Set<SiteEntityRestBean>> getSiteAssessments(@PathVariable String siteId) {
+    public ResponseEntity<Set<SiteEntityRestBean>> getSiteAssessments(@PathVariable("siteId") String siteId) {
         String userId = checkSakaiSession().getUserId();
         checkSite(siteId);
 
@@ -140,7 +140,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
     @SuppressWarnings("unchecked")
     @GetMapping(value = "/sites/{siteId}/entities/resources", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Set<SiteEntityRestBean>> getSiteResources(@PathVariable String siteId) {
+    public ResponseEntity<Set<SiteEntityRestBean>> getSiteResources(@PathVariable("siteId") String siteId) {
         checkSakaiSession();
         checkSite(siteId);
 
@@ -160,7 +160,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
     }
 
     @PatchMapping(path = "/sites/{siteId}/entities", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Set<SiteEntityRestBean>> updateSiteEntities(@PathVariable String siteId,
+    public ResponseEntity<Set<SiteEntityRestBean>> updateSiteEntities(@PathVariable("siteId") String siteId,
             @RequestBody Set<SiteEntityRestBean> patchEntities) {
         Site site = checkSite(siteId);
         String userId = checkSakaiSession().getUserId();

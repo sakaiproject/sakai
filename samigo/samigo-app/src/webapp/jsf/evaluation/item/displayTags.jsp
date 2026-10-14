@@ -1,6 +1,8 @@
 <script>includeWebjarLibrary('select2');</script>
 
-<script>
+<input type="hidden" id="tag-data_<h:outputText value="#{question.itemId}"/>" value="<h:outputText value="#{question.tagListToJsonString}"/>"/>
+<script type="module">
+    import { tagLabel } from "/samigo-app/js/tag-display.js";
 
     $(document).ready(function () {
         $(".tag_selector_<h:outputText value="#{question.itemId}"/>").select2({
@@ -14,7 +16,7 @@
         })
 
         //Load the item actual tags
-        var arr_<h:outputText value="#{question.itemId}"/> =<h:outputText value="#{question.tagListToJsonString}" escape="false"/>;
+        var arr_<h:outputText value="#{question.itemId}"/> =JSON.parse(document.getElementById('tag-data_<h:outputText value="#{question.itemId}"/>').value);
         if (arr_<h:outputText value="#{question.itemId}"/>.length < 1) {
             $(".tag_div_<h:outputText value="#{question.itemId}"/>").hide();
         }
@@ -29,19 +31,19 @@
     });
 
     function formatRepo_<h:outputText value="#{question.itemId}"/>(repo) {
-        var $tag_formatted = $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+        var $tag_formatted = $(tagLabel(repo.text, repo.collection));
         return $tag_formatted;
     }
 
     function formatRepoSelection_<h:outputText value="#{question.itemId}"/>(repo) {
         if (typeof repo.collection != 'undefined') {
-            var $tag_formatted_<h:outputText value="#{question.itemId}"/> = $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+            var $tag_formatted_<h:outputText value="#{question.itemId}"/> = $(tagLabel(repo.text, repo.collection));
         } else {
             var collection_<h:outputText value="#{question.itemId}"/> = $('.tag_selector_<h:outputText value="#{question.itemId}"/> option[value=' + repo.id + ']').attr("title");
             if (typeof collection_<h:outputText value="#{question.itemId}"/> != 'undefined') {
-                var $tag_formatted_<h:outputText value="#{question.itemId}"/> = $("<span>" + repo.text + " <span class='collection'>(" + collection_<h:outputText value="#{question.itemId}"/> + ")</span></span>");
+                var $tag_formatted_<h:outputText value="#{question.itemId}"/> = $(tagLabel(repo.text, collection_<h:outputText value="#{question.itemId}"/>));
             } else {
-                var $tag_formatted_<h:outputText value="#{question.itemId}"/> = $("<span>" + repo.text + "</span>");
+                var $tag_formatted_<h:outputText value="#{question.itemId}"/> = $(tagLabel(repo.text));
             }
         }
         return $tag_formatted_<h:outputText value="#{question.itemId}"/>;

@@ -19,8 +19,8 @@ package org.sakaiproject.microsoft.controller;
 import java.time.ZonedDateTime;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.microsoft.api.SakaiProxy;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;

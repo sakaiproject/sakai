@@ -32,11 +32,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.event.ValueChangeListener;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.event.ValueChangeListener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
@@ -56,7 +56,9 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Description: Action Listener for displaying Submission Status for anonymnous grading</p>
@@ -64,9 +66,14 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
  */
 
 @Slf4j
-public class SubmissionStatusListener
+public class SubmissionStatusListener extends SpringBeanAutowiringSupport
   implements ActionListener, ValueChangeListener
 {
+
+  @Autowired
+  @Qualifier("agentHelper")
+  private AgentHelper agentHelper;
+
   //private static EvaluationListenerUtil util;
   private BeanSort bs;
   //private static ContextUtil cu;
@@ -182,7 +189,7 @@ public class SubmissionStatusListener
 
 
       List agentUserIds = totalScorelistener.getAgentIds(useridMap);
-      AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
+      AgentHelper helper = agentHelper;
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
 
 

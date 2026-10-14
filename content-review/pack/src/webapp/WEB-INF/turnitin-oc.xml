@@ -14,7 +14,7 @@
          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
          <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
          <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+         <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
          <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
     </bean>
 </beans>

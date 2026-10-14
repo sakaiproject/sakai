@@ -27,6 +27,10 @@ package org.sakaiproject.tags.impl.rest;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.site.api.SiteService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
@@ -44,6 +48,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -91,9 +96,9 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
 
             String tagid= wp.getString("tagid");
 
-            Optional<Tag> tag = tagService().getTag(tagid);
-
-            return tag.get();
+            Tag tag = tagService().getTag(tagid).orElseThrow(() -> new IllegalArgumentException("No tag with id " + tagid));
+            tagService().checkCollectionAccess(accessibleSite(params), tag.getTagCollectionId());
+            return tag;
         } catch (Exception e) {
             log.error("Error calling getTag:",e);
             return null;
@@ -113,8 +118,9 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
                 pageLimit = maxPageSize;
             }
 
-            List<TagCollection> tagCollections = tagService().getTagCollectionsPaginated(page,pageLimit);
-            int tagCollectionsCount = tagService().getTotalTagCollections();
+            List<TagCollection> available = tagService().getTagCollectionsForSite(accessibleSite(params));
+            int tagCollectionsCount = available.size();
+            List<TagCollection> tagCollections = page(available, page, pageLimit);
 
             JSONObject responseDetailsJson = new JSONObject();
             JSONArray jsonArray = new JSONArray();
@@ -154,6 +160,7 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
                 pageLimit = maxPageSize;
             }
 
+            tagService().checkCollectionAccess(accessibleSite(params), tagcollectionid);
             List<Tag> tags = tagService().getTagsPaginatedInCollection(page, pageLimit, tagcollectionid);
             int tagCount = tagService().getTotalTagsInCollection(tagcollectionid);
 
@@ -191,13 +198,18 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
 
             if (pageLimit > maxPageSize) pageLimit = maxPageSize;
 
-            List<Tag> tags = tagService().getTagsPaginatedByPrefixInLabel(page, pageLimit, prefix);
-            int tagCount = tagService().getTotalTagsByPrefixInLabel(prefix);
+            String lowerPrefix = prefix.toLowerCase(java.util.Locale.ROOT);
+            List<TagSummary> available = tagService().getTagsForSite(accessibleSite(params)).stream()
+                .filter(tag -> tag.getTagLabel() != null
+                    && tag.getTagLabel().toLowerCase(java.util.Locale.ROOT).startsWith(lowerPrefix))
+                .collect(Collectors.toList());
+            int tagCount = available.size();
+            List<TagSummary> tags = page(available, page, pageLimit);
 
             JSONObject responseDetailsJson = new JSONObject();
             JSONArray jsonArray = new JSONArray();
 
-            for(Tag p : tags) {
+            for(TagSummary p : tags) {
                 JSONObject formDetailsJson = new JSONObject();
                 formDetailsJson.put("tagId", p.getTagId());
                 formDetailsJson.put("tagLabel", p.getTagLabel());
@@ -219,7 +231,7 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
     public JSONObject getTagsByItemId(EntityView view, Map<String, Object> params) {
         WrappedParams wp = new WrappedParams(params);
         String itemId = wp.getString("itemId");
-        String siteId = wp.getString("siteId");
+        String siteId = accessibleSite(params);
 
         try {
             List<Tag> tagList = tagService().getAssociatedTagsForItem(siteId, itemId);
@@ -249,6 +261,23 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
     }
 
 
+
+    private <T> List<T> page(List<T> values, int page, int pageSize) {
+        int size = Math.max(1, pageSize);
+        int start = (int) Math.min((long) Math.max(0, page - 1) * size, values.size());
+        return values.subList(start, Math.min(start + size, values.size()));
+    }
+
+    private String accessibleSite(Map<String, Object> params) {
+        String siteId = (String) params.get("siteId");
+        SecurityService security = ComponentManager.get(SecurityService.class);
+        if (siteId != null && !security.isSuperUser()
+                && !security.unlock(SiteService.SITE_VISIT, SiteService.REFERENCE_ROOT + "/" + siteId)) {
+            throw new SecurityException("Current user cannot access site " + siteId);
+        }
+        // Without a site, the legacy API exposes only the system-wide catalog.
+        return siteId == null ? "!admin" : siteId;
+    }
 
     private TagService tagService() {
         return (TagService) ComponentManager.get(TagService.class);

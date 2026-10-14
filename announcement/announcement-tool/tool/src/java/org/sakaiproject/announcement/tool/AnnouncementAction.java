@@ -1074,9 +1074,9 @@ public class AnnouncementAction extends PagedResourceActionII
 				if (btmMsgPos > allMsgNumber) btmMsgPos = allMsgNumber;
 			}
 
-			String [] viewValues = { (new Integer(topMsgPos)).toString(),
-									(new Integer(btmMsgPos)).toString(),
-									(new Integer(allMsgNumber)).toString() };
+			String [] viewValues = { Integer.toString(topMsgPos),
+									Integer.toString(btmMsgPos),
+									Integer.toString(allMsgNumber) };
 
 			context.put("announcementItemRangeArray", viewValues);
 		}
@@ -1829,7 +1829,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				// get the channel name throught announcement service API
 				channel = announcementService.getAnnouncementChannel(channelId);
 
-				context.put("allowAddChannelMessage", new Boolean(channel.allowAddChannelMessage()));
+				context.put("allowAddChannelMessage", Boolean.valueOf(channel.allowAddChannelMessage()));
 
 				String announceTo = state.getTempAnnounceTo();
 				if (announceTo != null && announceTo.length() != 0)
@@ -2296,8 +2296,8 @@ public class AnnouncementAction extends PagedResourceActionII
 							goNT = true;
 							context.put("nextMsg", msgs.get(i + 1));
 						}
-						context.put("goPTButton", new Boolean(goPT));
-						context.put("goNTButton", new Boolean(goNT));
+						context.put("goPTButton", Boolean.valueOf(goPT));
+						context.put("goNTButton", Boolean.valueOf(goNT));
 					}
 				}
 			}
@@ -3699,7 +3699,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		AnnouncementActionState actionState = (AnnouncementActionState) getState(context, data, AnnouncementActionState.class);
 		if (isMotd(actionState.getChannelId())){
 			ToolSession session = SessionManager.getCurrentToolSession();
-			session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, new Boolean(true).toString());
+			session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, Boolean.TRUE.toString());
 		}
         
 		// get into helper mode with this helper tool

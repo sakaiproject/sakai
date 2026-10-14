@@ -63,6 +63,14 @@
             <artifactId>commons-codec</artifactId>
         </dependency>
         <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>
@@ -83,12 +91,20 @@
             <artifactId>commons-text</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
         <dependency>
             <groupId>OKI</groupId>
@@ -100,7 +116,7 @@
             <version>rc6.1</version>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
@@ -156,16 +172,21 @@
             <artifactId>MathParser.org-mXparser</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <!-- Unit test dependencies -->
         <dependency>

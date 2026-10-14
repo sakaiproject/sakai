@@ -24,68 +24,55 @@
 
 package org.sakaiproject.tags.tool.handlers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tool.api.ToolManager;
 
 /**
- * A handler for the index page in the PA System administration tool.
+ * A handler for the index page in the PA System Tags tool.
  */
 @Slf4j
 public class IndexHandler extends BaseHandler {
 
     private final TagService tagService;
     private final SecurityService securityService;
-    private final SessionManager sessionManager;
     private final ToolManager toolManager;
     private final int defaultPaginationSize = 10;
-    private final int countPerPageGroup = 10;
 
-    public IndexHandler(TagService tagservice, SessionManager sessionManager, SecurityService securityService, ToolManager toolManager) {
+    public IndexHandler(TagService tagservice, SecurityService securityService, ToolManager toolManager) {
         this.tagService = tagservice;
         this.securityService = securityService;
-        this.sessionManager = sessionManager;
         this.toolManager = toolManager;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, Map<String, Object> context) {
 
-        int pageNum = extractPageNum(request);
-        int pageSize = extractPageSize(request);
+        int pageNum = Math.max(1, extractPageNum(request));
+        int pageSize = Math.max(1, Math.min(tagService.getMaxPageSize(), extractPageSize(request)));
 
         int totalTagCollections;
         List<TagCollection> collections;
         
-        if (securityService.isSuperUser()) {
+        if (securityService.isSuperUser() && "!admin".equals(toolManager.getCurrentPlacement().getContext())) {
             totalTagCollections = tagService.getTotalTagCollections();
             collections = tagService.getTagCollectionsPaginated(pageNum, pageSize);
         } else {
-            collections = new ArrayList<>();
             String siteId = toolManager.getCurrentPlacement().getContext();
-            // add site tag collection
-            TagCollection siteCollection = tagService.getTagCollection(siteId).orElse(null);
-            if (siteCollection != null) {
-                collections.add(siteCollection);
-            }
-            // add user tag collection
-            TagCollection userCollection = tagService.getTagCollection(sessionManager.getCurrentSessionUserId()).orElse(null);
-            if (userCollection != null) {
-                collections.add(userCollection);
-            }
+            collections = tagService.getTagCollectionsForSite(siteId);
             totalTagCollections = collections.size();
+            int start = (int) Math.min((long) (pageNum - 1) * pageSize, totalTagCollections);
+            collections = collections.subList(start, Math.min(start + pageSize, totalTagCollections));
         }
         
         int totalPages = totalTagCollections > 0 ? (int) Math.ceil((double) totalTagCollections / (double) pageSize) : 0;
@@ -93,15 +80,18 @@ public class IndexHandler extends BaseHandler {
         context.put("pageSize", pageSize);
         context.put("pageNum", pageNum);
         context.put("totalPages", totalPages);
-        context.put("countPerPageGroup", countPerPageGroup);
         
         context.put("showPagination", totalTagCollections > 0 && totalPages > 1);
         
         context.put("subpage", "index");
-        context.put("tagcollections", collections);
+        String siteId = toolManager.getCurrentPlacement().getContext();
+        context.put("tagcollections", collections.stream().map(collection -> Map.of(
+            "collection", collection, "scopeLabel", collection.getSiteId() == null ? "Global collection"
+                : collection.getSiteId().startsWith("~") ? "Personal collection" : "Site collection", "canManage", tagService.canManageCollection(siteId, collection.getTagCollectionId())))
+            .collect(Collectors.toList()));
         context.put("tagserviceactive", tagService.getServiceActive());
         context.put("actualtagcollection", "");
-        context.put("canCreate", securityService.isSuperUser());
+        context.put("canCreate", true);
 
     }
 

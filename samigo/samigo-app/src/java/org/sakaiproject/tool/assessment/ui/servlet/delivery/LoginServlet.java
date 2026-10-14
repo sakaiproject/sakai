@@ -21,16 +21,13 @@
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 
-import javax.faces.component.UICommand;
-import javax.faces.component.UIComponent;
-import javax.faces.event.ActionEvent;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -46,19 +43,18 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
-import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
-import org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import lombok.extern.slf4j.Slf4j;
@@ -84,9 +80,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LoginServlet extends HttpServlet {
 
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
+
     private static final String PARAM_ID = "id";
     private static final String PARAM_ACTION = "action";
-    private static final String PARAM_FROM_DIRECT = "fromDirect";
     private static final String ACTION_REVIEW = "review";
 
     private static final String PATH_ASSESSMENT_NOT_AVAILABLE = "/jsf/delivery/assessmentNotAvailable.faces";
@@ -102,7 +101,6 @@ public class LoginServlet extends HttpServlet {
     private static final String PATH_TIME_EXPIRED = "/jsf/delivery/timeExpired.faces";
     private static final String PATH_ACCESS_DENIED = "/jsf/delivery/accessDenied.faces";
     private static final String PATH_SECURE_DELIVERY_ERROR = "/jsf/delivery/secureDeliveryError.faces";
-    private static final String PATH_DELIVER_ASSESSMENT = "/jsf/delivery/deliverAssessment.faces";
     private static final String PATH_AUTHN_LOGIN = "/authn/login";
 
     @Autowired private SiteService siteService;
@@ -150,8 +148,7 @@ public class LoginServlet extends HttpServlet {
 
         String siteId = publishedAssessment.getOwnerSiteId();
         setSkinFolder(req, siteId);
-        boolean isInstructor = PersistenceService.getInstance()
-                .getAuthzQueriesFacade()
+        boolean isInstructor = authzQueriesFacade
                 .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
 
         // If this is called by an instructor or user is not authenticated, handle redirect in doTakeAssignment
@@ -160,14 +157,23 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res, getServletContext());
         delivery.setSiteId(siteId);
+        delivery.setAccessByUrlAndAuthorized(false);
+        boolean anonymousAllowed = StringUtils.contains(publishedAssessment.getAssessmentAccessControl().getReleaseTo(), "Anonymous Users");
+        if (!anonymousAllowed && (!authzQueriesFacade
+                .hasPrivilege(SamigoConstants.AUTHZ_TAKE_ASSESSMENT, siteId) || !checkMembership(publishedAssessment))) {
+            forwardTo(req, res, PATH_ACCESS_DENIED);
+            return;
+        }
 
+        delivery.setSiteId(siteId);
+        delivery.setPublishedAssessment(publishedAssessment);
         delivery.setAccessByUrlAndAuthorized(true);
 
         String assessmentId = publishedAssessment.getPublishedAssessmentId().toString();
 
-        SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBeanFromExternalServlet("select", req, res);
+        SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBeanFromExternalServlet("select", req, res, getServletContext());
         // Set to 3 to initiate the right view
         select.setDisplayAllAssessments("3");
         select.setReviewAssessmentId(assessmentId);
@@ -184,11 +190,12 @@ public class LoginServlet extends HttpServlet {
 
         HttpSession httpSession = req.getSession(true);
         httpSession.setMaxInactiveInterval(3600); // one hour
-        PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet("person", req, res);
+        PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet("person", req, res, getServletContext());
         // we are going to use the delivery bean to flag that this access is via url
         // this is the flag that we will use in deliverAssessment.jsp to decide what
         // button to display - daisyf
-        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res, getServletContext());
+        delivery.setAccessByUrlAndAuthorized(false);
         // For SAK-7132. 
         // As this class is only used for taking assessment via URL, 
         // there should not be any assessment grading data at this point
@@ -205,8 +212,7 @@ public class LoginServlet extends HttpServlet {
         String siteId = pub.getOwnerSiteId();
         setSkinFolder(req, siteId);
 
-        boolean isInstructor = PersistenceService.getInstance()
-                .getAuthzQueriesFacade()
+        boolean isInstructor = authzQueriesFacade
                 .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
 
         if (isInstructor) {
@@ -243,7 +249,7 @@ public class LoginServlet extends HttpServlet {
         listener.populateBeanFromPub(delivery, pub);
 
         if (!isInstructor) {
-            listener.processAction(null);
+            listener.processAction(null, false);
         }
 
         String path;
@@ -267,11 +273,7 @@ public class LoginServlet extends HttpServlet {
             agentIdString = req.getRemoteUser();
             isAuthenticated = (agentIdString != null && !agentIdString.isEmpty());
             if (isAuthenticated) {
-                if (releaseTo != null && releaseTo.contains(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-                    isAuthorized = checkMembershipForGroupRelease(pub);
-                } else {
-                    isAuthorized = checkMembership(pub);
-                }
+                isAuthorized = checkMembership(pub);
                 // in 2.2, agentId is different from req.getRemoteUser()
                 agentIdString = AgentFacade.getAgentString();
             }
@@ -299,26 +301,6 @@ public class LoginServlet extends HttpServlet {
                 }
             }
         }
-        if ("true".equals(req.getParameter(PARAM_FROM_DIRECT))) {
-            String deliveryValidate = delivery.validate();
-            // This has to be set up if it's coming from direct otherwise it doesn't start right
-            UIComponent uic = new UICommand();
-            uic.setId("beginAssessment");
-            ActionEvent ae = new ActionEvent(uic);
-
-            // send the user directly into taking the assessment... they already clicked start from the direct servlet
-            if ("1".equals(StringUtils.trim(delivery.getNavigation()))) {
-                LinearAccessDeliveryActionListener linearDeliveryListener = new LinearAccessDeliveryActionListener();
-                linearDeliveryListener.processAction(ae);
-            } else {
-                DeliveryActionListener deliveryListener = new DeliveryActionListener();
-                deliveryListener.processAction(ae);
-            }
-
-            if ("takeAssessment".equals(deliveryValidate)) {
-                path = PATH_DELIVER_ASSESSMENT;
-            }
-        }
         log.debug("Resolved view path: {}", path);
         if (relativePath) {
             forwardTo(req, res, path);
@@ -333,14 +315,18 @@ public class LoginServlet extends HttpServlet {
     }
 
     private boolean checkMembership(PublishedAssessmentFacade pub) {
+        if (StringUtils.contains(pub.getAssessmentAccessControl().getReleaseTo(), AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+            return checkMembershipForGroupRelease(pub);
+        }
+
         boolean isMember = false;
         // get list of site that this published assessment has been released to
-        List<AuthorizationData> l = PersistenceService.getInstance().getAuthzQueriesFacade().
+        List<AuthorizationData> l = authzQueriesFacade.
                 getAuthorizationByFunctionAndQualifier("VIEW_PUBLISHED_ASSESSMENT",
                         pub.getPublishedAssessmentId().toString());
         for (AuthorizationData authorizationData : l) {
             String siteId = authorizationData.getAgentIdString();
-            isMember = PersistenceService.getInstance().getAuthzQueriesFacade().checkMembership(siteId);
+            isMember = authzQueriesFacade.checkMembership(siteId);
             if (isMember) break;
         }
         return isMember;
@@ -349,7 +335,7 @@ public class LoginServlet extends HttpServlet {
     private boolean checkMembershipForGroupRelease(PublishedAssessmentFacade pub) {
         boolean isMember = false;
         // get the site that owns the published assessment
-        List<AuthorizationData> aData = PersistenceService.getInstance().getAuthzQueriesFacade().
+        List<AuthorizationData> aData = authzQueriesFacade.
                 getAuthorizationByFunctionAndQualifier("OWN_PUBLISHED_ASSESSMENT",
                         pub.getPublishedAssessmentId().toString());
         if (aData == null || aData.isEmpty()) return false;
@@ -360,7 +346,7 @@ public class LoginServlet extends HttpServlet {
         Collection<Group> siteGroupsContainingUser = siteService.getOptionalSite(siteId).map(s -> s.getGroupsWithMember(currentUserId)).orElse(Collections.emptyList());
 
         // get a list of groups that this published assessment has been released to
-        aData = PersistenceService.getInstance().getAuthzQueriesFacade().
+        aData = authzQueriesFacade.
                 getAuthorizationByFunctionAndQualifier("TAKE_PUBLISHED_ASSESSMENT", pub.getPublishedAssessmentId().toString());
         for (AuthorizationData aDatum : aData) {
             String groupId = aDatum.getAgentIdString();

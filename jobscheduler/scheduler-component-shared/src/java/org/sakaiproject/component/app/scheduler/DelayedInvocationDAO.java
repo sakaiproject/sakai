@@ -19,8 +19,8 @@ import org.hibernate.SessionFactory;
 import org.sakaiproject.scheduler.events.hibernate.DelayedInvocation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.util.List;
 
 
@@ -39,7 +39,9 @@ public class DelayedInvocationDAO {
     }
 
     public List<DelayedInvocation> all() {
-        return sessionFactory.getCurrentSession().createCriteria(DelayedInvocation.class).list();
+        return sessionFactory.getCurrentSession()
+            .createQuery("from DelayedInvocation", DelayedInvocation.class)
+            .list();
     }
 
     public void remove(DelayedInvocation invocation) {

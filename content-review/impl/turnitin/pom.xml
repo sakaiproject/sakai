@@ -118,16 +118,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
+            <groupId>jakarta.transaction</groupId>
+            <artifactId>jakarta.transaction-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-	        <groupId>javax.servlet</groupId>
-	        <artifactId>javax.servlet-api</artifactId>
+	        <groupId>jakarta.servlet</groupId>
+	        <artifactId>jakarta.servlet-api</artifactId>
 	    </dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
+			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-core</artifactId>
 		</dependency>
 	</dependencies>

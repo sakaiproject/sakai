@@ -18,15 +18,14 @@ package org.sakaiproject.hierarchy.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -54,8 +53,7 @@ public class HierarchyNodePermission implements PersistableEntity<Long>, Seriali
     @Id
     @Column(name = "ID")
     @EqualsAndHashCode.Include
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "hierarchy_perm_seq")
-    @SequenceGenerator(name = "hierarchy_perm_seq", sequenceName = "HIERARCHY_PERM_ID_SEQ", allocationSize = 1)
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "hierarchy_perm_seq", sequenceName = "HIERARCHY_PERM_ID_SEQ", allocationSize = 1))
     @ToString.Include
     private Long id;
 

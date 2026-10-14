@@ -26,10 +26,10 @@ package org.sakaiproject.tool.assessment.ui.bean.cms;
 import java.util.ArrayList;
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* Course Management Info.  Dummy data for now. */
 @ManagedBean(name="course")

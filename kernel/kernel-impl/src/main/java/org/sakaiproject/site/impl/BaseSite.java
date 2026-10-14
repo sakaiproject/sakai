@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.impl;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -78,7 +79,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  */
 @Slf4j
-public class BaseSite implements Site
+public class BaseSite implements Site, Serializable
 {
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;
@@ -135,7 +136,7 @@ public class BaseSite implements Site
 	protected ResourcePropertiesEdit m_properties = null;
 
 	/** The list of site pages for this site. */
-	protected ResourceVector m_pages = null;
+	protected List<SitePage> m_pages = null;
 
 	/** Set true while the pages have not yet been read in for a site. */
 	protected boolean m_pagesLazy = false;
@@ -162,17 +163,18 @@ public class BaseSite implements Site
 	protected Instant m_lastModifiedTime = null;
 
 	/** The list of site groups for this site. */
-	protected ResourceVector m_groups = null;
+	protected List<Group> m_groups = null;
 
 	/** Set true while the groups have not yet been read in for a site. */
 	protected boolean m_groupsLazy = false;
 
-	/** The azg from the AuthzGroupService that is my AuthzGroup impl. */
-	protected AuthzGroup m_azg = null;
+	/** The azg from the AuthzGroupService that is my AuthzGroup impl. Lazily loaded, never copied. */
+	protected transient AuthzGroup m_azg = null;
 
-	private AuthzGroupService authzGroupService;
-	private MicrosoftMessagingService microsoftMessagingService;
-	private FormattedText formattedText;
+	/** Not cacheable directly; always re-supplied by setupServices()/the copy-constructor chain. */
+	private transient AuthzGroupService authzGroupService;
+	private transient MicrosoftMessagingService microsoftMessagingService;
+	private transient FormattedText formattedText;
 	/**
 	 * Set to true if we have changed our azg, so it need to be written back on
 	 * save.
@@ -185,11 +187,11 @@ public class BaseSite implements Site
 	 */
 	protected boolean m_customPageOrdered = false;
 
-	private BaseSiteService siteService;
+	private transient BaseSiteService siteService;
 
-	private SessionManager sessionManager;
+	private transient SessionManager sessionManager;
 
-	private UserDirectoryService userDirectoryService;
+	private transient UserDirectoryService userDirectoryService;
 
 	/** Softly deleted data */
 	protected boolean m_isSoftlyDeleted = false;
@@ -214,10 +216,10 @@ public class BaseSite implements Site
 		m_properties = new BaseResourcePropertiesEdit();
 
 		// set up the page list
-		m_pages = new ResourceVector();
+		m_pages = new ArrayList<>();
 
 		// set up the groups collection
-		m_groups = new ResourceVector();
+		m_groups = new ArrayList<>();
 
 		// if the id is not null (a new site, rather than a reconstruction)
 		// add the automatic (live) properties
@@ -268,10 +270,10 @@ public class BaseSite implements Site
 		m_properties = new BaseResourcePropertiesEdit();
 
 		// setup for page list
-		m_pages = new ResourceVector();
+		m_pages = new ArrayList<>();
 
 		// setup for the groups list
-		m_groups = new ResourceVector();
+		m_groups = new ArrayList<>();
 
 		m_id = el.getAttribute("id");
 		m_title = StringUtils.trimToNull(el.getAttribute("title"));
@@ -525,10 +527,10 @@ public class BaseSite implements Site
 		m_properties = new BaseResourcePropertiesEdit();
 
 		// set up the page list
-		m_pages = new ResourceVector();
+		m_pages = new ArrayList<>();
 
 		// set up the groups collection
-		m_groups = new ResourceVector();
+		m_groups = new ArrayList<>();
 
 		m_id = id;
 		m_title = title;
@@ -707,11 +709,11 @@ public class BaseSite implements Site
 		for (BaseSitePage page : otherPages) {
 		    copiedPages.add(new BaseSitePage(siteService, page, this, exact));
 		}
-		m_pages = new ResourceVector(copiedPages);
+		m_pages = new ArrayList<>(copiedPages);
 		m_pagesLazy = other.m_pagesLazy;
 
 		// deep copy the groups, but avoid triggering fetching by passing false to getGroups
-		m_groups = new ResourceVector();
+		m_groups = new ArrayList<>();
 		for (Iterator iGroups = other.getGroups(false).iterator(); iGroups.hasNext();)
 		{
 			Group group = (Group) iGroups.next();
@@ -1250,7 +1252,9 @@ public class BaseSite implements Site
 	 */
 	public SitePage getPage(String id)
 	{
-		return (SitePage) ((ResourceVector) getPages()).getById(id);
+		return (SitePage) getPages().stream()
+				.filter(p -> ((Identifiable) p).getId().equals(id))
+				.findFirst().orElse(null);
 	}
 
 	/**
@@ -1327,13 +1331,17 @@ public class BaseSite implements Site
 					&& (SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
 					&& (m_id.equals(ref.getContainer())))
 			{
-				return (Group) ((ResourceVector) getGroups()).getById(ref.getId());
+				return (Group) getGroups().stream()
+						.filter(g -> ((Identifiable) g).getId().equals(ref.getId()))
+						.findFirst().orElse(null);
 			}
 
 			return null;
 		}
 
-		return (Group) ((ResourceVector) getGroups()).getById(id);
+		return (Group) getGroups().stream()
+				.filter(g -> ((Identifiable) g).getId().equals(id))
+				.findFirst().orElse(null);
 	}
 
 	/**
@@ -1709,7 +1717,7 @@ public class BaseSite implements Site
 	public void regenerateIds()
 	{
 		// deep copy the pages
-		ResourceVector newPages = new ResourceVector();
+		List<SitePage> newPages = new ArrayList<>();
 		for (Iterator iPages = getPages().iterator(); iPages.hasNext();)
 		{
 			BaseSitePage page = (BaseSitePage) iPages.next();
@@ -2050,6 +2058,16 @@ public class BaseSite implements Site
 	public boolean isFullyLoaded()
 	{
 		return m_fullyLoaded;
+	}
+
+	/**
+	 * True when the page collection still needs to be fetched from storage.
+	 * A site can be marked fully loaded incorrectly; callers that trust the
+	 * cache must also check this before skipping loadAll().
+	 */
+	boolean hasLazyPages()
+	{
+		return m_pagesLazy;
 	}
 
 	public void setFullyLoaded(boolean flag) {

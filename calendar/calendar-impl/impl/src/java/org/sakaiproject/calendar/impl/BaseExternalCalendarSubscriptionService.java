@@ -41,6 +41,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionSnapshot;
+import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
@@ -52,8 +54,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -135,10 +136,10 @@ public class BaseExternalCalendarSubscriptionService implements
 	
 	protected FormattedText m_formattedText;
 
-	protected MemoryService m_memoryService = null;
+	protected CacheManager cacheManager;
 
-	public void setMemoryService(MemoryService memoryService) {
-		this.m_memoryService = memoryService;
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 
 	public void setCalendarService(BaseCalendarService service)
@@ -234,26 +235,14 @@ public class BaseExternalCalendarSubscriptionService implements
 
 		if (enabled)
 		{
-			// INIT the caches
-			long userCacheRefreshRate = 60 * m_configurationService.getInt(SAK_PROP_EXTSUBSCRIPTIONS_USER_CACHETIME, 120);
-			long instCacheRefreshRate = 60 * m_configurationService.getInt(SAK_PROP_EXTSUBSCRIPTIONS_INST_CACHETIME, 120);
-			long userCacheMaxEntries = m_configurationService.getInt(SAK_PROP_EXTSUBSCRIPTIONS_USER_CACHEENTRIES, 32);
-			long instCacheMaxEntries = m_configurationService.getInt(SAK_PROP_EXTSUBSCRIPTIONS_INST_CACHEENTRIES, 32);
-			SimpleConfiguration<String, BaseExternalSubscriptionDetails> userCacheConfig = new SimpleConfiguration<>(userCacheMaxEntries, userCacheRefreshRate, 0);
-			SimpleConfiguration<String, BaseExternalSubscriptionDetails> instCacheConfig = new SimpleConfiguration<>(instCacheMaxEntries, instCacheRefreshRate, 0);
-			userCacheConfig.setStatisticsEnabled(true);
-			instCacheConfig.setStatisticsEnabled(true);
+			// INIT the caches. Distributed (not local) on purpose: the cached value is the
+			// result of fetching an external URL, which is identical no matter which cluster
+			// node fetches it, so only one node needs to pay the network-fetch cost per
+			// refresh interval instead of every node paying it independently.
 			institutionalSubscriptionCache = new SubscriptionCache(
-					m_memoryService.createCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCache", instCacheConfig), clock);
+					cacheManager.getCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCache"), clock);
 			usersSubscriptionCache = new SubscriptionCache(
-					m_memoryService.createCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.userCache", userCacheConfig), clock);
-			// TODO replace this with a real solution for when the caches are distributed by disabling the timer and using jobscheduler
-			if (institutionalSubscriptionCache.getCache().isDistributed()) {
-				log.error(institutionalSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+instCacheRefreshRate+" seconds, do NOT distribute this cache");
-			}
-			if (usersSubscriptionCache.getCache().isDistributed()) {
-				log.error(usersSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+userCacheRefreshRate+" seconds, do NOT distribute this cache");
-			}
+					cacheManager.getCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.userCache"), clock);
 
 			// iCal column map
 			try
@@ -345,15 +334,110 @@ public class BaseExternalCalendarSubscriptionService implements
 	private BaseExternalSubscriptionDetails getExternalSubscription(String subscriptionUrl, String context, String userId, String tzid) {
 		// Decide which cache to use.
 		SubscriptionCache cache = (getInstitutionalSubscription(subscriptionUrl) != null)? institutionalSubscriptionCache : usersSubscriptionCache;
-		
-		BaseExternalSubscriptionDetails subscription = cache.get(subscriptionUrl);
-		// Did we get it?
-		if (subscription == null)
+
+		ExternalCalendarSubscriptionSnapshot snapshot = cache.get(subscriptionUrl);
+		BaseExternalSubscriptionDetails subscription;
+		if (snapshot != null)
+		{
+			subscription = toLiveDetails(snapshot);
+		}
+		else
 		{
 			subscription = loadCalendarSubscriptionFromUrl(subscriptionUrl, context, userId, tzid);
-			cache.put(subscription);
+			cache.put(toSnapshot(subscription));
 		}
 		return subscription;
+	}
+
+	/**
+	 * Converts a live subscription into the plain, cache-marshalable snapshot. calendar and
+	 * its events are non-static inner classes of this service, so they can't be cached
+	 * directly - see {@link ExternalCalendarSubscriptionSnapshot}.
+	 */
+	private ExternalCalendarSubscriptionSnapshot toSnapshot(BaseExternalSubscriptionDetails details) {
+		ExternalCalendarSubscriptionSnapshot snapshot = new ExternalCalendarSubscriptionSnapshot();
+		snapshot.subscriptionName = details.getSubscriptionName();
+		snapshot.subscriptionUrl = details.getSubscriptionUrl();
+		snapshot.context = details.getContext();
+		snapshot.institutional = details.isInstitutional();
+		snapshot.userId = details.getUserId();
+		snapshot.tzid = details.getTzid();
+		snapshot.ok = details.getState() != ExternalSubscriptionDetails.State.FAILED;
+		snapshot.error = details.getError();
+		snapshot.refreshed = details.getRefreshed();
+
+		ExternalCalendarSubscription calendar = details.getCalendar();
+		if (calendar != null)
+		{
+			snapshot.calendarName = calendar.getName();
+			for (CalendarEvent event : calendar.getAllEvents())
+			{
+				ExternalCalendarSubscriptionSnapshot.EventSnapshot es = new ExternalCalendarSubscriptionSnapshot.EventSnapshot();
+				es.displayName = event.getDisplayName();
+				es.description = event.getDescription();
+				es.type = event.getType();
+				es.location = event.getLocation();
+				es.rangeStartMillis = event.getRange().firstTime().getTime();
+				es.rangeEndMillis = event.getRange().lastTime().getTime();
+				RecurrenceRule recurrenceRule = event.getRecurrenceRule();
+				if (recurrenceRule != null)
+				{
+					es.recurrenceFrequency = recurrenceRule.getFrequency();
+					es.recurrenceInterval = recurrenceRule.getInterval();
+					es.recurrenceCount = recurrenceRule.getCount();
+					es.recurrenceUntilMillis = recurrenceRule.getUntil() == null ? null : recurrenceRule.getUntil().getTime();
+				}
+				snapshot.events.add(es);
+			}
+		}
+		return snapshot;
+	}
+
+	/**
+	 * Rebuilds a live subscription from a cached snapshot by replaying the same
+	 * ExternalCalendarSubscription.addEvent(...) call loadCalendarSubscriptionFromUrl itself
+	 * makes for a fresh fetch, just fed from cached plain fields instead of a freshly-parsed
+	 * CalendarEvent.
+	 */
+	private BaseExternalSubscriptionDetails toLiveDetails(ExternalCalendarSubscriptionSnapshot snapshot) {
+		if (!snapshot.ok)
+		{
+			return new BaseExternalSubscriptionDetails(snapshot.calendarName, snapshot.subscriptionUrl,
+					snapshot.context, null, snapshot.institutional, snapshot.userId, snapshot.tzid,
+					false, snapshot.error, snapshot.refreshed);
+		}
+
+		String subscriptionId = getIdFromSubscriptionUrl(snapshot.subscriptionUrl);
+		String reference = calendarSubscriptionReference(snapshot.context, subscriptionId);
+		ExternalCalendarSubscription calendar = new ExternalCalendarSubscription(reference);
+		calendar.setName(snapshot.calendarName);
+		for (ExternalCalendarSubscriptionSnapshot.EventSnapshot es : snapshot.events)
+		{
+			TimeRange range = m_timeService.newTimeRange(
+					m_timeService.newTime(es.rangeStartMillis), m_timeService.newTime(es.rangeEndMillis));
+			RecurrenceRule recurrenceRule = null;
+			if (es.recurrenceFrequency != null)
+			{
+				recurrenceRule = es.recurrenceUntilMillis == null
+						? m_calendarService.newRecurrence(es.recurrenceFrequency, es.recurrenceInterval, es.recurrenceCount)
+						: m_calendarService.newRecurrence(es.recurrenceFrequency, es.recurrenceInterval,
+								m_timeService.newTime(es.recurrenceUntilMillis));
+			}
+			try
+			{
+				calendar.addEvent(range, es.displayName, es.description, es.type, es.location,
+						snapshot.userId, recurrenceRule, null);
+			}
+			catch (PermissionException e)
+			{
+				// ExternalCalendarSubscription.allowAddEvent() is always false but addEvent()
+				// never actually checks it (loadCalendarSubscriptionFromUrl calls the same
+				// method unguarded) - unreachable in practice.
+			}
+		}
+		return new BaseExternalSubscriptionDetails(snapshot.calendarName, snapshot.subscriptionUrl,
+				snapshot.context, calendar, snapshot.institutional, snapshot.userId, snapshot.tzid,
+				true, null, snapshot.refreshed);
 	}
 
 	public Set<ExternalSubscriptionDetails> getCalendarSubscriptionChannelsForChannels(
@@ -497,7 +581,7 @@ public class BaseExternalCalendarSubscriptionService implements
 					else {
 						try {
 							name = institutionalSubscriptionCache.get(url)
-									.getSubscriptionName();
+									.subscriptionName;
 						} catch (Exception e) {
 							name = url;
 						}
@@ -530,7 +614,7 @@ public class BaseExternalCalendarSubscriptionService implements
 						name = subscription[3];
 					} else {
 						try {
-							name = institutionalSubscriptionCache.get(url).getSubscriptionName();
+							name = institutionalSubscriptionCache.get(url).subscriptionName;
 						} catch (Exception e) {
 							name = url;
 						}

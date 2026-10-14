@@ -28,21 +28,21 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.SendFailedException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.MimeUtility;
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.mail.Address;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.SendFailedException;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.MimeUtility;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
@@ -568,9 +568,9 @@ public class BasicEmailService implements EmailService
 					msg.setFrom(from);
 				}
 			}
-	    } catch (javax.mail.internet.AddressException e) {
+	    } catch (jakarta.mail.internet.AddressException e) {
 			log.info("checkfrom address exception " + e);
-	    } catch (javax.mail.MessagingException e) {
+	    } catch (jakarta.mail.MessagingException e) {
 			log.info("checkfrom messaging exception " + e);
 	    }
 	}
@@ -744,6 +744,15 @@ public class BasicEmailService implements EmailService
 	}
 
 	private void transportMessage(Session session, List<Address[]> messageSets, Collection<String> headers, MimeMessage msg) {
+		MimeMessage preparedMessage;
+		try {
+			msg.saveChanges();
+			// Encode MIME content before handing the message to a background thread.
+			preparedMessage = new MimeMessage(msg);
+		} catch (MessagingException e) {
+			log.warn("Unable to prepare email for delivery", e);
+			return;
+		}
 		// Create a CompletableFuture to handle the asynchronous operation
 		CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
 			long time1 = 0;
@@ -762,7 +771,6 @@ public class BasicEmailService implements EmailService
 				Transport transport = session.getTransport(protocol);
 
 				if (log.isDebugEnabled()) time2 = System.currentTimeMillis();
-				msg.saveChanges();
 
 				if (log.isDebugEnabled()) time3 = System.currentTimeMillis();
 				if (smtpUser != null && smtpPassword != null) {
@@ -780,7 +788,7 @@ public class BasicEmailService implements EmailService
 
 					try
 					{
-						transport.sendMessage(msg, toAddresses);
+						transport.sendMessage(preparedMessage, toAddresses);
 
 						// if we need to use the connection for just one send, and we have more, close and re-open
 						if ((oneMessagePerConnection) && (i.hasNext()))
@@ -1023,7 +1031,7 @@ public class BasicEmailService implements EmailService
 
 	/**
 	 * Converts a {@link java.util.List} of {@link EmailAddress} to
-	 * {@link javax.mail.internet.InternetAddress}.
+	 * {@link jakarta.mail.internet.InternetAddress}.
 	 *
 	 * @param emails
 	 * @return Array will be the same size as the list with converted addresses. If list is null,

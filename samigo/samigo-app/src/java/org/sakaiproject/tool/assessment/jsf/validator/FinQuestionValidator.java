@@ -29,11 +29,11 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.Validator;
-import javax.faces.validator.ValidatorException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.validator.Validator;
+import jakarta.faces.validator.ValidatorException;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;

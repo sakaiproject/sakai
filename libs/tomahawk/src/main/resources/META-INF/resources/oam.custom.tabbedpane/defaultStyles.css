@@ -1,0 +1,77 @@
+table.myFaces_panelTabbedPane{
+	border-style: none;
+	padding: 0;
+	border-spacing: 0;
+	empty-cells: show;
+}
+
+.myFaces_panelTabbedPane_activeHeaderCell{
+	border-top: 2px outset silver;
+	border-right: 2px outset silver;
+	border-bottom: 0px none;
+	border-left: 2px outset silver;
+	text-align: center;
+}
+.myFaces_panelTabbedPane_inactiveHeaderCell,
+.myFaces_panelTabbedPane_disabledHeaderCell{
+	border-top: 1px outset silver;
+	border-right: 1px outset silver;
+	border-bottom: 0px none;
+	border-left: 1px outset silver;
+	text-align: center;
+	background-color: silver;
+}
+.myFaces_panelTabbedPane_activeHeaderCell input,
+.myFaces_panelTabbedPane_inactiveHeaderCell input,
+.myFaces_panelTabbedPane_disabledHeaderCell label{
+	border-style: none;
+	width: 100%;
+}
+.myFaces_panelTabbedPane_activeHeaderCell input{
+	cursor: pointer;
+    background-color: transparent !important;
+    /* background-color: inherit; */
+}
+.myFaces_panelTabbedPane_inactiveHeaderCell input{
+	cursor: pointer;
+	background-color: silver;
+}
+.myFaces_panelTabbedPane_disabledHeaderCell label{
+	cursor: default;
+	background-color: silver;
+}
+.myFaces_panelTabbedPane_emptyHeaderCell{
+	border-style: none;
+}
+.myFaces_panelTabbedPane_activeHeaderCell input:hover,
+.myFaces_panelTabbedPane_inactiveHeaderCell input:hover{
+	/* border-top: orange solid 2px; */
+}
+
+.myFaces_panelTabbedPane_subHeaderCell{
+ 	height: 2px;
+	font-size: 0;
+	border-bottom: 0px none;
+}
+.myFaces_panelTabbedPane_subHeaderCell_active{
+	border-top: 0px none;
+}
+.myFaces_panelTabbedPane_subHeaderCell_inactive{
+	border-top: 2px outset silver;
+}
+.myFaces_panelTabbedPane_subHeaderCell_first{
+	border-left: 2px outset silver;
+}
+.myFaces_panelTabbedPane_subHeaderCell_last{
+	border-top: 2px outset silver;
+	border-right: 2px outset silver;
+}
+
+.myFaces_panelTabbedPane_pane{
+	border-top: 0px none;
+	border-right: 2px outset silver;
+	border-bottom: 2px outset silver;
+	border-left: 2px outset silver;
+	padding: 10px;
+}
+

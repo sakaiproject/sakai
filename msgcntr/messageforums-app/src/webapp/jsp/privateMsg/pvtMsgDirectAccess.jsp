@@ -1,6 +1,6 @@
-<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
-                 javax.faces.el.*, org.sakaiproject.tool.messageforums.*,
-                 org.sakaiproject.tool.messageforums.ui.*,javax.servlet.http.HttpUtils,java.util.Enumeration"%>
+<%@ page import="java.util.*, jakarta.faces.context.*, jakarta.faces.application.*,
+                 jakarta.faces.el.*, org.sakaiproject.tool.messageforums.*,
+                 org.sakaiproject.tool.messageforums.ui.*,java.util.Enumeration"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>

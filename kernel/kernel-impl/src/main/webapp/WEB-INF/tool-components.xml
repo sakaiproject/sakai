@@ -12,7 +12,6 @@
 		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
 		<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager"/>
-		<property name="rebuildBreakdownService" ref="org.sakaiproject.tool.api.RebuildBreakdownService" />
 		<property name="clusterManager" ref="org.sakaiproject.cluster.api.ClusterService"/>
 
 		<property name="clusterableTools">
@@ -30,22 +29,6 @@
 		<property name="sessionListener" ref="org.sakaiproject.tool.api.SessionAttributeListener.journaler" />
 		-->
 	</bean>
-
-    <!--
-    RebuildBreakdownServiceImpl is responsible for converting Session data into Serializable
-    objects, storing them internally, and then converting them back into Session objects, in support
-    of Session clustering
-    Also can be used for general serialization
-    -->
-    <bean id="org.sakaiproject.tool.api.RebuildBreakdownService"
-          class="org.sakaiproject.tool.impl.RebuildBreakdownServiceImpl"
-          init-method="init">
-        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
-    </bean>
-
 
     <!-- uncomment this if sessionListener property is enabled above -->
     <!--

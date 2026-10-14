@@ -14,9 +14,19 @@
 	<packaging>jar</packaging>
     
 	<dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -51,6 +61,10 @@
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.activation</groupId>
+			<artifactId>jakarta.activation-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

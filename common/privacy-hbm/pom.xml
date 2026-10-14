@@ -16,11 +16,19 @@
   </properties>
   <dependencies>
     <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.common</groupId>
       <artifactId>sakai-privacy-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-core</artifactId>
     </dependency>
   </dependencies>

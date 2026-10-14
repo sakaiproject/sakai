@@ -144,7 +144,7 @@
 
         <!-- Spring & Hibernate -->
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
@@ -158,6 +158,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -184,6 +189,10 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
 
         <!-- Apache others -->
@@ -228,8 +237,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

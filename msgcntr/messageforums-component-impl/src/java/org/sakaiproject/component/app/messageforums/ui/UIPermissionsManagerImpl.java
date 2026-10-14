@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.api.app.messageforums.MembershipItemSnapshot;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BulkPermission;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
@@ -45,8 +46,8 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -66,7 +67,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     @Setter private AuthzGroupService authzGroupService;
     @Setter private DiscussionForumManager forumManager;
-    @Setter private MemoryService memoryService;
+    @Setter private CacheManager cacheManager;
     @Setter private PermissionLevelManager permissionLevelManager;
     @Setter private SecurityService securityService;
     @Setter private SessionManager sessionManager;
@@ -74,8 +75,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
 
-    private Cache<String, Set<DBMembershipItem>> membershipItemCache;
-    private Cache<String, Set<String>> userGroupMembershipCache;
+    private Cache membershipItemCache;
+    private Cache userGroupMembershipCache;
 
     private Predicate<DBMembershipItem> ifChangeSettings;
     private Predicate<DBMembershipItem> ifDeleteAny;
@@ -92,8 +93,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     public void init() {
         log.info("init()");
-        userGroupMembershipCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
-        membershipItemCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.membershipItemCache");
+        userGroupMembershipCache = cacheManager.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
+        membershipItemCache = cacheManager.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.membershipItemCache");
 
         ifChangeSettings = item -> resolvePermissionLevel(item).map(PermissionLevel::getChangeSettings).orElse(false);
         ifDeleteAny = item -> resolvePermissionLevel(item).map(PermissionLevel::getDeleteAny).orElse(false);
@@ -485,9 +486,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         Set<DBMembershipItem> areaItems = new HashSet<>();
         Set<DBMembershipItem> allAreaSet = getAreaMemberships(getContextId());
 
-        Predicate<DBMembershipItem> ifSameArea = item -> ((DBMembershipItemImpl) item).getArea() != null
+        Predicate<DBMembershipItem> ifSameArea = item -> ((MembershipItemSnapshot) item).getAreaId() != null
                 && area.getId() != null
-                && area.getId().equals(((DBMembershipItemImpl) item).getArea().getId());
+                && area.getId().equals(((MembershipItemSnapshot) item).getAreaId());
         allAreaSet.stream().filter(ifSameArea).forEach(areaItems::add);
         return areaItems;
     }
@@ -498,12 +499,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         Set<DBMembershipItem> forumItemsInThread = getForumMemberships(forum.getArea());
         Set<DBMembershipItem> thisForumItemSet = new HashSet<>();
 
-        Predicate<DBMembershipItem> ifSameForum = item -> ((DBMembershipItemImpl)item).getForum() != null
+        Predicate<DBMembershipItem> ifSameForum = item -> ((MembershipItemSnapshot) item).getForumId() != null
                 && forum.getId() != null
-                && forum.getId().equals(((DBMembershipItemImpl)item).getForum().getId());
+                && forum.getId().equals(((MembershipItemSnapshot) item).getForumId());
         forumItemsInThread.stream().filter(ifSameForum).forEach(thisForumItemSet::add);
 
-        if (thisForumItemSet.isEmpty() && forum.getTopicsSet() == null && ".anon".equals(forum.getCreatedBy()) && forumManager.getAnonRole()) {
+        if (thisForumItemSet.isEmpty() && forum.getTopicsSet() == null && ".anon".equals(forum.getCreatedBy()) && forumManager.getAnonRole()
+                && forum.getMembershipItemSet() != null) {
             forum.getMembershipItemSet().stream().filter(item -> ".anon".equals(item.getName())).forEach(thisForumItemSet::add);
         }
 
@@ -530,9 +532,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     public Set<DBMembershipItem> getForumItemsSet(DiscussionForum forum) {
         Set<DBMembershipItem> forumItems = new HashSet<>();
         Set<DBMembershipItem> allForumSet = getForumMemberships(forum.getArea());
-        Predicate<DBMembershipItem> ifSameForum = item -> ((DBMembershipItemImpl) item).getForum() != null
+        Predicate<DBMembershipItem> ifSameForum = item -> ((MembershipItemSnapshot) item).getForumId() != null
                 && forum.getId() != null
-                && forum.getId().equals(((DBMembershipItemImpl) item).getForum().getId());
+                && forum.getId().equals(((MembershipItemSnapshot) item).getForumId());
         allForumSet.stream().filter(ifSameForum).forEach(forumItems::add);
         return forumItems;
     }
@@ -555,8 +557,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         Set<DBMembershipItem> topicItemsInThread = getTopicMemberships(getTopicForumArea(topic));
         Set<DBMembershipItem> thisTopicItemSet = new HashSet<>();
 
-        Predicate<DBMembershipItem> ifTopicIsNonNullAndEqualsTopicId = item -> ((DBMembershipItemImpl) item).getTopic() != null
-                && ((DBMembershipItemImpl) item).getTopic().getId().equals(topic.getId());
+        Predicate<DBMembershipItem> ifTopicIsNonNullAndEqualsTopicId = item -> ((MembershipItemSnapshot) item).getTopicId() != null
+                && ((MembershipItemSnapshot) item).getTopicId().equals(topic.getId());
         topicItemsInThread.stream().filter(ifTopicIsNonNullAndEqualsTopicId).forEach(thisTopicItemSet::add);
 
         topicItems.add(forumManager.getDBMember(thisTopicItemSet, getUserRole(siteId, userId), MembershipItem.TYPE_ROLE, "/site/" + siteId));
@@ -584,9 +586,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     public Set<DBMembershipItem> getTopicItemsSet(DiscussionTopic topic) {
         Set<DBMembershipItem> topicItems = new HashSet<>();
         Set<DBMembershipItem> allTopicSet = getTopicMemberships(getTopicForumArea(topic));
-        Predicate<DBMembershipItem> ifSameTopic = item -> ((DBMembershipItemImpl) item).getTopic() != null
+        Predicate<DBMembershipItem> ifSameTopic = item -> ((MembershipItemSnapshot) item).getTopicId() != null
                 && topic.getId() != null
-                && topic.getId().equals(((DBMembershipItemImpl) item).getTopic().getId());
+                && topic.getId().equals(((MembershipItemSnapshot) item).getTopicId());
         allTopicSet.stream().filter(ifSameTopic).forEach(topicItems::add);
         return topicItems;
     }
@@ -747,17 +749,43 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     public void clearMembershipsFromCacheForArea(Area area) {
         if (area == null || area.getId() == null) return;
         String areaId = area.getId().toString();
-        membershipItemCache.remove("area_" + areaId);
-        membershipItemCache.remove("forum_" + areaId);
-        membershipItemCache.remove("topic_" + areaId);
+        membershipItemCache.evict("area_" + areaId);
+        membershipItemCache.evict("forum_" + areaId);
+        membershipItemCache.evict("topic_" + areaId);
+    }
+
+    /**
+     * Converts a live DBMembershipItem into the plain, cache-marshalable snapshot. area/forum/topic
+     * are reduced to their ids - see MembershipItemSnapshot for why they can't be cached directly.
+     */
+    private MembershipItemSnapshot toSnapshot(DBMembershipItem item) {
+        MembershipItemSnapshot snapshot = new MembershipItemSnapshot();
+        snapshot.setId(item.getId());
+        snapshot.setUuid(item.getUuid());
+        snapshot.setCreated(item.getCreated());
+        snapshot.setCreatedBy(item.getCreatedBy());
+        snapshot.setModified(item.getModified());
+        snapshot.setModifiedBy(item.getModifiedBy());
+        snapshot.setVersion(item.getVersion());
+        snapshot.setName(item.getName());
+        snapshot.setType(item.getType());
+        snapshot.setPermissionLevelName(item.getPermissionLevelName());
+        if (item instanceof DBMembershipItemImpl dbmi) {
+            snapshot.setAreaId(dbmi.getArea() != null ? dbmi.getArea().getId() : null);
+            snapshot.setForumId(dbmi.getForum() != null ? dbmi.getForum().getId() : null);
+            snapshot.setTopicId(dbmi.getTopic() != null ? dbmi.getTopic().getId() : null);
+        }
+        return snapshot;
     }
 
     private Set<DBMembershipItem> getTopicMemberships(Area area) {
         if (area == null) return Collections.emptySet();
         String topicCacheKey = "topic_" + area.getId();
-        Set<DBMembershipItem> cachedTopicMemberships = membershipItemCache.get(topicCacheKey);
+        Set<DBMembershipItem> cachedTopicMemberships = membershipItemCache.get(topicCacheKey, Set.class);
         if (cachedTopicMemberships == null) {
-            cachedTopicMemberships = new HashSet<>(permissionLevelManager.getAllMembershipItemsForTopicsForSite(area.getId()));
+            cachedTopicMemberships = permissionLevelManager.getAllMembershipItemsForTopicsForSite(area.getId()).stream()
+                    .map(this::toSnapshot)
+                    .collect(Collectors.toSet());
             membershipItemCache.put(topicCacheKey, cachedTopicMemberships);
         }
         return cachedTopicMemberships;
@@ -766,9 +794,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     private Set<DBMembershipItem> getForumMemberships(Area area) {
         if (area == null) return Collections.emptySet();
         String forumCacheKey = "forum_" + area.getId();
-        Set<DBMembershipItem> cachedForumMemberships = membershipItemCache.get(forumCacheKey);
+        Set<DBMembershipItem> cachedForumMemberships = membershipItemCache.get(forumCacheKey, Set.class);
         if (cachedForumMemberships == null) {
-            cachedForumMemberships = new HashSet<>(permissionLevelManager.getAllMembershipItemsForForumsForSite(area.getId()));
+            cachedForumMemberships = permissionLevelManager.getAllMembershipItemsForForumsForSite(area.getId()).stream()
+                    .map(this::toSnapshot)
+                    .collect(Collectors.toSet());
             membershipItemCache.put(forumCacheKey, cachedForumMemberships);
         }
         return cachedForumMemberships;
@@ -778,10 +808,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         if (StringUtils.isNotBlank(siteId)) {
             Area area = forumManager.getDiscussionForumArea(siteId);
             if (area != null) {
+                if (area.getMembershipItemSet() == null) return Collections.emptySet();
                 String areaSiteCacheKey = "area_" + area.getId();
-                Set<DBMembershipItem> cachedAreaMemberships = membershipItemCache.get(areaSiteCacheKey);
+                Set<DBMembershipItem> cachedAreaMemberships = membershipItemCache.get(areaSiteCacheKey, Set.class);
                 if (cachedAreaMemberships == null) {
-                    cachedAreaMemberships = area.getMembershipItemSet();
+                    cachedAreaMemberships = area.getMembershipItemSet().stream()
+                            .map(this::toSnapshot)
+                            .collect(Collectors.toSet());
                     membershipItemCache.put(areaSiteCacheKey, cachedAreaMemberships);
                 }
                 return cachedAreaMemberships;
@@ -794,7 +827,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         Set<String> groupIds = new HashSet<>();
         if (site != null && StringUtils.isNotBlank(userId)) {
             String cacheKey = site.getReference() + "/" + userId;
-            Set<String> cachedGroupIds = userGroupMembershipCache.get(cacheKey);
+            Set<String> cachedGroupIds = userGroupMembershipCache.get(cacheKey, Set.class);
             if (cachedGroupIds == null) {
                 Collection<Group> groups = site.getGroupsWithMember(userId);
                 groupIds = groups.stream().map(Group::getId).collect(Collectors.toSet());

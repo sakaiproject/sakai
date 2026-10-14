@@ -15,7 +15,7 @@
  */
  package org.sakaiproject.postem.helpers;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.springframework.http.MediaType;
 

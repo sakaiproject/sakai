@@ -1,0 +1,278 @@
+<?xml version="1.0"?>
+<!DOCTYPE mapping PUBLIC "-//EXOLAB/Castor Object Mapping DTD Version 1.0//EN"
+    "http://castor.exolab.org/mapping.dtd">
+<!-- 
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<mapping>
+    <description>Portlet Deployment Descriptor Mapping</description>
+
+    <!--
+    Bare Bones for now!
+    -->
+
+    <class name="org.apache.pluto.descriptors.portlet.PortletAppDD">
+        <map-to xml="portlet-app"/>
+
+        <field name="Version">
+            <bind-xml name="version" node="attribute"/>
+        </field>
+
+        <field name="Portlets"
+               type="org.apache.pluto.descriptors.portlet.PortletDD"
+               collection="arraylist">
+            <bind-xml name="portlet" node="element"/>
+        </field>
+
+        <field name="CustomPortletModes"
+               type="org.apache.pluto.descriptors.portlet.CustomPortletModeDD"
+               collection="arraylist">
+            <bind-xml name="custom-portlet-mode" node="element"/>
+        </field>
+        <field name="CustomWindowStates"
+               type="org.apache.pluto.descriptors.portlet.CustomWindowStateDD"
+               collection="arraylist">
+            <bind-xml name="custom-window-state" node="element"/>
+        </field>
+        <field name="UserAttributes"
+               type="org.apache.pluto.descriptors.portlet.UserAttributeDD"
+               collection="arraylist">
+            <bind-xml name="user-attribute" node="element"/>
+        </field>
+
+        <field name="SecurityConstraints"
+               type="org.apache.pluto.descriptors.portlet.SecurityConstraintDD"
+               collection="arraylist">
+            <bind-xml name="security-constraint" node="element"/>
+         </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.portlet.PortletDD">
+        <field name="PortletName">
+            <bind-xml name="portlet-name" node="element"/>
+        </field>
+
+        <field name="DisplayNames" type="org.apache.pluto.descriptors.common.DisplayNameDD"
+               collection="arraylist">
+            <bind-xml name="display-name" node="element"/>
+        </field>
+
+        <field name="Descriptions" type="org.apache.pluto.descriptors.common.DescriptionDD"
+               collection="arraylist">
+            <bind-xml name="description" node="element"/>
+        </field>
+
+        <field name="ExpirationCache">
+            <bind-xml name="expiration-cache" node="element"/>
+        </field>
+
+        <field name="PortletClass">
+            <bind-xml name="portlet-class" node="element"/>
+        </field>
+
+        <field name="PortletInfo" type="org.apache.pluto.descriptors.portlet.PortletInfoDD">
+            <bind-xml name="portlet-info" node="element"/>
+        </field>
+
+        <field name="InitParams" type="org.apache.pluto.descriptors.common.InitParamDD" collection="arraylist">
+            <bind-xml name="init-param" node="element"/>
+        </field>
+
+        <field name="ResourceBundle">
+            <bind-xml name="resource-bundle" node="element"/>
+        </field>
+
+        <field name="SecurityRoleRefs"
+               type="org.apache.pluto.descriptors.common.SecurityRoleRefDD"
+               collection="arraylist">
+            <bind-xml name="security-role-ref" node="element"/>
+        </field>
+
+        <field name="Supports" type="org.apache.pluto.descriptors.portlet.SupportsDD"
+               collection="arraylist">
+            <bind-xml name="supports" node="element"/>
+        </field>
+
+        <field name="SupportedLocales" type="java.lang.String"
+               collection="arraylist">
+            <bind-xml name="supported-locale" node="element"/>
+        </field>
+
+        <field name="PortletPreferences" type="org.apache.pluto.descriptors.portlet.PortletPreferencesDD">
+            <bind-xml name="portlet-preferences" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.portlet.PortletInfoDD">
+        <map-to xml="portlet-info"/>
+        <field name="Title">
+            <bind-xml name="title" node="element"/>
+        </field>
+        <field name="Keywords">
+            <bind-xml name="keywords" node="element"/>
+        </field>
+        <field name="ShortTitle">
+            <bind-xml name="short-title" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.portlet.SupportsDD">
+        <map-to xml="supports"/>
+
+        <field name="MimeType">
+            <bind-xml name="mime-type" node="element"/>
+        </field>
+
+        <field name="PortletModes" type="java.lang.String"
+               collection="arraylist">
+            <bind-xml name="portlet-mode" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.common.InitParamDD">
+        <field name="ParamName">
+            <bind-xml name="name" node="element"/>
+        </field>
+        <field name="ParamValue">
+            <bind-xml name="value" node="element"/>
+        </field>
+        <field name="Descriptions" type="org.apache.pluto.descriptors.common.DescriptionDD"
+               collection="arraylist">
+            <bind-xml name="description" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.portlet.PortletPreferencesDD">
+        <map-to xml="portlet-preferences"/>
+
+        <field name="PortletPreferences" type="org.apache.pluto.descriptors.portlet.PortletPreferenceDD"
+               collection="arraylist">
+            <bind-xml name="preference" node="element"/>
+        </field>
+
+        <field name="PreferencesValidator">
+            <bind-xml name="preferences-validator" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.portlet.PortletPreferenceDD">
+        <field name="Name">
+            <bind-xml name="name" node="element"/>
+        </field>
+        <field name="Values" type="java.lang.String" collection="arraylist">
+            <bind-xml name="value" node="element"/>
+        </field>
+        <field name="ReadOnly" type="boolean">
+            <bind-xml name="read-only" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.portlet.CustomPortletModeDD">
+        <field name="PortletMode">
+            <bind-xml name="portlet-mode" node="element"/>
+        </field>
+        <field name="Descriptions" type="org.apache.pluto.descriptors.common.DescriptionDD"
+               collection="arraylist">
+            <bind-xml name="description" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.portlet.CustomWindowStateDD">
+        <field name="WindowState">
+            <bind-xml name="window-state" node="element"/>
+        </field>
+        <field name="Descriptions" type="org.apache.pluto.descriptors.common.DescriptionDD"
+               collection="arraylist">
+            <bind-xml name="description" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.portlet.UserAttributeDD">
+        <field name="Name">
+            <bind-xml name="name" node="element"/>
+        </field>
+        <field name="Descriptions" type="org.apache.pluto.descriptors.common.DescriptionDD"
+               collection="arraylist">
+            <bind-xml name="description" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.portlet.SecurityConstraintDD">
+        <field name="DisplayNames" type="org.apache.pluto.descriptors.common.DisplayNameDD"
+            collection="arraylist">
+            <bind-xml name="display-name" node="element"/>
+        </field>
+
+        <field name="PortletCollection" type="org.apache.pluto.descriptors.portlet.PortletCollectionDD">
+            <bind-xml name="portlet-collection"/>
+        </field>
+
+        <field name="UserDataConstraint" type="org.apache.pluto.descriptors.common.UserDataConstraintDD">
+            <bind-xml name="user-data-constraint"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.portlet.PortletCollectionDD">
+        <field name="PortletNames" type="java.lang.String" collection="arraylist">
+            <bind-xml name="portlet-name" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.common.UserDataConstraintDD">
+        <field name="Descriptions" type="org.apache.pluto.descriptors.common.DescriptionDD"
+               collection="arraylist">
+            <bind-xml name="description" node="element"/>
+        </field>
+
+        <field name="TransportGuarantee">
+            <bind-xml name="transport-guarantee" node="element"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.common.DisplayNameDD">
+        <field name="Lang">
+            <bind-xml name="lang" node="attribute"/>
+        </field>
+
+        <field name="DisplayName">
+            <bind-xml name="display-name" node="text"/>
+        </field>
+    </class>
+
+
+    <class name="org.apache.pluto.descriptors.common.DescriptionDD">
+        <field name="Lang">
+            <bind-xml name="lang" node="attribute"/>
+        </field>
+
+        <field name="Description">
+            <bind-xml name="description" node="text"/>
+        </field>
+    </class>
+
+    <class name="org.apache.pluto.descriptors.common.SecurityRoleRefDD">
+        <field name="RoleName">
+            <bind-xml name="role-name" node="element"/>
+        </field>
+        <field name="RoleLink">
+            <bind-xml name="role-link" node="element"/>
+        </field>
+        <field name="Descriptions" type="org.apache.pluto.descriptors.common.DescriptionDD"
+               collection="arraylist">
+            <bind-xml name="description"/>
+        </field>
+    </class>
+</mapping>

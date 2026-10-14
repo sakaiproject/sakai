@@ -20,15 +20,15 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;

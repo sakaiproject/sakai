@@ -24,26 +24,18 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.bluejoe2008</groupId>
-            <artifactId>elfinder-servlet-2</artifactId>
-            <version>1.2</version>
-            <classifier>classes</classifier>
-            <type>jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.mail</groupId>
-                    <artifactId>mail</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.sakaiproject.elfinder</groupId>
+            <artifactId>elfinder-servlet</artifactId>
+        </dependency>
+        <!-- SakaiTmbCommandExecutor uses org.springframework.http.HttpHeaders directly -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
     </dependencies>
 

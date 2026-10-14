@@ -34,14 +34,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
+
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserTimeServiceImpl implements UserTimeService {
     // Cache of userIds to Timezone
-    private Cache<String, String> M_userTzCache;
+    private Cache M_userTzCache;
 
     // Map of Timezone/Locales to LocalTzFormat objects
     private ConcurrentHashMap<String, TimeZone> tzCache = new ConcurrentHashMap<>();
@@ -60,14 +61,14 @@ public class UserTimeServiceImpl implements UserTimeService {
     // Default Timezone/Locale
     private final String defaultTimezone = TimeZone.getDefault().getID();
 
-    @Setter private MemoryService memoryService;
+    @Setter private CacheManager cacheManager;
     @Setter private SessionManager sessionManager;
     @Setter private PreferencesService preferencesService;
     @Setter private ResourceLoader resourceLoader;
 
     public void init() {
         //register the Cache
-        M_userTzCache = memoryService.getCache("org.sakaiproject.time.impl.BasicTimeService.userTimezoneCache");
+        M_userTzCache = cacheManager.getCache("org.sakaiproject.time.impl.BasicTimeService.userTimezoneCache");
     }
 
     private String getUserTimezone() {
@@ -78,7 +79,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     private String getUserTimezone(String userId) {
         if (userId == null) return defaultTimezone;
 
-        String timeZoneLocale = M_userTzCache.get(userId);
+        String timeZoneLocale = M_userTzCache.get(userId, String.class);
         if (timeZoneLocale != null) return timeZoneLocale;
 
         // Otherwise, get the user's preferred time zone
@@ -121,7 +122,7 @@ public class UserTimeServiceImpl implements UserTimeService {
 
     @Override
     public boolean clearLocalTimeZone(String userId) {
-        M_userTzCache.remove(userId);
+        M_userTzCache.evict(userId);
         return true;
     }
 

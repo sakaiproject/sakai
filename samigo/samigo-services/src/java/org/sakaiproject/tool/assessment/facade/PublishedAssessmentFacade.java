@@ -273,6 +273,11 @@ public class PublishedAssessmentFacade
     this((PublishedAssessmentIfc) data);
   }
 
+  public void setData(PublishedAssessmentIfc data) {
+    setProperties(data);
+    this.publishedSectionSet = data.getSectionSet();
+  }
+
   private void setProperties(PublishedAssessmentIfc data){
     this.data = data;
     this.publishedAssessmentId = data.getPublishedAssessmentId();

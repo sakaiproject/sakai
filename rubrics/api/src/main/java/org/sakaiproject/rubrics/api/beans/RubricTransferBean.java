@@ -16,6 +16,9 @@ package org.sakaiproject.rubrics.api.beans;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -37,6 +40,7 @@ public class RubricTransferBean {
     private String formattedCreatedDate;
     private String formattedModifiedDate;
     private Boolean locked;
+    private Map<String, Set<String>> lockedBy = new LinkedHashMap<>();
     private Double maxPoints;
     private Instant modified;
     private String ownerId;

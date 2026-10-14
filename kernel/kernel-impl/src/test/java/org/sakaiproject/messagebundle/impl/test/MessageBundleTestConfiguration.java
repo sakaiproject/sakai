@@ -34,6 +34,7 @@ import org.sakaiproject.messagebundle.impl.MessageBundleServiceImpl;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -61,7 +62,8 @@ public class MessageBundleTestConfiguration {
     }
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    public SessionFactory sessionFactory(Properties hibernateProperties, AdditionalHibernateMappings mappings) {
+    public SessionFactory sessionFactory(@Qualifier("hibernateProperties") Properties hibernateProperties,
+                                         AdditionalHibernateMappings mappings) {
         LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
         try {
             mappings.processAdditionalMappings(sfb);

@@ -225,7 +225,7 @@ public class DbSiteService extends BaseSiteService {
 		 */
 		public DbStorage(BaseSiteService service)
 		{
-			super(m_siteTableName, m_siteIdFieldName, m_siteFieldNames, m_sitePropTableName, m_useExternalLocks, null, sqlService);
+			super(m_siteTableName, m_siteIdFieldName, m_siteFieldNames, m_sitePropTableName, m_useExternalLocks, null, sqlService, cacheManager);
 			m_reader = this;
 
 			m_service = service;
@@ -2360,7 +2360,7 @@ public class DbSiteService extends BaseSiteService {
 		 * @param site
 		 *        The site for which pages are desired.
 		 */
-		public void readSitePages(final Site site, final ResourceVector pages)
+		public void readSitePages(final Site site, final List<SitePage> pages)
 		{
 			// read all resources from the db with a where
 			String sql = siteServiceSql.getPageFields2Sql();
@@ -2401,7 +2401,7 @@ public class DbSiteService extends BaseSiteService {
 		 * @param page
 		 *        The page for which tools are desired.
 		 */
-		public void readPageTools(final SitePage page, final ResourceVector tools)
+		public void readPageTools(final SitePage page, final List<ToolConfiguration> tools)
 		{
 			// read all resources from the db with a where
 			String sql = siteServiceSql.getToolFields2Sql();

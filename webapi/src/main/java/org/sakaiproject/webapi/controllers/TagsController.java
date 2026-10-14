@@ -20,6 +20,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagSummary;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.webapi.exception.ForbiddenAccessException;
 import org.springframework.http.MediaType;
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,25 +46,37 @@ public class TagsController extends AbstractSakaiApiController {
 	private SecurityService securityService;
 
 	@PostMapping(value = "/sites/{siteId}/tools/{tool}/tags", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Tag> createTags(@PathVariable String siteId, @PathVariable String tool, @RequestBody List<Tag> tags) {
+	public List<Tag> createTags(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @RequestBody List<Tag> tags) {
 		checkSakaiSession();
 		return tagService.createSiteTags(siteId, tool, tags);
 	}
 
 	@GetMapping(value = "/sites/{siteId}/tools/{tool}/tags/{collectionId}/items/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<Tag> getTagsForItem(@PathVariable String siteId, @PathVariable String tool, @PathVariable String collectionId, @PathVariable String itemId) {
+	public Iterable<Tag> getTagsForItem(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @PathVariable("collectionId") String collectionId, @PathVariable("itemId") String itemId) {
 		checkSakaiSession();
 		checkAccess(siteId, tool);
 
-		return tagService.getAssociatedTagsForItem(collectionId, itemId);
+		checkPoolCollection(siteId, tool, collectionId);
+		return tagService.getAssociatedTagsForItem("samigo".equals(tool) && !siteId.equals(collectionId) ? collectionId : siteId, itemId);
 	}
 	
 	@GetMapping(value = "/sites/{siteId}/tools/{tool}/tags/{collectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<Tag> getTagsForCollection(@PathVariable String siteId, @PathVariable String tool, @PathVariable String collectionId) {
+	public Iterable<TagSummary> getTagsForCollection(@PathVariable("siteId") String siteId, @PathVariable("tool") String tool, @PathVariable("collectionId") String collectionId) {
 		checkSakaiSession();
 		checkAccess(siteId, tool);
 
-		return tagService.getTagsInCollection(collectionId);
+		if ("samigo".equals(tool) && !siteId.equals(collectionId)) {
+			checkPoolCollection(siteId, tool, collectionId);
+			return tagService.getTagsForSite("~" + collectionId);
+		}
+		return tagService.getTagsForSite(siteId);
+	}
+
+	private void checkPoolCollection(String siteId, String tool, String collectionId) {
+		if ("samigo".equals(tool) && !siteId.equals(collectionId)
+				&& !collectionId.equals(checkSakaiSession().getUserId())) {
+			throw new ForbiddenAccessException();
+		}
 	}
 
 	private void checkAccess(String siteId, String tool) {
@@ -71,11 +84,14 @@ public class TagsController extends AbstractSakaiApiController {
 			if (securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/" + siteId)) {
 				return;
 			}
+			if ("conversations".equals(tool) && securityService.unlock("conversations.topic.tag", "/site/" + siteId)) {
+				return;
+			}
 			if (tool.equals(TagService.TOOL_ASSIGNMENTS)) {
 				Site site = checkSite(siteId);
 				ToolConfiguration tc = site.getToolForCommonId(AssignmentConstants.TOOL_ID);
-				String optionTagsValue = tc.getPlacementConfig().getProperty(AssignmentConstants.SHOW_TAGS_STUDENT);
-				if (Boolean.TRUE.equals(optionTagsValue) && securityService.unlock(SiteService.SITE_VISIT, "/site/" + siteId)) {
+				String optionTagsValue = tc != null ? tc.getPlacementConfig().getProperty(AssignmentConstants.SHOW_TAGS_STUDENT) : null;
+				if (Boolean.parseBoolean(optionTagsValue) && securityService.unlock(SiteService.SITE_VISIT, "/site/" + siteId)) {
 					return;
 				}
 			}

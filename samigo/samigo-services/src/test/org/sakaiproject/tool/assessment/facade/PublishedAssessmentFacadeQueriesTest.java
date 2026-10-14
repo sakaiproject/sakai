@@ -15,44 +15,76 @@
  */
 package org.sakaiproject.tool.assessment.facade;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCompoundSelection;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import org.hibernate.query.criteria.JpaOrder;
+import org.hibernate.query.criteria.JpaPath;
+import org.hibernate.query.criteria.JpaPredicate;
+import org.hibernate.query.criteria.JpaRoot;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.HibernateTemplate;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class PublishedAssessmentFacadeQueriesTest {
 
 	@Test
 	public void getAssessmentMetaDataEntriesByLabelKeepsLastValueWhenAssessmentIdIsDuplicated() {
 		PublishedAssessmentFacadeQueries queries = new PublishedAssessmentFacadeQueries();
-		HibernateTemplate hibernateTemplate = mock(HibernateTemplate.class);
+		SessionFactory sessionFactory = mock(SessionFactory.class);
 		Session session = mock(Session.class);
 		Query<Object[]> query = mock(Query.class);
-		queries.setHibernateTemplate(hibernateTemplate);
+		HibernateCriteriaBuilder cb = mock(HibernateCriteriaBuilder.class);
+		JpaCriteriaQuery<Object[]> cq = mock(JpaCriteriaQuery.class);
+		JpaRoot<PublishedMetaData> root = mock(JpaRoot.class);
+		JpaPath<Object> assessmentPath = mock(JpaPath.class);
+		JpaPath<Object> assessmentIdPath = mock(JpaPath.class);
+		JpaPath<Object> entryPath = mock(JpaPath.class);
+		JpaPath<Object> idPath = mock(JpaPath.class);
+		JpaPath<Object> labelPath = mock(JpaPath.class);
+		JpaOrder orderAsc1 = mock(JpaOrder.class);
+		JpaOrder orderAsc2 = mock(JpaOrder.class);
+		JpaCompoundSelection<Object[]> arrayExpr = mock(JpaCompoundSelection.class);
 
-		when(hibernateTemplate.execute(any(HibernateCallback.class))).thenAnswer(invocation -> {
-			HibernateCallback<Map<Long, String>> callback = invocation.getArgument(0);
-			return callback.doInHibernate(session);
-		});
-		when(session.createQuery(anyString(), eq(Object[].class))).thenReturn(query);
-		when(query.setParameterList(eq("publishedAssessmentIds"), anyCollection())).thenReturn(query);
-		when(query.setParameter(eq("label"), anyString())).thenReturn(query);
-		when(query.list()).thenReturn(Arrays.asList(
+		queries.setSessionFactory(sessionFactory);
+
+		when(sessionFactory.getCurrentSession()).thenReturn(session);
+		when(session.getCriteriaBuilder()).thenReturn(cb);
+		when(cb.createQuery(Object[].class)).thenReturn(cq);
+		when(cq.from(PublishedMetaData.class)).thenReturn(root);
+
+		when(root.get("assessment")).thenReturn(assessmentPath);
+		when(assessmentPath.get("publishedAssessmentId")).thenReturn(assessmentIdPath);
+		when(root.get("entry")).thenReturn(entryPath);
+		when(root.get("id")).thenReturn(idPath);
+		when(root.get("label")).thenReturn(labelPath);
+
+		when(cb.array(assessmentIdPath, entryPath)).thenReturn(arrayExpr);
+		when(cq.select(arrayExpr)).thenReturn(cq);
+
+		JpaPredicate inPredicate = mock(JpaPredicate.class);
+		JpaPredicate equalPredicate = mock(JpaPredicate.class);
+		when(assessmentIdPath.in(Arrays.asList(101L, 202L))).thenReturn(inPredicate);
+		when(cb.equal(labelPath, "secureDeliveryModule")).thenReturn(equalPredicate);
+		when(cq.where(inPredicate, equalPredicate)).thenReturn(cq);
+
+		when(cb.asc(assessmentIdPath)).thenReturn(orderAsc1);
+		when(cb.asc(idPath)).thenReturn(orderAsc2);
+		when(cq.orderBy(orderAsc1, orderAsc2)).thenReturn(cq);
+
+		when(session.createQuery(cq)).thenReturn(query);
+		when(query.getResultList()).thenReturn(Arrays.asList(
 			new Object[] { 101L, "module-a" },
 			new Object[] { 202L, "module-b" },
 			new Object[] { 101L, "module-c" }
@@ -61,23 +93,23 @@ public class PublishedAssessmentFacadeQueriesTest {
 		Map<Long, String> entries = queries.getAssessmentMetaDataEntriesByLabel(
 			Arrays.asList(101L, 202L), "secureDeliveryModule");
 
-		ArgumentCaptor<String> hqlCaptor = ArgumentCaptor.forClass(String.class);
-		verify(session).createQuery(hqlCaptor.capture(), eq(Object[].class));
+		verify(session).createQuery(cq);
 
 		Assert.assertEquals(2, entries.size());
 		Assert.assertEquals("module-c", entries.get(101L));
 		Assert.assertEquals("module-b", entries.get(202L));
-		Assert.assertTrue(hqlCaptor.getValue().contains("order by m.assessment.publishedAssessmentId asc, m.id asc"));
+		verify(cq).where(inPredicate, equalPredicate);
+		verify(cq).orderBy(orderAsc1, orderAsc2);
+		verify(query).getResultList();
 	}
 
 	@Test(expected = DataAccessResourceFailureException.class)
 	public void getAssessmentMetaDataEntriesByLabelPropagatesDataAccessExceptions() {
 		PublishedAssessmentFacadeQueries queries = new PublishedAssessmentFacadeQueries();
-		HibernateTemplate hibernateTemplate = mock(HibernateTemplate.class);
-		queries.setHibernateTemplate(hibernateTemplate);
+		SessionFactory sessionFactory = mock(SessionFactory.class);
+		queries.setSessionFactory(sessionFactory);
 
-		when(hibernateTemplate.execute(any(HibernateCallback.class)))
-			.thenThrow(new DataAccessResourceFailureException("db failure"));
+		when(sessionFactory.getCurrentSession()).thenThrow(new DataAccessResourceFailureException("db failure"));
 
 		queries.getAssessmentMetaDataEntriesByLabel(Arrays.asList(101L), "secureDeliveryModule");
 	}

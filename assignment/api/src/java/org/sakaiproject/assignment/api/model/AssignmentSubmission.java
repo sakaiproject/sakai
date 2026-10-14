@@ -27,27 +27,28 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import org.hibernate.Length;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -94,19 +95,15 @@ public class AssignmentSubmission {
 
     //private List submissionLog;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "SUBMITTED_DATE")
     private Instant dateSubmitted;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "RETURNED_DATE")
     private Instant dateReturned;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE")
     private Instant dateCreated;
 
-    @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "MODIFIED_DATE")
     private Instant dateModified;
 
@@ -125,15 +122,15 @@ public class AssignmentSubmission {
     private Set<String> feedbackAttachments = new HashSet<>();
 
     @Lob
-    @Column(name = "TEXT", length = 65535)
+    @Column(name = "TEXT", length = Length.LONG32)
     private String submittedText;
 
     @Lob
-    @Column(name = "FEEDBACK_COMMENT", length = 65535)
+    @Column(name = "FEEDBACK_COMMENT", length = Length.LONG32)
     private String feedbackComment;
 
     @Lob
-    @Column(name = "FEEDBACK_TEXT", length = 65535)
+    @Column(name = "FEEDBACK_TEXT", length = Length.LONG32)
     private String feedbackText;
 
     @Column(name = "GRADE", length = 32)
@@ -170,14 +167,14 @@ public class AssignmentSubmission {
     private String groupId;
 
     @Lob
-    @Column(name = "PRIVATE_NOTES", length = 65535)
+    @Column(name = "PRIVATE_NOTES", length = Length.LONG32)
     private String privateNotes;
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection(fetch = FetchType.LAZY)
     @MapKeyColumn(name = "NAME")
     @Lob
-    @Column(name = "VALUE", length = 65535)
+    @Column(name = "VALUE", length = Length.LONG32)
     @CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"), indexes = @Index(name = "FK_ASN_SUBMISSION_PROP", columnList = "SUBMISSION_ID"))
     private Map<String, String> properties = new HashMap<>();
 }

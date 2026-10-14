@@ -95,7 +95,7 @@ public class SiteSynchronizationController {
 	}
 	
 	@GetMapping(value = {"/refreshTeams"})
-	public String refreshTeams(@RequestParam(defaultValue = "false") Boolean forced, Model model) throws MicrosoftGenericException {
+	public String refreshTeams(@RequestParam(name = "forced", defaultValue = "false") Boolean forced, Model model) throws MicrosoftGenericException {
 		log.debug("Refresh teams");
 		model.addAttribute("teamsMap", microsoftCommonService.getTeams(forced));
 

@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Objects;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Properties;
@@ -43,8 +44,8 @@ import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -85,8 +86,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messaging.api.MicrosoftMessage;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.site.api.AllowedJoinableAccount;
@@ -111,6 +110,8 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -416,7 +417,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	@Setter protected EventTrackingService eventTrackingService;
 	@Setter protected FunctionManager functionManager;
 	@Setter protected IdManager idManager;
-	@Setter protected MemoryService memoryService;
+	@Setter protected CacheManager cacheManager;
 	@Setter protected MicrosoftMessagingService microsoftMessagingService;
 	@Setter protected NotificationService notificationService;
 	@Setter protected SecurityService securityService;
@@ -462,18 +463,27 @@ public abstract class BaseSiteService implements SiteService, Observer
 			// <= 0 minutes indicates no caching desired
 			if (m_cacheSeconds > 0)
 			{
-				m_siteCache = new SiteCacheSafe(memoryService, eventTrackingService);
+				m_siteCache = new SiteCacheSafe(cacheManager, this);
 			}
 
 			// Register our user-site cache property
 			serverConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem(PROP_CACHE_USER_SITES, true, "org.sakaiproject.api.SiteService"));
 
-			// Get the user-site cache from the MemoryService for now -- maybe directly from cache manager or Spring later.
+			// Get the user-site cache from the CacheManager.
 			// Also register as an observer so we can catch site updates and invalidate.
 			if (serverConfigurationService.getBoolean(PROP_CACHE_USER_SITES, true))
 			{
-				m_userSiteCache = memoryService.newCache(USER_SITE_CACHE);
-				eventTrackingService.addObserver(this);
+				m_userSiteCache = cacheManager.getCache(USER_SITE_CACHE);
+				// Local-only is sufficient for update()'s cache-clearing branches, since
+				// m_userSiteCache (and m_siteCache) are Ignite-shared - the synchronous local
+				// notification on whichever node handles the mutation already evicts the shared
+				// cache entry cluster-wide. This also fixes a latent duplicate-notification bug
+				// in update()'s gradebook-notification branch: on the old cross-cluster tier, a
+				// single membership change fired notifySiteParticipant() once locally and then
+				// again on every other node when each independently replayed the same event
+				// from the DB poll; local-only fires it exactly once, on the node that actually
+				// handled the mutation.
+				eventTrackingService.addLocalObserver(this);
 			}
 
 			// register as an entity producer
@@ -636,6 +646,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 	}
 
 	/**
+	 * Evict a site from the site cache, including its tool/page/group satellite entries.
+	 * Placement-only saves write the tool row without going through {@link #doSave}, so
+	 * the cached Site still holds the previous placement config. Evict so the next
+	 * {@link #findTool(String)} / {@link #getSite(String)} reloads from storage.
+	 *
+	 * @param siteId the site id to evict; ignored when null or caching is disabled
+	 */
+	protected void invalidateCachedSite(String siteId)
+	{
+		if (m_siteCache != null && siteId != null)
+		{
+			m_siteCache.remove(siteReference(siteId));
+		}
+	}
+
+	/**
 	 * Access an already defined site object.
 	 * 
 	 * @param id
@@ -650,13 +676,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		Site rv = getCachedSite(id);
 
-		// Return the site from cache only if it is a BaseSite and is fully loaded.
-		//
-		// Note that getCachedSite always returns a BaseSite instance now, so
-		// this instanceof check is not strictly necessary, but paranoid. If
-		// the cast would fail, we have to retrieve the site. This is slightly
-		// kludgy because the caching and lazy-loading are somewhat bolted on.
-		if ( rv != null && rv instanceof BaseSite && ((BaseSite)rv).isFullyLoaded()) return rv;
+		// Return the site from cache only if it is a BaseSite, marked fully loaded,
+		// and its page collection is not still lazy. A stale fullyLoaded flag with
+		// lazy/empty pages is what makes Site Info Manage Tools look tool-less.
+		if ( rv != null && rv instanceof BaseSite)
+		{
+			BaseSite cached = (BaseSite) rv;
+			if (cached.isFullyLoaded() && !cached.hasLazyPages()) return rv;
+		}
 
 		// Get the whole site, including the description.
 		rv = m_storage.get(id);
@@ -736,6 +763,16 @@ public abstract class BaseSiteService implements SiteService, Observer
 			log.debug("Site [{}] not found, {}", id, e.toString());
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public Collection<String> getToolPlacementPropertyValues(String siteId, String commonToolId, String propertyName) {
+		return getOptionalSite(siteId).stream()
+				.flatMap(s -> s.getTools(commonToolId).stream())
+				.map(ToolConfiguration::getPlacementConfig)
+				.map(pc -> pc.getProperty(propertyName))
+				.filter(Objects::nonNull)
+				.toList();
 	}
 
 	/**
@@ -1006,7 +1043,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 			}
 		}
 
-		site.setFullyLoaded(true);
+		// Never cache a skeleton site as fully loaded. doSave used to force this
+		// flag even when pages/tools were still lazy; after Ignite that copy is
+		// what getSite() returns, so Site Info Manage Tools sees an empty tool list.
+		if (!site.isFullyLoaded())
+		{
+			site.loadAll();
+		}
 
 		// complete the edit
 		m_storage.save(site);
@@ -1492,6 +1535,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 		
 		// complete the edit
 		m_storage.remove(site);
+
+		// invalidate the site cache entry (and its tool/page/group satellite entries)
+		if (m_siteCache != null)
+		{
+			m_siteCache.remove(site.getReference());
+		}
 
 		// track it
 		eventTrackingService.post(eventTrackingService.newEvent(SECURE_REMOVE_SITE, site.getReference(), true));
@@ -2189,7 +2238,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	{
 		if (m_userSiteCache != null && userId != null)
 		{
-			m_userSiteCache.remove(userId);
+			m_userSiteCache.evict(userId);
 		}
 	}
 
@@ -2227,7 +2276,16 @@ public abstract class BaseSiteService implements SiteService, Observer
 		List<Site> userSites = null;
 		if (m_userSiteCache != null && userId != null)
 		{
-			userSites = (List<Site>) m_userSiteCache.get(userId);
+			List<Site> cached = m_userSiteCache.get(userId, List.class);
+			if (cached != null)
+			{
+				// return fresh copies with live services re-attached, same as getCachedSite()
+				userSites = new ArrayList<>(cached.size());
+				for (Site site : cached)
+				{
+					userSites.add(new BaseSite(this, site, true));
+				}
+			}
 		}
 		return userSites;
 	}
@@ -3495,7 +3553,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @param site
 		 *        The site for which pages are desired.
 		 */
-		public void readSitePages(Site site, ResourceVector pages);
+		public void readSitePages(Site site, List<SitePage> pages);
 
 		/**
 		 * Read site page tools from storage into the page's tools.
@@ -3503,7 +3561,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @param page
 		 *        The page for which tools are desired.
 		 */
-		public void readPageTools(SitePage page, ResourceVector tools);
+		public void readPageTools(SitePage page, List<ToolConfiguration> tools);
 
 		/**
 		 * Read tools for all pages from storage into the site's page's tools.

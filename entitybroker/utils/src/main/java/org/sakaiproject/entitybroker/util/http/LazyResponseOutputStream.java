@@ -23,7 +23,7 @@ package org.sakaiproject.entitybroker.util.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * This will get the response to get an outputstream from but will not actually get it from the response

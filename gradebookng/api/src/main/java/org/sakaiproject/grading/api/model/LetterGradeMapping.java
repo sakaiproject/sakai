@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
 /**
  * A LetterGradeMapping defines the set of grades available to a gradebook as

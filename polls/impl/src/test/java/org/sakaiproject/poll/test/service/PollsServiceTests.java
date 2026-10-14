@@ -538,6 +538,10 @@ public class PollsServiceTests {
         pollsService.saveVote(vote1);
         pollsService.saveVote(vote2);
 
+        Option otherOption = poll.get().getOptions().get(1);
+        Vote otherVote = createVoteForOption(otherOption);
+        pollsService.saveVote(otherVote);
+
         // Reload option to ensure proper relationship
         Optional<Poll> reloaded = pollsService.getPollById(pollId);
         Option reloadedOption = reloaded.get().getOptions().stream()
@@ -545,7 +549,8 @@ public class PollsServiceTests {
             .findFirst().get();
 
         List<Vote> votes = pollsService.getAllVotesForOption(reloadedOption);
-        Assert.assertTrue(votes.size() >= 2);
+        Assert.assertEquals(2, votes.size());
+        Assert.assertTrue(votes.stream().allMatch(vote -> optionId.equals(vote.getOption().getId())));
     }
 
     @Test
@@ -559,6 +564,27 @@ public class PollsServiceTests {
 
         java.util.Map<String, List<Vote>> votesMap = pollsService.getVotesForUser(USER, null);
         Assert.assertFalse(votesMap.isEmpty());
+    }
+
+    @Test
+    public void testGetVotesForUserFiltersByPollIds() {
+        String pollId = createPoll(USER, LOCATION1_ID);
+        String otherPollId = createPoll(USER, LOCATION1_ID);
+        Poll poll = pollsService.getPollById(pollId).get();
+        Poll otherPoll = pollsService.getPollById(otherPollId).get();
+
+        Vote vote = createVoteForOption(poll.getOptions().get(0));
+        pollsService.saveVote(vote);
+        pollsService.saveVote(createVoteForOption(otherPoll.getOptions().get(0)));
+        Vote otherUserVote = createVoteForOption(poll.getOptions().get(0));
+        otherUserVote.setUserId(USER_NO_ACCEESS);
+        pollsService.saveVote(otherUserVote);
+
+        java.util.Map<String, List<Vote>> votesMap = pollsService.getVotesForUser(USER, new String[] {pollId});
+        Assert.assertEquals(Set.of(pollId), votesMap.keySet());
+        Assert.assertEquals(1, votesMap.get(pollId).size());
+        Assert.assertEquals(vote.getId(), votesMap.get(pollId).get(0).getId());
+        Assert.assertTrue(pollsService.getVotesForUser(USER, new String[] {"missing-poll"}).isEmpty());
     }
 
     @Test

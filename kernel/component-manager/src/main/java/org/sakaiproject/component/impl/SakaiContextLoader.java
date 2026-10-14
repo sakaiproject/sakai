@@ -24,7 +24,7 @@ package org.sakaiproject.component.impl;
 import java.io.File;
 import java.util.Arrays;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -66,7 +66,6 @@ public class SakaiContextLoader extends ContextLoader
 	 * @param sc current servlet context
 	 * @param wac the new WebApplicationContext
 	 */
-	@Override
 	protected void customizeContext(ServletContext sc, ConfigurableWebApplicationContext wac) {
 		super.customizeContext(sc, wac);
 		if (wac != null) {
@@ -90,7 +89,6 @@ public class SakaiContextLoader extends ContextLoader
 	 * @param servletContext (not used)
 	 * @return the shared SakaiApplicationContext
 	 */
-	@Override
 	protected ApplicationContext loadParentContext(ServletContext servletContext) throws BeansException
 	{
 		// get the component manager (we know it's a SpringCompMgr) and from that the shared AC

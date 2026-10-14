@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
@@ -80,7 +79,6 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 	private final static boolean enableLargeMembershipTest = false;
 
 	@Autowired private DB db;
-	@Autowired private MemoryService memoryService;
 	@Autowired private ResourceLoader resourceLoader;
 	@Autowired private ServerConfigurationService serverConfigurationService;
 	@Autowired private SiteService siteService;
@@ -91,7 +89,6 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 	@Before
 	public void onSetUp() throws Exception {
 		db.deleteAll();
-		memoryService.resetCachers();
 
 		FakeSite userSiteA = spy(FakeSite.class).set("~"+FakeData.USER_A_ID);
 		FakeSite userSiteB = spy(FakeSite.class).set("~"+FakeData.USER_B_ID);

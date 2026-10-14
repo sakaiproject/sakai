@@ -40,18 +40,6 @@
           </set>
         </entry>
         <entry>
-          <key><value>net.sf.ehcache.hibernate.AbstractEhcacheRegionFactory</value></key>
-          <set>
-            <value>Couldn't find a specific ehcache configuration for cache named</value>
-          </set>
-        </entry>
-        <entry>
-          <key><value>net.sf.ehcache.config.Configurator</value></key>
-          <set>
-            <value>No configuration found. Configuring ehcache from</value>
-          </set>
-        </entry>
-        <entry>
           <key><value>org.apache.myfaces.util.LocaleUtils</value></key>
           <set>
             <value>Locale name null or empty, ignoring</value>

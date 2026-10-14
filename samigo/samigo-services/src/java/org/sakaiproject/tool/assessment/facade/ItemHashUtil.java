@@ -15,10 +15,10 @@
  */
 package org.sakaiproject.tool.assessment.facade;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -141,7 +141,7 @@ public class ItemHashUtil {
                     Session session = null;
                     try { // resource cleanup block
                         session = sessionFactory.getCurrentSession();
-                        session.setFlushMode(FlushMode.MANUAL);
+                        session.setHibernateFlushMode(FlushMode.MANUAL);
                         List<Long> itemIds;
                         try { // initial read block (failures here are fatal)
 

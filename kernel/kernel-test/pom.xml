@@ -32,7 +32,7 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -85,6 +85,10 @@
             <groupId>com.fasterxml.woodstox</groupId>
             <artifactId>woodstox-core</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
         <dependency>
           <groupId>junit</groupId>

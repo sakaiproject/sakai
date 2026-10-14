@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.Data;
 import lombok.Getter;
@@ -41,7 +41,7 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 
 import org.apache.commons.lang3.Strings;
 import org.sakaiproject.assignment.api.AssignmentConstants;

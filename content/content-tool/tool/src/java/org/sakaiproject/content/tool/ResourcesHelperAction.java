@@ -34,18 +34,16 @@ import java.nio.charset.StandardCharsets;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletRequestContext;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
@@ -98,6 +96,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -323,46 +324,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe == null)
 		{
-			String attributes = "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of state.attributes:\n";
-			List<String> attrNames = state.getAttributeNames();
-			for(String attrName : attrNames)
-			{
-				Object val = state.getAttribute(attrName);
-				if(val instanceof Collection)
-				{
-					int i = 0;
-					for(Object obj : (Collection) val)
-					{
-						attributes += "\t" + attrName + "[" + i + "] ==> " + obj + "\n";
-						i++;
-					}
-				}
-				else
-				{
-					attributes += "\t" + attrName + " ==> " + val + "\n";
-				}
-			}
-			attributes += "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of toolSession.attributes:\n";
-			Enumeration toolNames = toolSession.getAttributeNames();
-			while(toolNames.hasMoreElements())
-			{
-				String name = (String) toolNames.nextElement();
-				Object val = toolSession.getAttribute(name);
-				if(val instanceof Collection)
-				{
-					int i = 0;
-					for(Object obj : (Collection) val)
-					{
-						attributes += "\t" + name + "[" + i + "] ==> " + obj + "\n";
-						i++;
-					}
-				}
-				else
-				{
-					attributes += "\t" + name + " ==> " + val + "\n";
-				}
-			}
-			log.debug(attributes, new Throwable());
+			log.debug("Resource tool action pipe is missing");
             return ERROR_PAGE_TEMPLATE;
 		}
 		if(pipe.isActionCompleted())
@@ -2033,8 +1995,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			//Now upload the received file
 			//Test that file has been sent in request 
-			org.apache.commons.fileupload.FileItem uploadFile = (org.apache.commons.fileupload.FileItem) request.getAttribute("file");
-			
+			org.apache.commons.fileupload2.core.FileItem uploadFile = (org.apache.commons.fileupload2.core.FileItem) request.getAttribute("file");
+
 			if(uploadFile != null)
 			{
 				String contentType = uploadFile.getContentType();

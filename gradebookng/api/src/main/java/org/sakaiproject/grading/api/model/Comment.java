@@ -19,17 +19,17 @@ package org.sakaiproject.grading.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import org.hibernate.Length;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -49,8 +49,7 @@ public class Comment implements PersistableEntity<Long>, Serializable {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_comment_id_sequence")
-    @SequenceGenerator(name = "gb_comment_id_sequence", sequenceName = "GB_COMMENT_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_comment_id_sequence", sequenceName = "GB_COMMENT_S"))
     @ToString.Include
     @EqualsAndHashCode.Include
     private Long id;
@@ -69,7 +68,7 @@ public class Comment implements PersistableEntity<Long>, Serializable {
     @Column(name = "DATE_RECORDED", nullable = false)
     private Date dateRecorded;
 
-    @Column(name = "COMMENT_TEXT")
+    @Column(name = "COMMENT_TEXT", length = Length.LONG32)
     @Lob
     @ToString.Include(name = "comment")
     @EqualsAndHashCode.Include

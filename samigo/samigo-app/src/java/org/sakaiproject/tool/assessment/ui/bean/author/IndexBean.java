@@ -29,13 +29,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 
 /* For author: Template Index backing bean. */
 @Slf4j

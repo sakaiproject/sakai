@@ -81,7 +81,7 @@ class GradebookTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Gradebook");
 
-        Locator dialog = page.locator("dialog:visible, div[role=\"dialog\"]:visible, .wicket-modal:visible, .modal:visible").first();
+        Locator dialog = page.locator(".gb-modal-dialog:visible, dialog:visible, div[role=\"dialog\"]:visible, .wicket-modal:visible, .modal:visible").first();
         Locator addButton = page.locator("button.gb-add-gradebook-item-button").first();
 
         page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
@@ -120,6 +120,26 @@ class GradebookTest extends SakaiUiTestBase {
 
     @Test
     @Order(4)
+    void canNavigateToNextStudent() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Gradebook");
+
+        Locator students = page.locator(".gb-view-grade-summary");
+        assertThat(students.nth(1)).isVisible();
+        String nextStudentId = students.nth(1).locator("xpath=ancestor::*[@data-student-id][1]")
+            .getAttribute("data-student-id");
+        students.first().click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        assertThat(dialog).hasAttribute("role", "dialog");
+        dialog.locator(".gb-summary-next-student").click();
+        assertThat(dialog.locator("[data-studentid]").first()).hasAttribute("data-studentid", nextStudentId);
+        dialog.locator(".gb-summary-close").click();
+        assertThat(dialog).isHidden();
+    }
+
+    @Test
+    @Order(5)
     void courseGradePreviewHasAccessibleContrast() {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);

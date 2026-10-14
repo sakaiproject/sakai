@@ -40,7 +40,7 @@
               <entry key="oracle" ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle" /></entry>
            </map>
         </property>
-        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
 	</bean>
 
 	<bean id="org.sakaiproject.authz.api.SecurityService"
@@ -51,7 +51,7 @@
 	<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
- 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+ 		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
  		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />

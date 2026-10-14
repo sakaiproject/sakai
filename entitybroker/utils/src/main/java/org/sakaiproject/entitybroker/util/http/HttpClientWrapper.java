@@ -24,12 +24,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
-import org.apache.http.client.CookieStore;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.cookie.CookieStore;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import org.springframework.web.client.RestTemplate;
 
 import lombok.extern.slf4j.Slf4j;

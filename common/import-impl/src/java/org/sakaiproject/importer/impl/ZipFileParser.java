@@ -23,20 +23,22 @@ package org.sakaiproject.importer.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.activation.MimetypesFileTypeMap;
+import jakarta.activation.MimetypesFileTypeMap;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -50,6 +52,7 @@ import org.xml.sax.SAXException;
 
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportFileParser;
+import org.sakaiproject.util.Zip;
 
 @Slf4j
 public abstract class ZipFileParser implements ImportFileParser {
@@ -98,101 +101,52 @@ public abstract class ZipFileParser implements ImportFileParser {
 	protected abstract Collection getCategoriesFromArchive(String pathToData);
 
 	protected String unzipArchive(InputStream fileData, String unArchiveLocation) {
-	    String localArchiveLocation = Long.toString(new java.util.Date().getTime());
-	    String pathToData = unArchiveLocation + "/" + localArchiveLocation;
-	    File dir = new File(pathToData); //directory where file would be saved
-	    if (!dir.exists()) {
-	        dir.mkdirs();
-	    }
-
-	    Set<String> dirsMade = new TreeSet<String>();
-	    ZipInputStream zipStream = new ZipInputStream(fileData);
-	    try {
-    	    ZipEntry entry = null;
-    	    try {
-    	        entry = (ZipEntry) zipStream.getNextEntry();
-    	    } catch (IOException e) {
-    	        // TODO I think this is actually ok since this basically goes until it fails anyway
-    	        entry = null;
-    	    }
-    	    boolean foundTheManifest = false;
-    	    while (entry != null)
-    	    {
-    	        String zipName = entry.getName();
-    	        // if the imsmanifest.xml is at the root, do not recurse the dirs for looking for another manifest
-    	        if (!foundTheManifest && zipName.endsWith("imsmanifest.xml") && zipName.startsWith("imsmanifest.xml")) {
-    	            foundTheManifest = true;
-    	        }
-    	        // figure out if the manifest file is buried somewhere below the top of the archive
-    	        if (!foundTheManifest && zipName.endsWith("imsmanifest.xml") && !zipName.startsWith("imsmanifest.xml")) {
-    	            localArchiveLocation += "/" + zipName.substring(0, zipName.lastIndexOf("/"));
-    	            foundTheManifest = true;
-    	        }
-    	        //for attachment type files
-    	        // Get the directory part.
-    	        int ix = zipName.lastIndexOf('/');
-    	        if (ix <= 0) ix = zipName.lastIndexOf('\\');
-    	        if (ix > 0) {
-    	            String dirName = zipName.substring(0, ix).replace("\\", "/");
-    	            if (!dirsMade.contains(dirName)) {
-    	                File d = new File(dir.getPath() + "/" + dirName);
-    	                // If it already exists as a dir, don't do anything
-    	                if (!(d.exists() && d.isDirectory())) {
-    	                    // Try to create the directory, warn if it fails
-    	                    if (!d.mkdirs()) {
-    	                        //Log.warn("Warning: unable to mkdir " + dir.getPath() + "/" + dirName);
-    	                    }  
-    	                    dirsMade.add(dirName);
-    	                }
-    	            }
-    	        }
-    	        File zipEntryFile = new File(dir.getPath() + "/" + zipName.replace("\\", "/"));
-    	        if (!zipEntryFile.isDirectory()) {
-    	            FileOutputStream ofile = null;
-                    try {
-                        ofile = new FileOutputStream(zipEntryFile);
-                        byte[] buffer = new byte[1024 * 10];
-                        int bytesRead;
-                        while ((bytesRead = zipStream.read(buffer)) != -1)
-                        {
-                            ofile.write(buffer, 0, bytesRead);
-                        }
-                    } catch (FileNotFoundException e) {
-                        log.error(e.getMessage(), e);
-                    } catch (IOException e) {
-                        log.error(e.getMessage(), e);
-                    } finally {
-                        if (ofile != null) {
-                            try {
-                                ofile.close();
-                            } catch (IOException e) {
-                                // we tried
-                            }
-                        }
-                    }
-    	        }
-                try {
-                    zipStream.closeEntry();
-                } catch (IOException e) {
-                    // we tried
-                }
-    	        try {
-    	            entry = (ZipEntry) zipStream.getNextEntry();
-    	        } catch (IOException e) {
-    	            // TODO I think this is actually ok since this basically goes until it fails anyway
-    	            entry = null;
-    	        }
-    	    }
-	    } finally {
-            try {
-                zipStream.closeEntry();
-            } catch (IOException e) {
-                // we tried
-            }
-	    }
-	    return localArchiveLocation;
+		Path root;
+		try {
+			Path parent = Path.of(unArchiveLocation);
+			Files.createDirectories(parent);
+			root = Files.createTempDirectory(parent, "import-").toRealPath();
+		} catch (IOException e) {
+			throw new UncheckedIOException("Could not create archive extraction directory", e);
+		}
+		String localArchiveLocation = root.getFileName().toString();
+		try (ZipInputStream zipStream = new ZipInputStream(fileData)) {
+			boolean foundTheManifest = false;
+			ZipEntry entry;
+			while ((entry = zipStream.getNextEntry()) != null) {
+				String zipName = Zip.validateEntryName(entry.getName());
+				Path destination = Zip.resolveEntryPath(root, zipName);
+				if (!foundTheManifest && zipName.endsWith("imsmanifest.xml")) {
+					Path manifestParent = root.relativize(destination.getParent());
+					if (!manifestParent.toString().isEmpty()) {
+						localArchiveLocation += "/" + manifestParent;
+					}
+					foundTheManifest = true;
+				}
+				if (zipName.endsWith("/")) {
+					Files.createDirectories(destination);
+				} else {
+					Files.createDirectories(destination.getParent());
+					Files.copy(zipStream, destination, StandardCopyOption.REPLACE_EXISTING);
+				}
+				zipStream.closeEntry();
+			}
+		} catch (IOException | RuntimeException e) {
+			try (Stream<Path> paths = Files.walk(root)) {
+				for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+					Files.delete(path);
+				}
+			} catch (IOException cleanupFailure) {
+				e.addSuppressed(cleanupFailure);
+			}
+			if (e instanceof IOException) {
+				throw new UncheckedIOException("Could not extract import archive", (IOException) e);
+			}
+			throw (RuntimeException) e;
+		}
+		return localArchiveLocation;
 	}
-	
+
 	protected boolean fileExistsInArchive(String pathAndFilename, InputStream archive) {
 		ZipInputStream zipStream = new ZipInputStream(archive);
 		ZipEntry entry;

@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.activation.MimetypesFileTypeMap;
+import jakarta.activation.MimetypesFileTypeMap;
 
 import lombok.extern.slf4j.Slf4j;
 

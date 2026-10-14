@@ -13,6 +13,9 @@
                checked="checked"
                disabled="disabled"
             #else
+                #if ($tool.selected)
+                    checked="checked"
+                #end
                 #if ($toolRegistrationSelectedList)
                     #foreach ($t in $toolRegistrationSelectedList)
                         #if ($t == $toolId)

@@ -46,7 +46,7 @@ public class NotificationsController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/users/me/notifications/{id}/clear")
-    public ResponseEntity clearNotification(@PathVariable Long id) {
+    public ResponseEntity clearNotification(@PathVariable("id") Long id) {
 
         checkSakaiSession();
 
@@ -76,7 +76,7 @@ public class NotificationsController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/users/me/notifications/markViewed")
-    public ResponseEntity markAllNotificationsViewed(@RequestParam(required = false) String siteId, @RequestParam(required = false)  String toolId) {
+    public ResponseEntity markAllNotificationsViewed(@RequestParam(name = "siteId", required = false) String siteId, @RequestParam(name = "toolId", required = false) String toolId) {
 
         checkSakaiSession();
 

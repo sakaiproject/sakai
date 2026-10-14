@@ -9,7 +9,7 @@
       </generator>
     </id>
     <property name="title" type="string" length="255" column="TITLE" not-null="false" />
-    <property name="description" type="text" column="DESCRIPTION" not-null="false" />
+    <property name="description" type="text" length="2147483647" column="DESCRIPTION" not-null="false" />
     <property name="parentPoolId" type="long" column="PARENTPOOLID" not-null="false" />
     <property name="ownerId" type="string" length="255" column="OWNERID" not-null="false" index="SAM_QPOOL_OWNER_I" />
     <property name="organizationName" type="string" length="255" column="ORGANIZATIONNAME" not-null="false" />
@@ -34,16 +34,16 @@
 
   <class name="org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData" table="SAM_QUESTIONPOOLITEM_T">
     <composite-id>
-      <key-property name="questionPoolId" column="QUESTIONPOOLID" />
       <key-property name="itemId" column="ITEMID" type="java.lang.Long" />
+      <key-property name="questionPoolId" column="QUESTIONPOOLID" />
     </composite-id>
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData" table="SAM_QUESTIONPOOLACCESS_T">
     <composite-id>
-      <key-property name="questionPoolId" column="QUESTIONPOOLID" />
-      <key-property name="agentId" column="AGENTID" />
       <key-property name="accessTypeId" column="ACCESSTYPEID" />
+      <key-property name="agentId" column="AGENTID" />
+      <key-property name="questionPoolId" column="QUESTIONPOOLID" />
     </composite-id>
   </class>
 

@@ -16,7 +16,7 @@ package org.sakaiproject.webapi.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -62,7 +62,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -167,7 +167,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     }
 
     @GetMapping(value = "/users/{userId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
-    public DashboardRestBean getUserDashboard(@PathVariable String userId) throws UserNotDefinedException {
+    public DashboardRestBean getUserDashboard(@PathVariable("userId") String userId) throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
         String currentUserId = session.getUserId();
@@ -234,7 +234,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     }
 
     @PutMapping(value = "/users/{userId}/dashboard")
-    public void saveUserDashboard(@PathVariable String userId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
+    public void saveUserDashboard(@PathVariable("userId") String userId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
 
         String currentUserId = checkSakaiSession().getUserId();
         if (!securityService.isSuperUser() && (!StringUtils.isBlank(userId) && !StringUtils.equals(userId, currentUserId))) {
@@ -259,7 +259,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     }
 
     @GetMapping(value = "/sites/{siteId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
-    public DashboardRestBean getSiteDashboard(@PathVariable String siteId) throws UserNotDefinedException {
+    public DashboardRestBean getSiteDashboard(@PathVariable("siteId") String siteId) throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
 
@@ -311,7 +311,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
     }
 
     @PutMapping(value = "/sites/{siteId}/dashboard")
-    public void saveSiteDashboard(@PathVariable String siteId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
+    public void saveSiteDashboard(@PathVariable("siteId") String siteId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
 

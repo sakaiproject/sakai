@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>Kupu image box</title>
+<script type="text/javascript">
+
+function saveImage() {
+    var f = document.getElementById('imageform');
+    imagetool.createImage(f.url.value);
+    window.close();
+};
+
+</script>
+<link type="text/css" rel="stylesheet" href="kupustyles.css" />
+</head>
+
+<body>
+<center>
+<form action="." method="POST" id="imageform">
+<h3>Image url:</h3>
+<table>
+<tr>
+<td>Url:</td>
+<td><input type="text" name="url" value="http://" /></td>
+</tr>
+</table>
+<input type="button" onclick="window.close()" value="Cancel" />
+<input type="button" onclick="saveImage()" value="Save image" />
+</form>
+</center>
+</body>
+</html>

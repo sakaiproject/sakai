@@ -41,7 +41,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +54,9 @@ import lombok.Setter;
  */
 @Slf4j
 @Transactional
-public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements CourseSiteRemovalService {
+public class CourseSiteRemovalServiceImpl implements CourseSiteRemovalService {
+
+   @Setter private SessionFactory sessionFactory;
 
    // class members
    private static final long ONE_DAY_IN_MS = 1000L * 60L * 60L * 24L;    // one day in ms = 1000ms/s · 60s/m · 60m/h · 24h/day
@@ -232,7 +234,7 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
                 }
             }
             catch (PermissionException | IdUnusedException ex) {
-                logger.error(ex.getMessage(), ex);
+                log.error(ex.getMessage(), ex);
             }
         }
 

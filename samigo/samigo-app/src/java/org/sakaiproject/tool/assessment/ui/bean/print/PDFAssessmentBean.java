@@ -23,13 +23,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.bean.ManagedBean;
+
+import javax.imageio.ImageIO;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.samigo.api.pdf.AssessmentPdfService;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPrintPdfModel;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -48,6 +49,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.FilenameUtil;
 import org.sakaiproject.util.api.FormattedText;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 
@@ -63,7 +65,9 @@ public class PDFAssessmentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final FormattedText formattedText = ComponentManager.get(FormattedText.class);
+	@Autowired
+	@Qualifier("org.sakaiproject.util.api.FormattedText")
+	private FormattedText formattedText;
 
 	private String title = "";
 

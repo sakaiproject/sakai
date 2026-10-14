@@ -59,8 +59,9 @@ public interface HelpManager
   /**
    * persist a resource
    * @param resource
+   * @return the managed/merged resource, with its generated id populated
    */
-  void storeResource(Resource resource);
+  Resource storeResource(Resource resource);
 
   /**
    * delete a resource by id

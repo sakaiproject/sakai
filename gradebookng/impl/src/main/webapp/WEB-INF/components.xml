@@ -110,8 +110,7 @@
     </bean>
 
     <bean id="org.sakaiproject.grading.api.GradingService"
-          class="org.sakaiproject.grading.impl.GradingServiceImpl"
-          init-method="init">
+          class="org.sakaiproject.grading.impl.GradingServiceImpl">
     </bean>
 
 </beans>

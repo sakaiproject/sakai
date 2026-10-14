@@ -20,8 +20,8 @@
 
 package org.sakaiproject.entitybroker.util.request;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite;

@@ -22,14 +22,16 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiPropertyImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiPropertyDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiProperty;
@@ -38,7 +40,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 // FIXME: Component
 @Slf4j
 @Transactional(readOnly = true)
-public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements RWikiPropertyDao {
+public class RWikiPropertyDaoImpl implements RWikiPropertyDao {
+	@Setter private SessionFactory sessionFactory;
+
 	private String schemaVersion;
 
 	public RWikiProperty getProperty(final String name)
@@ -46,17 +50,14 @@ public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements RWikiPr
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(RWikiProperty.class).add(
-							Expression.eq("name", name)).list();
-				}
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiPropertyImpl> cq = cb.createQuery(RWikiPropertyImpl.class);
+			Root<RWikiPropertyImpl> root = cq.from(RWikiPropertyImpl.class);
 
-			};
-			List found = (List) getHibernateTemplate().execute(callback);
+			cq.select(root).where(cb.equal(root.get("name"), name));
+
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0)
 			{
 				if (log.isDebugEnabled())
@@ -89,7 +90,7 @@ public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements RWikiPr
 	@Transactional
 	public void update(RWikiProperty property)
 	{
-		getHibernateTemplate().saveOrUpdate(property);
+		sessionFactory.getCurrentSession().merge(property);
 	}
 
 	/**

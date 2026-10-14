@@ -33,12 +33,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
-import javax.servlet.http.HttpSessionContext;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
 
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.collections4.iterators.IteratorEnumeration;
@@ -48,7 +47,6 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ContextSession;
 import org.sakaiproject.tool.api.NonPortableSession;
-import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionAttributeListener;
 import org.sakaiproject.tool.api.SessionBindingEvent;
@@ -59,8 +57,6 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 
-import com.carrotsearch.sizeof.ObjectTree;
-import com.carrotsearch.sizeof.RamUsageEstimator;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -78,7 +74,7 @@ public class MySession implements Session, HttpSession, Serializable
 	private static final long serialVersionUID = 2L;
 	/**
 	 * The possible time this Session may be inactive and available for expiration.
-	 * This value is an optimization for Terracotta clustered environments, to avoid
+	 * This value is an optimization for clustered environments, to avoid
 	 * faulting object in, unless we have a best guess that it may be out of date.
 	 * We also choose not to use the m_accessed field directly, to avoid updating the
 	 * SHARED (on every box) data structure, except every inactive/2 period.
@@ -113,11 +109,9 @@ public class MySession implements Session, HttpSession, Serializable
 	private transient IdManager idManager;
 	private transient NonPortableSession m_nonPortalSession;
 	private transient SessionAttributeListener sessionListener;
-	private transient RebuildBreakdownService rebuildBreakdownService;
     public MySession(SessionManager sessionManager, String id, ThreadLocalManager threadLocalManager,
 					 IdManager idManager, SessionStore sessionStore, SessionAttributeListener sessionListener,
-					 int inactiveInterval, NonPortableSession nonPortableSession, MutableLong expirationTimeSuggestion,
-					 RebuildBreakdownService rebuildBreakdownService)
+					 int inactiveInterval, NonPortableSession nonPortableSession, MutableLong expirationTimeSuggestion)
 	{
 		this.sessionManager = sessionManager;
 		m_id = id;
@@ -131,7 +125,6 @@ public class MySession implements Session, HttpSession, Serializable
 		m_accessed = m_created;
 		this.expirationTimeSuggestion = expirationTimeSuggestion;
 		resetExpirationTimeSuggestion();
-		this.rebuildBreakdownService = rebuildBreakdownService;
 	}
 
     /**
@@ -260,12 +253,7 @@ public class MySession implements Session, HttpSession, Serializable
 	 */
 	public void invalidate()
 	{
-		String sessionId = getId();
 		destroy();
-		// ensure that the session cache is cleared when session is invalidated
-		if (rebuildBreakdownService != null) {
-		    rebuildBreakdownService.purgeSessionFromStorageById(sessionId);
-		}
 	}
 
     /**
@@ -524,31 +512,7 @@ public class MySession implements Session, HttpSession, Serializable
 
 		else
 		{
-			if (log.isDebugEnabled()) {
-				// DO NOT USE this in a production system as calculating object sizes is very
-				// CPU intensive and is for debugging only. YOU HAVE BEEN WARNED.
-				try {
-					long size = RamUsageEstimator.sizeOf(value);
-					StringBuilder msg = new StringBuilder("sizeOf [session id = ");
-					msg.append(this.m_id).append("]");
-					msg.append(":[").append(name).append(" => ").append(value.getClass().getName()).append("]");
-					msg.append(" size is ").append(RamUsageEstimator.humanReadableUnits(size));
-
-					if (log.isTraceEnabled()) {
-						// to get a dump of the object tree turn on trace level logging
-						// don't dump anything over 1MB
-						if (size <= 1048576 ) {
-							msg.append(", dumping object tree:\n");
-							msg.append(ObjectTree.dump(value));
-						} else {
-							msg.append(", object is over 1MB skipping dump\n");
-						}
-					}
-					log.debug("{}", msg);
-				} catch(Exception e) {
-					log.error("sizeOf could not calculate the size of [session => attribute]:[{} => {}]", this.m_id, name, e);
-				}
-			}
+			log.debug("Setting session attribute of type {}", value.getClass().getName());
 
 			Object old = null;
 
@@ -664,7 +628,7 @@ public class MySession implements Session, HttpSession, Serializable
 	/**
 	 * {@inheritDoc}
 	 */
-	public HttpSessionContext getSessionContext()
+	public Object getSessionContext()
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -772,8 +736,7 @@ public class MySession implements Session, HttpSession, Serializable
 
     @Override
     public String toString() {
-        return "MyS_"+m_userEid+"{" + m_id +
-                       ", userId='" + m_userId + '\'' +
+        return "MyS_"+m_userEid+"{userId='" + m_userId + '\'' +
                        ", at=" + (m_attributes != null ? m_attributes.size() : 0) +
                        ", ts=" + (m_toolSessions != null ? m_toolSessions.size() : 0) +
                        ", cs=" + (m_contextSessions != null ? m_contextSessions.size() : 0) +

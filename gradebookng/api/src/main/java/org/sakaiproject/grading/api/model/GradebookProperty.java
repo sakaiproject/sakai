@@ -18,13 +18,12 @@ package org.sakaiproject.grading.api.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -40,8 +39,7 @@ public class GradebookProperty implements PersistableEntity<Long>, Comparable<Ob
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_property_id_sequence")
-    @SequenceGenerator(name = "gb_property_id_sequence", sequenceName = "GB_PROPERTY_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_property_id_sequence", sequenceName = "GB_PROPERTY_S"))
     @ToString.Include
     private Long id;
 

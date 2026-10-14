@@ -52,8 +52,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -109,7 +108,6 @@ import org.junit.runner.RunWith;
 public class ConversationsServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired private AuthzGroupService authzGroupService;
-    @Autowired private MemoryService memoryService;
     @Autowired private ConversationsCommentRepository commentRepository;
     @Autowired private ConversationsService conversationsService;
     @Autowired private EventTrackingService eventTrackingService;
@@ -194,7 +192,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         // this is too late for the init method, I think.
         Cache postsCache = mock(Cache.class);
-        //when(memoryService.<String, Map<String, List<PostTransferBean>>>getCache(ConversationsService.POSTS_CACHE_NAME)).thenReturn(postsCache);
         ((ConversationsServiceImpl) AopTestUtils.getTargetObject(conversationsService)).setPostsCache(postsCache);
         ((ConversationsServiceImpl) AopTestUtils.getTargetObject(conversationsService)).setSortedStatsCache(postsCache);
         ((ConversationsServiceImpl) AopTestUtils.getTargetObject(conversationsService)).setResourceLoader(resourceLoader);
@@ -1195,6 +1192,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean = posts.iterator().next();
             assertEquals(0, postBean.comments.size());
 
+            commentBean.id = null;
             conversationsService.saveComment(commentBean);
             posts = conversationsService.getPostsByTopicId(site1Id, topicBean.id, 0, null, null);
             postBean = posts.iterator().next();
@@ -1204,6 +1202,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             List<ConversationsComment> comments = commentRepository.findByPostId(postBean.id);
             assertTrue(comments.isEmpty());
 
+            postBean.id = null;
             postBean = conversationsService.savePost(postBean, true);
             commentBean.postId = postBean.id;
             conversationsService.saveComment(commentBean);
@@ -1409,6 +1408,37 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
+    public void topicsCanUseGlobalAndLocalCollectionsButNotAnotherSitesTags() throws Exception {
+        switchToUser1();
+        when(securityService.unlock(Permissions.TOPIC_TAG.label, site1Ref)).thenReturn(true);
+        String globalCollection = tagService.createTagCollection(org.sakaiproject.tags.api.TagCollection.builder()
+            .name("Global competencies").build());
+        String localCollection = tagService.createTagCollection(org.sakaiproject.tags.api.TagCollection.builder()
+            .name("Site competencies").siteId(site1Id).build());
+        String foreignCollection = tagService.createTagCollection(org.sakaiproject.tags.api.TagCollection.builder()
+            .name("Other site competencies").siteId(site2Id).build());
+        List<TagTransferBean> selected = new ArrayList<>();
+        for (String collection : Arrays.asList(globalCollection, localCollection)) {
+            String id = tagService.createTag(org.sakaiproject.tags.api.Tag.builder()
+                .tagCollectionId(collection).tagLabel(collection).build());
+            TagTransferBean tag = new TagTransferBean();
+            tag.setId(id);
+            selected.add(tag);
+        }
+        TopicTransferBean topic = createTopic(true);
+        topic.tags = selected;
+        TopicTransferBean saved = conversationsService.saveTopic(topic, false);
+        assertEquals(2, tagService.getTagAssociationIds(site1Id, saved.id).size());
+        assertEquals(2, conversationsService.getTopic(saved.id).get().tags.size());
+        assertEquals(2, conversationsService.getTagsForSite(site1Id).size());
+        TagTransferBean foreign = new TagTransferBean();
+        foreign.setId(tagService.createTag(org.sakaiproject.tags.api.Tag.builder()
+            .tagCollectionId(foreignCollection).tagLabel("Foreign").build()));
+        saved.tags = Collections.singletonList(foreign);
+        assertThrows(SecurityException.class, () -> conversationsService.saveTopic(saved, false));
+    }
+
+    @Test
     public void cannotRenameSharedTags() throws Exception {
         switchToUser1();
         when(securityService.unlock(Permissions.TAG_CREATE.label, site1Ref)).thenReturn(true);
@@ -1431,7 +1461,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         TagTransferBean saved = createTags(Collections.singletonList(tag)).get(0);
         TopicTransferBean topic = createTopic(true);
         topic.tags = Collections.singletonList(saved);
-        assertThrows(IllegalArgumentException.class, () -> conversationsService.saveTopic(topic, false));
+        assertThrows(SecurityException.class, () -> conversationsService.saveTopic(topic, false));
         assertTrue(tagService.getTagAssociationIds(site1Id, topic.id).isEmpty());
     }
 
@@ -1675,7 +1705,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             fail("Unexpected exception when saving post");
         }
     }
-    
+
     @Test
     public void deletePost() {
 

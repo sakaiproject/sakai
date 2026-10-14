@@ -31,11 +31,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.tool.assessment.business.entity.ItemStatistics;
 import org.sakaiproject.tool.assessment.business.entity.QuestionPoolStatistics;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
@@ -50,9 +50,9 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc.TypeId;
 import org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import lombok.NonNull;
@@ -257,18 +257,19 @@ public class StatisticsService {
     private GradingService gradingService;
 
     @Autowired
-    private MemoryService memoryService;
+    private CacheManager cacheManager;
 
     private QuestionPoolService questionPoolService;
 
+    @Autowired
+    @Qualifier("StatisticsFacadeQueries")
     private StatisticsFacadeQueriesAPI statisticsFacadeQueries;
 
-    private Cache<String, QuestionPoolStatistics> questionPoolStatisticsCache;
+    private Cache questionPoolStatisticsCache;
 
 
     public StatisticsService() {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        statisticsFacadeQueries = PersistenceService.getInstance().getStatisticsFacadeQueries();
 
         gradingService = new GradingService();
         questionPoolService = new QuestionPoolService();
@@ -276,11 +277,11 @@ public class StatisticsService {
         init();
     }
 
-    public StatisticsService(GradingService gradingService, MemoryService memoryService,
+    public StatisticsService(GradingService gradingService, CacheManager cacheManager,
             QuestionPoolService questionPoolService, StatisticsFacadeQueriesAPI statisticsFacadeQueries) {
 
         this.gradingService = gradingService;
-        this.memoryService = memoryService;
+        this.cacheManager = cacheManager;
         this.questionPoolService = questionPoolService;
         this.statisticsFacadeQueries = statisticsFacadeQueries;
 
@@ -289,12 +290,12 @@ public class StatisticsService {
 
     @PostConstruct
     private void init() {
-        questionPoolStatisticsCache = memoryService.getCache(QP_STATISTICS_CACHE_NAME);
+        questionPoolStatisticsCache = cacheManager.getCache(QP_STATISTICS_CACHE_NAME);
     }
 
     public QuestionPoolStatistics getQuestionPoolStatistics(@NonNull Long questionPoolId) {
         // Check the cache for statistics of this pool and return it if present
-        QuestionPoolStatistics cachedStatistics = questionPoolStatisticsCache.get(questionPoolId.toString());
+        QuestionPoolStatistics cachedStatistics = questionPoolStatisticsCache.get(questionPoolId.toString(), QuestionPoolStatistics.class);
         if (cachedStatistics != null) {
             log.debug("Returning cached statistics of question pool with id {}", questionPoolId);
             return cachedStatistics;

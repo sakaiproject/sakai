@@ -38,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.sakaiproject.tool.assessment.util.TagJson;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
@@ -1155,25 +1156,7 @@ public ItemData() {}
   }
 
   private String convertTagListToJsonString(Set<ItemTagIfc> itemTagSet) {
-
-    String tagsListToJson = "[";
-    if (itemTagSet != null) {
-      Iterator<ItemTagIfc> i = itemTagSet.iterator();
-      Boolean more = false;
-      while (i.hasNext()) {
-        if (more) {
-          tagsListToJson += ",";
-        }
-        ItemTagIfc tagToShow = (ItemTagIfc) i.next();
-        String tagId = tagToShow.getTagId();
-        String tagLabel = tagToShow.getTagLabel();
-        String tagCollectionName = tagToShow.getTagCollectionName();
-        tagsListToJson += "{\"tagId\":\"" + tagId + "\",\"tagLabel\":\"" + tagLabel + "\",\"tagCollectionName\":\"" + tagCollectionName + "\"}";
-        more = true;
-      }
-    }
-    tagsListToJson += "]";
-    return tagsListToJson;
+    return TagJson.serialize(itemTagSet == null ? null : itemTagSet.stream().map(TagJson::fromTag).toList());
   }
 
   public String getTagListToJsonString() {

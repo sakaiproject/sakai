@@ -27,11 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -109,7 +109,7 @@ public class ExportMarkupTextServlet extends HttpServlet {
 		String agentIdString = AgentFacade.getAgentString();
 		if (StringUtils.isEmpty(agentIdString)) { // try this
 			PersonBean person = (PersonBean) ContextUtil
-					.lookupBeanFromExternalServlet("person", req, res);
+					.lookupBeanFromExternalServlet("person", req, res, getServletContext());
 			agentIdString = person.getAnonymousId();
 		}
 		return agentIdString;
@@ -168,7 +168,7 @@ public class ExportMarkupTextServlet extends HttpServlet {
 		String fileName = "exportAssessment.txt";
 		String errorPoolSizeTooLarge = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "update_pool_error_size_too_large");
 		String errorPoolUpdateUnknown = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
-		String pathUpdateError = "/jsf/qti/poolUpdateError.faces";
+		String pathUpdateError = "/jsf/author/poolUpdateError.faces";
 
 		if (success != AssessmentService.UPDATE_SUCCESS) {
 			if (success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){

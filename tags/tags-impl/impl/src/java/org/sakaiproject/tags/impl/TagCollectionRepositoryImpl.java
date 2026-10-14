@@ -32,6 +32,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class TagCollectionRepositoryImpl extends SpringCrudRepositoryImpl<TagCollection, String> implements TagCollectionRepository {
     @Override
+    public List<TagCollection> findAvailableInSite(String siteId) {
+        return sessionFactory.getCurrentSession().createQuery(
+            "from TagServiceCollection c where c.siteId is null or c.siteId = :site order by c.name", TagCollection.class)
+            .setParameter("site", siteId).getResultList();
+    }
+
+    @Override
     @Transactional
     public TagCollection create(TagCollection collection) {
         sessionFactory.getCurrentSession().persist(collection);

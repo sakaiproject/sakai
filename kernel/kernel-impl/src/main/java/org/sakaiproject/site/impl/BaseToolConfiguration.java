@@ -21,8 +21,10 @@
 
 package org.sakaiproject.site.impl;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Properties;
 import java.util.Stack;
 
@@ -58,8 +60,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	/** The layout hints. */
 	protected String m_layoutHints = null;
 
-	/** The SitePage I belong to. */
-	protected SitePage m_page = null;
+	/** The SitePage I belong to. Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	protected transient SitePage m_page = null;
 
 	/** The site id I belong to, in case I have no m_page. */
 	protected String m_siteId = null;
@@ -79,7 +81,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	/** Flag for custom title configuration */
 	protected boolean m_custom_title = false;
 
-	private BaseSiteService siteService;
+	/** Not cacheable directly; always re-supplied by the copy-constructor chain. */
+	private transient BaseSiteService siteService;
 
 	/**
 	 * ReConstruct
@@ -205,6 +208,10 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_toolId = other.getToolId();
 		m_tool = other.getTool();
 		m_title = other.getTitle();
+		if (m_title == null && m_tool != null)
+		{
+			m_title = m_tool.getTitle();
+		}
 		m_layoutHints = other.getLayoutHints();
 		m_pageId = bOther.m_pageId;
 		m_pageOrder = bOther.m_pageOrder;
@@ -477,7 +484,9 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 			return;
 		}
 
-		((ResourceVector) m_page.getTools()).moveUp(this);
+		List<ToolConfiguration> tools = m_page.getTools();
+		int pos = tools.indexOf(this);
+		if (pos > 0) Collections.swap(tools, pos, pos - 1);
 	}
 
 	/**
@@ -491,7 +500,9 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 			return;
 		}
 
-		((ResourceVector) m_page.getTools()).moveDown(this);
+		List<ToolConfiguration> tools = m_page.getTools();
+		int pos = tools.indexOf(this);
+		if (pos != -1 && pos < tools.size() - 1) Collections.swap(tools, pos, pos + 1);
 	}
 
 	/**
@@ -542,6 +553,12 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		// TODO: security? version?
 		siteService.storage().saveToolConfig(this);
 
+		// Placement-only saves write the tool row without going through SiteService.doSave(),
+		// so the site cache still holds the previous placement config. Evict so the next
+		// findTool()/getSite() reloads from storage. Required now that the site cache
+		// returns deserialized copies rather than the live in-heap object.
+		siteService.invalidateCachedSite(getSiteId());
+
 		// track the site change
 		siteService.eventTrackingService.post(siteService.eventTrackingService.newEvent(
 				SiteService.SECURE_UPDATE_SITE, siteService.siteReference(getSiteId()),
@@ -570,9 +587,13 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	public String getTitle()
 	{
 		String rv = null;
-		if (m_tool != null && !m_custom_title)
+		// getTool() re-resolves transient m_tool from m_toolId after a cache
+		// deserialize. Checking m_tool directly left title null, so Site Info
+		// Manage Tools treated existing placements as unselected.
+		Tool tool = getTool();
+		if (tool != null && !m_custom_title)
 		{
-			rv = m_tool.getTitle();
+			rv = tool.getTitle();
 		}
 		else if (m_title != null)
 		{

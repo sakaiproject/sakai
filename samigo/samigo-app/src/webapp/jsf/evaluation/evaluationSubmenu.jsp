@@ -84,16 +84,5 @@
       </h:panelGroup>
     </li>
     </h:panelGroup>
-    <h:panelGroup rendered="#{totalScores.hasFileUpload}">
-      <li role='menuitem'>
-        <h:panelGroup id="downloadFileSubmissionsMenuLink">
-          <h:commandLink title="#{evaluationMessages.t_title_download_file_submissions}" action="downloadFileSubmissions" immediate="true">
-            <h:outputText value="#{evaluationMessages.title_download_file_submissions}" />
-            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
-            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.DownloadFileSubmissionsListener" />
-          </h:commandLink>
-        </h:panelGroup>
-      </li>
-    </h:panelGroup>
   </ul>
 </h:panelGroup>

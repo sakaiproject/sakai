@@ -47,7 +47,22 @@ public interface TagService {
      */
     List<Tag> createSiteTags(String siteId, String tool, List<Tag> tags);
 
+    /** Tags and collections shared globally or owned by this site. */
+    List<TagSummary> getTagsForSite(String siteId);
+    List<TagCollection> getTagCollectionsForSite(String siteId);
+
+    /** Management-tool operations enforce collection ownership and site permissions. */
+    boolean canManageCollection(String siteId, String collectionId);
+    void checkCollectionAccess(String siteId, String collectionId);
+    String saveTagCollection(String siteId, TagCollection collection);
+    String saveTag(String siteId, Tag tag);
+    void deleteTagCollection(String siteId, String collectionId);
+    void deleteTag(String siteId, String tagId);
+
     public void init();
+
+    /** Validate a literal, plain-text tag label without changing its contents. */
+    Errors validateTag(Tag tag);
 
     public String createTag(Tag tag);
 

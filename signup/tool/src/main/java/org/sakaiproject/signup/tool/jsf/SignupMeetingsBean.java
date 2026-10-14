@@ -19,11 +19,11 @@
 
 package org.sakaiproject.signup.tool.jsf;
 
-import javax.faces.component.UIData;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.faces.component.UIData;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;

@@ -35,14 +35,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.api.SimpleEvent;
-import org.sakaiproject.memory.api.Cache;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 
 /**
@@ -67,10 +64,6 @@ public class ClusterEventTracking extends BaseEventTrackingService implements Ru
 
 	private int period = 5; // How long to wait in seconds between checks for new events from the db
 	private ClusterEventTrackingServiceSql clusterEventTrackingServiceSql;
-
-	private Cache<String, SimpleEvent> eventCache; // The events cache (ONLY used if enabled) - KNL-1184
-	private Cache<String, Long> eventLastCache; // The events cache (ONLY used if enabled) - KNL-1184
-	private boolean cachingEnabled; // is caching enabled? - KNL-1184
 
 	@Setter private Map<String, ClusterEventTrackingServiceSql> databaseBeans;
 
@@ -117,9 +110,6 @@ public class ClusterEventTracking extends BaseEventTrackingService implements Ru
 					serverConfigurationService.getServerIdInstance(),
 					serverConfigurationService.getString("version.sakai", "unknown"),
 					serverConfigurationService.getString("version.service", "unknown"));
-
-            // initialize the caching server, if enabled
-            initCacheServer();
 		} catch (Exception e) {
 			log.warn("Initialization failure", e);
 		}
@@ -198,18 +188,9 @@ public class ClusterEventTracking extends BaseEventTrackingService implements Ru
 		bindValues(event, fields);
 
         // process the insert
-        if (cachingEnabled) {
-            // if caching is enabled, get the last inserted id
-            Long eventId = sqlService.dbInsert(null, statement, fields, "EVENT_ID");
-            if (eventId != null) {
-                // write event to cache
-                writeEventToCluster(event, eventId);
-            }
-        } else {
-            boolean ok = sqlService.dbWrite(null, statement, fields);
-            if (!ok) {
-                log.warn("dbWrite failed: session: {} event: {}", fields[3], event);
-            }
+        boolean ok = sqlService.dbWrite(null, statement, fields);
+        if (!ok) {
+            log.warn("dbWrite failed: session: {} event: {}", fields[3], event);
         }
     }
 
@@ -234,7 +215,6 @@ public class ClusterEventTracking extends BaseEventTrackingService implements Ru
 			// common preparation for each insert
 			String statement = insertStatement();
 
-			// set up a batch of events if not using a cluster
 			List<Object[]> eventList = new ArrayList<>();
 
 			// write all events
@@ -242,21 +222,11 @@ public class ClusterEventTracking extends BaseEventTrackingService implements Ru
 				Object[] fields = new Object[6];
 				bindValues(event, fields);
 				eventList.add(fields);
-
-				// For clustered setups with caching enabled, use legacy, individual inserts
-				// TODO: it might be possible to write the entire batch to database and still get return values. But this will need testing on MySQL and Oracle.
-				if (cachingEnabled) {
-					Long eventId = sqlService.dbInsert(conn, statement, fields, "EVENT_ID");
-                    // write event to cache
-                    if (eventId != null) writeEventToCluster(event, eventId);
-				}
 			}
 
-			// Write all of these events in a batch if not using clustering
-			if (!cachingEnabled) {
-				if (!sqlService.dbWriteBatch(conn, statement, eventList)) {
-					log.warn("dbWriteBatch failed: event count: {}", eventList.size());
-				}
+			// write all of these events in a batch
+			if (!sqlService.dbWriteBatch(conn, statement, eventList)) {
+				log.warn("dbWriteBatch failed: event count: {}", eventList.size());
 			}
 
 			// commit
@@ -347,90 +317,48 @@ public class ClusterEventTracking extends BaseEventTrackingService implements Ru
 			Object[] fields = new Object[1];
 			fields[0] = lastEventSeq.get();
 
-			List<Event> events = new ArrayList<>();
-			if (cachingEnabled) { // KNL-1184
-				// set to the last event id processed + 1 since we've already processed the last event id
-				long beginEventId = lastEventSeq.get() + 1;
-				// set m_lastEventSeq to the latest key value in the event cache
-				initLastEventIdInEventCache();
-				// only process events if there are new ones
-				long endEventId = lastEventSeq.get();
-				if (endEventId >= beginEventId) {
-					for (long i = beginEventId; i <= endEventId; i++) {
-						SimpleEvent event = eventCache.get( String.valueOf(i) );
-						if (event != null) {
-							boolean nonSessionEvent = (event.getServerId() == null || StringUtils.startsWith(event.getSessionId(), "~"));
-							String userId = null;
-							boolean skipIt = false;
+			List<Event> events = sqlService.dbRead(statement, fields, result -> {
+                try {
+                    long id = result.getLong(1);
+                    Date date = new Date(result.getTimestamp(2).getTime());
+                    String function = result.getString(3);
+                    String ref = result.getString(4);
+                    String session = result.getString(5);
+                    String code = result.getString(6);
+                    String context = result.getString(7);
+                    String eventSessionServerId = result.getString(8); // maybe null
 
-							if (nonSessionEvent) {
-								String[] parts = StringUtils.split(event.getSessionId(), "~");
-								if (parts.length > 1) {
-									userId = parts[1];
-								}
+                    lastEventSeq.updateAndGet(current -> Math.max(current, id));
 
-								// we skip this event if it came from our server
-								if (parts.length > 0) {
-									skipIt = serverId.equals(parts[0]);
-								}
+                    boolean nonSessionEvent = (eventSessionServerId == null || session.startsWith("~"));
+                    String userId = null;
+                    boolean skipIt = false;
 
-								event.setUserId(userId);
-							} else {
-								skipIt = serverInstance.equals(event.getServerId());
-								event.setSessionId(event.getSessionId());
-							}
+                    if (nonSessionEvent) {
+                        String[] parts = StringUtils.split(session, "~");
+                        if (parts.length > 1) userId = parts[1];
 
-							// add an event to the list only if it is not a local server event
-							if (!skipIt) {
-								events.add(event);
-							}
-						}
+                        // we skip this event if it came from our server
+                        if (parts.length > 0) skipIt = serverId.equals(parts[0]);
+                    } else {
+						skipIt = serverInstance.equals(eventSessionServerId);
 					}
-				}
-			} else {
-				events = sqlService.dbRead(statement, fields,result -> {
-                    try {
-                        long id = result.getLong(1);
-                        Date date = new Date(result.getTimestamp(2).getTime());
-                        String function = result.getString(3);
-                        String ref = result.getString(4);
-                        String session = result.getString(5);
-                        String code = result.getString(6);
-                        String context = result.getString(7);
-                        String eventSessionServerId = result.getString(8); // maybe null
 
-                        lastEventSeq.updateAndGet(current -> Math.max(current, id));
+                    if (skipIt) return null;
 
-                        boolean nonSessionEvent = (eventSessionServerId == null || session.startsWith("~"));
-                        String userId = null;
-                        boolean skipIt = false;
+                    // Note: events from outside the server don't need notification info, since notification is processed only on internal
+                    // events -ggolden
+                    BaseEvent event = new BaseEvent(id, function, ref, context, "m".equals(code), NotificationService.NOTI_NONE, date);
 
-                        if (nonSessionEvent) {
-                            String[] parts = StringUtils.split(session, "~");
-                            if (parts.length > 1) userId = parts[1];
+                    if (nonSessionEvent) event.setUserId(userId);
+                    else event.setSessionId(session);
 
-                            // we skip this event if it came from our server
-                            if (parts.length > 0) skipIt = serverId.equals(parts[0]);
-                        } else {
-							skipIt = serverInstance.equals(eventSessionServerId);
-						}
-
-                        if (skipIt) return null;
-
-                        // Note: events from outside the server don't need notification info, since notification is processed only on internal
-                        // events -ggolden
-                        BaseEvent event = new BaseEvent(id, function, ref, context, "m".equals(code), NotificationService.NOTI_NONE, date);
-
-                        if (nonSessionEvent) event.setUserId(userId);
-                        else event.setSessionId(session);
-
-                        return event;
-                    } catch (Exception e) {
-                        log.warn("Reading an event from database: {}", e.toString());
-						return null;
-                    }
-                });
-			}
+                    return event;
+                } catch (Exception e) {
+                    log.warn("Reading an event from database: {}", e.toString());
+					return null;
+                }
+            });
 			// for each new event found, notify observers
 			for (Event event : events) {
 				notifyObservers(event, false);
@@ -458,70 +386,6 @@ public class ClusterEventTracking extends BaseEventTrackingService implements Ru
 
 		log.debug("Starting (after) Event #: {}", lastEventSeq.get());
 	}
-
-	/**
-	 * KNL-1184
-	 * Initializes the events cache, if enabled
-	 */
-	private void initCacheServer() {
-		// remove down to and including this line
-		cachingEnabled = serverConfigurationService.getBoolean("memory.cluster.enabled", false);
-		if (cachingEnabled) {
-			boolean eventsCacheUsed = false;
-			boolean eventLastCacheUsed = false;
-			String[] caches = serverConfigurationService.getStrings("memory.cluster.names");
-			if(ArrayUtils.isNotEmpty(caches)) {
-				for(String cacheName : caches) {
-					if("org.sakaiproject.event.impl.ClusterEventTracking.eventsCache".equals(cacheName)) {
-						eventCache = memoryService.getCache("org.sakaiproject.event.impl.ClusterEventTracking.eventsCache");
-						eventsCacheUsed = true;
-					} else if("org.sakaiproject.event.impl.ClusterEventTracking.eventLastCache".equals(cacheName)) {
-						// This cache only needs to hold a single value, the last updated event id
-						eventLastCache = memoryService.getCache("org.sakaiproject.event.impl.ClusterEventTracking.eventLastCache");
-						eventLastCacheUsed = true;
-					}
-				}
-				cachingEnabled = eventsCacheUsed && eventLastCacheUsed;
-			}
-		}
-	}
-
-    /**
-     * Finds the last event ID inserted into the event cache
-     * (tracked in another cache)
-     */
-    private void initLastEventIdInEventCache() {
-        if (cachingEnabled) {
-            if (eventLastCache != null) {
-                Long last = eventLastCache.get("lastEventId");
-                if (last != null) lastEventSeq.set(last);
-            }
-        }
-    }
-
-    /**
-     * Writes an event to cache, if enabled
-     * 
-     * @param event the event object
-     * @param eventId the id of the event object
-     */
-    private void writeEventToCluster(Event event, Long eventId) {
-        if (cachingEnabled) {
-            if (eventCache != null) {
-                // store event as an element
-                BaseEvent baseEvent = ensureBaseEvent(event);
-                SimpleEvent simpleEvent = new SimpleEvent(baseEvent, serverConfigurationService.getServerIdInstance());
-                // add item to the cache store
-                eventCache.put(String.valueOf(eventId), simpleEvent);
-                // update the last event id each time
-                eventLastCache.put("lastEventId", eventId);
-            } else {
-				log.debug("Cannot store event to cache, event store not initialized.");
-            }
-        } else {
-			log.debug("Cluster caching not enabled.");
-        }
-    }
 
 	public void setCheckDb(String value) {
 		checkDb = Boolean.parseBoolean(value);

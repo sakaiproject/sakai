@@ -148,6 +148,7 @@
 
         <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+        <property name="cacheAdminService" ref="org.sakaiproject.ignite.api.CacheAdminService"/>
     </bean>
 
 </beans>

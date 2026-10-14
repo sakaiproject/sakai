@@ -74,7 +74,7 @@
 					    selected-ids="$formattedText.escapeHtml($!tag_selector)"
 					    collection-id="$siteId"
 					    add-new="false"
-					    extra-options="$allTaggedGroupsAndInstructors"
+					    extra-options="$formattedText.escapeHtml($allTaggedGroupsAndInstructors)"
 					    tool="$!tagTool"
 					    site-id="$siteId"
 					></sakai-tag-selector>
@@ -637,7 +637,7 @@
 								<td class="tag-header hidden-xs">
 								#if ($tagsMap.containsKey($assignment.getId()))
 									#foreach($tag in $tagsMap.get($assignment.getId()))
-										<span class="badge bg-info">$tag</span>
+										<span class="badge bg-info">$formattedText.escapeHtml($tag)</span>
 									#end
 								#end
 								</td>

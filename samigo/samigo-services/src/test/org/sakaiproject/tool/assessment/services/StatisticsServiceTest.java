@@ -32,7 +32,8 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.memory.mock.MemoryService;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.sakaiproject.tool.assessment.business.entity.ItemStatistics;
 import org.sakaiproject.tool.assessment.business.entity.QuestionPoolStatistics;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
@@ -51,16 +52,16 @@ public class StatisticsServiceTest {
     private StatisticsService statisticsService;
     private StatisticsFacadeQueries statisticsFacadeQueries;
     private QuestionPoolService questionPoolService;
-    private MemoryService memoryService;
+    private CacheManager cacheManager;
 
     @Before
     public void setUp() {
         GradingService gradingService = new GradingService();
         questionPoolService = mock(QuestionPoolService.class);
         statisticsFacadeQueries = mock(StatisticsFacadeQueries.class);
-        memoryService = new MemoryService();
+        cacheManager = new ConcurrentMapCacheManager();
 
-        statisticsService = spy(new StatisticsService(gradingService, memoryService,
+        statisticsService = spy(new StatisticsService(gradingService, cacheManager,
                 questionPoolService, statisticsFacadeQueries));
 
         doReturn(Collections.emptySet()).when(questionPoolService).getAllItemHashes(any());
@@ -645,7 +646,7 @@ public class StatisticsServiceTest {
     @Test
     public void testClassifyCalculatedSubmissionTreatsBlankPartsAsBlank() {
         GradingService gradingService = mock(GradingService.class);
-        StatisticsService service = new StatisticsService(gradingService, memoryService, questionPoolService, statisticsFacadeQueries);
+        StatisticsService service = new StatisticsService(gradingService, cacheManager, questionPoolService, statisticsFacadeQueries);
 
         PublishedItemData item = item(0L, TypeIfc.CALCULATED_QUESTION);
 
@@ -665,7 +666,7 @@ public class StatisticsServiceTest {
     public void testClassifyCalculatedSubmissionCanBeCorrect() {
         GradingService gradingService = mock(GradingService.class);
         doReturn(true).when(gradingService).getCalcQResult(any(), any(), any(), anyInt());
-        StatisticsService service = new StatisticsService(gradingService, memoryService, questionPoolService, statisticsFacadeQueries);
+        StatisticsService service = new StatisticsService(gradingService, cacheManager, questionPoolService, statisticsFacadeQueries);
 
         PublishedItemData item = item(0L, TypeIfc.CALCULATED_QUESTION);
         ItemGradingData attemptedPart = gradingData(0L, 10L, 0L);

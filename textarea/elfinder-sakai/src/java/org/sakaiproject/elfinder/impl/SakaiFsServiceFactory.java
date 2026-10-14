@@ -19,8 +19,8 @@ import cn.bluejoe.elfinder.service.FsService;
 import cn.bluejoe.elfinder.service.FsServiceFactory;
 import lombok.Setter;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Created by buckett on 08/07/15.

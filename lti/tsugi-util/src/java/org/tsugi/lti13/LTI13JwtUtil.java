@@ -20,7 +20,7 @@ import java.security.Key;
 import java.util.Base64;
 
 import io.jsonwebtoken.Jwts;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 

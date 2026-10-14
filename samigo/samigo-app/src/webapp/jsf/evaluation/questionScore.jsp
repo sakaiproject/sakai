@@ -1376,9 +1376,12 @@ $Id$
           <h:outputText value="#{commonMessages.cancel_question_info_regrade} #{commonMessages.cancel_question_info_no_undo}" />
         </h:panelGroup>
       </h:panelGroup>
+      <h:panelGroup layout="block" styleClass="sak-banner-info" rendered="#{!questionScores.totalScoreCancellationAllowed}">
+        <h:outputText value="#{questionScores.totalScoreCancellationRestrictionMessage}" />
+      </h:panelGroup>
       <h:panelGroup styleClass="modal-footer act" layout="block">
         <h:commandButton styleClass="active" type="submit" id="cancelItemTotal" action="questionScores"
-            value="#{commonMessages.cancel_question_reduce_total}">
+            disabled="#{!questionScores.totalScoreCancellationAllowed}" value="#{commonMessages.cancel_question_reduce_total}">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemCancellationListener" />
           <f:param name="outcome" value="questionScores"/>
           <f:param name="itemId" value="ITEM_ID"/>

@@ -17,10 +17,10 @@ package org.sakaiproject.conversations.tool;
 
 import java.util.EnumSet;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRegistration;
 
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.SakaiContextLoaderListener;

@@ -32,8 +32,8 @@
 			</h4>	
 			#foreach ($role in $allRoles)
 				<p class="checkbox">
-					<input type="radio" name="roles" id="role$velocityCount" value="$role.Id" #if($roles.Id==$role.Id)checked="checked"#end  />
-					<label for="role$velocityCount">$role.Id</label>
+					<input type="radio" name="roles" id="role$foreach.count" value="$role.Id" #if($roles.Id==$role.Id)checked="checked"#end  />
+					<label for="role$foreach.count">$role.Id</label>
 				</p>	
 			#end
 			

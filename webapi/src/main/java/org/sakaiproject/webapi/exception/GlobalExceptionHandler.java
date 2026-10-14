@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity handleResponseStatusException(ResponseStatusException ex, WebRequest request) {
-        return ResponseEntity.status(ex.getStatus()).build();
+        return ResponseEntity.status(ex.getStatusCode()).build();
     }
 
     @ExceptionHandler(AsyncRequestNotUsableException.class)

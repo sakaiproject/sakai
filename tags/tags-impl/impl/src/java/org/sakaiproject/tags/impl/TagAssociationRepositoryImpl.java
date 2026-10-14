@@ -24,7 +24,9 @@ public class TagAssociationRepositoryImpl extends SpringCrudRepositoryImpl<TagAs
     @Override
     public List<TagAssociation> findTagAssociationByCollectionAndItem(String collectionId, String itemId) {
         return sessionFactory.getCurrentSession().createQuery(
-            "select a from TagAssociation a, TagServiceTag t where a.tagId = t.tagId and a.itemId = :item and t.tagCollectionId = :collection", TagAssociation.class)
+            "select a from TagAssociation a, TagServiceTag t, TagServiceCollection c "
+            + "where a.tagId = t.tagId and t.tagCollectionId = c.tagCollectionId and a.itemId = :item "
+            + "and (t.tagCollectionId = :collection or c.siteId = :collection or c.siteId = concat('~', :collection) or c.siteId is null)", TagAssociation.class)
             .setParameter("item", itemId).setParameter("collection", collectionId).getResultList();
     }
 

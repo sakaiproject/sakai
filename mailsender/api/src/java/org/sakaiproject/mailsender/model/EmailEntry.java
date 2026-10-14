@@ -36,6 +36,9 @@ public class EmailEntry {
     private List<String> attachments = new ArrayList<>();
     private ConfigEntry config;
 
+    public EmailEntry() {
+    }
+
     public EmailEntry(ConfigEntry config) {
         this.config = config;
     }

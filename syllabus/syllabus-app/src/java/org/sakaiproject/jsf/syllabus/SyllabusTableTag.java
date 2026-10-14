@@ -20,15 +20,50 @@
  **********************************************************************************/
 package org.sakaiproject.jsf.syllabus;
 
-import com.sun.faces.taglib.html_basic.DataTableTag;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIData;
+import jakarta.faces.webapp.UIComponentTag;
+import lombok.Setter;
+import org.sakaiproject.jsf2.util.TagUtil;
 
-public class SyllabusTableTag extends DataTableTag
+@Setter
+public class SyllabusTableTag extends UIComponentTag
 {
+	private String summary;
+	private String styleClass;
+	private String value;
+	private String var;
+
+	@Override
+	protected void setProperties(UIComponent component)
+	{
+		super.setProperties(component);
+		TagUtil.setString(component, "summary", summary);
+		TagUtil.setString(component, "styleClass", styleClass);
+		TagUtil.setObject(component, "value", value);
+		((UIData) component).setVar(var);
+	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+		summary = null;
+		styleClass = null;
+		value = null;
+		var = null;
+	}
+
+	@Override
+	public String getRendererType()
+	{
+		return "jakarta.faces.Table";
+	}
+
 	public String getComponentType()
 	{
 		return "SakaiSyllabusTable";
 	}
 }
-
 
 

@@ -41,7 +41,7 @@
 </script>
 
 #javascript("/sakai-content-tool/js/jstree/dist/jstree.min.js")
-#css("/sakai-content-tool/js/jstree/dist/themes/default/style.min.css")
+#css("/sakai-content-tool/js/jstree/dist/themes/default/style.min.css" 'media="screen"')
 <div id="dialog-copyright"></div>
 #set($num = 0)
 <div class="portletBody specialLink">
@@ -106,7 +106,7 @@
         </li>
       #end
       #foreach ($item in $collectionPath)
-        #set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
+        #set($qid=$item.id.replaceAll("'","\\'"))
         #if($item.isLast())
           <li class=" breadcrumb-item active">
             $formattedText.escapeHtml("$item.name")
@@ -351,8 +351,8 @@
 			#set($itemcount = 0)
 			#set ($unit ="em")
 			#foreach($item in $site)
-				#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
-				#set($dqid=$item.id.replaceAll("\"", "&quot;"))
+				#set($qid=$item.id.replaceAll("'","\\'"))
+				#set($dqid=$item.id)
 				#if ((!$dropboxGroupPermission_enabled) || ($item.isDropbox() && $item.DropboxOwner && $dropboxGroupPermission_allGroupsUsers.contains($item.DropboxOwner)))
 				#if(!$dropboxGroupFiltered || ($item.isDropbox() && $dropboxGroupFilter_groupUsers.contains($item.DropboxOwner)) )
 				#set($itemcount = $itemcount + 1)
@@ -637,8 +637,8 @@
 					#end
 					################################################################ Eng Paging widgets
 					#foreach($item in $other_sites)
-						#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
-						#set($dqid=$item.id.replaceAll("\"", "&quot;"))
+						#set($qid=$item.id.replaceAll("'","\\'"))
+						#set($dqid=$item.id)
 						############################### Show top level folder #################
 						#set ($width = "$!{item.depth}$unit")
 						#if ($item.depth==0)
@@ -816,7 +816,7 @@
 				document.getElementById("hide-button").disabled = false;
 			#end
 		#end
-		#if($!counter.getValue("$zipdownloadselected") && $counter.getValue("$zipdownloadselected") > 0)
+		#if($!counter.getValue("zipdownloadselected") && $counter.getValue("zipdownloadselected") > 0)
 			document.getElementById("zipdownload-button").disabled = false;
 		#end
 		#if($!counter.getValue("selectall") && $counter.getValue("selectall") > 0)

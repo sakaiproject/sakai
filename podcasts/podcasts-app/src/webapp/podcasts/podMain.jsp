@@ -16,12 +16,12 @@
     includeLatestJQuery('podMain.jsp');
 </script>
 <script>
-    $(document).ready(function(){
-        initializePopover("podMainForm\\:popover", "<h:outputText value="#{msgs.popup_text}" />");
-        var menuLink = $('#podcastMainMenuLink');
-        var menuLinkSpan = menuLink.closest('span');
-        menuLinkSpan.addClass('current');
-        menuLinkSpan.html(menuLink.text());
+    document.addEventListener('DOMContentLoaded', function(){
+        initializePopover("podMainForm:popover", "<h:outputText value="#{msgs.popup_text}" />");
+        const menuLink = document.getElementById('podcastMainMenuLink');
+        const menuLinkSpan = menuLink.closest('span');
+        menuLinkSpan.classList.add('current');
+        menuLinkSpan.textContent = menuLink.textContent;
     });
 </script>
 
@@ -55,7 +55,7 @@
 						</h:inputText>
 					</h:panelGroup>
 					<h:panelGroup style="display:block;" styleClass="col-lg-3 col-sm-4 col-xs-12">
-						<h:commandButton onclick="copyToClipboard('podMainForm\\:rssLink'); return false;" styleClass="btn btn-default copyButton" value="#{msgs.copy_to_clipboard}">
+						<h:commandButton onclick="copyToClipboard('podMainForm:rssLink'); return false;" styleClass="btn btn-default copyButton" value="#{msgs.copy_to_clipboard}">
 						</h:commandButton>
 					</h:panelGroup>
 					<h:panelGroup style="display:block;" styleClass="col-lg-3 col-sm-4 col-xs-12">

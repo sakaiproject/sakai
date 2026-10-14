@@ -27,11 +27,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.api.ServerConfigurationService;

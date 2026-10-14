@@ -90,7 +90,7 @@ public class ToolOrderController {
 
     @PostMapping("/api/pages/{pageId}/details")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> updatePageDetails(@PathVariable String pageId,
+    public ResponseEntity<Map<String, Object>> updatePageDetails(@PathVariable("pageId") String pageId,
             @RequestBody PageDetailsRequest request) {
         Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
@@ -107,7 +107,7 @@ public class ToolOrderController {
 
     @PostMapping("/api/pages/{pageId}/visibility")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> visibility(@PathVariable String pageId,
+    public ResponseEntity<Map<String, Object>> visibility(@PathVariable("pageId") String pageId,
             @RequestBody VisibilityRequest request) {
         Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
@@ -126,7 +126,7 @@ public class ToolOrderController {
 
     @PostMapping("/api/pages/{pageId}/access")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> access(@PathVariable String pageId, @RequestBody AccessRequest request) {
+    public ResponseEntity<Map<String, Object>> access(@PathVariable("pageId") String pageId, @RequestBody AccessRequest request) {
         Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
             if (request == null || request.getEnabled() == null) {
@@ -144,7 +144,7 @@ public class ToolOrderController {
 
     @PostMapping("/api/pages/{pageId}/delete")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> delete(@PathVariable String pageId) {
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable("pageId") String pageId) {
         Locale locale = localeService.getLocaleForCurrentSiteAndUser();
         try {
             ToolOrderPage row = pageEditHandler.deletePage(pageId);

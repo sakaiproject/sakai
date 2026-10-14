@@ -26,14 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -728,7 +728,7 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId,
             @WebParam(name = "userId", partName = "userId") @QueryParam("userId") String userId,
             @WebParam(name = "time", partName = "time") @QueryParam("time") long time) {
-        log.info("createSubmission( " + sessionId + ", " + context + " , " + assignmentId + " , " + userId + "," + time + ")");
+        log.info("Creating submission context={} assignmentId={} userId={} time={}", context, assignmentId, userId, time);
         try {
     		//establish the session
     		Session s = establishSession(sessionId);

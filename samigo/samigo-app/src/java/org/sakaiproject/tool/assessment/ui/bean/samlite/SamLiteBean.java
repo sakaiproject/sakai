@@ -20,10 +20,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
@@ -39,6 +35,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 
+import jakarta.faces.bean.ManagedProperty;
+import jakarta.faces.bean.SessionScoped;
+import jakarta.faces.bean.ManagedBean;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 

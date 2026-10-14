@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.HashMap;
 import java.util.Collections;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
 import org.mockito.Mockito;

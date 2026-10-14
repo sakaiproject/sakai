@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.azeckoski.reflectutils.ClassFields;

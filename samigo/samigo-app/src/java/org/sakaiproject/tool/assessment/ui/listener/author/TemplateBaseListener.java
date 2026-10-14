@@ -21,13 +21,13 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import javax.faces.application.Application;
-import javax.faces.application.ApplicationFactory;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
-import javax.faces.FacesException;
-import javax.faces.FactoryFinder;
+import jakarta.faces.application.Application;
+import jakarta.faces.application.ApplicationFactory;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.event.ActionListener;
+import jakarta.faces.FacesException;
+import jakarta.faces.FactoryFinder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +47,7 @@ public abstract class TemplateBaseListener implements ActionListener
 {
 
   // forces you to implement your own processAction
-  abstract public void processAction(ActionEvent parm1) throws javax.faces.event.AbortProcessingException;
+  abstract public void processAction(ActionEvent parm1) throws jakarta.faces.event.AbortProcessingException;
 
   /**
    * Get a template from the template id

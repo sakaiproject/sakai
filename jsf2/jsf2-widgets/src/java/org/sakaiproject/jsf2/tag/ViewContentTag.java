@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.jsf2.tag;
 
-import javax.faces.webapp.UIComponentTag;
+import jakarta.faces.webapp.UIComponentTag;
 
 public class ViewContentTag extends UIComponentTag
 {

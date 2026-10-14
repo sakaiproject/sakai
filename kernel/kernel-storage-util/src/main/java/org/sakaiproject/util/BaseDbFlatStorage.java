@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,10 +45,9 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.cover.MemoryServiceLocator;
 import org.sakaiproject.time.cover.TimeService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 /**
  * <p>
@@ -126,6 +127,15 @@ public class BaseDbFlatStorage
 	/** Injected (by constructor) SqlService. */
 	protected SqlService m_sql = null;
 
+	/** Injected (by constructor) CacheManager. */
+	protected CacheManager m_cacheManager = null;
+
+	/** Resolved per-table caches, memoized so getCache(table) doesn't hit the CacheManager on every call. */
+	private final Map<String, Cache> m_resolvedCaches = new ConcurrentHashMap<>();
+
+	/** Tables that the DbFlatPropertiesCache config excludes from caching, memoized alongside m_resolvedCaches. */
+	private final Set<String> m_noCacheTables = ConcurrentHashMap.newKeySet();
+
 	/** SqlReader to use when reading the record. */
 	protected SqlReader m_reader = null;
 
@@ -175,9 +185,11 @@ public class BaseDbFlatStorage
 	 *        A SqlReader which will produce Edits given fields read from the table.
 	 * @param sqlService
 	 *        The SqlService.
+	 * @param cacheManager
+	 *        The CacheManager, used for the per-table properties cache.
 	 */
 	public BaseDbFlatStorage(String resourceTableName, String resourceTableIdField, String[] resourceTableFields, String propertyTableName,
-			boolean locksInTable, SqlReader reader, SqlService sqlService)
+			boolean locksInTable, SqlReader reader, SqlService sqlService, CacheManager cacheManager)
 	{
 		m_resourceTableName = resourceTableName;
 		m_resourceTableIdField = resourceTableIdField;
@@ -187,6 +199,7 @@ public class BaseDbFlatStorage
 		m_locksAreInTable = locksInTable;
 		m_sql = sqlService;
 		m_reader = reader;
+		m_cacheManager = cacheManager;
 
 		m_resourceTableUpdateFields = resourceTableFields;
 		m_resourceTableInsertFields = resourceTableFields;
@@ -196,29 +209,43 @@ public class BaseDbFlatStorage
 	}
 
 	/**
-	 * Get the cache manager for this table
+	 * Get the cache for this table's properties, or null if caching is disabled for this table.
+	 * Resolved once per table name and memoized, since this is called on every property read/write.
 	 *
 	 * @param table
 	 */
 	protected Cache getCache(String table)
 	{
 		if ( table == null ) return null;
+		if ( m_noCacheTables.contains(table) ) return null;
+
+		Cache cache = m_resolvedCaches.get(table);
+		if ( cache != null ) return cache;
+
 		String config =  ServerConfigurationService.getString("DbFlatPropertiesCache");
 
 		// Default is :all:
 		if ( config == null || config.trim().length() <= 0 ) config = ":all:";
 
-		if ( config.indexOf(":none:") >= 0 ) return null;
+		if ( config.indexOf(":none:") >= 0 )
+		{
+			m_noCacheTables.add(table);
+			return null;
+		}
 		if ( config.indexOf(":all:") < 0 )
 		{
-			if ( config.indexOf(":"+table+":") < 0 ) return null;
+			if ( config.indexOf(":"+table+":") < 0 )
+			{
+				m_noCacheTables.add(table);
+				return null;
+			}
 		}
 
+		if ( m_cacheManager == null ) return null;
 		String cacheName = CACHE_NAME_PREFIX+table;
-		MemoryService memoryService = MemoryServiceLocator.getInstance();
-		if ( memoryService == null ) return null;
-		Cache myCache = memoryService.newCache(cacheName);
-		return myCache;
+		cache = m_cacheManager.getCache(cacheName);
+		if ( cache != null ) m_resolvedCaches.put(table, cache);
+		return cache;
 	}
 
 	/**
@@ -1152,11 +1179,10 @@ public class BaseDbFlatStorage
 		if ( myCache != null )
 		{
 			log.debug("CHECKING CACHE cacheKey={}", cacheKey);
-			Object obj = myCache.get(cacheKey);
-			if ( obj != null && obj instanceof ResourcePropertiesEdit ) 
+			BaseResourcePropertiesEdit re = myCache.get(cacheKey, BaseResourcePropertiesEdit.class);
+			if ( re != null )
 			{
 				// Clone the properties - do not return the real value
-				ResourcePropertiesEdit re = (ResourcePropertiesEdit) obj;
 				props.addAll(re);
 				log.debug("CACHE HIT cacheKey={}", cacheKey);
 				return;
@@ -1319,7 +1345,7 @@ public class BaseDbFlatStorage
 		if ( myCache != null )
 		{
 			log.debug("CACHE REMOVE cacheKey={} cache={}", cacheKey, myCache);
-			myCache.remove(cacheKey);
+			myCache.evict(cacheKey);
 		}
 
 		// do this in a transaction
@@ -1446,7 +1472,7 @@ public class BaseDbFlatStorage
 			{
 				tagName.append(delim).append(id.toString());
 				String cacheKey = table + ":" + idField + ":" + id;
-				myCache.remove(cacheKey);
+				myCache.evict(cacheKey);
 
 				// optimized away by compiler
 				delim = ",";

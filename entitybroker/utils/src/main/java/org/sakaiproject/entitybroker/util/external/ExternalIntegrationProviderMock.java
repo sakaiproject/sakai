@@ -20,7 +20,7 @@
 
 package org.sakaiproject.entitybroker.util.external;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 

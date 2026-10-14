@@ -27,7 +27,7 @@
             <artifactId>jackson-annotations</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
@@ -37,6 +37,10 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>

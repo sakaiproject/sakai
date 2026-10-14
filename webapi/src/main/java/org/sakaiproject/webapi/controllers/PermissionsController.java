@@ -70,9 +70,10 @@ public class PermissionsController extends AbstractSakaiApiController {
     private SecurityService securityService;
 
     @GetMapping(value = "/sites/{siteId}/permissions/{tool}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> getPermissions(@PathVariable String siteId, @PathVariable String tool, 
-                                             @RequestParam String ref, 
-                                             @RequestParam(required = false) String overrideRef) {
+    public Map<String, Object> getPermissions(@PathVariable("siteId") String siteId,
+                                             @PathVariable("tool") String tool,
+                                             @RequestParam("ref") String ref,
+                                             @RequestParam(name = "overrideRef", required = false) String overrideRef) {
 
         Session session = checkSakaiSession();
         final String siteRef = siteService.siteReference(siteId);
@@ -194,8 +195,8 @@ public class PermissionsController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/sites/{siteId}/permissions")
-    public String setPermissions(@PathVariable String siteId, 
-                                @RequestParam String ref,
+    public String setPermissions(@PathVariable("siteId") String siteId,
+                                @RequestParam("ref") String ref,
                                 @RequestParam Map<String, String> params) {
 
         Session session = checkSakaiSession();

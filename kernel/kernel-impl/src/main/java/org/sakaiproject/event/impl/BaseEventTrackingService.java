@@ -44,7 +44,6 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
@@ -91,7 +90,6 @@ public abstract class BaseEventTrackingService implements EventTrackingService {
 	protected EventDelayHandler delayHandler;
 
 	@Setter protected EntityManager entityManager;
-	@Setter protected MemoryService memoryService;
 	@Setter protected SchedulingService schedulingService;
 	@Setter protected SecurityService securityService;
 	@Setter protected ServerConfigurationService serverConfigurationService;

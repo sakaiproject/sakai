@@ -25,11 +25,11 @@ import org.sakaiproject.plus.api.model.ContextLog;
 import org.sakaiproject.plus.api.repository.ContextLogRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Predicate;
 
 import org.hibernate.Session;
 

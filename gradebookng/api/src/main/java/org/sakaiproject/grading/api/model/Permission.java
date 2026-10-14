@@ -17,13 +17,12 @@ package org.sakaiproject.grading.api.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -37,8 +36,7 @@ public class Permission implements PersistableEntity<Long>, Serializable {
 
     @Id
     @Column(name = "GB_PERMISSION_ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_permission_id_sequence")
-    @SequenceGenerator(name = "gb_permission_id_sequence", sequenceName = "GB_PERMISSION_S")
+    @NativeGenerator(sequenceForm = @SequenceGenerator(name = "gb_permission_id_sequence", sequenceName = "GB_PERMISSION_S"))
     private Long id;
 
     @Column(name = "VERSION", nullable = false)

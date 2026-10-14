@@ -45,23 +45,24 @@ import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.codec.binary.Hex;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.BufferedHttpEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.utils.Hex;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.BufferedHttpEntity;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -83,9 +84,9 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.sakaiproject.serialization.MapperFactory;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -96,6 +97,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -122,7 +124,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private SessionManager sessionManager;
 	
 	@Setter
-	private MemoryService memoryService;
+	private CacheManager cacheManager;
 	
 	@Setter
 	private AuthzGroupService authzGroupService;
@@ -210,6 +212,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private int maxRetryMinutes;
 	private int maxRetry;
 	private boolean skipDelays;
+	private ObjectMapper jsonMapper;
 
 	private final HashMap<String, String> BASE_HEADERS = new HashMap<>();
 	private final HashMap<String, String> SUBMISSION_REQUEST_HEADERS = new HashMap<>();
@@ -225,7 +228,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 	
 	//Caches requests for instructors so that we don't have to send a request for every student
-	private Cache EULA_CACHE;
+	private Cache eulaCache;
 	private static final String EULA_LATEST_KEY = "latest";
 	private static final String EULA_DEFAULT_LOCALE = "en-US";
 	
@@ -311,11 +314,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private String PROP_INDEXING_DISABLED = "turnitin.oc.disable.all.indexing";
 	private boolean indexingDisabled = false;
 	
-	private CloseableHttpAsyncClient client;
+	private CloseableHttpClient client;
 	private ObjectMapper objectMapper;
 
 	public void init() {
-		EULA_CACHE = memoryService.createCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE", new SimpleConfiguration<>(10000, 24 * 60 * 60, -1));
+		jsonMapper = MapperFactory.createDefaultJsonMapper();
+		eulaCache = cacheManager.getCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE");
 		// Retrieve Service URL and API key
 		serviceUrl = serverConfigurationService.getString("turnitin.oc.serviceUrl", "");
 		apiKey = serverConfigurationService.getString("turnitin.oc.apiKey", "");
@@ -380,8 +384,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		CONTENT_UPLOAD_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
 		
 		objectMapper = new ObjectMapper();
-		client = HttpAsyncClients.createDefault();
-		client.start();
+		client = HttpClients.createDefault();
 
 		if(StringUtils.isNotEmpty(apiKey) && StringUtils.isNotEmpty(serviceUrl)) {
 			try {
@@ -760,7 +763,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					break;
 				}
 			}else if (is != null) {
-				HttpEntity entity = new InputStreamEntity(is);
+				HttpEntity entity = new InputStreamEntity(is, ContentType.APPLICATION_OCTET_STREAM);
 				switch (method) {
 				case "POST":
 					((HttpPost) request).setEntity(new BufferedHttpEntity(entity));
@@ -773,13 +776,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				}
 			}
 	
-			Future<HttpResponse> future = client.execute(request, null);
-			HttpResponse httpResponse = future.get();
+			Future<ClassicHttpResponse> future =  client.execute(HttpHost.create(urlStr), request, null, null);
+			ClassicHttpResponse httpResponse = future.get();
 	
 	
 			// Send request:
-			int responseCode = httpResponse.getStatusLine().getStatusCode();
-			String responseMessage = httpResponse.getStatusLine().getReasonPhrase();
+			int responseCode = httpResponse.getCode();
+			String responseMessage = httpResponse.getReasonPhrase();
 			String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
 	
 	
@@ -1739,41 +1742,46 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private Map<String, Object> getLatestEula(){
 		return getLatestEula(null);
 	}
-	
-	private Map<String, Object> getLatestEula(String local){
+
+	private Map<String, Object> getLatestEula(String locale) {
 		String cacheKey = EULA_LATEST_KEY;
-		String localParam = "";
-		if(StringUtils.isNotEmpty(local)) {
-			cacheKey += "-" + local;
-			localParam = "?lang=" + local;
+		String localeParam = "";
+		if (StringUtils.isNotEmpty(locale)) {
+			cacheKey += "-" + locale;
+			localeParam = "?lang=" + locale;
 		}
-		Map<String, Object> eula = null;
-		if(EULA_CACHE.containsKey(cacheKey)) {
-			//EULA is still cached, grab it:
-			Object cacheObj = EULA_CACHE.get(cacheKey);
-			if(cacheObj != null && cacheObj instanceof Map && ((Map<String, Object>) cacheObj).containsKey("url")){
-				eula = ((Map<String, Object>) cacheObj);
-			}
-		}
-		if(eula == null) {
-			//get Eula from API and cache it:
+
+		Map<String, Object> eula = eulaCache.get(cacheKey, Map.class);
+
+		if (!hasValidEulaUrl(eula)) {
+			// get Eula from API and cache it
 			try {
-				Map<String, Object> response = makeHttpCall("GET", getNormalizedServiceUrl() + "eula/" + EULA_LATEST_KEY + localParam, BASE_HEADERS, null, null);
-				String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
-				if(StringUtils.isNotEmpty(responseBody)) {
-					eula = new ObjectMapper().readValue(responseBody, Map.class);
+				Map<String, Object> response = makeHttpCall("GET", getNormalizedServiceUrl() + "eula/" + EULA_LATEST_KEY + localeParam, BASE_HEADERS, null, null);
+				Object responseBodyObject = response.get(RESPONSE_BODY);
+				String responseBody = responseBodyObject instanceof String ? (String) responseBodyObject : "";
+				if (StringUtils.isNotEmpty(responseBody)) {
+					eula = jsonMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {});
 				}
-				if(eula != null && eula.containsKey("url")) {
-					//store in cache:
-					EULA_CACHE.put(cacheKey, eula);
+				if (eula != null && eula.containsKey("url")) {
+					// store in cache
+					eulaCache.put(cacheKey, eula);
 				}
 			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}			
+				log.error("Error retrieving latest EULA for locale: {}", locale, e);
+			}
 		}
 		return eula;
 	}
-	
+
+	private boolean hasValidEulaUrl(Map<String, Object> eula) {
+		if (eula != null) {
+			Object url = eula.get("url");
+			return url instanceof String && StringUtils.isNotEmpty((String) url);
+		}
+		return false;
+	}
+
+
 	private String getUserEulaLocale(String userId) {
 		String userLocale = null;
 		// Check user preference for locale			

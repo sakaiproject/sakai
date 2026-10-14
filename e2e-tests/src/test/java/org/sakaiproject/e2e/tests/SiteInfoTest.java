@@ -29,6 +29,15 @@ class SiteInfoTest extends SakaiUiTestBase {
     private static String sakaiUrl;
 
     @Test
+    void canCreateProjectThroughWorksiteSetup() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createSiteThroughUi("instructor1", List.of("sakai.announcements"), "project");
+        sakai.gotoPath(siteUrl);
+        sakai.toolClick("Announcements");
+        assertThat(page.locator("body")).containsText("Announcements");
+    }
+
+    @Test
     void canOpenManageGroupsHelper() {
         sakai.login("instructor1");
         page.navigate(ensureCourseUrl());

@@ -22,15 +22,15 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
-import org.hibernate.criterion.Order;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
+import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiHistoryObjectDao;
@@ -38,26 +38,37 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiObjectContentDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiCurrentObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiHistoryObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
+import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObjectContent;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 // FIXME: Component
 @Slf4j
 @Transactional(readOnly = true)
-public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
+public class RWikiHistoryObjectDaoImpl implements
 		RWikiHistoryObjectDao, ObjectProxy
 {
+	@Setter private SessionFactory sessionFactory;
+
 
 	private RWikiObjectContentDao contentDAO;
 
 	@Override
 	@Transactional
 	public void update(RWikiHistoryObject rwo) {
+		Session session = sessionFactory.getCurrentSession();
 		// should have already checked
 		RWikiHistoryObjectImpl impl = (RWikiHistoryObjectImpl) rwo;
-		getHibernateTemplate().saveOrUpdate(impl);
-		// and remember to save the content
-		impl.getRWikiObjectContent().setRwikiid(rwo.getId());
-		contentDAO.update(impl.getRWikiObjectContent());
+		RWikiObjectContent content = impl.getRWikiObjectContent();
+
+		RWikiHistoryObjectImpl managed = impl;
+		if (impl.getId() == null) {
+			session.persist(impl);
+		} else if (!session.contains(impl)) {
+			managed = session.merge(impl);
+		}
+
+		content.setRwikiid(managed.getId());
+		contentDAO.update(content);
 	}
 
 	/**
@@ -82,20 +93,15 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(RWikiHistoryObject.class)
-							.add(
-									Expression.eq("rwikiobjectid", rwo
-											.getRwikiobjectid())).add(
-									Expression.eq("revision", Integer.valueOf(
-											revision))).list();
-				}
-			};
-			List found = (List) getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiHistoryObjectImpl> cq = cb.createQuery(RWikiHistoryObjectImpl.class);
+			Root<RWikiHistoryObjectImpl> root = cq.from(RWikiHistoryObjectImpl.class);
+			cq.select(root).where(
+				cb.equal(root.get("rwikiobjectid"), rwo.getRwikiobjectid()),
+				cb.equal(root.get("revision"), revision));
+			List<RWikiHistoryObjectImpl> found = session.createQuery(cq).getResultList();
+
 			if (found.size() == 0)
 			{
 				if (log.isDebugEnabled())
@@ -131,19 +137,16 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(RWikiHistoryObject.class)
-							.add(
-									Expression.eq("rwikiobjectid", reference
-											.getRwikiobjectid())).addOrder(
-									Order.asc("revision")).list();
-				}
-			};
-			List found = (List) getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiHistoryObjectImpl> cq = cb.createQuery(RWikiHistoryObjectImpl.class);
+			Root<RWikiHistoryObjectImpl> root = cq.from(RWikiHistoryObjectImpl.class);
+
+			cq.select(root)
+				.where(cb.equal(root.get("rwikiobjectid"), reference.getRwikiobjectid()))
+				.orderBy(cb.asc(root.get("revision")));
+
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0)
 			{
 				if (log.isDebugEnabled())
@@ -175,19 +178,16 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(RWikiHistoryObject.class)
-							.add(
-									Expression.eq("rwikiobjectid", reference
-											.getRwikiobjectid())).addOrder(
-									Order.desc("revision")).list();
-				}
-			};
-			List found = (List) getHibernateTemplate().execute(callback);
+			Session session = sessionFactory.getCurrentSession();
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<RWikiHistoryObjectImpl> cq = cb.createQuery(RWikiHistoryObjectImpl.class);
+			Root<RWikiHistoryObjectImpl> root = cq.from(RWikiHistoryObjectImpl.class);
+
+			cq.select(root)
+				.where(cb.equal(root.get("rwikiobjectid"), reference.getRwikiobjectid()))
+				.orderBy(cb.desc(root.get("revision")));
+
+			List found = session.createQuery(cq).getResultList();
 			if (found.size() == 0)
 			{
 				if (log.isDebugEnabled())
@@ -236,23 +236,22 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 
 	public List getAll()
 	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				return session.createCriteria(RWikiHistoryObject.class)
-						.addOrder(Order.desc("version")).list();
-			}
-		};
-		return new ListProxy((List) getHibernateTemplate().execute(callback),
+		Session session = sessionFactory.getCurrentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<RWikiHistoryObjectImpl> cq = cb.createQuery(RWikiHistoryObjectImpl.class);
+		Root<RWikiHistoryObjectImpl> root = cq.from(RWikiHistoryObjectImpl.class);
+
+		cq.select(root).orderBy(cb.desc(root.get("version")));
+
+		List found = session.createQuery(cq).getResultList();
+		return new ListProxy(found,
 				this);
 	}
 
 	@Transactional
 	public void updateObject(RWikiObject rwo)
 	{
-		getHibernateTemplate().saveOrUpdate(rwo);
+		sessionFactory.getCurrentSession().merge(rwo);
 	}
 
 }

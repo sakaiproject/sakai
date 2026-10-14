@@ -21,7 +21,7 @@
 
 package org.sakaiproject.portal.service;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.tool.api.Placement;

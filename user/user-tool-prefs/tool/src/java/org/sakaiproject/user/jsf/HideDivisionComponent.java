@@ -21,7 +21,7 @@
 
 package org.sakaiproject.user.jsf;
 
-import javax.faces.component.UIComponentBase;
+import jakarta.faces.component.UIComponentBase;
 
 /**
  * @author Chen Wen
