@@ -110,10 +110,6 @@
       <artifactId>quartz</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jdom</groupId>
-      <artifactId>jdom2</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sakaiproject.tags</groupId>
       <artifactId>tags-api</artifactId>
       <version>${sakai.version}</version>

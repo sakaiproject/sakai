@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.assessment.business.entity;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.Serializable;
@@ -33,7 +35,6 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -493,7 +494,7 @@ public Document getXMLDataModel()
 	Result outputTarget = new StreamResult(out);
 	Transformer tf;
 	try {
-		tf = TransformerFactory.newInstance().newTransformer();
+		tf = Xml.createSecureTransformerFactory().newTransformer();
     	tf.transform(xmlSource, outputTarget);
 	} catch (TransformerException e) {
 		log.debug("cannot serialize"+e);

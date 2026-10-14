@@ -15,10 +15,11 @@
  */
 package org.sakaiproject.importer.impl.translators;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -69,13 +70,10 @@ public class Bb6QtiTranslator implements IMSResourceTranslator {
 
 	public static Document transformDocument(Document document, Document stylesheet) {
 		Document transformedDoc = null;
-		DocumentBuilderFactory builderFactory = 
-			DocumentBuilderFactory.newInstance();
-		builderFactory.setNamespaceAware(true);
 		try {
-			builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-			builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
+			builderFactory.setNamespaceAware(true);
+
 			DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 			transformedDoc = documentBuilder.newDocument();
 		}
@@ -86,7 +84,7 @@ public class Bb6QtiTranslator implements IMSResourceTranslator {
 		DOMResult docResult = new DOMResult(transformedDoc);
 		DOMSource xslSource = new DOMSource(stylesheet);
 		Transformer transformer = null;
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		TransformerFactory transformerFactory = Xml.createSecureTransformerFactory();
 
 		try {
 			transformer = transformerFactory.newTransformer(xslSource);
@@ -157,7 +155,7 @@ public class Bb6QtiTranslator implements IMSResourceTranslator {
 
 	private DocumentBuilder getDocumentBuilder() throws ParserConfigurationException
 	{
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
 		dbf.setNamespaceAware(true);
 
 		return dbf.newDocumentBuilder();

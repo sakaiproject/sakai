@@ -23,6 +23,8 @@
 
 package org.radeox.filter;
 
+import org.sakaiproject.util.Xml;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.engine.context.InitialRenderContext;
@@ -36,7 +38,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
 
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -67,10 +68,8 @@ public class XHTMLFilter implements Filter, CacheFilter {
     private final Map<String, List<String>> blockElements = new HashMap<>();
     private final Map<String, String> emptyTag = new HashMap<>();
     private final Map<String, String> ignoreEmpty = new HashMap<>();
-    private final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 
     public XHTMLFilter() {
-        saxParserFactory.setNamespaceAware(true);
         List<String> p = List.of("p");
         blockElements.put("hr", p); // hr cant be nested inside p
         blockElements.put("h1", p);
@@ -118,7 +117,7 @@ public class XHTMLFilter implements Filter, CacheFilter {
 
             deblockFilter.setBlockElements(blockElements);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+            SAXTransformerFactory transformerFactory = (SAXTransformerFactory) Xml.createSecureTransformerFactory();
             TransformerHandler transformerHandler = transformerFactory.newTransformerHandler();
             Transformer transformer = transformerHandler.getTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
@@ -130,7 +129,7 @@ public class XHTMLFilter implements Filter, CacheFilter {
             transformerHandler.setResult(new StreamResult(outputStream));
             emptyFilter.setContentHandler(transformerHandler);
 
-            SAXParser parser = saxParserFactory.newSAXParser();
+            SAXParser parser = Xml.createSecureSAXParser(true);
 
             XMLReader xmlReader = parser.getXMLReader();
 

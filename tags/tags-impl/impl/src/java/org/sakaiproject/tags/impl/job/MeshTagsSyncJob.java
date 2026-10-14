@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tags.impl.job;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -102,7 +104,7 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 					throw new XMLStreamException("Expected MeSH DescriptorRecordSet root");
 				}
 				xsr.nextTag();
-				TransformerFactory tf = TransformerFactory.newInstance();
+				TransformerFactory tf = Xml.createSecureTransformerFactory();
 				Transformer t = tf.newTransformer();
 
 				while (hasImportElement(xsr)) {

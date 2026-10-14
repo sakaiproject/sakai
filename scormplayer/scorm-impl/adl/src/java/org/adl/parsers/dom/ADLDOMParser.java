@@ -23,16 +23,11 @@
 ******************************************************************************/
 package org.adl.parsers.dom;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PushbackInputStream;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,15 +38,19 @@ import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.util.LogMessage;
 import org.adl.util.MessageType;
 import org.adl.util.Messages;
-import org.apache.xerces.dom.TextImpl;
-import org.apache.xerces.parsers.DOMParser;
+import org.w3c.dom.Text;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.validation.Schema;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -59,7 +58,7 @@ import org.xml.sax.SAXParseException;
  * <strong>Filename: </strong>ADLDOMParser.java<br><br>
  *
  * <strong>Description:</strong><br>The <code>ADLDOMParser</code> object interfaces
- * with the open-source org.apache.xerces.dom.DomParser class to encapsulate
+ * with the open-source shared hardened JAXP parser to encapsulate
  * and provide parsing activities  - including well-formedness and validation
  * against the schema(s) checks. This object creates a DOM in memory if 
  * wellformedness is found. A DOM object is also created in memory after 
@@ -74,9 +73,9 @@ public class ADLDOMParser implements ErrorHandler {
 	 * Performs the parsing activities, including the
 	 * parse for wellformedness and the parse for validation to the controlling
 	 * document.  This attribute represents an instance of the
-	 * org.apache.xerces.dom.DomParser class.
+	 * shared hardened JAXP parser.
 	 */
-	private DOMParser mParser;
+	private DocumentBuilder mParser;
 
 	/**
 	 * The <code>Document</code> object is an electronic representation of the
@@ -305,64 +304,37 @@ public class ADLDOMParser implements ErrorHandler {
 	 * setting schema locations, turning on/off namespaces, etc.  This method
 	 * must be called prior to any attempts to parse.   
 	 */
-	private void configureParser() {
-		log.debug("configureParser()");
-
-		// instantiate the Xerces DOMParser object to use the default
-		// configuration
-
-		//The default configuration is to allow xml 1.0 and 1.1 parsing
-		mParser = new DOMParser();
-
-		if (mParser != null) {
-			// check to see if we are configuring a validating or non-validating
-			//parser
-			if (mStateIsValidating) // configuring a validating parser
-			{
-				if (mSchemaLocation != null) {
-					try {
-						mParser.setFeature("http://xml.org/sax/features/validation", true);
-						mParser.setFeature("http://apache.org/xml/features/validation/schema", true);
-						mParser.setFeature("http://xml.org/sax/features/namespaces", true);
-						mParser.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false);
-
-						log.debug("setting schemas to - " + mSchemaLocation);
-
-						mParser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation", mSchemaLocation);
-
-						mParser.setErrorHandler(this);
-					} catch (SAXException se) {
-						String msgText = Messages.getString("ADLDOMParser.30");
-						log.error(msgText);
-						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.TERMINATE, msgText));
-					}
-				} else {
-					String msgText = "Schema Location(s) not set";
-					log.error("SEVERE: " + msgText);
-
+	private void configureParser(File schemaDirectory) {
+		mParser = null;
+		try {
+			Schema schema = null;
+			if (mStateIsValidating) {
+				if (mSchemaLocation == null) {
 					mValidFlag = false;
+					return;
 				}
-			} else // configuring a non-validating parser
-			{
-				try {
-					mParser.setFeature("http://xml.org/sax/features/validation", false);
-					mParser.setFeature("http://xml.org/sax/features/namespaces", true);
-					mParser.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false);
-
-					mParser.setErrorHandler(this);
-				} catch (SAXException se) {
-					String msgText = Messages.getString("ADLDOMParser.36");
-
-					log.error("TERMINATE: " + msgText);
-					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.TERMINATE, msgText));
+				List<File> schemas = new ArrayList<>();
+				StringTokenizer locations = new StringTokenizer(mSchemaLocation);
+				while (locations.hasMoreTokens()) {
+					locations.nextToken(); // namespace
+					URI location = URI.create(locations.nextToken());
+					if (!"file".equalsIgnoreCase(location.getScheme())) {
+						mValidFlag = false;
+						String message = "SCORM schema must be a package-local file: " + location;
+						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, message));
+						log.warn("{}", message);
+						return;
+					}
+					schemas.add(new File(location));
 				}
+				schema = Xml.createSecureSchema(schemaDirectory, schemas);
 			}
-		} else {
-			String msgText = Messages.getString("ADLDOMParser.38");
-			log.error("TERMINATE: " + msgText);
-			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.TERMINATE, msgText));
+			mParser = Xml.createSecureDocumentBuilderFactory(schema).newDocumentBuilder();
+			mParser.setErrorHandler(this);
+		} catch (Exception e) {
+			mValidFlag = false;
+			log.error("Unable to configure secure SCORM XML parser", e);
 		}
-		log.debug("configureParser()");
 	}
 
 	/**
@@ -544,7 +516,7 @@ public class ADLDOMParser implements ErrorHandler {
 		log.debug("parseForValidation()");
 		log.debug("   iXMLFileName coming in is " + iXMLFileName);
 
-		configureParser();
+		configureParser(new File(searchFile(iXMLFileName, "xml")).getParentFile());
 
 		Document wellformednessDocument = null;
 		String msgText;
@@ -557,8 +529,7 @@ public class ADLDOMParser implements ErrorHandler {
 					msgText = "Parsing for Well-Formedness first to obtain document";
 					log.debug(msgText);
 
-					mParser.parse(setUpInputSource(fileName));
-					wellformednessDocument = mParser.getDocument();
+					wellformednessDocument = parseXmlFile(fileName);
 
 					if (wellformednessDocument != null) {
 						mIsXMLWellformed = true;
@@ -579,7 +550,7 @@ public class ADLDOMParser implements ErrorHandler {
 					//we have wellformed XML, now parsing for validity to xsd(s)
 					mStateIsValidating = true;
 
-					configureParser();
+					configureParser(new File(searchFile(iXMLFileName, "xml")).getParentFile());
 
 					if (mParser != null) {
 						msgText = Messages.getString("ADLDOMParser.81");
@@ -591,7 +562,7 @@ public class ADLDOMParser implements ErrorHandler {
 							mValidFlag = false;
 						} else {
 							try {
-								mParser.parse(setUpInputSource(fileName));
+								wellformednessDocument = parseXmlFile(fileName);
 
 							} catch (SAXException se) {
 								msgText = "SAXException thrown during validating" + " parse";
@@ -660,7 +631,7 @@ public class ADLDOMParser implements ErrorHandler {
 		log.debug("   iXMLFileName coming in is " + iXMLFileName);
 		log.debug("   iLogRelated coming in is " + iLogRelated);
 
-		configureParser();
+		configureParser(null);
 
 		Document wellformednessDocument = null;
 		String msgText;
@@ -675,7 +646,9 @@ public class ADLDOMParser implements ErrorHandler {
 				}
 
 				//gets an input source from the URL passed in.
-				mParser.parse(new InputSource(iXMLFileName.openStream()));
+				try (InputStream input = iXMLFileName.openStream()) {
+					wellformednessDocument = mParser.parse(input);
+				}
 
 				msgText = "The XML is Well-formed";
 				log.debug(msgText);
@@ -683,7 +656,6 @@ public class ADLDOMParser implements ErrorHandler {
 				if (iLogRelated) {
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 				}
-				wellformednessDocument = mParser.getDocument();
 
 				if (wellformednessDocument != null) {
 					mIsXMLWellformed = true;
@@ -730,7 +702,7 @@ public class ADLDOMParser implements ErrorHandler {
 		log.debug("   iXMLFileName coming in is " + iXMLFileName);
 		log.debug("   iLogRelated coming in is " + iLogRelated);
 
-		configureParser();
+		configureParser(new File(searchFile(iXMLFileName, "xml")).getParentFile());
 
 		Document wellformednessDocument = null;
 		String msgText;
@@ -753,14 +725,13 @@ public class ADLDOMParser implements ErrorHandler {
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 					}
 
-					mParser.parse(setUpInputSource(fileName));
+					wellformednessDocument = parseXmlFile(fileName);
 					msgText = Messages.getString("ADLDOMParser.53");
 					log.debug(msgText);
 
 					if (iLogRelated) {
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 					}
-					wellformednessDocument = mParser.getDocument();
 
 					if (wellformednessDocument != null) {
 						mIsXMLWellformed = true;
@@ -925,10 +896,10 @@ public class ADLDOMParser implements ErrorHandler {
 						}
 					} // end if NodeType == ELEMENT_NODE
 
-					if (childNode instanceof TextImpl) {
+					if (childNode instanceof Text) {
 						value = children.item(z).getNodeValue().trim();
 
-						if (((TextImpl) children.item(z)).isIgnorableWhitespace()) {
+						if (((Text) children.item(z)).isElementContentWhitespace()) {
 							iNode.removeChild(children.item(z));
 							z--;
 						} else if (value.length() == 0) {
@@ -1067,135 +1038,23 @@ public class ADLDOMParser implements ErrorHandler {
 	}
 
 	/**
-	 * Sets up the file source for the test subject file.
-	 *
-	 * @param iFileName file to setup input source for.
-	 *
-	 * @return InputSource
+	 * Parses the test subject while keeping ownership of its input stream.
+	 * The XML parser detects the encoding from the byte stream.
 	 */
-	private InputSource setupFileSource(String iFileName) {
-		log.debug("setupFileSource()");
-		String msgText;
-		boolean defaultEncoding = true;
-		String encoding = null;
-		PushbackInputStream inputStream;
-		FileInputStream inFile;
-
-		try {
-			File xmlFile = new File(iFileName);
-			log.debug(xmlFile.getAbsolutePath());
-
-			if (xmlFile.isFile()) {
-				InputSource is = null;
-
-				defaultEncoding = true;
-				if (xmlFile.length() > 1) {
-					inFile = new FileInputStream(xmlFile);
-					inputStream = new PushbackInputStream(inFile, 4);
-
-					// Reads the initial 4 bytes of the file to check for a Byte
-					// Order Mark and determine the encoding
-
-					byte bom[] = new byte[4];
-					int n, pushBack;
-					n = inputStream.read(bom, 0, bom.length);
-
-					// UTF-8 Encoded
-					if ((bom[0] == (byte) 0xEF) && (bom[1] == (byte) 0xBB) && (bom[2] == (byte) 0xBF)) {
-						encoding = "UTF-8";
-						defaultEncoding = false;
-						pushBack = n - 3;
-					}
-					// UTF-16 Big Endian Encoded
-					else if ((bom[0] == (byte) 0xFE) && (bom[1] == (byte) 0xFF)) {
-						encoding = "UTF-16BE";
-						defaultEncoding = false;
-						pushBack = n - 2;
-					}
-					// UTF-16 Little Endian Encoded               
-					else if ((bom[0] == (byte) 0xFF) && (bom[1] == (byte) 0xFE)) {
-						encoding = "UTF-16LE";
-						defaultEncoding = false;
-						pushBack = n - 2;
-					}
-					// Default encoding
-					else {
-						// Unicode BOM mark not found, unread all bytes                  
-						pushBack = n;
-					}
-
-					// Place any non-BOM bytes back into the stream
-					if (pushBack > 0) {
-						inputStream.unread(bom, (n - pushBack), pushBack);
-					}
-
-					if (defaultEncoding == true) { //Reads in ASCII file.
-						FileReader fr = new FileReader(xmlFile);
-						is = new InputSource(fr);
-					}
-					// Reads the file in the determined encoding
-					else {
-						StringBuffer dataString;
-						try ( //Creates a buffer with the size of the xml encoded file
-								BufferedReader inStream = new BufferedReader(new InputStreamReader(inputStream, encoding)))
-						{
-							dataString = new StringBuffer();
-							String s = "";
-							//Builds the encoded file to be parsed
-							while ((s = inStream.readLine()) != null) {
-								dataString.append(s);
-							}
-						}
-						inputStream.close();
-						inFile.close();
-						is = new InputSource(new StringReader(dataString.toString()));
-						is.setEncoding(encoding);
-					}
-				}
-				return is;
-			} else if ((iFileName.length() > 6) && (iFileName.substring(0, 5).equals("http:") || iFileName.substring(0, 6).equals("https:"))) {
-				URL xmlURL = new URL(iFileName);
-				InputStream xmlIS = xmlURL.openStream();
-				InputSource is = new InputSource(xmlIS);
-				return is;
-			} else {
-				msgText = "XML File: " + iFileName + " is not a file or URL";
-				log.error(msgText);
+	private Document parseXmlFile(String fileName) throws IOException, SAXException {
+		File file = new File(fileName);
+		if (file.isFile()) {
+			try (InputStream input = new FileInputStream(file)) {
+				return mParser.parse(input, file.toURI().toString());
 			}
-		} catch (NullPointerException npe) {
-			msgText = "Null pointer exception" + npe;
-			log.error(msgText);
-		} catch (SecurityException se) {
-			msgText = "Security Exception" + se;
-			log.error(msgText);
-		} catch (FileNotFoundException fnfe) {
-			msgText = "File Not Found Exception" + fnfe;
-			log.error(msgText);
-		} catch (Exception e) {
-			msgText = "General Exception" + e;
-			log.error(msgText);
 		}
-
-		log.debug("setUpFileSource()");
-
-		return new InputSource();
-	}
-
-	/**
-	 * This method sets up the input source for the test subject file.
-	 *
-	 * @param iFileName The name of the file we are are setting up the input 
-	 * source for.
-	 *
-	 * @return Returns an input source needed for parsing
-	 */
-	private InputSource setUpInputSource(String iFileName) {
-		log.debug("setUpInputSource()");
-		InputSource is = new InputSource();
-		is = setupFileSource(iFileName);
-
-		log.debug("setUpInputSource()");
-		return is;
+		if (fileName.startsWith("http:") || fileName.startsWith("https:")) {
+			URL url = new URL(fileName);
+			try (InputStream input = url.openStream()) {
+				return mParser.parse(input, url.toExternalForm());
+			}
+		}
+		throw new FileNotFoundException("XML file not found: " + fileName);
 	}
 
 	/**

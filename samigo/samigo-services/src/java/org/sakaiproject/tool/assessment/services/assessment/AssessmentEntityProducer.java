@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.tool.assessment.services.assessment;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,10 +34,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.Stack;
 import java.util.TreeSet;
-import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -72,7 +72,6 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
@@ -645,7 +644,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 				for (Object itemObj : pool.getQuestionPoolItems()) {
 				    try {
-
 					QuestionPoolItemData item = (QuestionPoolItemData)itemObj;
 					Document qpItem = qtiService.getExportedItem(String.valueOf(item.getItemId()), QTI_VERSION);
 					NodeList nodes = qpItem.getChildNodes();
@@ -698,7 +696,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				File file = new File(xmlPath);
 				writer = new FileWriter(file);
 
-				TransformerFactory tFactory = TransformerFactory.newInstance();
+				TransformerFactory tFactory = Xml.createSecureTransformerFactory();
 				Transformer transformer = tFactory.newTransformer();
 
 				DOMSource source = new DOMSource(doc);

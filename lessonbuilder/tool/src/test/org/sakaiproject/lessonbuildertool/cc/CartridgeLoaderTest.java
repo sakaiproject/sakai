@@ -35,6 +35,26 @@ public class CartridgeLoaderTest {
     @Rule public TemporaryFolder temporary = new TemporaryFolder();
 
     @Test
+    public void readsManifestAndLegacyQtiResource() throws Exception {
+        Path root = temporary.newFolder("cartridge").toPath();
+        Files.writeString(root.resolve("imsmanifest.xml"),
+                "<manifest xmlns='http://www.imsglobal.org/xsd/imsccv1p1/imscp_v1p1' identifier='course'>"
+                + "<organizations><organization identifier='org'><item identifier='item' identifierref='quiz'>"
+                + "<title>Quiz</title></item></organization></organizations><resources>"
+                + "<resource identifier='quiz' type='imsqti_xmlv1p2/imscc_xmlv1p1/assessment' href='quiz.xml'>"
+                + "<file href='quiz.xml'/></resource></resources></manifest>");
+        Files.writeString(root.resolve("quiz.xml"),
+                "<!DOCTYPE questestinterop SYSTEM 'ims_qtiasiv1p2p1.dtd'><questestinterop>"
+                + "<assessment ident='quiz' title='Quiz'><section ident='section'><item ident='question'>"
+                + "<presentation><material><mattext>Question</mattext></material></presentation>"
+                + "</item></section></assessment></questestinterop>");
+        CartridgeLoader loader = ZipLoader.getUtilities(root.toString());
+        Parser parser = Parser.createCartridgeParser(loader);
+        assertEquals("course", parser.getXML(loader, "imsmanifest.xml").getAttributeValue("identifier"));
+        assertEquals("Quiz", parser.getXML(loader, "quiz.xml").getChild("assessment").getAttributeValue("title"));
+    }
+
+    @Test
     public void rejectsTraversalIntoSiblingWithSameDirectoryPrefix() throws IOException {
         Path archive = temporary.newFile("package.zip").toPath();
         Path parent = temporary.newFolder("extraction").toPath();

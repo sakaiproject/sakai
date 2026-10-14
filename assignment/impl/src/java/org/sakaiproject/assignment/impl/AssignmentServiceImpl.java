@@ -15,12 +15,13 @@
  */
 package org.sakaiproject.assignment.impl;
 
+import org.sakaiproject.util.Xml;
+
 import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 import static org.sakaiproject.assignment.api.model.Assignment.Access.*;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,11 +65,9 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import jakarta.annotation.Resource;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -100,7 +99,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.sort.AnonymousSubmissionComparator;
@@ -194,7 +192,6 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -347,7 +344,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             try {
                 InputSource in = new InputSource(new StringReader(xml));
-                Document assignmentDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
+                Document assignmentDocument = Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder().parse(in);
                 Element assignmentElement = assignmentDocument.getDocumentElement();
 
                 if ( assignment.getContentId() != null ) {

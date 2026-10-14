@@ -78,6 +78,8 @@
 
 package org.sakaiproject.dav;
 
+import org.sakaiproject.util.Xml;
+
 import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
 
 import java.io.ByteArrayInputStream;
@@ -1010,12 +1012,8 @@ public class DavServlet extends HttpServlet
 		try
 		{
 			documentBuilderFactory =
-				DocumentBuilderFactory.newInstance();
+				Xml.createSecureDocumentBuilderFactory(false);
 			documentBuilderFactory.setNamespaceAware(true);
-			documentBuilderFactory.setExpandEntityReferences(false);
-			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false); 
-			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); 
-
 			documentBuilder =
 				documentBuilderFactory.newDocumentBuilder();
 		}
@@ -2343,11 +2341,8 @@ public class DavServlet extends HttpServlet
 
 	    DocumentBuilder documentBuilder = null;
 	    try {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory factory = Xml.createSecureDocumentBuilderFactory(false);
 		factory.setNamespaceAware(true);
-		factory.setFeature("http://xml.org/sax/features/external-general-entities", false); 
-		factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); 
-
 		documentBuilder = factory.newDocumentBuilder();
 	    } catch (Exception e) {
 		resp.sendError(SakaidavStatus.SC_METHOD_FAILURE);
@@ -2720,7 +2715,6 @@ public class DavServlet extends HttpServlet
 
 		try
 		{
-
 			ContentResourceEdit edit;
 
 			boolean newfile = false;
@@ -3731,7 +3725,6 @@ public class DavServlet extends HttpServlet
 
 	ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
 	try {
-
 	    if (properties == null) return resourceProperties;
 
 	    // loop throuh the properties
