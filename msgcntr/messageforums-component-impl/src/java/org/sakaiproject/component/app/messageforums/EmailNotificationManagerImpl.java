@@ -151,7 +151,7 @@ public class EmailNotificationManagerImpl implements EmailNotificationManager {
 
 			// create a new emailnotification if this user doesn't have a record
 			// yet
-			saveEmailNotification(newEmailNotification);
+			newEmailNotification = saveEmailNotification(newEmailNotification);
 
 			log.debug("{} didn't set watch options, creating EmailNotification with level: {}",
 					userId, newEmailNotification.getNotificationLevel());
@@ -257,12 +257,13 @@ public class EmailNotificationManagerImpl implements EmailNotificationManager {
 
 	}
 
-	public void saveEmailNotification(EmailNotification emailoption) {
+	public EmailNotification saveEmailNotification(EmailNotification emailoption) {
 		Session session = sessionFactory.getCurrentSession();
 		emailoption = session.merge(emailoption);
 		
 		log.debug("saveEmailNotification executed for contextid={} userid={}",
 				emailoption.getContextId(), emailoption.getUserId());
+		return emailoption;
 
 	}
 

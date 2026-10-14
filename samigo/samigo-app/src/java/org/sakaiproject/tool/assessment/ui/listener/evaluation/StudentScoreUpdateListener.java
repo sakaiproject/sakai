@@ -312,13 +312,13 @@ public class StudentScoreUpdateListener
 
     public void updateAttachment(DeliveryBean delivery){
     	List<SectionContentsBean> parts = delivery.getPageContents().getPartsContents();
-    	List<ItemGradingAttachment> attachmentList = new ArrayList();
     	for (SectionContentsBean part : parts) {
     		List<ItemContentsBean> items = part.getItemContents();
     		for (ItemContentsBean question : items) {
     			List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
     			log.debug("Gradingarray length2 = " + gradingarray.size());
     			for (ItemGradingData itemGradingData : gradingarray) {
+					List<ItemGradingAttachment> attachmentList = new ArrayList<>();
 					Set<ItemGradingAttachment> oldList = itemGradingData.getItemGradingAttachmentSet();
     				List<ItemGradingAttachment> newList = question.getItemGradingAttachmentList();
     				if ((oldList == null || oldList.isEmpty()) && (newList == null || newList.isEmpty())) {

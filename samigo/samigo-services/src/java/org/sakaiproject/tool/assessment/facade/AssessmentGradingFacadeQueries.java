@@ -780,7 +780,7 @@ public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQu
             try {
                 saveMediaToContent(mediaData);
                 Session session = sessionFactory.getCurrentSession();
-                session.merge(mediaData);
+                mediaData = session.merge(mediaData);
                 retryCount = 0;
             } catch (Exception e) {
                 log.warn("problem saving media: " + e.toString());
@@ -4261,7 +4261,11 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             Session session = sessionFactory.getCurrentSession();
             for (AttachmentIfc attachment : list) {
                 if (attachment != null) {
-                    session.merge(attachment);
+                    if (attachment.getAttachmentId() == null || attachment.getAttachmentId() == 0) {
+                        session.persist(attachment);
+                    } else {
+                        session.merge(attachment);
+                    }
                 }
             }
         } catch (Exception e) {

@@ -154,9 +154,9 @@ public interface AssessmentFacadeQueriesAPI {
 
 	public void deleteAllSecuredIP(AssessmentIfc assessment);
 
-	public void saveOrUpdate(AssessmentFacade assessment);
+	public AssessmentData saveOrUpdate(AssessmentFacade assessment);
 
-	public void saveOrUpdate(AssessmentTemplateData template);
+	public AssessmentTemplateData saveOrUpdate(AssessmentTemplateData template);
 
 	public void deleteTemplate(Long templateId);
 

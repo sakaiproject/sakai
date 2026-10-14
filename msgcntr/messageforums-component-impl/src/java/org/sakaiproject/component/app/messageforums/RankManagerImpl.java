@@ -126,11 +126,11 @@ public class RankManagerImpl implements RankManager {
         return presentSiteId;
     }
 
-    public void saveRank(Rank rank) {
+    public Rank saveRank(Rank rank) {
         if (!isRanksEnabled())
         {
             log.warn("saveRank invoked, but ranks are disabled");
-            return;
+            return rank;
         }
         Session session = sessionFactory.getCurrentSession();
         rank.setUuid(getNextUuid());
@@ -141,6 +141,7 @@ public class RankManagerImpl implements RankManager {
         rank.setContextId(getContextId());
         rank = session.merge(rank);
         if (log.isDebugEnabled()) log.debug("saveRank executed for rank = " + rank.getTitle() + " contextid = " + rank.getContextId());
+        return rank;
     }
 
     public List getRankList(final String contextId) {
@@ -346,8 +347,7 @@ public class RankManagerImpl implements RankManager {
             String tempString = cr.getUrl();
             attach.setAttachmentUrl(resourceUrlEscaping(tempString));
 
-            session.merge(attach);
-
+            session.persist(attach);
             return attach;
         } catch (Exception e) {
             log.error(e.getMessage(), e);

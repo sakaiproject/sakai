@@ -979,7 +979,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		}
 	}
 
-	public void saveOrUpdate(AssessmentFacade assessment) {
+	public AssessmentData saveOrUpdate(AssessmentFacade assessment) {
 		Session session = sessionFactory.getCurrentSession();
 		AssessmentData data = (AssessmentData) assessment.getData();
 		data.setLastModifiedBy(AgentFacade.getAgentString());
@@ -988,7 +988,8 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		data.setCategoryId(assessment.getCategoryId());
 		while (retryCount > 0) {
 			try {
-				session.merge(data);
+				data = session.merge(data);
+				Hibernate.initialize(data.getSectionSet());
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save new settings: " + e.getMessage());
@@ -996,6 +997,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 						retryCount);
 			}
 		}
+		return data;
 	}
 
 	public void deleteAllMetaData(AssessmentBaseIfc t) {
@@ -1028,14 +1030,14 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		}
 	}
 
-	public void saveOrUpdate(final AssessmentTemplateData template) {
+	public AssessmentTemplateData saveOrUpdate(AssessmentTemplateData template) {
 		Session session = sessionFactory.getCurrentSession();
 		template.setLastModifiedBy(AgentFacade.getAgentString());
 		template.setLastModifiedDate(new Date());
 		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
-				session.merge(template);
+				template = session.merge(template);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update template: " + e.getMessage());
@@ -1043,6 +1045,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 						retryCount);
 			}
 		}
+		return template;
 	}
 
 	public void deleteTemplate(Long templateId) {
