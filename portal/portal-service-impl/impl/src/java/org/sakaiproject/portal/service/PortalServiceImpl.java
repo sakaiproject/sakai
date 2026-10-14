@@ -93,6 +93,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -124,6 +125,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	private Map<String, Portal> portals = new ConcurrentHashMap<>();
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
 	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
+	@Setter private TransactionTemplate transactionTemplate;
 
 	public static final int DEFAULT_MAX_RECENT_SITES = 3;
 
@@ -154,101 +156,113 @@ public class PortalServiceImpl implements PortalService, Observer
 		switch (eventName) {
 			case UsageSessionService.EVENT_LOGIN_CONTAINER:
 			case UsageSessionService.EVENT_LOGIN: {
-				Session sakaiSession = sessionManager.getCurrentSession();
-				boolean justLoggedIn = BooleanUtils.toBoolean((Boolean) sakaiSession.getAttribute(Session.JUST_LOGGED_IN));
-				String userId = sakaiSession.getUserId();
-				if (justLoggedIn && userId != null && userId.equals(event.getUserId())) {
-					syncUserSitesWithPortalNav(userId);
-				}
+				transactionTemplate.executeWithoutResult(status -> {
+					Session sakaiSession = sessionManager.getCurrentSession();
+					boolean justLoggedIn = BooleanUtils.toBoolean((Boolean) sakaiSession.getAttribute(Session.JUST_LOGGED_IN));
+					String userId = sakaiSession.getUserId();
+					if (justLoggedIn && userId != null && userId.equals(event.getUserId())) {
+						syncUserSitesWithPortalNav(userId);
+					}
+				});
 				break;
 			}
 			case SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD: {
-                String userId = userDirectoryService.idFromReference(event.getResource());
-                if (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, event.getContext())) {
-                    addPinnedSite(userId, event.getContext(), true);
-                }
+				transactionTemplate.executeWithoutResult(status -> {
+                    String userId = userDirectoryService.idFromReference(event.getResource());
+                    if (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, event.getContext())) {
+                        addPinnedSite(userId, event.getContext(), true);
+                    }
+				});
 				break;
 			}
 			case SiteService.SECURE_ADD_SITE:
 			case SiteService.EVENT_SITE_PUBLISH: {
-				final String siteId = siteService.idFromSiteReference(event.getResource());
-				try {
-					AuthzGroup azg = authzGroupService.getAuthzGroup(event.getResource());
-					azg.getUsers().stream()
-							.filter(u -> !isSiteUnpinnedByUser(u, siteId) && (canUserUpdateSite(u, siteId) || isUserActiveMemberInSite(u, siteId)))
-							.forEach(u -> addPinnedSite(u, siteId, true));
-				} catch (GroupNotDefinedException gnde) {
-					log.warn("Could not access AuthzGroup with id [{}], {}", event.getResource(), gnde.toString());
-				}
+				transactionTemplate.executeWithoutResult(status -> {
+					final String siteId = siteService.idFromSiteReference(event.getResource());
+					try {
+						AuthzGroup azg = authzGroupService.getAuthzGroup(event.getResource());
+						azg.getUsers().stream()
+								.filter(u -> !isSiteUnpinnedByUser(u, siteId) && (canUserUpdateSite(u, siteId) || isUserActiveMemberInSite(u, siteId)))
+								.forEach(u -> addPinnedSite(u, siteId, true));
+					} catch (GroupNotDefinedException gnde) {
+						log.warn("Could not access AuthzGroup with id [{}], {}", event.getResource(), gnde.toString());
+					}
+				});
 				break;
 			}
 			case SiteService.EVENT_SITE_UNPUBLISH: {
-				try {
-					final String siteId = siteService.idFromSiteReference(event.getResource());
-					AuthzGroup azg = authzGroupService.getAuthzGroup(event.getResource());
-					azg.getUsers().forEach(u -> {
-						if (!canUserUpdateSite(u, siteId)) {
-							// Remove pinned site if it actually exists and was not explicitly unpinned
-							if (!isSiteUnpinnedByUser(u, siteId)) {
-								removePinnedSite(u, siteId);
-							}
+				transactionTemplate.executeWithoutResult(status -> {
+					try {
+						final String siteId = siteService.idFromSiteReference(event.getResource());
+						AuthzGroup azg = authzGroupService.getAuthzGroup(event.getResource());
+						azg.getUsers().forEach(u -> {
+							if (!canUserUpdateSite(u, siteId)) {
+								// Remove pinned site if it actually exists and was not explicitly unpinned
+								if (!isSiteUnpinnedByUser(u, siteId)) {
+									removePinnedSite(u, siteId);
+								}
 
-							List<RecentSite> recentSites = recentSiteRepository.findByUserId(u);
-							for (RecentSite recentSite : recentSites) {
-								if (StringUtils.equals(recentSite.getSiteId(), siteId)) {
-									removeRecentSite(u, siteId);
-									break;
+								List<RecentSite> recentSites = recentSiteRepository.findByUserId(u);
+								for (RecentSite recentSite : recentSites) {
+									if (StringUtils.equals(recentSite.getSiteId(), siteId)) {
+										removeRecentSite(u, siteId);
+										break;
+									}
 								}
 							}
-						}
-					});
-				} catch (GroupNotDefinedException gnde) {
-					log.warn("Could not access AuthzGroup with id [{}], {}", event.getResource(), gnde.toString());
-				}
+						});
+					} catch (GroupNotDefinedException gnde) {
+						log.warn("Could not access AuthzGroup with id [{}], {}", event.getResource(), gnde.toString());
+					}
+				});
 				break;
 			}
 			case SiteService.SECURE_UPDATE_SITE_MEMBERSHIP: {
-				Set<String> pinnedUserIds = pinnedSiteRepository.findBySiteId(event.getContext()).stream()
-						.map(PinnedSite::getUserId)
-						.collect(Collectors.toSet());
+				transactionTemplate.executeWithoutResult(status -> {
+					Set<String> pinnedUserIds = pinnedSiteRepository.findBySiteId(event.getContext()).stream()
+							.map(PinnedSite::getUserId)
+							.collect(Collectors.toSet());
 
-				Set<String> recentUserIds = recentSiteRepository.findBySiteId(event.getContext()).stream()
-						.map(RecentSite::getUserId)
-						.collect(Collectors.toSet());
+					Set<String> recentUserIds = recentSiteRepository.findBySiteId(event.getContext()).stream()
+							.map(RecentSite::getUserId)
+							.collect(Collectors.toSet());
 
-				if (recentUserIds.isEmpty() && pinnedUserIds.isEmpty()) {
-					return;
-				}
+					if (recentUserIds.isEmpty() && pinnedUserIds.isEmpty()) {
+						return;
+					}
 
-				try {
-					Site site = siteService.getSite(event.getContext());
-					Set<String> siteUsers = site.getUsers();
+					try {
+						Site site = siteService.getSite(event.getContext());
+						Set<String> siteUsers = site.getUsers();
 
-					pinnedUserIds.forEach(userId -> {
-						if (!siteUsers.contains(userId)) {
-							pinnedSiteRepository.deleteByUserIdAndSiteId(userId, event.getContext());
-						}
-					});
-					recentUserIds.forEach(userId -> {
-						if (!siteUsers.contains(userId)) {
-							recentSiteRepository.deleteByUserIdAndSiteId(userId, event.getContext());
-						}
-					});
-					siteUsers.forEach(userId -> {
-						if (!pinnedUserIds.contains(userId)
-								&& (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, event.getContext()))) {
-							addPinnedSite(userId, event.getContext(), true);
-						}
-					});
-				} catch (IdUnusedException idue) {
-					log.warn("No site for {} while cleaning up pinned sites, {}", event.getContext(), idue.toString());
-				}
+						pinnedUserIds.forEach(userId -> {
+							if (!siteUsers.contains(userId)) {
+								pinnedSiteRepository.deleteByUserIdAndSiteId(userId, event.getContext());
+							}
+						});
+						recentUserIds.forEach(userId -> {
+							if (!siteUsers.contains(userId)) {
+								recentSiteRepository.deleteByUserIdAndSiteId(userId, event.getContext());
+							}
+						});
+						siteUsers.forEach(userId -> {
+							if (!pinnedUserIds.contains(userId)
+									&& (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, event.getContext()))) {
+								addPinnedSite(userId, event.getContext(), true);
+							}
+						});
+					} catch (IdUnusedException idue) {
+						log.warn("No site for {} while cleaning up pinned sites, {}", event.getContext(), idue.toString());
+					}
+				});
 				break;
 			}
 			case SiteService.SECURE_REMOVE_SITE:
 			case SiteService.SOFT_DELETE_SITE: {
-				pinnedSiteRepository.deleteBySiteId(event.getContext());
-				recentSiteRepository.deleteBySiteId(event.getContext());
+				transactionTemplate.executeWithoutResult(status -> {
+					pinnedSiteRepository.deleteBySiteId(event.getContext());
+					recentSiteRepository.deleteBySiteId(event.getContext());
+				});
 				break;
 			}
 			default:
