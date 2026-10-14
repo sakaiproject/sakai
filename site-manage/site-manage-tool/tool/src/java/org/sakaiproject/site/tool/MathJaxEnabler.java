@@ -57,12 +57,13 @@ public class MathJaxEnabler
      */
     public static boolean addMathJaxSettingsToEditToolsContext(Context context, Site site, SessionState state)
     {
-        if (!ENABLED_AT_SYSTEM_LEVEL  || context == null || site == null || state == null || !isMathJaxEnabledForSite(site, state))
+        if (!ENABLED_AT_SYSTEM_LEVEL || context == null || state == null)
         {
             return false;
         }
 
         context.put(CONTEXT_IS_MATHJAX_INSTALLED_KEY, Boolean.TRUE);
+        context.put(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE, Boolean.valueOf(isMathJaxEnabledForSite(site, state)));
         context.put(CONTEXT_SAKAI_SERVICE_KEY, SAKAI_SERVICE);
         context.put(CONTEXT_MATHJAX_ENABLED_TOOL_ID_SUFFIX_KEY, CONTEXT_MATHJAX_ENABLED_TOOL_ID_SUFFIX_VALUE);
 
@@ -214,8 +215,8 @@ public class MathJaxEnabler
 
     /**
      * Returns whether or not mathjax is allowed in the given site. Checks the state first, if setting
-     * is not found in state, checks site properties.
-     * @param site the site
+     * is not found in state, checks site properties or the default for a new site.
+     * @param site the site, or null when creating a new site
      * @param state the state
      * @return true if mathjax is allowed in the site
      */
@@ -230,7 +231,9 @@ public class MathJaxEnabler
 
         if (mathJaxEnabled == null) // no state information, read from site properties instead
         {
-            boolean enabled = Boolean.parseBoolean(site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
+            boolean enabled = site == null
+                    ? ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP_NEW_SITE, true)
+                    : Boolean.parseBoolean(site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
             state.setAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE, Boolean.valueOf(enabled));
             return enabled;
         }

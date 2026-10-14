@@ -1856,12 +1856,12 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("import", state.getAttribute(STATE_IMPORT));
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			context.put(MathJaxEnabler.CONTEXT_MATHJAX_HELP_URL, MathJaxEnabler.HELP_URL);
+			MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);
 			if (site != null)
 			{
 				// Add the menus to vm
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_TOOLS);
 
-				MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
 				SubNavEnabler.addToContext(context, site);
 				MicrosoftSynchronizationEnabler.addToContext(context, site, state);
 				context.put("SiteTitle", site.getTitle());
