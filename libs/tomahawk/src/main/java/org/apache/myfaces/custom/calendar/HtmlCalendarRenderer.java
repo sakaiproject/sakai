@@ -48,7 +48,7 @@ import jakarta.faces.event.ComponentSystemEvent;
 import jakarta.faces.event.ComponentSystemEventListener;
 import jakarta.faces.event.ListenerFor;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.component.LibraryLocationAware;
@@ -918,7 +918,7 @@ public class HtmlCalendarRenderer
     {
         script.append(name);
         script.append(" = \"");
-        script.append(StringEscapeUtils.escapeJavaScript(value));
+        script.append(StringEscapeUtils.escapeEcmaScript(value));
         script.append("\";\n");
     }
 
@@ -933,7 +933,7 @@ public class HtmlCalendarRenderer
                 script.append(",");
 
             script.append("\"");
-            script.append(StringEscapeUtils.escapeJavaScript(array[i]));
+            script.append(StringEscapeUtils.escapeEcmaScript(array[i]));
             script.append("\"");
         }
 
@@ -967,7 +967,7 @@ public class HtmlCalendarRenderer
 
             if(popupButtonString==null)
                 popupButtonString="...";
-            writer.writeAttribute(HTML.VALUE_ATTR, StringEscapeUtils.escapeJavaScript(popupButtonString), null);
+            writer.writeAttribute(HTML.VALUE_ATTR, StringEscapeUtils.escapeEcmaScript(popupButtonString), null);
 
             if(popupButtonStyle != null)
             {

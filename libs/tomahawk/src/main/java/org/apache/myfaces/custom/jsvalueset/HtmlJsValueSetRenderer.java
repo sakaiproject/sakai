@@ -22,7 +22,7 @@ import org.apache.myfaces.shared_tomahawk.renderkit.RendererUtils;
 import org.apache.myfaces.shared_tomahawk.renderkit.html.HTML;
 import org.apache.myfaces.shared_tomahawk.renderkit.html.HtmlRenderer;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import jakarta.faces.application.Application;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
@@ -146,7 +146,7 @@ extends HtmlRenderer
    {
       if(value instanceof String)
       {
-         return "'"+StringEscapeUtils.escapeJavaScript(value.toString())+"'";
+         return "'"+StringEscapeUtils.escapeEcmaScript(value.toString())+"'";
       }
       else if(value instanceof Number)
       {

@@ -19,7 +19,7 @@
 
 package org.apache.myfaces.custom.tree2;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import java.util.Stack;
 
 /**

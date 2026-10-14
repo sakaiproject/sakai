@@ -43,7 +43,7 @@ import jakarta.faces.model.ResultSetDataModel;
 import jakarta.faces.model.ScalarDataModel;
 import jakarta.servlet.jsp.jstl.sql.Result;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.buildtools.maven2.plugin.builder.annotation.JSFProperty;
 import org.apache.myfaces.component.html.util.HtmlComponentUtils;
 import org.apache.myfaces.custom.ExtendedComponentBase;

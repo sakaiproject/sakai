@@ -18,7 +18,6 @@
     <sakai.test.forks>1</sakai.test.forks>
     <!-- Standard dependency versions -->
     <sakai.commons-io.version>2.22.0</sakai.commons-io.version>
-    <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.21.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>2.0.0-M5</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
@@ -758,12 +757,6 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${sakai.commons-io.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>${sakai.commons.lang.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2700,6 +2693,7 @@
                     <exclude>commons-configuration:commons-configuration</exclude>
                     <exclude>commons-httpclient:commons-httpclient</exclude>
                     <exclude>commons-logging:commons-logging</exclude>
+                    <exclude>commons-lang:commons-lang</exclude>
                     <exclude>log4j:log4j</exclude>
                     <exclude>org.azeckoski:reflectutils</exclude>
                   </excludes>
