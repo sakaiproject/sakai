@@ -100,6 +100,32 @@ class SamigoImportAccessTest extends SakaiUiTestBase {
         assertThat(page.locator("#authorIndexForm\\:coreAssessments")).containsText(title);
     }
 
+    @Test
+    void instructorImportResolvesInheritedManifestBase() throws IOException {
+        String tool = openTool(System.getProperty("samigo.security.instructor", "instructor1"));
+        String title = "QTI manifest base regression " + UUID.randomUUID();
+        String sample = Files.readString(Path.of("../samigo/samigo-app/src/test/data/sample12Assessment.xml"));
+        String selectedQti = sample.replace("title=\"Marith Open Fri\"", "title=\"" + title + "\"");
+        String decoyQti = sample.replace("title=\"Marith Open Fri\"", "title=\"Decoy " + UUID.randomUUID() + "\"");
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (ZipOutputStream zip = new ZipOutputStream(bytes)) {
+            zip.putNextEntry(new ZipEntry("exportAssessment.xml"));
+            zip.write(decoyQti.getBytes(StandardCharsets.UTF_8));
+            zip.closeEntry();
+            zip.putNextEntry(new ZipEntry("imsmanifest.xml"));
+            zip.write(("<manifest xml:base=\"assessment/\"><resources>"
+                + "<resource type=\"imsqti_xmlv1p2\" href=\"exportAssessment.xml\"/>"
+                + "</resources></manifest>").getBytes(StandardCharsets.UTF_8));
+            zip.closeEntry();
+            zip.putNextEntry(new ZipEntry("assessment/exportAssessment.xml"));
+            zip.write(selectedQti.getBytes(StandardCharsets.UTF_8));
+            zip.closeEntry();
+        }
+        page.navigate(tool + "/jsf/qti/importAssessment");
+        uploadPackage(bytes.toByteArray());
+        assertThat(page.locator("#authorIndexForm\\:coreAssessments")).containsText(title);
+    }
+
     private String openTool(String username) {
         sakai.login(username);
         page.navigate(System.getProperty("samigo.security.siteUrl"));
@@ -144,7 +170,11 @@ class SamigoImportAccessTest extends SakaiUiTestBase {
                 zip.closeEntry();
             }
         }
-        page.locator("input[type=file]").setInputFiles(new FilePayload("assessment.zip", "application/zip", bytes.toByteArray()));
+        uploadPackage(bytes.toByteArray());
+    }
+
+    private void uploadPackage(byte[] bytes) {
+        page.locator("input[type=file]").setInputFiles(new FilePayload("assessment.zip", "application/zip", bytes));
         page.getByRole(AriaRole.BUTTON, new com.microsoft.playwright.Page.GetByRoleOptions().setName("Import").setExact(true)).click();
     }
 }
