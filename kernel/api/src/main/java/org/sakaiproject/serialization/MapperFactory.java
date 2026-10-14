@@ -237,10 +237,17 @@ public final class MapperFactory {
 
     /** Creates the shared hardened streaming XML input factory. */
     public static XMLInputFactory createSecureXMLInputFactory() {
-        XMLInputFactory factory = new WstxInputFactory();
-        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-        factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
-        return factory;
+        return XmlInputSupport.createFactory();
+    }
+
+    // JSON-only users must not load the XML backend when MapperFactory is initialized.
+    private static final class XmlInputSupport {
+        private static XMLInputFactory createFactory() {
+            XMLInputFactory factory = new WstxInputFactory();
+            factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+            factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+            return factory;
+        }
     }
 
     /**
