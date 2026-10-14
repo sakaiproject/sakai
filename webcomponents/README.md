@@ -1,10 +1,9 @@
 # Sakai Web Components
 
-This module hosts a set of web components which are in use across several Sakai tools. We're using a
-combination of **[Lerna](https://lerna.js.org/)** and
-**[NPM Workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)** to manage the monorepo -
-check out the configurations in tool/src/main/frontend. All the package dependencies are managed
-by Lerna and are hosted in the top level node\_modules directory, not in each individual package.
+This module hosts web components used across several Sakai tools.
+npm workspaces manages the packages listed in `tool/src/main/frontend/package.json` and links the local
+components during installation. Run `npm ci` from `tool/src/main/frontend` to install dependencies for
+all components.
 
 **[Web Test Runner](https://modern-web.dev/docs/test-runner/overview/)** is used for testing and
 test files are hosted in each package's **test** directory. Most of the tests make use of

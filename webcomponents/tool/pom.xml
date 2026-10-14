@@ -80,7 +80,6 @@
                                 <exclude>.gitignore</exclude>
                                 <exclude>.eslintrc.js</exclude>
                                 <exclude>.husky/**</exclude>
-                                <exclude>lerna.json</exclude>
                                 <exclude>bundles/meta.json</exclude>
                                 <exclude>deployed-js-deps.json</exclude>
                             </excludes>
