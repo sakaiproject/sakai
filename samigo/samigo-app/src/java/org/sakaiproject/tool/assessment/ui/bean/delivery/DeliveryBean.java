@@ -2790,6 +2790,9 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
 	}
 
     public boolean getIsMathJaxEnabled() {
+        if (!serverConfigurationService.getBoolean("portal.mathjax.enabled", true)) {
+            return false;
+        }
         String siteId = AgentFacade.getCurrentSiteId();
         if (StringUtils.isBlank(siteId)) {
             siteId = getSiteId();
