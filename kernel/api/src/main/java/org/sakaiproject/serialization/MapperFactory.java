@@ -17,6 +17,7 @@ package org.sakaiproject.serialization;
 
 import com.fasterxml.jackson.core.StreamReadConstraints;
 
+import com.ctc.wstx.api.ReaderConfig;
 import com.ctc.wstx.api.WstxInputProperties;
 import com.ctc.wstx.api.WstxOutputProperties;
 import com.ctc.wstx.stax.WstxInputFactory;
@@ -36,6 +37,9 @@ import javax.xml.stream.XMLInputFactory;
  * Uses builder pattern to allow flexible configuration of ObjectMapper properties.
  */
 public final class MapperFactory {
+
+    public static final int DEFAULT_MAX_XML_ATTRIBUTES_PER_ELEMENT = ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT;
+    public static final int DEFAULT_MAX_XML_ATTRIBUTE_LENGTH = ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH;
 
     private MapperFactory() {
         throw new AssertionError("Utility class should not be instantiated");

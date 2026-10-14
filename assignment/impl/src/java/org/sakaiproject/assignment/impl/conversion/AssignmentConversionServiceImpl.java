@@ -47,7 +47,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
-import com.ctc.wstx.api.ReaderConfig;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -142,9 +141,9 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
             }
         });
 
-        // woodstox xml parser defaults we don't allow values smaller than the default
-        if (numberOfAttributes < ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT) numberOfAttributes = ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT;
-        if (lengthOfAttribute < ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH) lengthOfAttribute = ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH;
+        // Preserve the shared XML parser defaults as the minimum conversion limits.
+        if (numberOfAttributes < MapperFactory.DEFAULT_MAX_XML_ATTRIBUTES_PER_ELEMENT) numberOfAttributes = MapperFactory.DEFAULT_MAX_XML_ATTRIBUTES_PER_ELEMENT;
+        if (lengthOfAttribute < MapperFactory.DEFAULT_MAX_XML_ATTRIBUTE_LENGTH) lengthOfAttribute = MapperFactory.DEFAULT_MAX_XML_ATTRIBUTE_LENGTH;
 
         log.info("<===== Assignments conversion xml parser limits: number of attributes={}, attribute size={} =====>", numberOfAttributes, lengthOfAttribute);
 
@@ -208,7 +207,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         try (InputStream in = new ByteArrayInputStream(xml.getBytes());
              OutputStream out = new ByteArrayOutputStream()) {
 
-            XMLEventReader reader = MapperFactory.xmlBuilder().build().getFactory().getXMLInputFactory().createXMLEventReader(in);
+            XMLEventReader reader = MapperFactory.createSecureXMLInputFactory().createXMLEventReader(in);
             XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter(out);
             XMLEventFactory eventFactory = XMLEventFactory.newInstance();
             List<XMLEvent> groupEvents = new ArrayList<>();

@@ -18,9 +18,27 @@ package org.adl.parsers.dom;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Test;
+import org.adl.sequencer.impl.ADLSeqParser;
 import static org.junit.Assert.*;
 
 public class ADLDOMParserTest {
+    @Test
+    public void testSequencingParserUsesSharedXmlHandling() throws Exception {
+        Path file = Files.createTempFile("scorm-sequence", ".xml");
+        try {
+            Files.writeString(file, "<manifest identifier='course'><organizations default='organization'>"
+                    + "<organization identifier='organization'/></organizations></manifest>");
+            ADLSeqParser parser = new ADLSeqParser(file.toString());
+            assertEquals("organization", parser.findDefaultOrganization().getAttributes().getNamedItem("identifier").getNodeValue());
+            assertEquals("course", parser.getCourseID());
+
+            Files.writeString(file, "<!DOCTYPE manifest [<!ENTITY value 'course'>]><manifest identifier='course'/>");
+            assertNull(new ADLSeqParser(file.toString()).findDefaultOrganization());
+        } finally {
+            Files.deleteIfExists(file);
+        }
+    }
+
     @Test
     public void testSharedParserReadsXmlAndRejectsDoctype() throws Exception {
         Path file = Files.createTempFile("scorm-xml", ".xml");
