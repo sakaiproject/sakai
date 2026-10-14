@@ -308,9 +308,7 @@ public class ToolPortal extends HttpServlet
 
 				if (site != null)
 				{
-					String strMathJaxEnabledForSite = site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
-
-					if (StringUtils.isNotBlank(strMathJaxEnabledForSite) && Boolean.valueOf(strMathJaxEnabledForSite))
+					if (site.getProperties().getBooleanProperty(Site.PROP_SITE_MATHJAX_ALLOWED, true))
 					{
 						// In order to get MathJax to work on the site, the config and source has to be added to the header.
 						Element config = new Element("script");

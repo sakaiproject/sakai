@@ -27,7 +27,6 @@ import org.sakaiproject.util.ParameterParser;
 public class MathJaxEnabler
 {
     private static final String ENABLED_SAKAI_PROP = "portal.mathjax.enabled";
-    private static final String ENABLED_SAKAI_PROP_NEW_SITE = "portal.mathjax.newSites.enabled";
     private static final String SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
     public static final String HELP_URL_SAKAI_PROP = "portal.mathjax.help.url";
     private static final String VERSION_SERVICE_SAKAI_PROP = "version.service";
@@ -133,7 +132,7 @@ public class MathJaxEnabler
             if (isMathJaxEnabledForSite) {
                 props.addProperty(Site.PROP_SITE_MATHJAX_ALLOWED, Boolean.TRUE.toString());
             } else {
-                props.removeProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
+                props.addProperty(Site.PROP_SITE_MATHJAX_ALLOWED, Boolean.FALSE.toString());
             }
         }
 
@@ -165,7 +164,7 @@ public class MathJaxEnabler
         }
         else
         {
-            site.getPropertiesEdit().removeProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
+            site.getPropertiesEdit().addProperty(Site.PROP_SITE_MATHJAX_ALLOWED, Boolean.FALSE.toString());
         }
 
         return true;
@@ -231,9 +230,7 @@ public class MathJaxEnabler
 
         if (mathJaxEnabled == null) // no state information, read from site properties instead
         {
-            boolean enabled = site == null
-                    ? ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP_NEW_SITE, true)
-                    : Boolean.parseBoolean(site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
+            boolean enabled = site == null || site.getProperties().getBooleanProperty(Site.PROP_SITE_MATHJAX_ALLOWED, true);
             state.setAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE, Boolean.valueOf(enabled));
             return enabled;
         }

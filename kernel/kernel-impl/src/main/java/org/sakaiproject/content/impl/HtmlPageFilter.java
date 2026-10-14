@@ -243,7 +243,7 @@ public class HtmlPageFilter implements ContentFilter {
 		if (serverConfigurationService.getBoolean("portal.mathjax.enabled", true)) {
 			if (entity instanceof Site) {
 				Site site = (Site)entity;
-				return Boolean.parseBoolean(site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
+				return site.getProperties().getBooleanProperty(Site.PROP_SITE_MATHJAX_ALLOWED, true);
 			}
 		}
 		return false;

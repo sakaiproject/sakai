@@ -2807,8 +2807,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
         }
         return getCurrentSite(siteId)
                 .map(Site::getProperties)
-                .map(properties -> properties.getProperty(Site.PROP_SITE_MATHJAX_ALLOWED))
-                .map(Boolean::parseBoolean)
+                .map(properties -> properties.getBooleanProperty(Site.PROP_SITE_MATHJAX_ALLOWED, true))
                 .orElse(false);
     }
 
