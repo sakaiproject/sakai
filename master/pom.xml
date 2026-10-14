@@ -1012,7 +1012,7 @@
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>3.2.2</version>
+        <version>3.2.19</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
