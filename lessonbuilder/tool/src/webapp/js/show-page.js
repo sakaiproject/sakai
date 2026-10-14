@@ -3303,9 +3303,11 @@ $(function () {
     }
     // user has chosen a file.
     // Add another button for user to pick more files
-    lastInput.parent().after(lastInput.parent().clone());
+    const newGroup = lastInput.parent().clone();
+    newGroup.find('input[type=file]').val('');
+    lastInput.parent().after(newGroup);
     // find the new button and put this trigger on it
-    lastInput.parent().next().find('input').on("change", mmFileInputChanged);
+    newGroup.find('input[type=file]').on("change", mmFileInputChanged);
     // now need annotation on the next input, so remove the old
     $('.add-another-file').hide();
     $('.add-file-div').removeClass('add-another-file-div');
