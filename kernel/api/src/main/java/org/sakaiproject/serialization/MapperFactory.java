@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.serialization;
 
+import com.fasterxml.jackson.core.StreamReadConstraints;
+
 import com.ctc.wstx.api.WstxInputProperties;
 import com.ctc.wstx.api.WstxOutputProperties;
 import com.ctc.wstx.stax.WstxInputFactory;
@@ -222,6 +224,14 @@ public final class MapperFactory {
         }
     }
 
+    /** Creates the shared hardened streaming XML input factory. */
+    public static XMLInputFactory createSecureXMLInputFactory() {
+        XMLInputFactory factory = new WstxInputFactory();
+        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+        return factory;
+    }
+
     /**
      * Builder class for creating customized XmlMapper instances.
      */
@@ -232,11 +242,7 @@ public final class MapperFactory {
          * Creates a new builder with a fresh XmlMapper instance using Woodstox.
          */
         public XmlMapperBuilder() {
-            xmlMapper = new XmlMapper(WstxInputFactory.newInstance(), WstxOutputFactory.newInstance());
-            XMLInputFactory xmlInputFactory = xmlMapper.getFactory().getXMLInputFactory();
-            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
-            xmlMapper.getFactory().setXMLInputFactory(xmlInputFactory);
+            xmlMapper = new XmlMapper(createSecureXMLInputFactory(), WstxOutputFactory.newInstance());
             xmlMapper.getFactory().rebuild().build();
         }
 
@@ -350,6 +356,21 @@ public final class MapperFactory {
         public XmlMapperBuilder setMaxAttributeSize(int maxAttributeSize) {
             xmlMapper.getFactory().getXMLInputFactory().setProperty(WstxInputProperties.P_MAX_ATTRIBUTE_SIZE, maxAttributeSize);
             xmlMapper.getFactory().rebuild().build();
+            return this;
+        }
+
+        /** Configures parser resource limits while retaining the shared entity/DTD policy. */
+        public XmlMapperBuilder setStreamReadLimits(int maxNestingDepth, int maxStringLength) {
+            xmlMapper.getFactory().setStreamReadConstraints(StreamReadConstraints.builder()
+                    .maxNestingDepth(maxNestingDepth)
+                    .maxStringLength(maxStringLength)
+                    .build());
+            return this;
+        }
+
+        /** Sets the maximum number of attributes allowed on an element. */
+        public XmlMapperBuilder setMaxAttributesPerElement(int maxAttributes) {
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(WstxInputProperties.P_MAX_ATTRIBUTES_PER_ELEMENT, maxAttributes);
             return this;
         }
 

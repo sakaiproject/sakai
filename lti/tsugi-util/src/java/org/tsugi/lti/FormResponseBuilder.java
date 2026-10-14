@@ -1,5 +1,7 @@
 package org.tsugi.lti;
 
+import org.sakaiproject.serialization.MapperFactory;
+
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -22,7 +24,7 @@ public class FormResponseBuilder {
     private static final XmlMapper xmlMapper;
 
     static {
-        xmlMapper = new XmlMapper();
+        xmlMapper = MapperFactory.xmlBuilder().build();
         xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
         xmlMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         xmlMapper.setDefaultUseWrapper(false);

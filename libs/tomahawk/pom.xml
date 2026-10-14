@@ -31,6 +31,12 @@
         splitting them. Dependencies are added with the source import - see README.md.
     -->
     <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <!--
           Tomahawk and Sakai's UIComponentTag-based tags both need Jakarta Faces 3.0, the last
           spec version retaining JSP tag support. Tracks master's property rather than pinning

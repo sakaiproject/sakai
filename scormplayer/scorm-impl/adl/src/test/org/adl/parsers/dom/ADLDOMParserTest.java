@@ -1,0 +1,43 @@
+/*
+ * Copyright (c) 2003-2025 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.adl.parsers.dom;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class ADLDOMParserTest {
+    @Test
+    public void testSharedParserReadsXmlAndRejectsDoctype() throws Exception {
+        Path file = Files.createTempFile("scorm-xml", ".xml");
+        try {
+            Files.writeString(file, "<root><child>value</child></root>");
+            ADLDOMParser parser = new ADLDOMParser();
+            parser.parseForWellformedness(file.toString(), false, false);
+            assertTrue(parser.getIsWellformed());
+            assertEquals("root", parser.getDocument().getDocumentElement().getTagName());
+
+            Files.writeString(file, "<!DOCTYPE root [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]><root>&xxe;</root>");
+            ADLDOMParser rejected = new ADLDOMParser();
+            rejected.parseForWellformedness(file.toString(), false, false);
+            assertFalse(rejected.getIsWellformed());
+            assertNull(rejected.getDocument());
+        } finally {
+            Files.deleteIfExists(file);
+        }
+    }
+}

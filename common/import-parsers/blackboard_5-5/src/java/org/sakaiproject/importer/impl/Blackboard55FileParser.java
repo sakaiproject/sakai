@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.importer.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.File;
@@ -25,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.sakaiproject.importer.api.ImportFileParser;
 import org.sakaiproject.importer.api.Importable;
@@ -211,7 +212,7 @@ public class Blackboard55FileParser extends IMSFileParser {
 			String descriptorFilename = XPathHelper.getNodeValue("./@file",resourceNode);
 			DocumentBuilder docBuilder;
 		    try {
-				docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				docBuilder = Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder();
 			    InputStream fis = new FileInputStream(pathToData + "/" + descriptorFilename);
 			    return (Document) docBuilder.parse(fis);
 			} catch (Exception e) {

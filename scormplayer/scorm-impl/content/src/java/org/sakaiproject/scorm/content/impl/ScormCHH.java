@@ -35,8 +35,9 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamConstants;
+import org.sakaiproject.serialization.MapperFactory;
 
 @Slf4j
 public class ScormCHH extends FastZipCHH
@@ -52,22 +53,17 @@ public class ScormCHH extends FastZipCHH
 
 		try
 		{
-			XmlPullParserFactory factory = XmlPullParserFactory.newInstance(System.getProperty(XmlPullParserFactory.PROPERTY_NAME), null);
-
-			factory.setNamespaceAware(true);
-			XmlPullParser xpp = factory.newPullParser();
-
 			InputStream inStream = getManifestAsStream(realParentId);
-			xpp.setInput(inStream, null);
+			XMLStreamReader xpp = MapperFactory.createSecureXMLInputFactory().createXMLStreamReader(inStream);
 
 			int eventType = xpp.getEventType();
 			String tagName = null;
 			String xmlBase = null;
-			while (eventType != XmlPullParser.END_DOCUMENT)
+			while (eventType != XMLStreamConstants.END_DOCUMENT)
 			{
-				if (eventType == XmlPullParser.START_TAG)
+				if (eventType == XMLStreamConstants.START_ELEMENT)
 				{
-					tagName = xpp.getName();
+					tagName = xpp.getLocalName();
 					if (tagName != null)
 					{
 						if (tagName.equals("resource"))
@@ -91,9 +87,9 @@ public class ScormCHH extends FastZipCHH
 						}
 					}
 				}
-				else if (eventType == XmlPullParser.END_TAG)
+				else if (eventType == XMLStreamConstants.END_ELEMENT)
 				{
-					tagName = xpp.getName();
+					tagName = xpp.getLocalName();
 					if (tagName != null && tagName.equals("resource"))
 					{
 						xmlBase = null;
@@ -103,6 +99,7 @@ public class ScormCHH extends FastZipCHH
 				eventType = xpp.next();
 			}
 
+			xpp.close();
 			if (inStream != null)
 			{
 				inStream.close();
@@ -150,14 +147,14 @@ public class ScormCHH extends FastZipCHH
 		return list;
 	}
 
-	private String getAttributeValue(XmlPullParser xpp, String prefix, String name)
+	private String getAttributeValue(XMLStreamReader xpp, String prefix, String name)
 	{
 		int count = xpp.getAttributeCount();
 		String value = null;
 		for (int i = 0; i < count; i++)
 		{
 			String attrPrefix = xpp.getAttributePrefix(i);
-			String attrName = xpp.getAttributeName(i);
+			String attrName = xpp.getAttributeLocalName(i);
 			if (attrName != null && (prefix == null || (attrPrefix != null && attrPrefix.equals(prefix))))
 			{
 				if (attrName.equals(name))

@@ -21,6 +21,8 @@
 
 package org.sakaiproject.component.app.help;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -84,7 +86,6 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.UrlResource;
@@ -750,7 +751,7 @@ public class HelpManagerImpl implements HelpManager
 			}
 
 			bis = new BufferedInputStream(ism);
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
 			dbf.setNamespaceAware(true);
 			DocumentBuilder builder = dbf.newDocumentBuilder();
 
@@ -765,7 +766,7 @@ public class HelpManagerImpl implements HelpManager
 
 				// get corpus document
 				String corpusXml = getRestConfiguration().getCorpusDocument();
-				DocumentBuilderFactory dbfCorpus = DocumentBuilderFactory.newInstance();
+				DocumentBuilderFactory dbfCorpus = Xml.createSecureDocumentBuilderFactory(false);
 				dbfCorpus.setNamespaceAware(true);
 				DocumentBuilder builderCorpus = dbfCorpus.newDocumentBuilder();
 				StringReader sReader = new StringReader(corpusXml);

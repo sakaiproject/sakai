@@ -43,8 +43,13 @@ import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.util.LogMessage;
 import org.adl.util.MessageType;
 import org.adl.util.Messages;
-import org.apache.xerces.dom.TextImpl;
-import org.apache.xerces.parsers.DOMParser;
+import org.w3c.dom.Text;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.validation.Schema;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -59,7 +64,7 @@ import org.xml.sax.SAXParseException;
  * <strong>Filename: </strong>ADLDOMParser.java<br><br>
  *
  * <strong>Description:</strong><br>The <code>ADLDOMParser</code> object interfaces
- * with the open-source org.apache.xerces.dom.DomParser class to encapsulate
+ * with the open-source shared hardened JAXP parser to encapsulate
  * and provide parsing activities  - including well-formedness and validation
  * against the schema(s) checks. This object creates a DOM in memory if 
  * wellformedness is found. A DOM object is also created in memory after 
@@ -74,9 +79,9 @@ public class ADLDOMParser implements ErrorHandler {
 	 * Performs the parsing activities, including the
 	 * parse for wellformedness and the parse for validation to the controlling
 	 * document.  This attribute represents an instance of the
-	 * org.apache.xerces.dom.DomParser class.
+	 * shared hardened JAXP parser.
 	 */
-	private DOMParser mParser;
+	private DocumentBuilder mParser;
 
 	/**
 	 * The <code>Document</code> object is an electronic representation of the
@@ -305,64 +310,29 @@ public class ADLDOMParser implements ErrorHandler {
 	 * setting schema locations, turning on/off namespaces, etc.  This method
 	 * must be called prior to any attempts to parse.   
 	 */
-	private void configureParser() {
-		log.debug("configureParser()");
-
-		// instantiate the Xerces DOMParser object to use the default
-		// configuration
-
-		//The default configuration is to allow xml 1.0 and 1.1 parsing
-		mParser = new DOMParser();
-
-		if (mParser != null) {
-			// check to see if we are configuring a validating or non-validating
-			//parser
-			if (mStateIsValidating) // configuring a validating parser
-			{
-				if (mSchemaLocation != null) {
-					try {
-						mParser.setFeature("http://xml.org/sax/features/validation", true);
-						mParser.setFeature("http://apache.org/xml/features/validation/schema", true);
-						mParser.setFeature("http://xml.org/sax/features/namespaces", true);
-						mParser.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false);
-
-						log.debug("setting schemas to - " + mSchemaLocation);
-
-						mParser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation", mSchemaLocation);
-
-						mParser.setErrorHandler(this);
-					} catch (SAXException se) {
-						String msgText = Messages.getString("ADLDOMParser.30");
-						log.error(msgText);
-						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.TERMINATE, msgText));
-					}
-				} else {
-					String msgText = "Schema Location(s) not set";
-					log.error("SEVERE: " + msgText);
-
+	private void configureParser(File schemaDirectory) {
+		mParser = null;
+		try {
+			Schema schema = null;
+			if (mStateIsValidating) {
+				if (mSchemaLocation == null) {
 					mValidFlag = false;
+					return;
 				}
-			} else // configuring a non-validating parser
-			{
-				try {
-					mParser.setFeature("http://xml.org/sax/features/validation", false);
-					mParser.setFeature("http://xml.org/sax/features/namespaces", true);
-					mParser.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false);
-
-					mParser.setErrorHandler(this);
-				} catch (SAXException se) {
-					String msgText = Messages.getString("ADLDOMParser.36");
-
-					log.error("TERMINATE: " + msgText);
-					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.TERMINATE, msgText));
+				List<File> schemas = new ArrayList<>();
+				StringTokenizer locations = new StringTokenizer(mSchemaLocation);
+				while (locations.hasMoreTokens()) {
+					locations.nextToken(); // namespace
+					schemas.add(new File(URI.create(locations.nextToken())));
 				}
+				schema = Xml.createSecureSchema(schemaDirectory, schemas);
 			}
-		} else {
-			String msgText = Messages.getString("ADLDOMParser.38");
-			log.error("TERMINATE: " + msgText);
-			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.TERMINATE, msgText));
+			mParser = Xml.createSecureDocumentBuilderFactory(schema).newDocumentBuilder();
+			mParser.setErrorHandler(this);
+		} catch (Exception e) {
+			mValidFlag = false;
+			log.error("Unable to configure secure SCORM XML parser", e);
 		}
-		log.debug("configureParser()");
 	}
 
 	/**
@@ -544,7 +514,7 @@ public class ADLDOMParser implements ErrorHandler {
 		log.debug("parseForValidation()");
 		log.debug("   iXMLFileName coming in is " + iXMLFileName);
 
-		configureParser();
+		configureParser(new File(searchFile(iXMLFileName, "xml")).getParentFile());
 
 		Document wellformednessDocument = null;
 		String msgText;
@@ -557,8 +527,7 @@ public class ADLDOMParser implements ErrorHandler {
 					msgText = "Parsing for Well-Formedness first to obtain document";
 					log.debug(msgText);
 
-					mParser.parse(setUpInputSource(fileName));
-					wellformednessDocument = mParser.getDocument();
+					wellformednessDocument = mParser.parse(setUpInputSource(fileName));
 
 					if (wellformednessDocument != null) {
 						mIsXMLWellformed = true;
@@ -579,7 +548,7 @@ public class ADLDOMParser implements ErrorHandler {
 					//we have wellformed XML, now parsing for validity to xsd(s)
 					mStateIsValidating = true;
 
-					configureParser();
+					configureParser(new File(searchFile(iXMLFileName, "xml")).getParentFile());
 
 					if (mParser != null) {
 						msgText = Messages.getString("ADLDOMParser.81");
@@ -591,7 +560,7 @@ public class ADLDOMParser implements ErrorHandler {
 							mValidFlag = false;
 						} else {
 							try {
-								mParser.parse(setUpInputSource(fileName));
+								wellformednessDocument = mParser.parse(setUpInputSource(fileName));
 
 							} catch (SAXException se) {
 								msgText = "SAXException thrown during validating" + " parse";
@@ -660,7 +629,7 @@ public class ADLDOMParser implements ErrorHandler {
 		log.debug("   iXMLFileName coming in is " + iXMLFileName);
 		log.debug("   iLogRelated coming in is " + iLogRelated);
 
-		configureParser();
+		configureParser(null);
 
 		Document wellformednessDocument = null;
 		String msgText;
@@ -675,7 +644,9 @@ public class ADLDOMParser implements ErrorHandler {
 				}
 
 				//gets an input source from the URL passed in.
-				mParser.parse(new InputSource(iXMLFileName.openStream()));
+				try (InputStream input = iXMLFileName.openStream()) {
+					wellformednessDocument = mParser.parse(input);
+				}
 
 				msgText = "The XML is Well-formed";
 				log.debug(msgText);
@@ -683,7 +654,6 @@ public class ADLDOMParser implements ErrorHandler {
 				if (iLogRelated) {
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 				}
-				wellformednessDocument = mParser.getDocument();
 
 				if (wellformednessDocument != null) {
 					mIsXMLWellformed = true;
@@ -730,7 +700,7 @@ public class ADLDOMParser implements ErrorHandler {
 		log.debug("   iXMLFileName coming in is " + iXMLFileName);
 		log.debug("   iLogRelated coming in is " + iLogRelated);
 
-		configureParser();
+		configureParser(new File(searchFile(iXMLFileName, "xml")).getParentFile());
 
 		Document wellformednessDocument = null;
 		String msgText;
@@ -753,14 +723,13 @@ public class ADLDOMParser implements ErrorHandler {
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 					}
 
-					mParser.parse(setUpInputSource(fileName));
+					wellformednessDocument = mParser.parse(setUpInputSource(fileName));
 					msgText = Messages.getString("ADLDOMParser.53");
 					log.debug(msgText);
 
 					if (iLogRelated) {
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 					}
-					wellformednessDocument = mParser.getDocument();
 
 					if (wellformednessDocument != null) {
 						mIsXMLWellformed = true;
@@ -925,10 +894,10 @@ public class ADLDOMParser implements ErrorHandler {
 						}
 					} // end if NodeType == ELEMENT_NODE
 
-					if (childNode instanceof TextImpl) {
+					if (childNode instanceof Text) {
 						value = children.item(z).getNodeValue().trim();
 
-						if (((TextImpl) children.item(z)).isIgnorableWhitespace()) {
+						if (((Text) children.item(z)).isElementContentWhitespace()) {
 							iNode.removeChild(children.item(z));
 							z--;
 						} else if (value.length() == 0) {

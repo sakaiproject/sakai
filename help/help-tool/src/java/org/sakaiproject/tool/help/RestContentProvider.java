@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.help;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -135,7 +137,7 @@ public class RestContentProvider
     	Result outputTarget = new StreamResult(out);
     	Transformer tf;
 		try {
-			tf = TransformerFactory.newInstance().newTransformer();
+			tf = Xml.createSecureTransformerFactory().newTransformer();
 	    	tf.transform(xmlSource, outputTarget);
 		} catch (TransformerException e) {
 			log.warn(e.getMessage());
@@ -209,12 +211,12 @@ public class RestContentProvider
     }
 
     Document document = null;
-    DocumentBuilderFactory builderFactory = DocumentBuilderFactory
-        .newInstance();
-    builderFactory.setNamespaceAware(true);
 
     try
     {
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
+      builderFactory.setNamespaceAware(true);
+
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.newDocument();
     }
@@ -239,7 +241,7 @@ public class RestContentProvider
     }
 
     Transformer transformer = null;
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    TransformerFactory transformerFactory = Xml.createSecureTransformerFactory();
     URIResolver resolver = new URIResolver();
     transformerFactory.setURIResolver(resolver);
 
@@ -287,8 +289,7 @@ public class RestContentProvider
             iStreamPreprocess = context.getResourceAsStream(XML_PREPROCESS_XSL);
             iStreamAllInOne = context.getResourceAsStream(XML_KB_XSL);           
             
-            DocumentBuilderFactory builderFactory = DocumentBuilderFactory
-                .newInstance();
+            DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
             builderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = builderFactory
                 .newDocumentBuilder();
@@ -344,7 +345,7 @@ public class RestContentProvider
     Document result = null;
     try
     {
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
       DocumentBuilder builder = dbf.newDocumentBuilder();
       StringReader sReader = new StringReader(sBuffer.toString());
       InputSource is = new org.xml.sax.InputSource(sReader);

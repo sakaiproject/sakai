@@ -1,5 +1,7 @@
 package org.tsugi.lti;
 
+import org.sakaiproject.serialization.MapperFactory;
+
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -21,7 +23,7 @@ public class TestXmlMapperFactory {
      * @return A configured XmlMapper instance for use in tests
      */
     public static XmlMapper createXmlMapper() {
-        XmlMapper mapper = new XmlMapper();
+        XmlMapper mapper = MapperFactory.xmlBuilder().build();
         mapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.setDefaultUseWrapper(false);

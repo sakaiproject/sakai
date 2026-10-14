@@ -20,6 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.coursemanagement.impl.job;
 
+import org.jdom2.input.DOMBuilder;
+
+import org.sakaiproject.util.Xml;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -38,7 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
 import org.jdom2.xpath.XPath;
 
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -75,7 +78,7 @@ public abstract class CmSynchronizer {
 		Document doc = null;
 		try {
 			in = getXmlInputStream();
-			doc = new SAXBuilder().build(in);
+			doc = new DOMBuilder().build(Xml.createSecureDocumentBuilderFactory().newDocumentBuilder().parse(in));
 			if(log.isDebugEnabled()) log.debug("XML Document built successful from input stream");
 		} catch (Exception e) {
 			log.error("Could not build a jdom document from the xml input stream... " + e);

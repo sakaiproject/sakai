@@ -21,12 +21,12 @@
 
 package org.sakaiproject.tool.help;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+
+import org.sakaiproject.util.Xml;
+
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamSource;
 
 /**
  * uri resolver
@@ -40,19 +40,6 @@ public class URIResolver implements javax.xml.transform.URIResolver
    */
   public Source resolve(String href, String base) throws TransformerException
   {
-    Source source = null;
-    String path = null;
-    try
-    {
-      URI uri = new URI(base);
-      path = uri.resolve(href).toString();
-      source = new StreamSource(path);
-    }
-    catch (URISyntaxException e)
-    {
-    }
-
-    return source;
+    return Xml.resolveSecureSource(href, base);
   }
-
 }

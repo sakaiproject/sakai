@@ -16,6 +16,8 @@
  */
 package org.apache.pluto.descriptors.services.castor;
 
+import org.sakaiproject.util.Xml;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.exolab.castor.mapping.Mapping;
@@ -25,7 +27,6 @@ import org.exolab.castor.xml.Unmarshaller;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 /**
  * Abstract deployment descriptor support class.
@@ -113,12 +114,10 @@ abstract class AbstractCastorDescriptorService {
             
             Mapping mapping = getCastorMapping();
             Unmarshaller unmarshaller = new Unmarshaller(mapping);
-            unmarshaller.setEntityResolver(new EntityResolverImpl());
             unmarshaller.setIgnoreExtraElements(getIgnoreExtraElements());
 
             if(is!=null) {
-                InputStreamReader in = new InputStreamReader(is);
-                object = unmarshaller.unmarshal(in);
+                object = unmarshaller.unmarshal(Xml.createSecureDocumentBuilderFactory().newDocumentBuilder().parse(is));
             }
         }
         catch (IOException e) {

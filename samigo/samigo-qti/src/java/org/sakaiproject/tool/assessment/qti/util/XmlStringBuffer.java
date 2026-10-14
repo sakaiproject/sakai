@@ -23,6 +23,8 @@
 
 package org.sakaiproject.tool.assessment.qti.util;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -202,13 +204,12 @@ import org.sakaiproject.importer.impl.XPathHelper;
     }
 
     this.clearCache();
-    DocumentBuilderFactory dbfi = null;
     DocumentBuilder builder = null;
     StringReader sr = null;
     org.xml.sax.InputSource is = null;
     try
     {
-    	dbfi = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory dbfi = Xml.createSecureDocumentBuilderFactory(false);
     	builder = dbfi.newDocumentBuilder();
     	String s = this.xml.toString();
     	if (s==null)
@@ -228,7 +229,6 @@ import org.sakaiproject.importer.impl.XPathHelper;
     catch(SAXException e)
     {
       log.error(e.getMessage(), e);
-      log.error("DocumentBuilderFactory dbfi = " + dbfi);
       log.error("StringReader sr = " + sr);
       log.error("InputSource is = " + is);
       log.error("StringBuffer xml = " + this.xml);
@@ -421,7 +421,7 @@ import org.sakaiproject.importer.impl.XPathHelper;
 
           if(childNode == null)
           {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document document = db.newDocument();
             Text newElementText = document.createTextNode(newElement.getNodeName());
@@ -528,7 +528,7 @@ import org.sakaiproject.importer.impl.XPathHelper;
       String nextXpath = parentXpath + "/" + afterNode;
 
       //*************************************************************
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document document = db.newDocument();
       Element element = document.createElement(childXpath);
@@ -598,7 +598,7 @@ import org.sakaiproject.importer.impl.XPathHelper;
       child = createChildElement(subChildXpath);
     }
     try {
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document document = db.newDocument();
       element = document.createElement(elementName);

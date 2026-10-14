@@ -18,6 +18,8 @@
  */
 package org.apache.myfaces.webapp.filter;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +34,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 
 /**
@@ -188,11 +189,7 @@ implements Filter
 
         try
         {
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setValidating(false);
-            factory.setNamespaceAware(false);
-
-            SAXParser          parser  = factory.newSAXParser();
+            SAXParser parser = Xml.createSecureSAXParser(false);
             WelcomeFileHandler handler = new WelcomeFileHandler();
             InputStream        is      =
                 _context.getResourceAsStream("WEB-INF/web.xml");

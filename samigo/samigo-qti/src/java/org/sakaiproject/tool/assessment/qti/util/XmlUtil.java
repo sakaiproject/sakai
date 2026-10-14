@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.assessment.qti.util;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -32,7 +34,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jakarta.servlet.ServletContext;
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -86,13 +87,12 @@ public final class XmlUtil
     log.debug("createDocument()");
 
     Document document = null;
-    DocumentBuilderFactory builderFactory =
-      DocumentBuilderFactory.newInstance();
-    builderFactory.setNamespaceAware(true);
 
     try
     {
-      setDocumentBuilderFactoryFeatures(builderFactory);
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
+      builderFactory.setNamespaceAware(true);
+
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.newDocument();
     }
@@ -114,13 +114,12 @@ public final class XmlUtil
     log.debug("createDocument()");
 
     Document document = null;
-    DocumentBuilderFactory builderFactory =
-      DocumentBuilderFactory.newInstance();
-    builderFactory.setNamespaceAware(true);
 
     try
     {
-      setDocumentBuilderFactoryFeatures(builderFactory);	
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
+      builderFactory.setNamespaceAware(true);
+
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
         document = documentBuilder.parse(xmlString);
     }
@@ -158,13 +157,12 @@ public final class XmlUtil
     InputStream inputStream = context.getResourceAsStream(path);
     String fullpath = context.getRealPath(path);
       log.debug("readDocument(full path) " + fullpath + ")");
-    DocumentBuilderFactory builderFactory =
-      DocumentBuilderFactory.newInstance();
-    builderFactory.setNamespaceAware(true);
 
     try
     {
-      setDocumentBuilderFactoryFeatures(builderFactory);	
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
+      builderFactory.setNamespaceAware(true);
+
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.parse(inputStream);
     }
@@ -199,17 +197,15 @@ public final class XmlUtil
     }
 
     Document document = null;
-    DocumentBuilderFactory builderFactory =
-      DocumentBuilderFactory.newInstance();
-    builderFactory.setNamespaceAware(true);
     ClassPathResource resource = new ClassPathResource(path);
 
     try
     {
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
+      builderFactory.setNamespaceAware(true);
+
 
       InputStream inputStream = resource.getInputStream();
-
-      setDocumentBuilderFactoryFeatures(builderFactory);
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.parse(inputStream);
     }
@@ -246,15 +242,14 @@ public final class XmlUtil
     {
     	log.debug(e1.getMessage(), e1);    
     }
-    DocumentBuilderFactory builderFactory =
-      DocumentBuilderFactory.newInstance();
-    builderFactory.setNamespaceAware(true);
 
     Document document = null;
     DOMSource source = null;
     try
     {
-      setDocumentBuilderFactoryFeatures(builderFactory);	
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
+      builderFactory.setNamespaceAware(true);
+
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.parse(inputStream);
       source = new DOMSource(document, realPath);
@@ -332,9 +327,8 @@ public final class XmlUtil
         inputStream = new FileInputStream(path);
       }
 
-      DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
       builderFactory.setNamespaceAware(true);
-      setDocumentBuilderFactoryFeatures(builderFactory);
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.parse(inputStream);
     }
@@ -392,7 +386,7 @@ public final class XmlUtil
     }
 
     Transformer transformer = null;
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    TransformerFactory transformerFactory = Xml.createSecureTransformerFactory();
     URIResolver resolver = new URIResolver();
     transformerFactory.setURIResolver(resolver);
 
@@ -427,7 +421,7 @@ public final class XmlUtil
     }
 
     Transformer transformer = null;
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    TransformerFactory transformerFactory = Xml.createSecureTransformerFactory();
     URIResolver resolver = new URIResolver();
     transformerFactory.setURIResolver(resolver);
 
@@ -708,11 +702,4 @@ public final class XmlUtil
   public static String convertToSingleCDATA(String text){
 	  return "<![CDATA[" + text + "]]>";
   }
-  
-  private static void setDocumentBuilderFactoryFeatures(
-	  DocumentBuilderFactory builderFactory) throws ParserConfigurationException {
-	      builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-	      builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-	      builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-	  }
 }

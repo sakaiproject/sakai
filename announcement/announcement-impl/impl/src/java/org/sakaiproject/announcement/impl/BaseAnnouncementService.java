@@ -21,6 +21,8 @@
 
 package org.sakaiproject.announcement.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -203,7 +205,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			factory.setValidating(false);		   // we're not validating
 			docBuilder = factory.newDocumentBuilder();
 			
-			TransformerFactory tFactory = TransformerFactory.newInstance();
+			TransformerFactory tFactory = Xml.createSecureTransformerFactory();
 			docTransformer = tFactory.newTransformer();
 
 			siteService.addSiteRemovalAdvisor(this);

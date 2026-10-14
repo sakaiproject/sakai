@@ -18,6 +18,8 @@
  */
 package org.apache.myfaces.shared_tomahawk.webapp.webxml;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -78,7 +80,7 @@ public class WebXmlParser
 
         try
         {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
             dbf.setIgnoringElementContentWhitespace(true);
             dbf.setIgnoringComments(true);
             dbf.setNamespaceAware(true);
