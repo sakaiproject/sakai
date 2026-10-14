@@ -42,7 +42,7 @@ jobs:
         run: echo "Restored Maven cache = ${{ steps.cache-maven-restore.outputs.cache-matched-key }}"
 
       - name: Node 24
-        uses: actions/setup-node@v7.0.0
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
 
@@ -154,7 +154,7 @@ jobs:
 
       - name: Upload Tomcat log for review
         if: always()
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: tomcat-log
           path: tomcat/logs/catalina.out
@@ -250,7 +250,7 @@ jobs:
       - name: Upload Playwright Java artifacts
         id: upload-playwright-java-artifacts
         if: always()
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: playwright-java-artifacts
           path: playwright-java-artifacts
@@ -259,7 +259,7 @@ jobs:
       - name: Upload Playwright Java failure media
         id: upload-playwright-java-failure-media
         if: always()
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: playwright-java-failure-media
           path: playwright-java-artifacts/failure-media
