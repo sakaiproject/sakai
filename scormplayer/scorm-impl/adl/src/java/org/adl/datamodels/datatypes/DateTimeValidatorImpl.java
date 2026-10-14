@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -160,8 +161,8 @@ public class DateTimeValidatorImpl extends DateTimeValidator implements Serializ
 	static LocalDateTime parseToSecondPrecision(String value) {
 		String trimmed = value.trim();
 		try {
-			// Keep the local fields from the string (same approach as the former Joda parse).
-			return OffsetDateTime.parse(trimmed).toLocalDateTime().withNano(0);
+			// Resolve offsets in the JVM zone, as the former Joda parser did.
+			return OffsetDateTime.parse(trimmed).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime().withNano(0);
 		} catch (DateTimeParseException ignored) {
 			// try local date-time next
 		}

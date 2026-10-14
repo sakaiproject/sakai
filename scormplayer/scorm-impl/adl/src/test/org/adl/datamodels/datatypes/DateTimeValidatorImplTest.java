@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.TimeZone;
 
 import org.junit.Test;
 
@@ -52,8 +53,14 @@ public class DateTimeValidatorImplTest {
 	}
 
 	@Test
-	public void parseOffsetKeepsLocalFields() {
-		LocalDateTime parsed = DateTimeValidatorImpl.parseToSecondPrecision("2012-07-26T12:00:00+02:00");
-		assertEquals(LocalDateTime.of(2012, 7, 26, 12, 0, 0), parsed);
+	public void compareOffsetDateTimesByInstant() {
+		TimeZone previous = TimeZone.getDefault();
+		try {
+			TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+			assertTrue(validator.compare("2012-07-26T12:00:00.00+02:00", "2012-07-26T10:00:00.00Z", Collections.emptyList()));
+			assertFalse(validator.compare("2012-07-26T12:00:00.00+02:00", "2012-07-26T12:00:00.00Z", Collections.emptyList()));
+		} finally {
+			TimeZone.setDefault(previous);
+		}
 	}
 }
