@@ -104,11 +104,9 @@ function returnToHostUrl(url) {
 }
 
 function findAdhocRubricComponent(itemId) {
-  const rubricComponents = document.querySelectorAll("sakai-dynamic-rubric");
-  for (let i = 0; i < rubricComponents.length; i++) {
-    let componentFound = rubricComponents[i].shadowRoot.querySelector('input[name="newtotal'+itemId+'"]');
-    if (componentFound) { return rubricComponents[i].shadowRoot; }
-  }
+  const rubricComponents = [ ...document.querySelectorAll("sakai-dynamic-rubric") ];
+  const rubricComponent = rubricComponents.find(component => component.renderRoot.querySelector(`input[name='newtotal${itemId}']`));
+  return rubricComponent?.renderRoot;
 }
 
 function initRubricDialog(gradingId, doneText, cancelText, titleText, alertText) {

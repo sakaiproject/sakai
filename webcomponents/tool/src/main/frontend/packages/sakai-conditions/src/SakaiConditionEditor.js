@@ -2,7 +2,7 @@ import { html, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { ConditionElement } from "./ConditionElement.js";
 import { createCondition, deleteCondition, getConditionsForItem } from "./conditions-api.js";
-import { CONDITION_OPERATORS, ConditionType, formatOperator, nonParentConditionFilter, nonRootConditionFilter } from "./condition-utils.js";
+import { CONDITION_OPERATORS, ConditionOperator, ConditionType, formatOperator, nonParentConditionFilter, nonRootConditionFilter } from "./condition-utils.js";
 import "../sakai-condition-text.js";
 
 export class SakaiConditionEditor extends ConditionElement {
@@ -19,7 +19,7 @@ export class SakaiConditionEditor extends ConditionElement {
   constructor() {
     super();
     this._conditions = [];
-    this._operator = "GREATER_THAN";
+    this._operator = ConditionOperator.GREATER_THAN;
     this._argument = "";
   }
 
@@ -30,7 +30,7 @@ export class SakaiConditionEditor extends ConditionElement {
     if (context === this._context) {
       this._conditions = conditions.filter(nonRootConditionFilter).filter(nonParentConditionFilter);
       this._argument = "";
-      this._operator = "GREATER_THAN";
+      this._operator = ConditionOperator.GREATER_THAN;
     }
   }
 
@@ -53,7 +53,7 @@ export class SakaiConditionEditor extends ConditionElement {
       if (context === this._context) {
         this._conditions = [ ...this._conditions, condition ];
         this._argument = "";
-        this._operator = "GREATER_THAN";
+        this._operator = ConditionOperator.GREATER_THAN;
       }
     } catch (error) {
       if (context === this._context) { this._error = true; }
