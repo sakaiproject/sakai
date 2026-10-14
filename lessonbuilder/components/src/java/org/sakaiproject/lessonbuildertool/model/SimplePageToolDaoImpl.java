@@ -60,7 +60,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalSubPageNavProvider;
 import org.sakaiproject.time.api.UserTimeService;
 import org.springframework.dao.DataAccessException;
@@ -117,7 +116,6 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 	@Setter private SessionFactory sessionFactory;
 	private AuthzGroupService authzGroupService;
 	private EventTrackingService eventTrackingService;
-	private PortalService portalService;
 	private SecurityService securityService;
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
@@ -131,7 +129,6 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 	public void init() {
 		SimplePageItemImpl.setSimplePageToolDao(this);
 		spiComparator = Comparator.comparingInt(SimplePageItem::getSequence);
-		portalService.registerSubPageNavProvider(this);
 	}
 
 	// the permissions model here is preliminary. I'm not convinced that all the code in

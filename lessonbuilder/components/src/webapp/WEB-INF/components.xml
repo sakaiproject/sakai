@@ -31,7 +31,6 @@
     <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
     <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-    <property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
     <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
@@ -39,6 +38,18 @@
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+  </bean>
+
+  <!-- Register the completed transactional proxy, not the DAO target from its init method. -->
+  <bean id="org.sakaiproject.lessonbuildertool.portalSubPageNavRegistration"
+        class="org.springframework.beans.factory.config.MethodInvokingBean">
+    <property name="targetObject" ref="org.sakaiproject.portal.api.PortalService"/>
+    <property name="targetMethod" value="registerSubPageNavProvider"/>
+    <property name="arguments">
+      <list>
+        <ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
+      </list>
+    </property>
   </bean>
 
   <bean id="org.sakaiproject.util.ResourceLoader.lessons"
