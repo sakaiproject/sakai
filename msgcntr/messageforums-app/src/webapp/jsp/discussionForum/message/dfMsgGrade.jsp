@@ -26,7 +26,7 @@
         </script>
         <script src="/library/js/sakai-reminder.js"></script>
         <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
-        <script type="module" src="/vuecomponents/js/sakai.min.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+        <script type="module" src="/webcomponents/bundles/gradebook-item-selector.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <h:form id="msgForum">
             <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
@@ -98,13 +98,8 @@
             <script src="/library/js/spinner.js"></script>
 
             <script>
-                var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
                 
                 $(document).ready(function() {
-                    if (isGradebookGroupEnabled) {
-                        window.syncGbSelectorInput("gb-selector", "msgForum:gb_selector");
-                    }
-
                     try {
                         var sakaiReminder = new SakaiReminder();
                         new Awesomplete($('.awesomplete')[0], {
@@ -160,14 +155,14 @@
                 <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>
             </h:panelGroup>
             <h:panelGroup layout="block" styleClass="row" rendered="#{ForumTool.gradebookGroupEnabled}">
-                <sakai-multi-gradebook
-                        id="gb-selector"
+                <sakai-gradebook-item-selector
+                        id="gb-selector" input-id="msgForum:gb_selector"
                         app-name="sakai.forums"
                         site-id='<h:outputText value="#{ForumTool.siteId}" />'
                         user-id='<h:outputText value="#{ForumTool.selectedGradedUserId}" />'
                         group-id='<h:outputText value="#{ForumTool.groupId}" />'
-                        selected-temp='<h:outputText value="#{ForumTool.selectedAssign}" />'
-                </sakai-multi-gradebook>
+                        selected-temp='<h:outputText value="#{ForumTool.selectedAssign}" />'>
+                </sakai-gradebook-item-selector>
                 <h:inputHidden id="gb_selector" value="#{ForumTool.currentChange}" />
             </h:panelGroup>
             <h:panelGrid id="grade-message-options" styleClass="jsfFormTable" columns="1" columnClasses="shorttext spinnerBesideContainer" border="0">

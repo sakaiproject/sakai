@@ -1,4 +1,0 @@
-# Ignore compiled css files
-*.css
-*.css.map
-deployed-js-deps.json

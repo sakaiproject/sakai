@@ -33,10 +33,6 @@
             ASN_INE.validateGroupSelection();
         });
         ASN.checkIframeTags();
-
-        #if ($!isGradebookGroupEnabled)
-            window.syncGbSelectorInput("gb-selector", "gb_selector");
-        #end
     });
 </script>
 <script>

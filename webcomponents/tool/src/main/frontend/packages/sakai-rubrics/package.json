@@ -36,12 +36,16 @@
     "./sakai-rubric-evaluation-remover.js": "./sakai-rubric-evaluation-remover.js",
     "./sakai-rubric-association.js": "./sakai-rubric-association.js",
     "./sakai-rubrics-utils.js": "./sakai-rubrics-utils.js",
-    "./sakai-rubrics-manager.js": "./sakai-rubrics-manager.js"
+    "./sakai-rubrics-manager.js": "./sakai-rubrics-manager.js",
+    "./sakai-dynamic-rubric.js": "./sakai-dynamic-rubric.js",
+    "./sakai-dynamic-criterion.js": "./sakai-dynamic-criterion.js"
   },
   "dependencies": {
     "@sakai-ui/sakai-editor": "file:../sakai-editor",
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
     "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
-    "@sakai-ui/sakai-reorderer": "file:../sakai-reorderer"
+    "@sakai-ui/sakai-reorderer": "file:../sakai-reorderer",
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "@sakai-ui/sakai-icon": "file:../sakai-icon"
   }
 }
