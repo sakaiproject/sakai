@@ -704,11 +704,6 @@
 
         <!-- spring related -->
         <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml</groupId>
             <artifactId>classmate</artifactId>
             <scope>compile</scope>
