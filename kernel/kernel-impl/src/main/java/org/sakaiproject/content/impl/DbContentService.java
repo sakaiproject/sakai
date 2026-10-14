@@ -2776,12 +2776,10 @@ public class DbContentService extends BaseContentService
                     // form the file name
                     edit.setFilePath(created);
 
-                    try
+                    // read the body from the source
+                    sql = contentServiceSql.getBodySql(resourceBodyTableName);
+                    try (InputStream stream = sqlService.dbReadBinary(sql, fields, true))
                     {
-                        // read the body from the source
-                        sql = contentServiceSql.getBodySql(resourceBodyTableName);
-                        InputStream stream = sqlService.dbReadBinary(sql, fields, true);
-
                         //byte[] body = new byte[edit.m_contentLength];
                         //sqlService.dbReadBinary(sourceConnection, sql, fields, body);
 
@@ -2796,6 +2794,11 @@ public class DbContentService extends BaseContentService
                     catch (ServerOverloadException e)
                     {
                         log.debug("convertToFile(): ServerOverloadException moving resource body for " + id);
+                        return null;
+                    }
+                    catch (IOException e)
+                    {
+                        log.warn("Failed to close database resource body for {}", id, e);
                         return null;
                     }
 

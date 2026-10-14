@@ -166,10 +166,8 @@ class PASystemImpl implements PASystem {
 
             try {
                 for (String sql : parseMigrationFile(migrationInput)) {
-                    try {
-                        PreparedStatement ps = db.prepareStatement(sql);
+                    try (PreparedStatement ps = db.prepareStatement(sql)) {
                         ps.execute();
-                        ps.close();
                     } catch (SQLException e) {
                         log.warn("runDBMigration: " + e + "(sql: " + sql + ")");
                     }
