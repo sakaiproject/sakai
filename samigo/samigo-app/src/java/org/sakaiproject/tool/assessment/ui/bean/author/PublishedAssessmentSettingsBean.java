@@ -71,7 +71,6 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
@@ -89,9 +88,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
@@ -118,10 +115,25 @@ import lombok.extern.slf4j.Slf4j;
 @SessionScoped
 public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
 
-  private static final IntegrationContextFactory integrationContextFactory =
-    IntegrationContextFactory.getInstance();
-  private static final GradebookServiceHelper gbsHelper =
-      integrationContextFactory.getGradebookServiceHelper();
+  @Autowired
+  @Qualifier("org.sakaiproject.section.api.SectionAwareness")
+  private SectionAwareness sectionAwareness;
+
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade")
+  private ExtendedTimeFacade extendedTimeFacade;
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
+  @Autowired
+  @Qualifier("gradebookServiceHelper")
+  private GradebookServiceHelper gbsHelper;
 
   private String displayDateFormat;
   private SimpleDateFormat displayFormat;
@@ -309,6 +321,8 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   public PublishedAssessmentSettingsBean() {
   }
 
+
+
     public void setAssessment(PublishedAssessmentFacade assessment) {
     try {
       // Clear cached gradebook items when loading a new assessment
@@ -345,7 +359,6 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
     	  this.bgImageSelect=null;
     	  this.bgColorSelect="1";
 	   }
-	   ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
 		this.extendedTimes = extendedTimeFacade.getEntriesForPub(this.assessment.getData());
 
       resetExtendedTime();
@@ -492,7 +505,6 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
       this.publishedUrl = generatePublishedURL(assessment);
 
       // secure delivery
-      SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
       this.secureDeliveryAvailable = secureDeliveryService.isSecureDeliveryAvaliable();
       this.secureDeliveryModuleSelections = getSecureDeliverModuleSelections();
       this.secureDeliveryModule = (String) values.get( SecureDeliveryServiceAPI.MODULE_KEY );
@@ -1595,8 +1607,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	 */
 	public String[] getGroupsAuthorized(String publishedAssessmentId) {
 		groupsAuthorized = null;
-		AuthzQueriesFacadeAPI authz = PersistenceService.getInstance()
-				.getAuthzQueriesFacade();
+		AuthzQueriesFacadeAPI authz = authzQueriesFacade;
 		String id;
 		if (publishedAssessmentId != null) {
 			id = publishedAssessmentId;
@@ -1780,7 +1791,6 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
 	public SelectItem[] getSecureDeliverModuleSelections() {
 		
-		SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
 		Set<RegisteredSecureDeliveryModuleIfc> modules = secureDeliveryService.getSecureDeliveryModules( new ResourceLoader().getLocale() );
  		  
 		List<SelectItem> selections = new ArrayList<>();
@@ -1835,7 +1845,6 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
 		try {
 			site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
-			SectionAwareness sectionAwareness = PersistenceService.getInstance().getSectionAwareness();
 			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
 			Map<String, String> studentTargets = new HashMap<>();
 			Map<String, String> orderedStudents = new HashMap<>();

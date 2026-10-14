@@ -50,10 +50,10 @@ import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
+import org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.shared.impl.assessment.PublishedAssessmentServiceImpl;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentServiceException;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
@@ -106,7 +106,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
     // get assessment's ownerId
     String assessmentCreatedBy = req.getParameter("createdBy");
     
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res, getServletContext());
     if (authzBean.isUserAllowedToGradeAssessment(publishedId, assessmentCreatedBy, true, currentSiteId)) {
     	accessDenied = false;
     }
@@ -194,7 +194,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 	  log.debug("mediaList.size() = " + mediaList.size());
 		  
 	  QuestionScoresBean questionScoresBean = (QuestionScoresBean) ContextUtil.lookupBeanFromExternalServlet(
-			   "questionScores", req, res);
+			   "questionScores", req, res, getServletContext());
 	  Map userIdMap = questionScoresBean.getUserIdMap();
 	  
 	  String agentId;
@@ -409,7 +409,7 @@ private FileInputStream getFileStream(String mediaLocation){
     String agentIdString = AgentFacade.getAgentString();
     if (agentIdString == null || agentIdString.equals("")){ // try this
       PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
-			   "person", req, res);
+			   "person", req, res, getServletContext());
       agentIdString = person.getAnonymousId();
     }
     return agentIdString;
@@ -417,8 +417,12 @@ private FileInputStream getFileStream(String mediaLocation){
   
   private String getPartNumAndQuestionNum(String itemId){
 	  log.debug("itemId = " + itemId);
-	  PublishedAssessmentServiceImpl pubAssessmentServiceImpl = new PublishedAssessmentServiceImpl();
-	  ItemDataIfc item = pubAssessmentServiceImpl.loadPublishedItem(itemId);
+	  ItemDataIfc item;
+	  try {
+	      item = new PublishedAssessmentService().loadPublishedItem(itemId);
+	  } catch (Exception ex) {
+	      throw new AssessmentServiceException(ex);
+	  }
 	  Integer partNum = item.getSection().getSequence();
 	  log.debug("partNum = " + partNum);
 	  Integer questionNum = item.getSequence();

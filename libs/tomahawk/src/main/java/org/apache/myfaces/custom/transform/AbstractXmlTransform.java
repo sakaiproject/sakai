@@ -18,6 +18,8 @@
  */
 package org.apache.myfaces.custom.transform;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,7 +36,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 /**
  * Transforms XML using and XSL stylesheet.
@@ -133,11 +134,11 @@ public abstract class AbstractXmlTransform extends UIComponentBase
     {
         try
         {
-            TransformerFactory tFactory = TransformerFactory.newInstance();
-            Transformer transformer = tFactory.newTransformer(new StreamSource(stylesheet));
+            TransformerFactory tFactory = Xml.createSecureTransformerFactory();
+            Transformer transformer = tFactory.newTransformer(Xml.createSecureSource(stylesheet));
 
             Writer responseWriter = FacesContext.getCurrentInstance().getResponseWriter();
-            transformer.transform(new StreamSource(content), new StreamResult(responseWriter));
+            transformer.transform(Xml.createSecureSource(content), new StreamResult(responseWriter));
         }
         catch (TransformerException te)
         {

@@ -41,12 +41,16 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class EventLogFacadeQueries implements EventLogFacadeQueriesAPI {
 
+  @Setter
+  private PersistenceService persistenceService;
+
+
 	@Setter private SessionFactory sessionFactory;
 
 	public void saveOrUpdateEventLog(EventLogFacade eventLog){
 		EventLogData data = (EventLogData)  eventLog.getData();
 
-		int retryCount = PersistenceService.getInstance().getRetryCount();
+		int retryCount = persistenceService.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				sessionFactory.getCurrentSession().merge(data);
@@ -55,7 +59,7 @@ public class EventLogFacadeQueries implements EventLogFacadeQueriesAPI {
 				log
 				.warn("problem save or update eventLog: "
 						+ e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = persistenceService.retryDeadlock(e,
 						retryCount);
 			}
 		}

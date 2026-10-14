@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.lti.extensions;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.Reader;
 import java.util.List;
 import java.util.ArrayList;
@@ -22,7 +24,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +41,7 @@ public class POXMembershipsResponse {
     public POXMembershipsResponse(Reader reader) {
 
         try {
-            SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            SAXParser parser = Xml.createSecureSAXParser(false);
             parser.parse(new InputSource(reader), handler);
             reader.close();
         } catch (Exception e) {

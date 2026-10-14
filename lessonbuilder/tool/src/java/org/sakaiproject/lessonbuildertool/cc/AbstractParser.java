@@ -15,6 +15,10 @@
  */
 package org.sakaiproject.lessonbuildertool.cc;
 
+import org.jdom2.input.DOMBuilder;
+
+import org.sakaiproject.util.Xml;
+
 /**********************************************************************************
  * $URL: http://ims-dev.googlecode.com/svn/trunk/cc/IMS_CCParser_v1p0/src/main/java/org/imsglobal/cc/AbstractParser.java $
  * $Id: AbstractParser.java 227 2011-01-08 18:26:55Z drchuck $
@@ -37,7 +41,7 @@ package org.sakaiproject.lessonbuildertool.cc;
  **********************************************************************************/
 
 import java.io.IOException;
-import java.io.StringBufferInputStream;
+import java.io.InputStream;
 import java.util.Iterator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -45,12 +49,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
-import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
 import org.jdom2.xpath.XPath;
 
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
 
 @Slf4j
 public abstract class AbstractParser {
@@ -62,26 +63,8 @@ public abstract class AbstractParser {
   private static final String HREF="href";
   private static final String IDREF="identifierref";
   private static final String ID="identifier";
-  private static SAXBuilder builder;
   private static final String PROT_NAME ="protected";
   private static final Namespace AUTH_NS = Namespace.getNamespace("auth", "http://www.imsglobal.org/xsd/imsccauth_v1p0");
-  
-    // This will disable all external entities. The ones we really care
-    // about are file:. We could check the IDs and allow some forms, e.g.
-    // http. For the moment we're disabling them all.
-
-  public static class NoOpEntityResolver implements EntityResolver {
-      public InputSource resolveEntity(String publicId, String systemId) {
-	  return new InputSource(new StringBufferInputStream(""));
-      }
-  }
-
-  static {
-    builder=new SAXBuilder();
-    // the normal feature approach doesn't seem to work.
-    // this will disable processing of external entities. internal still work
-    builder.setEntityResolver(new NoOpEntityResolver());
-  }
   
   // set by Parser
   Ns ns = null;
@@ -122,8 +105,8 @@ public abstract class AbstractParser {
   getXML(CartridgeLoader the_cartridge,
          String the_file) throws IOException, ParseException {
     Element result=null;
-    try {
-	result=builder.build(the_cartridge.getFile(the_file)).getRootElement();
+    try (InputStream input = the_cartridge.getFile(the_file)) {
+	result=new DOMBuilder().build(Xml.createSecureDocumentBuilderFactoryWithDoctype(true).newDocumentBuilder().parse(input)).getRootElement();
       XMLOutputter outputter = new XMLOutputter();
     } catch (Exception e) {
       throw new ParseException(e);

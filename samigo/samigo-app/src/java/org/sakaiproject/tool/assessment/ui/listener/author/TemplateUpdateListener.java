@@ -339,7 +339,7 @@ public class TemplateUpdateListener
       template.setLastModifiedDate(new Date());
 
       //** save template before dealing with meta data set
-      delegate.save((AssessmentTemplateData)template);
+      template = delegate.save((AssessmentTemplateData)template);
 
       delegate.deleteAllMetaData((AssessmentTemplateData)template);
 
@@ -360,7 +360,7 @@ public class TemplateUpdateListener
       }
       template.setAssessmentMetaDataSet(set);
 
-      delegate.save((AssessmentTemplateData)template);
+      template = delegate.save((AssessmentTemplateData)template);
 
     }
     catch (RuntimeException ex)

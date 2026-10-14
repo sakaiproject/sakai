@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.tool.assessment.facade;
 
+import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +46,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 public class PublishedItemFacadeQueries implements PublishedItemFacadeQueriesAPI {
+
+  @Setter
+  private PersistenceHelper persistenceHelper;
+
 
 	@Setter private ItemHashUtil itemHashUtil;
 	@Setter private SessionFactory sessionFactory;
@@ -238,7 +242,7 @@ public class PublishedItemFacadeQueries implements PublishedItemFacadeQueriesAPI
 		Session session = sessionFactory.getCurrentSession();
 		PublishedItemAttachment itemAttachment = session.get(PublishedItemAttachment.class, itemAttachmentId);
 		ItemDataIfc item = itemAttachment.getItem();
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				if (item != null) {
@@ -249,7 +253,7 @@ public class PublishedItemFacadeQueries implements PublishedItemFacadeQueriesAPI
 				}
 			} catch (Exception e) {
 				log.warn("Error while trying to delete PublishedItemAttachment: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+				retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 			}
 		}
 	}

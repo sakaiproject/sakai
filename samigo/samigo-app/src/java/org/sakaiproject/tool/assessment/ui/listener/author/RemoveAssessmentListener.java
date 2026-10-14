@@ -55,7 +55,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -63,6 +62,9 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>
@@ -71,9 +73,13 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 @Slf4j
-public class RemoveAssessmentListener implements ActionListener
+public class RemoveAssessmentListener extends SpringBeanAutowiringSupport implements ActionListener
 {
-    private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+
+    @Autowired
+    @Qualifier("calendarServiceHelper")
+    private CalendarServiceHelper calendarService;
+
     private SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
     private SiteService siteService = ComponentManager.get(SiteService.class);
     private ToolManager toolManager = ComponentManager.get(ToolManager.class);

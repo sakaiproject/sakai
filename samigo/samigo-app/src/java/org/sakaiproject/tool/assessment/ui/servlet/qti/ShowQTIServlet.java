@@ -73,7 +73,7 @@ public class ShowQTIServlet extends HttpServlet
     ServletException, IOException
   {
     XMLDisplay xmlDisp = (XMLDisplay)
-      ContextUtil.lookupBeanFromExternalServlet("xml", req, res);
+      ContextUtil.lookupBeanFromExternalServlet("xml", req, res, getServletContext());
     String xml = xmlDisp.getXml();
     String fileName = xmlDisp.getName() + "." + xml;
 

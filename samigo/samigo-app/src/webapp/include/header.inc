@@ -17,7 +17,7 @@
     }
     else
     {
-      // supply the standalone versions tool styles
+      // Supply Sakai tool styles when the portal has not provided a header.
       request.setAttribute("html.head",
          org.sakaiproject.portal.util.CSSUtils.getPortalSkinLink(skinFolder) +
          "<link href=\"" + org.sakaiproject.portal.util.CSSUtils.getCssToolBase() + "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +

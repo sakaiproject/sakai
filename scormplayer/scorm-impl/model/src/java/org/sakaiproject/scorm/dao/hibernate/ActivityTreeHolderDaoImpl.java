@@ -51,6 +51,14 @@ public class ActivityTreeHolderDaoImpl implements ActivityTreeHolderDao
 	@Override
 	public void save(ActivityTreeHolder holder)
 	{
-		sessionFactory.getCurrentSession().merge(holder);
+		Session session = sessionFactory.getCurrentSession();
+		if (holder.getId() == null)
+		{
+			session.persist(holder);
+		}
+		else
+		{
+			session.merge(holder);
+		}
 	}
 }

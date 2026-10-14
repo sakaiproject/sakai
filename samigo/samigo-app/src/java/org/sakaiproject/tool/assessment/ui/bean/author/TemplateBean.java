@@ -32,11 +32,13 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.bean.ManagedBean;
@@ -49,7 +51,12 @@ import jakarta.faces.bean.ManagedBean;
 @Slf4j
 @ManagedBean(name="template")
 @SessionScoped
- public class TemplateBean implements Serializable {
+ public class TemplateBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
+
   private static final long serialVersionUID = 7526471155622776147L;
   private Map values = new HashMap();
   private String newName;
@@ -1009,7 +1016,6 @@ import jakarta.faces.bean.ManagedBean;
   }
 
   public boolean isSecureDeliveryAvailable() {
-	  SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
 	  return secureDeliveryService.isSecureDeliveryAvaliable();
   }
 }

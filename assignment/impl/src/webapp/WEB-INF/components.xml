@@ -212,7 +212,7 @@
                     <property name="labelResourceKey" value="length.attribute.property"/>
                     <property name="descriptionResourceKey" value="length.attribute.description"/>
                     <property name="defaultValue">
-                        <util:constant static-field="com.ctc.wstx.api.ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH"/>
+                        <util:constant static-field="org.sakaiproject.serialization.MapperFactory.DEFAULT_MAX_XML_ATTRIBUTE_LENGTH"/>
                     </property>
                 </bean>
                 <bean id="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJob.jobWrapper.number"
@@ -221,7 +221,7 @@
                     <property name="labelResourceKey" value="number.attributes.property"/>
                     <property name="descriptionResourceKey" value="number.attributes.description"/>
                     <property name="defaultValue">
-                        <util:constant static-field="com.ctc.wstx.api.ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT"/>
+                        <util:constant static-field="org.sakaiproject.serialization.MapperFactory.DEFAULT_MAX_XML_ATTRIBUTES_PER_ELEMENT"/>
                     </property>
                 </bean>
             </set>

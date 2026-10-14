@@ -90,13 +90,6 @@ public class XMLController implements Serializable {
     return display();
   }
 
-  public String displayItemXml()
-  {
-    documentType = AuthoringXml.ITEM_MCSC; // this is just a default, we will override
-    item();
-    return "xmlDisplay";
-  }
-
   public String displayItemBankXml(String displayName)
   {
     this.itemBank(displayName);

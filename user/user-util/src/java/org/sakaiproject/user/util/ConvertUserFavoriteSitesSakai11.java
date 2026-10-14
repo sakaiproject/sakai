@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.user.util;
 
+import org.sakaiproject.util.Xml;
+
 // Sakai 11 introduced a new way of storing users' favorite sites, which
 // simplifies the preferences data model somewhat.
 //
@@ -479,9 +481,10 @@ class ConvertUserFavoriteSitesSakai11 {
         String prefsPrefix = "/preferences/prefs[@key='" + PreferencesService.SITENAV_PREFS_KEY + "']";
 
         public PreferenceMigrator() {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 
             try {
+                DocumentBuilderFactory dbFactory = Xml.createSecureDocumentBuilderFactory(false);
+
                 documentBuilder = dbFactory.newDocumentBuilder();
                 xpath = XPathFactory.newInstance().newXPath();
             } catch (ParserConfigurationException e) {

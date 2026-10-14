@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.lessonbuildertool.cc;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1738,9 +1740,7 @@ public class QtiImport {
 	    if (d != null)
 		document = d;
 	    else {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-		factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+		DocumentBuilderFactory factory = Xml.createSecureDocumentBuilderFactory(false);
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		document = builder.parse(i);
 	    }

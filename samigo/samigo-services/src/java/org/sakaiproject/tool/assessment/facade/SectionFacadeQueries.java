@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -28,7 +29,6 @@ import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -40,6 +40,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 public class SectionFacadeQueries implements SectionFacadeQueriesAPI {
+
+  @Setter
+  private PersistenceHelper persistenceHelper;
+
 
   @Setter private SessionFactory sessionFactory;
 
@@ -73,7 +77,7 @@ public class SectionFacadeQueries implements SectionFacadeQueriesAPI {
     if (section != null) {
 
       SectionMetaData sectionmetadata = new SectionMetaData(section, label, value);
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+    int retryCount = persistenceHelper.getRetryCount();
     while (retryCount > 0){
       try {
         session.merge(sectionmetadata);
@@ -81,7 +85,7 @@ public class SectionFacadeQueries implements SectionFacadeQueriesAPI {
       }
       catch (Exception e) {
         log.warn("problem add section metadata: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
     }
@@ -99,7 +103,7 @@ public class SectionFacadeQueries implements SectionFacadeQueriesAPI {
 
     List<SectionMetaData> sectionmetadatalist = session.createQuery(cq).list();
 
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+    int retryCount = persistenceHelper.getRetryCount();
     while (retryCount > 0){
       try {
         for (SectionMetaData sectionMetaData : sectionmetadatalist) {
@@ -109,7 +113,7 @@ public class SectionFacadeQueries implements SectionFacadeQueriesAPI {
       }
       catch (Exception e) {
         log.warn("problem delete section metadata: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
   }

@@ -7856,7 +7856,7 @@ public class DiscussionForumTool implements Serializable {
 		if ((watchSettingsBean !=null) && (watchSettingsBean.getEmailNotification()!=null)){
 			log.debug("watchSettingsBean !=null) && (watchSettingsBean.getEmailNotification()!=null");
 			EmailNotification newoption = watchSettingsBean.getEmailNotification();
-			emailNotificationManager.saveEmailNotification(newoption);
+			watchSettingsBean.setEmailNotification(emailNotificationManager.saveEmailNotification(newoption));
 		}
 		else {
 			log.debug("ForumTool.processActionSaveEmailNotificationOption(): Can not save because watchSettingsBean is null");
@@ -9177,7 +9177,7 @@ public class DiscussionForumTool implements Serializable {
 	private boolean just_created = false;
 	private boolean imageDeletePending = false;
 
-	public void saveRank(Rank newRank) {
+	public Rank saveRank(Rank newRank) {
 		if ((forumRankBean != null) && (newRank != null)) {
 			if (log.isDebugEnabled()) log.debug("saveRank:   forumRankBean !=null) && (newRank!=null");
 
@@ -9192,20 +9192,22 @@ public class DiscussionForumTool implements Serializable {
 				if (log.isDebugEnabled()) log.debug("user_id = " + assignToIds);
 				newRank.setAssignToIds(assignToIds);
 				newRank.setMinPosts(0);
-				rankManager.saveRank(newRank);
+				newRank = rankManager.saveRank(newRank);
 			} else if (Rank.RANK_TYPE_POST_COUNT.equalsIgnoreCase(selectedRankType)) { // by # of post
 				if (log.isDebugEnabled()) log.debug("saveRank:  RANK_TYPE_POST_COUNT ");
 
 				newRank.setType(Rank.RANK_TYPE_POST_COUNT);
-				rankManager.saveRank(newRank);
+				newRank = rankManager.saveRank(newRank);
 			} else {
 				log.warn("ForumTool.saveRank(): should not come here.  The type is undefined.");
 			}
+			forumRankBean.setRank(newRank);
 			this.setSelectedIndividualMemberItemIds(null);
 		} else {
 			if (log.isDebugEnabled()) log.debug("ForumTool.saveRank(): Can not save because forumRankBean is null");
 			// should not come here
 		}
+		return newRank;
 	}
 
 	public void saveRankImages(Rank rank) {
@@ -9319,7 +9321,7 @@ public class DiscussionForumTool implements Serializable {
 		Rank newRank = this.forumRankBean.getRank(); // rankManager.getRankById(this.forumRankBean.getRank().getId());
 		newRank.setTitle(forumRankBean.getTitle());
 		newRank.setMinPosts(forumRankBean.getMinPosts());
-		saveRank(newRank);
+		newRank = saveRank(newRank);
 		saveRankImages(newRank);
 		return processActionViewRanks();
 	}
@@ -9337,7 +9339,7 @@ public class DiscussionForumTool implements Serializable {
 		Rank newRank = this.forumRankBean.getRank();
 		newRank.setTitle(forumRankBean.getTitle());
 		newRank.setMinPosts(forumRankBean.getMinPosts());
-		saveRank(newRank);
+		newRank = saveRank(newRank);
 		saveRankImages(newRank);
 		return processActionViewRanks();
 	}

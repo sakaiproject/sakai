@@ -43,7 +43,7 @@ public interface SectionAwareServiceHelper{
 	 *	an EnrollmentRecord list for each student that the current user
 	 *  is allowed to grade.
 	 */
-	public List getAvailableEnrollments(String siteid, String userUid);
+	public List<EnrollmentRecord> getAvailableEnrollments(String siteid, String userUid);
 
 	/**
 	 * @return

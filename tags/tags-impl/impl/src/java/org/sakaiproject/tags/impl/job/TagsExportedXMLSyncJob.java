@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tags.impl.job;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -32,8 +34,6 @@ import javax.xml.transform.dom.DOMResult;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -107,7 +107,7 @@ public class TagsExportedXMLSyncJob extends TagSynchronizer implements Job {
 			try {
 				xsr.nextTag();
 				xsr.nextTag();
-				TransformerFactory tf = TransformerFactory.newInstance();
+				TransformerFactory tf = Xml.createSecureTransformerFactory();
 				Transformer t = tf.newTransformer();
 
 				while (hasImportElement(xsr)) {

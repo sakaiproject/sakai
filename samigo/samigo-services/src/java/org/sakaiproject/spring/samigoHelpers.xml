@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+
+<!-- External Assignment Provider -->
+<!-- This advises Gradebook on information like group access of assessments -->
+
+<bean name="assessmentGradeInfoProvider"
+      class="org.sakaiproject.tool.assessment.integration.helper.impl.AssessmentGradeInfoProvider"
+      lazy-init="false" init-method="init" destroy-method="destroy">
+        <property name="gbsHelper" ref="gradebookServiceHelper"/>
+        <property name="authzQueriesFacade" ref="AuthzQueriesFacade"/>
+        <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries"/>
+      <property name="gradingService"><ref bean="org.sakaiproject.grading.api.GradingService"/></property>
+      <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+      <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+      <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
+</bean>
+
+<bean name="tagServiceHelper"
+      class="org.sakaiproject.tool.assessment.integration.helper.impl.TagServiceHelperImpl">
+    <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService" />
+    <property name="tagService" ref="org.sakaiproject.tags.api.TagService" />
+</bean>
+
+<bean name="tagSyncEventHandler"
+      class="org.sakaiproject.tool.assessment.integration.helper.impl.TagSyncEventHandlerImpl"
+      init-method="init" destroy-method="destroy">
+    <property name="tagServiceHelper" ref="tagServiceHelper"/>
+</bean>
+
+</beans>

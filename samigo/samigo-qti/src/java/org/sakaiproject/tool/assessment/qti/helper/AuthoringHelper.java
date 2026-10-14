@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.assessment.qti.helper;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -36,7 +38,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
 
 import org.apache.commons.lang3.StringUtils;
@@ -72,7 +73,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
+import org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.asi.Section;
@@ -90,8 +91,6 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.MergeConfig;
 
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
 
 
 
@@ -273,23 +272,6 @@ public class AuthoringHelper
                                              assessmentAccessControl);
       }
       
-      // Respondus Locked Browser
-      // To-do: To retain the value, need to re-organize SamigoApiFactory to samigo-api. 
-      /*
-      if (assessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY) == null ||
-    		  SecureDeliveryServiceAPI.NONE_ID.equals(assessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY))) {
-
-    	  assessmentXml.setFieldentry("REQUIRE_LOCKED_BROWSER", "True");
-
-    	  if (assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.EXITPWD_KEY ) != null)
-    	  {
-    		  SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-    		  String exitPassword = secureDeliveryService.decryptPassword((String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY ), 
-    				  (String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.EXITPWD_KEY ) );
-    		  assessmentXml.setFieldentry("EXIT_PASSWARD", exitPassword);
-    	  }
-      }
-      */
       
       Set securedIPAddressSet = (Set) assessment.getSecuredIPAddressSet();
       if (securedIPAddressSet != null)
@@ -697,14 +679,24 @@ public class AuthoringHelper
   private boolean validateImportXml(Document doc) throws SAXException, IOException{
       // 1. Lookup a factory for the W3C XML Schema language
       SchemaFactory factory =
-          SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+          Xml.createSecureSchemaFactory();
 
       // 2. Compile the schema.
       // Here the schema is loaded from a java.io.File, but you could use
       // a java.net.URL or a javax.xml.transform.Source instead.
       String schemaFile = VALIDATE_XSD_PATH + "qtiv1p2.xsd";
       log.debug("schemaFile = " + schemaFile);
-      Schema schema = factory.newSchema(new StreamSource(AuthoringHelper.class.getClassLoader().getResourceAsStream(schemaFile)));
+      Schema schema;
+      try (InputStream schemaStream = AuthoringHelper.class.getClassLoader().getResourceAsStream(schemaFile)) {
+          if (schemaStream == null) {
+              throw new IOException("QTI schema resource not found: " + schemaFile);
+          }
+          Document schemaDocument = Xml.readDocumentFromStream(schemaStream);
+          if (schemaDocument == null) {
+              throw new IOException("Unable to parse QTI schema resource: " + schemaFile);
+          }
+          schema = factory.newSchema(new DOMSource(schemaDocument));
+      }
 
       // 3. Get a validator from the schema.
       Validator validator = schema.newValidator();
@@ -1303,22 +1295,12 @@ public class AuthoringHelper
   public XmlStringBuffer readXMLDocument(InputStream inputStream)
   {
     Document document = null;
-    DocumentBuilderFactory builderFactory =
-      DocumentBuilderFactory.newInstance();
 //    builderFactory.setNamespaceAware(true);
     try
     {
-      DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactoryWithDoctype(false);
 
-      documentBuilder.setEntityResolver(new EntityResolver() {
-          @Override
-          public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-              if (systemId != null && systemId.endsWith("/ims_qtiasiv1p2p1.dtd")) {
-                  return new InputSource(this.getClass().getClassLoader().getResourceAsStream("xml/author/v1p2/ims_qtiasiv1p2p1.dtd"));
-              }
-              return null;
-          }
-      });
+      DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 
       document = documentBuilder.parse(inputStream);
     }

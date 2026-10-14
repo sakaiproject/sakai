@@ -23,8 +23,10 @@
     </properties>
 
     <dependencies>
-        <!-- This pom should *never* add any "org.sakaiproject" dependencies - any
-            Sakai-specific code needs to be placed in the lti-common folder -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>

@@ -43,7 +43,6 @@ import jakarta.faces.bean.ManagedProperty;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -51,7 +50,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
@@ -81,6 +79,15 @@ import lombok.extern.slf4j.Slf4j;
 @ManagedBean(name="xmlImport")
 @SessionScoped
 public class XMLImportBean extends SpringBeanAutowiringSupport implements Serializable {
+
+  @Autowired
+  @Qualifier("gradebookServiceHelper")
+  private GradebookServiceHelper gbsHelper;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.grading.api.GradingService")
+  private org.sakaiproject.grading.api.GradingService gradebookService;
+
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
 	  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
@@ -108,10 +115,6 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
   private boolean isCP;
   private String importType2;
   
-  private static final GradebookServiceHelper gbsHelper =
-      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-  private static final boolean integrated =
-      IntegrationContextFactory.getInstance().isIntegrated();
 
 
   public XMLImportBean()
@@ -342,11 +345,7 @@ public class XMLImportBean extends SpringBeanAutowiringSupport implements Serial
     
     // change grading book settings if there is no gradebook in the site
     boolean hasGradebook = false;
-    org.sakaiproject.grading.api.GradingService g = null;
-   if (integrated){
-     g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-          getBean("org.sakaiproject.grading.api.GradingService");
-   }
+    org.sakaiproject.grading.api.GradingService g = gradebookService;
    try{
      if (gbsHelper.isAssignmentDefined(assessment.getTitle(), g)){
    	  hasGradebook= true;

@@ -125,7 +125,15 @@ public class AttemptDaoImpl implements AttemptDao
 	public void save(Attempt attempt)
 	{
 		attempt.setLastModifiedDate(Date.from(Instant.now()));
-		sessionFactory.getCurrentSession().merge(attempt);
+		Session session = sessionFactory.getCurrentSession();
+		if (attempt.getId() == null)
+		{
+			session.persist(attempt);
+		}
+		else
+		{
+			session.merge(attempt);
+		}
 	}
 
 	@Override

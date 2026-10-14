@@ -136,7 +136,7 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
         CriteriaQuery<ToolItemRubricAssociation> query = cb.createQuery(ToolItemRubricAssociation.class);
         Root<ToolItemRubricAssociation> ass = query.from(ToolItemRubricAssociation.class);
         query.where(cb.and(cb.equal(ass.get("toolId"), toolId),
-                            cb.equal(ass.get("rubric"), rubricId)));
+                            cb.equal(ass.get("rubric").get("id"), rubricId)));
 
         return session.createQuery(query).list();
     }

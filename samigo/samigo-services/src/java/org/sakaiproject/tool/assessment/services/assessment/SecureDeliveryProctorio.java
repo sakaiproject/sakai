@@ -17,6 +17,7 @@
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +30,6 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -88,11 +88,14 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 	private static String proctorioUrl;
 	private static String proctorioEnabled;
 
-	private UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
-	private ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-	private SiteService siteService = ComponentManager.get(SiteService.class);
-	private SessionManager sessionManager = ComponentManager.get(SessionManager.class);
-
+	@Setter
+	private UserDirectoryService userDirectoryService;
+	@Setter
+	private ServerConfigurationService serverConfigurationService;
+	@Setter
+	private SiteService siteService;
+	@Setter
+	private SessionManager sessionManager;
 
 	@Override
 	public boolean initialize() {

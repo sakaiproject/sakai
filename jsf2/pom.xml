@@ -16,6 +16,7 @@
     
     <modules>
         <module>jsf2-app</module>
+        <module>jsf2-resource</module>
         <module>jsf2-spreadsheet</module>
         <module>jsf2-tool</module>
         <module>jsf2-tool-sun</module>

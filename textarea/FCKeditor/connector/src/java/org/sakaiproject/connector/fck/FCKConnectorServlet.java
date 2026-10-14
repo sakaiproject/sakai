@@ -21,6 +21,8 @@
 
 package org.sakaiproject.connector.fck;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -347,7 +349,7 @@ public class FCKConnectorServlet extends HttpServlet {
           document.getDocumentElement().normalize();
           try {
                out = response.getWriter();
-               TransformerFactory tFactory = TransformerFactory.newInstance();
+               TransformerFactory tFactory = Xml.createSecureTransformerFactory();
                Transformer transformer = tFactory.newTransformer();
                
                DOMSource source = new DOMSource(document);
@@ -1124,7 +1126,6 @@ public class FCKConnectorServlet extends HttpServlet {
 
      private ContentResource bypassAddAttachment(HttpServletRequest request, String fileName, String mimeType, byte[] bytes, InputStream requestStream, ResourceProperties props) throws Exception {
     	 try {
-    		 
              securityService.pushAdvisor(contentNewAdvisor);
 	         String path = request.getPathInfo();
 			 String resourceId = Validator.escapeResourceName(fileName);

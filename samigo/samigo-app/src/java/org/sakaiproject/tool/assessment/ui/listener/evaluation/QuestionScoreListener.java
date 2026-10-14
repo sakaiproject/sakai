@@ -50,7 +50,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
@@ -81,6 +80,9 @@ import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>
@@ -102,8 +104,12 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
  */
 
 @Slf4j
- public class QuestionScoreListener implements ActionListener,
+ public class QuestionScoreListener extends SpringBeanAutowiringSupport implements ActionListener,
 		ValueChangeListener {
+
+    @Autowired
+    @Qualifier("org.sakaiproject.rubrics.api.RubricsService")
+    private RubricsService rubricsService;
 
 	// private static EvaluationListenerUtil util;
 	private BeanSort bs;
@@ -111,8 +117,6 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 	private static final ResourceLoader evaluationMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	private static final String noAnswer = evaluationMessages.getString("no_answer");
 	private static final String noneOfTheAbove = evaluationMessages.getString("none_above");
-
-	private RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
 
 	/**
 	 * Standard process action method.

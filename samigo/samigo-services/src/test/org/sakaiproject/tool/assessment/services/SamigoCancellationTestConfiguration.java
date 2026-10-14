@@ -28,11 +28,9 @@ import org.sakaiproject.tool.assessment.facade.ItemHashUtil;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueries;
-import org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade;
-import org.sakaiproject.tool.assessment.integration.helper.integrated.GradebookServiceHelperImpl;
-import org.sakaiproject.tool.assessment.integration.helper.integrated.GradebookHelperImpl;
-import org.sakaiproject.tool.assessment.integration.context.spring.IntegrationContext;
-import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
+import org.sakaiproject.tool.assessment.facade.authz.AuthzQueriesFacade;
+import org.sakaiproject.tool.assessment.integration.helper.impl.GradebookServiceHelperImpl;
+import org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -83,14 +81,30 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
         return mock(ContentHostingService.class);
     }
 
-    @Bean(name = "integrationContextFactory")
-    public IntegrationContext integrationContextFactory() {
-        IntegrationContext context = new IntegrationContext();
-        context.setIntegrated(true);
-        context.setAgentHelper(new AgentHelperImpl());
-        context.setGradebookHelper(new GradebookHelperImpl());
-        context.setGradebookServiceHelper(new GradebookServiceHelperImpl());
-        return context;
+    @Bean(name = "org.sakaiproject.util.api.LocaleService")
+    public org.sakaiproject.util.api.LocaleService localeService() {
+        return mock(org.sakaiproject.util.api.LocaleService.class);
+    }
+
+    @Bean(name = "agentHelper")
+    public AgentHelperImpl agentHelper() {
+        AgentHelperImpl helper = new AgentHelperImpl();
+        helper.setAuthzGroupService(authzGroupService());
+        return helper;
+    }
+
+    @Bean(name = "gradebookServiceHelper")
+    public GradebookServiceHelperImpl gradebookServiceHelper() {
+        GradebookServiceHelperImpl helper = new GradebookServiceHelperImpl();
+        helper.setSecurityService(securityService());
+        helper.setLocaleService(localeService());
+        helper.setAssessmentGradingFacadeQueries(applicationContext.getBean("assessmentGradingFacadeQueries", AssessmentGradingFacadeQueries.class));
+        return helper;
+    }
+
+    @Bean
+    public PersistenceHelper persistenceHelper() {
+        return new PersistenceHelper();
     }
 
     @Bean
@@ -121,6 +135,10 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
         queries.setSiteService(siteService());
         queries.setToolManager(toolManager());
         queries.setUserDirectoryService(userDirectoryService());
+        queries.setPersistenceHelper(persistenceHelper());
+        queries.setAuthzQueriesFacade(authzQueriesFacade());
+        queries.setGbsHelper(gradebookServiceHelper());
+        queries.setGradebookService(gradebookService());
         return queries;
     }
 
@@ -147,11 +165,13 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
         items.setItemHashUtil(itemHashUtil());
         PublishedItemFacadeQueries publishedItems = applicationContext.getBean("publishedItemFacadeQueries", PublishedItemFacadeQueries.class);
         publishedItems.setItemHashUtil(itemHashUtil());
+        publishedItems.setPersistenceHelper(persistenceHelper());
         AssessmentGradingFacadeQueries grades = applicationContext.getBean("assessmentGradingFacadeQueries", AssessmentGradingFacadeQueries.class);
         grades.setContentHostingService(contentHostingService());
         grades.setSecurityService(securityService());
         grades.setUserDirectoryService(userDirectoryService());
-        grades.setPersistenceHelper(new PersistenceHelper());
+        grades.setPersistenceHelper(persistenceHelper());
+        grades.setLocaleService(localeService());
         PersistenceService service = new PersistenceService();
         service.setTypeFacadeQueries(typeFacadeQueries());
         service.setItemFacadeQueries(items);

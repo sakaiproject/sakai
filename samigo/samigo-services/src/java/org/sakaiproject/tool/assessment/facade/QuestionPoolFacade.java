@@ -814,11 +814,6 @@ public class QuestionPoolFacade
     return this.data.getSubPoolSize();
   }
 
-  /* this was not used. 
-  private ItemIteratorFacade getItemIterator() {
-    return new ItemIteratorFacade(items);
-  }
-  */
 
   public Object clone(){
     QuestionPoolFacade newPool = new QuestionPoolFacade((QuestionPoolData)data.clone());

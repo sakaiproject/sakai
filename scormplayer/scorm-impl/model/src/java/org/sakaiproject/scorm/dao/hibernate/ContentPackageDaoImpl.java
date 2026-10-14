@@ -101,6 +101,14 @@ public class ContentPackageDaoImpl implements ContentPackageDao
 	@Override
 	public void save(ContentPackage contentPackage)
 	{
-		sessionFactory.getCurrentSession().merge(contentPackage);
+		Session session = sessionFactory.getCurrentSession();
+		if (contentPackage.getContentPackageId() == null)
+		{
+			session.persist(contentPackage);
+		}
+		else
+		{
+			session.merge(contentPackage);
+		}
 	}
 }

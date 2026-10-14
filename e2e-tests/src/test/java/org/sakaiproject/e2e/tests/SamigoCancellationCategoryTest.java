@@ -255,6 +255,7 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         Locator row = publishedRow(title);
         assertThat(row).hasCount(1);
         row.locator("td.submitted a").first().click();
+        assertThat(page.locator("#editTotalResults")).isVisible();
         page.locator("[id$='questionScoresMenuLink'] a").click();
         assertThat(page.locator("[data-item-cancellable]")).hasCount(1);
     }

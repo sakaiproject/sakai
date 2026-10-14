@@ -99,7 +99,6 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -1421,7 +1420,6 @@ public class ItemAuthorBean implements Serializable {
 			});
 			File media = new File(mediaLocation);
 			byte[] mediaByte = getMediaStream(mediaLocation);
-			String mimeType = MimeTypesLocator.getInstance().getContentType(media);
 			
 			String fullname = media.getName().trim();
 			String collectionId = getPrivateCollection();
@@ -1430,7 +1428,7 @@ public class ItemAuthorBean implements Serializable {
 			ResourcePropertiesEdit resourceProperties = AssessmentService.getContentHostingService().newResourceProperties();
 			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fullname);
 			
-			AssessmentService.getContentHostingService().addResource(collectionId+fullname, mimeType, mediaByte, resourceProperties, NotificationService.NOTI_NONE);
+			AssessmentService.getContentHostingService().addResource(collectionId+fullname, null, mediaByte, resourceProperties, NotificationService.NOTI_NONE);
 		}catch(Exception e)	{
 			log.warn(e.getMessage(), e);
 		}
