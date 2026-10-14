@@ -169,21 +169,27 @@ class SharedToolComponentsTest {
     }
 
     @Test
-    void gradebookSelectionUpdatesTheToolFormWithOneItemPerGradebook() {
-        openFixture("""
-            <form><input type="hidden" id="selected" name="gradebooks" value="a1">
-              <sakai-gradebook-item-selector site-id="site"
-                  selected-temp="a1" input-id="selected"></sakai-gradebook-item-selector>
-            </form>
-            """);
+    void gradebookSelectionUpdatesTheToolFormWithOneItemPerGradebook() throws IOException {
+        String jsp = Files.readString(Path.of("../msgcntr/messageforums-app/src/webapp/jsp/discussionForum/message/dfMsgGrade.jsp"));
+        String tag = "sakai-gradebook-item-selector";
+        int start = jsp.indexOf("<" + tag);
+        int end = jsp.indexOf("</" + tag + ">", start) + tag.length() + 3;
+        String selector = jsp.substring(start, end)
+                .replace("<h:outputText value=\"#{ForumTool.siteId}\" />", "site")
+                .replace("<h:outputText value=\"#{ForumTool.selectedGradedUserId}\" />", "teacher")
+                .replace("<h:outputText value=\"#{ForumTool.groupId}\" />", "")
+                .replace("<h:outputText value=\"#{ForumTool.selectedAssign}\" />", "a1");
+        openFixture("<form>" + selector + "<input type=\"hidden\" id=\"msgForum:gb_selector\" name=\"gradebooks\" value=\"a1\"></form>");
+        Locator selected = page.locator("form > input[name=gradebooks]");
+        assertThat(selected).hasCount(1);
         Locator search = page.locator("sakai-gradebook-item-selector sakai-tag-selector input");
         search.click();
         page.getByRole(AriaRole.OPTION, new Page.GetByRoleOptions().setName("Group A - Quiz").setExact(true)).click();
-        assertThat(page.locator("#selected")).hasValue("a2");
+        assertThat(selected).hasValue("a2");
         search.fill("Group B");
         search.press("ArrowDown");
         search.press("Enter");
-        assertThat(page.locator("#selected")).hasValue("a2,b1");
+        assertThat(selected).hasValue("a2,b1");
         assertEquals("a2,b1", page.evaluate("new FormData(document.querySelector('form')).get('gradebooks')"));
         assertEquals("http://sakai.test/fixture", page.url());
     }

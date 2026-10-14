@@ -98,6 +98,20 @@ describe("Lessons Lit condition controls", () => {
     await expect(el).to.be.accessible();
   });
 
+  it("excludes the current item's conditions for numeric and string item IDs", async () => {
+    fetchMock.get("/api/sites/site/conditions?toolId=sakai.lessonbuildertool&itemId=7", []);
+    fetchMock.get("/api/sites/site/conditions", [ { ...score, id: "own", itemId: 7 }, score ]);
+    fetchMock.get("/direct/lessons/lesson/1.json", { contentsList: [
+      { id: 7, name: "Current item" }, { id: "source", name: "Essay" },
+    ] });
+    for (const itemId of [ 7, "7" ]) {
+      const el = await fixture(html`<sakai-condition-picker site-id="site" tool-id="sakai.lessonbuildertool" .itemId=${itemId} lesson-id="1"></sakai-condition-picker>`);
+      await ready(el);
+      expect(el.renderRoot.querySelector('option[value="own"]')).not.to.exist;
+      expect(el.renderRoot.querySelector('option[value="score"]')).to.exist;
+    }
+  });
+
   it("renders condition arguments as text and preserves translated emphasis", async () => {
     const el = await fixture(html`<sakai-condition-text .condition=${{ ...score, argument: "<img src=x onerror=alert(1)>" }} item="<b>Essay</b>"></sakai-condition-text>`);
     await waitUntil(() => el.renderRoot.querySelector("b"));

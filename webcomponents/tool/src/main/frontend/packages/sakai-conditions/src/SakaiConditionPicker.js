@@ -39,7 +39,7 @@ export class SakaiConditionPicker extends ConditionElement {
   }
 
   get _availableItems() {
-    return this._toolItems.filter(item => String(item.id) !== this.itemId);
+    return this._toolItems.filter(item => String(item.id) !== String(this.itemId));
   }
 
   _parent(operator) {

@@ -64,6 +64,26 @@ describe("sakai-dynamic-rubric", () => {
     expect(saved.associationId).to.equal("association");
   });
 
+  for (const [ attribute, value ] of [
+    [ "site-id", "site" ], [ "entity-id", "entity" ], [ "grading-id", "grade" ], [ "evaluated-item-owner-id", "student" ],
+  ]) {
+    it(`clears old grading data and prevents saving when ${attribute} is removed`, async () => {
+      const el = await create();
+      el.removeAttribute(attribute);
+      expect(await el.release()).to.be.undefined;
+      await elementUpdated(el);
+      expect(el.renderRoot.querySelector("sakai-dynamic-criterion")).not.to.exist;
+      expect(el.renderRoot.querySelector("[role=status]")).not.to.exist;
+      expect(el.renderRoot.querySelector('input[name^="newtotal"]')).not.to.exist;
+      expect(await el.release()).to.be.undefined;
+      expect(fetchMock.callHistory.calls(/rubric-evaluations/, { method: "PUT" })).to.have.length(0);
+      expect(fetchMock.callHistory.calls(/rubric-evaluations/, { method: "POST" })).to.have.length(0);
+      el.setAttribute(attribute, value);
+      await waitUntil(() => el.renderRoot.querySelectorAll("sakai-dynamic-criterion").length === 3);
+      expect((await el.release()).associationId).to.equal("association");
+    });
+  }
+
   it("edits criteria with immutable parent state and restores persisted rubric edits", async () => {
     const el = await create();
     el.renderRoot.querySelector(".rubric-actions button").click();

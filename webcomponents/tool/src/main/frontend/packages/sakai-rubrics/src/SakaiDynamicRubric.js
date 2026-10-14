@@ -41,8 +41,19 @@ export class SakaiDynamicRubric extends SakaiShadowElement {
     }
   }
 
+  get _hasRequiredContext() {
+    return !!(this.siteId && this.entityId && this.gradingId && this.evaluatedItemOwnerId);
+  }
+
   async _load() {
-    if (!this.siteId || !this.entityId || !this.gradingId || !this.evaluatedItemOwnerId) { return; }
+    if (!this._hasRequiredContext) {
+      this._loading = false;
+      this._association = null;
+      this._evaluation = null;
+      this._rubric = null;
+      this._criteria = [];
+      return;
+    }
     const context = this._context;
     this._loading = true;
     this._error = false;
@@ -126,7 +137,7 @@ export class SakaiDynamicRubric extends SakaiShadowElement {
 
   /** Persist the selected criteria when Samigo's grading dialog is accepted. */
   async release() {
-    if (this._loading || this._busy || !this._association) { return; }
+    if (this._loading || this._busy || !this._hasRequiredContext || !this._association) { return; }
     this._busy = true;
     this._error = false;
     const context = this._context;

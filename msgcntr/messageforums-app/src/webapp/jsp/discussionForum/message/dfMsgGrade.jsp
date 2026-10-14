@@ -161,7 +161,7 @@
                         site-id='<h:outputText value="#{ForumTool.siteId}" />'
                         user-id='<h:outputText value="#{ForumTool.selectedGradedUserId}" />'
                         group-id='<h:outputText value="#{ForumTool.groupId}" />'
-                        selected-temp='<h:outputText value="#{ForumTool.selectedAssign}" />'
+                        selected-temp='<h:outputText value="#{ForumTool.selectedAssign}" />'>
                 </sakai-gradebook-item-selector>
                 <h:inputHidden id="gb_selector" value="#{ForumTool.currentChange}" />
             </h:panelGroup>
