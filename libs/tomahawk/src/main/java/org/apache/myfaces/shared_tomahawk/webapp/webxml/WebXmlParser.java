@@ -80,10 +80,9 @@ public class WebXmlParser
 
         try
         {
-            DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
+            DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactoryWithDoctype(true);
             dbf.setIgnoringElementContentWhitespace(true);
             dbf.setIgnoringComments(true);
-            dbf.setNamespaceAware(true);
             dbf.setValidating(false);
 //            dbf.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
 

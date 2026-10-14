@@ -41,6 +41,7 @@ import org.sakaiproject.util.Xml;
  **********************************************************************************/
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -104,8 +105,8 @@ public abstract class AbstractParser {
   getXML(CartridgeLoader the_cartridge,
          String the_file) throws IOException, ParseException {
     Element result=null;
-    try {
-	result=new DOMBuilder().build(Xml.createSecureDocumentBuilderFactory().newDocumentBuilder().parse(the_cartridge.getFile(the_file))).getRootElement();
+    try (InputStream input = the_cartridge.getFile(the_file)) {
+	result=new DOMBuilder().build(Xml.createSecureDocumentBuilderFactoryWithDoctype(true).newDocumentBuilder().parse(input)).getRootElement();
       XMLOutputter outputter = new XMLOutputter();
     } catch (Exception e) {
       throw new ParseException(e);

@@ -106,9 +106,33 @@ public class XmlTest {
                 "<!DOCTYPE root [<!ENTITY repeated 'value'>]><root>&repeated;</root>")));
     }
 
-    @Test(expected = SAXException.class)
-    public void testSecureSaxParserRejectsExcessiveDepth() throws Exception {
-        Xml.processString("<node>".repeat(26) + "</node>".repeat(26), new DefaultHandler());
+    @Test
+    public void testSaxParserPreservesLargeSubmissionXml() throws Exception {
+        StringBuilder xml = new StringBuilder("<submission");
+        for (int i = 0; i < 40; i++) {
+            xml.append(" submitter").append(i).append("='user'");
+        }
+        xml.append('>').append("<node>".repeat(26)).append("</node>".repeat(26)).append("</submission>");
+        Xml.processString(xml.toString(), new DefaultHandler());
+    }
+
+    @Test
+    public void testLegacyDoctypeParsersDoNotLoadExternalResources() throws Exception {
+        String xml = "<!DOCTYPE root SYSTEM 'file:///xml-test-missing.dtd' ["
+                + "<!ENTITY % remote SYSTEM 'file:///xml-test-missing-parameter.dtd'>%remote;"
+                + "<!ENTITY external SYSTEM 'file:///xml-test-missing-entity'>]><root>&external;<child>value</child></root>";
+        Document document = Xml.createSecureDocumentBuilderFactoryWithDoctype(true)
+                .newDocumentBuilder().parse(toInputStream(xml));
+        assertEquals("value", document.getDocumentElement().getTextContent());
+
+        StringBuilder content = new StringBuilder();
+        Xml.createSecureSAXParserWithDoctype(false).parse(toInputStream(xml), new DefaultHandler() {
+            @Override
+            public void characters(char[] ch, int start, int length) {
+                content.append(ch, start, length);
+            }
+        });
+        assertEquals("value", content.toString());
     }
 
     @Test(expected = SAXException.class)

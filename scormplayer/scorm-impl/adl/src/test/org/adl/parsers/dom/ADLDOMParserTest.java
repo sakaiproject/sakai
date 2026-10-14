@@ -24,6 +24,21 @@ import static org.junit.Assert.*;
 
 public class ADLDOMParserTest {
     @Test
+    public void reportsRemoteSchemaAsInvalid() throws Exception {
+        Path file = Files.createTempFile("scorm-schema", ".xml");
+        try {
+            Files.writeString(file, "<manifest/>");
+            ADLDOMParser parser = new ADLDOMParser();
+            parser.setSchemaLocation("urn:manifest https://example.invalid/manifest.xsd");
+            parser.parseForValidation(file.toString());
+            assertTrue(parser.getIsWellformed());
+            assertFalse(parser.getIsValidToSchema());
+        } finally {
+            Files.deleteIfExists(file);
+        }
+    }
+
+    @Test
     public void testSequencingParserUsesSharedXmlHandling() throws Exception {
         Path file = Files.createTempFile("scorm-sequence", ".xml");
         try {

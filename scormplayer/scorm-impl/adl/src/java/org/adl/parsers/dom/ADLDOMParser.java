@@ -317,7 +317,15 @@ public class ADLDOMParser implements ErrorHandler {
 				StringTokenizer locations = new StringTokenizer(mSchemaLocation);
 				while (locations.hasMoreTokens()) {
 					locations.nextToken(); // namespace
-					schemas.add(new File(URI.create(locations.nextToken())));
+					URI location = URI.create(locations.nextToken());
+					if (!"file".equalsIgnoreCase(location.getScheme())) {
+						mValidFlag = false;
+						String message = "SCORM schema must be a package-local file: " + location;
+						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, message));
+						log.warn("{}", message);
+						return;
+					}
+					schemas.add(new File(location));
 				}
 				schema = Xml.createSecureSchema(schemaDirectory, schemas);
 			}

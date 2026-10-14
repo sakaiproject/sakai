@@ -90,8 +90,7 @@ public final class XmlUtil
 
     try
     {
-      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
-      builderFactory.setNamespaceAware(true);
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(true);
 
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.newDocument();
@@ -117,8 +116,7 @@ public final class XmlUtil
 
     try
     {
-      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
-      builderFactory.setNamespaceAware(true);
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactoryWithDoctype(true);
 
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
         document = documentBuilder.parse(xmlString);
@@ -160,8 +158,7 @@ public final class XmlUtil
 
     try
     {
-      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
-      builderFactory.setNamespaceAware(true);
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactoryWithDoctype(true);
 
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.parse(inputStream);
@@ -201,8 +198,7 @@ public final class XmlUtil
 
     try
     {
-      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
-      builderFactory.setNamespaceAware(true);
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactoryWithDoctype(true);
 
 
       InputStream inputStream = resource.getInputStream();
@@ -247,8 +243,7 @@ public final class XmlUtil
     DOMSource source = null;
     try
     {
-      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
-      builderFactory.setNamespaceAware(true);
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactoryWithDoctype(true);
 
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.parse(inputStream);
@@ -327,8 +322,7 @@ public final class XmlUtil
         inputStream = new FileInputStream(path);
       }
 
-      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
-      builderFactory.setNamespaceAware(true);
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactoryWithDoctype(true);
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.parse(inputStream);
     }

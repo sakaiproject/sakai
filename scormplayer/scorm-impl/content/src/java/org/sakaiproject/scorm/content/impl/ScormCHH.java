@@ -51,58 +51,59 @@ public class ScormCHH extends FastZipCHH
 		String realParentId = realParent.getId();
 		VirtualFileSystem fs = new VirtualFileSystem(realParentId);
 
-		try
+		try (InputStream inStream = getManifestAsStream(realParentId))
 		{
-			InputStream inStream = getManifestAsStream(realParentId);
 			XMLStreamReader xpp = MapperFactory.createSecureXMLInputFactory().createXMLStreamReader(inStream);
-
-			int eventType = xpp.getEventType();
-			String tagName = null;
-			String xmlBase = null;
-			while (eventType != XMLStreamConstants.END_DOCUMENT)
+			try
 			{
-				if (eventType == XMLStreamConstants.START_ELEMENT)
+
+				int eventType = xpp.getEventType();
+				String tagName = null;
+				String xmlBase = null;
+				while (eventType != XMLStreamConstants.END_DOCUMENT)
 				{
-					tagName = xpp.getLocalName();
-					if (tagName != null)
+					if (eventType == XMLStreamConstants.START_ELEMENT)
 					{
-						if (tagName.equals("resource"))
+						tagName = xpp.getLocalName();
+						if (tagName != null)
 						{
-							xmlBase = getAttributeValue(xpp, "xml", "base");
-						}
-						else if (tagName.equals("file")) {
-							String href = getAttributeValue(xpp, null, "href");
-
-							StringBuilder pathBuffer = new StringBuilder();
-							if (xmlBase != null)
+							if (tagName.equals("resource"))
 							{
-								pathBuffer.append(xmlBase);
+								xmlBase = getAttributeValue(xpp, "xml", "base");
 							}
+							else if (tagName.equals("file")) {
+								String href = getAttributeValue(xpp, null, "href");
 
-							if (href != null)
-							{
-								pathBuffer.append(href);
-								fs.addPath(pathBuffer.toString());
+								StringBuilder pathBuffer = new StringBuilder();
+								if (xmlBase != null)
+								{
+									pathBuffer.append(xmlBase);
+								}
+
+								if (href != null)
+								{
+									pathBuffer.append(href);
+									fs.addPath(pathBuffer.toString());
+								}
 							}
 						}
 					}
-				}
-				else if (eventType == XMLStreamConstants.END_ELEMENT)
-				{
-					tagName = xpp.getLocalName();
-					if (tagName != null && tagName.equals("resource"))
+					else if (eventType == XMLStreamConstants.END_ELEMENT)
 					{
-						xmlBase = null;
+						tagName = xpp.getLocalName();
+						if (tagName != null && tagName.equals("resource"))
+						{
+							xmlBase = null;
+						}
 					}
+
+					eventType = xpp.next();
 				}
 
-				eventType = xpp.next();
 			}
-
-			xpp.close();
-			if (inStream != null)
+			finally
 			{
-				inStream.close();
+				xpp.close();
 			}
 		}
 		catch (Exception xppe)

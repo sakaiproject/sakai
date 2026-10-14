@@ -189,7 +189,7 @@ implements Filter
 
         try
         {
-            SAXParser parser = Xml.createSecureSAXParser(false);
+            SAXParser parser = Xml.createSecureSAXParserWithDoctype(false);
             WelcomeFileHandler handler = new WelcomeFileHandler();
             InputStream        is      =
                 _context.getResourceAsStream("WEB-INF/web.xml");

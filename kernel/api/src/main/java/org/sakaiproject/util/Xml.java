@@ -464,6 +464,25 @@ public class Xml
 		return factory;
 	}
 
+	/**
+	 * Allows legacy DOCTYPE declarations without loading DTDs or expanding entities.
+	 * Use only for formats whose supported documents contain a DOCTYPE.
+	 */
+	public static DocumentBuilderFactory createSecureDocumentBuilderFactoryWithDoctype(boolean namespaceAware) throws ParserConfigurationException
+	{
+		DocumentBuilderFactory factory = createSecureDocumentBuilderFactory(namespaceAware);
+		setFeature(factory, DISALLOW_DOCTYPE_DECL, false);
+		return factory;
+	}
+
+	/** Allows legacy DOCTYPE declarations while retaining the shared SAX external-resource restrictions. */
+	public static SAXParser createSecureSAXParserWithDoctype(boolean namespaceAware) throws ParserConfigurationException, SAXException
+	{
+		SAXParser parser = createSecureSAXParser(namespaceAware);
+		parser.getXMLReader().setFeature(DISALLOW_DOCTYPE_DECL, false);
+		return parser;
+	}
+
 	/** Creates a new SAX parser; required security settings must succeed. */
 	public static SAXParser createSecureSAXParser(boolean namespaceAware) throws ParserConfigurationException, SAXException
 	{
@@ -479,8 +498,6 @@ public class Xml
 		SAXParser parser = factory.newSAXParser();
 		parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 		parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-		parser.setProperty(ELEMENT_ATTRIBUTE_LIMIT, "30");
-		parser.setProperty(MAX_ELEMENT_DEPTH, "25");
 		return parser;
 	}
 

@@ -703,7 +703,17 @@ public class AuthoringHelper
       // a java.net.URL or a javax.xml.transform.Source instead.
       String schemaFile = VALIDATE_XSD_PATH + "qtiv1p2.xsd";
       log.debug("schemaFile = " + schemaFile);
-      Schema schema = factory.newSchema(new DOMSource(Xml.readDocumentFromStream(AuthoringHelper.class.getClassLoader().getResourceAsStream(schemaFile))));
+      Schema schema;
+      try (InputStream schemaStream = AuthoringHelper.class.getClassLoader().getResourceAsStream(schemaFile)) {
+          if (schemaStream == null) {
+              throw new IOException("QTI schema resource not found: " + schemaFile);
+          }
+          Document schemaDocument = Xml.readDocumentFromStream(schemaStream);
+          if (schemaDocument == null) {
+              throw new IOException("Unable to parse QTI schema resource: " + schemaFile);
+          }
+          schema = factory.newSchema(new DOMSource(schemaDocument));
+      }
 
       // 3. Get a validator from the schema.
       Validator validator = schema.newValidator();
@@ -1305,7 +1315,7 @@ public class AuthoringHelper
 //    builderFactory.setNamespaceAware(true);
     try
     {
-      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
+      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactoryWithDoctype(false);
 
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 
