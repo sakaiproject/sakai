@@ -19,9 +19,17 @@
     <module>scheduler-component-shared</module>
     <module>scheduler-events-model</module>
     <module>scheduler-tool</module>
-    <module>scheduler-test-component</module>
-    <module>scheduler-test-component-shared</module>
     <module>scheduler-utils</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>scheduler-examples</id>
+      <modules>
+        <module>scheduler-test-component</module>
+        <module>scheduler-test-component-shared</module>
+      </modules>
+    </profile>
+  </profiles>
 
 </project>
