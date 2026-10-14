@@ -869,11 +869,14 @@ public class BasicSqlService implements SqlService {
                     if (resetAutoCommit) {
                         conn.setAutoCommit(autoCommit);
                     }
-                    returnConnection(conn);
                 }
             } catch (Exception e) {
                 log.warn("Sql.dbWrite(): {}", e.toString());
                 throw new RuntimeException("SqlService.dbWrite failure", e);
+            } finally {
+                if ((null != conn) && (callerConnection == null)) {
+                    returnConnection(conn);
+                }
             }
         }
 
@@ -989,11 +992,14 @@ public class BasicSqlService implements SqlService {
                     if (resetAutoCommit) {
                         conn.setAutoCommit(autoCommit);
                     }
-                    returnConnection(conn);
                 }
             } catch (Exception e) {
                 log.warn("Sql.dbInsert(): {}", e.toString());
                 throw new RuntimeException("SqlService.dbInsert failure", e);
+            } finally {
+                if ((null != conn) && (callerConnection == null)) {
+                    returnConnection(conn);
+                }
             }
         }
 
@@ -1312,10 +1318,11 @@ public class BasicSqlService implements SqlService {
                 if (null != conn) {
                     // we don't really know what this should be, but we assume the default is not
                     conn.setAutoCommit(false);
-                    returnConnection(conn);
                 }
             } catch (Exception e) {
                 log.warn("Sql.dbUpdateCommit(): {}", e.toString());
+            } finally {
+                returnConnection(conn);
             }
         }
     }
@@ -1506,11 +1513,14 @@ public class BasicSqlService implements SqlService {
         @Override
         public void close() throws IOException {
             log.debug("close()");
+            IOException streamCloseFailure = null;
             try {
                 if (m_stream != null) {
                     m_stream.close();
                     m_stream = null;
                 }
+            } catch (IOException e) {
+                streamCloseFailure = e;
             } catch (Exception e) {
                 log.warn("failure closing stream", e);
             }
@@ -1533,6 +1543,9 @@ public class BasicSqlService implements SqlService {
             if (m_conn != null) {
                 returnConnection(m_conn);
                 m_conn = null;
+            }
+            if (streamCloseFailure != null) {
+                throw streamCloseFailure;
             }
         }
 

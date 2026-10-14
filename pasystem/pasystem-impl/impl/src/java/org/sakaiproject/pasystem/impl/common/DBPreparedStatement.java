@@ -111,8 +111,16 @@ public class DBPreparedStatement {
     }
 
     public DBResults executeQuery() throws SQLException {
-        return new DBResults(preparedStatement.executeQuery(),
-                preparedStatement);
+        try {
+            return new DBResults(preparedStatement.executeQuery(), preparedStatement);
+        } catch (SQLException e) {
+            try {
+                cleanup();
+            } catch (SQLException cleanupFailure) {
+                e.addSuppressed(cleanupFailure);
+            }
+            throw e;
+        }
     }
 
     private void cleanup() throws SQLException {
