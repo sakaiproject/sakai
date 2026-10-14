@@ -46,8 +46,16 @@ public class UploadTag extends UIComponentTag {
 
   public void setProperties(UIComponent component){
     super.setProperties(component);
-    com.corejsf.util.Tags.setString(component, "target", target);
-    com.corejsf.util.Tags.setString(component, "value", value);
+    FacesContext context = FacesContext.getCurrentInstance();
+    ExpressionFactory factory = context.getApplication().getExpressionFactory();
+    if (target != null) {
+      component.setValueExpression("target", factory
+          .createValueExpression(context.getELContext(), target, String.class));
+    }
+    if (value != null) {
+      component.setValueExpression("value", factory
+          .createValueExpression(context.getELContext(), value, Object.class));
+    }
     registerValueChangeListener(component, valueChangeListener);
   }
 
@@ -59,7 +67,7 @@ public class UploadTag extends UIComponentTag {
   }
 
   private static void registerValueChangeListener(UIComponent component, String expression) {
-    if (expression == null || !expression.startsWith("#{")) {
+    if (expression == null) {
       return;
     }
     if (!(component instanceof EditableValueHolder)) {
