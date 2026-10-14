@@ -15,6 +15,7 @@
  */
 package org.adl.parsers.dom;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Test;
@@ -48,6 +49,12 @@ public class ADLDOMParserTest {
             parser.parseForWellformedness(file.toString(), false, false);
             assertTrue(parser.getIsWellformed());
             assertEquals("root", parser.getDocument().getDocumentElement().getTagName());
+
+            Files.write(file, "<root><child>café</child></root>".getBytes(StandardCharsets.UTF_16));
+            ADLDOMParser encoded = new ADLDOMParser();
+            encoded.parseForWellformedness(file.toString(), false, false);
+            assertTrue(encoded.getIsWellformed());
+            assertEquals("café", encoded.getDocument().getDocumentElement().getTextContent());
 
             Files.writeString(file, "<!DOCTYPE root [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]><root>&xxe;</root>");
             ADLDOMParser rejected = new ADLDOMParser();

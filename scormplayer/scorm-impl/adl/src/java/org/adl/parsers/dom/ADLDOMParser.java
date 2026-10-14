@@ -23,16 +23,11 @@
 ******************************************************************************/
 package org.adl.parsers.dom;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PushbackInputStream;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +51,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -527,7 +521,7 @@ public class ADLDOMParser implements ErrorHandler {
 					msgText = "Parsing for Well-Formedness first to obtain document";
 					log.debug(msgText);
 
-					wellformednessDocument = mParser.parse(setUpInputSource(fileName));
+					wellformednessDocument = parseXmlFile(fileName);
 
 					if (wellformednessDocument != null) {
 						mIsXMLWellformed = true;
@@ -560,7 +554,7 @@ public class ADLDOMParser implements ErrorHandler {
 							mValidFlag = false;
 						} else {
 							try {
-								wellformednessDocument = mParser.parse(setUpInputSource(fileName));
+								wellformednessDocument = parseXmlFile(fileName);
 
 							} catch (SAXException se) {
 								msgText = "SAXException thrown during validating" + " parse";
@@ -723,7 +717,7 @@ public class ADLDOMParser implements ErrorHandler {
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 					}
 
-					wellformednessDocument = mParser.parse(setUpInputSource(fileName));
+					wellformednessDocument = parseXmlFile(fileName);
 					msgText = Messages.getString("ADLDOMParser.53");
 					log.debug(msgText);
 
@@ -1036,135 +1030,23 @@ public class ADLDOMParser implements ErrorHandler {
 	}
 
 	/**
-	 * Sets up the file source for the test subject file.
-	 *
-	 * @param iFileName file to setup input source for.
-	 *
-	 * @return InputSource
+	 * Parses the test subject while keeping ownership of its input stream.
+	 * The XML parser detects the encoding from the byte stream.
 	 */
-	private InputSource setupFileSource(String iFileName) {
-		log.debug("setupFileSource()");
-		String msgText;
-		boolean defaultEncoding = true;
-		String encoding = null;
-		PushbackInputStream inputStream;
-		FileInputStream inFile;
-
-		try {
-			File xmlFile = new File(iFileName);
-			log.debug(xmlFile.getAbsolutePath());
-
-			if (xmlFile.isFile()) {
-				InputSource is = null;
-
-				defaultEncoding = true;
-				if (xmlFile.length() > 1) {
-					inFile = new FileInputStream(xmlFile);
-					inputStream = new PushbackInputStream(inFile, 4);
-
-					// Reads the initial 4 bytes of the file to check for a Byte
-					// Order Mark and determine the encoding
-
-					byte bom[] = new byte[4];
-					int n, pushBack;
-					n = inputStream.read(bom, 0, bom.length);
-
-					// UTF-8 Encoded
-					if ((bom[0] == (byte) 0xEF) && (bom[1] == (byte) 0xBB) && (bom[2] == (byte) 0xBF)) {
-						encoding = "UTF-8";
-						defaultEncoding = false;
-						pushBack = n - 3;
-					}
-					// UTF-16 Big Endian Encoded
-					else if ((bom[0] == (byte) 0xFE) && (bom[1] == (byte) 0xFF)) {
-						encoding = "UTF-16BE";
-						defaultEncoding = false;
-						pushBack = n - 2;
-					}
-					// UTF-16 Little Endian Encoded               
-					else if ((bom[0] == (byte) 0xFF) && (bom[1] == (byte) 0xFE)) {
-						encoding = "UTF-16LE";
-						defaultEncoding = false;
-						pushBack = n - 2;
-					}
-					// Default encoding
-					else {
-						// Unicode BOM mark not found, unread all bytes                  
-						pushBack = n;
-					}
-
-					// Place any non-BOM bytes back into the stream
-					if (pushBack > 0) {
-						inputStream.unread(bom, (n - pushBack), pushBack);
-					}
-
-					if (defaultEncoding == true) { //Reads in ASCII file.
-						FileReader fr = new FileReader(xmlFile);
-						is = new InputSource(fr);
-					}
-					// Reads the file in the determined encoding
-					else {
-						StringBuffer dataString;
-						try ( //Creates a buffer with the size of the xml encoded file
-								BufferedReader inStream = new BufferedReader(new InputStreamReader(inputStream, encoding)))
-						{
-							dataString = new StringBuffer();
-							String s = "";
-							//Builds the encoded file to be parsed
-							while ((s = inStream.readLine()) != null) {
-								dataString.append(s);
-							}
-						}
-						inputStream.close();
-						inFile.close();
-						is = new InputSource(new StringReader(dataString.toString()));
-						is.setEncoding(encoding);
-					}
-				}
-				return is;
-			} else if ((iFileName.length() > 6) && (iFileName.substring(0, 5).equals("http:") || iFileName.substring(0, 6).equals("https:"))) {
-				URL xmlURL = new URL(iFileName);
-				InputStream xmlIS = xmlURL.openStream();
-				InputSource is = new InputSource(xmlIS);
-				return is;
-			} else {
-				msgText = "XML File: " + iFileName + " is not a file or URL";
-				log.error(msgText);
+	private Document parseXmlFile(String fileName) throws IOException, SAXException {
+		File file = new File(fileName);
+		if (file.isFile()) {
+			try (InputStream input = new FileInputStream(file)) {
+				return mParser.parse(input, file.toURI().toString());
 			}
-		} catch (NullPointerException npe) {
-			msgText = "Null pointer exception" + npe;
-			log.error(msgText);
-		} catch (SecurityException se) {
-			msgText = "Security Exception" + se;
-			log.error(msgText);
-		} catch (FileNotFoundException fnfe) {
-			msgText = "File Not Found Exception" + fnfe;
-			log.error(msgText);
-		} catch (Exception e) {
-			msgText = "General Exception" + e;
-			log.error(msgText);
 		}
-
-		log.debug("setUpFileSource()");
-
-		return new InputSource();
-	}
-
-	/**
-	 * This method sets up the input source for the test subject file.
-	 *
-	 * @param iFileName The name of the file we are are setting up the input 
-	 * source for.
-	 *
-	 * @return Returns an input source needed for parsing
-	 */
-	private InputSource setUpInputSource(String iFileName) {
-		log.debug("setUpInputSource()");
-		InputSource is = new InputSource();
-		is = setupFileSource(iFileName);
-
-		log.debug("setUpInputSource()");
-		return is;
+		if (fileName.startsWith("http:") || fileName.startsWith("https:")) {
+			URL url = new URL(fileName);
+			try (InputStream input = url.openStream()) {
+				return mParser.parse(input, url.toExternalForm());
+			}
+		}
+		throw new FileNotFoundException("XML file not found: " + fileName);
 	}
 
 	/**
