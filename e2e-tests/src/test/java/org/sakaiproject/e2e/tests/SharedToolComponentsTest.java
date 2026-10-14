@@ -41,7 +41,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Exercises the shipped Lit bundles with tool markup and HTTP boundary fixtures. */
-class LitComponentsMigrationTest {
+class SharedToolComponentsTest {
 
     private static final Path FRONTEND = Path.of("../webcomponents/tool/src/main/frontend");
     private static final String SCORE = """

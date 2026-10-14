@@ -59,6 +59,6 @@ the gradebook selector separately can use `bundles/gradebook-item-selector.js`.
 Translations for these components live in `bundle/src/main/bundle`. All reactive internal
 state stays in the components; criterion changes use events instead of mutating a parent's model.
 
-Build the frontend bundles before running `LitComponentsMigrationTest` in `e2e-tests`.
+Build the frontend bundles before running `SharedToolComponentsTest` in `e2e-tests`.
 That Playwright test loads the production bundles with tool markup and HTTP fixtures to check
 form values, condition persistence, rubric recalculation navigation, and timer messages.
