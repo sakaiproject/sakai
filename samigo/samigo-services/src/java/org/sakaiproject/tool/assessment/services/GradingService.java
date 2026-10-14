@@ -60,10 +60,10 @@ import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.Precision;
 import org.jsoup.Jsoup;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
@@ -92,12 +92,10 @@ import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
-import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.ImageMapCoordinates;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
@@ -1686,16 +1684,10 @@ public class GradingService
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
-    org.sakaiproject.grading.api.GradingService gradingService = null;
-    boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-    if (integrated)
-    {
-      gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-        getBean("org.sakaiproject.grading.api.GradingService");
-    }
+    org.sakaiproject.grading.api.GradingService gradingService = ComponentManager.get(org.sakaiproject.grading.api.GradingService.class);
 
     GradebookServiceHelper gbsHelper =
-      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+      (GradebookServiceHelper) ComponentManager.get("gradebookServiceHelper");
 
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(pub.getPublishedAssessmentId().toString());
@@ -2635,7 +2627,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       return;
     }
 
-    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    SectionAwareServiceHelper service = (SectionAwareServiceHelper) ComponentManager.get("sectionAwareServiceHelper");
     String userId = AgentFacade.getAgentString();
     List<EnrollmentRecord> siteEnrollments = service.getAllGroupsReleaseEnrollments(siteId, userId, null);
     for (PublishedAssessmentFacade assessment : assessments) {

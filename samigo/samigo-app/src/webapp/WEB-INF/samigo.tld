@@ -198,32 +198,6 @@
 
   </tag>
 
-  <!-- ==== OBSOLETE display a tag for a set of navigation links ==== -->
-  <tag>
-  <name>navigationMap</name>
-  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.NavigationMapTag</tag-class>
-  <body-content>JSP</body-content>
-  <attribute>
-    <name>map</name>
-    <required>true</required>
-    <rtexprvalue>true</rtexprvalue>
-  </attribute>
-  <attribute>
-    <name>separator</name>
-    <required>false</required>
-    <rtexprvalue>true</rtexprvalue>
-  </attribute>
-  <attribute>
-    <name>style</name>
-    <required>false</required>
-    <rtexprvalue>true</rtexprvalue>
-  </attribute>
-  <attribute>
-    <name>linkStyle</name>
-    <required>false</required>
-    <rtexprvalue>true</rtexprvalue>
-  </attribute>
-  </tag>
   <!-- ==== display like a dataTable, but horizontally, e.g. set of navigation links ==== -->
   <tag>
   <name>dataLine</name>

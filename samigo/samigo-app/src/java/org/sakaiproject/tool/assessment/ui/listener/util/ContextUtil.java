@@ -60,7 +60,6 @@ import org.sakaiproject.util.ResourceLoader;
 public class ContextUtil
 {
 
-  private static ServletContext M_servletContext = null;
   /**
    * Determine if we have been passed a parameter ending in the param string,
    * else null.  We are doing an endsWith test, since the default JSF renderer
@@ -248,10 +247,11 @@ public static ArrayList paramArrayValueLike(String paramPart)
    * @param beanName
    * @param request servlet request
    * @param response servlet response
+   * @param servletContext the calling servlet's web application context
    * @return the backing bean
    */
   public static Serializable lookupBeanFromExternalServlet(String beanName,
-    HttpServletRequest request, HttpServletResponse response)
+    HttpServletRequest request, HttpServletResponse response, ServletContext servletContext)
   {
     // prepare lifecycle
     LifecycleFactory lFactory = (LifecycleFactory)
@@ -261,15 +261,6 @@ public static ArrayList paramArrayValueLike(String paramPart)
 
     FacesContextFactory fcFactory = (FacesContextFactory)
         FactoryFinder.getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
-
-    // in the integrated environment, we can't get the ServletContext from the
-    // HttpSession of the request - because the HttpSession is webcontainer-wide,
-    // its not tied to a particular servlet.
-    ServletContext servletContext = M_servletContext;
-     if (servletContext == null)
-    {
-    	servletContext = request.getSession().getServletContext();
-    }
 
     FacesContext facesContext =
         fcFactory.getFacesContext(servletContext, request, response, lifecycle);
@@ -283,13 +274,6 @@ public static ArrayList paramArrayValueLike(String paramPart)
                         facesContext, beanName);
     return bean;
   }
-	/**
-	 * Called by LoginServlet
-	 */
-	public static void setServletContext(ServletContext context)
-	{
-		M_servletContext = context;
-	}
 
 
   /**

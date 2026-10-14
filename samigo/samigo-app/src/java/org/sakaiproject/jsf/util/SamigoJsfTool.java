@@ -135,7 +135,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
           }
           String siteId = ToolManager.getCurrentPlacement().getContext();
           Set<String> permissions = SamigoJsfPermissions.get(req, SessionManager.getCurrentSessionUserId(), siteId, () -> {
-              AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
+              AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res, getServletContext());
               authorization.addAllPrivilege(siteId);
               return authorization.getAuthzMap();
           });
@@ -155,7 +155,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
 		// shouldn't be here!!
 		if (target != null && target.startsWith(RESET_ASSESSMENT_BEAN)) {
 			AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
-					.lookupBeanFromExternalServlet("assessmentBean", req, res);
+					.lookupBeanFromExternalServlet("assessmentBean", req, res, getServletContext());
 			if (assessmentBean != null && assessmentBean.getAssessmentId() != null) {
 				AssessmentIfc assessment;
 				AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
@@ -271,7 +271,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       if (target.indexOf("/jsf/author/item/") > -1 
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 ItemAuthorBean bean = (ItemAuthorBean) ContextUtil.lookupBeanFromExternalServlet(
-                               "itemauthor", req, res);
+                               "itemauthor", req, res, getServletContext());
 
 	 	 // For EMI Item Attachments	
 	     AnswerBean emiQAComboItem = bean.getCurrentAnswer();
@@ -289,7 +289,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       else if (target.indexOf("/jsf/author/editPart") > -1 
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 SectionBean bean = (SectionBean) ContextUtil.lookupBeanFromExternalServlet(
-                               "sectionBean", req, res);
+                               "sectionBean", req, res, getServletContext());
          bean.setPartAttachment();
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
@@ -298,7 +298,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       else if (target.indexOf("/jsf/author/authorSettings") > -1 
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 AssessmentSettingsBean bean = (AssessmentSettingsBean) ContextUtil.lookupBeanFromExternalServlet(
-                               "assessmentSettings", req, res);
+                               "assessmentSettings", req, res, getServletContext());
          bean.setAssessmentAttachment();
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
@@ -306,27 +306,27 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       else if (target.indexOf("/jsf/author/publishedSettings") > -1 
     		  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
     	  PublishedAssessmentSettingsBean bean = (PublishedAssessmentSettingsBean) ContextUtil.lookupBeanFromExternalServlet(
-    	                               "publishedSettings", req, res);
+                                       "publishedSettings", req, res, getServletContext());
     	         bean.setAssessmentAttachment();
     	         toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
       else if (target.indexOf("/jsf/evaluation/questionScore") > -1
 				&& ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
-			QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBeanFromExternalServlet("questionScores", req, res);
+			QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBeanFromExternalServlet("questionScores", req, res, getServletContext());
 			bean.setAttachment((Long) toolSession.getAttribute("itemGradingId"));
 			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
 		}
       
       else if (target.indexOf("/jsf/evaluation/gradeStudentResult") > -1
 				&& ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
-    	  ItemContentsBean bean = (ItemContentsBean) ContextUtil.lookupBeanFromExternalServlet("itemContents", req, res);
+          ItemContentsBean bean = (ItemContentsBean) ContextUtil.lookupBeanFromExternalServlet("itemContents", req, res, getServletContext());
 			bean.setAttachment((Long) toolSession.getAttribute("itemGradingId"));
 			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
 		}
       
       else if (target.indexOf("/jsf/evaluation/totalScores") > -1
 				&& ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
-    	  TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBeanFromExternalServlet("totalScores", req, res);
+          TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBeanFromExternalServlet("totalScores", req, res, getServletContext());
 			bean.setAttachment((Long) toolSession.getAttribute("assessmentGradingId"));
 			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
 		}

@@ -35,14 +35,13 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig.ConfigMode;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
@@ -55,7 +54,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
@@ -65,6 +63,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>2
@@ -73,8 +74,24 @@ import org.sakaiproject.util.ResourceLoader;
  * @version $Id$
  */
 @Slf4j
-public class SaveAssessmentSettings
+public class SaveAssessmentSettings extends SpringBeanAutowiringSupport
 {
+
+  @Autowired
+  @Qualifier("org.sakaiproject.grading.api.GradingService")
+  private GradingService gradebookService;
+
+  @Autowired
+  @Qualifier("AuthzQueriesFacade")
+  private AuthzQueriesFacadeAPI authzQueriesFacade;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade")
+  private ExtendedTimeFacade extendedTimeFacade;
+
+  @Autowired
+  @Qualifier("SecureDeliveryServiceAPI")
+  private SecureDeliveryServiceAPI secureDeliveryService;
 
   private static final String EXTENDED_TIME_KEY = "extendedTime";
 
@@ -309,7 +326,7 @@ public class SaveAssessmentSettings
     updateMetaWithValueMap(assessment, h);
 
     org.sakaiproject.grading.api.GradingService gradingService =
-			(org.sakaiproject.grading.api.GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			gradebookService;
 
     boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(AgentFacade.getCurrentSiteId());
 
@@ -337,7 +354,6 @@ public class SaveAssessmentSettings
       assessment.updateAssessmentToGradebookNameMetaData("");
     }
 
-    ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
     extendedTimeFacade.saveEntries(assessment, assessmentSettings.getExtendedTimes());
 
     // i. set Graphics
@@ -372,7 +388,6 @@ public class SaveAssessmentSettings
     assessment.setSecuredIPAddressSet(ipSet);
     
     // kk. secure delivery settings
-    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
     String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, encryptedPassword);
@@ -432,7 +447,7 @@ public class SaveAssessmentSettings
     updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData(), true);
     EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SETTING_EDIT, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessmentSettings.getAssessmentId(), true));
     
-    AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+    AuthzQueriesFacadeAPI authz = authzQueriesFacade;
     if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
         authz.removeAuthorizationByQualifierAndFunction(assessmentId.toString(), "TAKE_ASSESSMENT");
     	String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave();//getGroupsAuthorized();

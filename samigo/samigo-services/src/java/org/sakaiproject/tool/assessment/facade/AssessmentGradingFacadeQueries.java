@@ -51,7 +51,6 @@ import org.hibernate.query.Query;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -96,10 +95,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -122,6 +119,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 public class AssessmentGradingFacadeQueries implements AssessmentGradingFacadeQueriesAPI {
+
+  @Setter
+  private LocaleService localeService;
+
+  @Setter
+  private AutoSubmitFacadeQueriesAPI autoSubmitFacadeQueries;
+
 
     @Setter private SessionFactory sessionFactory;
 
@@ -3374,7 +3378,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             }
         }
         Collator collator = SakaiCollators.getCollatorWithUnderscoreAfterSpace(
-                ComponentManager.get(LocaleService.class).getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
+                localeService.getLocaleForCurrentSiteAndUser(), Collator.TERTIARY);
         Collections.sort(dataList, new CellComparator(anonymous, collator));
 
         Map<ExportSection, List<List<CellValue<?>>>> result = new EnumMap<>(ExportSection.class);
@@ -4054,8 +4058,8 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             Map<Long, Set<PublishedSectionData>> sectionSetMap = new HashMap<>();
 
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-            boolean updateGrades = IntegrationContextFactory.getInstance() != null;
-            AutoSubmitFacadeQueriesAPI autoSubmitFacade = PersistenceService.getInstance().getAutoSubmitFacadeQueries();
+
+            AutoSubmitFacadeQueriesAPI autoSubmitFacade = autoSubmitFacadeQueries;
 
             while (iter.hasNext()) {
                 try {
@@ -4066,7 +4070,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                     }
 
                     // this call happens in a separate transaction, so a rollback only affects this iteration
-                    boolean success = autoSubmitFacade.processAttempt(adata, updateGrades, this, assessment, currentTime, 
+                    boolean success = autoSubmitFacade.processAttempt(adata, this, assessment, currentTime,
                             lastAgentId, lastPublishedAssessmentId, sectionSetMap);
                     if (!success) {
                         ++failures;

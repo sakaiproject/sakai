@@ -40,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -51,7 +50,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
@@ -65,6 +63,9 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * <p>Title: Samigo</p>2
@@ -73,16 +74,21 @@ import org.sakaiproject.util.api.FormattedText;
  * @version $Id$
  */
 @Slf4j
-public class ConfirmPublishAssessmentListener
+public class ConfirmPublishAssessmentListener extends SpringBeanAutowiringSupport
     implements ActionListener {
+
+  @Autowired
+  @Qualifier("gradebookServiceHelper")
+  private GradebookServiceHelper gbsHelper;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.grading.api.GradingService")
+  private org.sakaiproject.grading.api.GradingService gradebookService;
+
 
   private final String NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED = "NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED";
 
   //private static ContextUtil cu;
-  private static final GradebookServiceHelper gbsHelper =
-      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-  private static final boolean integrated =
-      IntegrationContextFactory.getInstance().isIntegrated();
   private boolean isFromActionSelect = false;
 
   public ConfirmPublishAssessmentListener() {
@@ -384,11 +390,7 @@ public class ConfirmPublishAssessmentListener
     }
 
     //#2b - check if gradebook exist, if so, if assessment title already exists in GB
-    org.sakaiproject.grading.api.GradingService g = null;
-    if (integrated){
-      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
-            getBean("org.sakaiproject.grading.api.GradingService");
-    }
+    org.sakaiproject.grading.api.GradingService g = gradebookService;
     try{
 	if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(assessmentSettings.getToDefaultGradebook()) && gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)){
         String gbConflict_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "gbConflict_error");

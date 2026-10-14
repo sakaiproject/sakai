@@ -420,56 +420,6 @@ import lombok.extern.slf4j.Slf4j;
     }
   }
 
-  /**
-   * Copy a question to a pool
-   */
-  public void copyQuestion(
-    osid.shared.Id questionId, osid.shared.Id destId )
-  {
-    try
-    {
-//TODO must call the Service.
-	//questionPoolService.copyQuestion(questionId, destId );
-    }
-    catch(Exception e)
-    {
-      log.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * Copy a question to a pool
-   */
-  public void copyQuestion(
-    osid.shared.Id questionId, osid.shared.Id destId, boolean duplicateCopy)
-  {
-    try
-    {
-//TODO must call the Service.
-	//questionPoolService.copyQuestion(questionId, destId ,duplicateCopy);
-    }
-    catch(Exception e)
-    {
-      log.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-  }
-
-
-  /*
-   * Exports a Question as an Xml file
-   */
-  public String exportQuestion(osid.shared.Id questionId)
-  {
-    try{
-	return "";//questionPoolService.exportQuestion(questionId);
-    }catch(Exception e){
-      log.error("Exception in exportQuestion", e);
-      return null;
-    }
-  }
-
   /** Pool catalogs follow the pool owner, including when the pool is shared across sites. */
   public List<TagSummary> getAvailableTags(Long poolId) {
     String userId = AgentFacade.getAgentString();

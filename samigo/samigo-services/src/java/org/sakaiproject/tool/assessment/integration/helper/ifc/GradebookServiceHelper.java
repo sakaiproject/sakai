@@ -33,11 +33,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 
 /**
- * <p>Description:
- * This is a context implementation helper delegate interface for
- * the GradebookService class.  Using Spring injection via the
- * integrationContext.xml selected by the build process for the implementation.
- * </p>
+ * <p>Description: Synchronizes Samigo assessments and scores with the Sakai Gradebook.</p>
  * <p>Sakai Project Copyright (c) 2005</p>
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>

@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
-import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
+import org.sakaiproject.tool.assessment.integration.helper.impl.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.DownloadFileSubmissionsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
