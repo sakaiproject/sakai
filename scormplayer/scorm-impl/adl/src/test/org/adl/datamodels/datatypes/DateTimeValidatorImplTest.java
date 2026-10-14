@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.TimeZone;
 
+import org.adl.datamodels.DMErrorCodes;
 import org.junit.Test;
 
 public class DateTimeValidatorImplTest {
@@ -47,9 +47,14 @@ public class DateTimeValidatorImplTest {
 	}
 
 	@Test
-	public void parseToSecondPrecisionTruncatesNanos() {
-		LocalDateTime parsed = DateTimeValidatorImpl.parseToSecondPrecision("2012-07-26T12:00:00.999");
-		assertEquals(LocalDateTime.of(2012, 7, 26, 12, 0, 0), parsed);
+	public void compareAcceptedPartialDates() {
+		for (String value : new String[] {"2012", "2012-07", "2012-07-26T12"}) {
+			assertEquals(DMErrorCodes.NO_ERROR, validator.validate(value));
+			assertTrue(validator.compare(value, value, Collections.emptyList()));
+		}
+		assertTrue(validator.compare("2012", "2012-01-01", Collections.emptyList()));
+		assertTrue(validator.compare("2012-07", "2012-07-01", Collections.emptyList()));
+		assertTrue(validator.compare("2012-07-26T12", "2012-07-26T12:00:00", Collections.emptyList()));
 	}
 
 	@Test
@@ -62,5 +67,26 @@ public class DateTimeValidatorImplTest {
 		} finally {
 			TimeZone.setDefault(previous);
 		}
+	}
+
+	@Test
+	public void compareOffsetDateTimesAcrossDaylightSavingOverlap() {
+		TimeZone previous = TimeZone.getDefault();
+		try {
+			TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
+			assertFalse(validator.compare("2024-11-03T01:30:00.00-04:00", "2024-11-03T01:30:00.00-05:00", Collections.emptyList()));
+			assertTrue(validator.compare("2024-11-03T01:30:00.00-04:00", "2024-11-03T05:30:00.00Z", Collections.emptyList()));
+			assertTrue(validator.compare("2024-11-03T01:30:00.00", "2024-11-03T01:30:00.00-04:00", Collections.emptyList()));
+			assertFalse(validator.compare("2024-11-03T01:30:00.00", "2024-11-03T01:30:00.00-05:00", Collections.emptyList()));
+		} finally {
+			TimeZone.setDefault(previous);
+		}
+	}
+
+	@Test
+	public void compareAcceptedBareHourOffsets() {
+		String offsetDateTime = "2012-07-26T12:00:00.00+23";
+		assertEquals(DMErrorCodes.NO_ERROR, validator.validate(offsetDateTime));
+		assertTrue(validator.compare(offsetDateTime, "2012-07-25T13:00:00.00Z", Collections.emptyList()));
 	}
 }

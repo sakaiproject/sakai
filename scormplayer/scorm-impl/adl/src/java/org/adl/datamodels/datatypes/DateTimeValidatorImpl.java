@@ -25,14 +25,20 @@
 package org.adl.datamodels.datatypes;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.time.Year;
+import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.adl.datamodels.DMDelimiter;
 import org.adl.datamodels.DMErrorCodes;
@@ -60,6 +66,7 @@ import org.adl.datamodels.DMErrorCodes;
  * @author ADL Technical Team
  */
 public class DateTimeValidatorImpl extends DateTimeValidator implements Serializable {
+	private static final Pattern OFFSET_SUFFIX = Pattern.compile("^(.+T.+)([+-])(\\d{2})(?::(\\d{2}))?$");
 
 	/**
 	  * 
@@ -148,30 +155,59 @@ public class DateTimeValidatorImpl extends DateTimeValidator implements Serializ
 			return false;
 		}
 		try {
-			return parseToSecondPrecision(iFirst).equals(parseToSecondPrecision(iSecond));
+			// Offset-free SCORM values use the JVM zone, as with the former Joda parser.
+			ZoneId defaultZone = ZoneId.systemDefault();
+			return parseToSecondPrecision(iFirst, defaultZone).equals(parseToSecondPrecision(iSecond, defaultZone));
 		} catch (DateTimeParseException e) {
 			return false;
 		}
 	}
 
 	/**
-	 * Parses a SCORM/ISO-8601 date-time string and truncates sub-second fields.
-	 * Accepts offset date-times, local date-times, and date-only values.
+	 * Parses a SCORM date-time, resolving explicit offsets before truncating sub-seconds.
 	 */
-	static LocalDateTime parseToSecondPrecision(String value) {
+	private static Instant parseToSecondPrecision(String value, ZoneId defaultZone) {
 		String trimmed = value.trim();
-		try {
-			// Resolve offsets in the JVM zone, as the former Joda parser did.
-			return OffsetDateTime.parse(trimmed).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime().withNano(0);
-		} catch (DateTimeParseException ignored) {
-			// try local date-time next
+		String localValue = trimmed;
+		int offsetSeconds = 0;
+		boolean hasOffset = false;
+		if (trimmed.endsWith("Z") || trimmed.endsWith("z")) {
+			localValue = trimmed.substring(0, trimmed.length() - 1);
+			hasOffset = true;
+		} else {
+			Matcher offset = OFFSET_SUFFIX.matcher(trimmed);
+			if (offset.matches()) {
+				int hours = Integer.parseInt(offset.group(3));
+				int minutes = offset.group(4) == null ? 0 : Integer.parseInt(offset.group(4));
+				if (hours > 23 || minutes > 59) {
+					throw new DateTimeParseException("Invalid timezone offset", trimmed, offset.start(2));
+				}
+				localValue = offset.group(1);
+				offsetSeconds = (offset.group(2).equals("+") ? 1 : -1) * (hours * 3600 + minutes * 60);
+				hasOffset = true;
 		}
-		try {
-			return LocalDateTime.parse(trimmed).withNano(0);
-		} catch (DateTimeParseException ignored) {
-			// try date-only next
 		}
-		return LocalDate.parse(trimmed).atStartOfDay();
+		LocalDateTime localDateTime = parseLocalDateTime(localValue);
+		Instant instant = hasOffset
+				? localDateTime.toInstant(ZoneOffset.UTC).minusSeconds(offsetSeconds)
+				: localDateTime.atZone(defaultZone).toInstant();
+		return instant.truncatedTo(ChronoUnit.SECONDS);
+	}
+
+	private static LocalDateTime parseLocalDateTime(String value) {
+		if (value.length() == 4) {
+			return Year.parse(value).atDay(1).atStartOfDay();
+		}
+		if (value.length() == 7) {
+			return YearMonth.parse(value).atDay(1).atStartOfDay();
+		}
+		if (value.length() == 10) {
+			return LocalDate.parse(value).atStartOfDay();
+		}
+		if (value.length() == 13) {
+			return LocalDateTime.parse(value + ":00");
+		}
+		return LocalDateTime.parse(value);
 	}
 
 	/**
