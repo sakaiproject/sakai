@@ -1,0 +1,140 @@
+
+/*GROUP 1 - generic selectors*/
+
+body
+{font-family:verdana,arial,helvetica,sans-serif;font-size:.8em;margin:2em}
+a,a:link{color:#44A;text-decoration:none}
+a:hover
+{color:#44A;text-decoration:underline}
+a:visited
+{color:#43196F}
+hr
+{height:0}
+h3,h4,h5{font-weight:bold;padding:.2em}
+fieldset
+{border:none;margin-top:1em}
+legend
+{font-weight:bold;color:#000;font-size:100%;margin-left:0;padding-left:0}
+
+/* GROUP 2:institutional color settings
+any box can use any/all of these in addition to it's own class - change her eand they change everywhere */
+
+.insColor{color:#000}
+.insBak{background-color:#FFF}
+.insBor{border:1px solid #fff}
+
+/* GROUP 3:indent padding override classes */
+
+.tier0, .indnt0{margin-left:0 !important}
+.tier1, .indnt1{margin-left:1em !important}
+.tier2, .indnt2{margin-left:2em !important}
+.tier3, .indnt3{margin-left:3em !important}
+.tier4, .indnt4{margin-left:4em !important}
+.tier5, .indnt5{margin-left:5em !important}
+.tier6, .indnt6{margin-left:6em !important}
+.tier7, .indnt7{margin-left:7em !important}
+.tier8, .indnt8{margin-left:8em !important}
+.tier9, .indnt9{margin-left:9em !important}
+.tier10, .indnt10{margin-left:10em !important}
+.pad0{padding-left:0 !important}
+
+/*GROUP 4:standard "named" UI components*/
+
+/*subgroup 4.1 - navigation*/
+
+/*navigator for the top of the mode*/
+.navIntraTool
+{background-color:#CCC;text-align:center;padding:.3em;vertical-align:middle}
+/*for navigators flush right when there is just one navigator in same row*/
+.nav
+{text-align:right}
+.nav input{}
+/*for action controls */
+.act
+{padding:1em}
+.act input{}
+/*the default action control*/
+.act input.active
+{border:2px solid #000}
+/*disclosure triangle - can be used in conjunction with insColor insBak insBor*/
+.discTria
+{padding:.3em}
+/*for navigators flush left when there is another navigator flush right in same row - use as span inside a block element such as a <p>*/
+.leftNav
+{float:left;vertical-align:bottom;text-align:left;line-height:2em}
+/*for navigators flush right when there is another navigator flush left in same row - use as span inside a block element such as a <p>*/
+.rightNav
+{float:right;vertical-align:bottom;text-align:right;line-height:2em}
+/*for abc or 123 navigators*/
+span.abc{letter-spacing:.5em;color:#555}
+span.abc a:hover{font-weight:bold;color:maroon;text-decoration:none}
+span.abc a,span.abc a:link{font-weight:bold;}
+
+/*subgroup 4.2 - messages*/
+
+/*for status text in wizards - note: should really collapse into a generalized box*/
+.step
+{height:1.5em;background-color:#CCC;padding:.3em .5em}
+/*for instructions*/
+.instruction
+{font-size:x-small;line-height:1.2em;margin:1em;}
+/*validation message - overrides rules in effect in box applied to*/
+.validation  { background-color: #FFC !important; background-image: 
+               url('../../Local%20Settings/Temporary%20Internet%20Files/Content.IE5/images/validation.gif') !important; 
+               background-repeat: no-repeat !important; 
+               border: 1px solid maroon; padding-left: 2em; padding-right: 2em; 
+               padding-top: 1em; padding-bottom: 1em; background-position: 
+               5px 50% }
+p.validation
+{padding:20px 30px}
+
+/*subgroup 4.3 - inputs*/
+
+.shorttext label
+{margin-right:1em;width:180px;font-weight:bold;float:left}
+.shorttext input
+{border:1px solid #333}
+textarea
+{margin-top:.5em;border:1px solid #333}
+.longtext label{font-weight:bold}
+.checkbox,.shorttext,.longtext{margin:1em}
+
+/*subgroup 4.4 - mode layouts*/
+
+/*table for displaying lists*/
+table.listHier 
+{width:100%;clear:both;border-top:.5em solid #fff;font-size:1em}
+table.listHier th
+{font-weight:normal;text-align:left;white-space:nowrap;background-color:#CCC;margin:0px;padding:.2em}
+table.listHier td
+{padding:.2em}
+table.listHier td img
+{margin-right:.2em;vertical-align:text-top}
+table.listHier td a:hover,table.listHier th a:hover 
+{text-decoration:none}
+/*assorted items used in this table*/
+.itemAction
+{font-size:80%;margin-left:3em}
+.folder      { background-image: 
+               url('../../Local%20Settings/Temporary%20Internet%20Files/Content.IE5/images/sstree/folder-closed.gif'); 
+               background-repeat: no-repeat; background-attachment: scroll; 
+               float: left; height: 14px; width: 26px; padding-right: 3px; 
+               background-position: 0% }
+/* table for displaying items */
+.itemSummary
+{margin-top:1em;margin-bottom:2em}
+table.itemSummary th
+{font-weight:bold;white-space:nowrap;vertical-align:top;text-align:left;padding:.3em 1em .3em .3em}
+table.itemSummary td
+{vertical-align:top;text-align:left;padding:.3em 1em .3em .3em;vertical-align:top}
+table.itemSummary caption
+{text-align:left;font-weight:bold;padding:1em 0 0 0}
+ul.attachList
+{margin:0;padding:0}
+ul.attachList img
+{vertical-align:middle;margin:0 1em 0 0}
+ul.attachList li
+{list-style:none;margin:0 0 .3em 0}
+
+/*subgroup 4.4 - not sure - not used?*/
+hr.itemSeparator{}
