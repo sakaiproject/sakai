@@ -35,8 +35,9 @@
     <sakai.ignite.version>2.18.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>2.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
-    <sakai.jackson.version>2.19.2</sakai.jackson.version>
-    <sakai.jsoup.version>1.18.1</sakai.jsoup.version>
+    <sakai.jackson.version>2.21.7</sakai.jackson.version>
+    <sakai.jackson.annotations.version>2.21</sakai.jackson.annotations.version>
+    <sakai.jsoup.version>1.23.2</sakai.jsoup.version>
     <sakai.woodstox.version>7.1.1</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>4.5.1</sakai.java.jwt.version>
@@ -44,7 +45,7 @@
     <sakai.jstl.version>3.0.1</sakai.jstl.version>
     <sakai.lombok.version>1.18.48</sakai.lombok.version>
     <sakai.lucene.version>9.12.3</sakai.lucene.version>
-    <sakai.netty.version>4.1.131.Final</sakai.netty.version>
+    <sakai.netty.version>4.1.137.Final</sakai.netty.version>
     <sakai.node.version>v22.14.0</sakai.node.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>${sakai.version}</sakai.pluto.version>
@@ -55,7 +56,7 @@
     <sakai.spring.version>6.2.19</sakai.spring.version>
     <sakai.spring.data.commons.version>3.5.13</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>3.5.13</sakai.spring.data.jpa.version>
-    <sakai.spring.data.rest.version>3.5.12</sakai.spring.data.rest.version>
+    <sakai.spring.data.rest.version>4.5.13</sakai.spring.data.rest.version>
     <sakai.spring.security.version>6.5.11</sakai.spring.security.version>
     <sakai.opensaml.version>5.2.3</sakai.opensaml.version>
     <sakai.spring.hateoas.version>3.1.1</sakai.spring.hateoas.version>
@@ -626,7 +627,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>${sakai.jackson.version}</version>
+        <version>${sakai.jackson.annotations.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
