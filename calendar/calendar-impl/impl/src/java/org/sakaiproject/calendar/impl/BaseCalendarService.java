@@ -88,6 +88,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
+import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
