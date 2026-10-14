@@ -122,16 +122,8 @@
 		  <artifactId>jakarta.servlet.jsp-api</artifactId>
 		</dependency>
 		<dependency>
-		  <groupId>net.sf.json-lib</groupId>
-		  <artifactId>json-lib</artifactId>
-		  <version>2.4</version>
-		  <classifier>jdk15</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-databind</artifactId>
 		</dependency>
 		<dependency>
             <groupId>org.sakaiproject.rubrics</groupId>
