@@ -29,7 +29,7 @@ import jakarta.faces.component.html.HtmlInputText;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.component.AlignProperty;
 import org.apache.myfaces.component.ForceIdAware;
 import org.apache.myfaces.component.UserRoleAware;
