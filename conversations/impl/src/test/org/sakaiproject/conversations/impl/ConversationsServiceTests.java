@@ -15,6 +15,14 @@
  */
 package org.sakaiproject.conversations.impl;
 
+import org.mockito.ArgumentCaptor;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.lti.api.LTIService;
+
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -85,6 +93,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -107,6 +116,8 @@ import org.junit.runner.RunWith;
 @ContextConfiguration(classes = {ConversationsTestConfiguration.class})
 public class ConversationsServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
+    @Autowired private EntityManager entityManager;
+    @Autowired private LTIService ltiService;
     @Autowired private AuthzGroupService authzGroupService;
     @Autowired private ConversationsCommentRepository commentRepository;
     @Autowired private ConversationsService conversationsService;
@@ -219,6 +230,39 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             when(userDirectoryService.getUsers(new ArrayList(userIds))).thenReturn(users);
         } catch (Exception e) {
         }
+    }
+
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void registeredCopyCallbackUsesServiceTransaction() throws Exception {
+        site1Id = UUID.randomUUID().toString();
+        site1Ref = "/site/" + site1Id;
+        site2Id = UUID.randomUUID().toString();
+        site2Ref = "/site/" + site2Id;
+        setup();
+        switchToInstructor(site1Ref);
+        switchToInstructor(site2Ref);
+        when(securityService.unlock(SiteService.SITE_VISIT, site1Ref)).thenReturn(true);
+        TopicTransferBean source = conversationsService.saveTopic(topicBean, false);
+        List<Boolean> transactions = new ArrayList<>();
+        when(ltiService.fixLtiLaunchUrls(anyString(), eq(site1Id), eq(site2Id), any(Map.class)))
+            .thenAnswer(invocation -> {
+                transactions.add(TransactionSynchronizationManager.isActualTransactionActive());
+                return invocation.getArgument(0);
+            });
+        ArgumentCaptor<EntityProducer> producer = ArgumentCaptor.forClass(EntityProducer.class);
+        verify(entityManager).registerEntityProducer(producer.capture(), eq(ConversationsService.REFERENCE_ROOT));
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive());
+
+        Map<String, String> copied = ((EntityTransferrer) producer.getValue()).transferCopyEntities(
+            site1Id, site2Id, List.of(source.id), List.of());
+
+        assertEquals(1, copied.size());
+        assertEquals(1, topicRepository.findBySiteId(site2Id).size());
+        assertEquals("The registered copy callback must retain the service transaction between repository calls",
+            List.of(true), transactions);
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive());
     }
 
     @Test

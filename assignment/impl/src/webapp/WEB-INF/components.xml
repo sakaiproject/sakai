@@ -295,4 +295,17 @@
     <bean id="org.sakaiproject.messaging.api.UserNotificationHandler.assignments.remove"
           class="org.sakaiproject.assignment.impl.messaging.RemoveAssignmentUserNotificationHandler"/>
 
+    <!-- Register the completed transactional proxy rather than the target from init(). -->
+    <bean id="org.sakaiproject.assignment.api.AssignmentService.entityProducerRegistration"
+          class="org.springframework.beans.factory.config.MethodInvokingBean">
+        <property name="targetObject" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="targetMethod" value="registerEntityProducer"/>
+        <property name="arguments">
+            <list>
+                <ref bean="org.sakaiproject.assignment.api.AssignmentService"/>
+                <value>/assignment</value>
+            </list>
+        </property>
+    </bean>
+
 </beans>

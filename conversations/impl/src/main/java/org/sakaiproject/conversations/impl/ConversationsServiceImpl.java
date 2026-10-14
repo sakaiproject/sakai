@@ -224,7 +224,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         this.postsCache = cacheManager.getCache(POSTS_CACHE_NAME);
         eventTrackingService.addObserver(this);
 
-        entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
         userMessagingService.importTemplateFromResourceXmlFile("emailtemplates/new_question.xml", TOOL_ID + ".newquestion");
         userMessagingService.importTemplateFromResourceXmlFile("emailtemplates/new_discussion.xml", TOOL_ID + ".newdiscussion");

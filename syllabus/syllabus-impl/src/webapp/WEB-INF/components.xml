@@ -121,4 +121,17 @@
      <property name="expandByDefault"><value>true</value></property>
    </bean>
 
+    <!-- Register the completed transactional proxy rather than the target from init(). -->
+    <bean id="org.sakaiproject.api.app.syllabus.SyllabusService.entityProducerRegistration"
+          class="org.springframework.beans.factory.config.MethodInvokingBean">
+        <property name="targetObject" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="targetMethod" value="registerEntityProducer"/>
+        <property name="arguments">
+            <list>
+                <ref bean="org.sakaiproject.api.app.syllabus.SyllabusService"/>
+                <value>/syllabus</value>
+            </list>
+        </property>
+    </bean>
+
 </beans>
