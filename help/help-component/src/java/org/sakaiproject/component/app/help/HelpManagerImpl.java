@@ -751,7 +751,7 @@ public class HelpManagerImpl implements HelpManager
 			}
 
 			bis = new BufferedInputStream(ism);
-			DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(true);
+			DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactoryWithDoctype(true);
 			DocumentBuilder builder = dbf.newDocumentBuilder();
 
 			InputSource is = new org.xml.sax.InputSource(bis);
@@ -765,7 +765,7 @@ public class HelpManagerImpl implements HelpManager
 
 				// get corpus document
 				String corpusXml = getRestConfiguration().getCorpusDocument();
-				DocumentBuilderFactory dbfCorpus = Xml.createSecureDocumentBuilderFactory(true);
+				DocumentBuilderFactory dbfCorpus = Xml.createSecureDocumentBuilderFactoryWithDoctype(true);
 				DocumentBuilder builderCorpus = dbfCorpus.newDocumentBuilder();
 				StringReader sReader = new StringReader(corpusXml);
 				InputSource isCorpus = new org.xml.sax.InputSource(sReader);
