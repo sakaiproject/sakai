@@ -41,15 +41,12 @@ jobs:
           restore-keys: sakai-m2-master-
 
       - name: Populate Maven local repository
-        if: steps.cache-maven-restore.outputs.cache-matched-key == ''
         run: mvn -B -ntp -V -DskipTests -Denforcer.skip -Dmaven.source.skip install
 
       - name: Resolve Playwright dependencies
-        if: steps.cache-maven-restore.outputs.cache-matched-key == ''
         run: mvn -B -ntp -V -Pe2e -DskipTests test
 
       - name: Save Maven local repository cache
-        if: steps.cache-maven-restore.outputs.cache-matched-key == ''
         uses: actions/cache/save@v6.1.0
         with:
           path: .m2/repository
