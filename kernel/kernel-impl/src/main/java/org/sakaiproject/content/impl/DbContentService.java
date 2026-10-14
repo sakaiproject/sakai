@@ -2798,18 +2798,7 @@ public class DbContentService extends BaseContentService
                     }
                     catch (IOException e)
                     {
-                        try {
-                            // Deduplication may have replaced the copied path with a shared body.
-                            int references = ((DbStorage) m_storage).getCountFilePath(edit.m_filePath);
-                            if (references < 0) {
-                                throw new IOException("Unable to check references for copied resource body " + edit.m_filePath);
-                            }
-                            if (references == 0 && !fileSystemHandler.delete(edit.m_id, bodyPath, edit.m_filePath)) {
-                                throw new IOException("Unable to delete copied resource body " + edit.m_filePath);
-                            }
-                        } catch (Exception cleanupFailure) {
-                            e.addSuppressed(cleanupFailure);
-                        }
+                        // Retain the copied body: a reference count cannot exclude an in-flight copy.
                         log.warn("Failed to close database resource body for {}", id, e);
                         return null;
                     }
