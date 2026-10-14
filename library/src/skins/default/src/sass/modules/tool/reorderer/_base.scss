@@ -1,95 +1,198 @@
-/*styles for reorderer (content, assignments, announcements)*/
+/* Shared reorder styles (assignments, announcements, resources, tool order) */
+
+.sakai-reorder-list-header,
 #reorder-list-sortingToolBar {
-  font-size: .9em;
-  border: 1px solid var(--sakai-border-color);
+  align-items: center;
   background: var(--sakai-background-color-3);
-  margin: 1em 0;
-  padding: 5px;
+  border: 1px solid var(--sakai-border-color);
+  border-radius: var(--bs-border-radius, 0.25rem);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.9em;
+  gap: 0.75rem 1.25rem;
+  justify-content: space-between;
+  margin: 1em 0 0.5rem;
+  padding: 0.55rem 0.75rem;
+
+  h2 {
+    font-size: 1.15rem;
+    margin: 0;
+  }
+
   a {
     outline: none;
   }
 }
-ul.styled-reorder-list {
-  font-size: .9em;
-  margin: 0;
+
+.sakai-reorder-undo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0.5rem 0 0.75rem;
+
+  .btn-link {
+    padding-left: 0;
+    text-decoration: none;
+
+    &:disabled {
+      opacity: 0.45;
+    }
+
+    .bi {
+      margin-right: 0.35rem;
+    }
+  }
+}
+
+.sakai-reorder-breadcrumb {
+  color: var(--sakai-text-color-2);
+  margin: 0 0 0.75rem;
+}
+
+ul.sakai-reorder-list {
+  margin-bottom: 1rem;
   padding: 0;
-  li {
+
+  > li {
     list-style: none;
-    padding: 5px;
-    margin: 5px 0;
-    background: var(--sakai-background-color-2);
-    border: 1px solid var(--sakai-border-color);
-    width: 100%;
-    &:focus {
-      border: 1px solid var(--sakai-background-color-3);
-    }
-    span {
-      padding-right: 2em;
-      &.grabHandle {
-        display: block;
-        float: left;
-        width: 5em;
-        padding-right: 0;
-        input {
-          margin-top: -2px;
-        }
-      }
-    }
-    .title {
-      display: block;
-      float: left;
-    }
   }
 }
-.fl-reorderer-movable-selected {
-  border: none;
-  outline: none;
+
+.sakai-reorder-row {
+  background: var(--sakai-background-color-2);
+  border-color: var(--sakai-border-color);
+  padding: 0.6rem 0.75rem;
 }
-.fl-reorderer-dropMarker {
-  height: 30px;
-  background: var(--sakai-background-color-1) !important;
-  border: 1px dashed var(--sakai-border-color) !important;
-}
-.fl-reorderer-movable-hover {
-  cursor: move;
-}
-.fl-reorderer-movable-dragging {
-  background: var(--sakai-background-color-1);
-  color: var(--sakai-text-color-disabled) !important;
-  border: 1px dashed var(--sakai-border-color) !important;
-  outline: none;
-}
-.fl-reorderer-avatar {
+
+.sakai-reorder-row.dragging {
   opacity: 0.55;
-  list-style: none;
-  background: var(--successBanner-bgcolor) !important;
-  width: 50% !important;
-  * {
-    display: none;
+}
+
+.sakai-reorder-row.drag-over {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: -2px;
+}
+
+.sakai-reorder-drag-handle,
+.drag-handle {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
   }
-  .title {
-    display: block;
-    margin: 5px;
-    font-weight: bold;
-    font-size: 1.2em;
-  }
 }
-.fl-ProgEnhance-enhanced {
-  display: none;
+
+.sakai-reorder .btn-icon {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  line-height: 1;
+  min-height: 2rem;
+  min-width: 2rem;
+  padding: 0;
 }
-.fl-progEnhance-enhanced {
-  display: none;
+
+.sakai-reorder-move-controls,
+.sakai-reorder-row-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
 }
-.fl-offScreen-hidden {
-  position: absolute;
-  left: -10000px;
-  top: auto;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
+
+.sakai-reorder-row-main {
+  align-items: center;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
 }
+
+.sakai-reorder-row-main:not(:has(> .sakai-reorder-row-actions)) {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.sakai-reorder-row-content {
+  align-items: center;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
+}
+
+.sakai-reorder-row-content:not(:has(> :nth-child(2))) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sakai-reorder-title-block {
+  min-width: 0;
+}
+
+.sakai-reorder-display {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  min-height: 2rem;
+}
+
+.sakai-reorder-title {
+  overflow-wrap: anywhere;
+}
+
+.sakai-reorder-meta {
+  color: var(--sakai-text-color-2);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.875em;
+  gap: 0.35rem 1rem;
+  margin-top: 0.15rem;
+}
+
 .recentMove {
   background: var(--infoBanner-bgcolor) !important;
   border: 1px solid var(--infoBanner-bordercolor) !important;
   color: var(--infoBanner-color);
+}
+
+@media (max-width: 640px) {
+  .sakai-reorder-row-main {
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 0.65rem;
+  }
+
+  .sakai-reorder-row-content {
+    flex: 1 0 100%;
+    gap: 0.55rem;
+    order: 1;
+  }
+
+  .sakai-reorder-move-controls,
+  .sakai-reorder-row-actions {
+    gap: 0.35rem;
+  }
+
+  .sakai-reorder-move-controls {
+    order: 2;
+  }
+
+  .sakai-reorder-row-actions {
+    justify-content: flex-start;
+    order: 3;
+  }
+
+  .sakai-reorder .sakai-reorder-drag-handle {
+    display: none;
+  }
+
+  .sakai-reorder-list-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (pointer: coarse) {
+  .sakai-reorder .sakai-reorder-drag-handle {
+    display: none;
+  }
 }

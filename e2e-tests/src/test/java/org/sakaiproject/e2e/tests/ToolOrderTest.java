@@ -65,7 +65,19 @@ class ToolOrderTest extends SakaiUiTestBase {
 
         Locator app = page.locator("#tool-order-app");
         assertThat(app).isVisible();
+        assertThat(app).hasClass(Pattern.compile("sakai-reorder"));
+        assertThat(app.locator(".page-header h1")).isVisible();
+        assertThat(app.locator(".instruction")).containsText(Pattern.compile(
+            "Changes are saved immediately.*Drag tools|move buttons", Pattern.CASE_INSENSITIVE | Pattern.DOTALL));
+        Locator warnings = app.locator(".sak-banner-warn");
+        assertTrue(warnings.count() >= 2);
+        assertThat(warnings.first()).not().containsText(Pattern.compile("^\\s*Warning\\s*:", Pattern.CASE_INSENSITIVE));
+        assertThat(page.locator(".tool-order-row.sakai-reorder-row").first()).isVisible();
+        assertThat(page.locator(".tool-order-row [data-action=\"move-up\"]").first()).isVisible();
+        assertThat(page.locator(".tool-order-row [data-action=\"move-down\"]").first()).isVisible();
+        assertThat(page.locator(".tool-order-row [data-action=\"drag-handle\"]").first()).isVisible();
         Locator statusAlert = page.locator("#tool-order-alert");
+        assertThat(statusAlert).hasClass(Pattern.compile("d-none"));
         Pattern orderSavedMessage = Pattern.compile("order.*saved", Pattern.CASE_INSENSITIVE);
         Pattern toolSettingsSavedMessage = Pattern.compile("tool settings.*saved", Pattern.CASE_INSENSITIVE);
         Pattern removedMessage = Pattern.compile("successfully removed", Pattern.CASE_INSENSITIVE);
@@ -86,6 +98,23 @@ class ToolOrderTest extends SakaiUiTestBase {
         page.waitForLoadState();
         String firstTitleAfter = page.locator(".tool-order-row").first().locator(".tool-order-title").innerText();
         assertNotEquals(firstTitleBefore, firstTitleAfter);
+
+        Locator firstRowAfterReload = page.locator(".tool-order-row").first();
+        String titleBeforeMoveDown = firstRowAfterReload.locator(".tool-order-title").innerText();
+        Locator moveDown = firstRowAfterReload.locator("[data-action=\"move-down\"]");
+        assertThat(moveDown).isEnabled();
+        moveDown.click();
+        assertThat(statusAlert).containsText(orderSavedMessage);
+        assertNotEquals(titleBeforeMoveDown,
+            page.locator(".tool-order-row").first().locator(".tool-order-title").innerText());
+
+        Locator secondRowAfterMove = page.locator(".tool-order-row").nth(1);
+        Locator moveUp = secondRowAfterMove.locator("[data-action=\"move-up\"]");
+        assertThat(moveUp).isEnabled();
+        moveUp.click();
+        assertThat(statusAlert).containsText(orderSavedMessage);
+        assertThat(page.locator(".tool-order-row").first().locator(".tool-order-title"))
+            .containsText(titleBeforeMoveDown);
 
         Locator editableRow = page.locator(".tool-order-row:has([data-action=\"edit\"])").first();
         assertThat(editableRow).isVisible();

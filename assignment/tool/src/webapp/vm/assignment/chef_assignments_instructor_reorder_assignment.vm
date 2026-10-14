@@ -1,16 +1,14 @@
 <!-- start: chef_assignments_instructor_reorder_assignment.vm  -->
-<div class="portletBody container-fluid">
+<div class="portletBody container-fluid sakai-reorder">
 	#if ($allowAddAssignment || $!allowGradeSubmission)
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
 		#navBarHREF( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "reorder" )
 	#end
-	#if ($alertMessage)<div class="sak-banner-error" style="width:80%  !important"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
+	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 
-    <div class="page-header">
-        <h1>
-            $tlang.getString("gen.reordertitle")
-        </h1>
-    </div>
+	<div class="page-header">
+		<h1>$tlang.getString("gen.reordertitle")</h1>
+	</div>
 
 	<form name="reorderForm" id="reorderForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input name="assignmentSize" id="assignmentSize" value="$assignmentsize" type="hidden" />
@@ -19,104 +17,123 @@
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
 
 		<div class="instruction">
-				$tlang.getString('reorder.instruction.general')
-				<span id="inputFieldMessage">$tlang.getString('reorder.instruction.input')</span>
-				<span id="inputKbdMessage" class="skip">$tlang.getString('reorder.instruction.general.hidden')</span>
-		</div>
-		<ul class="itemAction noPrint">
-			<li style="display:inline">
-				<span id="undo-last-inact" style="padding:0 .3em 0 0;border:none">$tlang.getString("reorder.undo.last.label")</span>
-				<a href="javascript:void(0)" id="undo-last"  style="display:none">$tlang.getString("reorder.undo.last.label")</a>
-			</li>
-			<li style="display:inline;border-left:1px solid #ccc;padding-left:1em">
-				<span id="undo-all-inact"  style="padding:0 .3em 0 0;border:none">$tlang.getString("reorder.undo.all.label")</span>
-					<a id="undo-all" href="javascript:void(0)"  style="display:none">$tlang.getString("reorder.undo.all.label")</a>
-			</li>
-		</ul>
-		<span id="messageHolder" class="sak-banner-error" style="display:none">$tlang.getString("reorder.fail.valid.message")</span>
-		<span id="lastMoveArray" style="display:none"></span>
-		<span id="lastMoveArrayInit" style="display:none"></span>
-		<span id="lastItemMoved"  style="display:none"></span>
-
-		<div id="reorder-list-sortingToolBar" class="itemAction row">
-			<div class="col-md-6 col-sm-6 col-xs-12">
-				<a class="title" id="sortByTitle" href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
-						$tlang.getString("listassig.sorbytit")
-						#if ($sortedBy.equals("title"))
-							#if ($sortedAsc.equals("true"))
-								<i id="sortascendingtitle" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
-							#else
-								<i id="sortdescendingtitle" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
-							#end
-						#end
-				</a>
-			</div>
-			<div class="col-md-3 col-sm-3 col-xs-12">
-					<a href="javascript:void(0)" id="sortByOpenDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
-						$tlang.getString("listassig.sorbyope")
-						#if ($sortedBy.equals("opendate"))
-							#if ($sortedAsc.equals("true"))
-								<i id="sortascendingopendate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
-							#else
-								<i id="sortdescendingopendate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
-							#end
-						#end
-					</a>
-			</div>
-			<div class="col-md-3 col-sm-3 col-xs-12">
-					<a href="javascript:void(0)" id="sortByDueDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
-						$tlang.getString("gen.sorbydue") ##$tlang.getString("gen.due1")
-						#if ($sortedBy.equals("duedate"))
-							#if ($sortedAsc.equals("true"))
-								<i id="sortascendingduedate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
-							#else
-								<i id="sortdescendingduedate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
-							#end
-						#end
-					</a>
-			</div>
+			$tlang.getString('reorder.instruction.general')
+			<span id="inputKbdMessage" class="visually-hidden">$tlang.getString('reorder.instruction.general.hidden')</span>
 		</div>
 
-		<ul id="reorder-list" class="styled-reorder-list">
+		<div class="sakai-reorder-undo noPrint">
+			<button type="button" class="btn btn-transparent btn-sm" id="undo-last" disabled>
+				<span class="bi bi-arrow-counterclockwise" aria-hidden="true"></span>
+				$tlang.getString("reorder.undo.last.label")
+			</button>
+			<button type="button" class="btn btn-transparent btn-sm" id="undo-all" disabled>
+				<span class="bi bi-arrow-repeat" aria-hidden="true"></span>
+				$tlang.getString("reorder.undo.all.label")
+			</button>
+		</div>
+		<span id="lastMoveArray" class="d-none"></span>
+		<span id="lastMoveArrayInit" class="d-none"></span>
+		<span id="lastItemMoved" class="visually-hidden" aria-live="polite" aria-atomic="true" data-moved-message="$tlang.getString('reorder.moved')"></span>
+
+		<div id="reorder-list-sortingToolBar" class="sakai-reorder-list-header">
+			<a class="title" id="sortByTitle" href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;" title="$tlang.getString("listassig.sorbytit")">
+					$tlang.getString("listassig.sorbytit")
+					#if ($sortedBy.equals("title"))
+						#if ($sortedAsc.equals("true"))
+							<span id="sortascendingtitle" class="bi bi-sort-up" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></span>
+						#else
+							<span id="sortdescendingtitle" class="bi bi-sort-down" aria-hidden="true" title="$tlang.getString("gen.sordes")"></span>
+						#end
+					#end
+			</a>
+			<a href="javascript:void(0)" id="sortByOpenDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;" title="$tlang.getString("listassig.sorbyope")">
+				$tlang.getString("listassig.sorbyope")
+				#if ($sortedBy.equals("opendate"))
+					#if ($sortedAsc.equals("true"))
+						<span id="sortascendingopendate" class="bi bi-sort-up" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></span>
+					#else
+						<span id="sortdescendingopendate" class="bi bi-sort-down" aria-hidden="true" title="$tlang.getString("gen.sordes")"></span>
+					#end
+				#end
+			</a>
+			<a href="javascript:void(0)" id="sortByDueDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;" title="$tlang.getString("gen.sorbydue")">
+				$tlang.getString("gen.sorbydue")
+				#if ($sortedBy.equals("duedate"))
+					#if ($sortedAsc.equals("true"))
+						<span id="sortascendingduedate" class="bi bi-sort-up" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></span>
+					#else
+						<span id="sortdescendingduedate" class="bi bi-sort-down" aria-hidden="true" title="$tlang.getString("gen.sordes")"></span>
+					#end
+				#end
+			</a>
+		</div>
+
+		<sakai-reorderer id="assignments-reorderer" style="display:block" apply-dom>
+		<ul id="reorder-list" class="list-group sakai-reorder-list">
 
 			#set($count = 1)
+			#set($reorderListSize = $assignments.size())
 			#foreach($assignment in $assignments)
 
-			<li class="sortable row reorder-element grab_cursor" tabindex="0" id="listitem.orderable$count" onmousedown="ASN.grabbing(this)" onmouseup="ASN.grab(this)">
-				<span class="col-md-6 col-sm-6 col-xs-12" title="$formattedText.escapeHtml($!assignment.Title)">
-					<span class="grabHandle">
-						<input type="text" size="3" value="$count" id="index$count"/>
-						<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
-					</span>
-					<span>
-						#if ($!assignment.Draft)
-							<em class="highlight" style="font-style:normal">$tlang.getString("gen.dra2")</em>
-						#end
-						$formattedText.escapeHtml($!assignment.Title)
-					</span>
-				</span>
-				<span class="col-md-3 col-sm-3 col-xs-12">
-					$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
-				</span>
-				<span class="col-md-3 col-sm-3 col-xs-12">
-					$!service.getUsersLocalDateTimeString($!assignment.DueDate)
-					<select name="position_$formattedText.escapeUrl("$assignment.id")" class="selectSet">
-						#foreach($i in [1..$assignmentsize])
-						<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
-						#end
-					</select>
-				</span>
+			<li class="list-group-item reorder-element sakai-reorder-row" id="listitem.orderable$count" data-reorderable-id="$assignment.id">
+				<div class="sakai-reorder-row-main">
+					<div class="sakai-reorder-move-controls">
+						<span class="btn btn-icon sakai-reorder-drag-handle drag-handle"
+								tabindex="0"
+								role="button"
+								title="$tlang.getString('reorder.drag.handle')"
+								aria-label="$tlang.getString('reorder.drag.handle')">
+							<span class="si si-drag-handle" aria-hidden="true"></span>
+						</span>
+						<button type="button"
+								class="btn btn-icon"
+								data-action="move-up"
+								#if ($count == 1) disabled="disabled" #end
+								title="$tlang.getString('reorder.move.up')"
+								aria-label="$tlang.getString('reorder.move.up')">
+							<span class="bi bi-chevron-up" aria-hidden="true"></span>
+						</button>
+						<button type="button"
+								class="btn btn-icon"
+								data-action="move-down"
+								#if ($count == $reorderListSize) disabled="disabled" #end
+								title="$tlang.getString('reorder.move.down')"
+								aria-label="$tlang.getString('reorder.move.down')">
+							<span class="bi bi-chevron-down" aria-hidden="true"></span>
+						</button>
+					</div>
+
+					<div class="sakai-reorder-row-content">
+						<div class="sakai-reorder-title-block">
+							<div class="sakai-reorder-display">
+								#if ($!assignment.Draft)
+									<span class="badge text-bg-secondary">$tlang.getString("gen.dra2")</span>
+								#end
+								<span class="sakai-reorder-title" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($!assignment.Title)</span>
+							</div>
+							<div class="sakai-reorder-meta">
+								<span>$tlang.getString("listassig.sorbyope"): $!service.getUsersLocalDateTimeString($!assignment.OpenDate)</span>
+								<span>$tlang.getString("gen.sorbydue"): $!service.getUsersLocalDateTimeString($!assignment.DueDate)</span>
+							</div>
+							<input type="hidden" name="position_$formattedText.escapeUrl("$assignment.id")" value="$count" class="assignment-position"/>
+						</div>
+					</div>
+				</div>
 			</li>
 			#set($count = $count + 1)
 			#end
 		</ul>
+		</sakai-reorderer>
 
-		<p class="act" style="margin:0;padding:.3em 0;">
-			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'reorderForm', 'reorder', null, null ); return false;" class="active" accesskey="s" />
-			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'reorderForm', 'cancelreorder', null, null ); return false;" accesskey="x" />
-		</p>
+		<div class="act">
+			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'reorderForm', 'reorder', null, null ); return false;" class="active btn btn-primary" accesskey="s" />
+			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'reorderForm', 'cancelreorder', null, null ); return false;" class="btn btn-secondary" accesskey="x" />
+		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 
 </div>
+
+#module("/webcomponents/bundles/sakai-reorderer.js")
+#module("/sakai-assignment-tool/js/assignments-reorder.js")
 <!-- end: chef_assignments_instructor_reorder_assignment.vm  -->
