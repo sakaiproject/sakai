@@ -48,6 +48,10 @@ class SharedToolComponentsTest {
         {"id":"score","siteId":"site","itemId":"source","type":"SCORE",
          "operator":"GREATER_THAN","argument":"10"}
         """;
+    private static final String SECOND_SCORE = """
+        {"id":"score-or","siteId":"site","itemId":"source","type":"SCORE",
+         "operator":"GREATER_THAN","argument":"20"}
+        """;
     private Playwright playwright;
     private Browser browser;
     private Page page;
@@ -142,12 +146,15 @@ class SharedToolComponentsTest {
 
     private void conditionResponse(Route route, URI uri) {
         if (route.request().method().equals("GET")) {
-            json(route, uri.getQuery() == null ? "[" + SCORE + "]" : "[]");
+            json(route, uri.getQuery() == null ? "[" + SCORE + "," + SECOND_SCORE + "]" : "[]");
         } else {
             String body = route.request().postData();
             writes.add(route.request().method() + " " + uri.getPath() + " " + body);
             if (route.request().method().equals("POST")) {
                 String id = body.contains("\"ROOT\"") ? "root" : body.contains("\"PARENT\"") ? "parent" : "created";
+                if (body.contains("\"PARENT\"") && body.contains("\"operator\":\"OR\"")) {
+                    id = "or-parent";
+                }
                 json(route, "{\"id\":\"" + id + "\"," + body.substring(1));
             } else if (route.request().method().equals("DELETE")) {
                 route.fulfill(new Route.FulfillOptions().setContentType("text/plain").setBody("created"));
@@ -208,8 +215,28 @@ class SharedToolComponentsTest {
         picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add condition as prerequisite").setExact(true)).click();
         assertThat(picker.locator(".condition-row")).hasCount(1);
         assertTrue(writes.stream().anyMatch(write -> write.startsWith("PUT /api/sites/site/conditions/parent") && write.contains("\"id\":\"score\"")));
+        picker.locator("select").first().selectOption("score-or");
+        picker.locator("select").nth(1).selectOption("OR");
+        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add condition as prerequisite").setExact(true)).click();
+        assertThat(picker.locator(".condition-row")).hasCount(2);
+        String rootUpdate = writes.stream().filter(write -> write.startsWith("PUT /api/sites/site/conditions/root "))
+                .reduce((previous, current) -> current).orElseThrow();
+        assertTrue(rootUpdate.contains("\"operator\":\"AND\""));
+        assertTrue(rootUpdate.contains("\"operator\":\"OR\""));
+        assertTrue(rootUpdate.contains("\"id\":\"score\""));
+        assertTrue(rootUpdate.contains("\"id\":\"or-parent\""));
+        // The new reference is persisted through its parent after the root links that parent.
+        String orParentUpdate = writes.get(writes.size() - 1);
+        assertTrue(orParentUpdate.startsWith("PUT /api/sites/site/conditions/or-parent "));
+        assertTrue(orParentUpdate.contains("\"id\":\"score-or\""));
+        picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Remove condition").setExact(true)).first().click();
+        assertThat(picker.locator(".condition-row")).hasCount(1);
+        String andRemoval = writes.get(writes.size() - 1);
         picker.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Remove condition").setExact(true)).click();
         assertThat(picker.locator(".condition-row")).hasCount(0);
+        assertTrue(andRemoval.startsWith("PUT /api/sites/site/conditions/parent "));
+        assertTrue(andRemoval.contains("\"subConditions\":[]"));
+        assertTrue(writes.get(writes.size() - 1).startsWith("PUT /api/sites/site/conditions/or-parent "));
         assertTrue(writes.get(writes.size() - 1).contains("\"subConditions\":[]"));
     }
 
