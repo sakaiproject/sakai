@@ -40,8 +40,10 @@ import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfPartModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfQuestionModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfImageMapRowModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfItemGradingModel;
+import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfMatchingRowModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfPrintChoiceModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfPrintSettingsModel;
+import org.sakaiproject.samigo.api.pdf.model.AssessmentPdfValueTypes.AssessmentPdfSelectionAnswerModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentPrintPdfModel;
 import org.sakaiproject.samigo.api.pdf.model.AssessmentStudentReportPdfModel;
 import org.sakaiproject.samigo.impl.pdf.AssessmentPdfCellEvents.ImageMapCircle;
@@ -162,6 +164,170 @@ public class AssessmentPdfQuestionRendererTest {
         TextCapturingDocument feedbackWithoutKeys = renderPrintCapturingText(question,
                 new AssessmentPdfPrintSettingsModel(false, "3", false, true, false));
         assertFalse(feedbackWithoutKeys.text.toString().contains("Correct city"));
+    }
+
+    @Test
+    public void printableRenderShowsItemFeedbackAndStripsHtmlFromAnswerKey() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.MULTIPLE_CHOICE)
+                .sequence("1")
+                .itemHtmlText("<p>Capital?</p>")
+                .itemScore(1.0)
+                .itemAnswerKey("A&nbsp;<span style='color: green'>(100% correct)</span>")
+                .correctItemFeedback("<p>Well done</p>")
+                .incorrectItemFeedback("<b>Try again</b>")
+                .printChoices(List.of(new AssessmentPdfPrintChoiceModel("A", "<i>Paris</i>", null)))
+                .build();
+
+        TextCapturingDocument document = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, true, false));
+        String text = document.text.toString();
+        assertTrue(text.contains("Well done"));
+        assertTrue(text.contains("Try again"));
+        assertTrue(text.contains("A (100% correct)"));
+        assertFalse(text.contains("<span"));
+        assertFalse(text.contains("<p>"));
+        assertFalse(text.contains("<b>"));
+    }
+
+    @Test
+    public void printableRenderPrefersDeliveryKeyForPartialCreditSingleCorrect() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.MULTIPLE_CHOICE)
+                .sequence("1")
+                .itemHtmlText("<p>Capital?</p>")
+                .itemScore(1.0)
+                .key("A&nbsp;<span style='color: green'>(100%&nbsp;correct)</span>,&nbsp;B&nbsp;<span>(50%&nbsp;correct)</span>")
+                .itemAnswerKey(null)
+                .printChoices(List.of(
+                        new AssessmentPdfPrintChoiceModel("A", "Paris", null),
+                        new AssessmentPdfPrintChoiceModel("B", "Lyon", null)))
+                .build();
+
+        TextCapturingDocument document = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, false, false));
+        String text = document.text.toString();
+        assertTrue(text.contains("A (100% correct)"));
+        assertTrue(text.contains("B (50% correct)"));
+        assertFalse(text.contains("<span"));
+    }
+
+    @Test
+    public void printableMatchingOmitsFillInDashesAndShowsSelectionFeedback() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.MATCHING)
+                .sequence("1")
+                .itemHtmlText("Match")
+                .itemScore(2.0)
+                .matchingRows(List.of(
+                        new AssessmentPdfMatchingRowModel(
+                                "1. Cat", null, null, Collections.emptyList(), null, "<p>Correct match</p>", "<b>Wrong match</b>"),
+                        new AssessmentPdfMatchingRowModel(
+                                "2. Dog", null, null, Collections.emptyList(), null, null, null)))
+                .matchingResponses(List.of("A. Animal", "B. Pet", "C. Distractor"))
+                .build();
+
+        TextCapturingDocument document = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, true, false));
+        String text = document.text.toString();
+        assertTrue(text.contains("1. Cat"));
+        assertTrue(text.contains("C. Distractor"));
+        assertTrue(text.contains("Correct match"));
+        assertTrue(text.contains("Wrong match"));
+        assertFalse(text.contains("________________"));
+        assertFalse(text.contains("<p>"));
+    }
+
+    @Test
+    public void printableAudioOmitsNumberOfTries() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.AUDIO_RECORDING)
+                .sequence("1")
+                .itemHtmlText("Record yourself")
+                .itemScore(1.0)
+                .duration(60)
+                .triesAllowed(9999)
+                .build();
+
+        TextCapturingDocument document = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, false, false));
+        String text = document.text.toString();
+        assertTrue(text.toLowerCase().contains("time") || text.contains("60"));
+        assertFalse(text.contains("9999"));
+    }
+
+    @Test
+    public void printableTrueFalseKeepsLabelsBesideControl() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.TRUE_FALSE)
+                .sequence("1")
+                .itemHtmlText("The sky is blue")
+                .itemScore(1.0)
+                .key("True")
+                .printChoices(List.of(
+                        new AssessmentPdfPrintChoiceModel(null, "True", null),
+                        new AssessmentPdfPrintChoiceModel(null, "False", null)))
+                .build();
+
+        TextCapturingDocument document = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, false, false));
+        String text = document.text.toString();
+        assertTrue(text.contains("True"));
+        assertTrue(text.contains("False"));
+    }
+
+    @Test
+    public void printableRenderShowsEmiAndSurveyGeneralFeedbackWhenEnabled() throws Exception {
+        AssessmentPdfQuestionModel emi = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.EXTENDED_MATCHING_ITEMS)
+                .sequence("1")
+                .itemHtmlText("EMI theme")
+                .itemScore(2.0)
+                .correctItemFeedback("<p>EMI correct</p>")
+                .incorrectItemFeedback("<p>EMI incorrect</p>")
+                .build();
+        TextCapturingDocument emiDoc = renderPrintCapturingText(emi,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, true, false));
+        assertTrue(emiDoc.text.toString().contains("EMI correct"));
+        assertTrue(emiDoc.text.toString().contains("EMI incorrect"));
+
+        AssessmentPdfQuestionModel survey = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.MULTIPLE_CHOICE_SURVEY)
+                .sequence("1")
+                .itemHtmlText("Survey")
+                .itemScore(0.0)
+                .generalItemFeedback("<p>Thanks for answering</p>")
+                .printChoices(List.of(new AssessmentPdfPrintChoiceModel(null, "Agree", null)))
+                .build();
+        TextCapturingDocument surveyDoc = renderPrintCapturingText(survey,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, true, false));
+        assertTrue(surveyDoc.text.toString().contains("Thanks for answering"));
+        assertFalse(surveyDoc.text.toString().contains("<p>"));
+    }
+
+    @Test
+    public void studentReportRenderShowsItemAndSelectionFeedbackWithoutHtmlTags() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.MULTIPLE_CHOICE)
+                .sequence("1")
+                .text("<p>Capital?</p>")
+                .points(1.0)
+                .maxPoints(1.0)
+                .feedbackPresent(true)
+                .feedback("<p>Item level feedback</p>")
+                .answerKeyTf("A&nbsp;<span>ok</span>")
+                .selectionAnswers(List.of(new AssessmentPdfSelectionAnswerModel(
+                        "A", "<b>Paris</b>", Boolean.TRUE, true, null, "<i>Selection feedback</i>")))
+                .build();
+
+        TextCapturingDocument document = renderReportCapturingText(question);
+        String text = document.text.toString();
+        assertTrue(text.contains("Item level feedback"));
+        assertTrue(text.contains("Selection feedback"));
+        assertTrue(text.contains("A ok") || text.contains("Aok"));
+        assertFalse(text.contains("<p>"));
+        assertFalse(text.contains("<i>"));
+        assertFalse(text.contains("<span"));
     }
 
     @Test
@@ -301,6 +467,20 @@ public class AssessmentPdfQuestionRendererTest {
         document.open();
         new AssessmentPdfQuestionRenderer(helper).render(document,
                 QuestionRenderContext.forPrint(question, 1, 1, printModel, helper));
+        document.close();
+        return document;
+    }
+
+    private static TextCapturingDocument renderReportCapturingText(AssessmentPdfQuestionModel question) throws Exception {
+        AssessmentPdfContentHelper helper = new AssessmentPdfContentHelper(mock(ContentHostingService.class));
+        AssessmentStudentReportPdfModel reportModel = new AssessmentStudentReportPdfModel(
+                "Student One", "Student", "student@example.com", null, "Quiz", "Site A", 1.0, 1.0, false, Locale.US,
+                List.of(new AssessmentPdfPartModel("Part 1", "", Collections.emptyList(), List.of(question), "1", 1, 0, 1.0, 1.0)));
+        TextCapturingDocument document = new TextCapturingDocument();
+        PdfWriter.getInstance(document, new ByteArrayOutputStream());
+        document.open();
+        new AssessmentPdfQuestionRenderer(helper).render(document,
+                QuestionRenderContext.forReport(question, 1, 1, reportModel, helper));
         document.close();
         return document;
     }

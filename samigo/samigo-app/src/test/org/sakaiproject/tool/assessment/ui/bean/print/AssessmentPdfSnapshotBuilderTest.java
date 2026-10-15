@@ -171,9 +171,13 @@ public class AssessmentPdfSnapshotBuilderTest {
         ItemContentsBean item = matchingQuestionItem();
         AnswerIfc matchingAnswer = mock(AnswerIfc.class);
         when(matchingAnswer.getId()).thenReturn(1L);
+        when(matchingAnswer.getIsCorrect()).thenReturn(Boolean.TRUE);
+        when(matchingAnswer.getCorrectAnswerFeedback()).thenReturn("Correct pair feedback");
+        when(matchingAnswer.getInCorrectAnswerFeedback()).thenReturn("Incorrect pair feedback");
         ItemTextIfc itemText = mock(ItemTextIfc.class);
         when(itemText.getId()).thenReturn(1L);
         when(itemText.getAnswerSet()).thenReturn(java.util.Set.of(matchingAnswer));
+        when(itemText.getAnswerArray()).thenReturn(java.util.List.of(matchingAnswer));
 
         MatchingBean matchingBean = new MatchingBean();
         matchingBean.setItemContentsBean(item);
@@ -185,6 +189,7 @@ public class AssessmentPdfSnapshotBuilderTest {
         choices.add(new SelectItem(null, "Unknown"));
         matchingBean.setChoices(choices);
         matchingBean.setResponse("1");
+        matchingBean.setFeedback("Matching row feedback");
 
         item.setMatchingArray(java.util.List.of(matchingBean));
 
@@ -203,6 +208,9 @@ public class AssessmentPdfSnapshotBuilderTest {
         assertEquals("1", row.getChoices().get(0).getValue());
         assertEquals("France", row.getChoices().get(0).getLabel());
         assertNull(row.getChoices().get(1).getValue());
+        assertEquals("Matching row feedback", row.getFeedback());
+        assertEquals("Correct pair feedback", row.getCorrectFeedback());
+        assertEquals("Incorrect pair feedback", row.getIncorrectFeedback());
     }
 
     @Test
@@ -226,10 +234,13 @@ public class AssessmentPdfSnapshotBuilderTest {
         item.setSequence("1");
         item.setItemGradingDataArray(new java.util.ArrayList<>());
 
+        when(answer.getGeneralAnswerFeedback()).thenReturn("Authored selection feedback");
+
         SelectionBean selectionBean = new SelectionBean();
         selectionBean.setItemContentsBean(item);
         selectionBean.setAnswer(answer);
         selectionBean.setResponse(true);
+        selectionBean.setFeedback("Resolved selection feedback");
         item.setAnswers(java.util.List.of(selectionBean));
 
         DeliveryBean deliveryBean = studentReportDeliveryBean(item);
@@ -245,6 +256,44 @@ public class AssessmentPdfSnapshotBuilderTest {
         assertEquals("First choice", selection.getText());
         assertEquals(Boolean.TRUE, selection.getCorrect());
         assertTrue(selection.isSelected());
+        assertEquals("Resolved selection feedback", selection.getFeedback());
+    }
+
+    @Test
+    public void buildStudentReportModelFallsBackToGeneralAnswerFeedbackWhenResolvedMissing() {
+        AnswerIfc answer = mock(AnswerIfc.class);
+        when(answer.getLabel()).thenReturn("B");
+        when(answer.getText()).thenReturn("Second choice");
+        when(answer.getIsCorrect()).thenReturn(Boolean.FALSE);
+        when(answer.getId()).thenReturn(2L);
+        when(answer.getGeneralAnswerFeedback()).thenReturn("General option feedback");
+
+        ItemTextIfc itemText = mock(ItemTextIfc.class);
+        when(itemText.getId()).thenReturn(1L);
+
+        ItemDataIfc itemData = mock(ItemDataIfc.class);
+        when(itemData.getTypeId()).thenReturn(TypeIfc.MULTIPLE_CHOICE);
+        when(itemData.getItemId()).thenReturn(1L);
+        when(itemData.getItemTextSet()).thenReturn(java.util.Set.of(itemText));
+
+        ItemContentsBean item = new ItemContentsBean();
+        item.setItemData(itemData);
+        item.setSequence("1");
+        item.setItemGradingDataArray(new java.util.ArrayList<>());
+
+        SelectionBean selectionBean = new SelectionBean();
+        selectionBean.setItemContentsBean(item);
+        selectionBean.setAnswer(answer);
+        selectionBean.setResponse(true);
+        item.setAnswers(java.util.List.of(selectionBean));
+
+        AssessmentStudentReportPdfModel model = snapshotBuilder()
+                .deliveryBean(studentReportDeliveryBean(item))
+                .studentScores(studentReportScoresBean(null))
+                .buildStudentReportModel();
+        AssessmentPdfSelectionAnswerModel selection = model.getParts().get(0).getQuestions().get(0).getSelectionAnswers().get(0);
+
+        assertEquals("General option feedback", selection.getFeedback());
     }
 
     @Test

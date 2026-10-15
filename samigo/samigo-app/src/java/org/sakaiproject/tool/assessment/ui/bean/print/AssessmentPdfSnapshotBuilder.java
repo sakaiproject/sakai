@@ -479,11 +479,31 @@ public final class AssessmentPdfSnapshotBuilder {
                     choices.add(new AssessmentPdfChoiceOptionModel(choice.getLabel(), choiceValue == null ? null : String.valueOf(choiceValue), choice.getDescription()));
                 }
             }
+            String correctFeedback = null;
+            String incorrectFeedback = null;
+            ItemTextIfc itemText = matchingBean.getItemText();
+            if (itemText != null && itemText.getAnswerArray() != null) {
+                for (Object answerObject : itemText.getAnswerArray()) {
+                    if (!(answerObject instanceof AnswerIfc)) {
+                        continue;
+                    }
+                    AnswerIfc answer = (AnswerIfc) answerObject;
+                    if (!Boolean.TRUE.equals(answer.getIsCorrect())) {
+                        continue;
+                    }
+                    correctFeedback = blankToNull(answer.getCorrectAnswerFeedback());
+                    incorrectFeedback = blankToNull(answer.getInCorrectAnswerFeedback());
+                    break;
+                }
+            }
             rows.add(new AssessmentPdfMatchingRowModel(
                     matchingBean.getText(),
                     matchingBean.getResponse(),
                     matchingBean.getIsCorrect(),
-                    choices));
+                    choices,
+                    blankToNull(matchingBean.getFeedback()),
+                    correctFeedback,
+                    incorrectFeedback));
         }
         return rows;
     }
@@ -510,11 +530,14 @@ public final class AssessmentPdfSnapshotBuilder {
         for (Object answer : item.getAnswers()) {
             if (answer instanceof SelectionBean) {
                 SelectionBean selectionBean = (SelectionBean) answer;
+                String selectionFeedback = selectionLevelFeedback(selectionBean);
                 answers.add(new AssessmentPdfSelectionAnswerModel(
                         selectionBean.getAnswer().getLabel(),
                         selectionBean.getAnswer().getText(),
                         selectionBean.getAnswer().getIsCorrect(),
-                        selectionBean.getResponse()));
+                        selectionBean.getResponse(),
+                        null,
+                        selectionFeedback));
             } else if (answer instanceof SelectItem) {
                 SelectItem selectItem = (SelectItem) answer;
                 answers.add(new AssessmentPdfSelectionAnswerModel(
@@ -635,6 +658,27 @@ public final class AssessmentPdfSnapshotBuilder {
                 printSettings.getShowPartIntros(),
                 printSettings.getShowKeysFeedback(),
                 printSettings.getShowSamePage());
+    }
+
+    private String selectionLevelFeedback(SelectionBean selectionBean) {
+        if (selectionBean == null || selectionBean.getAnswer() == null) {
+            return null;
+        }
+        String resolved = blankToNull(selectionBean.getFeedback());
+        if (resolved != null) {
+            return resolved;
+        }
+        if (!selectionBean.getResponse()) {
+            return null;
+        }
+        return blankToNull(selectionBean.getAnswer().getGeneralAnswerFeedback());
+    }
+
+    private String blankToNull(String value) {
+        if (StringUtils.isBlank(value) || "null".equals(value)) {
+            return null;
+        }
+        return value;
     }
 
     private void appendAttachmentHtml(StringBuffer buffer, String filename, String mimeType, String resourceId) {

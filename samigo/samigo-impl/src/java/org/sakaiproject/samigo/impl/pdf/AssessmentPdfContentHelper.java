@@ -615,13 +615,16 @@ public class AssessmentPdfContentHelper {
      * Renders HTML (with images/LaTeX) or plain text into a PDF cell.
      */
     public void populateCellWithHtml(PdfPCell cell, String html, Font font, boolean mathJaxEnabled, String fontSizeSetting) throws Exception {
-        if (StringUtils.isNotBlank(html) && html.contains("<")) {
+        if (StringUtils.isBlank(html)) {
+            return;
+        }
+        if (html.contains("<")) {
             PdfPTable titleTable = getQuestionTitle(html, true, mathJaxEnabled, fontSizeSetting);
             if (titleTable != null) {
                 cell.addElement(titleTable);
             }
-        } else if (StringUtils.isNotBlank(html)) {
-            cell.addElement(createLatexParagraph(html, font, mathJaxEnabled));
+        } else {
+            cell.addElement(createLatexParagraph(cleanText(html), font, mathJaxEnabled));
         }
     }
 
@@ -703,13 +706,14 @@ public class AssessmentPdfContentHelper {
     }
 
     public void addCorrectResponseBox(Document document, String value, Locale locale) throws Exception {
-        if (StringUtils.isBlank(value)) {
+        String cleaned = cleanText(value);
+        if (StringUtils.isBlank(cleaned)) {
             return;
         }
         Paragraph paragraph = new Paragraph();
         paragraph.setLeading(0f, 1.2f);
         paragraph.add(new Chunk(AssessmentPdfBundle.getEvaluationString("correct_responses", locale) + ": ", fontWithColor(SMALL_BOLD_FONT, SECONDARY_COLOR)));
-        paragraph.add(new Chunk(value, fontWithColor(SMALL_FONT, TEXT_PRIMARY)));
+        paragraph.add(new Chunk(cleaned, fontWithColor(SMALL_FONT, TEXT_PRIMARY)));
         addInfoBox(document, BACKGROUND_GRAY, SECONDARY_COLOR, paragraph);
     }
 
