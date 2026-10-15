@@ -19,10 +19,13 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
 import jakarta.inject.Inject;
 
@@ -121,8 +124,43 @@ public class SakaiService  {
         }
     }
 
-    public boolean isPlainTextGroupTitle(String title) {
-        return StringUtils.isNotBlank(title) && title.equals(formattedText.stripHtmlFromText(title, true, true));
+    public String cleanGroupTitle(String title) {
+        return StringUtils.trimToEmpty(formattedText.stripHtmlFromText(title, true, true));
+    }
+
+    public Optional<Map<String, List<String>>> cleanGroupTitles(Map<String, List<String>> groups) {
+        if (groups == null) {
+            return Optional.empty();
+        }
+        Map<String, List<String>> cleanedGroups = new LinkedHashMap<>();
+        Set<String> titles = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        for (Map.Entry<String, List<String>> group : groups.entrySet()) {
+            String title = cleanGroupTitle(group.getKey());
+            if (StringUtils.isBlank(title) || title.length() > 99 || !titles.add(title)) {
+                return Optional.empty();
+            }
+            cleanedGroups.put(title, group.getValue());
+        }
+        return Optional.of(cleanedGroups);
+    }
+
+    public Optional<List<String>> buildJoinableGroupTitles(String title, int count, List<String> existingTitles) {
+        Set<String> usedTitles = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        usedTitles.addAll(existingTitles);
+        List<String> titles = new ArrayList<>();
+        int number = 1;
+        for (int i = 0; i < count; i++) {
+            String groupTitle;
+            do {
+                groupTitle = String.format("%s %d", title, number++);
+            } while (usedTitles.contains(groupTitle));
+            if (groupTitle.length() > 99) {
+                return Optional.empty();
+            }
+            usedTitles.add(groupTitle);
+            titles.add(groupTitle);
+        }
+        return Optional.of(titles);
     }
 
     public boolean canManageCurrentSiteGroups() {

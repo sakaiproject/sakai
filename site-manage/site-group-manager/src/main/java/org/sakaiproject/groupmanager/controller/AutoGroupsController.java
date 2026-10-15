@@ -202,6 +202,9 @@ public class AutoGroupsController {
         autoGroupsForm.setSelectedRoleList(autoGroupsForm.getSelectedRoleList().stream().distinct().collect(Collectors.toList()));
         autoGroupsForm.setSelectedSectionList(autoGroupsForm.getSelectedSectionList().stream().distinct().collect(Collectors.toList()));
 
+        autoGroupsForm.setGroupTitleByGroup(sakaiService.cleanGroupTitle(autoGroupsForm.getGroupTitleByGroup()));
+        autoGroupsForm.setGroupTitleByUser(sakaiService.cleanGroupTitle(autoGroupsForm.getGroupTitleByUser()));
+
         // Check the options and perform the validations considering the options
         if (GroupManagerConstants.STRUCTURE_CONFIGURATION_MIXTURE == autoGroupsForm.getStructureConfigurationOption()) {
             boolean titleError = false;
@@ -221,13 +224,6 @@ public class AutoGroupsController {
             // Validate the title is not empty.
             if (titleError) {
                 model.addAttribute("splitOptionsError", messageSource.getMessage("autogroups.step3.group.title.required", null, userLocale));
-                return showStep3(model, autoGroupsForm);
-            }
-
-            String groupTitle = GroupManagerConstants.SPLIT_OPTIONS_BY_GROUP == autoGroupsForm.getSplitOptions()
-                    ? autoGroupsForm.getGroupTitleByGroup() : autoGroupsForm.getGroupTitleByUser();
-            if (!sakaiService.isPlainTextGroupTitle(groupTitle)) {
-                model.addAttribute("splitOptionsError", messageSource.getMessage("groups.error.plaintext", null, userLocale));
                 return showStep3(model, autoGroupsForm);
             }
 
@@ -390,6 +386,13 @@ public class AutoGroupsController {
             }
         }
 
+        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(autoGroupsMap);
+        if (cleanedGroups.isEmpty()) {
+            model.addAttribute("splitOptionsError", messageSource.getMessage("groups.error.cleanedTitles", null, sakaiService.getLocaleForCurrentSiteAndUser()));
+            return showStep3(model, autoGroupsForm);
+        }
+        autoGroupsMap = cleanedGroups.get();
+
         // Fill the model attributes.
         model.addAttribute("autoGroupsForm", autoGroupsForm);
         model.addAttribute("autoGroupsMap", autoGroupsMap);
@@ -449,10 +452,13 @@ public class AutoGroupsController {
             return GroupManagerConstants.REDIRECT_MAIN_TEMPLATE;
         }
 
-        if (autoGroupsMap == null || autoGroupsMap.keySet().stream().anyMatch(title -> !sakaiService.isPlainTextGroupTitle(title))) {
+        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(autoGroupsMap);
+        if (cleanedGroups.isEmpty() || site.getGroups().stream()
+                .anyMatch(group -> cleanedGroups.get().keySet().stream().anyMatch(title -> title.equalsIgnoreCase(group.getTitle())))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    messageSource.getMessage("groups.error.plaintext", null, sakaiService.getLocaleForCurrentSiteAndUser()));
+                    messageSource.getMessage("groups.error.cleanedTitles", null, sakaiService.getLocaleForCurrentSiteAndUser()));
         }
+        autoGroupsMap = cleanedGroups.get();
 
         for (Entry<String, List<String>> autoGroup : autoGroupsMap.entrySet()) {
             Group newGroup = site.addGroup();

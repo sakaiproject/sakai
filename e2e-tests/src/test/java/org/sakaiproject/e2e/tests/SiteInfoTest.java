@@ -70,7 +70,7 @@ class SiteInfoTest extends SakaiUiTestBase {
     }
 
     @Test
-    void canValidateJoinableSetTitles() {
+    void canCleanJoinableSetTitles() {
         sakai.login("instructor1");
         page.navigate(ensureCourseUrl());
         sakai.toolClick("Site Info");
@@ -79,21 +79,49 @@ class SiteInfoTest extends SakaiUiTestBase {
             .first().click(new Locator.ClickOptions().setForce(true));
         page.locator(".navIntraTool a[href$='/joinableset']").click();
 
-        page.locator("#groupTitle").fill("<em>Planning</em>");
+        page.locator("#groupTitle").fill("<em></em>");
         page.locator("#groupNumber").fill("1");
         page.locator("#groupMaxMembers").fill("5");
         page.locator("#groupTitle").press("End");
         page.locator("#create-joinableset-submit-button").click();
-        assertThat(page.locator(".sak-banner-error")).hasText("Group titles must be plain text.");
+        assertThat(page.locator(".sak-banner-error")).hasText("You must provide a set title.");
 
-        page.locator("#groupTitle").fill("Planning & Review");
+        page.locator("#groupTitle").fill("<em>Planning & Review</em>");
         page.locator("#groupNumber").fill("1");
         page.locator("#groupMaxMembers").fill("5");
         page.locator("#groupTitle").press("End");
         page.locator("#create-joinableset-submit-button").click();
         assertThat(page.locator("#group-manager-form")).isVisible();
         assertThat(page.locator("#group-manager-form")).containsText("Planning & Review 1");
-        assertThat(page.locator("#group-manager-form")).not().containsText("<em>Planning</em>");
+        assertThat(page.locator("#group-manager-form")).not().containsText("<em>Planning & Review</em>");
+
+        page.locator(".navIntraTool a[href$='/joinableset']").click();
+        page.locator("#groupTitle").fill("<strong>Planning & Review</strong>");
+        page.locator("#groupNumber").fill("1");
+        page.locator("#groupMaxMembers").fill("5");
+        page.locator("#groupTitle").press("End");
+        page.locator("#create-joinableset-submit-button").click();
+        assertThat(page.locator(".sak-banner-error"))
+            .hasText("The set name has been used already. Please choose a different one.");
+    }
+
+    @Test
+    void canCleanSingleGroupTitles() {
+        sakai.login("instructor1");
+        page.navigate(ensureCourseUrl());
+        sakai.toolClick("Site Info");
+        page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Groups$", Pattern.CASE_INSENSITIVE)))
+            .first().click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool a[href$='/group']").click();
+        page.locator("#groupTitle").fill("<em>Workshop</em>");
+        page.locator("#groupMembers").selectOption(page.locator("#groupMembers option").first().getAttribute("value"));
+        page.locator("#groupTitle").press("End");
+        page.locator("#create-group-submit-button").click();
+
+        assertThat(page.locator("#group-manager-form a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Workshop$")))).isVisible();
+        assertThat(page.locator("#group-manager-form")).not().containsText("<em>Workshop</em>");
     }
 
     @Test
