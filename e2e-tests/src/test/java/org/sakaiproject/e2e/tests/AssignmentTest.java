@@ -16,6 +16,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.microsoft.playwright.Locator;
@@ -260,42 +261,28 @@ class AssignmentTest extends SakaiUiTestBase {
         assertAssignmentReorderChrome();
 
         Locator reorderItems = page.locator("#reorder-list li.reorder-element.sakai-reorder-row");
-        if (reorderItems.count() < 21) {
+        int reorderCount = reorderItems.count();
+        if (reorderCount < 21) {
             fail("Expected the reorder list to include assignments beyond the first page.");
         }
         assertThat(page.locator("#reorder-list")).containsText(firstTitle);
         assertThat(page.locator("#reorder-list")).containsText(lastTitle);
         assertThat(page.locator("input[id^=\"index\"]")).hasCount(0);
 
-        Locator lastAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first();
-        assertThat(lastAssignment.locator("[data-action=\"move-up\"]")).isEnabled();
+        assertAssignmentPrecedes("#reorder-list", firstTitle, lastTitle);
 
-        for (int i = 0; i < 20; i++) {
-            lastAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first();
-            Locator moveUp = lastAssignment.locator("[data-action=\"move-up\"]");
-            if (moveUp.isDisabled()) {
-                break;
-            }
-            moveUp.click();
-        }
+        Locator lastAssignment = moveAssignmentToTop(reorderItems, lastTitle, reorderCount);
         assertAssignmentPrecedes("#reorder-list", lastTitle, firstTitle);
         assertThat(lastAssignment.locator("input[name^=\"position_\"]")).hasValue("1");
 
-        Locator undoLast = page.locator("#undo-last");
-        assertThat(undoLast).isEnabled();
-        undoLast.click();
+        Locator undoAll = page.locator("#undo-all");
+        assertThat(undoAll).isEnabled();
+        undoAll.click();
         assertAssignmentPrecedes("#reorder-list", firstTitle, lastTitle);
 
-        lastAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first();
-        for (int i = 0; i < 20; i++) {
-            lastAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first();
-            Locator moveUp = lastAssignment.locator("[data-action=\"move-up\"]");
-            if (moveUp.isDisabled()) {
-                break;
-            }
-            moveUp.click();
-        }
+        lastAssignment = moveAssignmentToTop(reorderItems, lastTitle, reorderCount);
         assertAssignmentPrecedes("#reorder-list", lastTitle, firstTitle);
+        assertThat(lastAssignment.locator("input[name^=\"position_\"]")).hasValue("1");
 
         page.locator("input[name=\"save\"][value=\"Save\"], input[name=\"save\"]").first().click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
@@ -568,6 +555,23 @@ class AssignmentTest extends SakaiUiTestBase {
             page.mouse().move(sourceX, sourceY + (targetY - sourceY) * step / 10);
         }
         page.mouse().up();
+    }
+
+    private Locator moveAssignmentToTop(Locator reorderItems, String title, int reorderCount) {
+        Locator assignment = reorderItems.filter(new Locator.FilterOptions().setHasText(title)).first();
+        assertThat(assignment.locator("[data-action=\"move-up\"]")).isEnabled();
+        for (int i = 0; i < reorderCount - 1; i++) {
+            assignment = reorderItems.filter(new Locator.FilterOptions().setHasText(title)).first();
+            Locator moveUp = assignment.locator("[data-action=\"move-up\"]");
+            if (moveUp.isDisabled()) {
+                break;
+            }
+            moveUp.click();
+        }
+        assignment = reorderItems.filter(new Locator.FilterOptions().setHasText(title)).first();
+        assertTrue(assignment.locator("[data-action=\"move-up\"]").isDisabled(),
+            "Expected move-up to be disabled after moving " + title + " to the top.");
+        return assignment;
     }
 
     private void assertAssignmentPrecedes(String selector, String firstTitle, String secondTitle) {
