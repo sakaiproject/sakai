@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -51,8 +50,6 @@ import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryService;
-import org.exolab.castor.util.Configuration.Property;
-import org.exolab.castor.util.LocalConfiguration;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -130,17 +127,6 @@ public class PortalServiceImpl implements PortalService, Observer
 	public static final int DEFAULT_MAX_RECENT_SITES = 3;
 
 	public void init() {
-		try {
-			// configure the parser for castor, before anything else get a chance
-			Properties castorProperties = LocalConfiguration.getDefault();
-			String parser = serverConfigurationService.getString(
-					"sakai.xml.sax.parser",
-					"com.sun.org.apache.xerces.internal.parsers.SAXParser");
-			log.info("Configured Castor to use SAX Parser " + parser);
-			castorProperties.put(Property.Parser, parser);
-		} catch (Exception ex) {
-			log.warn("Failed to configure Castor, {}", ex.toString());
-		}
 		eventTrackingService.addLocalObserver(this);
 		portalSubPageNavProviders = new HashSet<>();
 	}

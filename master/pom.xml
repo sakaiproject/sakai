@@ -1115,27 +1115,6 @@
         <scope>provided</scope>
       </dependency>
       <!-- shared/lib -->
-      <dependency>
-        <groupId>org.codehaus.castor</groupId>
-        <artifactId>castor</artifactId>
-        <version>1.1.2.1</version>
-        <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-          <!-- Castor 1.1.2.1 pulls xerces:xerces:1.4.0, which breaks Spring XSD parsing (JAXP) -->
-          <exclusion>
-            <groupId>xerces</groupId>
-            <artifactId>xerces</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
       <!--
         Portlet 1.0 (JSR 168) is what the vendored Pluto container implements. Portlet 3.0
         adds methods typed on javax.servlet.http.Cookie / Part and javax.servlet.DispatcherType,
