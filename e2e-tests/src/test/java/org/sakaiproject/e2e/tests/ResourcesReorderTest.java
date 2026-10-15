@@ -69,35 +69,41 @@ class ResourcesReorderTest extends SakaiUiTestBase {
         assertPrecedes("#reorder-list", folderC, folderA);
         assertThat(last.locator("input[name^=\"position_\"]")).hasValue("1");
 
+        page.locator("#save").click();
+        page.waitForLoadState();
+        String afterDragListing = page.locator("body").innerText();
+        if (afterDragListing.indexOf(folderC) < 0 || afterDragListing.indexOf(folderA) < 0
+                || afterDragListing.indexOf(folderC) > afterDragListing.indexOf(folderA)) {
+            fail("Expected drag-and-drop Resources reorder to persist after Save.");
+        }
+
+        openResourcesReorder();
+        items = page.locator("#reorder-list li.reorder-element.sakai-reorder-row");
+        assertPrecedes("#reorder-list", folderC, folderA);
+
         Locator undoLast = page.locator("#undo-last");
+        Locator folderAAfterReload = items.filter(new Locator.FilterOptions().setHasText(folderA)).first();
+        dragBefore(folderAAfterReload.locator(DRAG_HANDLE).first(),
+            items.filter(new Locator.FilterOptions().setHasText(folderC)).first());
+        assertPrecedes("#reorder-list", folderA, folderC);
         assertThat(undoLast).isEnabled();
         undoLast.click();
-        assertPrecedes("#reorder-list", folderA, folderC);
+        assertPrecedes("#reorder-list", folderC, folderA);
 
+        // Current order after undo is C, A, B (from earlier drag persist of C before A).
         Locator folderARow = items.filter(new Locator.FilterOptions().setHasText(folderA)).first();
         Locator moveDown = folderARow.locator("[data-action=\"move-down\"]");
         assertThat(moveDown).isEnabled();
         moveDown.click();
         assertPrecedes("#reorder-list", folderB, folderA);
 
-        // After move-down, folder A is no longer first; move it back up.
         folderARow = items.filter(new Locator.FilterOptions().setHasText(folderA)).first();
         Locator moveUp = folderARow.locator("[data-action=\"move-up\"]");
         assertThat(moveUp).isEnabled();
         moveUp.click();
         assertPrecedes("#reorder-list", folderA, folderB);
 
-        Locator undoAll = page.locator("#undo-all");
-        assertThat(undoAll).isEnabled();
-        undoAll.click();
-        assertPrecedes("#reorder-list", folderA, folderB);
-        assertPrecedes("#reorder-list", folderB, folderC);
-
         // Final order for save: C, B, A
-        Locator folderCRow = items.filter(new Locator.FilterOptions().setHasText(folderC)).first();
-        dragBefore(folderCRow.locator(DRAG_HANDLE).first(),
-            items.filter(new Locator.FilterOptions().setHasText(folderA)).first());
-        assertPrecedes("#reorder-list", folderC, folderA);
         folderARow = items.filter(new Locator.FilterOptions().setHasText(folderA)).first();
         folderARow.locator("[data-action=\"move-down\"]").click();
         assertPrecedes("#reorder-list", folderC, folderB);

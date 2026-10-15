@@ -53,6 +53,7 @@ export class SakaiReorderer extends SakaiShadowElement {
 
     this._configuredContainers = new WeakSet();
     this._configuredReorderables = new WeakSet();
+    this._dragStartOrder = [];
 
     this._dragStartListener = e => {
 
@@ -64,6 +65,7 @@ export class SakaiReorderer extends SakaiShadowElement {
       }
 
       this.draggingElement = e.currentTarget;
+      this._dragStartOrder = [ ...this._reorderableIds ];
       this.draggingElement.classList.add("dragging");
     };
 
@@ -71,27 +73,66 @@ export class SakaiReorderer extends SakaiShadowElement {
 
       e.stopPropagation();
 
-      if (this.draggingElement && this.container.contains(this.draggingElement)) {
-        e.preventDefault();
+      if (!this.draggingElement || !this.container?.contains(this.draggingElement)) {
+        return;
       }
+
+      // Required for the browser to allow a drop / complete the drag.
+      e.preventDefault();
+
+      if (!this.applyDom) {
+        return;
+      }
+
+      const afterElement = this._getDragAfterElement(this.container, this.horizontal ? e.clientX : e.clientY);
+      if (!afterElement) {
+        if (this.container.lastElementChild !== this.draggingElement) {
+          this.container.append(this.draggingElement);
+        }
+      } else if (afterElement !== this.draggingElement.nextElementSibling) {
+        this.container.insertBefore(this.draggingElement, afterElement);
+      }
+
+      this._syncReorderableIdsFromDom();
     };
 
     this._dragEndListener = e => {
 
       e.preventDefault();
       e.stopPropagation();
+
+      const endedElement = e.currentTarget;
+      endedElement.classList.remove("dragging");
+
+      if (this.applyDom && this.draggingElement) {
+        this._syncReorderableIdsFromDom();
+        const changed = this._dragStartOrder.join("\0") !== this._reorderableIds.join("\0");
+        if (changed) {
+          this.dispatchEvent(new CustomEvent("reordered", {
+            bubbles: true,
+            composed: true,
+            detail: {
+              data: this.draggingElement.dataset,
+              previousReorderedIds: [ ...this._dragStartOrder ],
+              reorderedIds: [ ...this._reorderableIds ]
+            }
+          }));
+        }
+      }
+
       this.draggingElement = undefined;
       this._dragSource = undefined;
-      e.currentTarget.classList.remove("dragging");
+      this._dragStartOrder = [];
     };
 
     this._pointerEndListener = () => this._dragSource = undefined;
 
     this._dropListener = e => {
 
+      e.preventDefault();
       e.stopPropagation();
 
-      if (!this.draggingElement || !this.draggingElement.dataset.reorderableId) {
+      if (this.applyDom || !this.draggingElement || !this.draggingElement.dataset.reorderableId) {
         return;
       }
 
@@ -158,6 +199,20 @@ export class SakaiReorderer extends SakaiShadowElement {
         }
       }
     };
+  }
+
+  /**
+   * @private
+   */
+  _syncReorderableIdsFromDom() {
+
+    if (!this.container) {
+      return;
+    }
+
+    this._reorderableIds = [ ...this.container.children ]
+      .filter(n => n.nodeType === Node.ELEMENT_NODE)
+      .map(reorderable => reorderable.dataset.reorderableId);
   }
 
   /**

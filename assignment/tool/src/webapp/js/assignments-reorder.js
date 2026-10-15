@@ -88,6 +88,17 @@ const initialise = () => {
 
   updateMoveButtons();
 
+  const syncPositionsFromDom = () => {
+    items().forEach((item, index) => {
+      const positionInput = item.querySelector("input.assignment-position");
+      if (positionInput) {
+        positionInput.value = index + 1;
+      }
+    });
+  };
+
+  document.querySelector("#reorderForm input[name=\"save\"]")?.addEventListener("click", syncPositionsFromDom, true);
+
   reorderer.addEventListener("reordered", event => {
     savePreviousOrder(event.detail.previousReorderedIds);
     const movedItem = items().find(item => item.dataset.reorderableId === event.detail.data.reorderableId);

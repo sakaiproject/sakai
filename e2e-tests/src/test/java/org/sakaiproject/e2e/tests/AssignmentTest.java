@@ -269,33 +269,48 @@ class AssignmentTest extends SakaiUiTestBase {
 
         Locator firstAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(firstTitle)).first();
         Locator lastAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first();
+
         dragAssignmentBefore(lastAssignment.locator(".sakai-reorder-drag-handle.drag-handle, .drag-handle").first(), firstAssignment);
         assertAssignmentPrecedes("#reorder-list", lastTitle, firstTitle);
         assertThat(lastAssignment.locator("input[name^=\"position_\"]")).hasValue("1");
+        page.locator("input[name=\"save\"][value=\"Save\"], input[name=\"save\"]").first().click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        goToAssignmentsList();
+        String draggedListText = page.locator("body").innerText();
+        if (draggedListText.indexOf(lastTitle) < 0 || draggedListText.indexOf(firstTitle) < 0
+                || draggedListText.indexOf(lastTitle) > draggedListText.indexOf(firstTitle)) {
+            fail("Expected drag-and-drop reorder to persist after Save.");
+        }
 
+        openReorderAssignments();
+        reorderItems = page.locator("#reorder-list li.reorder-element.sakai-reorder-row");
+        assertAssignmentPrecedes("#reorder-list", lastTitle, firstTitle);
+
+        firstAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(firstTitle)).first();
+        Locator secondAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
+        dragAssignmentBefore(secondAssignment.locator(".sakai-reorder-drag-handle.drag-handle, .drag-handle").first(),
+            reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first());
+        assertAssignmentPrecedes("#reorder-list", titlePrefix + "02", lastTitle);
         Locator undoLast = page.locator("#undo-last");
         assertThat(undoLast).isEnabled();
         undoLast.click();
-        assertAssignmentPrecedes("#reorder-list", firstTitle, lastTitle);
+        assertAssignmentPrecedes("#reorder-list", lastTitle, titlePrefix + "02");
 
-        Locator secondAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
+        // Move buttons path.
+        secondAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
         Locator moveUp = secondAssignment.locator("[data-action=\"move-up\"]");
         assertThat(moveUp).isEnabled();
         moveUp.click();
-        assertAssignmentPrecedes("#reorder-list", titlePrefix + "02", firstTitle);
+        assertAssignmentPrecedes("#reorder-list", titlePrefix + "02", lastTitle);
         assertThat(secondAssignment.locator("input[name^=\"position_\"]")).hasValue("1");
 
         Locator moveDown = reorderItems.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first()
             .locator("[data-action=\"move-down\"]");
         assertThat(moveDown).isEnabled();
         moveDown.click();
-        assertAssignmentPrecedes("#reorder-list", firstTitle, titlePrefix + "02");
+        assertAssignmentPrecedes("#reorder-list", lastTitle, titlePrefix + "02");
 
-        // Leave a persisted order: 02, 21, 01 (via drag + move)
-        dragAssignmentBefore(
-            reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first()
-                .locator(".sakai-reorder-drag-handle.drag-handle, .drag-handle").first(),
-            reorderItems.filter(new Locator.FilterOptions().setHasText(firstTitle)).first());
+        // Persist a mixed drag + move order: 02, 21, 01
         reorderItems.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first()
             .locator("[data-action=\"move-up\"]").click();
         assertAssignmentPrecedes("#reorder-list", titlePrefix + "02", lastTitle);
