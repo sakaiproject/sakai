@@ -172,6 +172,11 @@ public class JoinableSetController {
             return showJoinableSet(model, null);
         }
 
+        if (!sakaiService.isPlainTextGroupTitle(joinableSetTitle)) {
+            model.addAttribute("errorMessage", messageSource.getMessage("groups.error.plaintext", null, userLocale));
+            return showJoinableSet(model, joinableSetId);
+        }
+
         //Ensure the set max members is inside the limits
         if (joinableSetMaxMembers <= 0 || joinableSetMaxMembers > 999) {
             model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.maxmembers", null, userLocale));

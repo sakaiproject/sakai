@@ -37,12 +37,14 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.groupmanager.constants.GroupManagerConstants;
@@ -219,6 +221,13 @@ public class AutoGroupsController {
             // Validate the title is not empty.
             if (titleError) {
                 model.addAttribute("splitOptionsError", messageSource.getMessage("autogroups.step3.group.title.required", null, userLocale));
+                return showStep3(model, autoGroupsForm);
+            }
+
+            String groupTitle = GroupManagerConstants.SPLIT_OPTIONS_BY_GROUP == autoGroupsForm.getSplitOptions()
+                    ? autoGroupsForm.getGroupTitleByGroup() : autoGroupsForm.getGroupTitleByUser();
+            if (!sakaiService.isPlainTextGroupTitle(groupTitle)) {
+                model.addAttribute("splitOptionsError", messageSource.getMessage("groups.error.plaintext", null, userLocale));
                 return showStep3(model, autoGroupsForm);
             }
 
@@ -438,6 +447,11 @@ public class AutoGroupsController {
         } catch (JsonProcessingException e) {
             log.error("Fatal error deserializing the auto groups map, aborting the process", e);
             return GroupManagerConstants.REDIRECT_MAIN_TEMPLATE;
+        }
+
+        if (autoGroupsMap == null || autoGroupsMap.keySet().stream().anyMatch(title -> !sakaiService.isPlainTextGroupTitle(title))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    messageSource.getMessage("groups.error.plaintext", null, sakaiService.getLocaleForCurrentSiteAndUser()));
         }
 
         for (Entry<String, List<String>> autoGroup : autoGroupsMap.entrySet()) {

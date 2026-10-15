@@ -70,6 +70,33 @@ class SiteInfoTest extends SakaiUiTestBase {
     }
 
     @Test
+    void canValidateJoinableSetTitles() {
+        sakai.login("instructor1");
+        page.navigate(ensureCourseUrl());
+        sakai.toolClick("Site Info");
+        page.locator(".navIntraTool a")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Groups$", Pattern.CASE_INSENSITIVE)))
+            .first().click(new Locator.ClickOptions().setForce(true));
+        page.locator(".navIntraTool a[href$='/joinableset']").click();
+
+        page.locator("#groupTitle").fill("<em>Planning</em>");
+        page.locator("#groupNumber").fill("1");
+        page.locator("#groupMaxMembers").fill("5");
+        page.locator("#groupTitle").press("End");
+        page.locator("#create-joinableset-submit-button").click();
+        assertThat(page.locator(".sak-banner-error")).hasText("Group titles must be plain text.");
+
+        page.locator("#groupTitle").fill("Planning & Review");
+        page.locator("#groupNumber").fill("1");
+        page.locator("#groupMaxMembers").fill("5");
+        page.locator("#groupTitle").press("End");
+        page.locator("#create-joinableset-submit-button").click();
+        assertThat(page.locator("#group-manager-form")).isVisible();
+        assertThat(page.locator("#group-manager-form")).containsText("Planning & Review 1");
+        assertThat(page.locator("#group-manager-form")).not().containsText("<em>Planning</em>");
+    }
+
+    @Test
     void canAddParticipantWithThymeleafWizard() {
         sakai.login("instructor1");
         page.navigate(ensureCourseUrl());

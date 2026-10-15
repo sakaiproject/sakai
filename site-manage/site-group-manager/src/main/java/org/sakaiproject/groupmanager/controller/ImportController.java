@@ -119,6 +119,10 @@ public class ImportController {
                     return returnImportError(model, "import.error.wrongformat", userLocale);
                 }
 
+                if (!sakaiService.isPlainTextGroupTitle(groupTitle)) {
+                    return returnImportError(model, "groups.error.plaintext", userLocale);
+                }
+
                 if (groupTitle.length() > 99) {
                     // One of the items of the line has more than 99 characters, redirect to the import form again displaying an error. 
                     return returnImportError(model, "import.error.titlelength", userLocale);
@@ -260,6 +264,10 @@ public class ImportController {
         } catch (JsonProcessingException e) {
             log.error("Fatal error processing the imported group map, aborting the process.", e);
             return GroupManagerConstants.REDIRECT_MAIN_TEMPLATE;
+        }
+
+        if (importedGroupMap == null || importedGroupMap.keySet().stream().anyMatch(title -> !sakaiService.isPlainTextGroupTitle(title))) {
+            return returnImportError(model, "groups.error.plaintext", sakaiService.getLocaleForCurrentSiteAndUser());
         }
 
         for (Entry<String, List<String>> importedGroup : importedGroupMap.entrySet()) {

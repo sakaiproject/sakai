@@ -52,6 +52,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LocaleService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +95,9 @@ public class SakaiService  {
     @Qualifier("org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
 
+    @Inject
+    private FormattedText formattedText;
+
     private final String STATE_SITE_ID = "site.instance.id";
 
     private String getCurrentSiteIdFromContext() {
@@ -115,6 +119,10 @@ public class SakaiService  {
             log.error("Unable to determine current site id from placement.");
             return null;
         }
+    }
+
+    public boolean isPlainTextGroupTitle(String title) {
+        return StringUtils.isNotBlank(title) && title.equals(formattedText.stripHtmlFromText(title, true, true));
     }
 
     public boolean canManageCurrentSiteGroups() {
