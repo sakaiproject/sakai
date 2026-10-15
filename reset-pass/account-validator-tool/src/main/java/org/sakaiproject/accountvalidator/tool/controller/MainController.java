@@ -19,9 +19,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormat;
-import org.joda.time.format.PeriodFormatter;
 import org.json.simple.JSONObject;
 import org.sakaiproject.accountvalidator.api.dto.ValidationClaim;
 import org.sakaiproject.accountvalidator.api.exception.ValidationException;
@@ -53,6 +50,7 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.util.DurationFormat;
 import org.sakaiproject.util.ExternalTrustedEvidence;
 import org.sakaiproject.util.IdPwEvidence;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1009,17 +1007,11 @@ public class MainController {
         return false;
     }
 
-    private String getFormattedMinutes(int totalMinutes, Locale userLocale) {
-        // Create a joda time period (takes milliseconds)
-        Period period = new Period(totalMinutes*60*1000);
-        // format the period for the locale
-        /* 
-         * Covers English, Danish, Dutch, French, German, Japanese, Portuguese, and Spanish.
-         * To translate into others, see http://joda-time.sourceforge.net/apidocs/org/joda/time/format/PeriodFormat.html#wordBased(java.util.Locale)
-         * (ie. put the properties mentioned in http://joda-time.sourceforge.net/apidocs/src-html/org/joda/time/format/PeriodFormat.html#line.94 into the classpath resource bundle)
-         */
-        PeriodFormatter periodFormatter = PeriodFormat.wordBased(userLocale);
-        return periodFormatter.print(period);
+    /**
+     * Package-private for unit tests.
+     */
+    String getFormattedMinutes(int totalMinutes, Locale userLocale) {
+        return DurationFormat.formatMinutes(totalMinutes, userLocale);
     }
 
     private boolean sendLegacyLinksEnabled() {

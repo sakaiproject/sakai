@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.summarycalendar.ui;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -30,10 +31,6 @@ import java.util.TimeZone;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeComparator;
-import org.joda.time.DateTimeZone;
 
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -259,13 +256,14 @@ public class EventSummary implements Serializable {
 	}
 	
 	private boolean isToday(long dateMs) {
-		TimeZone timeZone = getCurrentUserTimezone();
-		DateTime thisDate = new DateTime(dateMs).withZone(DateTimeZone.forTimeZone(timeZone));
-		//Start of day at this local
-		DateTime today = new DateTime().withTime(0, 0, 0, 0).withZone(DateTimeZone.forTimeZone(timeZone));
-		DateTimeComparator dtComp = DateTimeComparator.getDateOnlyInstance();
-		return  (dtComp.compare(thisDate, today) == 0);
-		
+		return isToday(dateMs, getCurrentUserTimezone(), Instant.now());
+	}
+
+	/**
+	 * Package-private for unit tests.
+	 */
+	boolean isToday(long dateMs, TimeZone timeZone, Instant now) {
+		return CalendarDayTimes.isLocalDate(dateMs, timeZone, now);
 	}
 	
 	/**

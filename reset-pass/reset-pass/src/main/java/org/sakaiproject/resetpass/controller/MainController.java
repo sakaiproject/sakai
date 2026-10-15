@@ -28,11 +28,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.joda.time.format.PeriodFormat;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.Period;
 
 import org.sakaiproject.serialization.MapperFactory;
+import org.sakaiproject.util.DurationFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -305,17 +303,11 @@ public class MainController {
         return Integer.toString(new Random(System.currentTimeMillis()).nextInt(Integer.MAX_VALUE));
     }
 
-    private String getFormattedMinutes(int totalMinutes, Locale locale) {
-        // Create a joda time period (takes milliseconds)
-        Period period = new Period(totalMinutes * 60 * 1000L);
-        // format the period for the locale
-        /* 
-         * Covers English, Danish, Dutch, French, German, Japanese, Portuguese, and Spanish.
-         * To translate into others, see http://joda-time.sourceforge.net/apidocs/org/joda/time/format/PeriodFormat.html#wordBased(java.util.Locale)
-         * (ie. put the properties mentioned in http://joda-time.sourceforge.net/apidocs/src-html/org/joda/time/format/PeriodFormat.html#line.94 into the classpath resource bundle)
-         */
-        PeriodFormatter periodFormatter = PeriodFormat.wordBased(locale);
-        return periodFormatter.print(period);
+    /**
+     * Package-private for unit tests.
+     */
+    String getFormattedMinutes(int totalMinutes, Locale locale) {
+        return DurationFormat.formatMinutes(totalMinutes, locale);
     }
 
     private String validateErrors(String email, Locale locale) {

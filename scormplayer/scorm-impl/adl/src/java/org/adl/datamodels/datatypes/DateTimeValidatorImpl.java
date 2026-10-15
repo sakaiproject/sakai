@@ -25,15 +25,23 @@
 package org.adl.datamodels.datatypes;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.adl.datamodels.DMDelimiter;
 import org.adl.datamodels.DMErrorCodes;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * <br><br>
@@ -58,6 +66,7 @@ import org.joda.time.format.ISODateTimeFormat;
  * @author ADL Technical Team
  */
 public class DateTimeValidatorImpl extends DateTimeValidator implements Serializable {
+	private static final Pattern OFFSET_SUFFIX = Pattern.compile("^(.+T.+)([+-])(\\d{2})(?::(\\d{2}))?$");
 
 	/**
 	  * 
@@ -142,27 +151,63 @@ public class DateTimeValidatorImpl extends DateTimeValidator implements Serializ
 	 */
 	@Override
 	public boolean compare(String iFirst, String iSecond, List<DMDelimiter> iDelimiters) {
-
-		boolean equal = true;
-
-		DateTimeFormatter dtp = ISODateTimeFormat.dateTimeParser();
-
-		try {
-			// Parse the first string and remove the sub-seconds
-			DateTime dt1 = dtp.parseDateTime(iFirst);
-			dt1 = new DateTime(dt1.getYear(), dt1.getMonthOfYear(), dt1.getDayOfMonth(), dt1.getHourOfDay(), dt1.getMinuteOfHour(), dt1.getSecondOfMinute(), 0);
-
-			// Parse the second string and remove the sub-seconds
-			DateTime dt2 = dtp.parseDateTime(iSecond);
-			dt2 = new DateTime(dt2.getYear(), dt2.getMonthOfYear(), dt2.getDayOfMonth(), dt2.getHourOfDay(), dt2.getMinuteOfHour(), dt2.getSecondOfMinute(), 0);
-
-			equal = dt1.equals(dt2);
-		} catch (Exception e) {
-			// String format error -- these cannot be equal
-			equal = false;
+		if (iFirst == null || iSecond == null) {
+			return false;
 		}
+		try {
+			// Offset-free SCORM values use the JVM zone, as with the former Joda parser.
+			ZoneId defaultZone = ZoneId.systemDefault();
+			return parseToSecondPrecision(iFirst, defaultZone).equals(parseToSecondPrecision(iSecond, defaultZone));
+		} catch (DateTimeParseException e) {
+			return false;
+		}
+	}
 
-		return equal;
+	/**
+	 * Parses a SCORM date-time, resolving explicit offsets before truncating sub-seconds.
+	 */
+	private static Instant parseToSecondPrecision(String value, ZoneId defaultZone) {
+		String trimmed = value.trim();
+		String localValue = trimmed;
+		int offsetSeconds = 0;
+		boolean hasOffset = false;
+		if (trimmed.endsWith("Z") || trimmed.endsWith("z")) {
+			localValue = trimmed.substring(0, trimmed.length() - 1);
+			hasOffset = true;
+		} else {
+			Matcher offset = OFFSET_SUFFIX.matcher(trimmed);
+			if (offset.matches()) {
+				int hours = Integer.parseInt(offset.group(3));
+				int minutes = offset.group(4) == null ? 0 : Integer.parseInt(offset.group(4));
+				if (hours > 23 || minutes > 59) {
+					throw new DateTimeParseException("Invalid timezone offset", trimmed, offset.start(2));
+				}
+				localValue = offset.group(1);
+				offsetSeconds = (offset.group(2).equals("+") ? 1 : -1) * (hours * 3600 + minutes * 60);
+				hasOffset = true;
+		}
+		}
+		LocalDateTime localDateTime = parseLocalDateTime(localValue);
+		Instant instant = hasOffset
+				? localDateTime.toInstant(ZoneOffset.UTC).minusSeconds(offsetSeconds)
+				: localDateTime.atZone(defaultZone).toInstant();
+		return instant.truncatedTo(ChronoUnit.SECONDS);
+	}
+
+	private static LocalDateTime parseLocalDateTime(String value) {
+		if (value.length() == 4) {
+			return Year.parse(value).atDay(1).atStartOfDay();
+		}
+		if (value.length() == 7) {
+			return YearMonth.parse(value).atDay(1).atStartOfDay();
+		}
+		if (value.length() == 10) {
+			return LocalDate.parse(value).atStartOfDay();
+		}
+		if (value.length() == 13) {
+			return LocalDateTime.parse(value + ":00");
+		}
+		return LocalDateTime.parse(value);
 	}
 
 	/**

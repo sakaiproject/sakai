@@ -23,9 +23,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -50,6 +47,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -165,10 +165,7 @@ public class CheckValidations implements Job {
                 for (String user : users) {
                     try {
                         User u = userDirectoryService.getUser(user);
-                        // added the added date 
-                        DateTime dt = new DateTime(u.getCreatedDate());
-                        DateTimeFormatter fmt = DateTimeFormat.longDate();
-                        String str = fmt.withLocale(locale).print(dt);
+                        String str = formatCreatedDate(u.getCreatedDate(), locale);
                         userText.append(u.getEid()).append(" (").append(str).append(")\n");
                         removeCleanUpUser(u.getId());
                     } catch (UserNotDefinedException e) {
@@ -194,6 +191,15 @@ public class CheckValidations implements Job {
                 log.warn("Failed to process creator user {}: {}", creatorId, e.toString());
             }
         }
+	}
+
+	/**
+	 * Formats a user created date for notification emails.
+	 * Package-private for unit tests.
+	 */
+	String formatCreatedDate(java.util.Date createdDate, Locale locale) {
+		DateTimeFormatter fmt = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(locale);
+		return fmt.format(createdDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 	}
 
 	private void removeCleanUpUser(String id) {
