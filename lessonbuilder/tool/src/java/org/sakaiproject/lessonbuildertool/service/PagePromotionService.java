@@ -85,9 +85,14 @@ public class PagePromotionService {
         String canonicalPageId = pageId.toString();
         // Reject only pages that are currently in left-margin navigation. Removed top-level
         // pages keep an orphan top-level item and must still be restorable.
-        if (isActiveTopLevelPage(siteId, pageId)) {
-            log.warn("Unable to add page {} as top level in site {}: page is already in site navigation", pageId, siteId);
-            return PagePromotionResult.ALREADY_TOP_LEVEL;
+        try {
+            if (isActiveTopLevelPage(siteId, pageId)) {
+                log.warn("Unable to add page {} as top level in site {}: page is already in site navigation", pageId, siteId);
+                return PagePromotionResult.ALREADY_TOP_LEVEL;
+            }
+        } catch (Exception e) {
+            log.error("Unable to check page index while promoting page {} in site {}", pageId, siteId, e);
+            return PagePromotionResult.NAVIGATION_CREATION_FAILED;
         }
 
         Site site;
