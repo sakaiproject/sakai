@@ -61,6 +61,8 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.commons.api.CommonsManager;
 import org.sakaiproject.commons.api.datamodel.Comment;
@@ -160,6 +162,8 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 		when(messageForumsTypeManager.getReceivedPrivateMessageType()).thenReturn("received-type");
 		when(privateMessageManager.getMessagesByTypeByContext(anyString(), anyString()))
 				.thenReturn(Collections.emptyList());
+		when(privateMessageManager.getMessagesByTypeByContext(anyString(), anyString(), anyString(), anyString(),
+				anyString())).thenReturn(Collections.emptyList());
 		when(conversationsService.getTopicsForSite(anyString())).thenReturn(Collections.emptyList());
 		when(conversationsService.getPostsByTopicId(anyString(), anyString(), any(), any(), any()))
 				.thenReturn(Collections.emptyList());
@@ -219,11 +223,45 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 		when(messageForumsMessageManager.getAllMessagesInSite(SITE_ID)).thenReturn(Collections.singletonList(thread));
 
 		Message privateMessage = forumMessage(9L, USER_A_ID, null, Date.from(Instant.now()));
-		when(privateMessageManager.getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID)))
-				.thenReturn(Collections.singletonList(privateMessage));
+		when(privateMessageManager.getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID), eq(USER_A_ID), anyString(),
+				anyString())).thenReturn(Collections.singletonList(privateMessage));
 
 		assertEquals("1", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_UNANSWERED).getPrimary());
 		assertEquals("2", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_AUTHORED).getPrimary());
+	}
+
+	@Test
+	public void privateMessagesIncludeEachSelectedMemberSentFolder() throws Exception {
+		Message studentSent = forumMessage(9L, USER_B_ID, null, Date.from(Instant.now()));
+		when(privateMessageManager.getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID), eq(USER_B_ID), anyString(),
+				anyString())).thenReturn(Collections.singletonList(studentSent));
+
+		assertEquals("1", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_AUTHORED).getPrimary());
+		verify(privateMessageManager).getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID), eq(USER_A_ID), anyString(),
+				anyString());
+		verify(privateMessageManager).getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID), eq(USER_B_ID), anyString(),
+				anyString());
+	}
+
+	@Test
+	public void unansweredIgnoresRoleFilterOnReplies() throws Exception {
+		Member student = memberWithRole("Student");
+		Member instructor = memberWithRole("Instructor");
+		Site site = siteService.getSite(SITE_ID);
+		when(site.getMember(USER_A_ID)).thenReturn(student);
+		when(site.getMember(USER_B_ID)).thenReturn(instructor);
+
+		Message thread = forumMessage(1L, USER_A_ID, null, Date.from(Instant.now()));
+		Message reply = forumMessage(2L, USER_B_ID, thread, Date.from(Instant.now()));
+		when(messageForumsMessageManager.getAllMessagesInSite(SITE_ID)).thenReturn(Arrays.asList(thread, reply));
+
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_ALL);
+		request.setRole("Student");
+
+		assertEquals("1", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_AUTHORED, request).getPrimary());
+		assertEquals("0", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_REPLIED, request).getPrimary());
+		assertEquals("0", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_UNANSWERED, request).getPrimary());
 	}
 
 	@Test
@@ -439,6 +477,14 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 		when(conversationsService.getTopicsForSite(SITE_ID)).thenReturn(Collections.singletonList(topic));
 
 		assertEquals("1", snapshot(WIDGET_STUDENT_COMMUNICATION, METRIC_STUDENT_COMMUNICATION_AUTHORED).getPrimary());
+	}
+
+	private Member memberWithRole(String roleId) {
+		Role role = mock(Role.class);
+		when(role.getId()).thenReturn(roleId);
+		Member member = mock(Member.class);
+		when(member.getRole()).thenReturn(role);
+		return member;
 	}
 
 	private Message forumMessage(Long id, String authorId, Message inReplyTo, Date created) {

@@ -244,16 +244,19 @@ public class SiteStatsCommunicationAnalytics {
 			return;
 		}
 		for (Message message : messages) {
-			if (skipMessage(message)) {
-				continue;
-			}
-			String authorId = forumAuthorId(message);
-			if (!includeContribution(authorId, users) || !createdInRange(message.getCreated(), request)) {
+			if (skipMessage(message) || !createdInRange(message.getCreated(), request)) {
 				continue;
 			}
 			boolean reply = isReply(message);
 			String threadId = message.getId() == null ? null : FORUMS_TOOL_ID + ":" + message.getId();
 			String parentId = replyParentId(message, FORUMS_TOOL_ID);
+			if (reply) {
+				snapshot.markAnswered(parentId);
+			}
+			String authorId = forumAuthorId(message);
+			if (!includeContribution(authorId, users)) {
+				continue;
+			}
 			snapshot.add(new Contribution(authorId, FORUMS_TOOL_ID, !reply, true, threadId, parentId));
 		}
 	}
@@ -267,33 +270,36 @@ public class SiteStatsCommunicationAnalytics {
 			log.warn("Unable to resolve sent private-message type for site {}", siteId, e);
 			return;
 		}
-		if (StringUtils.isBlank(sentType)) {
+		if (StringUtils.isBlank(sentType) || users.isEmpty()) {
 			return;
 		}
-		List messages;
-		try {
-			messages = privateMessageManager.getMessagesByTypeByContext(sentType, siteId);
-		} catch (RuntimeException e) {
-			log.warn("Unable to load private messages for site {}", siteId, e);
-			return;
-		}
-		if (messages == null || messages.isEmpty()) {
-			return;
-		}
-		for (Object raw : messages) {
-			if (!(raw instanceof Message)) {
+		for (String memberId : users) {
+			List messages;
+			try {
+				messages = privateMessageManager.getMessagesByTypeByContext(sentType, siteId, memberId,
+						PrivateMessageManager.SORT_COLUMN_DATE, PrivateMessageManager.SORT_ASC);
+			} catch (RuntimeException e) {
+				log.warn("Unable to load private messages for site {} user {}", siteId, memberId, e);
 				continue;
 			}
-			Message message = (Message) raw;
-			if (skipMessage(message)) {
+			if (messages == null || messages.isEmpty()) {
 				continue;
 			}
-			String authorId = forumAuthorId(message);
-			if (!includeContribution(authorId, users) || !createdInRange(message.getCreated(), request)) {
-				continue;
+			for (Object raw : messages) {
+				if (!(raw instanceof Message)) {
+					continue;
+				}
+				Message message = (Message) raw;
+				if (skipMessage(message)) {
+					continue;
+				}
+				String authorId = forumAuthorId(message);
+				if (!includeContribution(authorId, users) || !createdInRange(message.getCreated(), request)) {
+					continue;
+				}
+				boolean reply = isReply(message);
+				snapshot.add(new Contribution(authorId, MESSAGES_TOOL_ID, !reply, false, null, null));
 			}
-			boolean reply = isReply(message);
-			snapshot.add(new Contribution(authorId, MESSAGES_TOOL_ID, !reply, false, null, null));
 		}
 	}
 
@@ -355,7 +361,13 @@ public class SiteStatsCommunicationAnalytics {
 	private void addConversationContribution(CommunicationSnapshot snapshot, SiteStatsReportRequest request,
 			Set<String> users, String creator, boolean anonymous, boolean authored, String threadId, String parentId,
 			Instant created, boolean canViewAnonymous, String currentUserId) {
-		if (!includeContribution(creator, users) || !createdInRange(created, request)) {
+		if (!createdInRange(created, request)) {
+			return;
+		}
+		if (!authored) {
+			snapshot.markAnswered(parentId);
+		}
+		if (!includeContribution(creator, users)) {
 			return;
 		}
 		String userId = hideAnonymousAuthor(anonymous, creator, canViewAnonymous, currentUserId) ? null : creator;
@@ -429,8 +441,8 @@ public class SiteStatsCommunicationAnalytics {
 				continue;
 			}
 			String threadId = StringUtils.isBlank(post.getId()) ? null : CommonsConstants.TOOL_ID + ":" + post.getId();
-			if (includeContribution(post.getCreatorId(), users)
-					&& createdInRange(epochMillis(post.getCreatedDate()), request)) {
+			if (createdInRange(epochMillis(post.getCreatedDate()), request)
+					&& includeContribution(post.getCreatorId(), users)) {
 				snapshot.add(new Contribution(post.getCreatorId(), CommonsConstants.TOOL_ID, true, true, threadId, null));
 			}
 			List<Comment> comments = post.getComments();
@@ -438,14 +450,15 @@ public class SiteStatsCommunicationAnalytics {
 				continue;
 			}
 			for (Comment comment : comments) {
-				if (comment == null) {
+				if (comment == null || !createdInRange(epochMillis(comment.getCreatedDate()), request)) {
 					continue;
 				}
-				if (includeContribution(comment.getCreatorId(), users)
-						&& createdInRange(epochMillis(comment.getCreatedDate()), request)) {
-					snapshot.add(new Contribution(comment.getCreatorId(), CommonsConstants.TOOL_ID, false, true, null,
-							threadId));
+				snapshot.markAnswered(threadId);
+				if (!includeContribution(comment.getCreatorId(), users)) {
+					continue;
 				}
+				snapshot.add(new Contribution(comment.getCreatorId(), CommonsConstants.TOOL_ID, false, true, null,
+						threadId));
 			}
 		}
 	}
@@ -896,6 +909,7 @@ public class SiteStatsCommunicationAnalytics {
 
 	private static class CommunicationSnapshot {
 		private final List<Contribution> contributions = new ArrayList<Contribution>();
+		private final Set<String> answeredThreads = new HashSet<String>();
 		private final Map<String, UserTotals> byUser = new LinkedHashMap<String, UserTotals>();
 		private final Map<String, ToolTotals> byTool = new LinkedHashMap<String, ToolTotals>();
 		private int authored;
@@ -904,6 +918,12 @@ public class SiteStatsCommunicationAnalytics {
 
 		void add(Contribution contribution) {
 			contributions.add(contribution);
+		}
+
+		void markAnswered(String threadId) {
+			if (StringUtils.isNotBlank(threadId)) {
+				answeredThreads.add(threadId);
+			}
 		}
 
 		UserTotals user(String userId) {
@@ -925,12 +945,6 @@ public class SiteStatsCommunicationAnalytics {
 		}
 
 		void summarize() {
-			Set<String> answeredThreads = new HashSet<String>();
-			for (Contribution contribution : contributions) {
-				if (StringUtils.isNotBlank(contribution.parentId)) {
-					answeredThreads.add(contribution.parentId);
-				}
-			}
 			Set<String> unansweredThreads = new HashSet<String>();
 			for (Contribution contribution : contributions) {
 				if (StringUtils.isNotBlank(contribution.userId)) {
