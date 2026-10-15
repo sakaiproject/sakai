@@ -93,12 +93,12 @@
 			<artifactId>ckeditor-html5-video</artifactId>
 			<version>${ckeditor.html5video.version}</version>
 			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>ckeditor4-fmath-editor</artifactId>
-			<version>${ckeditor4.fmath.editor.version}</version>
-			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.webjars</groupId>
+					<artifactId>ckeditor</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!--Used in Resources, drag&drop resources -->
 		<dependency>
@@ -130,6 +130,12 @@
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>moment-timezone</artifactId>
 			<version>0.5.33</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.webjars.npm</groupId>
+					<artifactId>moment</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
@@ -183,6 +189,12 @@
 			<artifactId>jquery-i18n-properties</artifactId>
 			<version>1.2.2</version>
 			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>jquery</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
@@ -695,6 +707,14 @@
 			<properties>
 				<ckeditor-math-extra-plugins>FMathEditor</ckeditor-math-extra-plugins>
 			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.webjars</groupId>
+					<artifactId>ckeditor4-fmath-editor</artifactId>
+					<version>${ckeditor4.fmath.editor.version}</version>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
 		</profile>
 	</profiles>
 	<build>
