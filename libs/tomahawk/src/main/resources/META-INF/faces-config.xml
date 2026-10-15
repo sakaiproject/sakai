@@ -27,7 +27,6 @@
 <name>tomahawk</name>
 <application>
   <view-handler>org.apache.myfaces.tomahawk.application.ResourceViewHandlerWrapper</view-handler>
-  <resource-handler>org.apache.myfaces.custom.captcha.CAPTCHAResourceHandlerWrapper</resource-handler>
   <resource-handler>org.apache.myfaces.tomahawk.resource.UncompressedResourceHandlerWrapper</resource-handler>
 </application>
 <lifecycle>
@@ -171,10 +170,6 @@
   <component>
     <component-type>org.apache.myfaces.HtmlInputCalendar</component-type>
     <component-class>org.apache.myfaces.custom.calendar.HtmlInputCalendar</component-class>
-  </component>    
-  <component>
-    <component-type>org.apache.myfaces.CAPTCHA</component-type>
-    <component-class>org.apache.myfaces.custom.captcha.CAPTCHAComponent</component-class>
   </component>    
   <component>
     <component-type>org.apache.myfaces.HtmlCheckbox</component-type>
@@ -724,11 +719,6 @@
         <component-family>jakarta.faces.SelectOne</component-family>
         <renderer-type>org.apache.myfaces.SelectOneLanguageRenderer</renderer-type>
         <renderer-class>org.apache.myfaces.custom.selectOneLanguage.SelectOneLanguageRenderer</renderer-class>
-      </renderer>
-      <renderer>
-        <component-family>org.apache.myfaces.CAPTCHA</component-family>
-        <renderer-type>org.apache.myfaces.CAPTCHA</renderer-type>
-        <renderer-class>org.apache.myfaces.custom.captcha.CAPTCHARenderer</renderer-class>
       </renderer>
       <renderer>
         <component-family>org.apache.myfaces.Checkbox</component-family>
