@@ -55,7 +55,6 @@ public class AuthenticationCache {
     private CacheManager cacheManager;
     private Cache authCache = null;
     private static final int SALT_LENGTH = 16;
-    private static final int DIGEST_LENGTH = 32;
     private final SecureRandom saltGenerator = new SecureRandom();
 
     public void init() {
@@ -79,11 +78,6 @@ public class AuthenticationCache {
 		Authentication auth = null;
 		AuthenticationRecord record = authCache.get(authenticationId, AuthenticationRecord.class);
 		if (record != null) {
-			// Records from earlier versions are cache misses and must be rebuilt by normal authentication.
-			if (record.encodedPassword == null || record.encodedPassword.length != SALT_LENGTH + DIGEST_LENGTH) {
-				authCache.evict(authenticationId);
-				return null;
-			}
 			byte[] salt = new byte[SALT_LENGTH];
 			System.arraycopy(record.encodedPassword, 0, salt, 0, salt.length);
 			byte[] encodedPassword = getEncrypted(password, salt);

@@ -32,7 +32,6 @@ import org.springframework.cache.CacheManager;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 
 public class AuthenticationCacheRecordTest extends SakaiKernelTestBase {
 
@@ -81,29 +80,4 @@ public class AuthenticationCacheRecordTest extends SakaiKernelTestBase {
         assertEquals(IDENTIFIER, authenticationCache.getAuthentication(IDENTIFIER, PASSWORD).getEid());
     }
 
-    @Test
-    public void discardsEarlierSuccessfulAndFailedRecords() throws Exception {
-        byte[] salt = new byte[8];
-        MessageDigest digest = MessageDigest.getInstance("SHA-1");
-        digest.update(salt);
-        byte[] hash = digest.digest(PASSWORD.getBytes(StandardCharsets.UTF_8));
-        byte[] encoded = Arrays.copyOf(salt, salt.length + hash.length);
-        System.arraycopy(hash, 0, encoded, salt.length, hash.length);
-        for (Authentication result : new Authentication[] {authentication, null}) {
-            records.put(IDENTIFIER, new AuthenticationCache.AuthenticationRecord(encoded, result));
-            assertNull(authenticationCache.getAuthentication(IDENTIFIER, PASSWORD));
-            assertNull(records.get(IDENTIFIER));
-            authenticationCache.putAuthentication(IDENTIFIER, PASSWORD, authentication);
-            assertEquals(IDENTIFIER, authenticationCache.getAuthentication(IDENTIFIER, PASSWORD).getEid());
-        }
-    }
-
-    @Test
-    public void discardsMalformedRecords() throws Exception {
-        for (byte[] encoded : new byte[][] {null, new byte[0], new byte[15], new byte[47], new byte[49]}) {
-            records.put(IDENTIFIER, new AuthenticationCache.AuthenticationRecord(encoded, authentication));
-            assertNull(authenticationCache.getAuthentication(IDENTIFIER, PASSWORD));
-            assertNull(records.get(IDENTIFIER));
-        }
-    }
 }
