@@ -978,10 +978,22 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public void deleteTimeSheetEntry(Long timeSheetEntryId) throws PermissionException {
       String timeSheetEntryReference = getTimeSheetEntryReference(timeSheetEntryId);
       if (StringUtils.isNotBlank(timeSheetEntryReference)) {
-          String siteId = AssignmentReferenceReckoner.reckoner().reference(timeSheetEntryReference).reckon().getContext();
+          String currentUserId = sessionManager.getCurrentSessionUserId();
+          AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().reference(timeSheetEntryReference).reckon();
+          String siteId = referenceReckoner.getContext();
           if (!allowAddSubmission(siteId)) {
-              throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
+              throw new PermissionException(currentUserId, SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
           }
+
+          AssignmentSubmission submission = assignmentRepository.findSubmission(referenceReckoner.getId());
+
+          boolean isOwner = submission != null && submission.getSubmitters().stream()
+                  .anyMatch(s -> StringUtils.equals(s.getSubmitter(), currentUserId));
+
+          if (!isOwner) {
+              throw new PermissionException(currentUserId, SECURE_UPDATE_ASSIGNMENT_SUBMISSION, timeSheetEntryReference);
+          }
+
           timeSheetService.delete(timeSheetEntryId);
           log.debug("Deleting time sheet entry: {}", timeSheetEntryId);
       } else {
