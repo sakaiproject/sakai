@@ -23,6 +23,7 @@ package org.sakaiproject.util.impl;
 
 import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -286,6 +287,27 @@ public class FormattedTextTest {
     }
 
     @Test
+    public void testDuplicateAttributesAreSanitized() {
+        String[] inputs = {
+            "<a href=\"javascript:alert(1)\" href=\"https://example.com/\">link</a>",
+            "<a href=\"https://example.com/\" href=\"javascript:alert(1)\">link</a>",
+            "<img src=\"javascript:alert(1)\" src=\"/image.png\" />",
+            "<img src=\"/image.png\" src=\"javascript:alert(1)\" />",
+            "<span class=\"one\" class=\"two\" onclick=\"alert(1)\" onclick=\"alert(2)\">text</span>"
+        };
+        for (Level level : new Level[] { Level.HIGH, Level.LOW }) {
+            for (String input : inputs) {
+                String result = formattedText.processFormattedText("<p>before</p>" + input + "<p>after</p>", new StringBuilder(), level);
+                Assert.assertTrue(result, result.contains("<p>before</p>"));
+                Assert.assertTrue(result, result.contains("<p>after</p>"));
+                Assert.assertFalse(result, result.contains("javascript:"));
+                Assert.assertFalse(result, result.contains("onclick"));
+                Assert.assertFalse(result, result.contains("alert("));
+            }
+        }
+    }
+
+    @Test
     public void testDataAttributes() {
         String[] passTests;
         String[] failTests;
@@ -295,7 +317,7 @@ public class FormattedTextTest {
 
         String oneKV      = "<span class=\"one\"></span>";
         String twoKV      = "<span class=\"one\" id=\"two\"></span>";
-        String selfClose  = "<hr class=\"section\" title=\"Contents\" />";
+        String selfClose  = "<hr class=\"section\" title=\"Contents\"/>";
         String subAttr    = "<span id=\"name\" title=\"http://example.com/data-src\"></span>";
         String subAttrs   = "<span class=\"data-name\" id=\"name\" title=\"http://example.com/\"></span>";
 
@@ -305,7 +327,8 @@ public class FormattedTextTest {
         String badKV      = "<span class=\"foo\" class-=\"one\"></span>";
 
         String resultRepeatK    = "<span></span>";
-        String resultRepeatKV   = "<span class=\"two\"></span>";
+        // The parser preserves duplicate attributes; AntiSamy validates each value.
+        String resultRepeatKV   = repeatKV;
         String resultBadK       = "<span class=\"foo\"></span>";
         String resultBadKV      = "<span class=\"foo\"></span>";
 
@@ -1060,8 +1083,8 @@ public class FormattedTextTest {
         text = "<img align=\"middle\" alt=\"square root of 5555\" class=\"Wirisformula\" data-mathml=\"(some mathml)\" role=\"math\" src=\"/pluginwiris_engine/app/showimage?formula=bf57cf5ace9b1e530d7221ee512cb429\" />";
         result = formattedText.processFormattedText(text,errorMessages);
         Assert.assertTrue( errorMessages.length() == 0 );
-        //Verify nothing was removed
-        Assert.assertEquals(result, text);
+        // Compare the image and its attributes without depending on void-element spacing.
+        Assert.assertEquals(Jsoup.parseBodyFragment(text).body().html(), Jsoup.parseBodyFragment(result).body().html());
     }
 
     @Test
