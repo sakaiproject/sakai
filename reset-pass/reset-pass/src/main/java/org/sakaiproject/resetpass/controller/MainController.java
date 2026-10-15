@@ -171,31 +171,21 @@ public class MainController {
             eventService.post(eventService.newEvent("user.resetpass", user.getReference(), true));
 
             if (!avService.isAccountValidated(userId)) {
-                log.debug("account is not validated");
-                // it is possible that the user has an outstanding Validation
                 ValidationAccount va = avService.getValidationAccountByUserId(userId);
                 if (va == null) {
-                    //we need to validate the account.
-                    log.debug("This is a legacy user to validate!");
                     avService.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
                 } else {
-                    log.debug("resending validation");
                     avService.resendValidation(va.getValidationToken());
                 }
 
             } else {
-                //there may be a pending VA that needs to be verified
                 ValidationAccount va = avService.getValidationAccountByUserId(userId);
 
                 if (va == null) {
-                    // the account is validated need to send a password reset
-                    log.info("no account found!");
                     avService.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
                 } else if (va.getValidationReceived() == null) {
-                    log.debug("no response on validation!");
                     avService.resendValidation(va.getValidationToken());
                 } else {
-                    log.debug("creating a new validation for password reset");
                     avService.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
                 }
             }
