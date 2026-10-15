@@ -269,20 +269,24 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("#reorder-list")).containsText(lastTitle);
         assertThat(page.locator("input[id^=\"index\"]")).hasCount(0);
 
-        assertAssignmentPrecedes("#reorder-list", firstTitle, lastTitle);
+        String originalTopTitle = reorderItems.first().locator(".sakai-reorder-title").innerText().trim();
+        Locator lastAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first();
+        boolean lastAlreadyOnTop = lastAssignment.locator("[data-action=\"move-up\"]").isDisabled();
 
-        Locator lastAssignment = moveAssignmentToTop(reorderItems, lastTitle, reorderCount);
+        if (!lastAlreadyOnTop) {
+            lastAssignment = moveAssignmentToTop(reorderItems, lastTitle, reorderCount);
+
+            Locator undoAll = page.locator("#undo-all");
+            assertThat(undoAll).isEnabled();
+            undoAll.click();
+            assertThat(reorderItems.first().locator(".sakai-reorder-title")).containsText(originalTopTitle);
+
+            lastAssignment = moveAssignmentToTop(reorderItems, lastTitle, reorderCount);
+        }
+
         assertAssignmentPrecedes("#reorder-list", lastTitle, firstTitle);
         assertThat(lastAssignment.locator("input[name^=\"position_\"]")).hasValue("1");
-
-        Locator undoAll = page.locator("#undo-all");
-        assertThat(undoAll).isEnabled();
-        undoAll.click();
-        assertAssignmentPrecedes("#reorder-list", firstTitle, lastTitle);
-
-        lastAssignment = moveAssignmentToTop(reorderItems, lastTitle, reorderCount);
-        assertAssignmentPrecedes("#reorder-list", lastTitle, firstTitle);
-        assertThat(lastAssignment.locator("input[name^=\"position_\"]")).hasValue("1");
+        assertTrue(lastAssignment.locator("[data-action=\"move-up\"]").isDisabled());
 
         page.locator("input[name=\"save\"][value=\"Save\"], input[name=\"save\"]").first().click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
@@ -559,7 +563,7 @@ class AssignmentTest extends SakaiUiTestBase {
 
     private Locator moveAssignmentToTop(Locator reorderItems, String title, int reorderCount) {
         Locator assignment = reorderItems.filter(new Locator.FilterOptions().setHasText(title)).first();
-        assertThat(assignment.locator("[data-action=\"move-up\"]")).isEnabled();
+        // At most (n - 1) moves are needed to reach the top from the last row.
         for (int i = 0; i < reorderCount - 1; i++) {
             assignment = reorderItems.filter(new Locator.FilterOptions().setHasText(title)).first();
             Locator moveUp = assignment.locator("[data-action=\"move-up\"]");

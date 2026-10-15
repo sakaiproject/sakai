@@ -52,6 +52,9 @@ class ResourcesReorderTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName("Folder Name").setExact(true)).nth(2).fill(folderC);
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Create Folders Now").setExact(true)).click();
         assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folderA).setExact(true))).isVisible();
+        assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folderB).setExact(true))).isVisible();
+        assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folderC).setExact(true))).isVisible();
+        assertThat(page.locator("button[title='Actions']")).not().hasCount(0);
 
         openResourcesReorder();
         assertReorderChrome();
@@ -107,22 +110,36 @@ class ResourcesReorderTest extends SakaiUiTestBase {
         for (int i = 0; i < count; i++) {
             page.keyboard().press("Escape");
             actionsButtons.nth(i).click();
-            Locator reorder = page.getByRole(AriaRole.MENUITEM,
-                new Page.GetByRoleOptions().setName("Reorder").setExact(true));
-            if (reorder.count() > 0 && reorder.first().isVisible()) {
-                reorder.first().click();
-                assertThat(page.locator("#resources-reorderer")).isVisible();
-                assertThat(page.locator("#reorder-list")).isVisible();
-                page.waitForFunction(
-                    "() => document.querySelector('#resources-reorderer')?.updateComplete",
-                    null,
-                    new Page.WaitForFunctionOptions().setTimeout(20_000)
-                );
-                assertThat(page.locator("#reorder-list li.reorder-element " + DRAG_HANDLE).first()).isVisible();
+            Locator reorderInOpenMenu = page.locator(".dropdown-menu.show a.dropdown-item")
+                .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Reorder", Pattern.CASE_INSENSITIVE)));
+            try {
+                reorderInOpenMenu.first().click(new Locator.ClickOptions().setTimeout(3_000));
+                waitForResourcesReorderReady();
                 return;
+            } catch (RuntimeException notInThisMenu) {
+                // Try the next Actions button.
             }
         }
+
+        Locator anyReorder = page.locator("a.dropdown-item")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Reorder", Pattern.CASE_INSENSITIVE)));
+        if (anyReorder.count() > 0) {
+            anyReorder.first().click(new Locator.ClickOptions().setForce(true));
+            waitForResourcesReorderReady();
+            return;
+        }
         fail("Expected an Actions menu containing Reorder for a collection with multiple members.");
+    }
+
+    private void waitForResourcesReorderReady() {
+        assertThat(page.locator("#resources-reorderer")).isVisible();
+        assertThat(page.locator("#reorder-list")).isVisible();
+        page.waitForFunction(
+            "() => document.querySelector('#resources-reorderer')?.updateComplete",
+            null,
+            new Page.WaitForFunctionOptions().setTimeout(20_000)
+        );
+        assertThat(page.locator("#reorder-list li.reorder-element " + DRAG_HANDLE).first()).isVisible();
     }
 
     private void assertReorderChrome() {
