@@ -92,4 +92,17 @@
             </list>
         </constructor-arg>
     </bean>
+    <!-- Register the completed transactional proxy rather than the target from init(). -->
+    <bean id="org.sakaiproject.poll.api.service.PollsService.entityProducerRegistration"
+          class="org.springframework.beans.factory.config.MethodInvokingBean">
+        <property name="targetObject" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="targetMethod" value="registerEntityProducer"/>
+        <property name="arguments">
+            <list>
+                <ref bean="org.sakaiproject.poll.api.service.PollsService"/>
+                <value>/poll</value>
+            </list>
+        </property>
+    </bean>
+
 </beans>

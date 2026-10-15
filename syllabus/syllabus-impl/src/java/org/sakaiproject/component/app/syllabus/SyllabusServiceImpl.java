@@ -152,7 +152,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	  
 	  edit.setAction(new SiteEmailNotificationSyllabus());
 
-	  entityManager.registerEntityProducer(this, REFERENCE_ROOT);	
 	  functionManager.registerFunction(SECURE_ADD_ITEM);
 	  functionManager.registerFunction(SECURE_BULK_ADD_ITEM);
 	  functionManager.registerFunction(SECURE_BULK_EDIT_ITEM);
@@ -1087,11 +1086,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 
 						String assetStr = sd.getAsset();
 						assetStr = ltiService.fixLtiLaunchUrls(assetStr, fromContext, toContext, transversalMap);
-						sd.setAsset(assetStr);
 
 						SyllabusData newToSyData = syllabusManager
 								.createSyllabusDataObject(sd.getTitle(),
-										positionNo, sd.getAsset(),
+										positionNo, assetStr,
 										sd.getView(), sd
 												.getStatus(), sd
 												.getEmailNotification(), sd.getStartDate(), sd.getEndDate(), sd.getLinkCalendar(),

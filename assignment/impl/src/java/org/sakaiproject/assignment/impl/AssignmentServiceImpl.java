@@ -283,8 +283,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         exposeContentReviewErrorsToUI = serverConfigurationService.getBoolean("contentreview.expose.errors.to.ui", true);
         createGroupsOnImport = serverConfigurationService.getBoolean("assignment.create.groups.on.import", true);
 
-        // register as an entity producer
-        entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
         // register functions
         functionManager.registerFunction(SECURE_ALL_GROUPS, true);
