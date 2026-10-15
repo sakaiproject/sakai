@@ -84,7 +84,7 @@ class SiteInfoTest extends SakaiUiTestBase {
         page.locator("#groupMaxMembers").fill("5");
         page.locator("#groupTitle").press("End");
         page.locator("#create-joinableset-submit-button").click();
-        assertThat(page.locator(".sak-banner-error")).hasText("You must provide a set title.");
+        assertThat(page.locator(".portletBody:has(#createnewjoinableset-form) .sak-banner-error")).hasText("You must provide a set title.");
 
         page.locator("#groupTitle").fill("<em>Planning & Review</em>");
         page.locator("#groupNumber").fill("1");
@@ -101,7 +101,7 @@ class SiteInfoTest extends SakaiUiTestBase {
         page.locator("#groupMaxMembers").fill("5");
         page.locator("#groupTitle").press("End");
         page.locator("#create-joinableset-submit-button").click();
-        assertThat(page.locator(".sak-banner-error"))
+        assertThat(page.locator(".portletBody:has(#createnewjoinableset-form) .sak-banner-error"))
             .hasText("The set name has been used already. Please choose a different one.");
     }
 
