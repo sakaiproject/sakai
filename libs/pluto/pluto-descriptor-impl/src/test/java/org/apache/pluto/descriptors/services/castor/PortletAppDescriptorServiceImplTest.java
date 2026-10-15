@@ -88,6 +88,7 @@ public class PortletAppDescriptorServiceImplTest extends TestCase {
     
     public void testRejectUnsupportedDescriptorElements() {
         InputStream input = getClass().getResourceAsStream("/portlet-full.xml");
+        assertNotNull("Missing /portlet-full.xml fixture", input);
         org.junit.Assert.assertThrows(IOException.class, () -> service.read(input));
     }
 }
