@@ -35,4 +35,14 @@ Using the scheduler:
    associated triggers will also be removed.
    
 
-   
+
+Scheduler examples
+------------------
+
+Sample and test jobs are excluded from the default build. To build and deploy them,
+add `-Pscheduler-examples` to the normal Maven build/deploy command.
+
+When updating an existing installation, remove any configured triggers for sample
+jobs before omitting the examples. Remove the old `scheduler-test-component`
+component and `scheduler-test-component-shared-*.jar` during deployment cleanup;
+omitting a Maven module does not delete previously deployed files.

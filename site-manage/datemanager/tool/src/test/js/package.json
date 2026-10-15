@@ -9,6 +9,6 @@
     "test:dst": "TZ=Europe/Stockholm node --test"
   },
   "devDependencies": {
-    "moment": "2.30.1"
+    "moment": "2.31.0"
   }
 }

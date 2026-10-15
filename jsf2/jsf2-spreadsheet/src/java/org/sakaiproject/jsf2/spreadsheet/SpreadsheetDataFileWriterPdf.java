@@ -31,12 +31,13 @@ import com.lowagie.text.Cell;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.Element;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.Table;
+import com.lowagie.text.alignment.HorizontalAlignment;
+import com.lowagie.text.alignment.VerticalAlignment;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfWriter;
 
@@ -78,8 +79,8 @@ public class SpreadsheetDataFileWriterPdf implements SpreadsheetDataFileWriter {
 					}
 				
 					Table t = new Table(startIndex == 0 ? subCols : subCols + 2, rows);
-					t.getDefaultCell().setVerticalAlignment(Element.ALIGN_MIDDLE);
-					t.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+					t.getDefaultCell().setVerticalAlignment(VerticalAlignment.CENTER);
+					t.getDefaultCell().setHorizontalAlignment(HorizontalAlignment.CENTER);
 					//t.setBorderColor(new Color(220, 255, 100));
 					t.setPadding(4);
 					//t.setSpacing(5);

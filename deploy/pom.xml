@@ -704,11 +704,6 @@
 
         <!-- spring related -->
         <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml</groupId>
             <artifactId>classmate</artifactId>
             <scope>compile</scope>
@@ -748,11 +743,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -970,6 +960,11 @@
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>
+            <artifactId>accessors-smart</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
             <scope>compile</scope>
         </dependency>
