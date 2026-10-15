@@ -116,6 +116,11 @@ class ToolOrderTest extends SakaiUiTestBase {
         assertThat(page.locator(".tool-order-row").first().locator(".tool-order-title"))
             .containsText(titleBeforeMoveDown);
 
+        page.reload();
+        page.waitForLoadState();
+        assertThat(page.locator(".tool-order-row").first().locator(".tool-order-title"))
+            .containsText(titleBeforeMoveDown);
+
         Locator editableRow = page.locator(".tool-order-row:has([data-action=\"edit\"])").first();
         assertThat(editableRow).isVisible();
         String renamedTitle = "Site News";

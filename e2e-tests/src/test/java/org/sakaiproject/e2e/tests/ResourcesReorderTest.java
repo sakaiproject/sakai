@@ -80,11 +80,12 @@ class ResourcesReorderTest extends SakaiUiTestBase {
         moveDown.click();
         assertPrecedes("#reorder-list", folderB, folderA);
 
-        Locator folderBRow = items.filter(new Locator.FilterOptions().setHasText(folderB)).first();
-        Locator moveUp = folderBRow.locator("[data-action=\"move-up\"]");
+        // After move-down, folder A is no longer first; move it back up.
+        folderARow = items.filter(new Locator.FilterOptions().setHasText(folderA)).first();
+        Locator moveUp = folderARow.locator("[data-action=\"move-up\"]");
         assertThat(moveUp).isEnabled();
         moveUp.click();
-        assertPrecedes("#reorder-list", folderB, folderA);
+        assertPrecedes("#reorder-list", folderA, folderB);
 
         Locator undoAll = page.locator("#undo-all");
         assertThat(undoAll).isEnabled();
@@ -92,7 +93,7 @@ class ResourcesReorderTest extends SakaiUiTestBase {
         assertPrecedes("#reorder-list", folderA, folderB);
         assertPrecedes("#reorder-list", folderB, folderC);
 
-        // Final order for save: C, A, B
+        // Final order for save: C, B, A
         Locator folderCRow = items.filter(new Locator.FilterOptions().setHasText(folderC)).first();
         dragBefore(folderCRow.locator(DRAG_HANDLE).first(),
             items.filter(new Locator.FilterOptions().setHasText(folderA)).first());
