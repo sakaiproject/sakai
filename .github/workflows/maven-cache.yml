@@ -14,6 +14,7 @@ jobs:
   warm-maven-cache:
     runs-on: ubuntu-24.04
     env:
+      MAVEN_VERSION: 3.9.16
       MAVEN_ARGS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
     steps:
       - name: Git Checkout
@@ -30,6 +31,11 @@ jobs:
         with:
           node-version: 24
 
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v5.1
+        with:
+          maven-version: ${{ env.MAVEN_VERSION }}
+
       - name: Restore Maven local repository cache
         id: cache-maven-restore
         uses: actions/cache/restore@v6.1.0
@@ -37,8 +43,8 @@ jobs:
           # Relative paths and cross-OS archives let all runners share this repository.
           path: .m2/repository
           enableCrossOsArchive: true
-          key: sakai-m2-master-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: sakai-m2-master-
+          key: sakai-m2-master-maven-${{ env.MAVEN_VERSION }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: sakai-m2-master-maven-${{ env.MAVEN_VERSION }}-
 
       - name: Populate Maven local repository
         run: mvn -B -ntp -V -DskipTests -Denforcer.skip -Dmaven.source.skip install

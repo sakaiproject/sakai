@@ -13,6 +13,7 @@ jobs:
   sakai-deploy:
     runs-on: ubuntu-24.04
     env:
+      MAVEN_VERSION: 3.9.16
       MAVEN_ARGS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
       NODE_OPTIONS: "--disable-warning=DEP0169"
@@ -28,6 +29,11 @@ jobs:
           java-version: 21
           distribution: temurin
 
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v5.1
+        with:
+          maven-version: ${{ env.MAVEN_VERSION }}
+
       - name: Restore master Maven repository cache
         id: cache-maven-restore
         uses: actions/cache/restore@v6.1.0
@@ -35,8 +41,8 @@ jobs:
           # Relative paths and cross-OS archives let all runners share this repository.
           path: .m2/repository
           enableCrossOsArchive: true
-          key: sakai-m2-master
-          restore-keys: sakai-m2-master-
+          key: sakai-m2-master-maven-${{ env.MAVEN_VERSION }}
+          restore-keys: sakai-m2-master-maven-${{ env.MAVEN_VERSION }}-
 
       - name: Maven cache status
         run: echo "Restored Maven cache = ${{ steps.cache-maven-restore.outputs.cache-matched-key }}"
