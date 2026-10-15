@@ -1,0 +1,19 @@
+include:
+  - ../docker-compose.yml
+
+services:
+
+  dblocal:
+    image: mysql:8
+    ports:
+        - 3306:3306
+    environment:
+        - MYSQL_ROOT_PASSWORD=sakairoot
+    volumes:
+        - mysql-data-vol:/var/lib/mysql
+        - ./db:/docker-entrypoint-initdb.d
+    networks:
+        - backend-local            
+
+volumes:
+    mysql-data-vol:
