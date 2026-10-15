@@ -52,6 +52,8 @@ import com.microsoft.kiota.authentication.BaseBearerTokenAuthenticationProvider;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import static org.sakaiproject.microsoft.impl.MicrosoftConfigurationServiceImpl.decrypt;
+
 @Slf4j
 @Transactional
 public class MicrosoftAuthorizationServiceImpl implements MicrosoftAuthorizationService {
@@ -98,12 +100,18 @@ public class MicrosoftAuthorizationServiceImpl implements MicrosoftAuthorization
 					throw new MicrosoftNoCredentialsException();
 				}
 				
+				String decryptedSecret = decrypt(microsoftCredentials.getSecret());
+				if (decryptedSecret == null) {
+						log.error("Failed to decrypt Microsoft secret. Check your microsoft.encryption.key.");
+						throw new MicrosoftInvalidCredentialsException();
+				}
+
 				DelegatedAuthProvider authProvider = DelegatedAuthProvider.builder()
 						.authorizationService(this)
 						.sakaiUserId(userId)
 						.authority(microsoftCredentials.getAuthority())
 						.clientId(microsoftCredentials.getClientId())
-						.secret(microsoftCredentials.getSecret())
+						.secret(decryptedSecret)
 						.microsoftAccessToken(accessToken)
 						.build();
 				
@@ -180,8 +188,14 @@ public class MicrosoftAuthorizationServiceImpl implements MicrosoftAuthorization
 			MicrosoftCredentials microsoftCredentials = microsoftConfigRepository.getCredentials();
 			if(microsoftCredentials.hasValue()) {
 			
+				String decryptedSecret = decrypt(microsoftCredentials.getSecret());
+				if (decryptedSecret == null) {
+					log.error("Failed to decrypt Microsoft secret. Check your microsoft.encryption.key.");
+					return false;
+				}
+
 				ConfidentialClientApplication app = ConfidentialClientApplication.builder(
-						microsoftCredentials.getClientId(), ClientCredentialFactory.createFromSecret(microsoftCredentials.getSecret()))
+						microsoftCredentials.getClientId(), ClientCredentialFactory.createFromSecret(decryptedSecret))
 					.authority(microsoftCredentials.getAuthority())
 					.build();
 	
