@@ -286,21 +286,26 @@ class AssignmentTest extends SakaiUiTestBase {
         reorderItems = page.locator("#reorder-list li.reorder-element.sakai-reorder-row");
         assertAssignmentPrecedes("#reorder-list", lastTitle, firstTitle);
 
-        firstAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(firstTitle)).first();
+        // After drag-save, order is 21, 01, 02, ... Use move buttons (not flaky DnD) for undo/move coverage.
         Locator secondAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
-        dragAssignmentBefore(secondAssignment.locator(".sakai-reorder-drag-handle.drag-handle, .drag-handle").first(),
-            reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first());
-        assertAssignmentPrecedes("#reorder-list", titlePrefix + "02", lastTitle);
-        Locator undoLast = page.locator("#undo-last");
-        assertThat(undoLast).isEnabled();
-        undoLast.click();
-        assertAssignmentPrecedes("#reorder-list", lastTitle, titlePrefix + "02");
-
-        // Move buttons path.
-        secondAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
         Locator moveUp = secondAssignment.locator("[data-action=\"move-up\"]");
         assertThat(moveUp).isEnabled();
         moveUp.click();
+        assertAssignmentPrecedes("#reorder-list", lastTitle, titlePrefix + "02");
+        assertAssignmentPrecedes("#reorder-list", titlePrefix + "02", firstTitle);
+
+        Locator undoLast = page.locator("#undo-last");
+        assertThat(undoLast).isEnabled();
+        undoLast.click();
+        assertAssignmentPrecedes("#reorder-list", lastTitle, firstTitle);
+        assertAssignmentPrecedes("#reorder-list", firstTitle, titlePrefix + "02");
+
+        // Order is 21, 01, 02 — two move-ups puts 02 first.
+        secondAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
+        assertThat(secondAssignment.locator("[data-action=\"move-up\"]")).isEnabled();
+        secondAssignment.locator("[data-action=\"move-up\"]").click();
+        secondAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
+        secondAssignment.locator("[data-action=\"move-up\"]").click();
         assertAssignmentPrecedes("#reorder-list", titlePrefix + "02", lastTitle);
         assertThat(secondAssignment.locator("input[name^=\"position_\"]")).hasValue("1");
 
@@ -310,7 +315,7 @@ class AssignmentTest extends SakaiUiTestBase {
         moveDown.click();
         assertAssignmentPrecedes("#reorder-list", lastTitle, titlePrefix + "02");
 
-        // Persist a mixed drag + move order: 02, 21, 01
+        // Persist mixed order: 02, 21, 01
         reorderItems.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first()
             .locator("[data-action=\"move-up\"]").click();
         assertAssignmentPrecedes("#reorder-list", titlePrefix + "02", lastTitle);

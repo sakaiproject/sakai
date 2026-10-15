@@ -71,6 +71,7 @@ class ResourcesReorderTest extends SakaiUiTestBase {
 
         page.locator("#save").click();
         page.waitForLoadState();
+        assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folderC).setExact(true))).isVisible();
         String afterDragListing = page.locator("body").innerText();
         if (afterDragListing.indexOf(folderC) < 0 || afterDragListing.indexOf(folderA) < 0
                 || afterDragListing.indexOf(folderC) > afterDragListing.indexOf(folderA)) {
@@ -122,9 +123,14 @@ class ResourcesReorderTest extends SakaiUiTestBase {
     }
 
     private void openResourcesReorder() {
-        page.locator("button[title='Actions']").first().click();
-        page.getByRole(AriaRole.MENUITEM,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).click();
+        Locator reorderMenuItem = page.locator("ul.dropdown-menu a.dropdown-item[role='menuitem']")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^\\s*Reorder\\s*$", Pattern.CASE_INSENSITIVE)))
+            .first();
+        Locator actionsButton = reorderMenuItem.locator(
+            "xpath=ancestor::div[contains(@class,'btn-group')][1]//button[@title='Actions']");
+        assertThat(actionsButton).isVisible();
+        actionsButton.click();
+        page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Reorder").setExact(true)).click();
         assertThat(page.locator("#resources-reorderer")).isVisible();
         assertThat(page.locator("#reorder-list")).isVisible();
         page.waitForFunction(
