@@ -27,7 +27,7 @@ const initialise = () => {
   };
 
   const initialOrder = order();
-  let previousOrder = initialOrder;
+  let previousOrder = [ ...initialOrder ];
 
   const updateMoveButtons = () => {
     const reorderItems = items();
@@ -72,7 +72,7 @@ const initialise = () => {
   };
 
   const savePreviousOrder = itemOrder => {
-    previousOrder = itemOrder || order();
+    previousOrder = [ ...(itemOrder || order()) ];
     if (lastMoveArray) {
       lastMoveArray.textContent = previousOrder.join(" ");
     }

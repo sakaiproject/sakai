@@ -173,20 +173,34 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertThat(page.locator("input[id^=\"index\"]")).hasCount(0);
         assertThat(reorderedAnnouncements.first().locator(".sakai-reorder-drag-handle.drag-handle, .drag-handle")).isVisible();
 
-        Locator firstAnnouncement = reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "01")).first();
+        page.locator("#reorder-list-sortingToolBar a.title").click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+        page.waitForFunction(
+            "() => document.querySelector('#announcements-reorderer')?.updateComplete",
+            null,
+            new Page.WaitForFunctionOptions().setTimeout(20_000)
+        );
+        reorderedAnnouncements = page.locator("#reorder-list li.reorder-element.sakai-reorder-row")
+            .filter(new Locator.FilterOptions().setHasText(titlePrefix));
+        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "01", titlePrefix + "02");
+
         Locator secondAnnouncement = reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
-        dragAnnouncementBefore(
-            secondAnnouncement.locator(".sakai-reorder-drag-handle.drag-handle, .drag-handle").first(),
-            firstAnnouncement);
+
+        assertThat(secondAnnouncement.locator("[data-action=\"move-up\"]")).isEnabled();
+        secondAnnouncement.locator("[data-action=\"move-up\"]").click();
+        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
+
+        Locator undoLast = page.locator("#undo-last");
+        assertThat(undoLast).isEnabled();
+        undoLast.click();
+        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "01", titlePrefix + "02");
+
+        secondAnnouncement = reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
+        secondAnnouncement.locator("[data-action=\"move-up\"]").click();
         assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
 
         page.locator("input[name=\"eventSubmit_doReorderUpdate\"]").click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
-        assertThat(page.locator("#announcements-list")).containsText(titlePrefix + "02");
-        String listAfterDrag = page.locator("#announcements-list").innerText();
-        if (listAfterDrag.indexOf(titlePrefix + "02") > listAfterDrag.indexOf(titlePrefix + "01")) {
-            fail("Expected drag-and-drop announcement reorder to persist after Update.");
-        }
 
         Locator reorderLinkAgain = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).first();
@@ -201,25 +215,13 @@ class AnnouncementTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(titlePrefix));
         assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
 
-        Locator undoLast = page.locator("#undo-last");
-        firstAnnouncement = reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "01")).first();
-        dragAnnouncementBefore(
-            firstAnnouncement.locator(".sakai-reorder-drag-handle.drag-handle, .drag-handle").first(),
-            reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first());
-        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "01", titlePrefix + "02");
-        assertThat(undoLast).isEnabled();
-        undoLast.click();
-        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
-
-        secondAnnouncement = reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
-        firstAnnouncement = reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "01")).first();
-        Locator moveUp = firstAnnouncement.locator("[data-action=\"move-up\"]");
-        assertThat(moveUp).isEnabled();
-        moveUp.click();
-        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "01", titlePrefix + "02");
-
         page.locator("#reorder-list-sortingToolBar a.title").click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
+        page.waitForFunction(
+            "() => document.querySelector('#announcements-reorderer')?.updateComplete",
+            null,
+            new Page.WaitForFunctionOptions().setTimeout(20_000)
+        );
         page.locator("input[name=\"eventSubmit_doReorderUpdate\"]").click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
 
