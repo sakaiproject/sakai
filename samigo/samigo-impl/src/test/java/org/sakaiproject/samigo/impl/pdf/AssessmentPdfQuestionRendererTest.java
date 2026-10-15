@@ -213,6 +213,25 @@ public class AssessmentPdfQuestionRendererTest {
     }
 
     @Test
+    public void printableItemFeedbackPreservesEmbeddedTableContent() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.MULTIPLE_CHOICE)
+                .sequence("1")
+                .itemHtmlText("<p>Q</p>")
+                .itemScore(1.0)
+                .itemAnswerKey("A")
+                .correctItemFeedback("<p>See table</p><table><tr><td>EmbeddedCell</td></tr></table>")
+                .printChoices(List.of(new AssessmentPdfPrintChoiceModel("A", "Yes", null)))
+                .build();
+
+        TextCapturingDocument document = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, true, false));
+        String text = document.text.toString();
+        assertTrue(text.contains("See table"));
+        assertTrue(text.contains("EmbeddedCell"));
+    }
+
+    @Test
     public void printableMatchingOmitsFillInDashesAndShowsSelectionFeedback() throws Exception {
         AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
                 .typeId(TypeIfc.MATCHING)
