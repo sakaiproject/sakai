@@ -366,6 +366,31 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void publishAssignmentSkipsDeletedGroupAndLocksRemainingGroup() throws Exception {
+        Assignment assignment = createPublishableAssignment(false);
+        String groupReference = "/site/" + assignment.getContext() + "/group/remaining";
+        String deletedGroupReference = "/site/" + assignment.getContext() + "/group/deleted";
+        Site site = siteService.getSite(assignment.getContext());
+        Group group = mock(Group.class);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
+        when(site.getGroup(groupReference)).thenReturn(group);
+        when(site.getGroup(deletedGroupReference)).thenReturn(null);
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+        when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
+        assignment.setIsGroup(true);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.getGroups().addAll(Set.of(groupReference, deletedGroupReference));
+        assignmentService.updateAssignment(assignment);
+
+        assignmentService.publishAssignment(assignment);
+
+        Assert.assertFalse(assignmentService.getAssignment(assignment.getId()).getDraft());
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        verify(authzGroup).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void publishAssignmentSchedulesPeerReview() throws Exception {
         Assignment assignment = createPublishableAssignment(true);
 

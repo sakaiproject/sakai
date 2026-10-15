@@ -1736,6 +1736,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         for (String groupRef : currentAssignedGroupRefs) {
                             try {
                                 Group assignedGroup = site.getGroup(groupRef);
+                                if (assignedGroup == null) {
+                                    continue;
+                                }
                                 boolean isAccessGroup = StringUtils.isNotBlank(assignedGroup.getProperties().getProperty("lessonbuilder_ref"));
 
                                 AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
