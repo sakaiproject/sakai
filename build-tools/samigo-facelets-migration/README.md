@@ -1,71 +1,80 @@
 # Samigo JSP → Facelets migration
 
-The source migration replaces all 248 remaining JSP/JSPF files after combining
-the Jakarta branch with [cleanup PR #15095](https://github.com/sakaiproject/sakai/pull/15095)
-at `1f322bab87886c6a0a2d9812cc1aa83c2b6226a6`. The combined baseline is local merge
-`d0f18d4b136`. Commit `12f87872edb` removes two broken, unused legacy views:
-`author/previewAssessment.jsp` and `delivery/reviewAssessment.jsp`. No callers
-of their navigation outcomes remain; current preview and review use the shared
-delivery flow. Their action-mode strings remain in use and were preserved.
+This branch is rebased onto `upstream/master` at `d4792fb3a1d` (2026-10-15).
+The Jakarta migration and [cleanup PR #15095](https://github.com/sakaiproject/sakai/pull/15095)
+are already upstream; this PR contains the Facelets migration and its verification
+harness, without replaying those earlier infrastructure changes.
 
-There are 248 public XHTML entry points and 251 templates under
-`WEB-INF/samigo-views`, including three JavaScript fragments formerly included
-statically by JSP. Shared fragments remain shared. Public wrappers pass the
-containing view's legacy component-ID prefix and ordinal offset through scoped
-`ui:param` values; nested includes preserve the original tag order. Explicit IDs,
-UIData iteration, facets, bindings and listeners retain their source semantics.
+The current source has **247 public XHTML entry points and 250 internal templates**
+under `WEB-INF/samigo-views`, including three JavaScript fragments formerly included
+statically by JSP. The built WAR contains 497 XHTML files and no JSP/JSPF files.
+Shared fragments remain shared. Public wrappers pass a component-ID prefix and
+ordinal offset through scoped `ui:param` values; nested includes retain explicit
+IDs and the component order of the corresponding upstream JSP.
 
-## Verification
+Two broken, unused legacy views, `author/previewAssessment.jsp` and
+`delivery/reviewAssessment.jsp`, are removed. Current preview/review use the shared
+delivery flow; their active action-mode strings remain intact. Upstream also
+removed `evaluation/downloadFileSubmissions.jsp`: neither its public Facelets view
+nor its internal template is restored. The `downloadFileSubmissions` navigation
+outcome now points to `exportResponses.xhtml`, matching upstream.
 
-The isolated comparison uses deployed Sakai services, Spring wiring, permissions,
-MariaDB and demo accounts. Nothing in the Samigo service graph is mocked.
+## Current validation after the rebase
 
-* Clean build: all 11 Samigo modules succeed; 243 tests pass, including six view
-  access tests. The WAR contains 499 XHTML files and zero JSP/JSPF files.
-* Mojarra compilation audit: all 499 public views and internal templates compile.
-* Detailed authoring flow: eight matching checkpoints cover empty-title validation,
-  two questions, second-row editing, unchanged first-row points and fresh-login
-  persistence. The deliberate removal of `AuthorAssessmentListener` is detected by
-  both missing server/browser validation and a failing browser assertion.
-* Broader suite: 37 matching comparisons, including opening/cancelling every one of
-  the 12 available question editors. Existing flows cover calculated questions,
-  parts/settings/publishing, preview, student delivery, rubric grading, pools,
-  tags/filtering, permissions, print and event-log filtering/sorting.
-* The broader suite has the same **12 passing tests and one failing Lessons test**
-  on each engine. `deletedQuizIsHiddenFromStudentsInLessons` also fails on the JSP
-  baseline. A matching differential report does not turn that failure into a pass.
-* QTI download tests parse the downloaded XML, check the filename and verify the
-  assessment title and question. The export UI must remain HTML; only
-  `xmlDisplay` and `xmlPoolDisplay` declare XML response content types.
-* Three Facelets import/access tests pass: valid-package import, traversal rejection,
-  instructor creation views, and student denial of staff GET/POST routes including
-  direct XHTML templates and all supported JSF mappings.
+* `mvn -f samigo/pom.xml -B -ntp clean install`: all 11 modules pass, with 280 tests,
+  zero failures/errors/skips.
+* `mvn -f e2e-tests/pom.xml -B -ntp -DskipTests test-compile`: all 52 browser test
+  source files compile against upstream's Playwright version and API fixture code.
+* All 20 Python converter tests pass.
+* The static source audit checks 31,377 component declarations across all 247
+  expanded view/fragment graphs against the current upstream JSP sources. It
+  verifies component order, explicit/generated IDs, nested include offsets,
+  navigation targets, XML parsing for all 497 files, and absence of obsolete JSPs.
+* Regenerated templates retain upstream's new export/download forms, grading and
+  cancellation changes, site-aware tag lookups, and Lit pool tag selectors.
+  Changed shared includes required offset updates in 28 internal templates.
+* Upload bindings follow the current JSP tag contract: `target` is a String value
+  expression, `value` is an Object value expression, including literal expressions.
 
-The observed contract includes component IDs/classes, expressions, listener
-delegate types and bindings, converter/validator settings, UIData metadata,
-facets, lifecycle flags/messages/navigation, browser controls/options/labels,
-scripts/styles and page errors. Jasper's generated Java supplies component tag
-order and IDs; Mojarra supplies the native Facelets component tree. Runtime
-Jasper output takes precedence over optional offline JspC output. The current
-conversion has Jasper provenance for 130 files. Include-only fragments without
-standalone JSP compilation retain source-order provenance; the manifest records
-that distinction.
+These checks do not execute the JSF lifecycle. **The rebased branch still needs
+fresh browser/differential QA before merge.** Sakai and Tomcat were not started or
+restarted during this rebase. Use a server started manually by the developer for
+runtime checks. Earlier runtime measurements below are historical evidence, not
+fresh test results for the rebased source.
 
-The report lists every normalization: fixture site/tool/origin identities,
-configured JSP-to-XHTML view changes, opaque ViewState/CSRF values, whitespace
-runs in human form text, unconditional transient literal renderers and framework
-listener wrappers. Control values remain exact. Generated timestamps are recorded
-separately only when they fall within their fixture run, using the centrally
-resolved timezone observed on the converters; their format remains significant.
-Selected tag IDs are fixture-specific. Final snapshots of unchanged external
-tools retain their raw differences separately, with test outcomes compared.
+## Historical runtime verification (before the 2026-10-15 rebase)
 
-This is evidence for the exercised states, not proof of every possible Samigo
-state. Compilation does not apply every template against every bean state.
-Group/TA grading fixtures, every question type's submission and grading rules,
-all assessment templates, every locale/timezone, timing/retry/concurrency cases,
-and every export/import format still require their own flow coverage. Existing
-page errors present on both engines remain visible in the captures.
+The original experiment combined the Jakarta branch and the then-unmerged cleanup
+PR. It had 248 public views, 251 internal templates and 243 passing Samigo tests.
+That earlier version compiled all 499 templates in Mojarra and passed paired
+component-tree/lifecycle/browser comparisons at eight detailed authoring
+checkpoints and 37 broader suite checkpoints, including all 12 question editors.
+A missing-listener mutation was detected by the expected browser failure and
+missing server validation. QTI download parsing, valid-package import, traversal
+rejection and view-access checks also passed on that version.
+
+At that time one Lessons test failed on both JSP and Facelets. Upstream has since
+changed the E2E suite; this is not a claim about that test's current outcome.
+The earlier Jasper output supplied the retained public ID prefixes. Component
+ordinals and include offsets for changed templates have now been regenerated from
+current upstream source and statically audited; they have not been compared with
+a fresh running Jasper baseline.
+
+The observed runtime contract included IDs/classes, expressions, listener delegate
+bindings, converter/validator settings, UIData metadata, facets, lifecycle flags,
+messages/navigation, browser controls/options/labels, scripts/styles and page
+errors. Reports listed every normalization: fixture identities and origins,
+configured JSP-to-XHTML paths, opaque ViewState/CSRF values, whitespace runs in
+human form text, unconditional transient literal renderers and listener wrappers.
+Control values were otherwise exact. Generated timestamps and tag IDs were
+recorded separately; unchanged external-tool snapshots retained their raw
+differences and their test outcomes were compared separately.
+
+Neither compilation nor these finite flows prove every possible Samigo state.
+Group/TA fixtures, every question type's submission/grading rules, assessment
+templates, locales/timezones and timing/retry/concurrency cases need additional
+coverage. Rebase-sensitive export, tag and cancellation flows should be checked
+again on the current branch.
 
 ## Compatibility adapters
 
@@ -86,73 +95,49 @@ updating affected offsets in containing templates. There is no runtime compiler
 or generated-ID registry. Normal JSF view state must be discarded on redeployment
 when the component structure changes.
 
-## Reproducing the experiment
+## Server-free checks
 
-Requirements: Java 21, Maven dependencies, Playwright Chromium, local MySQL/MariaDB
-administrator access and a complete disposable Sakai Jakarta/Tomcat deployment.
-Keep its components and libraries identical between variants. The harness owns
-new runtime directories, ports and schemas; it never edits the source deployment.
-Configurations are copied with mode 0600. Runtimes stop in `finally`; schemas and
-captures remain for inspection. Do not run against a production database.
-
-The original one-screen experiment is retained in `../samigo-facelets-flow` as
-historical tooling. Its default source-copy mode expects JSP source. Use this
-whole-tool harness for the migrated source.
-
-Create `target/baseline-app` from the baseline WAR, including its classes and
-libraries. After the source migration, restore the baseline web templates/config
-from the baseline commit into that owned directory; do not overwrite deployed
-applications. The baseline fixture used here was built from `d0f18d4b136`.
-The converter excludes the two subsequently removed views explicitly.
+From the repository root, preserve the upstream web source for the static audit:
 
 ```sh
-export JAVA_HOME=/path/to/java-21
-python3 build-tools/samigo-facelets-migration/jasper.py \
-  --source-tomcat /path/to/disposable-tomcat \
-  --app build-tools/samigo-facelets-migration/target/baseline-app \
-  --output build-tools/samigo-facelets-migration/target/jasper-compiled
-python3 build-tools/samigo-facelets-migration/suite.py \
-  --source-tomcat /path/to/disposable-tomcat \
-  --jasper-fallback build-tools/samigo-facelets-migration/target/jasper-compiled \
-  --output build-tools/samigo-facelets-migration/target/new-suite
-python3 build-tools/samigo-facelets-migration/suite_compare.py \
-  build-tools/samigo-facelets-migration/target/new-suite
+mkdir -p target/upstream-baseline
+git archive upstream/master samigo/samigo-app/src/webapp | tar -x -C target/upstream-baseline
+python3 -m unittest discover -s build-tools/samigo-facelets-migration -p 'test_*.py'
+python3 build-tools/samigo-facelets-migration/audit.py \
+  --source-web target/upstream-baseline/samigo/samigo-app/src/webapp \
+  --baseline "$(git rev-parse upstream/master)" \
+  --output target/rebase-template-audit.json
+mvn -f samigo/pom.xml -B -ntp clean install
+mvn -f e2e-tests/pom.xml -B -ntp -DskipTests test-compile
 ```
 
-JspC may reject fragments whose taglib declarations come from their containing
-JSP. Inspect its report; those failures are not evidence of a broken public view.
-The actual running Jasper cache is authoritative for the exercised views.
-`modular.py --jasper ... --jasper-fallback ... --source-web ... --output ...`
-converts the retained source, records provenance and fails on unknown scriptlets,
-malformed EL, XML errors, recursive includes or Jasper/source tag mismatches.
-`test_migrate.py` and `test_modular.py` cover the conversion traps found in Samigo.
+`audit.py` checks source declarations and include/ID structure; it does not build
+native JSF component trees. `modular.py --source-web ... --jasper ... --output ...`
+regenerates templates and records source/Jasper provenance. Retain existing public
+prefixes when regenerating for an upstream change, then audit the full include
+graph; a changed shared fragment can shift offsets in many containing views.
 
-`pilot.py --converted ... --jasper-cache ... --calibrate` runs both variants of
-the eight-checkpoint flow using the chosen conversion and matching JSP cache.
-`retry_suite.py` measures a fresh candidate against a retained JSP run.
-`export_check.py RUN --security --candidate-only` additionally runs the real import
-and access tests against the retained Facelets course fixture.
+## Runtime checks and deployment
 
-`apply.py` is a one-time source migration tool. It requires an exact source/manifest
-match and no conversion failures. It copies the converted views, wires production
-handlers/filter/listener and removes the JSPs/prelude. Test probes and compilation
-listeners are installed only into disposable applications, never production config.
+The opt-in `SamigoViewEquivalenceTest` includes persistence/second-row editing,
+all-question-type rendering/cancellation, QTI export and missing-listener checks.
+`SamigoImportAccessTest` checks staff/student routing and real package imports.
+The test-only probe and compiler in `../samigo-facelets-flow/src/main/java` record
+native JSF observations when installed into a disposable test application.
+Production descriptors do not include those probe/compiler classes.
 
-Use a clean Samigo WAR and remove its old exploded application during deployment
-so obsolete JSPs cannot remain from an earlier deployment overlay.
+The original experiment's `run.py`, `suite.py`, `pilot.py`, retry and production
+check scripts contain automatic Tomcat launch/stop routines. They are retained as
+historical experiment tooling. **Do not invoke those orchestration scripts under
+the current manual-server policy.** Start the application manually and run the
+opt-in browser tests against that server; server startup is not part of Maven's
+normal module tests or browser test compilation.
 
-Local evidence is under `target/`: `facelets-source-build.log`,
-`full-modular-pr-2/report.json`, `pilot-modular-pr-1/report.json`,
-`pilot-modular-pr-1/negative-control.json`, QTI test reports/downloads, browser
-HTML/JSON, and the unmodified raw lifecycle traces. These generated artifacts
-are ignored by Git.
+`apply.py` is a one-time source conversion tool requiring an exact source/manifest
+match and no conversion failures. Use a clean Samigo WAR and remove the old
+exploded Samigo application during deployment so obsolete JSPs cannot remain from
+an earlier deployment overlay.
 
-`production-validation` replaces the stopped, owned candidate application with
-the clean built WAR and reruns the persistence, QTI and import/access checks.
-Those five browser tests pass; all eight observed JSF form/lifecycle contracts
-match the narrow reference. This run reuses a populated course/pool database,
-so its generated IDs and pool catalog differ from the fresh JSP reference.
-Its report retains those DOM differences. The fresh paired pilot supplies the
-exact DOM comparison. Final XML source formatting is also checked against the
-tested templates: all 251 internal documents retain identical parsed tags,
-attributes, text and tails, including meaningful whitespace and EL values.
+Generated `target/` evidence is ignored by Git. The rebase build logs and static
+audit report belong to this checkout; earlier ignored runtime artifacts are not
+included in the PR and must not be treated as freshly reproducible results.

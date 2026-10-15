@@ -63,6 +63,7 @@ public class SamigoComponentHandler extends ComponentHandler {
         }
         Set<String> names = attributes;
         Set<String> numericNames = integers;
+        boolean upload = "upload".equals(tag.getLocalName());
         return super.createMetaRuleset(type).addRule(new MetaRule() {
             @Override
             public Metadata applyRule(String name, TagAttribute attribute, MetadataTarget target) {
@@ -73,7 +74,11 @@ public class SamigoComponentHandler extends ComponentHandler {
                     @Override
                     public void applyMetadata(FaceletContext context, Object instance) {
                         UIComponent component = (UIComponent) instance;
-                        if (attribute.isLiteral()) {
+                        if (upload) {
+                            // Match UploadTag's current EL contract, including literals.
+                            component.setValueExpression(name, attribute.getValueExpression(context,
+                                "target".equals(name) ? String.class : Object.class));
+                        } else if (attribute.isLiteral()) {
                             String value = attribute.getValue();
                             component.getAttributes().put(name, numericNames.contains(name) ? Integer.valueOf(value) : value);
                         } else {
