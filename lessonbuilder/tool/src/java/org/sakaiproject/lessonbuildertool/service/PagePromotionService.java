@@ -50,15 +50,18 @@ public class PagePromotionService {
 
     private final SimplePageToolDao simplePageToolDao;
     private final SiteService siteService;
+    private final PageIndexService pageIndexService;
     private final TransactionTemplate transactionTemplate;
 
     private static final class PromotionState {
         private boolean siteSaved;
     }
 
-    public PagePromotionService(SimplePageToolDao simplePageToolDao, SiteService siteService, TransactionTemplate transactionTemplate) {
+    public PagePromotionService(SimplePageToolDao simplePageToolDao, SiteService siteService,
+            PageIndexService pageIndexService, TransactionTemplate transactionTemplate) {
         this.simplePageToolDao = simplePageToolDao;
         this.siteService = siteService;
+        this.pageIndexService = pageIndexService;
         this.transactionTemplate = transactionTemplate;
     }
 
@@ -80,8 +83,10 @@ public class PagePromotionService {
         }
 
         String canonicalPageId = pageId.toString();
-        if (simplePageToolDao.findTopLevelPageItemBySakaiId(canonicalPageId) != null) {
-            log.warn("Unable to add page {} as top level in site {}: page is already top level", pageId, siteId);
+        // Reject only pages that are currently in left-margin navigation. Removed top-level
+        // pages keep an orphan top-level item and must still be restorable.
+        if (isActiveTopLevelPage(siteId, pageId)) {
+            log.warn("Unable to add page {} as top level in site {}: page is already in site navigation", pageId, siteId);
             return PagePromotionResult.ALREADY_TOP_LEVEL;
         }
 
@@ -137,6 +142,11 @@ public class PagePromotionService {
         return page != null && page.getOwner() != null && !page.isOwned();
     }
 
+    private boolean isActiveTopLevelPage(String siteId, Long pageId) {
+        return pageIndexService.getPageIndex(siteId).activePages().stream()
+                .anyMatch(node -> node.topLevel() && pageId.equals(node.page().getPageId()));
+    }
+
     private PagePromotionResult promote(SimplePage target, String canonicalPageId, Site site, TransactionStatus status,
             PromotionState promotionState) {
         List<String> updateErrors = new ArrayList<>();
@@ -146,12 +156,23 @@ public class PagePromotionService {
             return PagePromotionResult.PAGE_UPDATE_FAILED;
         }
 
-        SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, canonicalPageId, target.getTitle());
-        List<String> itemErrors = new ArrayList<>();
-        if (!simplePageToolDao.saveItem(item, itemErrors, "Unable to save page", true)) {
-            status.setRollbackOnly();
-            log.warn("Unable to save a top-level item for page {} in site {}: {}", canonicalPageId, site.getId(), itemErrors);
-            return PagePromotionResult.TOP_LEVEL_ITEM_SAVE_FAILED;
+        SimplePageItem existingTopLevelItem = simplePageToolDao.findTopLevelPageItemBySakaiId(canonicalPageId);
+        if (existingTopLevelItem != null) {
+            existingTopLevelItem.setName(target.getTitle());
+            List<String> itemErrors = new ArrayList<>();
+            if (!simplePageToolDao.update(existingTopLevelItem, itemErrors, "Unable to save page", true)) {
+                status.setRollbackOnly();
+                log.warn("Unable to update top-level item for page {} in site {}: {}", canonicalPageId, site.getId(), itemErrors);
+                return PagePromotionResult.TOP_LEVEL_ITEM_SAVE_FAILED;
+            }
+        } else {
+            SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, canonicalPageId, target.getTitle());
+            List<String> itemErrors = new ArrayList<>();
+            if (!simplePageToolDao.saveItem(item, itemErrors, "Unable to save page", true)) {
+                status.setRollbackOnly();
+                log.warn("Unable to save a top-level item for page {} in site {}: {}", canonicalPageId, site.getId(), itemErrors);
+                return PagePromotionResult.TOP_LEVEL_ITEM_SAVE_FAILED;
+            }
         }
 
         try {
