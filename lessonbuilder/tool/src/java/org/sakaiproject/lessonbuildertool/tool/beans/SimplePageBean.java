@@ -9096,46 +9096,6 @@ public class SimplePageBean {
 		}
 	}
 	
-    // see if there is a folder in which images, etc, are likely to be
-    // stored for this resource. This only applies to HTML files
-    // for index.html, etc, it's the containing folder
-    // otherwise, if it's an HTML file, look for a folder with the same name
-	public static String associatedFolder(String resourceId) {
-	    int i = resourceId.lastIndexOf("/");
-	    String folder;
-	    String name;
-	    if (i >= 0) {
-		folder = resourceId.substring(0, i+1);  // include trailing
-		name = resourceId.substring(i+1);
-	    } else
-		return null;
-
-	    String folderName = resourceId.substring(0, i);
-	    i = folderName.lastIndexOf("/");
-	    if (i >= 0)
-		folderName = folderName.substring(i+1);
-	    else
-		return null;
-	    if (folderName.endsWith("_HTML"))  // wimba create
-		folderName = folderName.substring(0, folderName.indexOf("_HTML"));
-
-	    // folder is whole folder
-	    // folderName is last atom of folder name
-	    // name is last atom of resource id
-
-	    if (StringUtils.equalsAny(name, "index.html", "index.htm", folderName + ".html"))
-		return folder;
-
-	    if (StringUtils.endsWithAny(resourceId, ".html", ".htm")) {
-		i = resourceId.lastIndexOf(".");
-		resourceId = resourceId.substring(0, i) + "/";
-		// no need to check whether it actually exists
-		return resourceId;
-	    }
-	    return null;
-	}
-		
-
 	private void setPropertyOnFolderRecursively(String resourceId, String property, String value) {
 
 		try {
@@ -9573,59 +9533,6 @@ public class SimplePageBean {
 	}	    
 
 
-	// May add or edit comments
-        // can't find a call to this. Security cheking is probaby wrong.
-		public String addComment1() {
-			boolean html = false;
-			
-			// Patch in the fancy editor's comment, if it's been used
-			if(StringUtils.isNotBlank(formattedComment)) {
-				comment = formattedComment;
-				html = true;
-			}
-			
-		comment = formattedText.processFormattedText(comment, null, null);
-			
-			if(StringUtils.isBlank(comment)) {
-				setErrMessage(messageLocator.getMessage("simplepage.empty-comment-error"));
-				return "failure";
-			}
-			
-			if(StringUtils.isBlank(editId)) {
-				String userId = userDirectoryService.getCurrentUser().getId();
-				
-				Double grade = null;
-				if(findItem(itemId).getGradebookId() != null) {
-					List<SimplePageComment> comments = simplePageToolDao.findCommentsOnItemByAuthor(itemId, userId);
-					if(comments != null && comments.size() > 0) {
-						grade = comments.get(0).getPoints();
-					}
-				}
-				
-				SimplePageComment commentObject = simplePageToolDao.makeComment(itemId, getCurrentPage().getPageId(), userId, comment, idManager.createUuid(), html);
-				commentObject.setPoints(grade);
-				
-				saveItem(commentObject, false);
-			}else {
-				SimplePageComment commentObject = simplePageToolDao.findCommentById(Long.valueOf(editId));
-				if(commentObject != null && canModifyComment(commentObject)) {
-					commentObject.setComment(comment);
-					update(commentObject, false);
-				}else {
-					setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
-					return "failure";
-				}
-			}
-			
-			if(isStudentPage(getCurrentPage())) {
-				SimpleStudentPage student = simplePageToolDao.findStudentPage(getCurrentPage().getTopParent());
-				student.setLastCommentChange(new Date());
-				update(student, false);
-			}
-			
-			return "added-comment";
-		}
-
     /**
      * Truncate a Java string so that its UTF-8 representation will not 
      * exceed the specified number of bytes.
@@ -9809,16 +9716,6 @@ public class SimplePageBean {
 	// Does the site contain GradebookNG or Gradebook Classic
 	public boolean isGradebookExists() {
 		return (this.getCurrentTool(this.GRADEBOOK_TOOL_ID) != null || this.getCurrentTool(this.GRADEBOOK_CLASSIC_TOOL_ID) != null);
-	}
-	
-	private void updateTask(String reference, String title, Date dueDate) {
-		Optional<Task> taskOpt = taskService.getTask(reference);
-		if (taskOpt.isPresent()) {
-			Task task = taskOpt.get();
-			task.setDescription(title);
-			task.setDue(dueDate == null ? null : dueDate.toInstant());
-			taskService.saveTask(task);
-		}
 	}
 	
 	private void createOrUpdateTask(String reference, String siteId, String title, Date dueDate) {
