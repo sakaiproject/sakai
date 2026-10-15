@@ -75,6 +75,13 @@
             <artifactId>jakarta.activation-api</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- The shared-library deployer copies direct dependencies only. Activation's
+             registry provider is required to discover all Jakarta Mail MIME handlers. -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-activation</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>jakarta.xml.soap</groupId>
             <artifactId>jakarta.xml.soap-api</artifactId>
