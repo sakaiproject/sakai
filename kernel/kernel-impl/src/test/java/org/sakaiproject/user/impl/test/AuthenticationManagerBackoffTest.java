@@ -26,12 +26,20 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import javax.cache.expiry.ExpiryPolicy;
 
 import org.apache.ignite.Ignite;
+import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.cache.CacheMode;
+import org.apache.ignite.cache.CacheWriteSynchronizationMode;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationManager;
@@ -44,6 +52,8 @@ import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.WebDavEvidence;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 /** Exercises the real authenticator, user storage, credential cache and shared backoff. */
@@ -57,7 +67,7 @@ public class AuthenticationManagerBackoffTest extends SakaiKernelTestBase {
 
     @BeforeClass
     public static void startKernel() throws Exception {
-        oneTimeSetup("disable_user_cache");
+        oneTimeSetup("password_login_backoff");
     }
 
     @Before
@@ -74,6 +84,22 @@ public class AuthenticationManagerBackoffTest extends SakaiKernelTestBase {
     @After
     public void restoreClock() {
         backoff.setClock(Clock.systemUTC());
+    }
+
+    @Test
+    public void xmlCacheConfigurationPreservesAtomicBackoffAndConfiguredExpiry() {
+        Ignite ignite = (Ignite) getService("org.sakaiproject.ignite.SakaiIgnite");
+        CacheConfiguration<?, ?> configuration = ignite.cache(PasswordLoginBackoff.class.getName())
+                .getConfiguration(CacheConfiguration.class);
+        assertEquals(CacheAtomicityMode.ATOMIC, configuration.getAtomicityMode());
+        assertEquals(CacheMode.REPLICATED, configuration.getCacheMode());
+        assertEquals(CacheWriteSynchronizationMode.FULL_SYNC, configuration.getWriteSynchronizationMode());
+        assertFalse(configuration.isReadFromBackup());
+        ExpiryPolicy expiry = configuration.getExpiryPolicyFactory().create();
+        // The test overrides the normal 900-second window, exercising XML property resolution.
+        assertEquals(TimeUnit.SECONDS, expiry.getExpiryForUpdate().getTimeUnit());
+        assertEquals(1200, expiry.getExpiryForUpdate().getDurationAmount());
+        assertNull(expiry.getExpiryForAccess());
     }
 
     @Test
@@ -115,7 +141,8 @@ public class AuthenticationManagerBackoffTest extends SakaiKernelTestBase {
         failPasswords(user.getEid(), 5);
         advanceSeconds(1);
         assertRejected(user.getEid(), PASSWORD);
-        advanceSeconds(899);
+        int windowSeconds = getService(ServerConfigurationService.class).getInt("login.password.backoff.windowSeconds", 900);
+        advanceSeconds(windowSeconds - 1);
         failPasswords(user.getEid(), 4);
         assertEquals(user.getId(), login(user.getEid(), PASSWORD));
     }

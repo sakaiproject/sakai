@@ -20,17 +20,11 @@ import java.time.Clock;
 import java.util.concurrent.TimeUnit;
 
 import javax.cache.CacheException;
-import javax.cache.expiry.Duration;
-import javax.cache.expiry.ModifiedExpiryPolicy;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.MutableEntry;
 
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
-import org.apache.ignite.cache.CacheAtomicityMode;
-import org.apache.ignite.cache.CacheMode;
-import org.apache.ignite.cache.CacheWriteSynchronizationMode;
-import org.apache.ignite.configuration.CacheConfiguration;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.AuthenticationException;
 
@@ -59,14 +53,10 @@ public class PasswordLoginBackoff {
         }
         windowMillis = TimeUnit.SECONDS.toMillis(windowSeconds);
         maxDelayMillis = TimeUnit.SECONDS.toMillis(maxDelaySeconds);
-        CacheConfiguration<String, Attempts> configuration = new CacheConfiguration<>(PasswordLoginBackoff.class.getName());
-        configuration.setAtomicityMode(CacheAtomicityMode.ATOMIC);
-        configuration.setCacheMode(CacheMode.REPLICATED);
-        configuration.setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_SYNC);
-        configuration.setReadFromBackup(false);
-        configuration.setDataRegionName("spring_region");
-        configuration.setExpiryPolicyFactory(ModifiedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, windowSeconds)));
-        cache = ignite.getOrCreateCache(configuration);
+        cache = ignite.cache(PasswordLoginBackoff.class.getName());
+        if (cache == null) {
+            throw new IllegalStateException("Password login backoff cache is not configured");
+        }
     }
 
     /** Reject paused requests before they can inspect or evict credential cache entries. */
