@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -78,8 +79,12 @@ public class AssessmentPdfContentHelper {
         this.contentHostingService = contentHostingService;
     }
 
+    private static final Pattern HTML_OPEN_TAG = Pattern.compile("<\\s*[a-zA-Z][^>]*>");
+
     /**
-     * Strips HTML tags and removes embedded tables in a single pass.
+     * Returns plain text from HTML for PDF Chunks/Paragraphs. Removes {@code <table>} so cell
+     * text is not duplicated when callers also render tables via {@link #addTableElementsToTable}
+     * / {@link #getQuestionTitle}.
      */
     public String cleanText(String text) {
         if (text == null) {
@@ -88,6 +93,35 @@ public class AssessmentPdfContentHelper {
         org.jsoup.nodes.Document document = Jsoup.parse(text);
         document.select("table").remove();
         return document.text();
+    }
+
+    /**
+     * Returns whether {@code text} looks like authored HTML markup rather than plain text.
+     */
+    public boolean looksLikeHtml(String text) {
+        return StringUtils.isNotBlank(text) && HTML_OPEN_TAG.matcher(text).find();
+    }
+
+    /**
+     * Preserves plain-text values (FIB keys like {@code a<b}); strips markup only when the value
+     * contains generated/authored HTML tags (e.g. partial-credit {@code <span>} keys).
+     */
+    public String plainOrCleanText(String text) {
+        if (text == null) {
+            return "";
+        }
+        if (!looksLikeHtml(text)) {
+            return text;
+        }
+        return cleanText(text);
+    }
+
+    /**
+     * True when HTML-capable rendering should be used (embedded images or tables).
+     */
+    public boolean hasEmbeddedHtmlContent(String html) {
+        return StringUtils.containsIgnoreCase(html, "<img")
+                || StringUtils.containsIgnoreCase(html, "<table");
     }
 
     /**
@@ -618,13 +652,13 @@ public class AssessmentPdfContentHelper {
         if (StringUtils.isBlank(html)) {
             return;
         }
-        if (html.contains("<")) {
+        if (looksLikeHtml(html)) {
             PdfPTable titleTable = getQuestionTitle(html, true, mathJaxEnabled, fontSizeSetting);
             if (titleTable != null) {
                 cell.addElement(titleTable);
             }
         } else {
-            cell.addElement(createLatexParagraph(cleanText(html), font, mathJaxEnabled));
+            cell.addElement(createLatexParagraph(html, font, mathJaxEnabled));
         }
     }
 
@@ -706,14 +740,14 @@ public class AssessmentPdfContentHelper {
     }
 
     public void addCorrectResponseBox(Document document, String value, Locale locale) throws Exception {
-        String cleaned = cleanText(value);
-        if (StringUtils.isBlank(cleaned)) {
+        String display = plainOrCleanText(value);
+        if (StringUtils.isBlank(display)) {
             return;
         }
         Paragraph paragraph = new Paragraph();
         paragraph.setLeading(0f, 1.2f);
         paragraph.add(new Chunk(AssessmentPdfBundle.getEvaluationString("correct_responses", locale) + ": ", fontWithColor(SMALL_BOLD_FONT, SECONDARY_COLOR)));
-        paragraph.add(new Chunk(cleaned, fontWithColor(SMALL_FONT, TEXT_PRIMARY)));
+        paragraph.add(new Chunk(display, fontWithColor(SMALL_FONT, TEXT_PRIMARY)));
         addInfoBox(document, BACKGROUND_GRAY, SECONDARY_COLOR, paragraph);
     }
 

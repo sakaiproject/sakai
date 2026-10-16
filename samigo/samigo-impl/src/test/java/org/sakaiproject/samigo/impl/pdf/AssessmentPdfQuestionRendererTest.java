@@ -232,6 +232,71 @@ public class AssessmentPdfQuestionRendererTest {
     }
 
     @Test
+    public void printableFibAnswerKeyPreservesLiteralLessThan() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.FILL_IN_BLANK)
+                .sequence("1")
+                .itemHtmlText("<p>Compare</p>")
+                .itemScore(1.0)
+                .key("4<x y x>1")
+                .build();
+
+        TextCapturingDocument document = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, false, false));
+        String text = document.text.toString();
+        assertTrue(text.contains("4<x y x>1"));
+        assertFalse(text.contains("41"));
+    }
+
+    @Test
+    public void printableEssayModelAnswerPreservesTableText() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.ESSAY_QUESTION)
+                .sequence("1")
+                .itemHtmlText("<p>Explain</p>")
+                .itemScore(2.0)
+                .key("<table><tr><td>Expected42</td></tr></table>")
+                .modelAnswerPresent(true)
+                .build();
+
+        TextCapturingDocument document = renderPrintCapturingText(question,
+                new AssessmentPdfPrintSettingsModel(true, "3", false, false, false));
+        assertTrue(document.text.toString().contains("Expected42"));
+    }
+
+    @Test
+    public void reportEssayModelAnswerPreservesTableText() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.ESSAY_QUESTION)
+                .sequence("1")
+                .itemHtmlText("<p>Explain</p>")
+                .text("<p>Explain</p>")
+                .itemScore(2.0)
+                .key("<table><tr><td>Expected42</td></tr></table>")
+                .modelAnswerPresent(true)
+                .build();
+
+        TextCapturingDocument document = renderReportCapturingText(question);
+        assertTrue(document.text.toString().contains("Expected42"));
+    }
+
+    @Test
+    public void reportFibCorrectResponsePreservesLiteralLessThan() throws Exception {
+        AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
+                .typeId(TypeIfc.FILL_IN_BLANK)
+                .sequence("1")
+                .itemHtmlText("<p>Compare</p>")
+                .text("<p>Compare</p>")
+                .itemScore(1.0)
+                .key("a<b")
+                .fibRows(Collections.emptyList())
+                .build();
+
+        TextCapturingDocument document = renderReportCapturingText(question);
+        assertTrue(document.text.toString().contains("a<b"));
+    }
+
+    @Test
     public void printableMatchingOmitsFillInDashesAndShowsSelectionFeedback() throws Exception {
         AssessmentPdfQuestionModel question = AssessmentPdfQuestionModel.builder()
                 .typeId(TypeIfc.MATCHING)

@@ -257,10 +257,10 @@ public class AssessmentPdfQuestionRenderer {
         if (questionType.equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)) {
             bodyText = AssessmentPdfSurveyText.toDisplayText(choice.getText(), context.getLocale());
         } else if (questionType.equals(TypeIfc.TRUE_FALSE)) {
-            label = contentHelper.cleanText(choice.getText());
+            label = contentHelper.plainOrCleanText(choice.getText());
             labelBesideControlOnly = true;
         } else {
-            label = contentHelper.cleanText(StringUtils.defaultString(choice.getLabel()));
+            label = contentHelper.plainOrCleanText(StringUtils.defaultString(choice.getLabel()));
             bodyText = choice.getText();
         }
 
@@ -343,7 +343,7 @@ public class AssessmentPdfQuestionRenderer {
         matrixTable.addCell(cornerCell);
 
         for (String columnLabel : columnLabels) {
-            PdfPCell matrixHeaderCell = new PdfPCell(new Paragraph(contentHelper.cleanText(columnLabel), fontWithColor(context.bodyBoldFont(), TEXT_PRIMARY)));
+            PdfPCell matrixHeaderCell = new PdfPCell(new Paragraph(contentHelper.plainOrCleanText(columnLabel), fontWithColor(context.bodyBoldFont(), TEXT_PRIMARY)));
             matrixHeaderCell.setPadding(8f);
             matrixHeaderCell.setBackgroundColor(BACKGROUND_GRAY);
             matrixHeaderCell.setBorder(Rectangle.NO_BORDER);
@@ -354,7 +354,7 @@ public class AssessmentPdfQuestionRenderer {
         }
 
         for (AssessmentPdfMatrixRowModel matrixRow : matrixRows) {
-            PdfPCell rowLabelCell = new PdfPCell(new Paragraph(contentHelper.cleanText(matrixRow.getRowLabel()), fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
+            PdfPCell rowLabelCell = new PdfPCell(new Paragraph(contentHelper.plainOrCleanText(matrixRow.getRowLabel()), fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
             rowLabelCell.setPadding(8f);
             rowLabelCell.setBackgroundColor(java.awt.Color.WHITE);
             rowLabelCell.setBorder(Rectangle.NO_BORDER);
@@ -379,7 +379,7 @@ public class AssessmentPdfQuestionRenderer {
         document.add(matrixTable);
 
         if (question.isMatrixAddComment() && StringUtils.isNotBlank(question.getMatrixCommentField())) {
-            Paragraph commentPrompt = new Paragraph(contentHelper.cleanText(question.getMatrixCommentField()), fontWithColor(context.bodyFont(), TEXT_PRIMARY));
+            Paragraph commentPrompt = new Paragraph(contentHelper.plainOrCleanText(question.getMatrixCommentField()), fontWithColor(context.bodyFont(), TEXT_PRIMARY));
             commentPrompt.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
             document.add(commentPrompt);
 
@@ -421,7 +421,7 @@ public class AssessmentPdfQuestionRenderer {
                 if (matching == null || matching.getText() == null) {
                     continue;
                 }
-                Paragraph itemText = new Paragraph(contentHelper.cleanText(matching.getText()),
+                Paragraph itemText = new Paragraph(contentHelper.plainOrCleanText(matching.getText()),
                         fontWithColor(context.bodyFont(), TEXT_PRIMARY));
                 itemText.setSpacingBefore(2f);
                 itemText.setSpacingAfter(2f);
@@ -442,7 +442,7 @@ public class AssessmentPdfQuestionRenderer {
                 if (StringUtils.isBlank(answer)) {
                     continue;
                 }
-                Paragraph choice = new Paragraph(contentHelper.cleanText(answer),
+                Paragraph choice = new Paragraph(contentHelper.plainOrCleanText(answer),
                         fontWithColor(context.bodyFont(), TEXT_PRIMARY));
                 choice.setSpacingBefore(1f);
                 choice.setSpacingAfter(1f);
@@ -475,14 +475,14 @@ public class AssessmentPdfQuestionRenderer {
 
     private void renderPrintExtendedMatching(Document document, QuestionRenderContext context, AssessmentPdfQuestionModel question) throws Exception {
         if (StringUtils.isNotBlank(question.getThemeText())) {
-            Paragraph theme = new Paragraph(contentHelper.cleanText(question.getThemeText()), fontWithColor(context.bodyFont(), TEXT_PRIMARY));
+            Paragraph theme = new Paragraph(contentHelper.plainOrCleanText(question.getThemeText()), fontWithColor(context.bodyFont(), TEXT_PRIMARY));
             theme.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
             document.add(theme);
         }
 
         if (question.isEmiAnswerOptionsSimple()) {
             for (AssessmentPdfChoiceOptionModel option : question.getEmiAnswerOptions()) {
-                document.add(new Paragraph(contentHelper.cleanText(option.getLabel()) + ". " + contentHelper.cleanText(option.getValue()), fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
+                document.add(new Paragraph(contentHelper.plainOrCleanText(option.getLabel()) + ". " + contentHelper.plainOrCleanText(option.getValue()), fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
             }
         }
         if (question.isEmiAnswerOptionsRich()) {
@@ -490,18 +490,18 @@ public class AssessmentPdfQuestionRenderer {
         }
 
         if (StringUtils.isNotBlank(question.getLeadInText())) {
-            document.add(new Paragraph(contentHelper.cleanText(question.getLeadInText()), fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
+            document.add(new Paragraph(contentHelper.plainOrCleanText(question.getLeadInText()), fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
         }
 
         for (AssessmentPdfEmiPromptModel prompt : question.getEmiPrompts()) {
-            document.add(new Paragraph(prompt.getSequence() + ". " + contentHelper.cleanText(prompt.getText()) + "  ____", fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
+            document.add(new Paragraph(prompt.getSequence() + ". " + contentHelper.plainOrCleanText(prompt.getText()) + "  ____", fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
         }
     }
 
     private void renderPrintImageMapOptions(Document document, QuestionRenderContext context, AssessmentPdfQuestionModel question, AssessmentPdfPrintSettingsModel printSettings) throws Exception {
         List<String> itemTexts = question.getImageMapItemTexts();
         for (int k = 0; k < itemTexts.size(); k++) {
-            document.add(new Paragraph((k + 1) + ". " + contentHelper.cleanText(itemTexts.get(k)), fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
+            document.add(new Paragraph((k + 1) + ". " + contentHelper.plainOrCleanText(itemTexts.get(k)), fontWithColor(context.bodyFont(), TEXT_PRIMARY)));
         }
 
         boolean showKeys = printSettings != null && Boolean.TRUE.equals(printSettings.getShowKeys());
@@ -521,11 +521,23 @@ public class AssessmentPdfQuestionRenderer {
         keyParagraph.setLeading(0f, 1.2f);
         keyParagraph.add(new Chunk(AssessmentPdfBundle.getPrintString("answer_point", context.getLocale()) + ": " + (itemScore == null ? 0d : itemScore) + " " + AssessmentPdfBundle.getAuthorString("points_lower_case", context.getLocale()) + "\n", fontWithColor(context.smallBoldFont(), PRIMARY_COLOR)));
 
-        if (!PRINT_NO_KEY_TYPES.contains(questionType)) {
+        boolean essayModelAnswer = Objects.equals(questionType, TypeIfc.ESSAY_QUESTION)
+                && StringUtils.isNotBlank(question.getKey())
+                && !StringUtils.equals(question.getKey(), "null");
+        if (!PRINT_NO_KEY_TYPES.contains(questionType) && !essayModelAnswer) {
             appendPrintAnswerKey(keyParagraph, context, question, questionType);
         }
 
         contentHelper.addInfoBox(document, INFO_BG, PRIMARY_COLOR, keyParagraph);
+
+        if (essayModelAnswer) {
+            document.add(buildFeedbackBoxTable(
+                    AssessmentPdfBundle.getPrintString("answer_model", context.getLocale()) + ":\n",
+                    question.getKey(),
+                    context,
+                    INFO_BG,
+                    PRIMARY_COLOR));
+        }
 
         if (Boolean.TRUE.equals(printSettings.getShowKeysFeedback())) {
             renderPrintAnswerKeyFeedback(document, context, question, questionType);
@@ -533,29 +545,27 @@ public class AssessmentPdfQuestionRenderer {
     }
 
     private void appendPrintAnswerKey(Paragraph keyParagraph, QuestionRenderContext context, AssessmentPdfQuestionModel question, Long questionType) {
-        if (Objects.equals(questionType, TypeIfc.ESSAY_QUESTION)) {
-            if (StringUtils.isNotBlank(question.getKey()) && !StringUtils.equals(question.getKey(), "null")) {
-                keyParagraph.add(new Chunk(AssessmentPdfBundle.getPrintString("answer_model", context.getLocale()) + ":\n", fontWithColor(context.smallBoldFont(), PRIMARY_COLOR)));
-                keyParagraph.add(new Chunk(contentHelper.cleanText(question.getKey()), fontWithColor(context.smallFont(), TEXT_PRIMARY)));
-            }
-        } else if (Objects.equals(questionType, TypeIfc.FILL_IN_BLANK)
+        if (Objects.equals(questionType, TypeIfc.FILL_IN_BLANK)
                 || Objects.equals(questionType, TypeIfc.FILL_IN_NUMERIC)
                 || Objects.equals(questionType, TypeIfc.MATCHING)) {
             if (StringUtils.isNotBlank(question.getKey())) {
-                keyParagraph.add(new Chunk(AssessmentPdfBundle.getPrintString("answer_key", context.getLocale()) + ": " + contentHelper.cleanText(question.getKey()), fontWithColor(context.smallFont(), TEXT_PRIMARY)));
+                // FIB keys are plain text; Jsoup would truncate literals like a<b.
+                keyParagraph.add(new Chunk(AssessmentPdfBundle.getPrintString("answer_key", context.getLocale()) + ": "
+                        + contentHelper.plainOrCleanText(question.getKey()), fontWithColor(context.smallFont(), TEXT_PRIMARY)));
             }
         } else if (Objects.equals(questionType, TypeIfc.CALCULATED_QUESTION)) {
             if (StringUtils.isNotBlank(question.getAnswerKeyCalcQuestion())) {
-                String calcKey = contentHelper.cleanText(question.getAnswerKeyCalcQuestion())
+                String calcKey = contentHelper.plainOrCleanText(question.getAnswerKeyCalcQuestion())
                         + " = "
-                        + contentHelper.cleanText(StringUtils.defaultString(question.getCalculatedQuestionAnswer()));
+                        + contentHelper.plainOrCleanText(StringUtils.defaultString(question.getCalculatedQuestionAnswer()));
                 keyParagraph.add(new Chunk(AssessmentPdfBundle.getPrintString("answer_key", context.getLocale()) + ": " + calcKey, fontWithColor(context.smallFont(), TEXT_PRIMARY)));
             }
         } else {
             // Prefer delivery-resolved key (covers Single Correct + partial credit HTML keys).
             String answerKey = firstNonBlankAnswerKey(question);
             if (StringUtils.isNotBlank(answerKey)) {
-                keyParagraph.add(new Chunk(AssessmentPdfBundle.getPrintString("answer_key", context.getLocale()) + ": " + contentHelper.cleanText(answerKey), fontWithColor(context.smallFont(), TEXT_PRIMARY)));
+                keyParagraph.add(new Chunk(AssessmentPdfBundle.getPrintString("answer_key", context.getLocale()) + ": "
+                        + contentHelper.plainOrCleanText(answerKey), fontWithColor(context.smallFont(), TEXT_PRIMARY)));
             }
         }
     }
@@ -618,7 +628,7 @@ public class AssessmentPdfQuestionRenderer {
     }
 
     private void populateFeedbackCell(PdfPCell cell, String label, String html, QuestionRenderContext context, Color accent) throws Exception {
-        if (feedbackHasEmbeddedContent(html)) {
+        if (contentHelper.hasEmbeddedHtmlContent(html)) {
             Paragraph labelPar = new Paragraph(label, fontWithColor(context.smallBoldFont(), accent));
             labelPar.setLeading(0f, 1.1f);
             labelPar.setSpacingBefore(0f);
@@ -638,15 +648,10 @@ public class AssessmentPdfQuestionRenderer {
         contentPar.setSpacingAfter(0f);
         contentPar.add(new Chunk(label, fontWithColor(context.smallBoldFont(), accent)));
         contentPar.add(contentHelper.createLatexParagraph(
-                contentHelper.cleanText(html),
+                contentHelper.plainOrCleanText(html),
                 fontWithColor(context.smallFont(), TEXT_PRIMARY),
                 context.isMathJaxEnabled()));
         cell.addElement(contentPar);
-    }
-
-    private static boolean feedbackHasEmbeddedContent(String html) {
-        return StringUtils.containsIgnoreCase(html, "<img")
-                || StringUtils.containsIgnoreCase(html, "<table");
     }
 
     // --- Student report flow ---
@@ -687,13 +692,18 @@ public class AssessmentPdfQuestionRenderer {
             PdfPTable responseTable = new PdfPTable(1);
             responseTable.setWidthPercentage(100f);
             responseTable.setSpacingBefore(AssessmentPdfStyle.ELEMENT_SPACING);
-            String responseText = question.getResponseText() != null
-                    ? contentHelper.cleanText(question.getResponseText())
-                    : AssessmentPdfBundle.getEvaluationString("no_answer", context.getLocale());
-            PdfPCell responseCell = new PdfPCell(new Paragraph(responseText, fontWithColor(BODY_FONT, TEXT_PRIMARY)));
+            PdfPCell responseCell = new PdfPCell();
             responseCell.setPadding(8f);
             responseCell.setBackgroundColor(BACKGROUND_GRAY);
             responseCell.setBorder(Rectangle.NO_BORDER);
+            if (question.getResponseText() != null) {
+                contentHelper.populateCellWithHtml(responseCell, question.getResponseText(),
+                        fontWithColor(BODY_FONT, TEXT_PRIMARY), context.isMathJaxEnabled(), null);
+            } else {
+                responseCell.addElement(new Paragraph(
+                        AssessmentPdfBundle.getEvaluationString("no_answer", context.getLocale()),
+                        fontWithColor(BODY_FONT, TEXT_PRIMARY)));
+            }
             responseTable.addCell(responseCell);
             document.add(responseTable);
         }
@@ -897,7 +907,7 @@ public class AssessmentPdfQuestionRenderer {
                     if (answerText.matches("-?\\d+")) {
                         multipleCell.setPhrase(new Paragraph("  " + answerText, fontWithColor(BODY_FONT, TEXT_PRIMARY)));
                     } else {
-                        multipleCell.setPhrase(new Paragraph("  " + AssessmentPdfSurveyText.toDisplayText(contentHelper.cleanText(answerText), context.getLocale()), fontWithColor(BODY_FONT, TEXT_PRIMARY)));
+                        multipleCell.setPhrase(new Paragraph("  " + AssessmentPdfSurveyText.toDisplayText(contentHelper.plainOrCleanText(answerText), context.getLocale()), fontWithColor(BODY_FONT, TEXT_PRIMARY)));
                     }
                 } else if (questionType.equals(TypeIfc.TRUE_FALSE)) {
                     String trueFalseText = StringUtils.defaultIfBlank(answer.getLabel(), answer.getText());
@@ -929,7 +939,7 @@ public class AssessmentPdfQuestionRenderer {
                 PdfPTable matchingAnswerTable = new PdfPTable(1);
                 matchingAnswerTable.setWidthPercentage(100f);
                 contentHelper.configureSplittableTable(matchingAnswerTable);
-                PdfPCell matchingAnswerCell = new PdfPCell(new Paragraph(contentHelper.cleanText(answer), fontWithColor(BODY_FONT, TEXT_PRIMARY)));
+                PdfPCell matchingAnswerCell = new PdfPCell(new Paragraph(contentHelper.plainOrCleanText(answer), fontWithColor(BODY_FONT, TEXT_PRIMARY)));
                 contentHelper.styleAnswerCell(matchingAnswerCell, 4f);
                 matchingAnswerTable.addCell(matchingAnswerCell);
                 document.add(matchingAnswerTable);
@@ -984,7 +994,7 @@ public class AssessmentPdfQuestionRenderer {
                 for (AssessmentPdfChoiceOptionModel choice : matchingItem.getChoices()) {
                     if (matchingItem.getResponse() != null && matchingItem.getResponse().equals(choice.getValue())) {
                         PdfPCell matchingCell = new PdfPCell(new Phrase(
-                                contentHelper.cleanText(choice.getLabel() + " ··> " + matchingItem.getText()),
+                                contentHelper.plainOrCleanText(choice.getLabel() + " ··> " + matchingItem.getText()),
                                 fontWithColor(BODY_FONT, TEXT_PRIMARY)));
                         contentHelper.styleAnswerCell(matchingCell, 4f);
                         if (matchingItem.getCorrect() != null) {
@@ -997,7 +1007,7 @@ public class AssessmentPdfQuestionRenderer {
                     }
                 }
                 if (!responseFound) {
-                    PdfPCell matchingCell = new PdfPCell(new Phrase(contentHelper.cleanText(matchingItem.getText()), fontWithColor(BODY_FONT, TEXT_PRIMARY)));
+                    PdfPCell matchingCell = new PdfPCell(new Phrase(contentHelper.plainOrCleanText(matchingItem.getText()), fontWithColor(BODY_FONT, TEXT_PRIMARY)));
                     contentHelper.styleAnswerCell(matchingCell, 4f);
                     matchingTable.addCell(matchingCell);
                     cellsAdded++;
@@ -1026,11 +1036,12 @@ public class AssessmentPdfQuestionRenderer {
             contentHelper.addCorrectResponseBox(document, question.getKey(), context.getLocale());
         } else if (Objects.equals(questionType, TypeIfc.ESSAY_QUESTION)) {
             if (question.isModelAnswerPresent()) {
-                Paragraph modelPar = new Paragraph();
-                modelPar.setLeading(0f, 1.2f);
-                modelPar.add(new Chunk(AssessmentPdfBundle.getEvaluationString("model", context.getLocale()), fontWithColor(AssessmentPdfStyle.SMALL_BOLD_FONT, PRIMARY_COLOR)));
-                modelPar.add(new Chunk(contentHelper.cleanText(question.getKey()), fontWithColor(AssessmentPdfStyle.SMALL_FONT, TEXT_PRIMARY)));
-                contentHelper.addInfoBox(document, INFO_BG, PRIMARY_COLOR, modelPar);
+                document.add(buildFeedbackBoxTable(
+                        AssessmentPdfBundle.getEvaluationString("model", context.getLocale()),
+                        question.getKey(),
+                        context,
+                        INFO_BG,
+                        PRIMARY_COLOR));
             }
         } else if (!Objects.equals(questionType, TypeIfc.MULTIPLE_CHOICE_SURVEY)
                 && !Objects.equals(questionType, TypeIfc.MATRIX_CHOICES_SURVEY)
