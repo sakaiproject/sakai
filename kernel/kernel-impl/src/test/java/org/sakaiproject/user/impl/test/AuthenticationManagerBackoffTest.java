@@ -113,15 +113,15 @@ public class AuthenticationManagerBackoffTest extends SakaiKernelTestBase {
     }
 
     @Test
-    public void delaysIncreaseAndStopAtThirtySeconds() throws Exception {
+    public void delaysIncreaseAndStopAtSixteenSeconds() throws Exception {
         failPasswords(user.getEid(), 5);
-        for (int delay : new int[] {2, 4, 8, 16, 30, 30}) {
+        for (int delay : new int[] {2, 4, 8, 16, 16, 16}) {
             advanceSeconds(delay - 1);
             assertRejected(user.getEid(), PASSWORD);
             advanceSeconds(1);
             assertRejected(user.getEid(), "wrong-at-" + now);
         }
-        advanceSeconds(30);
+        advanceSeconds(16);
         assertEquals(user.getId(), login(user.getEid(), PASSWORD));
     }
 
