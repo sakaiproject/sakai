@@ -46,8 +46,8 @@ public class PasswordLoginBackoff {
     public void init() {
         threshold = serverConfigurationService.getInt("login.password.backoff.threshold", 5);
         int windowSeconds = serverConfigurationService.getInt("login.password.backoff.windowSeconds", 900);
-        int maxDelaySeconds = serverConfigurationService.getInt("login.password.backoff.maxDelaySeconds", 30);
-        if (threshold < 1 || threshold > 100 || maxDelaySeconds < 2 || maxDelaySeconds > 60
+        int maxDelaySeconds = serverConfigurationService.getInt("login.password.backoff.maxDelaySeconds", 16);
+        if (threshold < 1 || threshold > 100 || maxDelaySeconds < 2 || maxDelaySeconds > 16
                 || windowSeconds <= maxDelaySeconds) {
             throw new IllegalArgumentException("Invalid password login backoff configuration");
         }
