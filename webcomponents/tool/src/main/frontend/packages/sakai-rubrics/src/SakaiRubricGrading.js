@@ -22,8 +22,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     group: { type: Boolean },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
     totalAsPercentage: { attribute: "total-as-percentage", type: Boolean },
+    deferSave: { attribute: "defer-save", type: Boolean },
 
     _evaluation: { state: true },
+    _pendingChanges: { state: true },
     _totalPoints: { state: true },
     _criteria: { state: true },
     _rubric: { state: true },
@@ -41,6 +43,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this._currentView = GRADING_RUBRIC;
 
     this.instanceSalt = Math.floor(Math.random() * Date.now());
+
+    this.deferSave = false;
+    this._pendingChanges = null;
+    this._saveContext = { promise: Promise.resolve() };
   }
 
   set entityId(value) {
@@ -52,6 +58,12 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   get entityId() { return this._entityId; }
 
   set evaluatedItemId(value) {
+
+    if (value !== this._evaluatedItemId) {
+      this._pendingChanges = null;
+      this._saveContext = { promise: Promise.resolve() };
+      this._evaluation = { criterionOutcomes: [] };
+    }
 
     this._evaluatedItemId = value;
     this._getAssociation();
@@ -122,13 +134,14 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
         ` : nothing}
 
         <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-1">
-          ${this._evaluation && this._evaluation.status === "DRAFT" && !this.isPeerOrSelf ? html`
+          ${this._evaluation && (this._evaluation.status === "DRAFT" || (this.deferSave && this._pendingChanges)) && !this.isPeerOrSelf ? html`
           <div class="sak-banner-warn">
             ${this.tr("draft_evaluation", [ this.tr(`draft_evaluation_${this.toolId}`) ])}
           </div>
-          ` : html`
+          ` : nothing}
+          ${!this._evaluation?.status && !this._pendingChanges ? html`
             <div class="mb-3"></div>
-          `}
+          ` : nothing}
           <div class="criterion grading style-scope sakai-rubric-criteria-grading">
           ${this._criteria.map(c => html`
             <div id="criterion_row_${c.id}" class="criterion-row">
@@ -256,15 +269,75 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   release() {
 
-    if (this._evaluation.criterionOutcomes.length) {
+    if (this.deferSave && this._pendingChanges) {
+      return this._savePendingChanges(2);
+    }
+
+    if (this._evaluation?.criterionOutcomes?.length) {
       // We only want to inform the enclosing tool about ratings changes
       // for an existing evaluation
-      this.dispatchRatingChanged(this._criteria, 2);
+      return this.dispatchRatingChanged(this._criteria, 2);
     }
+
+    return Promise.resolve();
   }
 
   save() {
-    this.dispatchRatingChanged(this._criteria, 1);
+
+    if (!this.deferSave) return this.dispatchRatingChanged(this._criteria, 1);
+    if (!this._pendingChanges && this._evaluation?.criterionOutcomes?.length) {
+      this.dispatchRatingChanged(this._criteria, 1);
+    }
+    return this._savePendingChanges(1);
+  }
+
+  hasPendingChanges() {
+    return this.deferSave && this._pendingChanges !== null;
+  }
+
+  _savePendingChanges(status) {
+
+    const pending = this._pendingChanges;
+    if (!pending) return Promise.resolve();
+
+    return this._saveEvaluation({ ...pending, status }).then(() => {
+      // Edits made after Save remain unsaved until the next explicit Save.
+      if (this._pendingChanges === pending) {
+        this._pendingChanges = null;
+        this.requestUpdate();
+      }
+    });
+  }
+
+  _saveEvaluation(evaluation) {
+
+    const context = this._saveContext;
+    const persist = async () => {
+      if (context !== this._saveContext) {
+        throw new Error("Rubric evaluation changed before saving");
+      }
+
+      // A queued POST may have created the evaluation since this save was requested.
+      const payload = { ...evaluation, id: this._evaluation.id, metadata: this._evaluation.metadata };
+      let url = `/api/sites/${this.siteId}/rubric-evaluations`;
+      if (payload.id) url += `/${payload.id}`;
+      const response = await fetch(url, {
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        method: payload.id ? "PUT" : "POST",
+      });
+      if (!response.ok) throw new Error("Server error while saving rubric evaluation");
+
+      const saved = await response.json();
+      if (context === this._saveContext) {
+        this._evaluation = saved;
+        this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
+      }
+      return saved;
+    };
+    // A failed request must not prevent a later explicit retry.
+    context.promise = context.promise.then(persist, persist);
+    return context.promise;
   }
 
   decorateCriteria() {
@@ -371,28 +444,14 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       evaluation.metadata = this._evaluation.metadata;
     }
 
-    let url = `/api/sites/${this.siteId}/rubric-evaluations`;
-    if (this._evaluation?.id) url += `/${this._evaluation.id}`;
-    fetch(url, {
-      body: JSON.stringify(evaluation),
-      headers: { "Content-Type": "application/json" },
-      method: this._evaluation?.id ? "PUT" : "POST",
-    })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-
-      throw new Error("Server error while saving rubric evaluation");
-    })
-    .then(data => {
-
+    // If defer-save is enabled, store the changes locally instead of saving immediately
+    if (this.deferSave && status === 1) {
+      this._pendingChanges = evaluation;
       this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
-      this._evaluation = data;
-      return Promise.resolve(this._evaluation);
-    })
-    .catch(error => console.error(error));
+      return Promise.resolve(evaluation);
+    }
+
+    return this._saveEvaluation(evaluation);
   }
 
   getOverriddenClass(ovrdvl, selected) {
@@ -505,13 +564,41 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     }
   }
 
-  cancel() {
+  async cancel() {
 
+    if (this.deferSave) {
+      this._pendingChanges = null;
+      const context = this._saveContext;
+      // An explicit Save remains saved; Cancel discards only subsequent edits.
+      await context.promise.catch(error => console.error(error));
+      if (context !== this._saveContext) return;
+      this._pendingChanges = null;
+      // Clear any ratings and restore original state
+      this._criteria.forEach(c => {
+        c.ratings.forEach(r => r.selected = false);
+        c.selectedvalue = 0;
+        c.selectedRatingId = 0;
+        c.pointoverride = "";
+        c.comments = "";
+      });
+
+      // If we have an existing evaluation, restore its values
+      if (this._evaluation && this._evaluation.criterionOutcomes) {
+        this.decorateCriteria();
+      }
+
+      this.updateTotalPoints();
+      this.querySelectorAll("sakai-rubric-grading-comment").forEach(gc => gc.requestUpdate());
+      this.requestUpdate();
+      return;
+    }
+
+    // Original behavior for auto-save mode
     if (this._evaluation.status !== "DRAFT") return;
 
     const url = `/api/sites/${this.siteId}/rubric-evaluations/${this._evaluation.id}/cancel`;
 
-    fetch(url, { credentials: "include" })
+    return fetch(url, { credentials: "include" })
     .then(r => {
 
       if (r.ok) {
@@ -537,20 +624,23 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       return;
     }
 
+    const context = this._saveContext;
     this.apiGetAssociation()
       .then(association => {
+        if (context !== this._saveContext) return;
 
         this.association = association;
         this._rubricId = association.rubricId;
-        this._getRubric(this._rubricId);
+        this._getRubric(this._rubricId, context);
       })
       .catch (error => console.error(error));
   }
 
-  _getRubric(rubricId) {
+  _getRubric(rubricId, context = this._saveContext) {
 
     this.apiGetRubric(rubricId)
       .then(rubric => {
+        if (context !== this._saveContext) return;
 
         this._rubric = rubric;
         this._criteria = this._rubric.criteria;
@@ -559,6 +649,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
           this.apiGetEvaluation()
             .then(evaluation => {
+              if (context !== this._saveContext) return;
 
               this._evaluation = evaluation || { criterionOutcomes: [] };
               this._criteria.forEach(c => {

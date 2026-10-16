@@ -18,6 +18,7 @@
 <!-- END RUBRICS JAVASCRIPT -->
 
 <div class="portletBody">
+  <div id="rubric-save-error" class="sak-banner-error" role="alert" hidden>$tlang.getString("rubric_save_failed")</div>
 
     #set($gradeType = $assignment.TypeOfGrade.ordinal())
     #navBarOnClick( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "")
@@ -63,17 +64,17 @@
                     <div class="leftColumn">
                         <input type="button" name="prevsubmission1" class="prevsubmission" value="$tlang.getString( "nav.prev" )"
                             #if( !$!goPTButton ) disabled="disabled" #end
-                            onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevsubmission', '$formattedText.escapeUrl( $!submissionReference )', null ); return false;"/>
+                            onclick="ASN.submitForm( 'gradeForm', 'prevsubmission', '$formattedText.escapeUrl( $!submissionReference )', null ); return false;"/>
                             #if ($gradeType != 1)
                                 <input type="button" name="prevungraded1" class="prevUngraded" value="$tlang.getString( "nav.prev.ungraded" )"
                                 #if( !$!goPrevUngradedEnabled ) disabled="disabled" #end
-                                   onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevUngraded', '$formattedText.escapeUrl( $!submissionReference )', null ); return false;"/>
+                                   onclick="ASN.submitForm( 'gradeForm', 'prevUngraded', '$formattedText.escapeUrl( $!submissionReference )', null ); return false;"/>
                             #end
                         <div class="small text-muted">$tlang.getString( "nav.message" )</div>
                     </div>
                     <div class="centreColumn">
                         <input type="button" name="cancelgradesubmission1" class="cancelgradesubmission" value="$tlang.getString( "nav.list" )"
-                               onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgradesubmission', '$formattedText.escapeUrl( $!submissionReference )', null ); return false;"/>
+                               onclick="ASN.submitForm( 'gradeForm', 'cancelgradesubmission', '$formattedText.escapeUrl( $!submissionReference )', null ); return false;"/>
                         <div id="subsOnlyContainer">
                             <input type="checkbox" id="chkSubsOnly1" name="chkSubsOnly1"
                                 #if( $subsOnlySelected ) checked="checked" #end
@@ -85,11 +86,11 @@
                         #if ($gradeType != 1)
                             <input type="button" name="nextungraded1" class="nextUngraded" value="$tlang.getString( "nav.next.ungraded" )"
                                 #if( !$!goNextUngradedEnabled ) disabled="disabled" #end
-                                onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextUngraded', '$formattedText.escapeUrl( $!submissionReference )', null ); return false;"/>
+                                onclick="ASN.submitForm( 'gradeForm', 'nextUngraded', '$formattedText.escapeUrl( $!submissionReference )', null ); return false;"/>
                         #end
                         <input type="button" name="nextsubmission1" class="nextsubmission" value="$tlang.getString( "nav.next" )"
                             #if( !$!goNTButton ) disabled="disabled" #end
-                               onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextsubmission', '$formattedText.escapeUrl( $!submissionReference )', null ); return false;"/>
+                               onclick="ASN.submitForm( 'gradeForm', 'nextsubmission', '$formattedText.escapeUrl( $!submissionReference )', null ); return false;"/>
                         <div class="small text-muted">$tlang.getString( "nav.message" )</div>
                     </div>
                 </fieldset>
@@ -408,6 +409,7 @@
                 #else
                     evaluated-item-owner-id="$submitterId"
                 #end
+                defer-save
             ></sakai-rubric-grading>
         </div>
         </div>
@@ -822,13 +824,13 @@
         <div class="navPanel">
             <div class="act">
                     <input type="button" id="save" accesskey="d" class="active" name="save" value="$tlang.getString('gen.savdragra')"
-                           onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"
+                           onclick="ASN.submitForm( 'gradeForm', 'savegrade', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"
                            title="$tlang.getString("gen.savdratit")"/>
 					<input type="button" id="save-and-return" accesskey="s" name="return" value="$tlang.getString('gen.retustud')"
-                           onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'returngrade', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"
+                           onclick="ASN.submitForm( 'gradeForm', 'returngrade', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"
                            title="$tlang.getString("gen.retustudtit")"/>
 					<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')"
-                           onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'previewgrade', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
+                           onclick="ASN.submitForm( 'gradeForm', 'previewgrade', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
 					<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="ASN.cancelGradeSubmission();" />
                     #if ($!prevSubmissionId)
                         <input type="hidden" name="prevSubmissionId" id="prevSubmissionId" value="$!prevSubmissionId"/>
@@ -862,17 +864,17 @@
                     <div class="leftColumn">
                         <input type="button" name="prevsubmission2" class="prevsubmission" value="$tlang.getString( "nav.prev" )"
                             #if( !$!goPTButton ) disabled="disabled" #end
-                               onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevsubmission', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
+                               onclick="ASN.submitForm( 'gradeForm', 'prevsubmission', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
                         #if ($gradeType != 1)
                             <input type="button" name="prevungraded2" class="prevUngraded" value="$tlang.getString( "nav.prev.ungraded" )"
                                 #if( !$!goPrevUngradedEnabled ) disabled="disabled" #end
-                                   onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevUngraded', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
+                                   onclick="ASN.submitForm( 'gradeForm', 'prevUngraded', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
                         #end
                         <div class="small text-muted">$tlang.getString( "nav.message" )</div>
                     </div>
                     <div class="centreColumn">
                         <input type="button" name="cancelgradesubmission2" class="cancelgradesubmission" value="$tlang.getString( "nav.list" )"
-                            onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgradesubmission', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
+                            onclick="ASN.submitForm( 'gradeForm', 'cancelgradesubmission', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
                         <div id="subsOnlyContainer">
                             <input type="checkbox" id="chkSubsOnly2" name="chkSubsOnly2"
                                 #if( $subsOnlySelected ) checked="checked" #end
@@ -884,11 +886,11 @@
                         #if ($gradeType != 1)
                             <input type="button" name="nextungraded2" class="nextUngraded" value="$tlang.getString( "nav.next.ungraded" )"
                                 #if( !$!goNextUngradedEnabled ) disabled="disabled" #end
-                                   onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextUngraded', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
+                                   onclick="ASN.submitForm( 'gradeForm', 'nextUngraded', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
                         #end
                         <input type="button" name="nextsubmission2" class="nextsubmission" value="$tlang.getString( "nav.next" )"
                             #if( !$!goNTButton ) disabled="disabled" #end
-                            onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextsubmission', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
+                            onclick="ASN.submitForm( 'gradeForm', 'nextsubmission', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
                         <div class="small text-muted">$tlang.getString( "nav.message" )</div>
                     </div>
                 </fieldset>
