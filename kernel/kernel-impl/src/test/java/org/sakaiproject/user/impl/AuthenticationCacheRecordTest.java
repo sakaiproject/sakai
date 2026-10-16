@@ -19,6 +19,14 @@ package org.sakaiproject.user.impl;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.ExpiryPolicy;
+
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.cache.CacheMode;
+import org.apache.ignite.configuration.CacheConfiguration;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -32,6 +40,7 @@ import org.springframework.cache.CacheManager;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 public class AuthenticationCacheRecordTest extends SakaiKernelTestBase {
 
@@ -52,6 +61,24 @@ public class AuthenticationCacheRecordTest extends SakaiKernelTestBase {
         CacheManager cacheManager = (CacheManager) getService("org.sakaiproject.ignite.SakaiCacheManager");
         records = cacheManager.getCache("org.sakaiproject.user.api.AuthenticationManager");
         records.evict(IDENTIFIER);
+    }
+
+    @Test
+    public void expiresAfterFiveMinutesWithoutExtendingOnAccess() {
+        IgniteCache<?, ?> nativeCache = (IgniteCache<?, ?>) records.getNativeCache();
+        CacheConfiguration<?, ?> configuration = nativeCache.getConfiguration(CacheConfiguration.class);
+        ExpiryPolicy policy = configuration.getExpiryPolicyFactory().create();
+        assertEquals(Duration.FIVE_MINUTES, policy.getExpiryForCreation());
+        assertNull(policy.getExpiryForAccess());
+        assertNull(policy.getExpiryForUpdate());
+        assertEquals(CacheMode.REPLICATED, configuration.getCacheMode());
+
+        CacheManager cacheManager = (CacheManager) getService("org.sakaiproject.ignite.SakaiCacheManager");
+        IgniteCache<?, ?> userCache = (IgniteCache<?, ?>) cacheManager
+                .getCache("org.sakaiproject.user.api.UserDirectoryService").getNativeCache();
+        CacheConfiguration<?, ?> userConfiguration = userCache.getConfiguration(CacheConfiguration.class);
+        assertEquals(new Duration(TimeUnit.MINUTES, 120),
+                userConfiguration.getExpiryPolicyFactory().create().getExpiryForCreation());
     }
 
     @Test
