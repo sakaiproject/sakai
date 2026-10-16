@@ -23,7 +23,6 @@ package org.sakaiproject.vm;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -136,9 +135,8 @@ public class VelocityServlet extends HttpServlet {
 
         response.setContentType("text/html;charset=UTF-8");
 
-        try (Writer writer = response.getWriter()) {
-            template.merge(context, writer);
-        }
+        // The container owns the writer; subsequent template includes still need it.
+        template.merge(context, response.getWriter());
     }
 
     protected Template handleRequest(HttpServletRequest request,
