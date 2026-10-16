@@ -20,6 +20,11 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
@@ -85,7 +90,10 @@ class LessonsTest extends SakaiUiTestBase {
 
         addSubpage("Promote Me");
 
-        sakai.toolClick("Lessons");
+        // Returning through the tool menu can retain the current subpage. More Tools
+        // belongs to the top-level page, so return through its breadcrumb explicitly.
+        page.locator("#subpage-breadcrumb-div").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Lessons").setExact(true)).click();
         openAddMorePages();
         chooseExistingPageForSiteNavigation();
 
@@ -135,7 +143,7 @@ class LessonsTest extends SakaiUiTestBase {
 
     @Test
     @Order(7)
-    void resizingEmbeddedImagePreservesItsMediaType() {
+    void resizingEmbeddedImagePreservesItsMediaType() throws IOException {
         if (sakaiUrl == null) {
             canCreateNewCourse();
         }
@@ -143,39 +151,57 @@ class LessonsTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
         sakai.toolClick("Lessons");
 
-        // The query string prevents extension fallback from masking a lost MIME type.
-        String imageUrl = "https://www.google.com/images/branding/googlelogo/2x/"
-            + "googlelogo_color_272x92dp.png?regression=SAK-52825";
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
-        page.locator("#addContentDiv .add-multimedia").click();
-        Locator addDialog = page.locator("#add-multimedia-dialog");
-        assertThat(addDialog).isVisible();
-        addDialog.locator("#new-url-section-collapse").click();
-        addDialog.locator("#mm-url").fill(imageUrl);
-        addDialog.locator("#mm-add-item").click();
+        // Sakai probes the URL server-side; keep that request and the browser's image
+        // request independent of public hosts and development TLS certificates.
+        HttpServer imageServer = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        byte[] png = Base64.getDecoder().decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgKF/1HwADvQIhA4EOVwAAAABJRU5ErkJggg==");
+        imageServer.createContext("/image.png", exchange -> {
+            exchange.getResponseHeaders().set("Content-Type", "image/png");
+            exchange.sendResponseHeaders(200, png.length);
+            try (OutputStream response = exchange.getResponseBody()) {
+                response.write(png);
+            }
+        });
+        imageServer.start();
+        try {
+            // The query string prevents extension fallback from masking a lost MIME type.
+            String imageUrl = "http://127.0.0.1:" + imageServer.getAddress().getPort()
+                + "/image.png?regression=SAK-52825";
+            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+            page.locator("#addContentDiv .add-multimedia").click();
+            Locator addDialog = page.locator("#add-multimedia-dialog");
+            assertThat(addDialog).isVisible();
+            addDialog.locator("#new-url-section-collapse").click();
+            addDialog.locator("#mm-url").fill(imageUrl);
+            addDialog.locator("#mm-add-item").click();
 
-        Locator embeddedImage = page.locator("img.multimedia");
-        assertThat(embeddedImage).hasAttribute("src", imageUrl);
-        assertThat(embeddedImage).isVisible();
-        embeddedImage.hover();
-        page.locator(".image-col .multimedia-edit").click();
-        Locator editDialog = page.locator("#edit-multimedia-dialog");
-        assertThat(editDialog).isVisible();
-        editDialog.locator("#width").fill("120");
-        editDialog.locator("#height").fill("80");
-        editDialog.locator("#alt").fill("Resized logo");
-        editDialog.locator("#edit-multimedia-item").click();
+            Locator embeddedImage = page.locator("img.multimedia");
+            assertThat(embeddedImage).hasAttribute("src", imageUrl);
+            assertThat(embeddedImage).hasJSProperty("naturalWidth", 1);
+            assertThat(embeddedImage).isVisible();
+            embeddedImage.hover();
+            page.locator(".image-col .multimedia-edit").click();
+            Locator editDialog = page.locator("#edit-multimedia-dialog");
+            assertThat(editDialog).isVisible();
+            editDialog.locator("#width").fill("120");
+            editDialog.locator("#height").fill("80");
+            editDialog.locator("#alt").fill("Resized logo");
+            editDialog.locator("#edit-multimedia-item").click();
 
-        assertThat(embeddedImage).isVisible();
-        assertThat(embeddedImage).hasAttribute("width", "120");
-        assertThat(embeddedImage).hasAttribute("height", "80");
-        assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
-        page.reload();
-        assertThat(embeddedImage).isVisible();
-        assertThat(embeddedImage).hasAttribute("width", "120");
-        assertThat(embeddedImage).hasAttribute("height", "80");
-        assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
-        assertThat(page.locator(".image-col .mm-type")).hasText("image/png");
+            assertThat(embeddedImage).isVisible();
+            assertThat(embeddedImage).hasAttribute("width", "120");
+            assertThat(embeddedImage).hasAttribute("height", "80");
+            assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
+            page.reload();
+            assertThat(embeddedImage).isVisible();
+            assertThat(embeddedImage).hasAttribute("width", "120");
+            assertThat(embeddedImage).hasAttribute("height", "80");
+            assertThat(embeddedImage).hasAttribute("alt", "Resized logo");
+            assertThat(page.locator(".image-col .mm-type")).hasText("image/png");
+        } finally {
+            imageServer.stop(0);
+        }
     }
 
     private void restoreTopLevelPageAfterRemoval(String title, java.util.function.Consumer<String> removePage) {

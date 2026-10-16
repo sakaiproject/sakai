@@ -23,7 +23,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.13.0",
-    "@faker-js/faker": "^9.6.0",
+    "@faker-js/faker": "^10.5.0",
     "@lion/ui": "^0.11.2",
     "@open-wc/testing": "^3.0.0-next.5",
     "@sakai-ui/sakai-account": "workspace:*",
@@ -61,8 +61,8 @@
     "@sakai-ui/sakai-timer-bar": "workspace:*",
     "@sakai-ui/sakai-user-photo": "workspace:*",
     "@sakai-ui/sakai-widgets": "workspace:*",
-    "@web/test-runner": "^0.20.0",
-    "@web/test-runner-playwright": "^0.11.0",
+    "@web/test-runner": "1.0.0",
+    "@web/test-runner-playwright": "1.0.0",
     "esbuild": "^0.27.3",
     "eslint": "^9.13.0",
     "eslint-plugin-html": "^8.1.2",
@@ -72,13 +72,13 @@
     "globals": "^15.11.0",
     "imagesloaded": "^5.0.0",
     "koa-proxies": "^0.12.4",
-    "lerna": "^9.0.4",
     "lint-staged": "^15.2.10",
     "chart.js": "^4.5.0",
     "lit": "^3.2.1",
     "lit-analyzer": "^2.0.3",
     "sinon": "^21.0.1",
     "sortablejs": "^1.15.3",
-    "temporal-polyfill": "0.2.5"
+    "temporal-polyfill": "0.2.5",
+    "typescript": "^5.9.3"
   }
 }

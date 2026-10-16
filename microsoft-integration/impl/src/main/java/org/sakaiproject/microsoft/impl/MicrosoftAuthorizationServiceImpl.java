@@ -209,7 +209,7 @@ public class MicrosoftAuthorizationServiceImpl implements MicrosoftAuthorization
 	            return true;
 			}
 		} catch(Exception e) {
-			log.error("Error processing authorization code for user={}", userId);
+			log.error("Error processing authorization code for user={}", userId, e);
 		}
 		return false;
 	}

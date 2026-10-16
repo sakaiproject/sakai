@@ -327,18 +327,6 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		return null;
 	}
 
-	private EntityProducer getProducer(Reference ref)
-	{
-		try
-		{
-			return ref.getEntityProducer();
-		}
-		catch (Exception ex)
-		{
-		}
-		return null;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 

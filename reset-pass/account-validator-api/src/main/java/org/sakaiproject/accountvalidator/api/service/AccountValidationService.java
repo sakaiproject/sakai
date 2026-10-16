@@ -22,7 +22,9 @@ package org.sakaiproject.accountvalidator.api.service;
 import java.util.List;
 
 import org.sakaiproject.accountvalidator.api.exception.ValidationException;
+import org.sakaiproject.accountvalidator.api.dto.PasswordResetRequest;
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.model.PasswordReset;
 
 /**
  * This service handles the business logic for the account validation tool.
@@ -132,4 +134,16 @@ public interface AccountValidationService {
 	 * @param token the validation token
 	 */
 	void resendValidation(String token);
+
+    /**
+     * Send or resend an unexpired reset link without changing account-validation state.
+     * @return the reset record, or null when sending is suppressed by per-account limits
+     */
+    PasswordReset sendPasswordReset(String userId);
+
+    /** Find an unexpired, unconsumed password-reset token independently of account validation. */
+    PasswordReset getPasswordResetByToken(String token);
+
+    /** Check and consume a reset token before changing the password. Failed updates require a fresh link. */
+    PasswordResetResult completePasswordReset(String token, PasswordResetRequest request);
 }

@@ -43,8 +43,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -326,15 +324,25 @@ public class CalendarBean {
 	}
 	
 	
+	/**
+	 * Start/end millis for the given calendar day in the user time zone.
+	 * Package-private for unit tests.
+	 */
+	long[] dayBoundsMillis(Calendar day, TimeZone timeZone) {
+		return new long[] {
+				CalendarDayTimes.startOfDayMillis(day, timeZone),
+				CalendarDayTimes.endOfDayMillis(day, timeZone)
+		};
+	}
+
 	private CalendarEventVector getScheduleEventsForDay(Calendar c) {
 		CalendarEventVector cev = new CalendarEventVector();
 		
 		TimeZone timeZone = getCurrentUserTimezone();
-		DateTime start = new DateTime(c).withZone(DateTimeZone.forTimeZone(timeZone)).withTime(0, 0, 0, 0);
-		log.debug("looking for events for: {}", start);
-		Time sod = M_ts.newTime(start.getMillis());
-		DateTime endOfDay = new DateTime(c).withZone(DateTimeZone.forTimeZone(timeZone)).withTime(23, 59, 59, 0);
-		Time eod = M_ts.newTime(endOfDay.getMillis());
+		long[] bounds = dayBoundsMillis(c, timeZone);
+		log.debug("looking for events for: {}", bounds[0]);
+		Time sod = M_ts.newTime(bounds[0]);
+		Time eod = M_ts.newTime(bounds[1]);
 		TimeRange range = M_ts.newTimeRange(sod, eod);
 		
 		Iterator<CalendarEvent> i = getEventsFromSchedule().iterator();

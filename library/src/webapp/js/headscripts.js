@@ -763,10 +763,6 @@ function includeWebjarLibrary(library, options = {}) {
 			jsReferences.push('/jstree.min.js');
 			cssReferences.push('/themes/default/style.min.css');
 			break;
-		case 'multiselect-two-sides':
-			libraryVersion = "2.5.5";
-			jsReferences.push('/dist/js/multiselect.min.js');
-			break;
 		case 'fontawesome-iconpicker':
 			libraryVersion = "1.4.1";
 			jsReferences.push('/dist/js/fontawesome-iconpicker.min.js');

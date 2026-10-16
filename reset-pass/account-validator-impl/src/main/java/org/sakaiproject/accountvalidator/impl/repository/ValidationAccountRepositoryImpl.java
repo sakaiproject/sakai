@@ -19,10 +19,14 @@
  */
 package org.sakaiproject.accountvalidator.impl.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import java.time.Instant;
+import org.sakaiproject.accountvalidator.api.model.PasswordReset;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -35,6 +39,7 @@ import java.util.Optional;
  * Extends SpringCrudRepositoryImpl for standard CRUD operations and implements
  * custom query methods using Hibernate Criteria API.
  */
+@Slf4j
 @Transactional
 public class ValidationAccountRepositoryImpl extends SpringCrudRepositoryImpl<ValidationAccount, Long> implements ValidationAccountRepository {
 
@@ -64,13 +69,21 @@ public class ValidationAccountRepositoryImpl extends SpringCrudRepositoryImpl<Va
         CriteriaQuery<ValidationAccount> query = cb.createQuery(ValidationAccount.class);
         Root<ValidationAccount> root = query.from(ValidationAccount.class);
 
+        String id = org.sakaiproject.entitybroker.EntityReference.getIdFromRef(userId);
+        String reference = org.sakaiproject.user.api.UserDirectoryService.REFERENCE_ROOT + "/" + id;
         query.select(root)
-                .where(cb.equal(root.get("userId"), userId));
+                .where(root.get("userId").in(id, reference));
 
-        ValidationAccount result = sessionFactory.getCurrentSession()
+        List<ValidationAccount> results = sessionFactory.getCurrentSession()
                 .createQuery(query)
-                .uniqueResult();
-		return Optional.ofNullable(result);
+                .getResultList();
+        if (results.size() > 1) {
+            log.warn("Multiple validation accounts match user {}", id);
+        }
+        return results.stream()
+                .filter(account -> userId.equals(account.getUserId()))
+                .findFirst()
+                .or(() -> results.stream().findFirst());
 	}
 
 	@Override
@@ -88,4 +101,43 @@ public class ValidationAccountRepositoryImpl extends SpringCrudRepositoryImpl<Va
 				.createQuery(query)
 				.getResultList();
 	}
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean consumePasswordReset(String token, Instant earliestSent, Instant received) {
+        return sessionFactory.getCurrentSession().createMutationQuery(
+                "update PasswordReset set consumedAt = :received, version = version + 1 "
+                + "where token = :token and consumedAt is null and createdAt >= :earliestSent")
+                .setParameter("received", received)
+                .setParameter("token", token)
+                .setParameter("earliestSent", earliestSent)
+                .executeUpdate() == 1;
+    }
+
+    @Override
+    public Optional<PasswordReset> findPasswordResetByToken(String token) {
+        if (token == null) {
+            return Optional.empty();
+        }
+        return sessionFactory.getCurrentSession().createQuery(
+                "from PasswordReset where token = :token", PasswordReset.class)
+                .setParameter("token", token).uniqueResultOptional();
+    }
+
+    @Override
+    public Optional<PasswordReset> findPasswordResetByUserId(String userId) {
+        return Optional.ofNullable(sessionFactory.getCurrentSession().find(PasswordReset.class, userId));
+    }
+
+    @Override
+    public PasswordReset lockPasswordReset(String userId) {
+        return sessionFactory.getCurrentSession().find(PasswordReset.class, userId, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+    }
+
+    @Override
+    public PasswordReset savePasswordReset(PasswordReset reset) {
+        PasswordReset managed = sessionFactory.getCurrentSession().merge(reset);
+        sessionFactory.getCurrentSession().flush();
+        return managed;
+    }
+
 }

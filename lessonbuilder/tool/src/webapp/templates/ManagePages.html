@@ -22,38 +22,50 @@
     <div class="navIntraTool" rsf:id="return-div">
       <a href="#" rsf:id="return"></a>
     </div>
-    <h2 rsf:id="title"></h2>
-    <p rsf:id="onlyseen" class="instructionPanel"><span rsf:id="msg=simplepage.page.onlyseen"></span></p>
-    <p rsf:id="sharedpageexplanation" class="instructionPanel">
-      <span rsf:id="msg=simplepage.sharedpage" class="page-picker-note"></span>
+    <div class="page-header">
+      <h1 rsf:id="title"></h1>
+    </div>
+    <p rsf:id="onlyseen" class="sak-banner-info"><span rsf:id="msg=simplepage.page.onlyseen"></span></p>
+    <p rsf:id="sharedpageexplanation" class="sak-banner-info">
+      <span class="badge rounded-pill text-bg-info page-picker-badge">
+        <span class="bi bi-copy" aria-hidden="true"></span>
+        <span rsf:id="msg=simplepage.sharedpage.label"></span>
+      </span>
       <span rsf:id="msg=simplepage.sharedpageexplanation"></span>
     </p>
 
     <section rsf:id="in-lessons-section" class="manage-pages-section" aria-labelledby="in-lessons-heading">
       <div class="manage-pages-section-header">
-        <h3 id="in-lessons-heading" rsf:id="msg=simplepage.chooser.in-use"></h3>
-        <div class="manage-pages-item-actions">
-          <button type="button" id="show-items" class="btn btn-transparent link-color text-decoration-underline"><span rsf:id="msg=simplepage.page.showallitems"></span></button>
-          <button type="button" id="hide-items" class="btn btn-transparent link-color text-decoration-underline" hidden="hidden"><span rsf:id="msg=simplepage.page.hideallitems"></span></button>
-        </div>
+        <h3 id="in-lessons-heading" rsf:id="msg=simplepage.chooser.in-use" class="h5 m-0"></h3>
       </div>
+      <div class="manage-pages-item-actions">
+        <button type="button" id="show-items" class="btn btn-transparent link-color text-decoration-underline"><span rsf:id="msg=simplepage.page.showallitems"></span></button>
+        <button type="button" id="hide-items" class="btn btn-transparent link-color text-decoration-underline" hidden="hidden"><span rsf:id="msg=simplepage.page.hideallitems"></span></button>
+      </div>
+
       <ul id="active-pages" class="pageList mb-0">
-        <li rsf:id="active-page:">
-          <span rsf:id="status-image" class="bi page-picker-status" aria-hidden="true"></span>
-          <a href="#" rsf:id="link" class="page-picker-link">
-            <span rsf:id="link-note" class="lb-offscreen"></span>
-            <span rsf:id="link-text"></span>
-          </a>
-          <span rsf:id="shared" class="page-picker-note small"></span>
-          <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span>
-          <span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
-          <span rsf:id="item-list-toggle">
-            <button type="button" class="btn btn-transparent link-color p-1 itemListToggle" aria-expanded="false">
-              <span class="bi bi-caret-down-fill" aria-hidden="true"></span>
-              <span class="item-list-toggle-label-show lb-offscreen" rsf:id="msg=simplepage.page.showitems"></span>
-              <span class="item-list-toggle-label-hide lb-offscreen" rsf:id="msg=simplepage.page.hideitems" hidden="hidden"></span>
-            </button>
-          </span>
+        <li rsf:id="active-page:" class="page-picker-item">
+          <div class="page-picker-row">
+            <span rsf:id="status-image" class="bi page-picker-status" aria-hidden="true"></span>
+            <div class="page-picker-content">
+              <span class="page-picker-title">
+                <a href="#" rsf:id="link" class="page-picker-link">
+                  <span rsf:id="link-note" class="lb-offscreen"></span>
+                  <span rsf:id="link-text"></span>
+                </a>
+              </span>
+              <span class="page-picker-meta"><span rsf:id="shared" class="badge rounded-pill text-bg-info page-picker-badge"><span class="bi bi-copy" aria-hidden="true"></span><span rsf:id="shared-text"></span></span><span rsf:id="release" class="page-picker-release"><span rsf:id="release-icon" class="bi" aria-hidden="true"></span><span rsf:id="release-text"></span></span></span>
+              <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span>
+              <span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+            </div>
+            <span rsf:id="item-list-toggle">
+              <button type="button" class="btn btn-transparent link-color p-1 itemListToggle" aria-expanded="false">
+                <span class="bi bi-caret-down-fill" aria-hidden="true"></span>
+                <span class="item-list-toggle-label-show lb-offscreen" rsf:id="msg=simplepage.page.showitems"></span>
+                <span class="item-list-toggle-label-hide lb-offscreen" rsf:id="msg=simplepage.page.hideitems" hidden="hidden"></span>
+              </button>
+            </span>
+          </div>
           <div rsf:id="item-list-container" class="itemListContainer">
             <ul rsf:id="item-list" class="itemList" hidden="hidden">
               <li rsf:id="item:">
@@ -62,7 +74,7 @@
                     <span class="bi bi-asterisk small" aria-hidden="true"></span>
                     <span class="lb-offscreen" rsf:id="msg=simplepage.status.required"></span>
                   </span>
-                  <span rsf:id="not-required-image" class="bi invisible page-item-requirement"></span>
+                  <span rsf:id="not-required-image" class="bi invisible page-item-requirement" aria-hidden="true"></span>
                   <span rsf:id="item-icon" aria-hidden="true" class="bi page-item-icon"></span>
                   <span rsf:id="name"></span>
                 </div>
@@ -74,32 +86,39 @@
     </section>
 
     <section rsf:id="removed-pages-section" class="manage-pages-section removed-pages-section border-top mt-3 pt-3" aria-labelledby="removed-pages-heading">
-      <h3 id="removed-pages-heading" rsf:id="msg=simplepage.chooser.unused"></h3>
-      <p rsf:id="removed-pages-description" id="removed-pages-description" class="instructionPanel rounded py-2 px-3 mb-2"></p>
+      <h3 id="removed-pages-heading" rsf:id="msg=simplepage.chooser.unused" class="h5 m-0"></h3>
+      <p rsf:id="removed-pages-description" id="removed-pages-description" class="sak-banner-info mb-2"></p>
 
       <form action="#" rsf:id="removed-pages-form" id="removed-pages-form">
         <input type="hidden" rsf:id="csrf" />
         <span rsf:id="page-selection"></span>
         <p rsf:id="chooseall" class="removed-pages-select-all d-flex align-items-center gap-2 mb-2">
-          <input type="checkbox" id="chooseall" />
+          <input type="checkbox" id="chooseall" class="form-check-input" />
           <label for="chooseall"><span rsf:id="msg=simplepage.page.chooseall"></span></label>
         </p>
 
         <ul id="removed-pages" class="pageList mb-0">
-          <li rsf:id="removed-page:" class="removed-page">
-            <span class="removed-page-delete-control">
-              <input type="checkbox" rsf:id="select-for-deletion" class="deletebox" aria-describedby="removed-pages-description" />
-              <label rsf:id="select-for-deletion-label" class="lb-offscreen"></label>
-            </span>
-            <a href="#" rsf:id="link" class="page-picker-link">
-              <span rsf:id="link-note" class="lb-offscreen"></span>
-              <span rsf:id="link-text"></span>
-            </a>
+          <li rsf:id="removed-page:" class="page-picker-item removed-page">
+            <div class="page-picker-row">
+              <span class="removed-page-delete-control">
+                <input type="checkbox" rsf:id="select-for-deletion" class="form-check-input deletebox" aria-describedby="removed-pages-description" />
+                <label rsf:id="select-for-deletion-label" class="lb-offscreen"></label>
+              </span>
+              <div class="page-picker-content">
+                <span class="page-picker-title">
+                  <a href="#" rsf:id="link" class="page-picker-link">
+                    <span rsf:id="link-note" class="lb-offscreen"></span>
+                    <span rsf:id="link-text"></span>
+                    <span class="bi bi-box-arrow-up-right page-picker-preview-icon" aria-hidden="true"></span>
+                  </a>
+                </span>
+              </div>
+            </div>
           </li>
         </ul>
 
-        <p class="removed-pages-actions border-top mt-2 pt-2 mb-0">
-          <button type="button" rsf:id="delete-button" id="delete-button" class="btn btn-danger" disabled="disabled"></button>
+        <p class="removed-pages-actions mt-3">
+          <button type="button" rsf:id="delete-button" id="delete-button" class="btn btn-primary" disabled="disabled"></button>
         </p>
 
         <dialog id="delete-pages-dialog" aria-labelledby="delete-pages-dialog-title">

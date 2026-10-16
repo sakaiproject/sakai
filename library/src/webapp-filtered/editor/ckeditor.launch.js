@@ -79,18 +79,6 @@ function addClassOnInstanceReady(evt){
 // The config object allows for name-based config options to be passed.
 // The w and h parameters should be removed as soon as their uses can be migrated.
 sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
-    //http://www.quirksmode.org/js/findpos.html
-    function findPos(obj) {
-        var curleft = curtop = 0;
-        if (obj.offsetParent) {
-            do {
-                curleft += obj.offsetLeft;
-                curtop += obj.offsetTop;
-            } while (obj = obj.offsetParent);
-            return [curleft,curtop];
-        }
-    }
-
     //http://stackoverflow.com/a/1038781/3708872
     function getWidth() {
       if (self.innerHeight) {

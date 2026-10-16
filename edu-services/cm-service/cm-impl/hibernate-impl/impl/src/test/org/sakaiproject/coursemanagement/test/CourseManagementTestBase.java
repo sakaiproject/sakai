@@ -20,10 +20,25 @@
  **********************************************************************************/
 package org.sakaiproject.coursemanagement.test;
 
+import org.junit.Before;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 @ContextConfiguration(locations={"/spring-test.xml", "/spring-config-test.xml"})
 public abstract class CourseManagementTestBase extends AbstractTransactionalJUnit4SpringContextTests {
 
+    @Autowired
+    protected SecurityService securityService;
+
+    @Before
+    public void allowCourseManagementAdministration() {
+        reset(securityService);
+        when(securityService.unlock(CourseManagementService.SECURE_CM_ADMIN,
+                CourseManagementService.ENTITY_CM_ADMIN)).thenReturn(true);
+    }
 }

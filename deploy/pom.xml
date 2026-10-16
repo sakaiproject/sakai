@@ -75,6 +75,13 @@
             <artifactId>jakarta.activation-api</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- The shared-library deployer copies direct dependencies only. Activation's
+             registry provider is required to discover all Jakarta Mail MIME handlers. -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-activation</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>jakarta.xml.soap</groupId>
             <artifactId>jakarta.xml.soap-api</artifactId>
@@ -453,11 +460,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <scope>compile</scope>
@@ -594,11 +596,6 @@
         </dependency>
         <!-- portal -->
         <dependency>
-            <groupId>org.codehaus.castor</groupId>
-            <artifactId>castor</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>javax.portlet</groupId>
             <artifactId>portlet-api</artifactId>
             <scope>compile</scope>
@@ -704,11 +701,6 @@
 
         <!-- spring related -->
         <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml</groupId>
             <artifactId>classmate</artifactId>
             <scope>compile</scope>
@@ -748,11 +740,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -970,6 +957,11 @@
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>
+            <artifactId>accessors-smart</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
             <scope>compile</scope>
         </dependency>

@@ -272,9 +272,10 @@ class CalendarTest extends SakaiUiTestBase {
 
         Locator submit = page.locator("input[name=\"" + submitButtonName + "\"]:visible").first();
         assertThat(submit).isVisible();
-        submit.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
-        assertThat(page.locator("body")).containsText(Pattern.compile("Calendar", Pattern.CASE_INSENSITIVE));
+        // CKEditor can resize the form while it initializes. Let Playwright wait for a
+        // stable button instead of forcing a click at coordinates that can move.
+        submit.click();
+        assertThat(submit).hasCount(0);
     }
 
     private void switchToListView() {

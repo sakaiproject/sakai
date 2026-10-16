@@ -48,6 +48,12 @@ import java.util.UUID;
 
 import jakarta.annotation.Resource;
 
+import org.mockito.ArgumentCaptor;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.sakaiproject.lti.api.LTIService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,6 +96,7 @@ import org.springframework.test.util.AopTestUtils;
 @ContextConfiguration(classes = {AssignmentTestConfiguration.class})
 public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUnit4SpringContextTests {
 
+    @Autowired private LTIService ltiService;
     @Autowired private AssignmentService assignmentService;
     @Resource(name = "org.sakaiproject.announcement.api.AnnouncementService")
     private AnnouncementService announcementService;
@@ -125,6 +132,37 @@ public class AssignmentTransferCopyEntitiesTest extends AbstractTransactionalJUn
         when(sessionManager.getCurrentSessionUserId()).thenReturn("test-user-id");
 
         getAssignmentServiceImpl().setResourceLoader(resourceLoader);
+    }
+
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void registeredCopyCallbackUsesServiceTransaction() {
+        String fromContext = UUID.randomUUID().toString();
+        String toContext = UUID.randomUUID().toString();
+        stubContextPermissions(toContext);
+        Assignment source = createPublishedAssignment(fromContext);
+        source.setInstructions("Content to copy");
+        updateAssignment(source);
+        List<Boolean> transactions = new ArrayList<>();
+        when(ltiService.fixLtiLaunchUrls(anyString(), eq(fromContext), eq(toContext), any(Map.class)))
+            .thenAnswer(invocation -> {
+                transactions.add(TransactionSynchronizationManager.isActualTransactionActive());
+                return invocation.getArgument(0);
+            });
+        ArgumentCaptor<EntityProducer> producer = ArgumentCaptor.forClass(EntityProducer.class);
+        verify(entityManager).registerEntityProducer(producer.capture(), eq(AssignmentServiceConstants.REFERENCE_ROOT));
+        Assert.assertFalse(TransactionSynchronizationManager.isActualTransactionActive());
+
+        ((EntityTransferrer) producer.getValue()).transferCopyEntities(fromContext, toContext,
+            List.of(source.getId()), List.of());
+
+        Collection<Assignment> copies = assignmentService.getAssignmentsForContext(toContext);
+        assertEquals(1, copies.size());
+        assertEquals("Content to copy", copies.iterator().next().getInstructions());
+        assertEquals("The registered copy callback must retain the service transaction between repository calls",
+            List.of(true), transactions);
+        Assert.assertFalse(TransactionSynchronizationManager.isActualTransactionActive());
     }
 
     @Test

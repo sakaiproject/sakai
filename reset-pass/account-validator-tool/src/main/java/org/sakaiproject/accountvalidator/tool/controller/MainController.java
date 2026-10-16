@@ -17,22 +17,23 @@ package org.sakaiproject.accountvalidator.tool.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import org.sakaiproject.serialization.MapperFactory;
+import org.sakaiproject.accountvalidator.api.dto.PasswordResetRequest;
+import org.sakaiproject.accountvalidator.api.service.PasswordResetResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormat;
-import org.joda.time.format.PeriodFormatter;
 import org.json.simple.JSONObject;
 import org.sakaiproject.accountvalidator.api.dto.ValidationClaim;
 import org.sakaiproject.accountvalidator.api.exception.ValidationException;
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.model.PasswordReset;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.accountvalidator.tool.constants.AccountValidatorConstants;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -53,6 +54,7 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.util.DurationFormat;
 import org.sakaiproject.util.ExternalTrustedEvidence;
 import org.sakaiproject.util.IdPwEvidence;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +66,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
@@ -71,10 +75,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -113,9 +115,6 @@ public class MainController {
 
     @Autowired
     private UsageSessionService usageSessionService;
-
-    @Autowired
-    private EmailTemplateService emailTemplateService;
 
     @Autowired
     protected SiteService siteService;
@@ -206,6 +205,9 @@ public class MainController {
             log.debug("Not a valid validation code (POST)");
             return null;  
         } else {
+            if (Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET).equals(va.getAccountStatus())) {
+                return resetResponse(PasswordResetResult.INVALID_TOKEN, userLocale).toJSONString();
+            }
             ObjectMapper mapper = new ObjectMapper();
             mapper.readerForUpdating(va).readValue(requestForm);
             return validateAccount(va, userLocale).toJSONString();
@@ -230,61 +232,17 @@ public class MainController {
             return AccountValidatorConstants.ERROR_TEMPLATE;
         }
 
-        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
-
-        if (va == null) {
-            log.debug("Not a valid validation code");
-            model.addAttribute("warnMsg", messageSource.getMessage("msg.noSuchValidation", new String[]{tokenId}, userLocale));
+        PasswordReset reset = avService.getPasswordResetByToken(tokenId);
+        if (reset == null) {
+            model.addAttribute("warnMsg", messageSource.getMessage("reset.invalid", null, userLocale));
             return AccountValidatorConstants.ERROR_TEMPLATE;
-        } else if (!va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET)) {
-            // this form is not appropriate, no such validation of the required account status
-            model.addAttribute("warnMsg", messageSource.getMessage("msg.noSuchValidation", new String[]{va.getValidationToken()}, userLocale));
-            return AccountValidatorConstants.ERROR_TEMPLATE;
-        } else if (ValidationAccount.STATUS_CONFIRMED.equals(va.getStatus())) {
-            model.addAttribute("warnMsg", messageSource.getMessage("msg.alreadyValidated", null, userLocale));
-            model.addAttribute("requestPass", addResetPassLink(model, va, userLocale));
-            return AccountValidatorConstants.ERROR_TEMPLATE;
-        } else if (ValidationAccount.STATUS_EXPIRED.equals(va.getStatus())) {
-            /*If accountValidator.maxPasswordResetMinutes is configured, 
-             *we give them an approrpiate message, otherwise we give them the default*/
-            if (resetMinutes > 0) {
-                model.addAttribute("warnMsg",  messageSource.getMessage("msg.expiredValidationRealTime", new String[]{expirationTime}, userLocale));
-                return AccountValidatorConstants.ERROR_TEMPLATE;
-            } else {
-                //give them the default
-                model.addAttribute("warnMsg",  messageSource.getMessage("msg.alreadyValidated", new String[]{va.getValidationToken()}, userLocale));
-                model.addAttribute("requestPass", addResetPassLink(model, va, userLocale));
-                return AccountValidatorConstants.ERROR_TEMPLATE;
-            }
-        } else if (sendLegacyLinksEnabled()) {
-            return AccountValidatorConstants.VALIDATE_REDIRECT+tokenId;
-        } else {
-            /* Password resets should go quickly. If it takes longer than accountValidator.maxPasswordResetMinutes, 
-             * it could be an intruder who stumbled on an old validation token. */
-            if (va.getAccountStatus() != null)  {
-                //get the time limit and convert to millis
-                long maxMillis = resetMinutes * 60 * 1000;
-                //the time when the validation token was sent to the email server
-                long sentTime = va.getValidationSent().toEpochMilli();
-
-                if (System.currentTimeMillis() - sentTime > maxMillis) {
-                    //it's been too long, so invalide the token and stop the user
-                    va.setStatus(ValidationAccount.STATUS_EXPIRED);
-                    model.addAttribute("warnMsg",  messageSource.getMessage("msg.expiredValidationRealTime", new String[]{expirationTime}, userLocale));
-                    model.addAttribute("requestPass", addResetPassLink(model, va, userLocale));
-                    return AccountValidatorConstants.ERROR_TEMPLATE;                    
-                }
-            }
         }
-
-        User u = null;
-
-        try {  
-            u = userDirectoryService.getUser(va.getUserId());
-            log.debug("user ID: "+u.getEid());
-        } catch (UserNotDefinedException e){
-            log.error("user ID does not exist for ValidationAccount with tokenId: " + va.getValidationToken());
-            model.addAttribute("warnMsg", messageSource.getMessage("validate.userNotDefined", new String[]{serverConfigurationService.getString("ui.service", "Sakai")}, userLocale));
+        User u;
+        try {
+            u = userDirectoryService.getUser(reset.getUserId());
+        } catch (UserNotDefinedException e) {
+            log.warn("No user found for password reset for user {}", reset.getUserId(), e);
+            model.addAttribute("warnMsg", messageSource.getMessage("reset.invalid", null, userLocale));
             return AccountValidatorConstants.ERROR_TEMPLATE;
         }
 
@@ -303,16 +261,15 @@ public class MainController {
         @RequestParam(value="tokenId", required = false) String tokenId) throws JsonProcessingException { 
 
         Locale userLocale = localeResolver(req, response);
-        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
-
-        if (va == null) {
-            log.debug("Not a valid validation code (POST)");
-            return null;
-        } else {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.readerForUpdating(va).readValue(requestForm);
-            return validateAccount(va,userLocale).toJSONString();
+        PasswordResetRequest input;
+        try {
+            input = MapperFactory.createDefaultJsonMapper().readerFor(PasswordResetRequest.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).readValue(requestForm);
+        } catch (JsonProcessingException e) {
+            // Do not attach Jackson's exception: its message can contain the submitted password.
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid password reset request");
         }
+        return resetResponse(avService.completePasswordReset(tokenId, input), userLocale).toJSONString();
     }
 
     // NEW USER
@@ -435,6 +392,9 @@ public class MainController {
             log.debug("Not a valid validation code (POST)");
             return null;
         } else {
+            if (Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET).equals(va.getAccountStatus())) {
+                return resetResponse(PasswordResetResult.INVALID_TOKEN, userLocale).toJSONString();
+            }
             ObjectMapper mapper = new ObjectMapper();
             mapper.readerForUpdating(va).readValue(requestForm);
             return validateAccount(va, userLocale).toJSONString();
@@ -557,6 +517,10 @@ public class MainController {
         }
 
         ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
+
+        if (va != null && Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET).equals(va.getAccountStatus())) {
+            return "redirect:/passwordReset?tokenId=" + va.getValidationToken();
+        }
 
         if (!sendLegacyLinksEnabled()) {
             log.debug("Legacy links were disabled");
@@ -717,6 +681,9 @@ public class MainController {
             log.debug("Not a valid validation code (POST)");
             return null;
         } else {
+            if (Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET).equals(va.getAccountStatus())) {
+                return resetResponse(PasswordResetResult.INVALID_TOKEN, userLocale).toJSONString();
+            }
             ObjectMapper mapper = new ObjectMapper();
             mapper.readerForUpdating(va).readValue(requestForm);
             return validateAccount(va, userLocale).toJSONString();
@@ -746,10 +713,12 @@ public class MainController {
 
     //TODO the logic should be moved to a service method
     private JSONObject validateAccount(ValidationAccount va, Locale userLocale) {
+        if (Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET).equals(va.getAccountStatus())) {
+            return resetResponse(PasswordResetResult.INVALID_TOKEN, userLocale);
+        }
         log.debug("Validate Account");
         JSONObject jsonResponse = new JSONObject();
 
-        List<String> userReferences = new ArrayList<String>();
         String formEid = StringUtils.trimToEmpty(va.getEid());
         String formFirstName = StringUtils.trimToEmpty(va.getFirstName());
         String formSurname = StringUtils.trimToEmpty(va.getSurname());
@@ -822,7 +791,7 @@ public class MainController {
             }
 
             //if this is a new account set the password
-            if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus || ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus) {
+            if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus || ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus) {
                 if (formPw1 == null || !formPw1.equals(formPw2)) {
                     //Abandon the edit
                     userDirectoryService.cancelEdit(u);
@@ -871,8 +840,6 @@ public class MainController {
 
             avService.save(va);
 
-            userReferences.add(userDirectoryService.userReference(va.getUserId()));
-
             //log the user in
             log.debug("- log the user in");
             Evidence e = new ExternalTrustedEvidence(u.getEid());
@@ -891,17 +858,24 @@ public class MainController {
                 securityService.popAdvisor();
                 jsonResponse.put("success", "success");
         }
-        // avService.
-        // Send password reset acknowledgement email for password reset scenarios
-        if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus) {
-
-            String supportEmail = serverConfigurationService.getString("mail.support");
-            Map<String, Object> replacementValues = new HashMap<>();
-            replacementValues.put("emailSupport", supportEmail);
-            emailTemplateService.sendRenderedMessages(AccountValidatorConstants.TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET, userReferences, replacementValues, serverConfigurationService.getSmtpFrom(), supportEmail);
-        }
 
         return jsonResponse;
+    }
+
+    private JSONObject resetResponse(PasswordResetResult result, Locale locale) {
+        JSONObject response = new JSONObject();
+        if (result == PasswordResetResult.SUCCESS) {
+            response.put("success", "success");
+        } else {
+            String key = switch (result) {
+                case PASSWORD_MISMATCH -> "validate.passNotMatch";
+                case PASSWORD_REJECTED -> "validate.password.fail";
+                case INVALID_TOKEN -> "reset.invalid";
+                default -> "reset.unavailable";
+            };
+            response.put("error", messageSource.getMessage(key, null, locale));
+        }
+        return response;
     }
 
     private JSONObject claimAccount(ValidationClaim vc, Locale userLocale) {
@@ -937,6 +911,10 @@ public class MainController {
             return jsonResponse;
         }
 
+        if (Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET).equals(va.getAccountStatus())) {
+            jsonResponse.put("error", loginFailed);
+            return jsonResponse;
+        }
         //With sendLegacyLinks disabled, the option to transfer memberships is not available for password resets
         if (!serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false) && (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == va.getStatus() || ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == va.getStatus())) {
             log.warn("Was attempting to transfer memberships for a ValidationAccount of status " + va.getStatus());
@@ -1009,17 +987,11 @@ public class MainController {
         return false;
     }
 
-    private String getFormattedMinutes(int totalMinutes, Locale userLocale) {
-        // Create a joda time period (takes milliseconds)
-        Period period = new Period(totalMinutes*60*1000);
-        // format the period for the locale
-        /* 
-         * Covers English, Danish, Dutch, French, German, Japanese, Portuguese, and Spanish.
-         * To translate into others, see http://joda-time.sourceforge.net/apidocs/org/joda/time/format/PeriodFormat.html#wordBased(java.util.Locale)
-         * (ie. put the properties mentioned in http://joda-time.sourceforge.net/apidocs/src-html/org/joda/time/format/PeriodFormat.html#line.94 into the classpath resource bundle)
-         */
-        PeriodFormatter periodFormatter = PeriodFormat.wordBased(userLocale);
-        return periodFormatter.print(period);
+    /**
+     * Package-private for unit tests.
+     */
+    String getFormattedMinutes(int totalMinutes, Locale userLocale) {
+        return DurationFormat.formatMinutes(totalMinutes, userLocale);
     }
 
     private boolean sendLegacyLinksEnabled() {

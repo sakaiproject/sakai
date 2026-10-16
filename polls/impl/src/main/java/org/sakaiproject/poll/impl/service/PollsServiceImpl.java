@@ -150,7 +150,6 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     @Setter private ResourceLoader pollsBundle;
 
     public void init() {
-        entityManager.registerEntityProducer(this, REFERENCE_ROOT);
         functionManager.registerFunction(PERMISSION_VOTE, true);
         functionManager.registerFunction(PERMISSION_ADD, true);
         functionManager.registerFunction(PERMISSION_DELETE_OWN, true);

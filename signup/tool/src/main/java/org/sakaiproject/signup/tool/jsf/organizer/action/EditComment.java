@@ -112,9 +112,8 @@ public class EditComment extends SignupAction {
 			try {
 				SignupMeeting upToDateMeeting = signupMeetingService.loadSignupMeeting(originalMeeting.getId(), currentUserId, siteId);
 				checkPrecondition(upToDateMeeting, relatedTimeslotId);
-				if(isOrganizer)
-					upToDateMeeting.setPermission(originalMeeting.getPermission());
 				upToDateMeeting = signupMeetingService.updateSignupMeeting(upToDateMeeting, isOrganizer);
+				upToDateMeeting.setPermission(originalMeeting.getPermission());
 
 				return upToDateMeeting;
 				

@@ -168,8 +168,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         canEvaluate = tira -> isEvaluator(tira.getRubric().getOwnerId());
         isCreator = tira -> tira.getCreatorId().equalsIgnoreCase(sessionManager.getCurrentSessionUserId());
 
-        // register as an entity producer
-        entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
         functionManager.registerFunction(RubricsConstants.RBCS_PERMISSIONS_EVALUATOR, true);
         functionManager.registerFunction(RubricsConstants.RBCS_PERMISSIONS_EDITOR, true);

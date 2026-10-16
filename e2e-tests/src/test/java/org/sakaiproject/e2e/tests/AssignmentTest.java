@@ -399,6 +399,23 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("#new_assignment_title")).hasValue(title);
     }
 
+    @Test
+    void externalToolPickerDisplaysItsContent() {
+        String courseUrl = ensureCourseUrl();
+        sakai.login("instructor1");
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        openAddAssignmentForm();
+
+        page.locator("#subType").selectOption(new SelectOption().setLabel("External Tool (LTI)"));
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Select External Tool (LTI)").setExact(true)).click();
+
+        // The picker must render a tool list or the no-tools message, even on a site without LTI tools.
+        assertThat(page.frameLocator("iframe[name='sakai-lti-admin-iframe']").locator(".portletBody")).isVisible();
+        assertThat(page.frameLocator("iframe[name='sakai-lti-admin-iframe']").locator(".portletBody"))
+            .not().hasText("");
+    }
+
     private void openAddAssignmentForm() {
         goToAssignmentsList();
 

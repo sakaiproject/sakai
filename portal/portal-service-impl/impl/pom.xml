@@ -70,11 +70,6 @@
             <groupId>org.sakaiproject.pluto</groupId>
             <artifactId>pluto-descriptor-api</artifactId>
         </dependency>
-        <!-- PortalServiceImpl configures Castor directly; not transitive under Sakai provided scope -->
-        <dependency>
-            <groupId>org.codehaus.castor</groupId>
-            <artifactId>castor</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>

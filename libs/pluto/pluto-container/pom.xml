@@ -21,6 +21,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.pluto</groupId>
             <artifactId>pluto-descriptor-api</artifactId>
             <version>${sakai.pluto.version}</version>

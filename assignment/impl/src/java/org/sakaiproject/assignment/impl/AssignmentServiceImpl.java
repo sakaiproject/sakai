@@ -283,8 +283,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         exposeContentReviewErrorsToUI = serverConfigurationService.getBoolean("contentreview.expose.errors.to.ui", true);
         createGroupsOnImport = serverConfigurationService.getBoolean("assignment.create.groups.on.import", true);
 
-        // register as an entity producer
-        entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
         // register functions
         functionManager.registerFunction(SECURE_ALL_GROUPS, true);
@@ -975,10 +973,22 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public void deleteTimeSheetEntry(Long timeSheetEntryId) throws PermissionException {
       String timeSheetEntryReference = getTimeSheetEntryReference(timeSheetEntryId);
       if (StringUtils.isNotBlank(timeSheetEntryReference)) {
-          String siteId = AssignmentReferenceReckoner.reckoner().reference(timeSheetEntryReference).reckon().getContext();
+          String currentUserId = sessionManager.getCurrentSessionUserId();
+          AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().reference(timeSheetEntryReference).reckon();
+          String siteId = referenceReckoner.getContext();
           if (!allowAddSubmission(siteId)) {
-              throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
+              throw new PermissionException(currentUserId, SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
           }
+
+          AssignmentSubmission submission = assignmentRepository.findSubmission(referenceReckoner.getId());
+
+          boolean isOwner = submission != null && submission.getSubmitters().stream()
+                  .anyMatch(s -> StringUtils.equals(s.getSubmitter(), currentUserId));
+
+          if (!isOwner) {
+              throw new PermissionException(currentUserId, SECURE_UPDATE_ASSIGNMENT_SUBMISSION, timeSheetEntryReference);
+          }
+
           timeSheetService.delete(timeSheetEntryId);
           log.debug("Deleting time sheet entry: {}", timeSheetEntryId);
       } else {
@@ -1738,6 +1748,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         for (String groupRef : currentAssignedGroupRefs) {
                             try {
                                 Group assignedGroup = site.getGroup(groupRef);
+                                if (assignedGroup == null) {
+                                    continue;
+                                }
                                 boolean isAccessGroup = StringUtils.isNotBlank(assignedGroup.getProperties().getProperty("lessonbuilder_ref"));
 
                                 AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
@@ -1976,7 +1989,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             Site site = siteService.getSite(assignment.getContext());
                             Collection<Group> groups = new ArrayList<>();
                             for (String groupRef : assignment.getGroups()) {
-                                groups.add(site.getGroup(groupRef));
+                                Group group = site.getGroup(groupRef);
+                                if (group != null) {
+                                    groups.add(group);
+                                }
                             }
                             header.setGroupAccess(groups);
                         } catch (Exception exception) {
