@@ -2790,6 +2790,9 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
 	}
 
     public boolean getIsMathJaxEnabled() {
+        if (!serverConfigurationService.getBoolean("portal.mathjax.enabled", true)) {
+            return false;
+        }
         String siteId = AgentFacade.getCurrentSiteId();
         if (StringUtils.isBlank(siteId)) {
             siteId = getSiteId();
@@ -2807,8 +2810,7 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
         }
         return getCurrentSite(siteId)
                 .map(Site::getProperties)
-                .map(properties -> properties.getProperty(Site.PROP_SITE_MATHJAX_ALLOWED))
-                .map(Boolean::parseBoolean)
+                .map(properties -> properties.getBooleanProperty(Site.PROP_SITE_MATHJAX_ALLOWED, true))
                 .orElse(false);
     }
 

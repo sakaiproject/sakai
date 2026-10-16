@@ -1223,7 +1223,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
 
         if (site != null && mathJaxEnabled) {
             if (StringUtils.isNotBlank(mathJaxPath)) {
-                if (BooleanUtils.toBoolean(site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED))) {
+                if (site.getProperties().getBooleanProperty(Site.PROP_SITE_MATHJAX_ALLOWED, true)) {
                     // In order to get MathJax to work on the site, the config and source has to be added to the header.
                     Element config = new Element("script");
                     Element srcPath = new Element("script");
