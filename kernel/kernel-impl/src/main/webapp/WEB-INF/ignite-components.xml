@@ -131,6 +131,20 @@
         <constructor-arg>
             <list>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.user.api.AuthenticationManager"/>
+                    <property name="dataRegionName" value="spring_region"/>
+                    <property name="expiryPolicyFactory">
+                        <bean class="javax.cache.expiry.CreatedExpiryPolicy" factory-method="factoryOf">
+                            <constructor-arg>
+                                <bean class="javax.cache.expiry.Duration">
+                                    <constructor-arg value="MINUTES"/>
+                                    <constructor-arg value="5"/>
+                                </bean>
+                            </constructor-arg>
+                        </bean>
+                    </property>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.coursemanagement.impl.AcademicSessionCmImpl"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
