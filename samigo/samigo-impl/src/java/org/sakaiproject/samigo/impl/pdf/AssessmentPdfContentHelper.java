@@ -21,11 +21,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 import org.scilab.forge.jlatexmath.TeXFormula;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -79,7 +81,8 @@ public class AssessmentPdfContentHelper {
         this.contentHostingService = contentHostingService;
     }
 
-    private static final Pattern HTML_OPEN_TAG = Pattern.compile("<\\s*[a-zA-Z][^>]*>");
+    private static final Pattern HTML_TAG_CANDIDATE = Pattern.compile(
+            "<\\s*/?\\s*([A-Za-z][A-Za-z0-9:-]*)\\b([^>]*)>");
 
     /**
      * Returns plain text from HTML for PDF Chunks/Paragraphs. Removes {@code <table>} so cell
@@ -95,17 +98,24 @@ public class AssessmentPdfContentHelper {
         return document.text();
     }
 
-    /**
-     * Returns whether {@code text} looks like authored HTML markup rather than plain text.
-     */
     public boolean looksLikeHtml(String text) {
-        return StringUtils.isNotBlank(text) && HTML_OPEN_TAG.matcher(text).find();
+        if (StringUtils.isBlank(text)) {
+            return false;
+        }
+        Matcher matcher = HTML_TAG_CANDIDATE.matcher(text);
+        while (matcher.find()) {
+            String tagName = matcher.group(1);
+            if (!Tag.isKnownTag(tagName.toLowerCase(Locale.ROOT))) {
+                continue;
+            }
+            String remainder = StringUtils.trimToEmpty(matcher.group(2));
+            if (remainder.isEmpty() || "/".equals(remainder) || remainder.contains("=")) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    /**
-     * Preserves plain-text values (FIB keys like {@code a<b}); strips markup only when the value
-     * contains generated/authored HTML tags (e.g. partial-credit {@code <span>} keys).
-     */
     public String plainOrCleanText(String text) {
         if (text == null) {
             return "";

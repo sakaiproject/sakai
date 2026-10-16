@@ -72,6 +72,7 @@ public class AssessmentPdfContentHelperTest {
         assertTrue(helper.looksLikeHtml("A <span style='color: green'>(100%)</span>"));
         assertTrue(helper.looksLikeHtml("<i>Paris</i>"));
         assertEquals("A (100%)", helper.plainOrCleanText("A <span>(100%)</span>"));
+        assertEquals("A (100%)", helper.plainOrCleanText("A <span style='color: green'>(100%)</span>"));
         assertEquals("Paris", helper.plainOrCleanText("<i>Paris</i>"));
         assertTrue(helper.hasEmbeddedHtmlContent("<table><tr><td>x</td></tr></table>"));
     }
