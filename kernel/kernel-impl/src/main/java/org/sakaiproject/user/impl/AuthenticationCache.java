@@ -41,8 +41,8 @@ import org.springframework.cache.CacheManager;
  * To ease the overhead, this class checks a size-limited timing-out cache
  * of one-way encrypted successful authentication IDs and passwords.
  * <p>
- * There's nothing DAV-specific about this class, and it's also independent of
- * any Sakai classes other than the "Authentication" user ID and EID holder.
+ * Only WebDAV authentication uses this cache. Account restrictions are still
+ * checked on every request by the authentication manager.
  * 
  * We salt password so precomputed dictionaries can't be used against a dump of the
  * authentication cache.
