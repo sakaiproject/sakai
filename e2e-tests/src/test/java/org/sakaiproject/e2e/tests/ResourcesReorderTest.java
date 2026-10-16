@@ -54,6 +54,8 @@ class ResourcesReorderTest extends SakaiUiTestBase {
         assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folderA).setExact(true))).isVisible();
         assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folderB).setExact(true))).isVisible();
         assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folderC).setExact(true))).isVisible();
+        // Refresh the request-cached member count used to make Reorder available.
+        page.reload();
         assertThat(page.locator("button[title='Actions']")).not().hasCount(0);
 
         openResourcesReorder();
