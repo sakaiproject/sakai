@@ -473,7 +473,8 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         clock.advanceSeconds(60);
         PasswordReset resent = service.sendPasswordReset(userOne);
         Assert.assertEquals(first.getToken(), resent.getToken());
-        Assert.assertEquals(first.getCreatedAt(), resent.getCreatedAt());
+        // Hibernate 6 Instant columns are DATETIME(6), so a reread stops at microseconds.
+        Assert.assertEquals(first.getCreatedAt().truncatedTo(ChronoUnit.MICROS), resent.getCreatedAt());
     }
 
     @Test
