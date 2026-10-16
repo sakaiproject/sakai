@@ -19,7 +19,7 @@ jobs:
       NODE_OPTIONS: "--disable-warning=DEP0169"
       PLAYWRIGHT_BROWSER: "chromium"
       TOMCAT_VERSION: "10.1.61"
-      SAKAI_FATAL_ERRORS: 'BeanCreationException|NoClassDefFoundError|NoSuchMethodError|ServiceConfigurationError|ExceptionInInitializerError|One or more listeners failed to start|Context \[.*\] startup failed|Error deploying web application|Exception sending context initialized event'
+      SAKAI_FATAL_ERRORS: 'BeanCreationException|NoClassDefFoundError|NoSuchMethodError|ServiceConfigurationError|ExceptionInInitializerError|listeners failed to start|Context \[.*\] startup failed|Error deploying web application|Exception sending context initialized event'
     steps:
       - name: Git Checkout
         uses: actions/checkout@v7.0.1
