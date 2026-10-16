@@ -21,6 +21,9 @@
 
 package org.sakaiproject.user.impl;
 
+import java.util.Locale;
+
+import org.apache.commons.codec.digest.DigestUtils;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationManager;
@@ -48,6 +51,7 @@ public class UserAuthnComponent implements AuthenticationManager {
 
     @Setter protected UserDirectoryService userDirectoryService;
     @Setter protected AuthenticationCache authenticationCache;
+    @Setter protected PasswordLoginBackoff passwordLoginBackoff;
 
 
     public void init() {
@@ -68,11 +72,22 @@ public class UserAuthnComponent implements AuthenticationManager {
                 throw new AuthenticationException("Invalid Login: Either identifier or password empty.");
             }
 
+            String accountKey = passwordLoginKey(evidence.getIdentifier());
+            passwordLoginBackoff.check(accountKey);
             boolean webDav = evidence instanceof WebDavEvidence;
-            Authentication cached = webDav
-                    ? authenticationCache.getAuthentication(evidence.getIdentifier(), evidence.getPassword()) : null;
+            Authentication cached = null;
+            if (webDav) {
+                try {
+                    cached = authenticationCache.getAuthentication(evidence.getIdentifier(), evidence.getPassword());
+                } catch (AuthenticationException ex) {
+                    // Repeated cached failures consume the same allowance as new guesses.
+                    passwordLoginBackoff.reserve(accountKey);
+                    throw ex;
+                }
+            }
             User user;
             if (cached == null) {
+                passwordLoginBackoff.reserve(accountKey);
                 user = userDirectoryService.authenticate(evidence.getIdentifier(), evidence.getPassword());
                 if (user == null) {
                     if (webDav) {
@@ -107,6 +122,7 @@ public class UserAuthnComponent implements AuthenticationManager {
                 authenticationCache.putAuthentication(evidence.getIdentifier(), evidence.getPassword(), rv);
             }
 
+            passwordLoginBackoff.clear(accountKey);
             return rv;
         } else if (e instanceof ExternalTrustedEvidence) {
             ExternalTrustedEvidence evidence = (ExternalTrustedEvidence) e;
@@ -133,5 +149,17 @@ public class UserAuthnComponent implements AuthenticationManager {
         } else {
             throw new AuthenticationUnknownException(e.toString());
         }
+    }
+
+    private String passwordLoginKey(String identifier) {
+        String key;
+        try {
+            // Local account spelling/case variants must share the same allowance.
+            key = "user:" + userDirectoryService.getUserByEid(identifier).getId();
+        } catch (UserNotDefinedException e) {
+            // Unknown identifiers receive the same policy; hash keys to bound their size.
+            key = "login:" + identifier.trim().toLowerCase(Locale.ROOT);
+        }
+        return DigestUtils.sha256Hex(key);
     }
 }

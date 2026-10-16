@@ -52,7 +52,14 @@
 		  destroy-method="destroy">
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="authenticationCache" ref="org.sakaiproject.user.impl.AuthenticationCache"/>
+		<property name="passwordLoginBackoff" ref="org.sakaiproject.user.impl.PasswordLoginBackoff"/>
 	</bean>
+
+    <bean id="org.sakaiproject.user.impl.PasswordLoginBackoff"
+          class="org.sakaiproject.user.impl.PasswordLoginBackoff" init-method="init">
+        <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
 
     <import resource="preferences-components.xml"/>
 
