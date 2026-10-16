@@ -132,4 +132,15 @@ public interface AccountValidationService {
 	 * @param token the validation token
 	 */
 	void resendValidation(String token);
+
+	/**
+	 * Send a password-reset validation for a user.
+	 * An existing pending, unexpired validation is resent.
+	 * Confirmed or expired validations are removed and replaced with a fresh password-reset validation,
+	 * so their tokens cannot be reused and the user retains a single validation row.
+	 * A user with no validation row receives a fresh password-reset validation.
+	 * @param userId the user ID
+	 * @return the validation account that was created or resent
+	 */
+	ValidationAccount sendPasswordReset(String userId);
 }

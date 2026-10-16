@@ -96,43 +96,26 @@
                             emailSentMsg.hidden = true;
                             supportMsg.hidden = true;
                             errorMsg.hidden = false;
-                            var message = response.error_msg;
-                            errorMsg.textContent = message;
+                            errorMsg.textContent = response.error_msg;
+                            return;
                         }
 
-                        if (response.exception_msg !== undefined) {
-                            infoMsg.hidden = true;
-                            instructionsBtn.hidden = true;
-                            errorMsg.hidden = true;
-                            emailSentMsg.hidden = false;
-                            var message = response.exception_msg;
-                            emailSentMsg.textContent = message;
-                        }
-
-                        if (response.email_sent_msg !== undefined) {
-                            infoMsg.hidden = true;
-                            instructionsBtn.hidden = true;
-                            emailSentMsg.hidden = false;
-                            errorMsg.hidden = true;
-                            var message = response.email_sent_msg;
-                            emailSentMsg.textContent = message;
-                        }
+                        infoMsg.hidden = true;
+                        instructionsBtn.hidden = true;
+                        errorMsg.hidden = true;
+                        emailSentMsg.hidden = false;
+                        emailSentMsg.textContent = response.email_sent_msg;
+                        supportMsg.hidden = true;
 
                         if (response.support_msg !== undefined) {
-                            infoMsg.hidden = true;
-                            instructionsBtn.hidden = true;
                             supportMsg.hidden = false;
-                            errorMsg.hidden = true;
+                            supportMsg.innerHTML = response.support_msg;
 
-                            var message = response.support_msg;
-                            supportMsg.innerHTML = message;
-
-                            if (response.support_mail !== undefined){
+                            if (response.support_mail) {
                                 var mail = response.support_mail;
                                 var a = document.createElement('a');
-
                                 a.textContent = mail;
-                                a.href = "mailto:"+mail;
+                                a.href = "mailto:" + mail;
                                 supportMsg.appendChild(a);
                             }
                         }

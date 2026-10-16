@@ -51,7 +51,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -138,7 +139,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
         if (va.getValidationReceived() == null) {
             if (va.getValidationSent() != null) {
-                Instant validationDeadline = Instant.now().minus(VALIDATION_PERIOD_MONTHS, ChronoUnit.MONTHS); // 36 months ago
+                Instant validationDeadline = ZonedDateTime.now(ZoneOffset.UTC).minusMonths(VALIDATION_PERIOD_MONTHS).toInstant();
                 if (va.getValidationSent().isBefore(validationDeadline)) {
                     log.debug("validation sent but expired - no reply received within {} months", Math.abs(VALIDATION_PERIOD_MONTHS));
                 } else {
@@ -395,6 +396,21 @@ public class AccountValidationServiceImpl implements AccountValidationService {
         toSave.setFirstName(StringUtils.isNotBlank(toSave.getFirstName()) ? toSave.getFirstName() : null);
         toSave.setSurname(StringUtils.isNotBlank(toSave.getSurname()) ? toSave.getSurname() : null);
 		repository.save(toSave);
+	}
+
+	@Override
+	public ValidationAccount sendPasswordReset(String userId) {
+		ValidationAccount existing = getValidationAccountByUserId(userId);
+		if (existing != null) {
+			// Check confirmation before expiry can change a completed validation's status.
+			if (ValidationAccount.STATUS_CONFIRMED.equals(existing.getStatus()) || isTokenExpired(existing)) {
+				deleteValidationAccount(existing);
+			} else {
+				resendValidation(existing.getValidationToken());
+				return getValidationAccountBytoken(existing.getValidationToken());
+			}
+		}
+		return createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
 	}
 
 	@Override

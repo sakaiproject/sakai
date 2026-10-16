@@ -19,6 +19,7 @@ package org.sakaiproject.resetpass.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -32,21 +33,22 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.resetpass.test.ResetPassTestConfiguration;
 import org.sakaiproject.serialization.MapperFactory;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -97,49 +99,18 @@ public class MainControllerTest {
     }
 
     @Test
-    public void requestsResetLinkWhenNewUserValidationIsDisabled() throws Exception {
-        assertResetLinkRequested(false);
-    }
+    public void requestsAPasswordResetLink() throws Exception {
+        Event resetEvent = mock(Event.class);
+        when(events.newEvent("user.resetpass", "/user/" + USER_ID, true)).thenReturn(resetEvent);
 
-    @Test
-    public void requestsResetLinkWhenNewUserValidationIsEnabled() throws Exception {
-        assertResetLinkRequested(true);
-    }
-
-    private void assertResetLinkRequested(boolean validateNewUsers) throws Exception {
-        when(configuration.getBoolean(eq("siteManage.validateNewUsers"), anyBoolean())).thenReturn(validateNewUsers);
         JsonNode response = submitReset();
+
         assertEquals("Sakai has attempted to send a password change email to " + EMAIL + ".", response.get("email_sent_msg").asText());
-        verify(validations).createValidationAccount(USER_ID, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+        assertFalse(response.has("exception_msg"));
+        verify(validations).sendPasswordReset(USER_ID);
+        verify(events).post(resetEvent);
         verify(users, never()).editUser(anyString());
-        verify(events).newEvent("user.resetpass", "/user/" + USER_ID, true);
-    }
-
-    @Test
-    public void resendsAnOutstandingResetLink() throws Exception {
-        ValidationAccount pending = new ValidationAccount();
-        pending.setValidationToken("pending-token");
-        when(validations.getValidationAccountByUserId(USER_ID)).thenReturn(pending);
-        when(validations.isAccountValidated(USER_ID)).thenReturn(true);
-
-        submitReset();
-
-        verify(validations).resendValidation("pending-token");
-        verify(validations, never()).createValidationAccount(anyString(), anyInt());
-        verify(users, never()).editUser(anyString());
-    }
-
-    @Test
-    public void createsANewLinkAfterAnEarlierResetWasCompleted() throws Exception {
-        ValidationAccount completed = new ValidationAccount();
-        completed.setValidationReceived(Instant.now());
-        when(validations.getValidationAccountByUserId(USER_ID)).thenReturn(completed);
-        when(validations.isAccountValidated(USER_ID)).thenReturn(true);
-
-        submitReset();
-
-        verify(validations).createValidationAccount(USER_ID, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-        verify(users, never()).editUser(anyString());
+        verify(configuration, never()).getBoolean(eq("siteManage.validateNewUsers"), anyBoolean());
     }
 
     @Test
@@ -148,8 +119,10 @@ public class MainControllerTest {
 
         JsonNode response = submitReset();
 
-        assertEquals("Sakai has attempted to send a password change email to " + EMAIL + ".", response.get("exception_msg").asText());
-        verify(validations, never()).createValidationAccount(anyString(), anyInt());
+        assertEquals("Sakai has attempted to send a password change email to " + EMAIL + ".", response.get("email_sent_msg").asText());
+        assertFalse(response.has("exception_msg"));
+        verify(validations, never()).sendPasswordReset(anyString());
+        verify(events, never()).post(nullable(Event.class));
         verify(users, never()).editUser(anyString());
     }
 
@@ -159,9 +132,35 @@ public class MainControllerTest {
 
         JsonNode response = submitReset();
 
-        assertEquals("Sakai has attempted to send a password change email to " + EMAIL + ".", response.get("exception_msg").asText());
-        verify(validations, never()).createValidationAccount(anyString(), anyInt());
+        assertEquals("Sakai has attempted to send a password change email to " + EMAIL + ".", response.get("email_sent_msg").asText());
+        assertFalse(response.has("exception_msg"));
+        verify(validations, never()).sendPasswordReset(anyString());
+        verify(events, never()).post(nullable(Event.class));
         verify(users, never()).editUser(anyString());
+    }
+
+    @Test
+    public void placementInstructionsOmitABlankSupportAddress() throws Exception {
+        Placement placement = mock(Placement.class);
+        Properties config = new Properties();
+        config.setProperty("supportInstructions", "Contact the help desk.");
+        when(placement.getConfig()).thenReturn(config);
+        when(toolManager.getCurrentPlacement()).thenReturn(placement);
+
+        JsonNode response = submitReset();
+
+        assertEquals("Contact the help desk.", response.get("support_msg").asText());
+        assertFalse(response.has("support_mail"));
+    }
+
+    @Test
+    public void configuredSupportAddressIsIncluded() throws Exception {
+        when(configuration.getString(eq("mail.support"), nullable(String.class))).thenReturn("help@example.test");
+
+        JsonNode response = submitReset();
+
+        assertTrue(response.get("support_msg").asText().startsWith("If you do not receive the email"));
+        assertEquals("help@example.test", response.get("support_mail").asText());
     }
 
     @Test

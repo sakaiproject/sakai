@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -137,27 +136,23 @@ public class MainController {
         }
 
         String errorMsg = this.validateErrors(requestString, locale);
-        boolean exceptionMsg = this.validateExceptions(requestString);
+        boolean suppressSend = this.validateExceptions(requestString);
 
-        if (errorMsg == null && !exceptionMsg) {
-            jsonResponse.put("email_sent_msg", emailSentMessage);
-            processAction(requestString);
-            
-            if (supportMessage != null){
-                jsonResponse.put("support_msg", supportMessage);
-                jsonResponse.put("support_mail", supportEmail);
-            }
-
-        } else if (exceptionMsg){
-            jsonResponse.put("exception_msg", emailSentMessage);
-            
-            if (supportMessage != null){
-                jsonResponse.put("support_msg", supportMessage);
-                jsonResponse.put("support_mail", supportEmail);
-            }
-
-        } else {
+        if (errorMsg != null && !suppressSend) {
             jsonResponse.put("error_msg", errorMsg);
+            return jsonResponse.toString();
+        }
+
+        if (!suppressSend) {
+            processAction(requestString);
+        }
+
+        jsonResponse.put("email_sent_msg", emailSentMessage);
+        if (supportMessage != null) {
+            jsonResponse.put("support_msg", supportMessage);
+            if (StringUtils.isNotBlank(supportEmail)) {
+                jsonResponse.put("support_mail", supportEmail);
+            }
         }
 
         return jsonResponse.toString();
@@ -165,33 +160,14 @@ public class MainController {
 
     private void processAction(String email) {
         Collection<User> users = userDirectoryService.findUsersByEmail(email);
-        if (!users.isEmpty()) {
-            User user = users.iterator().next();
-            String userId = user.getId();
-            eventService.post(eventService.newEvent("user.resetpass", user.getReference(), true));
-
-            if (!avService.isAccountValidated(userId)) {
-                ValidationAccount va = avService.getValidationAccountByUserId(userId);
-                if (va == null) {
-                    avService.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-                } else {
-                    avService.resendValidation(va.getValidationToken());
-                }
-
-            } else {
-                ValidationAccount va = avService.getValidationAccountByUserId(userId);
-
-                if (va == null) {
-                    avService.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-                } else if (va.getValidationReceived() == null) {
-                    avService.resendValidation(va.getValidationToken());
-                } else {
-                    avService.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-                }
-            }
-        } else {
+        if (users.isEmpty()) {
             log.warn("user not found, no such email [{}]", email);
+            return;
         }
+
+        User user = users.iterator().next();
+        eventService.post(eventService.newEvent("user.resetpass", user.getReference(), true));
+        avService.sendPasswordReset(user.getId());
     }
 
     /**
