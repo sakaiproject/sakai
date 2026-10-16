@@ -28,6 +28,7 @@ import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.api.model.PasswordReset;
 import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
 import org.sakaiproject.accountvalidator.api.service.PasswordResetResult;
+import org.sakaiproject.accountvalidator.api.service.PasswordResetRequestService;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;

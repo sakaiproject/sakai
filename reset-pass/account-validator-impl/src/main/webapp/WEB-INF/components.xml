@@ -20,7 +20,7 @@
 	</bean>
 
     <bean id="accountValidationClock" class="java.time.Clock" factory-method="systemUTC" />
-    <bean id="passwordResetRequestService" class="org.sakaiproject.accountvalidator.impl.service.PasswordResetRequestService">
+    <bean id="passwordResetRequestService" class="org.sakaiproject.accountvalidator.impl.service.PasswordResetRequestServiceImpl">
         <property name="repository" ref="org.sakaiproject.accountvalidator.repository.ValidationAccountRepository" />
         <property name="clock" ref="accountValidationClock" />
     </bean>

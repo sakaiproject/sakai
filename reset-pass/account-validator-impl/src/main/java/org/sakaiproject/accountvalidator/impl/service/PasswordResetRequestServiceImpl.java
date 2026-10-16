@@ -21,15 +21,17 @@ import java.time.temporal.ChronoUnit;
 import lombok.Setter;
 import org.sakaiproject.accountvalidator.api.model.PasswordReset;
 import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
+import org.sakaiproject.accountvalidator.api.service.PasswordResetRequestService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /** Reserves durable rolling quotas before any email or password-reset work is attempted. */
 @Setter
-public class PasswordResetRequestService {
+public class PasswordResetRequestServiceImpl implements PasswordResetRequestService {
     private ValidationAccountRepository repository;
     private Clock clock;
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean reserve(String key, int maximum, int cooldownSeconds) {
         Instant now = clock.instant();
