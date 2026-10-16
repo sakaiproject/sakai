@@ -1977,7 +1977,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             Site site = siteService.getSite(assignment.getContext());
                             Collection<Group> groups = new ArrayList<>();
                             for (String groupRef : assignment.getGroups()) {
-                                groups.add(site.getGroup(groupRef));
+                                Group group = site.getGroup(groupRef);
+                                if (group != null) {
+                                    groups.add(group);
+                                }
                             }
                             header.setGroupAccess(groups);
                         } catch (Exception exception) {

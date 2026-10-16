@@ -382,11 +382,25 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.getGroups().addAll(Set.of(groupReference, deletedGroupReference));
         assignmentService.updateAssignment(assignment);
 
+        AnnouncementChannel channel = mock(AnnouncementChannel.class);
+        AnnouncementMessageEdit message = mock(AnnouncementMessageEdit.class);
+        AnnouncementMessageHeaderEdit header = mock(AnnouncementMessageHeaderEdit.class);
+        when(announcementService.channelReference(assignment.getContext(), SiteService.MAIN_CONTAINER))
+                .thenReturn("group-announcement-ref");
+        when(announcementService.getAnnouncementChannel("group-announcement-ref")).thenReturn(channel);
+        when(channel.addAnnouncementMessage()).thenReturn(message);
+        when(message.getAnnouncementHeaderEdit()).thenReturn(header);
+        when(message.getPropertiesEdit()).thenReturn(mock(ResourcePropertiesEdit.class));
+        assignment.getProperties().put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+
         assignmentService.publishAssignment(assignment);
 
         Assert.assertFalse(assignmentService.getAssignment(assignment.getId()).getDraft());
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-        verify(authzGroup).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+        verify(authzGroup, Mockito.atLeastOnce()).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+        verify(header).setGroupAccess(List.of(group));
+        verify(channel).commitMessage(message, NotificationService.NOTI_NONE,
+                "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
     }
 
     @Test
