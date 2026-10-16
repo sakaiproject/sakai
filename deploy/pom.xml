@@ -444,6 +444,12 @@
         </dependency>
 
         <!-- opensearch (transitive libs) -->
+        <!-- OpenSearch's XContentOpenSearchExtension still requires Joda-Time at runtime. -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
