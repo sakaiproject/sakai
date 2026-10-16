@@ -2,39 +2,61 @@
 
 This is the source code for the Sakai CLE.
 
-The master branch is the most current development release, Sakai 24.
-The other branches are currently or previously supported releases. See below for more information on the release plan and support schedule.
+The `master` branch is the current development line (Java 21, Tomcat 10.1). Other branches are currently or previously supported releases. See below for release and support details.
 
-## Building
+## Quick start (Docker Compose)
 
-This is the "Mini Quick Start" for more complete steps to get Sakai configured please look at [this guide on the wiki](https://github.com/sakaiproject/sakai/wiki/Quick-Start-from-Source).
+From the repository root (Docker or Podman):
 
-To build Sakai you need Java 1.8. Once you have, clone a copy of this repository you can
-build it by running (or `./mvnw install` if you don't have Maven installed):
+```bash
+# Full stack — build can take a long time; use -d so the CLI does not look hung
+podman compose build app
+podman compose up -d
+# or: docker compose build app && docker compose up -d
+podman compose logs -f app
 ```
+
+Then open http://localhost:8080/portal (wait for “Server startup” in the logs).
+
+For day-to-day coding without rebuilding images, use the **dev** profile (host Maven → exploded deploy → restart Tomcat):
+
+```bash
+./docker/bin/tomcat.sh up
+./docker/bin/deploy.sh
+./docker/bin/tomcat.sh restart
+# later, after editing a module:
+./docker/bin/deploy.sh -pl assignment -am
+./docker/bin/tomcat.sh restart
+```
+
+DB only for a host Tomcat: `podman compose up db`. Details in [docker/README.md](docker/README.md).
+
+VS Code / Codespaces users can also open the thin Dev Container in [`.devcontainer/`](.devcontainer/), which reuses the same Compose file.
+
+## Building from source
+
+You need **Java 21** and Maven 3.9+ (or use `./mvnw`). For a fuller guide see the [Quick Start from Source wiki](https://github.com/sakaiproject/sakai/wiki/Quick-Start-from-Source) and the [Sakai 25 Install Guide (Source)](https://sakaiproject.atlassian.net/wiki/spaces/DOC/pages/33232421161/Sakai+25+Install+Guide+Source).
+
+```bash
 mvn install
 ```
 
-## Running
+## Running on a local Tomcat
 
-Sakai runs on Apache Tomcat 9. Download the latest version from http://tomcat.apache.org and extract the archive.
-*Note: Sakai does not work with Tomcat installed via a package from apt-get, yum or other package managers.*
+Sakai runs on **Apache Tomcat 10.1**. Download it from https://tomcat.apache.org and extract the archive.
+*Note: Sakai does not work with Tomcat installed via a package manager (apt, yum, Homebrew formula, etc.).*
 
-You **must** configure Tomcat according to the instructions on this page:
-https://sakaiproject.atlassian.net/wiki/spaces/DOC/pages/17310646930/Sakai+21+Install+Guide+Source
+1. Start MariaDB with Compose (see above), or install MariaDB/MySQL yourself.
+2. Configure Tomcat and `sakai.properties` (use [docker/tomcat/sakai/sakai.properties.host-example](docker/tomcat/sakai/sakai.properties.host-example) when the DB is the Compose `db` service on port `53306`).
+3. Deploy and start:
 
-When you are done, deploy Sakai to Tomcat:
-```
+```bash
 mvn clean install sakai:deploy -Dmaven.tomcat.home=/path/to/your/tomcat
-```
-
-Now start Tomcat:
-```
 cd /path/to/your/tomcat/bin
 ./startup.sh && tail -f ../logs/catalina.out
 ```
 
-Once Sakai has started up (it usually takes around 30 seconds), open your browser and navigate to http://localhost:8080/portal
+Once Sakai has started, open http://localhost:8080/portal
 
 ## Licensing
 
