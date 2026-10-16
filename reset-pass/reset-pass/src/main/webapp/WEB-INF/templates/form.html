@@ -7,7 +7,7 @@
             <h1 th:text="#{mainTitle}">Reset your password</h1>
         </div>
 
-        <div class="sak-banner-info d-none" id="email-sent-msg"></div>
+        <div class="sak-banner-info" hidden id="email-sent-msg"></div>
 
         <div th:if="${placement != null}" id="instructions">
             <p class="sak-banner-info" th:if="${placement.getConfig().getProperty('instructions') != ''}" th:utext="${placement.getConfig().getProperty('instructions')}">Instructions from tool properties</p>
@@ -17,7 +17,7 @@
         </div>
 
         <div class="sak-banner-info" id="instructionInfo" th:text="${explanation}">Upon submission, an email will be sent to you containing a link where you can securely set your password. You will have 1 hour before this link expires.</div>
-        <div class="sak-banner-error d-none" id="error-msg">Error message</div>
+        <div class="sak-banner-error" hidden id="error-msg">Error message</div>
 
         <form id="emailForm">
             <div  class="row">
@@ -38,7 +38,7 @@
             </div>
         </form>
 
-        <div class="sak-banner-info d-none" id="support-msg">If you do not receive the email or you need further assistance, please contact Sakai support.</div>
+        <div class="sak-banner-info" hidden id="support-msg">If you do not receive the email or you need further assistance, please contact Sakai support.</div>
     </div>
     
     <script>
@@ -91,38 +91,38 @@
                         var supportMsg = document.getElementById('support-msg');
 
                         if (response.error_msg !== undefined) {
-                            infoMsg.classList.remove("d-none");
-                            instructionsBtn.classList.remove("d-none");
-                            emailSentMsg.classList.add("d-none");
-                            supportMsg.classList.add("d-none");
-                            errorMsg.classList.remove("d-none");
+                            infoMsg.hidden = false;
+                            instructionsBtn.hidden = false;
+                            emailSentMsg.hidden = true;
+                            supportMsg.hidden = true;
+                            errorMsg.hidden = false;
                             var message = response.error_msg;
                             errorMsg.textContent = message;
                         }
 
                         if (response.exception_msg !== undefined) {
-                            infoMsg.classList.add("d-none");
-                            instructionsBtn.classList.add("d-none");
-                            errorMsg.classList.add("d-none");
-                            emailSentMsg.classList.remove("d-none");
+                            infoMsg.hidden = true;
+                            instructionsBtn.hidden = true;
+                            errorMsg.hidden = true;
+                            emailSentMsg.hidden = false;
                             var message = response.exception_msg;
                             emailSentMsg.innerHTML = message;
                         }
 
                         if (response.email_sent_msg !== undefined) {
-                            infoMsg.classList.add("d-none");
-                            instructionsBtn.classList.add("d-none");
-                            emailSentMsg.classList.remove("d-none");
-                            errorMsg.classList.add("d-none");   
+                            infoMsg.hidden = true;
+                            instructionsBtn.hidden = true;
+                            emailSentMsg.hidden = false;
+                            errorMsg.hidden = true;
                             var message = response.email_sent_msg;
                             emailSentMsg.textContent = message;
                         }
 
                         if (response.support_msg !== undefined) {
-                            infoMsg.classList.add("d-none");
-                            instructionsBtn.classList.add("d-none");
-                            supportMsg.classList.remove("d-none");
-                            errorMsg.classList.add("d-none");
+                            infoMsg.hidden = true;
+                            instructionsBtn.hidden = true;
+                            supportMsg.hidden = false;
+                            errorMsg.hidden = true;
 
                             var message = response.support_msg;
                             supportMsg.innerHTML = message;

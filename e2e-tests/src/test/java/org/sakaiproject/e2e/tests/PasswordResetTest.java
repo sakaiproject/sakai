@@ -30,6 +30,10 @@ class PasswordResetTest extends SakaiUiTestBase {
         assertThat(page.locator("#sendBtn")).hasText("Request Password Change");
         assertThat(page.locator("#instructionInfo")).containsText("containing a link");
 
+        assertThat(page.locator("#email-sent-msg")).isHidden();
+        assertThat(page.locator("#error-msg")).isHidden();
+        assertThat(page.locator("#support-msg")).isHidden();
+
         String email = "reset-" + UUID.randomUUID() + "@example.test";
         page.locator("#mailInput").fill(email);
         page.locator("#sendBtn").click();
@@ -38,5 +42,7 @@ class PasswordResetTest extends SakaiUiTestBase {
         assertThat(page.locator("#email-sent-msg")).containsText("password change email");
         assertThat(page.locator("#email-sent-msg")).containsText(email);
         assertThat(page.locator("#error-msg")).isHidden();
+        assertThat(page.locator("#instructionInfo")).isHidden();
+        assertThat(page.locator("#instructions")).isHidden();
     }
 }
