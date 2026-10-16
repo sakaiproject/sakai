@@ -106,10 +106,7 @@ jobs:
 
       - name: Start Tomcat
         id: start-tomcat
-        run: |
-          # The downloaded setenv.sh sets its own PID path; override it for these checks.
-          printf '\nCATALINA_PID="$CATALINA_BASE/temp/catalina.pid"\n' >> tomcat/bin/setenv.sh
-          tomcat/bin/catalina.sh start
+        run: tomcat/bin/catalina.sh start
 
       - name: Wait for Sakai
         id: wait-for-sakai
@@ -119,7 +116,7 @@ jobs:
               echo "::error::Fatal Sakai startup error; see Tomcat logs."
               exit 1
             fi
-            if ! kill -0 "$(cat tomcat/temp/catalina.pid)" 2>/dev/null; then
+            if ! kill -0 "$(cat tomcat/sakai.pid)" 2>/dev/null; then
               echo "::error::Tomcat exited before Sakai became ready."
               exit 1
             fi
@@ -176,7 +173,7 @@ jobs:
             echo "::error::Fatal Sakai server error; see Tomcat logs."
             exit 1
           fi
-          if ! kill -0 "$(cat tomcat/temp/catalina.pid)" 2>/dev/null; then
+          if ! kill -0 "$(cat tomcat/sakai.pid)" 2>/dev/null; then
             echo "::error::Tomcat is no longer running."
             exit 1
           fi
