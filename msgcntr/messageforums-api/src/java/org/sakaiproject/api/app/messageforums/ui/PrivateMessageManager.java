@@ -88,6 +88,8 @@ public interface PrivateMessageManager {
     public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final String userId, final String orderField,
     	      final String order);
     public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final Collection<String> userIds);
+    public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final Collection<String> userIds,
+    		final Date from, final Date to);
 
 
     /**

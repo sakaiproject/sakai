@@ -117,6 +117,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Getter;
 import lombok.Setter;
@@ -904,8 +905,13 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
   }
 
   public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final Collection<String> userIds) {
+    return getMessagesByTypeByContext(typeUuid, contextId, userIds, null, null);
+  }
+
+  public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final Collection<String> userIds,
+      final Date from, final Date to) {
     if (log.isDebugEnabled()) {
-      log.debug("getMessagesByTypeByContext(typeUuid:" + typeUuid + ", contextId:" + contextId + ", userIds)");
+      log.debug("getMessagesByTypeByContext(typeUuid:" + typeUuid + ", contextId:" + contextId + ", userIds, from, to)");
     }
     if (userIds == null || userIds.isEmpty()) {
       return Collections.emptyList();
@@ -918,11 +924,18 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
     Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient = root.join("recipients", JoinType.LEFT);
     root.fetch("recipients", JoinType.LEFT);
 
-    cq.select(root).distinct(true).where(
-        recipient.get("userId").in(userIds),
-        cb.equal(recipient.get("typeUuid"), typeUuid),
-        cb.equal(recipient.get("contextId"), contextId)
-    );
+    List<Predicate> predicates = new ArrayList<>();
+    predicates.add(recipient.get("userId").in(userIds));
+    predicates.add(cb.equal(recipient.get("typeUuid"), typeUuid));
+    predicates.add(cb.equal(recipient.get("contextId"), contextId));
+    if (from != null) {
+      predicates.add(cb.greaterThanOrEqualTo(root.get("created"), from));
+    }
+    if (to != null) {
+      predicates.add(cb.lessThanOrEqualTo(root.get("created"), to));
+    }
+
+    cq.select(root).distinct(true).where(predicates.toArray(new Predicate[0]));
     cq.orderBy(cb.asc(root.get("created")));
 
     return session.createQuery(cq).getResultList();
