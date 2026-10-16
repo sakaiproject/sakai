@@ -19,12 +19,10 @@ jobs:
       NODE_OPTIONS: "--disable-warning=DEP0169"
       PLAYWRIGHT_BROWSER: "chromium"
       TOMCAT_VERSION: "10.1.61"
+      SAKAI_FATAL_ERRORS: 'BeanCreationException|NoClassDefFoundError|NoSuchMethodError|ServiceConfigurationError|ExceptionInInitializerError|One or more listeners failed to start|Context \[.*\] startup failed|Error deploying web application|Exception sending context initialized event'
     steps:
       - name: Git Checkout
         uses: actions/checkout@v7.0.1
-
-      - name: Test Sakai server checks
-        run: python3 -m unittest discover -s .github/scripts -p 'test_*.py'
 
       - name: JDK 21
         uses: actions/setup-java@v6.0.1
@@ -115,7 +113,25 @@ jobs:
 
       - name: Wait for Sakai
         id: wait-for-sakai
-        run: python3 .github/scripts/check-sakai-startup.py --wait-seconds 1800
+        run: |
+          for i in {1..180}; do
+            if grep -nE "$SAKAI_FATAL_ERRORS" tomcat/logs/*; then
+              echo "::error::Fatal Sakai startup error; see Tomcat logs."
+              exit 1
+            fi
+            if ! kill -0 "$(cat tomcat/temp/catalina.pid)" 2>/dev/null; then
+              echo "::error::Tomcat exited before Sakai became ready."
+              exit 1
+            fi
+            if grep -q "Server startup in" tomcat/logs/catalina.out \
+              && curl -fsS --connect-timeout 3 --max-time 5 http://localhost:8080/portal/ > /dev/null; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Sakai did not become ready in time."
+          tail -n 80 tomcat/logs/catalina.out
+          exit 1
 
       - name: Cache Playwright browsers
         uses: actions/cache@v6.1.0
@@ -155,7 +171,15 @@ jobs:
       - name: Check Sakai server after tests
         id: server-check
         if: always() && (steps.start-tomcat.outcome == 'success' || steps.start-tomcat.outcome == 'failure')
-        run: python3 .github/scripts/check-sakai-startup.py
+        run: |
+          if grep -nE "$SAKAI_FATAL_ERRORS" tomcat/logs/*; then
+            echo "::error::Fatal Sakai server error; see Tomcat logs."
+            exit 1
+          fi
+          if ! kill -0 "$(cat tomcat/temp/catalina.pid)" 2>/dev/null; then
+            echo "::error::Tomcat is no longer running."
+            exit 1
+          fi
 
       - name: Check number of MySQL statements
         if: always()
@@ -169,9 +193,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.2
         with:
           name: tomcat-log
-          path: |
-            tomcat/logs/
-            sakai-server-failure.md
+          path: tomcat/logs/
           retention-days: 5
 
       - name: Collect Playwright Java artifacts
@@ -297,10 +319,11 @@ jobs:
             if [ -n "${{ steps.upload-tomcat-log.outputs.artifact-url }}" ]; then
               echo "- [Tomcat logs and server diagnostics](${{ steps.upload-tomcat-log.outputs.artifact-url }})"
             fi
-            if [ -f sakai-server-failure.md ]; then
-              echo ""
-              cat sakai-server-failure.md
-            fi
+            echo ""
+            echo "### Server error excerpts"
+            echo '```text'
+            grep -n -m 1 -B 3 -A 120 -E "$SAKAI_FATAL_ERRORS" tomcat/logs/* 2>/dev/null | head -n 160 || true
+            echo '```'
             echo ""
             echo "## Playwright Java E2E Artifacts"
             echo ""
