@@ -122,6 +122,7 @@ public class SamigoJsfViewAccessTest {
     @Test
     public void unknownAndAmbiguousPathsAreDeniedEvenToStaff() {
         for (String view : new String[] {"/jsf/new-tool/admin.jsp", "/jsf/upload/uploadFile.jsp",
+                "/jsf/upload/closeWindow.jsp", "/jsf/security/roleCheckStaticInclude.jsp",
                 "/jsf/select/../qti/importAssessment.jsp", "/jsf/select/%2e%2e/qti/importAssessment.jsp",
                 "/jsf/qti//importAssessment.jsp", "/jsf/author//permissions.jsp",
                 "/jsf/author/permissions.jsp;ignored", "/jsf/author\\permissions.jsp", null}) {

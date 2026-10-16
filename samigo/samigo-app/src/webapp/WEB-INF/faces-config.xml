@@ -379,16 +379,8 @@
       <to-view-id>/jsf/delivery/passwordAccessError.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>timeout</from-outcome>
-      <to-view-id>/jsf/delivery/timeout.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>submitAssessment</from-outcome>
       <to-view-id>/jsf/delivery/submitted.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>reviewAssessment</from-outcome>
-      <to-view-id>/jsf/delivery/reviewAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>reviewAssessmentError</from-outcome>
@@ -451,10 +443,6 @@
     <navigation-case>
       <from-outcome>editAssessment</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>previewAssessment</from-outcome>
-      <to-view-id>/jsf/author/previewAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>printAssessment</from-outcome>
@@ -520,14 +508,6 @@
     <navigation-case>
       <from-outcome>publishAssessment</from-outcome>
       <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>confirmRemovePartAttachment</from-outcome>
-      <to-view-id>/jsf/author/removePartAttachment.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>confirmRemoveAssessmentAttachment</from-outcome>
-      <to-view-id>/jsf/author/removeAssessmentAttachment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmAssessmentRetract</from-outcome>
@@ -677,10 +657,6 @@
     <navigation-case>
       <from-outcome>solution</from-outcome>
       <to-view-id>/jsf/questionpool/solution.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>exit</from-outcome>
-      <to-view-id>/jsf/index/exit.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>index</from-outcome>
@@ -878,14 +854,6 @@
 
    </render-kit>
 
-
-   <navigation-rule>
-      <from-view-id>/jsf/upload/uploadFile.jsp</from-view-id>
-      <navigation-case>
-         <from-outcome>submit</from-outcome>
-         <to-view-id>/jsf/upload/closeWindow.jsp</to-view-id>
-      </navigation-case>
-   </navigation-rule>
 
    <component>
       <component-type>com.corejsf.Upload</component-type>
