@@ -2294,7 +2294,7 @@ public class SyllabusTool
         
         attachments.add(thisAttach);
         
-        if(entry.justCreated != true)
+        if(entry != null && entry.justCreated != true)
         {
           allAttachments.add(thisAttach);
         }
