@@ -25,6 +25,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     deferSave: { attribute: "defer-save", type: Boolean },
 
     _evaluation: { state: true },
+    _pendingChanges: { state: true },
     _totalPoints: { state: true },
     _criteria: { state: true },
     _rubric: { state: true },
@@ -43,13 +44,9 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
     this.instanceSalt = Math.floor(Math.random() * Date.now());
 
-    // Flag to track if auto-save should be deferred
-    this._deferAutoSave = false;
-    // Store pending changes when auto-save is deferred
+    this.deferSave = false;
     this._pendingChanges = null;
-    this._savingPromise = null;
-    this._saveAgain = false;
-    this._pendingSaveStatus = null;
+    this._saveContext = { promise: Promise.resolve() };
   }
 
   set entityId(value) {
@@ -64,8 +61,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
     if (value !== this._evaluatedItemId) {
       this._pendingChanges = null;
-      this._saveAgain = false;
-      this._pendingSaveStatus = null;
+      this._saveContext = { promise: Promise.resolve() };
+      this._evaluation = { criterionOutcomes: [] };
     }
 
     this._evaluatedItemId = value;
@@ -77,23 +74,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   set toolId(value) {
 
     this._toolId = value;
-    this._updateDeferSaveMode();
     this._getAssociation();
   }
 
   get toolId() { return this._toolId; }
-
-  set deferSave(value) {
-    this._deferSave = value;
-    this._updateDeferSaveMode();
-  }
-
-  get deferSave() { return this._deferSave; }
-
-  _updateDeferSaveMode() {
-    // Auto-save is deferred when deferSave is explicitly set to true
-    this._deferAutoSave = this.deferSave === true;
-  }
 
   _viewSelected(e) {
 
@@ -150,7 +134,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
         ` : nothing}
 
         <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-1">
-          ${this._evaluation && (this._evaluation.status === "DRAFT" || (this._deferAutoSave && this._pendingChanges)) && !this.isPeerOrSelf ? html`
+          ${this._evaluation && (this._evaluation.status === "DRAFT" || (this.deferSave && this._pendingChanges)) && !this.isPeerOrSelf ? html`
           <div class="sak-banner-warn">
             ${this.tr("draft_evaluation", [ this.tr(`draft_evaluation_${this.toolId}`) ])}
           </div>
@@ -285,7 +269,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   release() {
 
-    if (this._deferAutoSave && this._pendingChanges) {
+    if (this.deferSave && this._pendingChanges) {
       return this._savePendingChanges(2);
     }
 
@@ -300,110 +284,60 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   save() {
 
-    if (this._deferAutoSave) {
+    if (!this.deferSave) return this.dispatchRatingChanged(this._criteria, 1);
+    if (!this._pendingChanges && this._evaluation?.criterionOutcomes?.length) {
       this.dispatchRatingChanged(this._criteria, 1);
-      if (this._pendingChanges) {
-        return this._savePendingChanges(1);
-      }
-      return Promise.resolve();
     }
-
-    return this.dispatchRatingChanged(this._criteria, 1);
+    return this._savePendingChanges(1);
   }
 
-  /**
-   * Force save any pending changes.
-   * @param {number} status - The status to save with (1 = DRAFT, 2 = COMPLETE)
-   * @returns {Promise} - Promise that resolves when save is complete
-   */
-  forceSave(status = 1) {
-    if (this._deferAutoSave && this._pendingChanges) {
-      return this._savePendingChanges(status);
-    }
-    return this.dispatchRatingChanged(this._criteria, status);
-
-  }
-
-  /**
-   * Check if there are unsaved changes when defer-save is enabled
-   * @returns {boolean} - True if there are pending changes
-   */
   hasPendingChanges() {
-    return this._deferAutoSave && this._pendingChanges !== null;
+    return this.deferSave && this._pendingChanges !== null;
   }
 
   _savePendingChanges(status) {
 
-    // Retain the highest status requested while a save is in flight (DRAFT=1, RETURNED=2)
-    if (status) {
-      this._pendingSaveStatus = Math.max(this._pendingSaveStatus || 0, status);
-    }
+    const pending = this._pendingChanges;
+    if (!pending) return Promise.resolve();
 
-    if (this._savingPromise) {
-      this._saveAgain = true;
-      return this._savingPromise;
-    }
-
-    if (!this._pendingChanges) {
-      this._pendingSaveStatus = null;
-      return Promise.resolve();
-    }
-
-    this._pendingChanges.status = this._pendingSaveStatus || status || 1;
-
-    if (this._evaluation?.id && !this._pendingChanges.id) {
-      this._pendingChanges.id = this._evaluation.id;
-    }
-    if (this._evaluation?.metadata && !this._pendingChanges.metadata) {
-      this._pendingChanges.metadata = this._evaluation.metadata;
-    }
-    if (!this._pendingChanges.associationId) {
-      this._pendingChanges.associationId = this._evaluation?.associationId || this.association?.id;
-    }
-
-    let url = `/api/sites/${this.siteId}/rubric-evaluations`;
-    if (this._pendingChanges.id) url += `/${this._pendingChanges.id}`;
-
-    this._savingPromise = fetch(url, {
-      body: JSON.stringify(this._pendingChanges),
-      headers: { "Content-Type": "application/json" },
-      method: this._pendingChanges.id ? "PUT" : "POST",
-    })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-
-      throw new Error("Server error while saving rubric evaluation");
-    })
-    .then(data => {
-      this._evaluation = data;
-      // Keep newer pending edits queued while this save was in flight
-      if (!this._saveAgain) {
+    return this._saveEvaluation({ ...pending, status }).then(() => {
+      // Edits made after Save remain unsaved until the next explicit Save.
+      if (this._pendingChanges === pending) {
         this._pendingChanges = null;
-      }
-      this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
-    })
-    .catch(error => {
-      console.error(error);
-      throw error;
-    })
-    .finally(async () => {
-      this._savingPromise = null;
-
-      if (this._saveAgain && this._pendingChanges) {
-        const againStatus = this._pendingSaveStatus || this._pendingChanges.status || 1;
-        this._saveAgain = false;
-        this._pendingSaveStatus = null;
-        await this._savePendingChanges(againStatus);
-      } else {
-        this._saveAgain = false;
-        this._pendingSaveStatus = null;
+        this.requestUpdate();
       }
     });
+  }
 
-    return this._savingPromise;
+  _saveEvaluation(evaluation) {
+
+    const context = this._saveContext;
+    const persist = async () => {
+      if (context !== this._saveContext) {
+        throw new Error("Rubric evaluation changed before saving");
+      }
+
+      // A queued POST may have created the evaluation since this save was requested.
+      const payload = { ...evaluation, id: this._evaluation.id, metadata: this._evaluation.metadata };
+      let url = `/api/sites/${this.siteId}/rubric-evaluations`;
+      if (payload.id) url += `/${payload.id}`;
+      const response = await fetch(url, {
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        method: payload.id ? "PUT" : "POST",
+      });
+      if (!response.ok) throw new Error("Server error while saving rubric evaluation");
+
+      const saved = await response.json();
+      if (context === this._saveContext) {
+        this._evaluation = saved;
+        this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
+      }
+      return saved;
+    };
+    // A failed request must not prevent a later explicit retry.
+    context.promise = context.promise.then(persist, persist);
+    return context.promise;
   }
 
   decorateCriteria() {
@@ -511,44 +445,13 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     }
 
     // If defer-save is enabled, store the changes locally instead of saving immediately
-    if (this._deferAutoSave && status === 1) {
+    if (this.deferSave && status === 1) {
       this._pendingChanges = evaluation;
-      if (this._savingPromise) {
-        this._saveAgain = true;
-      }
-
       this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
       return Promise.resolve(evaluation);
     }
 
-    // Normal behavior: save immediately to server
-    let url = `/api/sites/${this.siteId}/rubric-evaluations`;
-    if (this._evaluation?.id) url += `/${this._evaluation.id}`;
-    return fetch(url, {
-      body: JSON.stringify(evaluation),
-      headers: { "Content-Type": "application/json" },
-      method: this._evaluation?.id ? "PUT" : "POST",
-    })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-
-      throw new Error("Server error while saving rubric evaluation");
-    })
-    .then(data => {
-
-      this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
-      this._evaluation = data;
-      // Clear pending changes since we've saved successfully
-      this._pendingChanges = null;
-      return this._evaluation;
-    })
-    .catch(error => {
-      console.error(error);
-      throw error;
-    });
+    return this._saveEvaluation(evaluation);
   }
 
   getOverriddenClass(ovrdvl, selected) {
@@ -661,13 +564,15 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     }
   }
 
-  cancel() {
+  async cancel() {
 
-    // In defer-save mode, just clear pending changes and restore state
-    if (this._deferAutoSave) {
+    if (this.deferSave) {
       this._pendingChanges = null;
-      this._saveAgain = false;
-      this._pendingSaveStatus = null;
+      const context = this._saveContext;
+      // An explicit Save remains saved; Cancel discards only subsequent edits.
+      await context.promise.catch(error => console.error(error));
+      if (context !== this._saveContext) return;
+      this._pendingChanges = null;
       // Clear any ratings and restore original state
       this._criteria.forEach(c => {
         c.ratings.forEach(r => r.selected = false);
@@ -685,7 +590,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       this.updateTotalPoints();
       this.querySelectorAll("sakai-rubric-grading-comment").forEach(gc => gc.requestUpdate());
       this.requestUpdate();
-      return Promise.resolve();
+      return;
     }
 
     // Original behavior for auto-save mode
@@ -693,7 +598,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
     const url = `/api/sites/${this.siteId}/rubric-evaluations/${this._evaluation.id}/cancel`;
 
-    fetch(url, { credentials: "include" })
+    return fetch(url, { credentials: "include" })
     .then(r => {
 
       if (r.ok) {
@@ -719,20 +624,23 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       return;
     }
 
+    const context = this._saveContext;
     this.apiGetAssociation()
       .then(association => {
+        if (context !== this._saveContext) return;
 
         this.association = association;
         this._rubricId = association.rubricId;
-        this._getRubric(this._rubricId);
+        this._getRubric(this._rubricId, context);
       })
       .catch (error => console.error(error));
   }
 
-  _getRubric(rubricId) {
+  _getRubric(rubricId, context = this._saveContext) {
 
     this.apiGetRubric(rubricId)
       .then(rubric => {
+        if (context !== this._saveContext) return;
 
         this._rubric = rubric;
         this._criteria = this._rubric.criteria;
@@ -741,6 +649,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
           this.apiGetEvaluation()
             .then(evaluation => {
+              if (context !== this._saveContext) return;
 
               this._evaluation = evaluation || { criterionOutcomes: [] };
               this._criteria.forEach(c => {

@@ -24,15 +24,12 @@ describe("sakai-rubric-grading tests", () => {
     fetchMock.get(data.rubric1Url, data.rubric1)
       .get(data.associationUrl, data.association)
       .get(data.evaluationUrl, data.evaluation)
-      .post(`/api/sites/${data.siteId}/rubric-evaluations`, ({ url, options }) => {
+      .post(`/api/sites/${data.siteId}/rubric-evaluations`, ({ options }) => {
 
-        return Object.assign({
-          id: "" + Math.floor(Math.random() * 20) + 1,
-          creator: "adrian",
-          created: Date.now(),
-          creatorDisplayName: "Adrian Fish",
-        }, JSON.parse(options.body));
-      });
+        return { ...JSON.parse(options.body), id: "saved-evaluation" };
+      })
+      .put(`/api/sites/${data.siteId}/rubric-evaluations/saved-evaluation`,
+        ({ options }) => JSON.parse(options.body));
 
     const el = await fixture(html`
       <sakai-rubric-grading
@@ -80,10 +77,12 @@ describe("sakai-rubric-grading tests", () => {
     expect(el.querySelectorAll(".fine-tune-points").length).to.equal(2);
     const fineTuneInput = el.querySelector(".fine-tune-points");
     fineTuneInput.value = "1.8";
+    const fineTuneSaved = oneEvent(el, "rubric-ratings-changed");
     fineTuneInput.dispatchEvent(new Event("input"));
     await el.updateComplete;
     // The total points should be 1.8 (criterion1) + 3 (criterion2) = 4.8
     expect(totalPoints.value).to.equal("4.8");
+    await fineTuneSaved;
   });
 
   it ("only marks changed fine-tuned points as adjusted", async () => {
@@ -256,5 +255,163 @@ describe("sakai-rubric-grading tests", () => {
 
     await waitUntil(() => el.querySelector(".criterion-row"), "No criterion rows rendered");
     expect(el.querySelector(`select[aria-label="${el._i18n.rubric_view_selection_title}"]`)).to.not.exist;
+  });
+});
+
+
+describe("deferred rubric grading", () => {
+  const saveUrl = `/api/sites/${data.siteId}/rubric-evaluations`;
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock.get(data.i18nUrl, data.i18n)
+      .get(data.rubric1Url, data.rubric1)
+      .get(data.associationUrl, data.association);
+  });
+
+  afterEach(() => fetchMock.hardReset());
+
+  async function grading(evaluation = data.evaluation) {
+    fetchMock.get(data.evaluationUrl, evaluation);
+    const el = await fixture(html`
+      <sakai-rubric-grading
+          site-id="${data.siteId}" tool-id="${data.toolId}"
+          entity-id="${data.entityId}" evaluated-item-id="${data.evaluatedItemId}"
+          evaluated-item-owner-id="${data.evaluatedItemOwnerId}" defer-save>
+      </sakai-rubric-grading>
+    `);
+    await waitUntil(() => el.querySelector("#rating-item-1"));
+    return el;
+  }
+
+  function delayedSave() {
+    let finish;
+    const response = new Promise(resolve => finish = resolve);
+    const requests = [];
+    fetchMock.post(saveUrl, ({ options }) => {
+      requests.push(JSON.parse(options.body));
+      return response;
+    });
+    return { requests, finish: () => finish({ ...requests[0], id: "saved-a" }) };
+  }
+
+  it("discards edits without deleting a previously saved draft", async () => {
+    const el = await grading({ ...data.evaluation, id: "existing-draft", status: "DRAFT" });
+    el.querySelector("#rating-item-1").click();
+    expect(el.hasPendingChanges()).to.be.true;
+    await el.cancel();
+    await elementUpdated(el);
+    expect(el.hasPendingChanges()).to.be.false;
+    expect(el.querySelector("#sakai-rubrics-total-points").textContent).to.contain("5");
+    expect(fetchMock.callHistory.calls(saveUrl)).to.have.length(0);
+  });
+
+  it("saves an unchanged released rubric as draft when explicitly saved", async () => {
+    const requests = [];
+    fetchMock.put(`${saveUrl}/returned`, ({ options }) => {
+      requests.push(JSON.parse(options.body));
+      return requests[0];
+    });
+    const el = await grading({ ...data.evaluation, id: "returned", status: "RETURNED" });
+    await el.save();
+    expect(requests).to.have.length(1);
+    expect(requests[0].status).to.equal(1);
+    expect(requests[0].criterionOutcomes[0].points).to.equal(2);
+  });
+
+  it("keeps edits made during Save pending until explicitly saved", async () => {
+    const server = delayedSave();
+    const el = await grading();
+    el.querySelector("#rating-item-1").click();
+    const saving = el.save();
+    await waitUntil(() => server.requests.length === 1);
+    el.querySelector("#rating-item-2").click();
+    server.finish();
+    await saving;
+    expect(el.hasPendingChanges()).to.be.true;
+    expect(server.requests).to.have.length(1);
+    expect(server.requests[0].criterionOutcomes[0].selectedRatingId).to.equal(1);
+  });
+
+  it("serializes Save and Release using the newly created evaluation id", async () => {
+    const server = delayedSave();
+    const releases = [];
+    fetchMock.put(`${saveUrl}/saved-a`, ({ options }) => {
+      releases.push(JSON.parse(options.body));
+      return releases[0];
+    });
+    const el = await grading();
+    el.querySelector("#rating-item-1").click();
+    const saving = el.save();
+    await waitUntil(() => server.requests.length === 1);
+    const releasing = el.release();
+    server.finish();
+    await Promise.all([ saving, releasing ]);
+    expect(server.requests[0].status).to.equal(1);
+    expect(releases).to.have.length(1);
+    expect(releases[0].status).to.equal(2);
+    expect(el.hasPendingChanges()).to.be.false;
+  });
+
+  it("waits for an explicit Save before canceling subsequent edits", async () => {
+    const server = delayedSave();
+    const el = await grading();
+    el.querySelector("#rating-item-1").click();
+    const saving = el.save();
+    await waitUntil(() => server.requests.length === 1);
+    el.querySelector("#rating-item-2").click();
+    let canceled = false;
+    const canceling = el.cancel().then(() => canceled = true);
+    await Promise.resolve();
+    expect(canceled).to.be.false;
+    server.finish();
+    await Promise.all([ saving, canceling ]);
+    await elementUpdated(el);
+    expect(el.hasPendingChanges()).to.be.false;
+    expect(el.querySelector("#sakai-rubrics-total-points").textContent).to.contain("4");
+    expect(server.requests).to.have.length(1);
+  });
+
+  it("retains edits and propagates a failed save so it can be retried", async () => {
+    fetchMock.post(saveUrl, 500, { repeat: 1 });
+    const el = await grading();
+    el.querySelector("#rating-item-1").click();
+    let failure;
+    try {
+      await el.save();
+    } catch (error) {
+      failure = error;
+    }
+    expect(failure).to.be.instanceOf(Error);
+    expect(el.hasPendingChanges()).to.be.true;
+    fetchMock.removeRoutes();
+    fetchMock.post(saveUrl, ({ options }) => ({ ...JSON.parse(options.body), id: "retry" }));
+    await el.save();
+    expect(el.hasPendingChanges()).to.be.false;
+  });
+
+  it("ignores an old student's save response after switching students", async () => {
+    const server = delayedSave();
+    const nextUrl = data.evaluationUrl.replace(data.evaluatedItemId, "student-b");
+    fetchMock.get(nextUrl, { ...data.evaluation, id: "saved-b" });
+    const requestsForB = [];
+    fetchMock.put(`${saveUrl}/saved-b`, ({ options }) => {
+      requestsForB.push(JSON.parse(options.body));
+      return requestsForB[0];
+    });
+    const el = await grading();
+    el.querySelector("#rating-item-1").click();
+    const saving = el.save();
+    await waitUntil(() => server.requests.length === 1);
+    el.setAttribute("evaluated-item-id", "student-b");
+    await waitUntil(() => fetchMock.callHistory.calls(nextUrl).length > 0);
+    await waitUntil(() => el.querySelector("#rbcs-student-b-entity1-totalpoints")?.value === "5");
+    server.finish();
+    await saving;
+    el.querySelector("#rating-item-1").click();
+    await el.save();
+    expect(requestsForB).to.have.length(1);
+    expect(requestsForB[0].evaluatedItemId).to.equal("student-b");
+    expect(requestsForB[0].id).to.equal("saved-b");
   });
 });

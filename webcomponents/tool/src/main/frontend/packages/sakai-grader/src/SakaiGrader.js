@@ -500,7 +500,9 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   /**
    * Submit the data, optionally releasing based on a data attribute
    */
-  _save(e) {
+  async _save(e) {
+
+    if (this._saving) return;
 
     const release = e.target ? e.target.dataset.release : false;
     const formData = this._getFormData();
@@ -508,23 +510,23 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     if (formData.valid) {
       formData.set("gradeOption", release ? "return" : "retract");
 
-      const rubricGrading = this.querySelector("sakai-rubric-grading");
-      let rubricPromise = Promise.resolve();
-      if (rubricGrading) {
-        if (release) {
-          rubricPromise = Promise.resolve(rubricGrading.release());
-        } else if (rubricGrading.hasPendingChanges && rubricGrading.hasPendingChanges()) {
-          rubricPromise = Promise.resolve(rubricGrading.forceSave(1));
+      const submissionId = this._submission.id;
+      this._saving = true;
+      this.inert = true;
+      try {
+        const rubricGrading = this.querySelector("sakai-rubric-grading");
+        if (rubricGrading) await (release ? rubricGrading.release() : rubricGrading.save());
+        if (this._submission.id === submissionId) {
+          await this._submitGradingData(formData, e.bannerTimout);
         }
+      } catch (error) {
+        console.error("Failed to save rubric before grading submit", error);
+        this._saveFailed = true;
+        setTimeout(() => this._saveFailed = false, 2000);
+      } finally {
+        this._saving = false;
+        this.inert = false;
       }
-
-      rubricPromise
-        .then(() => this._submitGradingData(formData, e.bannerTimout))
-        .catch(error => {
-          console.error("Failed to save rubric before grading submit", error);
-          this._saveFailed = true;
-          setTimeout(() => this._saveFailed = false, 2000);
-        });
     }
   }
 
@@ -532,7 +534,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this._saving = true;
 
-    fetch("/direct/assignment/setGrade.json", {
+    return fetch("/direct/assignment/setGrade.json", {
       method: "POST",
       cache: "no-cache",
       body: formData
@@ -634,7 +636,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _toStudentList(e) {
 
-    // Check for unsaved changes before navigating
+    e.preventDefault();
     if (this.modified) {
       if (!confirm(this._i18n.unsaved_changes_warning)) {
         return;
@@ -643,7 +645,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       this._cancel(false);
     }
 
-    e.preventDefault();
     location.href = this.userListUrl;
   }
 
