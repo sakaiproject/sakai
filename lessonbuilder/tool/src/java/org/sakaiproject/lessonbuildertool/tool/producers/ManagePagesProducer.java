@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -157,19 +159,21 @@ public class ManagePagesProducer implements ViewComponentProducer, NavigationCas
             }
 
             UIBranchContainer row = UIBranchContainer.make(tofill, "active-page:");
+            int displayLevel = Math.min(node.level(), 5);
+            row.decorate(new UIFreeAttributeDecorator("class", pageIndexCssClass(node.topLevel(), displayLevel)));
+            row.decorate(new UIFreeAttributeDecorator("style", "--page-level: " + displayLevel));
+            row.decorate(new UIFreeAttributeDecorator("data-level", Integer.toString(displayLevel)));
             UIOutput.make(row, "status-image").decorate(new UIStyleDecorator(iconClass));
 
-            int level = Math.min(node.level(), 5);
             GeneralViewParameters pageView = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
             pageView.setSendingPage(node.page().getPageId());
             pageView.setItemId(node.pageItem().getId());
             pageView.setPath("log");
-            UIInternalLink.make(row, "link", pageView)
-                    .decorate(new UIFreeAttributeDecorator("style", "padding-left: " + level + "em"));
+            UIInternalLink.make(row, "link", pageView);
 
-            if (level > 0) {
+            if (displayLevel > 0) {
                 String levelText = messageLocator.getMessage("simplepage.status.level")
-                        .replace("{}", Integer.toString(level));
+                        .replace("{}", Integer.toString(displayLevel));
                 status = status == null ? levelText : levelText + " " + status;
             }
             if (status != null) {
@@ -182,19 +186,33 @@ public class ManagePagesProducer implements ViewComponentProducer, NavigationCas
         }
     }
 
+    private String pageIndexCssClass(boolean topLevel, int displayLevel) {
+        StringBuilder css = new StringBuilder("page-picker-item");
+        if (topLevel) {
+            css.append(" top-level-page");
+        }
+        if (displayLevel > 0) {
+            css.append(" page-picker-item-nested");
+        }
+        return css.toString();
+    }
+
     private void renderPageNote(UIBranchContainer row, PageNode node,
             Set<Long> sharedPageIds, boolean canEditPage) {
         if (!canEditPage) {
             return;
         }
-        String note = sharedPageIds.contains(node.page().getPageId())
-                ? messageLocator.getMessage("simplepage.sharedpage") : null;
+        if (sharedPageIds.contains(node.page().getPageId())) {
+            UIOutput.make(row, "shared");
+            UIOutput.make(row, "shared-text", messageLocator.getMessage("simplepage.sharedpage.label"));
+        }
+
         String release = simplePageBean.getReleaseString(node.pageItem(), localeGetter.get());
         if (release != null) {
-            note = note == null ? release : note + release;
-        }
-        if (note != null) {
-            UIOutput.make(row, "shared", note);
+            SimplePage page = node.page();
+            UIOutput.make(row, "release").decorate(new UIStyleDecorator(releaseCssClass(page)));
+            UIOutput.make(row, "release-icon").decorate(new UIStyleDecorator(releaseIconClass(page)));
+            UIOutput.make(row, "release-text", release);
         }
 
         if (ServerConfigurationService.getBoolean("lessonbuilder.accessibilitydebug", false)) {
@@ -218,6 +236,28 @@ public class ManagePagesProducer implements ViewComponentProducer, NavigationCas
                 UIOutput.make(row, "item2");
             }
         }
+    }
+
+    private String releaseCssClass(SimplePage page) {
+        if (page.isHidden()) {
+            return "badge rounded-pill text-bg-secondary page-picker-badge";
+        }
+        Date releaseDate = page.getReleaseDate();
+        if (releaseDate != null && Instant.now().isBefore(releaseDate.toInstant())) {
+            return "badge rounded-pill text-bg-warning page-picker-badge";
+        }
+        return "page-picker-release-note";
+    }
+
+    private String releaseIconClass(SimplePage page) {
+        if (page.isHidden()) {
+            return "bi-eye-slash";
+        }
+        Date releaseDate = page.getReleaseDate();
+        if (releaseDate != null && Instant.now().isBefore(releaseDate.toInstant())) {
+            return "bi-clock";
+        }
+        return "bi-calendar-check";
     }
 
     private void renderPageItems(UIBranchContainer row, Long pageId) {
@@ -294,6 +334,7 @@ public class ManagePagesProducer implements ViewComponentProducer, NavigationCas
         for (int index = 0; index < removedPages.size(); index++) {
             SimplePage page = removedPages.get(index);
             UIBranchContainer row = UIBranchContainer.make(form, "removed-page:");
+            row.decorate(new UIFreeAttributeDecorator("class", "page-picker-item removed-page"));
             UISelectChoice choice = UISelectChoice.make(row, "select-for-deletion", selection.getFullID(), index);
             choice.decorate(new UIFreeAttributeDecorator("id", choice.getFullID()));
             choice.decorate(new UIFreeAttributeDecorator("data-page-title", page.getTitle()));

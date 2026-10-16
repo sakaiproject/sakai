@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,6 +61,7 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
+import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -234,27 +237,32 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             int level, boolean topLevel, Long itemId, Set<Long> sharedPageIds, String siteId,
             boolean disableSelection) {
         UIBranchContainer row = UIBranchContainer.make(rowContainer, branchId);
-        if (topLevel) {
-            row.decorate(new UIFreeAttributeDecorator("class", "top-level-page"));
-        }
+        int displayLevel = Math.min(level, 5);
+        row.decorate(new UIFreeAttributeDecorator("class", pageChoiceCssClass(topLevel, displayLevel, disableSelection)));
+        row.decorate(new UIFreeAttributeDecorator("style", "--page-level: " + displayLevel));
+        row.decorate(new UIFreeAttributeDecorator("data-level", Integer.toString(displayLevel)));
+
         UISelectChoice radio = UISelectChoice.make(row, "select", select.getFullID(), index);
+        radio.decorate(new UIStyleDecorator("form-check-input page-picker-select"));
         radio.decorate(new UIFreeAttributeDecorator("title",
                 title + " " + messageLocator.getMessage("simplepage.select")));
         if (disableSelection) {
             radio.decorate(new UIFreeAttributeDecorator("disabled", "disabled"));
         }
 
+        UIOutput.make(row, "page-icon")
+                .decorate(new UIStyleDecorator(topLevel ? "bi-folder2" : "bi-file-earmark-text"));
+
         GeneralViewParameters preview = new GeneralViewParameters(PreviewProducer.VIEW_ID);
         preview.setSendingPage(page.getPageId());
         preview.setSiteId(siteId);
         UIInternalLink.make(row, "link", preview)
-                .decorate(new UIFreeAttributeDecorator("style", "padding-left: " + Math.min(level, 5) + "em"))
                 .decorate(new UIFreeAttributeDecorator("target", "_blank"))
                 .decorate(new UIFreeAttributeDecorator("rel", "noopener"));
         String linkNote = messageLocator.getMessage("simplepage.opens-in-new") + ". ";
-        if (level > 0) {
+        if (displayLevel > 0) {
             linkNote = messageLocator.getMessage("simplepage.status.level")
-                    .replace("{}", Integer.toString(Math.min(level, 5))) + " " + linkNote;
+                    .replace("{}", Integer.toString(displayLevel)) + " " + linkNote;
         }
         UIOutput.make(row, "link-note", linkNote);
         UIOutput.make(row, "link-text", title);
@@ -263,33 +271,81 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             return;
         }
 
-        String note = sharedPageIds.contains(page.getPageId())
-                ? messageLocator.getMessage("simplepage.sharedpage") : null;
-        String release = simplePageBean.getReleaseString(simplePageBean.findItem(itemId), localeGetter.get());
-        if (release != null) {
-            note = note == null ? release : note + release;
+        renderPageMeta(row, page, itemId, sharedPageIds);
+        renderAccessibilityDebug(row, page, itemId, siteId);
+    }
+
+    private String pageChoiceCssClass(boolean topLevel, int displayLevel, boolean disableSelection) {
+        StringBuilder css = new StringBuilder("page-picker-item");
+        if (topLevel) {
+            css.append(" top-level-page");
         }
-        if (note != null) {
-            UIOutput.make(row, "shared", note);
+        if (displayLevel > 0) {
+            css.append(" page-picker-item-nested");
+        }
+        if (disableSelection) {
+            css.append(" page-picker-item-disabled");
+        }
+        return css.toString();
+    }
+
+    private void renderPageMeta(UIBranchContainer row, SimplePage page, Long itemId, Set<Long> sharedPageIds) {
+        if (sharedPageIds.contains(page.getPageId())) {
+            UIOutput.make(row, "shared");
+            UIOutput.make(row, "shared-text", messageLocator.getMessage("simplepage.sharedpage.label"));
         }
 
-        if (ServerConfigurationService.getBoolean("lessonbuilder.accessibilitydebug", false)) {
-            if (lessonsAccess.isPageAccessible(page.getPageId(), siteId,
-                    "c08d3ac9-c717-472a-ad91-7ce0b434f42f", null)) {
-                UIOutput.make(row, "page1");
-            }
-            if (lessonsAccess.isPageAccessible(page.getPageId(), siteId,
-                    "c08d3ac9-c717-472a-ad91-7ce0b434f42f", simplePageBean)) {
-                UIOutput.make(row, "page2");
-            }
-            if (lessonsAccess.isItemAccessible(itemId, siteId,
-                    "c08d3ac9-c717-472a-ad91-7ce0b434f42f", null)) {
-                UIOutput.make(row, "item1");
-            }
-            if (lessonsAccess.isItemAccessible(itemId, siteId,
-                    "c08d3ac9-c717-472a-ad91-7ce0b434f42f", simplePageBean)) {
-                UIOutput.make(row, "item2");
-            }
+        String release = simplePageBean.getReleaseString(simplePageBean.findItem(itemId), localeGetter.get());
+        if (release == null) {
+            return;
+        }
+
+        UIOutput.make(row, "release").decorate(new UIStyleDecorator(releaseCssClass(page)));
+        UIOutput.make(row, "release-icon").decorate(new UIStyleDecorator(releaseIconClass(page)));
+        UIOutput.make(row, "release-text", release);
+    }
+
+    private String releaseCssClass(SimplePage page) {
+        if (page.isHidden()) {
+            return "badge rounded-pill text-bg-secondary page-picker-badge";
+        }
+        Date releaseDate = page.getReleaseDate();
+        if (releaseDate != null && Instant.now().isBefore(releaseDate.toInstant())) {
+            return "badge rounded-pill text-bg-warning page-picker-badge";
+        }
+        return "page-picker-release-note";
+    }
+
+    private String releaseIconClass(SimplePage page) {
+        if (page.isHidden()) {
+            return "bi-eye-slash";
+        }
+        Date releaseDate = page.getReleaseDate();
+        if (releaseDate != null && Instant.now().isBefore(releaseDate.toInstant())) {
+            return "bi-clock";
+        }
+        return "bi-calendar-check";
+    }
+
+    private void renderAccessibilityDebug(UIBranchContainer row, SimplePage page, Long itemId, String siteId) {
+        if (!ServerConfigurationService.getBoolean("lessonbuilder.accessibilitydebug", false)) {
+            return;
+        }
+        if (lessonsAccess.isPageAccessible(page.getPageId(), siteId,
+                "c08d3ac9-c717-472a-ad91-7ce0b434f42f", null)) {
+            UIOutput.make(row, "page1");
+        }
+        if (lessonsAccess.isPageAccessible(page.getPageId(), siteId,
+                "c08d3ac9-c717-472a-ad91-7ce0b434f42f", simplePageBean)) {
+            UIOutput.make(row, "page2");
+        }
+        if (lessonsAccess.isItemAccessible(itemId, siteId,
+                "c08d3ac9-c717-472a-ad91-7ce0b434f42f", null)) {
+            UIOutput.make(row, "item1");
+        }
+        if (lessonsAccess.isItemAccessible(itemId, siteId,
+                "c08d3ac9-c717-472a-ad91-7ce0b434f42f", simplePageBean)) {
+            UIOutput.make(row, "item2");
         }
     }
 
