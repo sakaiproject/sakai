@@ -426,6 +426,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 		context.put("clientId", toolBean.getLti13ClientId());
+		context.put("toolId", toolBean.getId());
+		context.put("openDeploy", "true".equals(data.getParameters().getString("openDeploy")));
 
 		String keySetUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
 		context.put("keySetUrl", keySetUrl);
@@ -1485,7 +1487,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("autoRegistrationUrl", autoRegistrationUrl);
 
 		// Tool Deployment
-		context.put("canDeploy", ltiService.isAdmin(getSiteId(state)) && StringUtils.isEmpty(siteId));
+		boolean canDeploy = ltiService.isAdmin(getSiteId(state)) && StringUtils.isEmpty(siteId);
+		context.put("canDeploy", canDeploy);
+		// Set when the tool was saved from the Deploy button so the deployment panel opens on the saved tool
+		context.put("openDeploy", canDeploy && "true".equals(data.getParameters().getString("openDeploy")));
+		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
+		state.removeAttribute(STATE_SUCCESS);
 		String deployUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
 				+ "?panel=ToolSiteDeploy"
 				+ "&tool_id=" + toolBean.id;
@@ -1508,6 +1515,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		Properties reqProps = data.getParameters().getProperties();
+		boolean openDeploy = "true".equals(reqProps.getProperty("openDeploy"));
+		reqProps.remove("openDeploy");
 
 		String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
 		if (LTIService.SECRET_HIDDEN.equals(newSecret)) {
@@ -1550,7 +1559,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		state.setAttribute(STATE_SUCCESS, rb.getString("success.updated"));
 		if ( displayPostInsert ) {
-			switchPanel(state, "ToolPostInsert&id=" + id);
+			// Carry the deploy request through the registration details page
+			switchPanel(state, "ToolPostInsert&id=" + id + (openDeploy ? "&openDeploy=true" : ""));
+		} else if ( openDeploy ) {
+			switchPanel(state, "ToolEdit&id=" + id + "&openDeploy=true");
 		} else {
 			switchPanel(state, "ToolSystem");
 		}
