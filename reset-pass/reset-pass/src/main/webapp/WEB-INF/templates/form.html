@@ -106,7 +106,7 @@
                             errorMsg.hidden = true;
                             emailSentMsg.hidden = false;
                             var message = response.exception_msg;
-                            emailSentMsg.innerHTML = message;
+                            emailSentMsg.textContent = message;
                         }
 
                         if (response.email_sent_msg !== undefined) {

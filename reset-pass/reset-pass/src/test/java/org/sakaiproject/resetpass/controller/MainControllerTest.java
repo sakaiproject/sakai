@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -106,7 +107,7 @@ public class MainControllerTest {
     }
 
     private void assertResetLinkRequested(boolean validateNewUsers) throws Exception {
-        when(configuration.getBoolean(anyString(), anyBoolean())).thenReturn(validateNewUsers);
+        when(configuration.getBoolean(eq("siteManage.validateNewUsers"), anyBoolean())).thenReturn(validateNewUsers);
         JsonNode response = submitReset();
         assertEquals("Sakai has attempted to send a password change email to " + EMAIL + ".", response.get("email_sent_msg").asText());
         verify(validations).createValidationAccount(USER_ID, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
