@@ -1748,6 +1748,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         for (String groupRef : currentAssignedGroupRefs) {
                             try {
                                 Group assignedGroup = site.getGroup(groupRef);
+                                if (assignedGroup == null) {
+                                    continue;
+                                }
                                 boolean isAccessGroup = StringUtils.isNotBlank(assignedGroup.getProperties().getProperty("lessonbuilder_ref"));
 
                                 AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
@@ -1986,7 +1989,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             Site site = siteService.getSite(assignment.getContext());
                             Collection<Group> groups = new ArrayList<>();
                             for (String groupRef : assignment.getGroups()) {
-                                groups.add(site.getGroup(groupRef));
+                                Group group = site.getGroup(groupRef);
+                                if (group != null) {
+                                    groups.add(group);
+                                }
                             }
                             header.setGroupAccess(groups);
                         } catch (Exception exception) {
