@@ -63,6 +63,7 @@ import java.time.Instant;
 import java.time.Clock;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -418,7 +419,8 @@ public class AccountValidationServiceImpl implements AccountValidationService {
         }
         PasswordReset reset = new TransactionTemplate(transactionManager).execute(status -> {
             PasswordReset current = repository.lockPasswordReset(id);
-            Instant now = clock.instant();
+            // Timestamp columns keep microseconds. Truncate before insert so a later read matches this value.
+            Instant now = clock.instant().truncatedTo(ChronoUnit.MICROS);
             if (current.getToken() == null || current.getConsumedAt() != null || isPasswordResetExpired(current, now)) {
                 current.setToken(idManager.createUuid());
                 current.setCreatedAt(now);
@@ -519,7 +521,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
                 return PasswordResetResult.PASSWORD_REJECTED;
             }
             // Kernel user commits use a separate store. Consume durably first so crashes cannot enable replay.
-            Instant consumedAt = clock.instant();
+            Instant consumedAt = clock.instant().truncatedTo(ChronoUnit.MICROS);
             Instant consumptionDeadline = consumedAt.minusSeconds(positiveConfig(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT) * 60L);
             if (!repository.consumePasswordReset(token, consumptionDeadline, consumedAt)) {
                 return PasswordResetResult.INVALID_TOKEN;

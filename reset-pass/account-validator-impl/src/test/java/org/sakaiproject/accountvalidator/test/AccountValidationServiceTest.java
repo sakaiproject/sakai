@@ -457,6 +457,16 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void userLookupPrefersTheRequestedIdWhenBothFormsExist() {
+        ValidationAccount reference = service.createValidationAccount("/user/" + userOne, ValidationAccount.ACCOUNT_STATUS_LEGACY);
+        ValidationAccount bare = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_NEW);
+
+        Assert.assertEquals(bare.getId(), service.getValidationAccountByUserId(userOne).getId());
+        Assert.assertEquals(reference.getId(), service.getValidationAccountByUserId("/user/" + userOne).getId());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void passwordResetCooldownSuppressesRepeatedEmailsAndResendsRetainTheirExpiry() {
         PasswordReset first = service.sendPasswordReset(userOne);
         Assert.assertNull(service.sendPasswordReset(userOne));

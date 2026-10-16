@@ -19,6 +19,7 @@
  */
 package org.sakaiproject.accountvalidator.impl.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
@@ -38,6 +39,7 @@ import java.util.Optional;
  * Extends SpringCrudRepositoryImpl for standard CRUD operations and implements
  * custom query methods using Hibernate Criteria API.
  */
+@Slf4j
 @Transactional
 public class ValidationAccountRepositoryImpl extends SpringCrudRepositoryImpl<ValidationAccount, Long> implements ValidationAccountRepository {
 
@@ -68,13 +70,20 @@ public class ValidationAccountRepositoryImpl extends SpringCrudRepositoryImpl<Va
         Root<ValidationAccount> root = query.from(ValidationAccount.class);
 
         String id = org.sakaiproject.entitybroker.EntityReference.getIdFromRef(userId);
+        String reference = org.sakaiproject.user.api.UserDirectoryService.REFERENCE_ROOT + "/" + id;
         query.select(root)
-                .where(root.get("userId").in(id, org.sakaiproject.user.api.UserDirectoryService.REFERENCE_ROOT + "/" + id));
+                .where(root.get("userId").in(id, reference));
 
-        ValidationAccount result = sessionFactory.getCurrentSession()
+        List<ValidationAccount> results = sessionFactory.getCurrentSession()
                 .createQuery(query)
-                .uniqueResult();
-		return Optional.ofNullable(result);
+                .getResultList();
+        if (results.size() > 1) {
+            log.warn("Multiple validation accounts match user {}", id);
+        }
+        return results.stream()
+                .filter(account -> userId.equals(account.getUserId()))
+                .findFirst()
+                .or(() -> results.stream().findFirst());
 	}
 
 	@Override
