@@ -19,10 +19,12 @@
  */
 package org.sakaiproject.accountvalidator.api.repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.model.PasswordReset;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 /**
@@ -54,4 +56,16 @@ public interface ValidationAccountRepository extends SpringCrudRepository<Valida
 	 * @return List of validation accounts with the given status, empty list if none found
 	 */
 	List<ValidationAccount> findByStatus(Integer status);
+    /** Atomically consume an unexpired pending password-reset token in a committed transaction. */
+    boolean consumePasswordReset(String token, Instant earliestSent, Instant received);
+
+    Optional<PasswordReset> findPasswordResetByToken(String token);
+
+    Optional<PasswordReset> findPasswordResetByUserId(String userId);
+
+    /** Serialize issuance and return the current reset state. */
+    PasswordReset lockPasswordReset(String userId);
+
+    PasswordReset savePasswordReset(PasswordReset reset);
+
 }

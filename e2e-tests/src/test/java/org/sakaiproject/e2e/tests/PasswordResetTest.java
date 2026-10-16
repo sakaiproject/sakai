@@ -16,6 +16,11 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.microsoft.playwright.APIResponse;
+import com.microsoft.playwright.options.RequestOptions;
+import java.util.Map;
 
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -44,5 +49,16 @@ class PasswordResetTest extends SakaiUiTestBase {
         assertThat(page.locator("#error-msg")).isHidden();
         assertThat(page.locator("#instructionInfo")).isHidden();
         assertThat(page.locator("#instructions")).isHidden();
+    }
+    @Test
+    void resetCompletionRejectsInvalidTokensAndSubmittedTokenState() {
+        APIResponse invalidToken = page.request().post("/accountvalidator/passwordReset?tokenId=" + UUID.randomUUID(),
+                RequestOptions.create().setData(Map.of("password", "a long test password", "password2", "a long test password")));
+        assertEquals(200, invalidToken.status());
+        assertTrue(invalidToken.text().contains("\"error\""));
+
+        APIResponse forbiddenFields = page.request().post("/accountvalidator/passwordReset?tokenId=" + UUID.randomUUID(),
+                RequestOptions.create().setData(Map.of("password", "a long test password", "password2", "a long test password", "status", 0, "accountStatus", 1)));
+        assertEquals(400, forbiddenFields.status());
     }
 }

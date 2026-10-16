@@ -8,6 +8,7 @@
         <property name="annotatedClasses">
             <list>
                 <value>org.sakaiproject.accountvalidator.api.model.ValidationAccount</value>
+                <value>org.sakaiproject.accountvalidator.api.model.PasswordReset</value>
             </list>
         </property>
     </bean>
@@ -18,6 +19,12 @@
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
 
+    <bean id="accountValidationClock" class="java.time.Clock" factory-method="systemUTC" />
+    <bean id="passwordResetRequestService" class="org.sakaiproject.accountvalidator.impl.service.PasswordResetRequestService">
+        <property name="repository" ref="org.sakaiproject.accountvalidator.repository.ValidationAccountRepository" />
+        <property name="clock" ref="accountValidationClock" />
+    </bean>
+
 	<!-- Create the AccountValidationService bean -->
 	<bean id="org.sakaiproject.accountvalidator.service.AccountValidationService"
           class="org.sakaiproject.accountvalidator.impl.service.AccountValidationServiceImpl"
@@ -26,6 +33,9 @@
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
 		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
 		<property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
+        <property name="clock" ref="accountValidationClock"/>
+        <property name="passwordResetRequests" ref="passwordResetRequestService"/>
+        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 		<property name="repository" ref="org.sakaiproject.accountvalidator.repository.ValidationAccountRepository"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>

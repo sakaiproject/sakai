@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -111,6 +112,14 @@ public class MainControllerTest {
         verify(events).post(resetEvent);
         verify(users, never()).editUser(anyString());
         verify(configuration, never()).getBoolean(eq("siteManage.validateNewUsers"), anyBoolean());
+    }
+
+    @Test
+    public void dispatchFailureStillReturnsTheGenericConfirmation() throws Exception {
+        doThrow(new IllegalStateException("mail unavailable")).when(validations).sendPasswordReset(USER_ID);
+        JsonNode response = submitReset();
+        assertEquals("Sakai has attempted to send a password change email to " + EMAIL + ".", response.get("email_sent_msg").asText());
+        assertFalse(response.has("error_msg"));
     }
 
     @Test

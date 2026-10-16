@@ -17,10 +17,16 @@ package org.sakaiproject.accountvalidator.test;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.After;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.impl.jobs.CheckAccountsJob;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.accountvalidator.impl.service.AccountValidationServiceImpl;
@@ -37,6 +43,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
 
 import java.time.Instant;
+import org.hibernate.SessionFactory;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.sakaiproject.accountvalidator.api.model.PasswordReset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
@@ -45,6 +56,10 @@ import java.util.UUID;
 @ContextConfiguration(classes = {AccountValidationTestConfiguration.class})
 public class AccountValidationServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
 
+    @Autowired @Qualifier("validateJob") private CheckAccountsJob checkAccountsJob;
+    @Autowired private MutableClock clock;
+    @Autowired private SessionFactory sessionFactory;
+    @Autowired private PlatformTransactionManager transactionManager;
     @Autowired private AccountValidationService service;
     @Autowired private ValidationAccountRepository repository;
     @Autowired private IdManager idManager;
@@ -60,6 +75,12 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     public void setup() throws UserNotDefinedException {
         // Clear any existing test data
         repository.deleteAll();
+        TransactionTemplate cleanup = new TransactionTemplate(transactionManager);
+        cleanup.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        cleanup.executeWithoutResult(status -> sessionFactory.getCurrentSession()
+                .createQuery("from PasswordReset", PasswordReset.class).getResultList()
+                .forEach(quota -> sessionFactory.getCurrentSession().remove(quota)));
+        clock.setInstant(Instant.now());
 
 
         Mockito.when(resourceLoader.getLocale()).thenReturn(new java.util.Locale("en", "US"));
@@ -72,7 +93,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         Mockito.when(serverConfigurationService.getSmtpFrom()).thenReturn("noreply@example.com");
         Mockito.when(serverConfigurationService.getString(Mockito.eq("mail.support.name"), Mockito.anyString())).thenReturn("Support");
         Mockito.when(serverConfigurationService.getString(Mockito.anyString(), Mockito.anyString())).thenReturn("Support");
-        Mockito.when(serverConfigurationService.getInt(Mockito.anyString(), Mockito.anyInt())).thenReturn(60);
+        Mockito.when(serverConfigurationService.getInt(Mockito.anyString(), Mockito.anyInt())).thenAnswer(invocation -> invocation.getArgument(1));
 
         Mockito.when(idManager.createUuid()).thenAnswer(invocation -> UUID.randomUUID().toString());
 
@@ -91,6 +112,13 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         Mockito.when(userDirectoryService.userReference(Mockito.anyString())).thenAnswer(invocation ->
             "/user/" + invocation.getArgument(0)
         );
+    }
+
+    @After
+    public void cleanUpCommittedResets() {
+        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+            repository.deleteAll();
+        }
     }
 
     private User createMockUser(String userId) {
@@ -350,6 +378,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void testResendValidation() {
         ValidationAccount account = service.createValidationAccount(userOne);
         String token = account.getValidationToken();
@@ -368,99 +397,113 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     }
 
     @Test
-    public void sendPasswordResetCreatesAnAccountWhenNoneExists() {
-        ValidationAccount account = service.sendPasswordReset(userOne);
-
-        Assert.assertEquals("Account status should be PASSWORD_RESET",
-                Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET), account.getAccountStatus());
-        Assert.assertEquals("Status should be SENT", ValidationAccount.STATUS_SENT, account.getStatus());
-        Assert.assertEquals("User ID should match", userOne, service.getValidationAccountByUserId(userOne).getUserId());
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void sendPasswordResetCreatesAnIndependentToken() {
+        PasswordReset reset = service.sendPasswordReset(userOne);
+        Assert.assertEquals(userOne, reset.getUserId());
+        Assert.assertNotNull(service.getPasswordResetByToken(reset.getToken()));
+        Assert.assertNull("A reset must not create an account-validation record", service.getValidationAccountByUserId(userOne));
     }
 
     @Test
-    public void sendPasswordResetResendsAPendingAccount() {
-        ValidationAccount created = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void resetPreservesConfirmedAccountStateAndTheAccountCheckJobDoesNotDuplicateIt() throws Exception {
+        ValidationAccount validated = service.createValidationAccount("/user/" + userOne, ValidationAccount.ACCOUNT_STATUS_NEW);
+        validated.setStatus(ValidationAccount.STATUS_CONFIRMED);
+        validated.setValidationReceived(clock.instant());
+        service.save(validated);
+        User guest = userDirectoryService.getUser(userOne);
+        Mockito.when(guest.getType()).thenReturn("guest");
+        Mockito.when(userDirectoryService.getUsers()).thenReturn(List.of(guest));
 
-        ValidationAccount resent = service.sendPasswordReset(userOne);
+        PasswordReset reset = service.sendPasswordReset(userOne);
+        Assert.assertTrue(service.isAccountValidated(userOne));
+        Assert.assertTrue(service.isAccountValidated("/user/" + userOne));
+        checkAccountsJob.execute(null);
+        checkAccountsJob.execute(null);
 
-        Assert.assertEquals("The pending token should be resent", created.getValidationToken(), resent.getValidationToken());
-        Assert.assertEquals("Status should be RESENT", ValidationAccount.STATUS_RESENT, resent.getStatus());
-        Assert.assertNull("A pending reset has not been received", resent.getValidationReceived());
-        Assert.assertEquals("Validations sent count should be incremented", Integer.valueOf(2), resent.getValidationsSent());
+        Assert.assertEquals(1, repository.count());
+        Assert.assertEquals(validated.getId(), service.getValidationAccountByUserId(userOne).getId());
+        Assert.assertEquals(ValidationAccount.STATUS_CONFIRMED, service.getValidationAccountByUserId(userOne).getStatus());
+        Assert.assertNotNull(service.getValidationAccountBytoken(validated.getValidationToken()));
+        Assert.assertNotNull(service.getPasswordResetByToken(reset.getToken()));
     }
 
     @Test
-    public void sendPasswordResetCreatesANewLinkAfterConfirmation() {
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void resetPreservesConfirmationFromAnOlderCompletedReset() {
         ValidationAccount confirmed = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
         confirmed.setStatus(ValidationAccount.STATUS_CONFIRMED);
-        confirmed.setValidationReceived(Instant.now());
+        confirmed.setValidationReceived(clock.instant().minusSeconds(7000));
+        confirmed.setValidationSent(clock.instant().minusSeconds(7200));
         service.save(confirmed);
 
-        ValidationAccount created = service.sendPasswordReset(userOne);
+        service.sendPasswordReset(userOne);
 
-        Assert.assertNotEquals("A confirmed account receives a new token", confirmed.getValidationToken(), created.getValidationToken());
-        Assert.assertEquals("Account status should be PASSWORD_RESET",
-                Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET), created.getAccountStatus());
-        Assert.assertNull("The earlier token must no longer be usable",
-                service.getValidationAccountBytoken(confirmed.getValidationToken()));
-        Assert.assertEquals("The new reset must be the only validation for the user", created.getId(),
-                service.getValidationAccountByUserId(userOne).getId());
-
-        ValidationAccount resent = service.sendPasswordReset(userOne);
-
-        Assert.assertEquals("The next request should resend the new token", created.getValidationToken(), resent.getValidationToken());
-        Assert.assertEquals("Status should be RESENT", ValidationAccount.STATUS_RESENT, resent.getStatus());
+        Assert.assertTrue(service.isAccountValidated(userOne));
+        Assert.assertEquals(ValidationAccount.STATUS_CONFIRMED, service.getValidationAccountByUserId(userOne).getStatus());
+        Assert.assertEquals(confirmed.getId(), service.getValidationAccountByUserId(userOne).getId());
     }
 
     @Test
-    public void sendPasswordResetReplacesAConfirmedResetPastItsExpiryTime() {
-        ValidationAccount confirmed = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-        confirmed.setStatus(ValidationAccount.STATUS_CONFIRMED);
-        confirmed.setValidationSent(Instant.now().minus(2, ChronoUnit.HOURS));
-        confirmed.setValidationReceived(Instant.now().minus(90, ChronoUnit.MINUTES));
-        service.save(confirmed);
-
-        ValidationAccount created = service.sendPasswordReset(userOne);
-
-        Assert.assertNotEquals("A completed token must never be reactivated", confirmed.getValidationToken(), created.getValidationToken());
-        Assert.assertNull("The completed token must no longer be usable", service.getValidationAccountBytoken(confirmed.getValidationToken()));
-        Assert.assertEquals("Status should be SENT", ValidationAccount.STATUS_SENT, created.getStatus());
-        Assert.assertNull("The new reset has not been received", created.getValidationReceived());
-        Assert.assertFalse("The new token should be valid", service.isTokenExpired(created));
-        Assert.assertEquals("The new reset must be the only validation for the user", created.getId(),
-                service.getValidationAccountByUserId(userOne).getId());
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void resetDoesNotResendOrDeleteAnotherValidationWorkflow() {
+        ValidationAccount invitation = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_NEW);
+        PasswordReset reset = service.sendPasswordReset(userOne);
+        Assert.assertNotEquals(invitation.getValidationToken(), reset.getToken());
+        Assert.assertNotNull(service.getValidationAccountBytoken(invitation.getValidationToken()));
+        Assert.assertEquals(Integer.valueOf(1), service.getValidationAccountByUserId(userOne).getValidationsSent());
     }
 
     @Test
-    public void sendPasswordResetReplacesAnExpiredPasswordReset() {
-        ValidationAccount account = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-        account.setValidationSent(Instant.now().minus(2, ChronoUnit.HOURS));
-        service.save(account);
-
-        assertExpiredResetIsReplaced(account);
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void passwordResetCooldownSuppressesRepeatedEmailsAndResendsRetainTheirExpiry() {
+        PasswordReset first = service.sendPasswordReset(userOne);
+        Assert.assertNull(service.sendPasswordReset(userOne));
+        clock.advanceSeconds(60);
+        PasswordReset resent = service.sendPasswordReset(userOne);
+        Assert.assertEquals(first.getToken(), resent.getToken());
+        Assert.assertEquals(first.getCreatedAt(), resent.getCreatedAt());
     }
 
     @Test
-    public void sendPasswordResetReplacesAPreviouslyExpiredPasswordReset() {
-        ValidationAccount account = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-        account.setValidationSent(Instant.now().minus(2, ChronoUnit.HOURS));
-        service.save(account);
-        Assert.assertTrue("The original reset should be expired", service.isTokenExpired(account));
-
-        assertExpiredResetIsReplaced(account);
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void passwordResetRollingQuotaSurvivesTokenReplacement() {
+        for (int i = 0; i < 5; i++) {
+            PasswordReset reset = service.sendPasswordReset(userOne);
+            Assert.assertNotNull(reset);
+            Assert.assertTrue(repository.consumePasswordReset(reset.getToken(), clock.instant().minusSeconds(3600), clock.instant()));
+            clock.advanceSeconds(61);
+        }
+        Assert.assertNull(service.sendPasswordReset(userOne));
+        Assert.assertNotNull(service.sendPasswordReset(userTwo));
+        clock.advanceSeconds(3600);
+        Assert.assertNotNull(service.sendPasswordReset(userOne));
     }
 
-    private void assertExpiredResetIsReplaced(ValidationAccount account) {
-        ValidationAccount created = service.sendPasswordReset(userOne);
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void completedTokensAreReplacedAndCannotBeLookedUpAgain() {
+        PasswordReset first = service.sendPasswordReset(userOne);
+        Assert.assertTrue(repository.consumePasswordReset(first.getToken(), clock.instant().minusSeconds(3600), clock.instant()));
+        Assert.assertNull(service.getPasswordResetByToken(first.getToken()));
+        clock.advanceSeconds(61);
+        PasswordReset replacement = service.sendPasswordReset(userOne);
+        Assert.assertNotEquals(first.getToken(), replacement.getToken());
+        Assert.assertNull(repository.findPasswordResetByToken(first.getToken()).orElse(null));
+        Assert.assertNotNull(service.getPasswordResetByToken(replacement.getToken()));
+    }
 
-        Assert.assertNotEquals("An expired reset receives a fresh token", account.getValidationToken(), created.getValidationToken());
-        Assert.assertNull("The expired token must no longer be usable", service.getValidationAccountBytoken(account.getValidationToken()));
-        Assert.assertEquals("Status should be SENT", ValidationAccount.STATUS_SENT, created.getStatus());
-        Assert.assertNull("The new reset has not been received", created.getValidationReceived());
-        Assert.assertFalse("The new token should be valid", service.isTokenExpired(created));
-        Assert.assertEquals("The new reset must be the only validation for the user", created.getId(),
-                service.getValidationAccountByUserId(userOne).getId());
-        Assert.assertEquals("A subsequent request should resend the new token", created.getValidationToken(),
-                service.sendPasswordReset(userOne).getValidationToken());
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void resendingCannotKeepTheOriginalResetTokenAlive() {
+        PasswordReset first = service.sendPasswordReset(userOne);
+        clock.advanceSeconds(3500);
+        Assert.assertEquals(first.getToken(), service.sendPasswordReset(userOne).getToken());
+        clock.advanceSeconds(101);
+        Assert.assertNull(service.getPasswordResetByToken(first.getToken()));
+        PasswordReset replacement = service.sendPasswordReset(userOne);
+        Assert.assertNotEquals(first.getToken(), replacement.getToken());
+        Assert.assertNull(service.getPasswordResetByToken(first.getToken()));
     }
 }

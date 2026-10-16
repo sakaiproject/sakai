@@ -144,7 +144,11 @@ public class MainController {
         }
 
         if (!suppressSend) {
-            processAction(requestString);
+            try {
+                processAction(requestString.trim());
+            } catch (RuntimeException e) {
+                log.warn("Unable to dispatch password-reset email", e);
+            }
         }
 
         jsonResponse.put("email_sent_msg", emailSentMessage);
