@@ -536,6 +536,19 @@ $(document).ready(function () {
         // it's not really HTML, but I don't want any processing done on it
         $('#mm-names').html(names);
       };
+      // Prevent duplicate file uploads. This removes the 'name' attribute from selector input so the browser ignores it during submit.
+      const inputsFile = $(this).closest('form').find('input.mm-file-input[name="mm-file"]');
+      const viewedFiles = new Set();
+      for (let i = 0; i < inputsFile.length; i++) {
+        const currentInput = $(inputsFile[i]);
+        const currentValue = currentInput.val();
+        if (currentValue === '') continue;
+        if (viewedFiles.has(currentValue)) {
+            currentInput.removeAttr('name');
+        } else {
+            viewedFiles.add(currentValue);
+        }
+      }
       // prevent double click
       if (!mmactive) {
           return false;
