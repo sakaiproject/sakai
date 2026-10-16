@@ -269,14 +269,13 @@ class LessonsTest extends SakaiUiTestBase {
         }
 
         Locator checkbox = page.locator("#toolHolder .toolListControl")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile(
-                "^\\s*" + Pattern.quote(title) + "\\s*$", Pattern.CASE_INSENSITIVE)))
+            .filter(new Locator.FilterOptions().setHas(page.getByText(title,
+                new Page.GetByTextOptions().setExact(true))))
             .locator("input[type=\"checkbox\"][name=\"selectedTools\"]")
             .first();
         if (checkbox.count() == 0) {
             checkbox = page.getByRole(AriaRole.CHECKBOX,
-                new Page.GetByRoleOptions().setName(Pattern.compile(
-                    "^" + Pattern.quote(title) + "$", Pattern.CASE_INSENSITIVE))).first();
+                new Page.GetByRoleOptions().setName(title).setExact(true)).first();
         }
         assertThat(checkbox).isVisible();
         assertThat(checkbox).isChecked();
@@ -300,8 +299,8 @@ class LessonsTest extends SakaiUiTestBase {
         assertThat(app).isVisible();
 
         Locator row = page.locator(".tool-order-row")
-            .filter(new Locator.FilterOptions().setHasText(Pattern.compile(
-                "(^|\\n)\\s*" + Pattern.quote(title) + "\\s*($|\\n)", Pattern.CASE_INSENSITIVE)))
+            .filter(new Locator.FilterOptions().setHas(page.getByText(title,
+                new Page.GetByTextOptions().setExact(true))))
             .first();
         if (row.count() == 0) {
             row = page.locator(".tool-order-row")
@@ -327,9 +326,9 @@ class LessonsTest extends SakaiUiTestBase {
 
     private void assertNavigationLinkCount(String title, int expectedCount) {
         Locator currentSiteNavigation = page.locator(
-            "li.site-list-item.is-current-site .site-page-list a.btn-nav");
-        assertThat(currentSiteNavigation.filter(new Locator.FilterOptions()
-            .setHasText(Pattern.compile("^\\s*" + Pattern.quote(title) + "\\s*$", Pattern.CASE_INSENSITIVE))))
+            "li.site-list-item.is-current-site .site-page-list");
+        assertThat(currentSiteNavigation.getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName(title).setExact(true)))
             .hasCount(expectedCount);
     }
 
