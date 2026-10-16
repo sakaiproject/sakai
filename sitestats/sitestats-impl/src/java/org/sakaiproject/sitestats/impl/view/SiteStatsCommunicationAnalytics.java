@@ -273,33 +273,30 @@ public class SiteStatsCommunicationAnalytics {
 		if (StringUtils.isBlank(sentType) || users.isEmpty()) {
 			return;
 		}
-		for (String memberId : users) {
-			List messages;
-			try {
-				messages = privateMessageManager.getMessagesByTypeByContext(sentType, siteId, memberId,
-						PrivateMessageManager.SORT_COLUMN_DATE, PrivateMessageManager.SORT_ASC);
-			} catch (RuntimeException e) {
-				log.warn("Unable to load private messages for site {} user {}", siteId, memberId, e);
+		List messages;
+		try {
+			messages = privateMessageManager.getMessagesByTypeByContext(sentType, siteId, users);
+		} catch (RuntimeException e) {
+			log.warn("Unable to load private messages for site {}", siteId, e);
+			return;
+		}
+		if (messages == null || messages.isEmpty()) {
+			return;
+		}
+		for (Object raw : messages) {
+			if (!(raw instanceof Message)) {
 				continue;
 			}
-			if (messages == null || messages.isEmpty()) {
+			Message message = (Message) raw;
+			if (skipMessage(message)) {
 				continue;
 			}
-			for (Object raw : messages) {
-				if (!(raw instanceof Message)) {
-					continue;
-				}
-				Message message = (Message) raw;
-				if (skipMessage(message)) {
-					continue;
-				}
-				String authorId = forumAuthorId(message);
-				if (!includeContribution(authorId, users) || !createdInRange(message.getCreated(), request)) {
-					continue;
-				}
-				boolean reply = isReply(message);
-				snapshot.add(new Contribution(authorId, MESSAGES_TOOL_ID, !reply, false, null, null));
+			String authorId = forumAuthorId(message);
+			if (!includeContribution(authorId, users) || !createdInRange(message.getCreated(), request)) {
+				continue;
 			}
+			boolean reply = isReply(message);
+			snapshot.add(new Contribution(authorId, MESSAGES_TOOL_ID, !reply, false, null, null));
 		}
 	}
 
@@ -589,11 +586,11 @@ public class SiteStatsCommunicationAnalytics {
 	}
 
 	private boolean createdInRange(Date created, SiteStatsReportRequest request) {
-		if (created == null) {
-			return true;
-		}
 		Date from = filterCatalog.periodFrom(request);
 		Date to = filterCatalog.periodTo(request);
+		if (created == null) {
+			return from == null && to == null;
+		}
 		if (from != null && created.before(from)) {
 			return false;
 		}

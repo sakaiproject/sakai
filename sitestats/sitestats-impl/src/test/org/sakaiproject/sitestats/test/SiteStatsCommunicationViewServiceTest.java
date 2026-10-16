@@ -22,7 +22,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -162,8 +164,8 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 		when(messageForumsTypeManager.getReceivedPrivateMessageType()).thenReturn("received-type");
 		when(privateMessageManager.getMessagesByTypeByContext(anyString(), anyString()))
 				.thenReturn(Collections.emptyList());
-		when(privateMessageManager.getMessagesByTypeByContext(anyString(), anyString(), anyString(), anyString(),
-				anyString())).thenReturn(Collections.emptyList());
+		when(privateMessageManager.getMessagesByTypeByContext(anyString(), anyString(), anyCollection()))
+				.thenReturn(Collections.emptyList());
 		when(conversationsService.getTopicsForSite(anyString())).thenReturn(Collections.emptyList());
 		when(conversationsService.getPostsByTopicId(anyString(), anyString(), any(), any(), any()))
 				.thenReturn(Collections.emptyList());
@@ -223,8 +225,8 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 		when(messageForumsMessageManager.getAllMessagesInSite(SITE_ID)).thenReturn(Collections.singletonList(thread));
 
 		Message privateMessage = forumMessage(9L, USER_A_ID, null, Date.from(Instant.now()));
-		when(privateMessageManager.getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID), eq(USER_A_ID), anyString(),
-				anyString())).thenReturn(Collections.singletonList(privateMessage));
+		when(privateMessageManager.getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID), anyCollection()))
+				.thenReturn(Collections.singletonList(privateMessage));
 
 		assertEquals("1", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_UNANSWERED).getPrimary());
 		assertEquals("2", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_AUTHORED).getPrimary());
@@ -233,14 +235,12 @@ public class SiteStatsCommunicationViewServiceTest extends AbstractTransactional
 	@Test
 	public void privateMessagesIncludeEachSelectedMemberSentFolder() throws Exception {
 		Message studentSent = forumMessage(9L, USER_B_ID, null, Date.from(Instant.now()));
-		when(privateMessageManager.getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID), eq(USER_B_ID), anyString(),
-				anyString())).thenReturn(Collections.singletonList(studentSent));
+		when(privateMessageManager.getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID), anyCollection()))
+				.thenReturn(Collections.singletonList(studentSent));
 
 		assertEquals("1", snapshot(WIDGET_COMMUNICATION, METRIC_COMMUNICATION_AUTHORED).getPrimary());
-		verify(privateMessageManager).getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID), eq(USER_A_ID), anyString(),
-				anyString());
-		verify(privateMessageManager).getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID), eq(USER_B_ID), anyString(),
-				anyString());
+		verify(privateMessageManager, times(1)).getMessagesByTypeByContext(eq("sent-type"), eq(SITE_ID),
+				argThat(ids -> ids != null && ids.contains(USER_A_ID) && ids.contains(USER_B_ID)));
 	}
 
 	@Test

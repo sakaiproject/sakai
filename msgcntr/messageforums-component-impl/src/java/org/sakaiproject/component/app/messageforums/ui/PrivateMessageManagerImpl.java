@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -900,6 +901,31 @@ public class PrivateMessageManagerImpl implements PrivateMessageManager {
     }
 
     return session.createQuery(cq).list();
+  }
+
+  public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final Collection<String> userIds) {
+    if (log.isDebugEnabled()) {
+      log.debug("getMessagesByTypeByContext(typeUuid:" + typeUuid + ", contextId:" + contextId + ", userIds)");
+    }
+    if (userIds == null || userIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<PrivateMessageImpl> cq = cb.createQuery(PrivateMessageImpl.class);
+    Root<PrivateMessageImpl> root = cq.from(PrivateMessageImpl.class);
+    Join<PrivateMessageImpl, PrivateMessageRecipientImpl> recipient = root.join("recipients", JoinType.LEFT);
+    root.fetch("recipients", JoinType.LEFT);
+
+    cq.select(root).distinct(true).where(
+        recipient.get("userId").in(userIds),
+        cb.equal(recipient.get("typeUuid"), typeUuid),
+        cb.equal(recipient.get("contextId"), contextId)
+    );
+    cq.orderBy(cb.asc(root.get("created")));
+
+    return session.createQuery(cq).getResultList();
   }
 
 

@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums.ui;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,7 @@ public interface PrivateMessageManager {
 			final String contextId);
     public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final String userId, final String orderField,
     	      final String order);
+    public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final Collection<String> userIds);
 
 
     /**
