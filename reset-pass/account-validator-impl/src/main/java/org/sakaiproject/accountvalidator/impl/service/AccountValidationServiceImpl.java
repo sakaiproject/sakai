@@ -22,9 +22,13 @@ package org.sakaiproject.accountvalidator.impl.service;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.accountvalidator.api.dto.PasswordResetRequest;
 import org.sakaiproject.accountvalidator.api.exception.ValidationException;
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.model.PasswordReset;
 import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
+import org.sakaiproject.accountvalidator.api.service.PasswordResetResult;
+import org.sakaiproject.accountvalidator.api.service.PasswordResetRequestService;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -45,13 +49,21 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserLockedException;
+import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.DurationFormat;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.Clock;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -81,7 +93,10 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
 	private static final int MAX_PASSWORD_RESET_MINUTES_DEFAULT = 60;
 
-	@Setter private IdManager idManager;
+    @Setter private Clock clock;
+    @Setter private PasswordResetRequestService passwordResetRequests;
+    @Setter private PlatformTransactionManager transactionManager;
+    @Setter private IdManager idManager;
 	@Setter private ValidationAccountRepository repository;
 	@Setter private EmailTemplateService emailTemplateService;
 	@Setter private UserDirectoryService userDirectoryService;
@@ -132,13 +147,17 @@ public class AccountValidationServiceImpl implements AccountValidationService {
             return false;
         }
 
+        // A completed validation remains account history even after its original token's lifetime.
+        if (ValidationAccount.STATUS_CONFIRMED.equals(va.getStatus()) && va.getValidationReceived() != null) {
+            return true;
+        }
         if (isTokenExpired(va)) {
             return false;
         }
 
         if (va.getValidationReceived() == null) {
             if (va.getValidationSent() != null) {
-                Instant validationDeadline = Instant.now().minus(VALIDATION_PERIOD_MONTHS, ChronoUnit.MONTHS); // 36 months ago
+                Instant validationDeadline = ZonedDateTime.now(ZoneOffset.UTC).minusMonths(VALIDATION_PERIOD_MONTHS).toInstant();
                 if (va.getValidationSent().isBefore(validationDeadline)) {
                     log.debug("validation sent but expired - no reply received within {} months", Math.abs(VALIDATION_PERIOD_MONTHS));
                 } else {
@@ -148,12 +167,6 @@ public class AccountValidationServiceImpl implements AccountValidationService {
                 log.debug("validation sent date is null");
             }
             return false;
-        }
-
-        log.debug("got an item of status {}", va.getStatus());
-        if (ValidationAccount.STATUS_CONFIRMED.equals(va.getStatus())) {
-            log.info("account is validated");
-            return true;
         }
 
         log.debug("no conditions met assuming account is not validated");
@@ -178,7 +191,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
             }
 
             // Check if it's expired in relation to accountValidator.maxPasswordResetMinutes sakai property
-            int minutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
+            int minutes = positiveConfig(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
 
             // Get the time limit and convert to millis
             long maxMillis = minutes * 60L * 1000L;
@@ -187,10 +200,10 @@ public class AccountValidationServiceImpl implements AccountValidationService {
             long sentTime = va.getValidationSent().toEpochMilli();
 
             // Check if token has expired
-            if (System.currentTimeMillis() - sentTime > maxMillis) {
+            if (clock.instant().toEpochMilli() - sentTime > maxMillis) {
                 // It's been too long, so invalidate the token and return
                 va.setStatus(ValidationAccount.STATUS_EXPIRED);
-                va.setValidationReceived(Instant.now());
+                va.setValidationReceived(clock.instant());
                 repository.save(va);
                 return true;
             }
@@ -251,7 +264,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 	}
 
 	private String getFormattedExpirationMinutes() {
-		int expirationMinutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
+		int expirationMinutes = positiveConfig(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
 		return formatExpirationMinutes(expirationMinutes, resourceLoader.getLocale());
 	}
 
@@ -264,7 +277,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
 	// Set other details for ValidationAccount and save
 	private ValidationAccount saveValidationAccount(ValidationAccount account) {
-		account.setValidationSent(Instant.now());
+		account.setValidationSent(clock.instant());
 		account.setStatus(ValidationAccount.STATUS_SENT);
 		String userId = EntityReference.getIdFromRef(account.getUserId());
 		try {
@@ -292,13 +305,12 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 			return "requestAccount";
 		}
 
-		if (!serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false)) {
-			if (accountStatus.equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET)) {
-				return "passwordReset";
-			} else {
-				return "newUser";
-			}
-		}
+        if (accountStatus.equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET)) {
+            return "passwordReset";
+        }
+        if (!serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false)) {
+            return "newUser";
+        }
 		return "validate";
 	}
 
@@ -397,20 +409,146 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 		repository.save(toSave);
 	}
 
-	@Override
-	public void resendValidation(String token) {
-		ValidationAccount account = this.getValidationAccountBytoken(token);
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public PasswordReset sendPasswordReset(String userId) {
+        String id = EntityReference.getIdFromRef(userId);
+        if (securityService.isSuperUser(id) || !reserveResetRequest(id,
+                positiveConfig("resetPass.maxEmailsPerHour", 5), positiveConfig("resetPass.emailCooldownSeconds", 60))) {
+            return null;
+        }
+        PasswordReset reset = new TransactionTemplate(transactionManager).execute(status -> {
+            PasswordReset current = repository.lockPasswordReset(id);
+            Instant now = clock.instant();
+            if (current.getToken() == null || current.getConsumedAt() != null || isPasswordResetExpired(current, now)) {
+                current.setToken(idManager.createUuid());
+                current.setCreatedAt(now);
+                current.setConsumedAt(null);
+            }
+            return repository.savePasswordReset(current);
+        });
+        // Reuse the email-template projection without changing the user's validation record.
+        ValidationAccount email = new ValidationAccount();
+        email.setUserId(id);
+        email.setAccountStatus(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+        email.setValidationToken(reset.getToken());
+        sendEmailTemplate(email, null);
+        return reset;
+    }
 
-		if (account == null) {
-			throw new IllegalArgumentException("no such account: " + token);
-		}
+    @Override
+    public PasswordReset getPasswordResetByToken(String token) {
+        PasswordReset reset = repository.findPasswordResetByToken(token).orElse(null);
+        return reset != null && reset.getConsumedAt() == null && !isPasswordResetExpired(reset, clock.instant()) ? reset : null;
+    }
+
+    private boolean isPasswordResetExpired(PasswordReset reset, Instant now) {
+        return reset.getCreatedAt() == null || reset.getCreatedAt().isBefore(now.minusSeconds(
+                positiveConfig(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT) * 60L));
+    }
+
+    private int positiveConfig(String key, int defaultValue) {
+        int value = serverConfigurationService.getInt(key, defaultValue);
+        return value > 0 ? value : defaultValue;
+    }
+
+    private boolean reserveResetRequest(String key, int maximum, int cooldown) {
+        try {
+            return passwordResetRequests.reserve(key, maximum, cooldown);
+        } catch (RuntimeException e) {
+            for (Throwable cause = e; cause != null; cause = cause.getCause()) {
+                if (cause instanceof jakarta.persistence.OptimisticLockException
+                        || cause instanceof org.hibernate.StaleStateException
+                        || cause instanceof org.hibernate.exception.ConstraintViolationException) {
+                    log.debug("Concurrent password-reset request suppressed");
+                    return false;
+                }
+            }
+            // Storage failures must fail closed, before sending email.
+            log.warn("Unable to reserve a password-reset request allowance", e);
+            return false;
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void resendValidation(String token) {
+        ValidationAccount account = getValidationAccountBytoken(token);
+        if (account == null) {
+            throw new IllegalArgumentException("No validation account found");
+        }
+        if (Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET).equals(account.getAccountStatus())) {
+            sendPasswordReset(account.getUserId());
+            return;
+        }
+        resendPendingValidation(account);
+    }
+
+    private void resendPendingValidation(ValidationAccount account) {
         int validationsSent = account.getValidationsSent() == null ? 1 : account.getValidationsSent();
-		account.setValidationSent(Instant.now());
-		account.setValidationsSent(validationsSent + 1);
-		account.setStatus(ValidationAccount.STATUS_RESENT);
-		save(account);
-		sendEmailTemplate(account, null);
-	}
+        account.setValidationSent(clock.instant());
+        account.setValidationsSent(validationsSent + 1);
+        account.setStatus(ValidationAccount.STATUS_RESENT);
+        save(account);
+        sendEmailTemplate(account, null);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public PasswordResetResult completePasswordReset(String token, PasswordResetRequest request) {
+        if (StringUtils.isBlank(token) || request == null) {
+            return PasswordResetResult.INVALID_TOKEN;
+        }
+        if (StringUtils.isEmpty(request.password()) || !request.password().equals(request.password2())) {
+            return PasswordResetResult.PASSWORD_MISMATCH;
+        }
+        PasswordReset account = getPasswordResetByToken(token);
+        if (account == null || securityService.isSuperUser(account.getUserId())) {
+            return PasswordResetResult.INVALID_TOKEN;
+        }
+        String userId = EntityReference.getIdFromRef(account.getUserId());
+        SecurityAdvisor advisor = (currentUser, function, reference) ->
+                UserDirectoryService.SECURE_UPDATE_USER_ANY.equals(function)
+                        && userDirectoryService.userReference(userId).equals(reference)
+                        ? SecurityAdvice.ALLOWED : SecurityAdvice.PASS;
+        UserEdit edit = null;
+        securityService.pushAdvisor(advisor);
+        try {
+            edit = userDirectoryService.editUser(userId);
+            if (userDirectoryService.getPasswordPolicy() != null
+                    && UserDirectoryService.PasswordRating.FAILED.equals(userDirectoryService.validatePassword(request.password(), edit))) {
+                return PasswordResetResult.PASSWORD_REJECTED;
+            }
+            // Kernel user commits use a separate store. Consume durably first so crashes cannot enable replay.
+            Instant consumedAt = clock.instant();
+            Instant consumptionDeadline = consumedAt.minusSeconds(positiveConfig(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT) * 60L);
+            if (!repository.consumePasswordReset(token, consumptionDeadline, consumedAt)) {
+                return PasswordResetResult.INVALID_TOKEN;
+            }
+            edit.setPassword(request.password());
+            userDirectoryService.commitEdit(edit);
+            edit = null;
+        } catch (UserNotDefinedException | UserPermissionException | UserLockedException | UserAlreadyDefinedException e) {
+            log.warn("Unable to complete password reset for user {}", userId, e);
+            return PasswordResetResult.UNAVAILABLE;
+        } finally {
+            if (edit != null) {
+                userDirectoryService.cancelEdit(edit);
+            }
+            securityService.popAdvisor(advisor);
+        }
+        try {
+            developerHelperService.fireEvent("accountvalidation.validated", userDirectoryService.userReference(userId));
+            Map<String, Object> replacements = new HashMap<>();
+            String supportEmail = serverConfigurationService.getString("mail.support");
+            replacements.put("emailSupport", supportEmail);
+            emailTemplateService.sendRenderedMessages(TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET,
+                    List.of(userDirectoryService.userReference(userId)), replacements, serverConfigurationService.getSmtpFrom(), supportEmail);
+        } catch (RuntimeException e) {
+            log.warn("Unable to send password-reset completion notification for user {}", userId, e);
+        }
+        return PasswordResetResult.SUCCESS;
+    }
 
 	private void sendEmailTemplate(ValidationAccount account, String newUserId) {
 		// Now send the validation

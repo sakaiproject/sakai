@@ -107,6 +107,11 @@ public class CheckValidations implements Job {
 		int notLoggedIn = 0;
 
         for (ValidationAccount account : sent) {
+            // Password-reset emails are user requested and must retain their original expiry.
+            if (Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET).equals(account.getAccountStatus())) {
+                avService.isTokenExpired(account);
+                continue;
+            }
             log.debug("account [{}] created on [{}] attempts [{}]",
                     account.getUserId(), account.getValidationSent(), account.getValidationsSent());
             if (account.getValidationSent() == null || account.getValidationsSent() == null) continue;

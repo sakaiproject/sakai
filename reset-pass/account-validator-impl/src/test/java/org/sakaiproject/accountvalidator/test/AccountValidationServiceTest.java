@@ -17,10 +17,16 @@ package org.sakaiproject.accountvalidator.test;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.After;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.impl.jobs.CheckAccountsJob;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.accountvalidator.impl.service.AccountValidationServiceImpl;
@@ -37,6 +43,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
 
 import java.time.Instant;
+import org.hibernate.SessionFactory;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.sakaiproject.accountvalidator.api.model.PasswordReset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
@@ -45,6 +56,10 @@ import java.util.UUID;
 @ContextConfiguration(classes = {AccountValidationTestConfiguration.class})
 public class AccountValidationServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
 
+    @Autowired @Qualifier("validateJob") private CheckAccountsJob checkAccountsJob;
+    @Autowired private MutableClock clock;
+    @Autowired private SessionFactory sessionFactory;
+    @Autowired private PlatformTransactionManager transactionManager;
     @Autowired private AccountValidationService service;
     @Autowired private ValidationAccountRepository repository;
     @Autowired private IdManager idManager;
@@ -60,6 +75,12 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     public void setup() throws UserNotDefinedException {
         // Clear any existing test data
         repository.deleteAll();
+        TransactionTemplate cleanup = new TransactionTemplate(transactionManager);
+        cleanup.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        cleanup.executeWithoutResult(status -> sessionFactory.getCurrentSession()
+                .createQuery("from PasswordReset", PasswordReset.class).getResultList()
+                .forEach(quota -> sessionFactory.getCurrentSession().remove(quota)));
+        clock.setInstant(Instant.now());
 
 
         Mockito.when(resourceLoader.getLocale()).thenReturn(new java.util.Locale("en", "US"));
@@ -72,9 +93,9 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         Mockito.when(serverConfigurationService.getSmtpFrom()).thenReturn("noreply@example.com");
         Mockito.when(serverConfigurationService.getString(Mockito.eq("mail.support.name"), Mockito.anyString())).thenReturn("Support");
         Mockito.when(serverConfigurationService.getString(Mockito.anyString(), Mockito.anyString())).thenReturn("Support");
-        Mockito.when(serverConfigurationService.getInt(Mockito.anyString(), Mockito.anyInt())).thenReturn(60);
+        Mockito.when(serverConfigurationService.getInt(Mockito.anyString(), Mockito.anyInt())).thenAnswer(invocation -> invocation.getArgument(1));
 
-        Mockito.when(idManager.createUuid()).thenReturn(UUID.randomUUID().toString());
+        Mockito.when(idManager.createUuid()).thenAnswer(invocation -> UUID.randomUUID().toString());
 
         // Pre-create mock users for known test user IDs
         User user1 = createMockUser(userOne);
@@ -91,6 +112,13 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         Mockito.when(userDirectoryService.userReference(Mockito.anyString())).thenAnswer(invocation ->
             "/user/" + invocation.getArgument(0)
         );
+    }
+
+    @After
+    public void cleanUpCommittedResets() {
+        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+            repository.deleteAll();
+        }
     }
 
     private User createMockUser(String userId) {
@@ -350,6 +378,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void testResendValidation() {
         ValidationAccount account = service.createValidationAccount(userOne);
         String token = account.getValidationToken();
@@ -365,5 +394,127 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     @Test(expected = IllegalArgumentException.class)
     public void testResendValidationWithInvalidToken() {
         service.resendValidation("invalid-token");
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void sendPasswordResetCreatesAnIndependentToken() {
+        PasswordReset reset = service.sendPasswordReset(userOne);
+        Assert.assertEquals(userOne, reset.getUserId());
+        Assert.assertNotNull(service.getPasswordResetByToken(reset.getToken()));
+        Assert.assertNull("A reset must not create an account-validation record", service.getValidationAccountByUserId(userOne));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void resetPreservesConfirmedAccountStateAndTheAccountCheckJobDoesNotDuplicateIt() throws Exception {
+        ValidationAccount validated = service.createValidationAccount("/user/" + userOne, ValidationAccount.ACCOUNT_STATUS_NEW);
+        validated.setStatus(ValidationAccount.STATUS_CONFIRMED);
+        validated.setValidationReceived(clock.instant());
+        service.save(validated);
+        User guest = userDirectoryService.getUser(userOne);
+        Mockito.when(guest.getType()).thenReturn("guest");
+        Mockito.when(userDirectoryService.getUsers()).thenReturn(List.of(guest));
+
+        PasswordReset reset = service.sendPasswordReset(userOne);
+        Assert.assertTrue(service.isAccountValidated(userOne));
+        Assert.assertTrue(service.isAccountValidated("/user/" + userOne));
+        checkAccountsJob.execute(null);
+        checkAccountsJob.execute(null);
+
+        Assert.assertEquals(1, repository.count());
+        Assert.assertEquals(validated.getId(), service.getValidationAccountByUserId(userOne).getId());
+        Assert.assertEquals(ValidationAccount.STATUS_CONFIRMED, service.getValidationAccountByUserId(userOne).getStatus());
+        Assert.assertNotNull(service.getValidationAccountBytoken(validated.getValidationToken()));
+        Assert.assertNotNull(service.getPasswordResetByToken(reset.getToken()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void resetPreservesConfirmationFromAnOlderCompletedReset() {
+        ValidationAccount confirmed = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+        confirmed.setStatus(ValidationAccount.STATUS_CONFIRMED);
+        confirmed.setValidationReceived(clock.instant().minusSeconds(7000));
+        confirmed.setValidationSent(clock.instant().minusSeconds(7200));
+        service.save(confirmed);
+
+        service.sendPasswordReset(userOne);
+
+        Assert.assertTrue(service.isAccountValidated(userOne));
+        Assert.assertEquals(ValidationAccount.STATUS_CONFIRMED, service.getValidationAccountByUserId(userOne).getStatus());
+        Assert.assertEquals(confirmed.getId(), service.getValidationAccountByUserId(userOne).getId());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void resetDoesNotResendOrDeleteAnotherValidationWorkflow() {
+        ValidationAccount invitation = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_NEW);
+        PasswordReset reset = service.sendPasswordReset(userOne);
+        Assert.assertNotEquals(invitation.getValidationToken(), reset.getToken());
+        Assert.assertNotNull(service.getValidationAccountBytoken(invitation.getValidationToken()));
+        Assert.assertEquals(Integer.valueOf(1), service.getValidationAccountByUserId(userOne).getValidationsSent());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void userLookupPrefersTheRequestedIdWhenBothFormsExist() {
+        ValidationAccount reference = service.createValidationAccount("/user/" + userOne, ValidationAccount.ACCOUNT_STATUS_LEGACY);
+        ValidationAccount bare = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_NEW);
+
+        Assert.assertEquals(bare.getId(), service.getValidationAccountByUserId(userOne).getId());
+        Assert.assertEquals(reference.getId(), service.getValidationAccountByUserId("/user/" + userOne).getId());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void passwordResetCooldownSuppressesRepeatedEmailsAndResendsRetainTheirExpiry() {
+        PasswordReset first = service.sendPasswordReset(userOne);
+        Assert.assertNull(service.sendPasswordReset(userOne));
+        clock.advanceSeconds(60);
+        PasswordReset resent = service.sendPasswordReset(userOne);
+        Assert.assertEquals(first.getToken(), resent.getToken());
+        // Hibernate 6 Instant columns are DATETIME(6), so a reread stops at microseconds.
+        Assert.assertEquals(first.getCreatedAt().truncatedTo(ChronoUnit.MICROS), resent.getCreatedAt());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void passwordResetRollingQuotaSurvivesTokenReplacement() {
+        for (int i = 0; i < 5; i++) {
+            PasswordReset reset = service.sendPasswordReset(userOne);
+            Assert.assertNotNull(reset);
+            Assert.assertTrue(repository.consumePasswordReset(reset.getToken(), clock.instant().minusSeconds(3600), clock.instant()));
+            clock.advanceSeconds(61);
+        }
+        Assert.assertNull(service.sendPasswordReset(userOne));
+        Assert.assertNotNull(service.sendPasswordReset(userTwo));
+        clock.advanceSeconds(3600);
+        Assert.assertNotNull(service.sendPasswordReset(userOne));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void completedTokensAreReplacedAndCannotBeLookedUpAgain() {
+        PasswordReset first = service.sendPasswordReset(userOne);
+        Assert.assertTrue(repository.consumePasswordReset(first.getToken(), clock.instant().minusSeconds(3600), clock.instant()));
+        Assert.assertNull(service.getPasswordResetByToken(first.getToken()));
+        clock.advanceSeconds(61);
+        PasswordReset replacement = service.sendPasswordReset(userOne);
+        Assert.assertNotEquals(first.getToken(), replacement.getToken());
+        Assert.assertNull(repository.findPasswordResetByToken(first.getToken()).orElse(null));
+        Assert.assertNotNull(service.getPasswordResetByToken(replacement.getToken()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void resendingCannotKeepTheOriginalResetTokenAlive() {
+        PasswordReset first = service.sendPasswordReset(userOne);
+        clock.advanceSeconds(3500);
+        Assert.assertEquals(first.getToken(), service.sendPasswordReset(userOne).getToken());
+        clock.advanceSeconds(101);
+        Assert.assertNull(service.getPasswordResetByToken(first.getToken()));
+        PasswordReset replacement = service.sendPasswordReset(userOne);
+        Assert.assertNotEquals(first.getToken(), replacement.getToken());
+        Assert.assertNull(service.getPasswordResetByToken(first.getToken()));
     }
 }

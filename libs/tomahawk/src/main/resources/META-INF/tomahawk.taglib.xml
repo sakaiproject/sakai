@@ -6518,47 +6518,6 @@ component. The id is not necessarily unique across all components in the current
         </attribute>
     </tag>
     <tag>
-        <description><![CDATA[]]></description>
-        <tag-name>captcha</tag-name>
-        <component>
-            <component-type>org.apache.myfaces.CAPTCHA</component-type>
-            <renderer-type>org.apache.myfaces.CAPTCHA</renderer-type>
-        </component>
-        <attribute>
-           <description><![CDATA[Determines the CAPTCHA session key name. If
-org.apache.myfaces.tomahawk.PREFIX_CAPTCHA_SESSION_KEY is set to true (default),
-a prefix defined by the component is added to this key name.]]></description>
-           <name>captchaSessionKeyName</name>
-           <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-           <description><![CDATA[Integer to indicate the CAPTCHA width. default is 290.]]></description>
-           <name>imageWidth</name>
-           <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-           <description><![CDATA[Integer to indicate the CAPTCHA height. default is 81.]]></description>
-           <name>imageHeight</name>
-           <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-           <description><![CDATA[Get a string which uniquely identifies this UIComponent within the scope of the nearest ancestor NamingContainer
-component. The id is not necessarily unique across all components in the current view.]]></description>
-           <name>id</name>
-           <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-           <description><![CDATA[A boolean value that indicates whether this component should be rendered. Default value: true.]]></description>
-           <name>rendered</name>
-           <type>boolean</type>
-        </attribute>
-        <attribute>
-           <description><![CDATA[Identifies a backing bean property (of type UIComponent or appropriate subclass) to bind " + "to this component instance. This value must be an EL expression.]]></description>
-           <name>binding</name>
-           <type>jakarta.faces.component.UIComponent</type>
-        </attribute>
-    </tag>
-    <tag>
         <description><![CDATA[Renders a HTML input of type "checkbox". 
 The associated SelectItem comes from an extended selectManyCheckbox 
 component with layout "spread". The selectManyCheckbox is 

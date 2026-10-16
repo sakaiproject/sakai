@@ -100,15 +100,19 @@ public class ValidationAccount implements PersistableEntity<Long> {
     private String validationToken;
 
     @Column(name = "VALIDATION_SENT")
+    @JsonIgnore
 	private Instant validationSent;
 
     @Column(name = "VALIDATION_RECEIVED")
+    @JsonIgnore
 	private Instant validationReceived;
 
     @Column(name = "VALIDATIONS_SENT")
+    @JsonIgnore
 	private Integer validationsSent;
 
     @Column(name = "STATUS")
+    @JsonIgnore
 	private Integer status;
 
     @Column(name = "FIRST_NAME")
@@ -118,6 +122,7 @@ public class ValidationAccount implements PersistableEntity<Long> {
 	private String surname;
 
     @Column(name = "ACCOUNT_STATUS")
+    @JsonIgnore
 	private Integer accountStatus;
 
     @Transient

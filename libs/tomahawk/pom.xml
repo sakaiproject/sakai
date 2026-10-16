@@ -120,18 +120,6 @@
             <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- Only used by the captcha component; xmlParserAPIs would shadow the JDK's JAXP -->
-        <dependency>
-            <groupId>batik</groupId>
-            <artifactId>batik-awt-util</artifactId>
-            <version>1.6-1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xmlParserAPIs</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
