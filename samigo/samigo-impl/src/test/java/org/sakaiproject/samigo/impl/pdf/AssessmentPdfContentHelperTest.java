@@ -50,6 +50,34 @@ public class AssessmentPdfContentHelperTest {
     }
 
     @Test
+    public void plainOrCleanTextPreservesLiteralLessThanInFibKeys() {
+        AssessmentPdfContentHelper helper = helperWithoutContentHosting();
+        assertEquals("a<b", helper.plainOrCleanText("a<b"));
+        assertEquals("3 < 5", helper.plainOrCleanText("3 < 5"));
+        assertEquals("4<x y x>1", helper.plainOrCleanText("4<x y x>1"));
+        assertEquals("x < y and y > z", helper.plainOrCleanText("x < y and y > z"));
+        assertEquals("a<b and c>d", helper.plainOrCleanText("a<b and c>d"));
+        assertFalse(helper.looksLikeHtml("a<b"));
+        assertFalse(helper.looksLikeHtml("4<x y x>1"));
+        assertFalse(helper.looksLikeHtml("a<b and c>d"));
+        // cleanText alone still mangles these (why the gate exists)
+        assertEquals("a", helper.cleanText("a<b"));
+        assertEquals("41", helper.cleanText("4<x y x>1"));
+    }
+
+    @Test
+    public void plainOrCleanTextStripsGeneratedHtmlKeys() {
+        AssessmentPdfContentHelper helper = helperWithoutContentHosting();
+        assertTrue(helper.looksLikeHtml("A <span>(100%)</span>"));
+        assertTrue(helper.looksLikeHtml("A <span style='color: green'>(100%)</span>"));
+        assertTrue(helper.looksLikeHtml("<i>Paris</i>"));
+        assertEquals("A (100%)", helper.plainOrCleanText("A <span>(100%)</span>"));
+        assertEquals("A (100%)", helper.plainOrCleanText("A <span style='color: green'>(100%)</span>"));
+        assertEquals("Paris", helper.plainOrCleanText("<i>Paris</i>"));
+        assertTrue(helper.hasEmbeddedHtmlContent("<table><tr><td>x</td></tr></table>"));
+    }
+
+    @Test
     public void loadContentImageReturnsNullWhenPermissionDenied() throws Exception {
         ContentHostingService contentHostingService = mock(ContentHostingService.class);
         when(contentHostingService.getResource("/group/site/private.png"))

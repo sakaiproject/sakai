@@ -235,8 +235,8 @@ public class AssessmentPdfDocumentRenderer {
 
     private void renderReportPartHeader(Document document, AssessmentStudentReportPdfModel model, AssessmentPdfPartModel deliveryPart, DecimalFormat scoreFormat) throws Exception {
         String partNumber = deliveryPart.getPartNumber() == null ? "" : deliveryPart.getPartNumber();
-        int questions = deliveryPart.getQuestionCount() == null ? deliveryPart.getQuestions().size() : deliveryPart.getQuestionCount();
-        int unanswered = deliveryPart.getUnansweredQuestions() == null ? 0 : deliveryPart.getUnansweredQuestions();
+        int questions = deliveryPart.getQuestions().size();
+        long unanswered = deliveryPart.getQuestions().stream().filter(AssessmentPdfQuestionModel::isUnanswered).count();
         String answeredQuestions = String.valueOf(questions - unanswered);
         String questionsNumber = String.valueOf(questions);
         String partScore = scoreFormat.format(deliveryPart.getPoints() == null ? 0 : deliveryPart.getPoints());

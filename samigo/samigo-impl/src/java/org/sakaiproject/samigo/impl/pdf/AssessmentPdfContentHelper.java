@@ -21,10 +21,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 import org.scilab.forge.jlatexmath.TeXFormula;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -78,8 +81,13 @@ public class AssessmentPdfContentHelper {
         this.contentHostingService = contentHostingService;
     }
 
+    private static final Pattern HTML_TAG_CANDIDATE = Pattern.compile(
+            "<\\s*/?\\s*([A-Za-z][A-Za-z0-9:-]*)\\b([^>]*)>");
+
     /**
-     * Strips HTML tags and removes embedded tables in a single pass.
+     * Returns plain text from HTML for PDF Chunks/Paragraphs. Removes {@code <table>} so cell
+     * text is not duplicated when callers also render tables via {@link #addTableElementsToTable}
+     * / {@link #getQuestionTitle}.
      */
     public String cleanText(String text) {
         if (text == null) {
@@ -88,6 +96,42 @@ public class AssessmentPdfContentHelper {
         org.jsoup.nodes.Document document = Jsoup.parse(text);
         document.select("table").remove();
         return document.text();
+    }
+
+    public boolean looksLikeHtml(String text) {
+        if (StringUtils.isBlank(text)) {
+            return false;
+        }
+        Matcher matcher = HTML_TAG_CANDIDATE.matcher(text);
+        while (matcher.find()) {
+            String tagName = matcher.group(1);
+            if (!Tag.isKnownTag(tagName.toLowerCase(Locale.ROOT))) {
+                continue;
+            }
+            String remainder = StringUtils.trimToEmpty(matcher.group(2));
+            if (remainder.isEmpty() || "/".equals(remainder) || remainder.contains("=")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String plainOrCleanText(String text) {
+        if (text == null) {
+            return "";
+        }
+        if (!looksLikeHtml(text)) {
+            return text;
+        }
+        return cleanText(text);
+    }
+
+    /**
+     * True when HTML-capable rendering should be used (embedded images or tables).
+     */
+    public boolean hasEmbeddedHtmlContent(String html) {
+        return StringUtils.containsIgnoreCase(html, "<img")
+                || StringUtils.containsIgnoreCase(html, "<table");
     }
 
     /**
@@ -615,12 +659,15 @@ public class AssessmentPdfContentHelper {
      * Renders HTML (with images/LaTeX) or plain text into a PDF cell.
      */
     public void populateCellWithHtml(PdfPCell cell, String html, Font font, boolean mathJaxEnabled, String fontSizeSetting) throws Exception {
-        if (StringUtils.isNotBlank(html) && html.contains("<")) {
+        if (StringUtils.isBlank(html)) {
+            return;
+        }
+        if (looksLikeHtml(html)) {
             PdfPTable titleTable = getQuestionTitle(html, true, mathJaxEnabled, fontSizeSetting);
             if (titleTable != null) {
                 cell.addElement(titleTable);
             }
-        } else if (StringUtils.isNotBlank(html)) {
+        } else {
             cell.addElement(createLatexParagraph(html, font, mathJaxEnabled));
         }
     }
@@ -703,13 +750,14 @@ public class AssessmentPdfContentHelper {
     }
 
     public void addCorrectResponseBox(Document document, String value, Locale locale) throws Exception {
-        if (StringUtils.isBlank(value)) {
+        String display = plainOrCleanText(value);
+        if (StringUtils.isBlank(display)) {
             return;
         }
         Paragraph paragraph = new Paragraph();
         paragraph.setLeading(0f, 1.2f);
         paragraph.add(new Chunk(AssessmentPdfBundle.getEvaluationString("correct_responses", locale) + ": ", fontWithColor(SMALL_BOLD_FONT, SECONDARY_COLOR)));
-        paragraph.add(new Chunk(value, fontWithColor(SMALL_FONT, TEXT_PRIMARY)));
+        paragraph.add(new Chunk(display, fontWithColor(SMALL_FONT, TEXT_PRIMARY)));
         addInfoBox(document, BACKGROUND_GRAY, SECONDARY_COLOR, paragraph);
     }
 

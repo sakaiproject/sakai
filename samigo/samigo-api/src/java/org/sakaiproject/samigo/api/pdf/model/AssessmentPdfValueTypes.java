@@ -176,12 +176,26 @@ public final class AssessmentPdfValueTypes {
         private final String response;
         private final Boolean correct;
         private final List<AssessmentPdfChoiceOptionModel> choices;
+        private final String feedback;
+        private final String correctFeedback;
+        private final String incorrectFeedback;
 
         public AssessmentPdfMatchingRowModel(String text, String response, Boolean correct, List<AssessmentPdfChoiceOptionModel> choices) {
+            this(text, response, correct, choices, null, null, null);
+        }
+
+        public AssessmentPdfMatchingRowModel(String text, String response, Boolean correct, List<AssessmentPdfChoiceOptionModel> choices, String feedback) {
+            this(text, response, correct, choices, feedback, null, null);
+        }
+
+        public AssessmentPdfMatchingRowModel(String text, String response, Boolean correct, List<AssessmentPdfChoiceOptionModel> choices, String feedback, String correctFeedback, String incorrectFeedback) {
             this.text = text;
             this.response = response;
             this.correct = correct;
             this.choices = choices == null ? Collections.emptyList() : List.copyOf(choices);
+            this.feedback = feedback;
+            this.correctFeedback = correctFeedback;
+            this.incorrectFeedback = incorrectFeedback;
         }
 
         public String getText() {
@@ -198,6 +212,18 @@ public final class AssessmentPdfValueTypes {
 
         public List<AssessmentPdfChoiceOptionModel> getChoices() {
             return choices;
+        }
+
+        public String getFeedback() {
+            return feedback;
+        }
+
+        public String getCorrectFeedback() {
+            return correctFeedback;
+        }
+
+        public String getIncorrectFeedback() {
+            return incorrectFeedback;
         }
     }
 
@@ -273,17 +299,23 @@ public final class AssessmentPdfValueTypes {
         private final Boolean correct;
         private final boolean selected;
         private final String plainTextAnswer;
+        private final String feedback;
 
         public AssessmentPdfSelectionAnswerModel(String label, String text, Boolean correct, boolean selected) {
-            this(label, text, correct, selected, null);
+            this(label, text, correct, selected, null, null);
         }
 
         public AssessmentPdfSelectionAnswerModel(String label, String text, Boolean correct, boolean selected, String plainTextAnswer) {
+            this(label, text, correct, selected, plainTextAnswer, null);
+        }
+
+        public AssessmentPdfSelectionAnswerModel(String label, String text, Boolean correct, boolean selected, String plainTextAnswer, String feedback) {
             this.label = label;
             this.text = text;
             this.correct = correct;
             this.selected = selected;
             this.plainTextAnswer = plainTextAnswer;
+            this.feedback = feedback;
         }
 
         public String getLabel() {
@@ -304,6 +336,10 @@ public final class AssessmentPdfValueTypes {
 
         public String getPlainTextAnswer() {
             return plainTextAnswer;
+        }
+
+        public String getFeedback() {
+            return feedback;
         }
     }
 
