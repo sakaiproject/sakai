@@ -159,21 +159,69 @@ class AnnouncementTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).first();
         assertThat(reorderLink).isVisible();
         reorderLink.click();
+        assertThat(page.locator("#announcements-reorderer")).isVisible();
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
             new Page.WaitForFunctionOptions().setTimeout(20_000)
         );
+        assertAnnouncementReorderChrome();
 
-        Locator reorderedAnnouncements = page.locator("#reorder-list li").filter(new Locator.FilterOptions().setHasText(titlePrefix));
+        Locator reorderedAnnouncements = page.locator("#reorder-list li.reorder-element.sakai-reorder-row")
+            .filter(new Locator.FilterOptions().setHasText(titlePrefix));
         assertThat(reorderedAnnouncements).hasCount(20);
-        dragAnnouncementBefore(
-            reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).locator(".grabHandle"),
-            reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "01")).first());
+        assertThat(page.locator("input[id^=\"index\"]")).hasCount(0);
+        assertThat(reorderedAnnouncements.first().locator(".sakai-reorder-drag-handle.drag-handle, .drag-handle")).isVisible();
+
+        page.locator("#reorder-list-sortingToolBar a.title").click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+        page.waitForFunction(
+            "() => document.querySelector('#announcements-reorderer')?.updateComplete",
+            null,
+            new Page.WaitForFunctionOptions().setTimeout(20_000)
+        );
+        reorderedAnnouncements = page.locator("#reorder-list li.reorder-element.sakai-reorder-row")
+            .filter(new Locator.FilterOptions().setHasText(titlePrefix));
+        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "01", titlePrefix + "02");
+
+        Locator secondAnnouncement = reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
+
+        assertThat(secondAnnouncement.locator("[data-action=\"move-up\"]")).isEnabled();
+        secondAnnouncement.locator("[data-action=\"move-up\"]").click();
+        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
+
+        Locator undoLast = page.locator("#undo-last");
+        assertThat(undoLast).isEnabled();
+        undoLast.click();
+        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "01", titlePrefix + "02");
+
+        secondAnnouncement = reorderedAnnouncements.filter(new Locator.FilterOptions().setHasText(titlePrefix + "02")).first();
+        secondAnnouncement.locator("[data-action=\"move-up\"]").click();
+        assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
+
+        page.locator("input[name=\"eventSubmit_doReorderUpdate\"]").click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+
+        Locator reorderLinkAgain = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
+            .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).first();
+        reorderLinkAgain.click();
+        assertThat(page.locator("#announcements-reorderer")).isVisible();
+        page.waitForFunction(
+            "() => document.querySelector('#announcements-reorderer')?.updateComplete",
+            null,
+            new Page.WaitForFunctionOptions().setTimeout(20_000)
+        );
+        reorderedAnnouncements = page.locator("#reorder-list li.reorder-element.sakai-reorder-row")
+            .filter(new Locator.FilterOptions().setHasText(titlePrefix));
         assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
 
         page.locator("#reorder-list-sortingToolBar a.title").click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
+        page.waitForFunction(
+            "() => document.querySelector('#announcements-reorderer')?.updateComplete",
+            null,
+            new Page.WaitForFunctionOptions().setTimeout(20_000)
+        );
         page.locator("input[name=\"eventSubmit_doReorderUpdate\"]").click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
 
@@ -182,6 +230,19 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.locator("input[name=\"eventSubmit_doList_next\"]").first().click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
         assertAnnouncementOrder(titlePrefix, 11, 20);
+    }
+
+    private void assertAnnouncementReorderChrome() {
+        Locator portlet = page.locator(".portletBody.sakai-reorder");
+        assertThat(portlet).isVisible();
+        assertThat(portlet.locator(".page-header h1")).isVisible();
+        assertThat(portlet.locator(".instruction")).containsText(Pattern.compile("Drag announcements|move buttons|Update", Pattern.CASE_INSENSITIVE));
+        assertThat(page.locator(".sakai-reorder-undo.noPrint")).isVisible();
+        assertThat(page.locator("#undo-last")).isDisabled();
+        assertThat(page.locator("#undo-all")).isDisabled();
+        assertThat(page.locator("#reorder-list-sortingToolBar.sakai-reorder-list-header")).isVisible();
+        assertThat(page.locator("#reorder-list li.reorder-element [data-action=\"move-up\"]").first()).isVisible();
+        assertThat(page.locator("#reorder-list li.reorder-element [data-action=\"move-down\"]").first()).isVisible();
     }
 
     private void assertAnnouncementOrder(String titlePrefix, int first, int last) {

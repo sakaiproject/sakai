@@ -16,11 +16,13 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.BoundingBox;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -256,19 +258,35 @@ class AssignmentTest extends SakaiUiTestBase {
         }
 
         openReorderAssignments();
+        assertAssignmentReorderChrome();
 
-        Locator reorderItems = page.locator("#reorder-list li.sortable");
-        if (reorderItems.count() < 21) {
+        Locator reorderItems = page.locator("#reorder-list li.reorder-element.sakai-reorder-row");
+        int reorderCount = reorderItems.count();
+        if (reorderCount < 21) {
             fail("Expected the reorder list to include assignments beyond the first page.");
         }
         assertThat(page.locator("#reorder-list")).containsText(firstTitle);
         assertThat(page.locator("#reorder-list")).containsText(lastTitle);
+        assertThat(page.locator("input[id^=\"index\"]")).hasCount(0);
 
+        String originalTopTitle = reorderItems.first().locator(".sakai-reorder-title").innerText().trim();
         Locator lastAssignment = reorderItems.filter(new Locator.FilterOptions().setHasText(lastTitle)).first();
-        Locator lastAssignmentPosition = lastAssignment.locator("input[id^=\"index\"]");
-        lastAssignmentPosition.fill("1");
-        lastAssignmentPosition.dispatchEvent("change");
-        assertThat(lastAssignment.locator("select[name^=\"position_\"]")).hasValue("1");
+        boolean lastAlreadyOnTop = lastAssignment.locator("[data-action=\"move-up\"]").isDisabled();
+
+        if (!lastAlreadyOnTop) {
+            lastAssignment = moveAssignmentToTop(reorderItems, lastTitle, reorderCount);
+
+            Locator undoAll = page.locator("#undo-all");
+            assertThat(undoAll).isEnabled();
+            undoAll.click();
+            assertThat(reorderItems.first().locator(".sakai-reorder-title")).containsText(originalTopTitle);
+
+            lastAssignment = moveAssignmentToTop(reorderItems, lastTitle, reorderCount);
+        }
+
+        assertAssignmentPrecedes("#reorder-list", lastTitle, firstTitle);
+        assertThat(lastAssignment.locator("input[name^=\"position_\"]")).hasValue("1");
+        assertTrue(lastAssignment.locator("[data-action=\"move-up\"]").isDisabled());
 
         page.locator("input[name=\"save\"][value=\"Save\"], input[name=\"save\"]").first().click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
@@ -278,8 +296,11 @@ class AssignmentTest extends SakaiUiTestBase {
         int lastIndex = assignmentListText.indexOf(lastTitle);
         int firstIndex = assignmentListText.indexOf(firstTitle);
         if (lastIndex < 0 || firstIndex < 0 || lastIndex > firstIndex) {
-            fail("Expected reordered assignment beyond the first page to be saved before the first generated assignment.");
+            fail("Expected reordered assignments beyond the first page to keep the saved order.");
         }
+
+        openReorderAssignments();
+        assertAssignmentPrecedes("#reorder-list", lastTitle, firstTitle);
     }
 
     @Test
@@ -512,7 +533,78 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(reorderLink).isVisible();
         reorderLink.click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("#assignments-reorderer")).isVisible();
         assertThat(page.locator("#reorder-list")).isVisible();
+        page.waitForFunction(
+            "() => document.querySelector('#assignments-reorderer')?.updateComplete",
+            null,
+            new Page.WaitForFunctionOptions().setTimeout(20_000)
+        );
+        assertThat(page.locator("#reorder-list li.reorder-element .sakai-reorder-drag-handle.drag-handle, #reorder-list li.reorder-element .drag-handle").first())
+            .isVisible();
+    }
+
+    private void assertAssignmentReorderChrome() {
+        Locator portlet = page.locator(".portletBody.sakai-reorder");
+        assertThat(portlet).isVisible();
+        assertThat(portlet.locator(".page-header h1")).isVisible();
+        assertThat(portlet.locator(".instruction")).containsText(Pattern.compile("Drag assignments|move buttons|Save", Pattern.CASE_INSENSITIVE));
+        assertThat(page.locator(".sakai-reorder-undo.noPrint")).isVisible();
+        assertThat(page.locator("#undo-last")).isDisabled();
+        assertThat(page.locator("#undo-all")).isDisabled();
+        assertThat(page.locator("#reorder-list-sortingToolBar.sakai-reorder-list-header")).isVisible();
+        assertThat(page.locator("#reorder-list-sortingToolBar .bi-sort-up, #reorder-list-sortingToolBar .bi-sort-down, #reorder-list-sortingToolBar a").first()).isVisible();
+        assertThat(page.locator("#reorder-list li.reorder-element [data-action=\"move-up\"]").first()).isVisible();
+        assertThat(page.locator("#reorder-list li.reorder-element [data-action=\"move-down\"]").first()).isVisible();
+    }
+
+    private void dragAssignmentBefore(Locator source, Locator target) {
+        BoundingBox sourceBox = source.boundingBox();
+        BoundingBox targetBox = target.boundingBox();
+        if (sourceBox == null || targetBox == null) {
+            fail("Expected assignment reorder items to have bounding boxes.");
+            return;
+        }
+
+        double sourceX = sourceBox.x + sourceBox.width / 2;
+        double sourceY = sourceBox.y + sourceBox.height / 2;
+        double targetY = targetBox.y + targetBox.height / 4;
+
+        page.mouse().move(sourceX, sourceY);
+        page.mouse().down();
+        for (int step = 1; step <= 10; step++) {
+            page.mouse().move(sourceX, sourceY + (targetY - sourceY) * step / 10);
+        }
+        page.mouse().up();
+    }
+
+    private Locator moveAssignmentToTop(Locator reorderItems, String title, int reorderCount) {
+        Locator assignment = reorderItems.filter(new Locator.FilterOptions().setHasText(title)).first();
+        // At most (n - 1) moves are needed to reach the top from the last row.
+        for (int i = 0; i < reorderCount - 1; i++) {
+            assignment = reorderItems.filter(new Locator.FilterOptions().setHasText(title)).first();
+            Locator moveUp = assignment.locator("[data-action=\"move-up\"]");
+            if (moveUp.isDisabled()) {
+                break;
+            }
+            moveUp.click();
+        }
+        assignment = reorderItems.filter(new Locator.FilterOptions().setHasText(title)).first();
+        assertTrue(assignment.locator("[data-action=\"move-up\"]").isDisabled(),
+            "Expected move-up to be disabled after moving " + title + " to the top.");
+        return assignment;
+    }
+
+    private void assertAssignmentPrecedes(String selector, String firstTitle, String secondTitle) {
+        String listText = page.locator(selector).innerText();
+        int firstTitlePosition = listText.indexOf(firstTitle);
+        int secondTitlePosition = listText.indexOf(secondTitle);
+        if (firstTitlePosition < 0 || secondTitlePosition < 0) {
+            fail("Expected reorder list to contain " + firstTitle + " and " + secondTitle + ".");
+        }
+        if (firstTitlePosition >= secondTitlePosition) {
+            fail("Expected assignment " + firstTitle + " to precede " + secondTitle + ".");
+        }
     }
 
     private void createSimpleAssignment(String title) {
