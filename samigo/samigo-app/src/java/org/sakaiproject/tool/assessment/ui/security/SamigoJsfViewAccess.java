@@ -115,7 +115,6 @@ public final class SamigoJsfViewAccess {
         // Delivery, review and media listeners retain their assessment/ownership checks.
         return view.startsWith("/jsf/index/") || view.startsWith("/jsf/select/")
             || view.startsWith("/jsf/delivery/") || view.startsWith("/jsf/review/")
-            || view.startsWith("/jsf/shared/") || view.equals("/jsf/upload/closeWindow")
-            || view.equals("/jsf/security/roleCheckStaticInclude");
+            || view.startsWith("/jsf/shared/");
     }
 }

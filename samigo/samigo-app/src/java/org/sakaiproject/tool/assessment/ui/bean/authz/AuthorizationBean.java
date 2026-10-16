@@ -105,10 +105,7 @@ public class AuthorizationBean extends SpringBeanAutowiringSupport implements Se
   }
 
 
-  // This method is called (via jsf/security/roleCheckStaticInclude.jsp)
-  // when user first enter samigo in a site.
-  // This is the time when we determine his permission in the site.
-  // This info is stored in the AuthorizationService HashMap for the entire session.
+  // Resolve site permissions when Samigo initializes authorization.
   public void addAllPrivilege(String siteId){
     // admin functions
     boolean p1 = canCreateAssessment(siteId);

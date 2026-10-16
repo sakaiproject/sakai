@@ -2913,7 +2913,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
     }
   }
 
-  // SAK-6990: if DeliveryActionListener is called by beginAssessment.jsp, a timerId
+  // SAK-6990: if DeliveryActionListener is called by beginTakingAssessment.jsp, a timerId
   // is assigned to timedAssessment that we need to attach to TimedAssessmentGradingModel
   private String getTimerId(DeliveryBean delivery){
     String timerId = (String) ContextUtil.lookupParam("timerId");

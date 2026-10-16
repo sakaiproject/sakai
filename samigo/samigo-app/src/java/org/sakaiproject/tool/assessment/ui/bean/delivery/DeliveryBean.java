@@ -1479,8 +1479,8 @@ public class DeliveryBean extends SpringBeanAutowiringSupport implements Seriali
         if (timedAG != null){
           String agTimerId = timedAG.getTimerId();
           if (agTimerId != null && agTimerId.equals(timerId)){
-            // SAK-6990: it is only safe to removed if u are sure that timedAG is started by your beginAssessment.jsp
-            // we added a hidden field timerId on beginAssessment.jsp. Upon successful security check, a timedAG
+            // SAK-6990: it is only safe to remove if timedAG was started by your beginTakingAssessment.jsp
+            // we added a hidden field timerId on beginTakingAssessment.jsp. Upon successful security check, a timedAG
             // will be created that carried this timerId. If user open another browser to take the same timed 
             // assessment. If the security check of the new one fails, it won't stop the clock for existing one.
             queue.remove(timedAG);

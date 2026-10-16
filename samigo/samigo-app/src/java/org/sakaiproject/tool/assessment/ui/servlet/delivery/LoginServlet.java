@@ -234,11 +234,6 @@ public class LoginServlet extends HttpServlet {
         // set path
         delivery.setContextPath(req.getContextPath());
 
-        // 1. get publishedAssessment and check if anonymous is allowed
-        // 2. If so, goto welcome.faces
-        // 3. If not, goto login.faces
-        // both pages will set agentId and then direct the user to BeginAssessment
-
         delivery.setAssessmentId(pub.getPublishedAssessmentId().toString());
         delivery.setAssessmentTitle(pub.getTitle());
         boolean honorPledge = BooleanUtils.toBoolean(pub.getAssessmentAccessControl().getHonorPledge());
