@@ -94,9 +94,12 @@
     e.preventDefault();
     groupManager.showOrHideConfirmationDialog("show");
     const deletedGroupsList = document.getElementById("deleted-groups-list");
-    deletedGroupsList.innerHTML = "";
-    document.querySelectorAll(".group-manager-delete-checkbox:checked")
-      .forEach(box => deletedGroupsList.innerHTML += `<li>${box.getAttribute("groupinfo")}</li>`);
+    deletedGroupsList.replaceChildren();
+    document.querySelectorAll(".group-manager-delete-checkbox:checked").forEach(box => {
+      const item = document.createElement("li");
+      item.textContent = box.getAttribute("groupinfo");
+      deletedGroupsList.append(item);
+    });
   });
 
   const gmConfirm = document.getElementById("modal-btn-confirm");

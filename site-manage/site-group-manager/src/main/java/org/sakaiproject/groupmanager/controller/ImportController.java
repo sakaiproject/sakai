@@ -119,11 +119,6 @@ public class ImportController {
                     return returnImportError(model, "import.error.wrongformat", userLocale);
                 }
 
-                if (groupTitle.length() > 99) {
-                    // One of the items of the line has more than 99 characters, redirect to the import form again displaying an error. 
-                    return returnImportError(model, "import.error.titlelength", userLocale);
-                }
-
                 if (importedGroupMap.get(groupTitle) != null) {
                     // If the map contains an entry for that group, add the user to the list
                     importedGroupMap.get(groupTitle).add(userEid);
@@ -139,8 +134,13 @@ public class ImportController {
             }
         }
 
+        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(importedGroupMap);
+        if (cleanedGroups.isEmpty()) {
+            return returnImportError(model, "groups.error.cleanedTitles", userLocale);
+        }
+
         //Redirect to the confirmation page once the map are correct
-        return showImportConfirmation(model, importedGroupMap);
+        return showImportConfirmation(model, cleanedGroups.get());
     }
     
     @RequestMapping(value = "/importConfirmation")
@@ -261,6 +261,12 @@ public class ImportController {
             log.error("Fatal error processing the imported group map, aborting the process.", e);
             return GroupManagerConstants.REDIRECT_MAIN_TEMPLATE;
         }
+
+        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(importedGroupMap);
+        if (cleanedGroups.isEmpty()) {
+            return returnImportError(model, "groups.error.cleanedTitles", sakaiService.getLocaleForCurrentSiteAndUser());
+        }
+        importedGroupMap = cleanedGroups.get();
 
         for (Entry<String, List<String>> importedGroup : importedGroupMap.entrySet()) {
             String groupTitle = importedGroup.getKey();
