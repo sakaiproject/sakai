@@ -18,6 +18,7 @@ package org.sakaiproject.groupmanager.service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -129,11 +130,16 @@ public class SakaiService  {
     }
 
     public Optional<Map<String, List<String>>> cleanGroupTitles(Map<String, List<String>> groups) {
+        return cleanGroupTitles(groups, List.of());
+    }
+
+    public Optional<Map<String, List<String>>> cleanGroupTitles(Map<String, List<String>> groups, Collection<String> existingTitles) {
         if (groups == null) {
             return Optional.empty();
         }
         Map<String, List<String>> cleanedGroups = new LinkedHashMap<>();
         Set<String> titles = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        titles.addAll(existingTitles);
         for (Map.Entry<String, List<String>> group : groups.entrySet()) {
             String title = cleanGroupTitle(group.getKey());
             if (StringUtils.isBlank(title) || title.length() > 99 || !titles.add(title)) {
@@ -142,6 +148,13 @@ public class SakaiService  {
             cleanedGroups.put(title, group.getValue());
         }
         return Optional.of(cleanedGroups);
+    }
+
+    public boolean hasJoinableSetTitleConflict(String title, String currentSet, Collection<Group> groups) {
+        return groups.stream()
+                .map(group -> group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET))
+                .filter(set -> StringUtils.isNotBlank(set) && !StringUtils.equalsIgnoreCase(currentSet, set))
+                .anyMatch(set -> title.equalsIgnoreCase(cleanGroupTitle(set)));
     }
 
     public Optional<List<String>> buildJoinableGroupTitles(String title, int count, List<String> existingTitles) {

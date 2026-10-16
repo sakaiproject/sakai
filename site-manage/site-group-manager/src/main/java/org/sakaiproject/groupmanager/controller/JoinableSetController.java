@@ -177,6 +177,11 @@ public class JoinableSetController {
             return showJoinableSet(model, joinableSetId);
         }
 
+        if (sakaiService.hasJoinableSetTitleConflict(joinableSetTitle, joinableSetId, siteGroups)) {
+            model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.duplicatedtitle", null, userLocale));
+            return showJoinableSet(model, joinableSetId);
+        }
+
         //Ensure the set max members is inside the limits
         if (joinableSetMaxMembers <= 0 || joinableSetMaxMembers > 999) {
             model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.maxmembers", null, userLocale));
@@ -226,12 +231,6 @@ public class JoinableSetController {
             //Ensure the set number is inside the limits
             if (joinableSetGroupNumber <= 0 || joinableSetGroupNumber > 999) {
                 model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.numbergroups", null, userLocale));
-                return showJoinableSet(model, null);
-            }
-
-            //Ensure the joinable set title is not duplicated
-            if (siteGroups.stream().anyMatch(g -> joinableSetTitle.equalsIgnoreCase(g.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET))) ) {
-                model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.duplicatedtitle", null, userLocale));
                 return showJoinableSet(model, null);
             }
         } else {

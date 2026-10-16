@@ -386,7 +386,8 @@ public class AutoGroupsController {
             }
         }
 
-        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(autoGroupsMap);
+        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(autoGroupsMap,
+                site.getGroups().stream().map(Group::getTitle).collect(Collectors.toList()));
         if (cleanedGroups.isEmpty()) {
             model.addAttribute("splitOptionsError", messageSource.getMessage("groups.error.cleanedTitles", null, sakaiService.getLocaleForCurrentSiteAndUser()));
             return showStep3(model, autoGroupsForm);
@@ -452,9 +453,9 @@ public class AutoGroupsController {
             return GroupManagerConstants.REDIRECT_MAIN_TEMPLATE;
         }
 
-        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(autoGroupsMap);
-        if (cleanedGroups.isEmpty() || site.getGroups().stream()
-                .anyMatch(group -> cleanedGroups.get().keySet().stream().anyMatch(title -> title.equalsIgnoreCase(group.getTitle())))) {
+        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(autoGroupsMap,
+                site.getGroups().stream().map(Group::getTitle).collect(Collectors.toList()));
+        if (cleanedGroups.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     messageSource.getMessage("groups.error.cleanedTitles", null, sakaiService.getLocaleForCurrentSiteAndUser()));
         }
