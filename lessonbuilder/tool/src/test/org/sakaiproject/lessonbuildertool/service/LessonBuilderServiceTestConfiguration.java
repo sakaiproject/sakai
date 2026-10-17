@@ -39,7 +39,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @EnableTransactionManagement
@@ -138,6 +140,22 @@ public class LessonBuilderServiceTestConfiguration extends SakaiTestConfiguratio
         PageIndexService pageIndexService = new PageIndexService();
         pageIndexService.setSimplePageToolDao(simplePageToolDao);
         return pageIndexService;
+    }
+
+    @Bean
+    public TransactionTemplate transactionTemplate(
+            @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+            HibernateTransactionManager transactionManager) {
+        return new TransactionTemplate(transactionManager);
+    }
+
+    @Bean(name = "org.sakaiproject.lessonbuildertool.service.PagePromotionService")
+    public PagePromotionService pagePromotionService(
+            SimplePageToolDao simplePageToolDao,
+            org.sakaiproject.site.api.SiteService siteService,
+            PageIndexService pageIndexService,
+            TransactionTemplate transactionTemplate) {
+        return new PagePromotionService(simplePageToolDao, siteService, pageIndexService, transactionTemplate);
     }
 
     @Bean(name = "org.sakaiproject.lessonbuildertool.service.PlacementPageService")
