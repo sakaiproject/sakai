@@ -421,6 +421,12 @@ public class SiteStatsTestConfiguration {
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
         ServerConfigurationService scs = mock(ServerConfigurationService.class);
+        when(scs.getString(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString()))
+                .thenAnswer(invocation -> invocation.getArgument(1));
+        when(scs.getBoolean(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyBoolean()))
+                .thenAnswer(invocation -> invocation.getArgument(1));
+        when(scs.getInt(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyInt()))
+                .thenAnswer(invocation -> invocation.getArgument(1));
         when(scs.getString("sitestats.db", "internal")).thenReturn("internal");
         when(scs.getString("hibernate.dialect", "org.hibernate.dialect.HSQLDialect")).thenReturn("org.hibernate.dialect.HSQLDialect");
         when(scs.getBoolean("auto.ddl", true)).thenReturn(true);

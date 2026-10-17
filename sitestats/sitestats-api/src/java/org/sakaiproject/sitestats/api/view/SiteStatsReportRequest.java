@@ -38,6 +38,9 @@ public class SiteStatsReportRequest implements Serializable {
 	private String itemType;
 	private String group;
 	private String item;
+	private String siteType;
+	private String sitePrefix;
+	private Boolean publishedOnly;
 
 	public SiteStatsReportRequest(SiteStatsReportRequest source) {
 		if (source != null) {
@@ -56,6 +59,9 @@ public class SiteStatsReportRequest implements Serializable {
 			this.itemType = source.itemType;
 			this.group = source.group;
 			this.item = source.item;
+			this.siteType = source.siteType;
+			this.sitePrefix = source.sitePrefix;
+			this.publishedOnly = source.publishedOnly;
 		}
 	}
 

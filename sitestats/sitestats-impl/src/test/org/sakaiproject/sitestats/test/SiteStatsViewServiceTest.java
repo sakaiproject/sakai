@@ -1,7 +1,17 @@
-/**
- * Copyright (c) 2026 The Apereo Foundation
+/*
+ * Copyright (c) 2003-2026 The Apereo Foundation
  *
- * Licensed under the Educational Community License, Version 2.0.
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.sakaiproject.sitestats.test;
 
@@ -47,6 +57,9 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_GRAD
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_GRADES;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_SUBMISSIONS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_VISITS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_CLIENT_ENVIRONMENT;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_INSTITUTIONAL_PRESENCE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_PLATFORM_HEALTH;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_SUBMISSIONS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_VISITS;
 import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.eventStat;
@@ -196,6 +209,24 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertFalse(hasWidget(overview, WIDGET_STUDENT_PRESENCE_ACCESS));
 		assertFalse(hasWidget(overview, WIDGET_STUDENT_SUBMISSIONS));
 		assertFalse(hasWidget(overview, WIDGET_STUDENT_GRADES));
+		assertFalse(hasWidget(overview, WIDGET_PLATFORM_HEALTH));
+		assertFalse(hasWidget(overview, WIDGET_INSTITUTIONAL_PRESENCE));
+		assertFalse(hasWidget(overview, WIDGET_CLIENT_ENVIRONMENT));
+	}
+
+	@Test
+	public void getInstitutionalOverviewReturnsAdminWidgetsOnly() {
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ADMIN_VIEW, SITE_REF)).thenReturn(true);
+
+		SiteStatsOverview overview = service.getInstitutionalOverview(SITE_ID);
+
+		assertTrue(overview.isAdminAllowed());
+		assertTrue(hasWidget(overview, WIDGET_PLATFORM_HEALTH));
+		assertTrue(hasWidget(overview, WIDGET_INSTITUTIONAL_PRESENCE));
+		assertTrue(hasWidget(overview, WIDGET_CLIENT_ENVIRONMENT));
+		assertFalse(hasWidget(overview, WIDGET_VISITS));
+		assertFalse(hasWidget(overview, WIDGET_SUBMISSIONS));
+		assertFalse(hasWidget(overview, WIDGET_STUDENT_VISITS));
 	}
 
 	@Test

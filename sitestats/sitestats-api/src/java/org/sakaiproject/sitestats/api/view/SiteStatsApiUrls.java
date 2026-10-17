@@ -148,6 +148,11 @@ public final class SiteStatsApiUrls {
 			if (request.getThreshold() != null) {
 				appendParam(endpoint, "threshold", request.getThreshold().toString());
 			}
+			appendParam(endpoint, "siteType", request.getSiteType());
+			appendParam(endpoint, "sitePrefix", request.getSitePrefix());
+			if (request.getPublishedOnly() != null) {
+				appendParam(endpoint, "publishedOnly", request.getPublishedOnly().toString());
+			}
 		}
 	}
 

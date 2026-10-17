@@ -68,6 +68,12 @@
                  th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
                  th:value="${filter.value}"
                  th:attr="data-report-filter=${filter.id}">
+          <input class="form-control form-control-sm"
+                 th:if="${filter.type == 'text'}"
+                 type="text"
+                 th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                 th:value="${filter.value}"
+                 th:attr="data-report-filter=${filter.id}">
         </div>
       </sakai-sitestats-widget-tab>
     </section>

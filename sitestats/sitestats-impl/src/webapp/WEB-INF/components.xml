@@ -306,6 +306,28 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsInstitutionalScope"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsInstitutionalScope">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+	</bean>
+
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsPlatformHealthAnalytics"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsPlatformHealthAnalytics">
+		<property name="serverWideReportManager" ref="org.sakaiproject.sitestats.api.ServerWideReportManager"/>
+	</bean>
+
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsInstitutionalAnalytics"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsInstitutionalAnalytics">
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
+	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsClientEnvironmentAnalytics"
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsClientEnvironmentAnalytics">
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
 	<bean id="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"
 		  class="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.ServerWideReportViewMapper"
@@ -321,6 +343,10 @@
 		<property name="submissionsAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsSubmissionsAnalytics"/>
 		<property name="gradesAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsGradesAnalytics"/>
 		<property name="communicationAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsCommunicationAnalytics"/>
+		<property name="platformHealthAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsPlatformHealthAnalytics"/>
+		<property name="institutionalAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsInstitutionalAnalytics"/>
+		<property name="clientEnvironmentAnalytics" ref="org.sakaiproject.sitestats.impl.view.SiteStatsClientEnvironmentAnalytics"/>
+		<property name="institutionalScope" ref="org.sakaiproject.sitestats.impl.view.SiteStatsInstitutionalScope"/>
 	</bean>
 
 	<!-- SiteStatsWidgetDefinitionSupport __________________________________________________________ -->
@@ -354,6 +380,16 @@
 		  class="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"/>
 	<bean id="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"
 		  class="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.PlatformHealthWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.PlatformHealthWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.InstitutionalPresenceWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.InstitutionalPresenceWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.InstitutionalLearnerActivityWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.InstitutionalLearnerActivityWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.InstitutionalAuthoringActivityWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.InstitutionalAuthoringActivityWidgetDefinition"/>
+	<bean id="org.sakaiproject.sitestats.impl.view.ClientEnvironmentWidgetDefinition"
+		  class="org.sakaiproject.sitestats.impl.view.ClientEnvironmentWidgetDefinition"/>
 
 	<!-- SiteStatsWidgetCatalogFactory _____________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsWidgetCatalogFactory"
@@ -374,6 +410,11 @@
 				<ref bean="org.sakaiproject.sitestats.impl.view.ActivityWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.ResourcesWidgetDefinition"/>
 				<ref bean="org.sakaiproject.sitestats.impl.view.LessonsWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.PlatformHealthWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.InstitutionalPresenceWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.InstitutionalLearnerActivityWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.InstitutionalAuthoringActivityWidgetDefinition"/>
+				<ref bean="org.sakaiproject.sitestats.impl.view.ClientEnvironmentWidgetDefinition"/>
 			</list>
 		</property>
 	</bean>

@@ -1,10 +1,21 @@
-/**
- * Copyright (c) 2026 The Apereo Foundation
+/*
+ * Copyright (c) 2003-2026 The Apereo Foundation
  *
- * Licensed under the Educational Community License, Version 2.0.
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.sakaiproject.sitestats.impl.view;
 
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ADMIN;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ALL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_OWN;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_COMMUNICATION;
@@ -45,7 +56,7 @@ public class SiteStatsWidgetCatalog {
 		overview.setAdminAllowed(adminAllowed);
 
 		for (WidgetSpec spec : widgetSpecs.values()) {
-			if (!spec.isAvailable() || !isAudienceAllowed(spec.getAudience(), allAllowed, ownAllowed)) {
+			if (!spec.isAvailable() || !isAudienceAllowed(spec.getAudience(), allAllowed, ownAllowed, adminAllowed)) {
 				continue;
 			}
 			overview.getWidgets().add(toWidget(siteId, spec, userId));
@@ -101,9 +112,19 @@ public class SiteStatsWidgetCatalog {
 		return spec != null && AUDIENCE_OWN.equals(spec.getAudience());
 	}
 
+	public boolean isAdminOnlyWidget(String widgetId) {
+		WidgetSpec spec = widgetSpecs.get(widgetId);
+		return spec != null && AUDIENCE_ADMIN.equals(spec.getAudience());
+	}
+
 	public boolean isOwnOnlyMetric(String widgetId, String metricId) {
 		WidgetMetricSpec spec = metricSpecs.get(key(widgetId, metricId));
 		return spec != null && AUDIENCE_OWN.equals(spec.getAudience());
+	}
+
+	public boolean isAdminOnlyMetric(String widgetId, String metricId) {
+		WidgetMetricSpec spec = metricSpecs.get(key(widgetId, metricId));
+		return spec != null && AUDIENCE_ADMIN.equals(spec.getAudience());
 	}
 
 	public WidgetReportDefinition getWidgetReportDefinition(String siteId, String widgetId, String tabId,
@@ -178,7 +199,11 @@ public class SiteStatsWidgetCatalog {
 		metricSpecs = Collections.unmodifiableMap(metrics);
 	}
 
-	private boolean isAudienceAllowed(String audience, boolean allAllowed, boolean ownAllowed) {
+	private boolean isAudienceAllowed(String audience, boolean allAllowed, boolean ownAllowed, boolean adminAllowed) {
+		// Institutional Summary: only AUDIENCE_ADMIN widgets (all/own forced false by caller).
+		if (adminAllowed && !allAllowed && !ownAllowed) {
+			return AUDIENCE_ADMIN.equals(audience);
+		}
 		return (AUDIENCE_ALL.equals(audience) && allAllowed)
 				|| (AUDIENCE_OWN.equals(audience) && ownAllowed && !allAllowed);
 	}

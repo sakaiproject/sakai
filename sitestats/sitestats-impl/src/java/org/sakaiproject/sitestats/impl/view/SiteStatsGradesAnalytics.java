@@ -284,7 +284,7 @@ public class SiteStatsGradesAnalytics {
 
 	private GradeSnapshot snapshot(String siteId, SiteStatsReportRequest request, String userId) {
 		SiteStatsReportRequest safeRequest = SiteStatsReportRequest.normalized(request);
-		GradeSnapshot snapshot = new GradeSnapshot(threshold(siteId));
+		GradeSnapshot snapshot = new GradeSnapshot(threshold(siteId, safeRequest));
 		if (filterCatalog.isIncompleteCustomRange(safeRequest)) {
 			return snapshot;
 		}
@@ -541,7 +541,11 @@ public class SiteStatsGradesAnalytics {
 		return StringUtils.isNotBlank(selected) && !ITEM_ALL.equals(selected);
 	}
 
-	private double threshold(String siteId) {
+	private double threshold(String siteId, SiteStatsReportRequest request) {
+		Double override = filterCatalog.thresholdFilter(request);
+		if (override != null && override.doubleValue() >= 0d) {
+			return override.doubleValue();
+		}
 		return context.getStatsManager().getGradesThreshold(siteId);
 	}
 

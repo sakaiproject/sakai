@@ -105,7 +105,10 @@ public class SiteStatsController extends AbstractSakaiApiController {
 			@RequestParam(value = "itemType", required = false) String itemType,
 			@RequestParam(value = "group", required = false) String group,
 			@RequestParam(value = "item", required = false) String item,
-			@RequestParam(value = "threshold", required = false) Double threshold) {
+			@RequestParam(value = "threshold", required = false) Double threshold,
+			@RequestParam(value = "siteType", required = false) String siteType,
+			@RequestParam(value = "sitePrefix", required = false) String sitePrefix,
+			@RequestParam(value = "publishedOnly", required = false) String publishedOnly) {
 		checkSakaiSession();
 		checkSite(siteId);
 		SiteStatsReportRequest request = request(include, page, pageSize);
@@ -120,6 +123,11 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		request.setGroup(group);
 		request.setItem(item);
 		request.setThreshold(threshold);
+		request.setSiteType(siteType);
+		request.setSitePrefix(sitePrefix);
+		if (StringUtils.isNotBlank(publishedOnly)) {
+			request.setPublishedOnly(Boolean.valueOf(publishedOnly));
+		}
 		try {
 			return siteStatsViewService.getWidgetReport(siteId, widgetId, tabId, request);
 		} catch (SecurityException e) {

@@ -7,6 +7,7 @@ package org.sakaiproject.webapi.controllers.test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -84,6 +85,26 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.siteId", is(SITE_ID)))
 			.andExpect(jsonPath("$.viewAllowed", is(true)));
+	}
+
+	@Test
+	public void getWidgetReportPassesInstitutionalFilters() throws Exception {
+		SiteStatsReportView view = new SiteStatsReportView();
+		view.setSiteId(SITE_ID);
+		view.setWidgetId("institutional-presence");
+		view.setTabId("bysite");
+		when(siteStatsViewService.getWidgetReport(eq(SITE_ID), eq("institutional-presence"), eq("bysite"),
+				argThat(request -> "course".equals(request.getSiteType())
+						&& "MATH".equals(request.getSitePrefix())
+						&& Boolean.TRUE.equals(request.getPublishedOnly())))).thenReturn(view);
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/institutional-presence/tabs/bysite")
+				.param("siteType", "course")
+				.param("sitePrefix", "MATH")
+				.param("publishedOnly", "true"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.widgetId", is("institutional-presence")))
+			.andExpect(jsonPath("$.tabId", is("bysite")));
 	}
 
 	@Test

@@ -153,6 +153,17 @@ export class SakaiSiteStatsWidgetTab extends SakaiShadowElement {
       `;
     }
 
+    if (filter.type === "text") {
+      return html`
+        <input
+            class="form-control form-control-sm"
+            id=${id}
+            type="text"
+            data-report-filter=${filter.id}
+            .value=${value}>
+      `;
+    }
+
     return html`
       <select
           class="form-select form-select-sm"

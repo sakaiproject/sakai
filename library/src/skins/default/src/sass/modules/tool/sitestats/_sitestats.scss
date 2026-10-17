@@ -1,4 +1,5 @@
-.#{$namespace}sakai-sitestats{
+.#{$namespace}sakai-sitestats,
+.#{$namespace}sakai-sitestats-admin{
   .sitestats-widgets {
     display: grid;
     gap: $standard-spacing;

@@ -275,9 +275,8 @@ public class SiteStatsCommunicationAnalytics {
 		}
 		List messages;
 		try {
-			messages = privateMessageManager.getMessagesByTypeByContext(sentType, siteId, users,
-					filterCatalog.periodFrom(request), filterCatalog.periodTo(request));
-		} catch (RuntimeException e) {
+			messages = privateMessageManager.getMessagesByTypeByContext(sentType, siteId, users);
+		} catch (RuntimeException | LinkageError e) {
 			log.warn("Unable to load private messages for site {}", siteId, e);
 			return;
 		}
