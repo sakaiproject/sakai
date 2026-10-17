@@ -4,6 +4,10 @@ import "@sakai-ui/sakai-widgets/sakai-widget-panel.js";
 import "../sakai-course-header.js";
 import "../sakai-course-overview.js";
 
+const HERO_FULL = "full";
+const HERO_WIDE = "wide";
+const HERO_NARROW = "narrow";
+
 export class SakaiCourseDashboard extends SakaiElement {
 
   static properties = {
@@ -14,13 +18,27 @@ export class SakaiCourseDashboard extends SakaiElement {
     editing: { type: Boolean },
 
     data: { state: true },
+    _userWidgetFilters: { state: true },
+    _availableWidgetCount: { state: true },
   };
 
   constructor() {
 
     super();
 
-    this.loadTranslations("dashboard");
+    this._availableWidgetCount = 0;
+    this.loadTranslations({
+      bundle: "dashboard",
+      requiredKeys: [
+        "hero_title",
+        "hero_width",
+        "hero_width_full",
+        "hero_width_wide",
+        "hero_width_narrow",
+        "show_image",
+        "widgets_available",
+      ],
+    });
   }
 
   connectedCallback() {
@@ -30,30 +48,92 @@ export class SakaiCourseDashboard extends SakaiElement {
     this._loadData();
   }
 
+  get _layoutEditable() {
+    return this.data?.layoutEditable !== false;
+  }
+
+  get _siteEditable() {
+    return Boolean(this.data?.siteEditable);
+  }
+
+  get _canEdit() {
+    return this._layoutEditable || this._siteEditable;
+  }
+
   _loadData() {
 
-    const url = `/api/sites/${this.siteId}/dashboard`;
-    fetch(url, { credentials: "include" })
+    const siteUrl = `/api/sites/${this.siteId}/dashboard`;
+    const userFiltersUrl = this.userId ? `/api/users/${this.userId}/dashboard` : null;
+
+    const sitePromise = fetch(siteUrl, { credentials: "include" })
       .then(r => {
 
         if (r.ok) {
           return r.json();
         }
-        throw new Error(`Failed to get dashboard data from ${url}`);
+        throw new Error(`Failed to get dashboard data from ${siteUrl}`);
+      });
 
+    const filtersPromise = userFiltersUrl
+      ? fetch(userFiltersUrl, { credentials: "include" })
+        .then(r => (r.ok ? r.json() : null))
+        .catch(() => null)
+      : Promise.resolve(null);
+
+    Promise.all([ sitePromise, filtersPromise ])
+      .then(([ siteData, userData ]) => {
+
+        this.data = {
+          ...siteData,
+          heroWidth: this._normalizeHeroWidth(siteData.heroWidth),
+          showImage: siteData.showImage !== false,
+          layoutEditable: siteData.layoutEditable !== false,
+          siteEditable: Boolean(siteData.siteEditable),
+        };
+        this._userWidgetFilters = userData?.widgetFilters;
+        this._updateAvailableWidgetCount();
       })
-      .then(r => this.data = r)
       .catch(error => console.error(error));
   }
 
+  _normalizeHeroWidth(value) {
+
+    if (value === HERO_FULL || value === HERO_WIDE || value === HERO_NARROW) {
+      return value;
+    }
+    return HERO_WIDE;
+  }
+
+  _updateAvailableWidgetCount() {
+
+    if (!this.data?.widgets || !this.data?.widgetLayout) {
+      this._availableWidgetCount = 0;
+      return;
+    }
+    const inLayout = new Set((this.data.widgetLayout || []).map(t => (typeof t === "string" ? t : t?.id)).filter(Boolean));
+    this._availableWidgetCount = (this.data.widgets || []).filter(id => id && !inLayout.has(id)).length;
+  }
+
   widgetLayoutChanged(e) {
-    this.data.widgetLayout = e.detail.layout;
+
+    this.data = { ...this.data, widgetLayout: e.detail.layout };
+    if (typeof e.detail.availableCount === "number") {
+      this._availableWidgetCount = e.detail.availableCount;
+    } else {
+      this._updateAvailableWidgetCount();
+    }
+  }
+
+  _availableWidgetsChanged(e) {
+
+    if (typeof e.detail?.count === "number") {
+      this._availableWidgetCount = e.detail.count;
+    }
   }
 
   overviewChanged(e) {
 
-    this.data.overview = e.detail.content;
-    this.requestUpdate();
+    this.data = { ...this.data, overview: e.detail.content };
   }
 
   edit() {
@@ -62,28 +142,38 @@ export class SakaiCourseDashboard extends SakaiElement {
     this.imageBackup = this.data.image;
     this.overviewBackup = this.data.overview;
     this.programmeBackup = this.data.programme;
-    this.widgetLayoutBackup = [ ...this.data.widgetLayout ];
-    this.templateBackup = this.data.template;
+    this.widgetLayoutBackup = structuredClone(this.data.widgetLayout);
+    this.heroWidthBackup = this.data.heroWidth;
+    this.showImageBackup = this.data.showImage;
   }
 
   cancel() {
 
     this.editing = false;
-    this.data.overview = this.overviewBackup;
-    this.data.programme = this.programmeBackup;
-    document.getElementById("course-dashboard-programme").innerHTML = this.data.programme;
-    this.data.widgetLayout = [ ...this.widgetLayoutBackup ];
-    this.data.template = this.templateBackup;
-    URL.revokeObjectURL(this.image);
-    this.data.image = this.imageBackup;
-    this.requestUpdate();
+    if (this.data.image !== this.imageBackup) {
+      URL.revokeObjectURL(this.data.image);
+    }
+    this.data = {
+      ...this.data,
+      overview: this.overviewBackup,
+      programme: this.programmeBackup,
+      widgetLayout: structuredClone(this.widgetLayoutBackup),
+      heroWidth: this.heroWidthBackup,
+      showImage: this.showImageBackup,
+      image: this.imageBackup,
+    };
+    this._updateAvailableWidgetCount();
+    const programmeEl = document.getElementById("course-dashboard-programme");
+    if (programmeEl) {
+      programmeEl.innerHTML = this.data.programme;
+    }
   }
 
   save() {
 
     this.editing = !this.editing;
 
-    if (this.newImageBlob) {
+    if (this._siteEditable && this.newImageBlob) {
 
       const fd = new FormData();
       fd.append("siteImage", this.newImageBlob);
@@ -96,26 +186,27 @@ export class SakaiCourseDashboard extends SakaiElement {
 
         if (!r.ok) {
           throw new Error(`Failed to update image for url ${imageUrl}`);
-        } else {
-          URL.revokeObjectURL(this.data.image);
-          return r.text();
         }
+        URL.revokeObjectURL(this.data.image);
+        return r.text();
       })
       .then(newUrl => {
 
-        // Add a version string so the browser picks up the new image
-        this.data.image = `${newUrl}?version=${Math.random()}`;
-        this.requestUpdate();
+        this.data = { ...this.data, image: `${newUrl}?version=${Math.random()}` };
       })
       .catch(error => console.error(error.message));
     }
 
     const data = {
       widgetLayout: this.data.widgetLayout,
-      overview: this.data.overview,
-      programme: this.data.programme,
-      template: this.data.template,
+      heroWidth: this._normalizeHeroWidth(this.data.heroWidth),
     };
+
+    if (this._siteEditable) {
+      data.overview = this.data.overview;
+      data.programme = this.data.programme;
+      data.showImage = Boolean(this.data.showImage);
+    }
 
     const url = `/api/sites/${this.siteId}/dashboard`;
     fetch(url, {
@@ -132,29 +223,44 @@ export class SakaiCourseDashboard extends SakaiElement {
 
   imageEdited(e) {
 
-    this.data.image = e.detail.url;
+    this.data = { ...this.data, image: e.detail.url };
     this.newImageBlob = e.detail.blob;
-    this.querySelector("sakai-course-header").requestUpdate();
-    this.requestUpdate();
-  }
-
-  templateSelected(e) {
-
-    this.data.template = parseInt(e.target.dataset.template);
-
-    this.requestUpdate();
-
-    this.updateComplete.then(() => {
-      this.querySelector("#course-dashboard-save button").focus();
-    });
+    this.querySelector("sakai-course-header")?.requestUpdate();
   }
 
   programmeUpdated(e) {
     this.data.programme = e.target.innerText;
   }
 
+  _heroWidthChanged(e) {
+
+    this.data = {
+      ...this.data,
+      heroWidth: this._normalizeHeroWidth(e.target.value),
+    };
+  }
+
+  _showImageChanged(e) {
+
+    this.data = { ...this.data, showImage: e.target.checked };
+  }
+
   shouldUpdate() {
     return this._i18n && this.data;
+  }
+
+  _widgetsAvailableLabel() {
+
+    const count = this._availableWidgetCount;
+    if (count <= 0) {
+      return nothing;
+    }
+    const template = this._i18n.widgets_available || "{0} widgets available";
+    return html`
+      <span class="dashboard-widgets-available text-muted small">
+        ${template.replace("{0}", String(count))}
+      </span>
+    `;
   }
 
   titleBlock() {
@@ -163,47 +269,39 @@ export class SakaiCourseDashboard extends SakaiElement {
       <div id="course-dashboard-title-and-edit-block">
         <div id="course-dashboard-title-block">
           <h2>${this.data.title}</h2>
-          <div id="course-dashboard-programme" @input=${this.programmeUpdated} ?contenteditable=${this.editing}>${this.data.programme}</div>
+          <div id="course-dashboard-programme"
+              @input=${this.programmeUpdated}
+              ?contenteditable=${this.editing && this._siteEditable}>${this.data.programme}</div>
         </div>
         <div id="course-dashboard-edit-block">
-          ${this.data.editable ? html`
+          ${this._widgetsAvailableLabel()}
+          ${this._canEdit ? html`
             ${this.editing ? html`
-              <div id="course-dashboard-layout">
-                <button type="button"
-                    class="btn btn-secondary me-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#course-dashboard-template-picker">
-                  ${this._i18n.layout}
-                </button>
-              </div>
-              <div id="course-dashboard-save" class="mt-1 mt-sm-0">
-                <button type="button"
-                    class="btn btn-primary"
-                    @click=${this.save}
-                    title="${this._i18n.save_tooltip}"
-                    aria-label="${this._i18n.save_tooltip}">
-                  ${this._i18n.save}
-                </button>
-              </div>
-              <div id="course-dashboard-cancel" class="mt-1 mt-sm-0">
-                <button type="button"
-                    class="btn btn-secondary"
-                    @click=${this.cancel}
-                    title="${this._i18n.cancel_tooltip}"
-                    aria-label="${this._i18n.cancel_tooltip}">
-                  ${this._i18n.cancel}
-                </button>
-              </div>
+              <button type="button"
+                  id="course-dashboard-save"
+                  class="btn btn-primary"
+                  @click=${this.save}
+                  title="${this._i18n.save_tooltip}"
+                  aria-label="${this._i18n.save_tooltip}">
+                ${this._i18n.save}
+              </button>
+              <button type="button"
+                  id="course-dashboard-cancel"
+                  class="btn btn-secondary"
+                  @click=${this.cancel}
+                  title="${this._i18n.cancel_tooltip}"
+                  aria-label="${this._i18n.cancel_tooltip}">
+                ${this._i18n.cancel}
+              </button>
             ` : html`
-              <div id="course-dashboard-edit">
-                <button type="button"
-                    class="btn btn-secondary"
-                    @click=${this.edit}
-                    title="${this._i18n.edit_tooltip}"
-                    aria-label="${this._i18n.edit_tooltip}">
-                  ${this._i18n.edit}
-                </button>
-              </div>
+              <button type="button"
+                  id="course-dashboard-edit"
+                  class="btn btn-icon"
+                  @click=${this.edit}
+                  title="${this._i18n.edit_tooltip}"
+                  aria-label="${this._i18n.edit_tooltip}">
+                <span class="si si-edit fs-5" aria-hidden="true"></span>
+              </button>
             `}
           ` : nothing}
         </div>
@@ -211,126 +309,139 @@ export class SakaiCourseDashboard extends SakaiElement {
     `;
   }
 
-  widgetPanel(columns) {
+  widgetPanel() {
 
     return html`
       <sakai-widget-panel
         id="course-dashboard-widget-grid"
         @changed=${this.widgetLayoutChanged}
+        @available-changed=${this._availableWidgetsChanged}
         .widgetIds=${this.data.widgets}
         .layout=${this.data.widgetLayout}
+        .widgetFilters=${this._userWidgetFilters}
+        ?grades-reveal-on-click=${this.data.gradesRevealOnClick !== false}
         site-id="${this.siteId}"
         user-id="${this.userId}"
-        columns=${columns}
-        ?editing=${this.editing}>
+        ?editing=${this.editing && this._layoutEditable}>
       </sakai-widget-panel>
     `;
   }
 
-  template1() {
+  _overviewEmpty() {
+
+    if (this.editing && this._siteEditable) {
+      return false;
+    }
+    if (!this.data?.overview) {
+      return true;
+    }
+    const text = String(this.data.overview).replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").trim();
+    return text.length === 0;
+  }
+
+  _heroVisible() {
+
+    if (this.editing) {
+      return true;
+    }
+    return this.data.showImage || !this._overviewEmpty();
+  }
+
+  _heroChrome() {
+
+    if (!this.editing) {
+      return nothing;
+    }
+
+    const width = this._normalizeHeroWidth(this.data.heroWidth);
 
     return html`
-      ${this.titleBlock()}
-      <div id="course-dashboard-l1-overview-and-widgets-block">
-        <div id="course-dashboard-l1-overview-block">
-          ${this.renderOverview()}
-        </div>
-        <div id="course-dashboard-l1-widgets">
-          ${this.widgetPanel(1)}
+      <div class="course-dashboard-hero-chrome">
+        <div class="course-dashboard-hero-chrome-title">${this._i18n.hero_title}</div>
+        <div class="course-dashboard-hero-chrome-controls">
+          ${this._layoutEditable ? html`
+            <label class="course-dashboard-hero-control">
+              <span class="course-dashboard-hero-control-label">${this._i18n.hero_width}</span>
+              <select class="form-select form-select-sm"
+                  .value=${width}
+                  @change=${this._heroWidthChanged}
+                  aria-label="${this._i18n.hero_width}">
+                <option value="${HERO_WIDE}" ?selected=${width === HERO_WIDE}>${this._i18n.hero_width_wide}</option>
+                <option value="${HERO_FULL}" ?selected=${width === HERO_FULL}>${this._i18n.hero_width_full}</option>
+                <option value="${HERO_NARROW}" ?selected=${width === HERO_NARROW}>${this._i18n.hero_width_narrow}</option>
+              </select>
+            </label>
+          ` : nothing}
+          ${this._siteEditable ? html`
+            <div class="form-check course-dashboard-hero-control">
+              <input class="form-check-input"
+                  type="checkbox"
+                  id="course-dashboard-show-image"
+                  .checked=${Boolean(this.data.showImage)}
+                  @change=${this._showImageChanged}>
+              <label class="form-check-label" for="course-dashboard-show-image">${this._i18n.show_image}</label>
+            </div>
+          ` : nothing}
         </div>
       </div>
     `;
   }
 
-  template2() {
+  _heroBlock() {
+
+    if (!this._heroVisible()) {
+      return nothing;
+    }
+
+    const showImage = Boolean(this.data.showImage);
+    const overviewEmpty = this._overviewEmpty();
+    const heroWidth = this._normalizeHeroWidth(this.data.heroWidth);
+    const editSite = this.editing && this._siteEditable;
 
     return html`
-      ${this.titleBlock()}
-      <div id="course-dashboard-l2-header-and-overview-block" class="d-sm-flex mb-4">
-        <div id="course-dashboard-l2-header-block" class="me-sm-3 mb-3 mb-sm-0">
-          <sakai-course-header .site=${this.data} @image-edited=${this.imageEdited} ?editing=${this.editing}></sakai-course-header>
+      <section class="course-dashboard-hero"
+          data-hero-width="${heroWidth}"
+          ?data-show-image=${showImage}
+          ?data-overview-empty=${overviewEmpty}>
+        ${this._heroChrome()}
+        <div class="course-dashboard-hero-media">
+          ${showImage ? html`
+            <div class="course-dashboard-hero-image">
+              <div class="course-dashboard-media-block course-dashboard-image-block">
+                <sakai-course-header .site=${this.data} @image-edited=${this.imageEdited} ?editing=${editSite}></sakai-course-header>
+              </div>
+            </div>
+          ` : nothing}
+          ${overviewEmpty ? nothing : html`
+            <div class="course-dashboard-hero-overview">
+              <div class="course-dashboard-media-block course-dashboard-overview-block">
+                <sakai-course-overview @changed=${this.overviewChanged}
+                    overview="${this.data.overview || ""}"
+                    ?editing=${editSite}>
+                </sakai-course-overview>
+              </div>
+            </div>
+          `}
         </div>
-        <div id="course-dashboard-l2-overview-block">
-          ${this.renderOverview()}
-        </div>
-      </div>
-      <div id="course-dashboard-l2-widgets">
-        ${this.widgetPanel(3)}
-      </div>
-    `;
-  }
-
-  template3() {
-
-    return html`
-      ${this.titleBlock()}
-      <div id="course-dashboard-l3-overview-and-widgets-block">
-        <div id="course-dashboard-l3-overview-block">
-          ${this.renderOverview()}
-        </div>
-        <div id="course-dashboard-l3-widgets">
-          ${this.widgetPanel(2)}
-        </div>
-      </div>
-    `;
-  }
-
-  renderOverview() {
-
-    return html`
-      <sakai-course-overview @changed=${this.overviewChanged}
-          overview="${this.data.overview || ""}"
-          ?editing=${this.editing}>
-      </sakai-course-overview>
+      </section>
     `;
   }
 
   render() {
 
+    const heroWidth = this._normalizeHeroWidth(this.data.heroWidth);
+    const showImage = Boolean(this.data.showImage);
+
     return html`
-
-      <div class="modal fade" id="course-dashboard-template-picker" tabindex="-1" aria-labelledby="course-dashboard-template-picker-label" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="course-dashboard-template-picker-label">Pick a layout template</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this._i18n.close}"></button>
-            </div>
-            <div class="modal-body">
-              <div id="course-dashboard-template-picker-instruction">${this._i18n.template_picker_instruction}</div>
-
-              <div id="course-dashboard-template-picker-template-block">
-                <div class=${this.data.template === 1 ? "course-dashboard-template-picker-selected" : ""}>
-                  <a href="javascript:;" @click=${this.templateSelected} data-template="1">
-                    <img data-template="1" src="${this.data.courseTemplate1ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout1_alt}" />
-                  </a>
-                  <h2>${this._i18n.option1}</h2>
-                </div>
-                <div class=${this.data.template === 2 ? "course-dashboard-template-picker-selected" : ""}>
-                  <a href="javascript:;" @click=${this.templateSelected} data-template="2">
-                    <img data-template="2" src="${this.data.courseTemplate2ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout2_alt}" />
-                  </a>
-                  <h2>${this._i18n.option2}</h2>
-                </div>
-                <div class=${this.data.template === 3 ? "course-dashboard-template-picker-selected" : ""}>
-                  <a href="javascript:;" @click=${this.templateSelected} data-template="3">
-                    <img data-template="3" src="${this.data.courseTemplate3ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout3_alt}" />
-                  </a>
-                  <h2>${this._i18n.option3}</h2>
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">${this._i18n.close}</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="course-dashboard-container mt-2">
-        ${this.data.template === 1 ? this.template1() : nothing }
-        ${this.data.template === 2 ? this.template2() : nothing }
-        ${this.data.template === 3 ? this.template3() : nothing }
+        ${this.titleBlock()}
+        <div class="course-dashboard-layout"
+            data-hero-width="${heroWidth}"
+            ?data-show-image=${showImage}
+            ?data-has-hero=${this._heroVisible()}>
+          <div class="course-dashboard-layout-hero">${this._heroBlock()}</div>
+          <div class="course-dashboard-layout-widgets">${this.widgetPanel()}</div>
+        </div>
       </div>
     `;
   }

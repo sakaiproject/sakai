@@ -231,6 +231,49 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 	}
 
 	@Test
+	public void getCourseDashboardWidgetIdsReturnsAllAudienceOnly() {
+		List<String> ids = service.getCourseDashboardWidgetIds(SITE_ID);
+
+		assertTrue(ids.contains(WIDGET_VISITS));
+		assertTrue(ids.contains(WIDGET_SUBMISSIONS));
+		assertFalse(ids.contains(WIDGET_STUDENT_VISITS));
+		assertFalse(ids.contains(WIDGET_PLATFORM_HEALTH));
+	}
+
+	@Test
+	public void getCourseDashboardWidgetIdsReturnsOwnAudienceWhenOnlyOwnPermission() {
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_OWN, SITE_REF)).thenReturn(true);
+
+		List<String> ids = service.getCourseDashboardWidgetIds(SITE_ID);
+
+		assertTrue(ids.contains(WIDGET_STUDENT_VISITS));
+		assertTrue(ids.contains(WIDGET_STUDENT_SUBMISSIONS));
+		assertFalse(ids.contains(WIDGET_VISITS));
+		assertFalse(ids.contains(WIDGET_PLATFORM_HEALTH));
+	}
+
+	@Test
+	public void getCourseDashboardWidgetIdsEmptyWithoutAllOrOwnPermission() {
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_OWN, SITE_REF)).thenReturn(false);
+
+		assertTrue(service.getCourseDashboardWidgetIds(SITE_ID).isEmpty());
+	}
+
+	@Test
+	public void getHomeDashboardWidgetIdsReturnsAdminAudienceOnly() {
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ADMIN_VIEW, SITE_REF)).thenReturn(true);
+
+		List<String> ids = service.getHomeDashboardWidgetIds(SITE_ID);
+
+		assertTrue(ids.contains(WIDGET_PLATFORM_HEALTH));
+		assertTrue(ids.contains(WIDGET_CLIENT_ENVIRONMENT));
+		assertFalse(ids.contains(WIDGET_VISITS));
+		assertFalse(ids.contains(WIDGET_STUDENT_VISITS));
+	}
+
+	@Test
 	public void getOverviewIncludesOwnWidgetsWhenAllPermissionIsNotGranted() {
 		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
 

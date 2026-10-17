@@ -1,5 +1,9 @@
+// Compact metrics/highlights for Lit web components also live in
+// webcomponents/.../sakai-sitestats/src/site-stats-compact-styles.js.
+// Keep these rules in sync when changing the overview card chrome.
 .#{$namespace}sakai-sitestats,
-.#{$namespace}sakai-sitestats-admin{
+.#{$namespace}sakai-sitestats-admin,
+.#{$namespace}sakai-dashboard {
   .sitestats-widgets {
     display: grid;
     gap: $standard-spacing;

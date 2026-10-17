@@ -105,4 +105,20 @@ describe("sakai-i18n tests", () => {
     i18n = await loadProperties('test');
     expect(i18n.drink).to.equal('bacon');
   });
+
+  it ("refreshes cache when requiredKeys are missing", async () => {
+
+    await loadProperties("test");
+    expect(window.sessionStorage.getItem("en_GBtest")).to.exist;
+
+    setRoutes(`${data.i18n}
+new_key=fresh`);
+    if (window?.sakai?.translations?.existingPromises) {
+      window.sakai.translations.existingPromises = {};
+    }
+
+    const i18n = await loadProperties({ bundle: "test", requiredKeys: [ "new_key" ] });
+    expect(i18n.new_key).to.equal("fresh");
+    expect(i18n.drink).to.equal("eggnog");
+  });
 });

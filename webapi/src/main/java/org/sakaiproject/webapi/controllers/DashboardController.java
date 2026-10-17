@@ -22,7 +22,9 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.webapi.beans.DashboardLayoutHelper;
 import org.sakaiproject.webapi.beans.DashboardRestBean;
+import org.sakaiproject.webapi.beans.DashboardWidgetTile;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -41,6 +43,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.sitestats.api.view.SiteStatsViewService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
@@ -50,6 +53,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,8 +71,10 @@ import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +87,18 @@ public class DashboardController extends AbstractSakaiApiController implements E
     private static final String REFERENCE_ROOT = Entity.SEPARATOR + "dashboard";
     private static final String COURSE_IMAGE = "course_image";
     private static final String COURSE_IMAGE_FILE = COURSE_IMAGE + ".png";
+    private static final String SITESTATS_WIDGET_PREFIX = "sitestats-";
+    private static final String PROP_SITESTATS_ENABLED = "dashboard.sitestats.enabled";
+    private static final String PROP_GRADES_REVEAL_ON_CLICK = "dashboard.grades.reveal-on-click";
+    private static final String DASHBOARD_CONFIG = "dashboard-config";
+    private static final String PROP_WIDGET_FILTERS = "widgetFilters";
+    private static final String PROP_COURSE_LAYOUTS = "courseLayouts";
+    private static final String PROP_COURSE_HERO_WIDTH = "dashboard.course.hero.width";
+    private static final String PROP_COURSE_SHOW_IMAGE = "dashboard.course.hero.showImage";
+    private static final String PROP_COURSE_LAYOUT_STUDENT = "dashboard.course.widget.layout.student";
+    private static final String PROP_COURSE_LAYOUT_INSTRUCTOR = "dashboard.course.widget.layout.instructor";
+    private static final String PROP_HOME_LAYOUT = "dashboard.home.widget.layout";
+    private static final String PROP_HOME_LAYOUT_ADMIN = "dashboard.home.widget.layout.admin";
 
     @Autowired
     private AnnouncementService announcementService;
@@ -110,14 +128,18 @@ public class DashboardController extends AbstractSakaiApiController implements E
     @Autowired
     private FormattedText formattedText;
 
+    @Autowired(required = false)
+    private SiteStatsViewService siteStatsViewService;
+
     private List<String> courseWidgets = new ArrayList<>();
     private List<String> homeWidgets = new ArrayList<>();
 
     private List<String> defaultHomeLayout = new ArrayList<>();
+    private List<String> defaultHomeLayoutAdmin = new ArrayList<>();
+    private List<String> defaultCourseLayoutStudent = new ArrayList<>();
+    private List<String> defaultCourseLayoutInstructor = new ArrayList<>();
     private int maxNumberMotd = 1;
-
-    /** This will be the map of the default widget layouts, one entry for each template */
-    private Map<String, List<String>> defaultWidgetLayouts = new HashMap<>();
+    private boolean sitestatsDashboardEnabled = true;
 
     @PostConstruct
     public void init() {
@@ -127,43 +149,52 @@ public class DashboardController extends AbstractSakaiApiController implements E
         // Load up all the available widgets, from properties
         courseWidgets = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widgets", null));
         if (courseWidgets.isEmpty()) {
-            courseWidgets = new ArrayList<>(List.of("tasks", "announcements", "calendar","forums", "grades"));
+            courseWidgets = new ArrayList<>(List.of("tasks", "announcements", "calendar", "forums", "grades"));
         }
-        if (!tasksEnabled) courseWidgets.remove("tasks");
+        if (!tasksEnabled) {
+            courseWidgets.remove("tasks");
+        }
 
         homeWidgets = new ArrayList<>(serverConfigurationService.getStringList("dashboard.home.widgets", null));
         if (homeWidgets.isEmpty()) {
-            homeWidgets = new ArrayList<>(List.of("courses", "tasks", "announcements", "calendar","forums", "grades"));
+            homeWidgets = new ArrayList<>(List.of("courses", "tasks", "announcements", "calendar", "forums", "grades"));
         }
-        if (!tasksEnabled) homeWidgets.remove("tasks");
-
-        defaultHomeLayout = new ArrayList<>(List.of("courses", "tasks", "announcements", "calendar", "grades", "forums"));
-        if (!tasksEnabled) defaultHomeLayout.remove("tasks");
-
-        List<String> courseWidgetLayout1 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout1", null));
-        if (courseWidgetLayout1.isEmpty()) {
-            courseWidgetLayout1 = new ArrayList<>(List.of("tasks", "calendar", "announcements", "grades"));
+        if (!tasksEnabled) {
+            homeWidgets.remove("tasks");
         }
-        if (!tasksEnabled) courseWidgetLayout1.remove("tasks");
-        defaultWidgetLayouts.put("1", courseWidgetLayout1);
 
-        List<String> courseWidgetLayout2 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout2", null));
-        if (courseWidgetLayout2.isEmpty()) {
-            courseWidgetLayout2 = new ArrayList<>(List.of("tasks", "calendar", "forums", "grades", "announcements"));
-        }
-        if (!tasksEnabled) courseWidgetLayout2.remove("tasks");
-        defaultWidgetLayouts.put("2", courseWidgetLayout2);
-
-        List<String> courseWidgetLayout3 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout3", null));
-        if (courseWidgetLayout3.isEmpty()) {
-            courseWidgetLayout3 = new ArrayList<>(List.of("tasks", "calendar", "announcements", "grades", "forums"));
-        }
-        if (!tasksEnabled) courseWidgetLayout3.remove("tasks");
-        defaultWidgetLayouts.put("3", courseWidgetLayout3);
+        defaultHomeLayout = loadLayoutProperty(PROP_HOME_LAYOUT,
+                List.of("courses", "calendar", "announcements", "tasks", "grades", "forums"), tasksEnabled);
+        defaultHomeLayoutAdmin = loadLayoutProperty(PROP_HOME_LAYOUT_ADMIN,
+                List.of("sitestats-platform-health", "sitestats-institutional-presence",
+                        "sitestats-institutional-learner-activity", "sitestats-institutional-authoring-activity",
+                        "sitestats-client-environment"),
+                tasksEnabled);
+        defaultCourseLayoutStudent = loadLayoutProperty(PROP_COURSE_LAYOUT_STUDENT,
+                List.of("calendar", "announcements", "grades",
+                        "sitestats-student-grades", "sitestats-student-submissions", "forums"),
+                tasksEnabled);
+        defaultCourseLayoutInstructor = loadLayoutProperty(PROP_COURSE_LAYOUT_INSTRUCTOR,
+                List.of("sitestats-presence-access", "sitestats-visits", "sitestats-grades", "grades",
+                        "sitestats-submissions", "sitestats-communication", "calendar", "sitestats-lessons"),
+                tasksEnabled);
 
         maxNumberMotd = serverConfigurationService.getInt("dashboard.home.motd.display", 1);
+        sitestatsDashboardEnabled = serverConfigurationService.getBoolean(PROP_SITESTATS_ENABLED, true);
 
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+    }
+
+    private List<String> loadLayoutProperty(String propertyName, List<String> codeDefault, boolean tasksEnabled) {
+
+        List<String> layout = new ArrayList<>(serverConfigurationService.getStringList(propertyName, null));
+        if (layout.isEmpty()) {
+            layout = new ArrayList<>(codeDefault);
+        }
+        if (!tasksEnabled) {
+            layout.remove("tasks");
+        }
+        return layout;
     }
 
     @GetMapping(value = "/users/{userId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -198,14 +229,21 @@ public class DashboardController extends AbstractSakaiApiController implements E
             log.warn("Failed to set the MOTD for {}", userId, e);
         }
 
-        bean.setWidgets(homeWidgets);
+        List<String> sitestatsHomeIds = sitestatsHomeWidgetIds();
+        List<String> availableWidgets = withSitestatsWidgets(homeWidgets, sitestatsHomeIds);
+        bean.setWidgets(availableWidgets);
+        bean.setGradesRevealOnClick(serverConfigurationService.getBoolean(PROP_GRADES_REVEAL_ON_CLICK, true));
+
+        boolean homeAdmin = securityService.isSuperUser() || !sitestatsHomeIds.isEmpty();
+        List<String> defaultLayoutIds = homeAdmin ? defaultHomeLayoutAdmin : defaultHomeLayout;
 
         // Get the widget layout preference
         Preferences prefs = preferencesService.getPreferences(session.getUserId());
-        ResourceProperties props = prefs.getProperties("dashboard-config");
+        ResourceProperties props = prefs.getProperties(DASHBOARD_CONFIG);
 
         if (props == null) {
-            bean.setWidgetLayout(defaultHomeLayout);
+            bean.setWidgetLayout(filterLayoutToAvailable(
+                    DashboardLayoutHelper.fromIds(defaultLayoutIds), availableWidgets));
         } else {
             try {
                 String widgetLayoutJson = props.getProperty("widgetLayout");
@@ -213,20 +251,26 @@ public class DashboardController extends AbstractSakaiApiController implements E
                     widgetLayoutJson = props.getProperty("layout");
                 }
                 if (widgetLayoutJson == null) {
-                    bean.setWidgetLayout(defaultHomeLayout);
+                    bean.setWidgetLayout(filterLayoutToAvailable(
+                            DashboardLayoutHelper.fromIds(defaultLayoutIds), availableWidgets));
                 } else {
-                    List<String> widgetLayout = (List<String>) new ObjectMapper().readValue(widgetLayoutJson, List.class);
-                    if (widgetLayout == null) {
-                        bean.setWidgetLayout(defaultHomeLayout);
-                    } else {
-                        if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false))  {
-                            widgetLayout.remove("tasks");
-                        }
-                        bean.setWidgetLayout(widgetLayout);
+                    JsonNode layoutNode = new ObjectMapper().readTree(widgetLayoutJson);
+                    List<DashboardWidgetTile> widgetLayout = DashboardLayoutHelper.fromJsonNode(layoutNode);
+                    if (widgetLayout.isEmpty()) {
+                        widgetLayout = DashboardLayoutHelper.fromIds(defaultLayoutIds);
+                    } else if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false)) {
+                        widgetLayout = DashboardLayoutHelper.removeWidget(widgetLayout, "tasks");
                     }
+                    bean.setWidgetLayout(filterLayoutToAvailable(widgetLayout, availableWidgets));
+                }
+                String filtersJson = props.getProperty(PROP_WIDGET_FILTERS);
+                if (StringUtils.isNotBlank(filtersJson)) {
+                    bean.setWidgetFilters(new ObjectMapper().readValue(filtersJson, Map.class));
                 }
             } catch (Exception e) {
                 log.warn("Failed to deserialise user dashboard config: {}", e.toString());
+                bean.setWidgetLayout(filterLayoutToAvailable(
+                        DashboardLayoutHelper.fromIds(defaultLayoutIds), availableWidgets));
             }
         }
 
@@ -243,17 +287,61 @@ public class DashboardController extends AbstractSakaiApiController implements E
         }
 
         preferencesService.applyEditWithAutoCommit(userId, edit -> {
-            ResourcePropertiesEdit props = edit.getPropertiesEdit("dashboard-config");
+            ResourcePropertiesEdit props = edit.getPropertiesEdit(DASHBOARD_CONFIG);
             try {
-                String widgetLayoutJson = (new ObjectMapper()).writeValueAsString(bean.getWidgetLayout());
-                props.addProperty("widgetLayout", widgetLayoutJson);
+                ObjectMapper mapper = new ObjectMapper();
+                List<DashboardWidgetTile> layout = DashboardLayoutHelper.normalize(bean.getWidgetLayout());
+                props.addProperty("widgetLayout", mapper.writeValueAsString(layout));
 
                 // Remove the legacy template property and layout properties
                 props.removeProperty("template");
                 props.removeProperty("layout");
 
+                if (bean.getWidgetFilters() != null) {
+                    props.addProperty(PROP_WIDGET_FILTERS, mapper.writeValueAsString(bean.getWidgetFilters()));
+                }
+
             } catch (JsonProcessingException jpe) {
                 log.warn("Could not save dashboard config for user [{}], {}", userId, jpe.toString());
+            }
+        });
+    }
+
+    @PutMapping(value = "/users/{userId}/dashboard/filters/{widgetId}")
+    public void saveUserWidgetFilter(@PathVariable("userId") String userId,
+            @PathVariable("widgetId") String widgetId,
+            @RequestBody(required = false) Map<String, Object> filter) throws UserNotDefinedException {
+
+        String currentUserId = checkSakaiSession().getUserId();
+        if (!securityService.isSuperUser() && (!StringUtils.isBlank(userId) && !StringUtils.equals(userId, currentUserId))) {
+            log.error("You can only update your own user dashboard filters.");
+            return;
+        }
+        if (StringUtils.isBlank(widgetId)) {
+            return;
+        }
+
+        preferencesService.applyEditWithAutoCommit(userId, edit -> {
+            ResourcePropertiesEdit props = edit.getPropertiesEdit(DASHBOARD_CONFIG);
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, Map<String, Object>> filters = new HashMap<>();
+                String existing = props.getProperty(PROP_WIDGET_FILTERS);
+                if (StringUtils.isNotBlank(existing)) {
+                    filters = mapper.readValue(existing, Map.class);
+                }
+                if (filter == null || filter.isEmpty()) {
+                    filters.remove(widgetId);
+                } else {
+                    filters.put(widgetId, filter);
+                }
+                if (filters.isEmpty()) {
+                    props.removeProperty(PROP_WIDGET_FILTERS);
+                } else {
+                    props.addProperty(PROP_WIDGET_FILTERS, mapper.writeValueAsString(filters));
+                }
+            } catch (Exception e) {
+                log.warn("Could not save dashboard filter for user [{}] widget [{}]: {}", userId, widgetId, e.toString());
             }
         });
     }
@@ -262,49 +350,46 @@ public class DashboardController extends AbstractSakaiApiController implements E
     public DashboardRestBean getSiteDashboard(@PathVariable("siteId") String siteId) throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
+        String userId = session.getUserId();
 
         DashboardRestBean bean = new DashboardRestBean();
 
         try {
             Site site = siteService.getSite(siteId);
             bean.setTitle(site.getTitle());
-            bean.setWidgets(courseWidgets);
+            List<String> availableWidgets = withSitestatsWidgets(courseWidgets, sitestatsCourseWidgetIds(siteId));
+            bean.setWidgets(availableWidgets);
             bean.setProgramme(site.getShortDescription());
             bean.setOverview(site.getDescription());
-            String dashboardConfigJson = site.getProperties().getProperty("dashboard-config");
-            int defaultCourseLayout = serverConfigurationService.getInt("dashoard.course.layout", 2);
-            if (dashboardConfigJson == null) {
-                bean.setWidgetLayout(defaultWidgetLayouts.get(Integer.toString(defaultCourseLayout)));
-                bean.setTemplate(defaultCourseLayout);
-            } else {
-                Map<String, Object> dashboardConfig = (new ObjectMapper()).readValue(dashboardConfigJson, HashMap.class);
-                List<String> widgetLayout = (List<String>) dashboardConfig.get("widgetLayout");
-                if (widgetLayout == null) {
-                    widgetLayout = (List<String>) dashboardConfig.get("layout");
-                }
-                if (widgetLayout != null) {
-                    if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false)) {
-                        widgetLayout.remove("tasks");
-                    }
-                    bean.setWidgetLayout(widgetLayout);
-                } else {
-                    bean.setWidgetLayout(defaultWidgetLayouts.get(Integer.toString(defaultCourseLayout)));
-                }
-                bean.setTemplate((Integer) dashboardConfig.get("template"));
-            }
-            bean.setEditable(securityService.isSuperUser() || securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()));
+            bean.setGradesRevealOnClick(serverConfigurationService.getBoolean(PROP_GRADES_REVEAL_ON_CLICK, true));
+
+            Map<String, Object> siteConfig = readSiteDashboardConfig(site);
+            bean.setShowImage(resolveSiteShowImage(siteConfig));
+            String siteHeroWidth = resolveSiteHeroWidth(siteConfig);
+
+            boolean siteEditable = securityService.isSuperUser()
+                    || securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
+            bean.setSiteEditable(siteEditable);
+            bean.setLayoutEditable(Boolean.TRUE);
+
+            Map<String, Object> userCourseLayout = readUserCourseLayout(userId, siteId);
+            bean.setWidgetLayout(resolveUserCourseWidgetLayout(userCourseLayout, siteEditable, availableWidgets));
+
+            String userHeroWidth = userCourseLayout != null && userCourseLayout.get("heroWidth") instanceof String
+                    ? (String) userCourseLayout.get("heroWidth")
+                    : null;
+            bean.setHeroWidth(normalizeHeroWidth(
+                    StringUtils.isNotBlank(userHeroWidth) ? userHeroWidth : siteHeroWidth));
+
             String imageUrl = site.getProperties().getProperty(Site.PROP_COURSE_IMAGE_URL);
             if (StringUtils.isBlank(imageUrl)) {
                 imageUrl = "/webcomponents/images/central_park_lamp.jpg";
             }
             bean.setImage(imageUrl);
-            bean.setCourseTemplate1ThumbnailUrl("/webcomponents/images/course_template1.png");
-            bean.setCourseTemplate2ThumbnailUrl("/webcomponents/images/course_template2.png");
-            bean.setCourseTemplate3ThumbnailUrl("/webcomponents/images/course_template3.png");
         } catch (IdUnusedException idue) {
             log.error("No site found for {}", siteId);
         } catch (Exception e) {
-            log.error("Failed to load dashboard for site {}", siteId);
+            log.error("Failed to load dashboard for site {}", siteId, e);
         }
 
         return bean;
@@ -314,22 +399,240 @@ public class DashboardController extends AbstractSakaiApiController implements E
     public void saveSiteDashboard(@PathVariable("siteId") String siteId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
+        String userId = session.getUserId();
 
         try {
             Site site = siteService.getSite(siteId);
-            site.setDescription(sanitizeFormattedText(bean.getOverview()));
-            site.setShortDescription(bean.getProgramme());
-            String configJson = (new ObjectMapper())
-                .writeValueAsString(Map.of("widgetLayout", bean.getWidgetLayout(), "template", bean.getTemplate()));
-            site.getProperties().addProperty("dashboard-config", configJson);
-            siteService.save(site);
+            boolean siteEditable = securityService.isSuperUser()
+                    || securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
+
+            if (siteEditable) {
+                site.setDescription(sanitizeFormattedText(bean.getOverview()));
+                site.setShortDescription(bean.getProgramme());
+                Map<String, Object> config = readSiteDashboardConfig(site);
+                config.put("showImage", bean.getShowImage() == null || Boolean.TRUE.equals(bean.getShowImage()));
+                if (!(config.get("heroWidth") instanceof String)
+                        || StringUtils.isBlank((String) config.get("heroWidth"))) {
+                    config.put("heroWidth", normalizeHeroWidth(
+                            serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, "wide")));
+                }
+                config.remove("widgetLayout");
+                config.remove("template");
+                config.remove("overviewW");
+                config.remove("overviewH");
+                config.remove("imageW");
+                config.remove("imageH");
+                site.getProperties().addProperty(DASHBOARD_CONFIG,
+                        new ObjectMapper().writeValueAsString(config));
+                siteService.save(site);
+            }
+
+            List<DashboardWidgetTile> layout = DashboardLayoutHelper.normalize(bean.getWidgetLayout());
+            saveUserCourseLayout(userId, siteId, layout, normalizeHeroWidth(bean.getHeroWidth()));
         } catch (Exception e) {
+            log.warn("Failed to save dashboard for site {}: {}", siteId, e.toString());
         }
     }
 
-    // Rich text is cleaned before persistence; read paths return stored values unchanged.
+    private Map<String, Object> readSiteDashboardConfig(Site site) {
+
+        String dashboardConfigJson = site.getProperties().getProperty(DASHBOARD_CONFIG);
+        if (StringUtils.isBlank(dashboardConfigJson)) {
+            return new HashMap<>();
+        }
+        try {
+            return new ObjectMapper().readValue(dashboardConfigJson, HashMap.class);
+        } catch (Exception e) {
+            log.warn("Failed to parse dashboard-config for site {}: {}", site.getId(), e.toString());
+            return new HashMap<>();
+        }
+    }
+
+    private boolean resolveSiteShowImage(Map<String, Object> siteConfig) {
+
+        Object showImageObj = siteConfig.get("showImage");
+        if (showImageObj instanceof Boolean) {
+            return (Boolean) showImageObj;
+        }
+        if (showImageObj instanceof String) {
+            return Boolean.parseBoolean((String) showImageObj);
+        }
+        return serverConfigurationService.getBoolean(PROP_COURSE_SHOW_IMAGE, true);
+    }
+
+    private String resolveSiteHeroWidth(Map<String, Object> siteConfig) {
+
+        if (siteConfig.get("heroWidth") instanceof String) {
+            return normalizeHeroWidth((String) siteConfig.get("heroWidth"));
+        }
+        return normalizeHeroWidth(serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, "wide"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> readUserCourseLayout(String userId, String siteId) {
+
+        Preferences prefs = preferencesService.getPreferences(userId);
+        ResourceProperties props = prefs.getProperties(DASHBOARD_CONFIG);
+        if (props == null) {
+            return null;
+        }
+        String json = props.getProperty(PROP_COURSE_LAYOUTS);
+        if (StringUtils.isBlank(json)) {
+            return null;
+        }
+        try {
+            Map<String, Object> all = new ObjectMapper().readValue(json, HashMap.class);
+            Object entry = all.get(siteId);
+            if (entry instanceof Map) {
+                return (Map<String, Object>) entry;
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse courseLayouts for user {}: {}", userId, e.toString());
+        }
+        return null;
+    }
+
+    private List<DashboardWidgetTile> resolveUserCourseWidgetLayout(Map<String, Object> userCourseLayout,
+            boolean instructor, List<String> availableWidgets) {
+
+        List<DashboardWidgetTile> widgetLayout = List.of();
+        if (userCourseLayout != null) {
+            widgetLayout = DashboardLayoutHelper.normalize(userCourseLayout.get("widgetLayout"));
+        }
+        if (widgetLayout.isEmpty()) {
+            List<String> defaults = instructor ? defaultCourseLayoutInstructor : defaultCourseLayoutStudent;
+            widgetLayout = DashboardLayoutHelper.fromIds(defaults);
+        } else if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false)) {
+            widgetLayout = DashboardLayoutHelper.removeWidget(widgetLayout, "tasks");
+        }
+        return filterLayoutToAvailable(widgetLayout, availableWidgets);
+    }
+
+    private List<DashboardWidgetTile> filterLayoutToAvailable(List<DashboardWidgetTile> layout,
+            List<String> availableWidgets) {
+
+        if (layout == null || layout.isEmpty()) {
+            return List.of();
+        }
+        if (availableWidgets == null || availableWidgets.isEmpty()) {
+            return List.of();
+        }
+        Set<String> available = new HashSet<>(availableWidgets);
+        List<DashboardWidgetTile> filtered = new ArrayList<>();
+        for (DashboardWidgetTile tile : layout) {
+            if (tile != null && StringUtils.isNotBlank(tile.getId()) && available.contains(tile.getId())) {
+                filtered.add(tile);
+            }
+        }
+        return filtered;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void saveUserCourseLayout(String userId, String siteId, List<DashboardWidgetTile> layout, String heroWidth) {
+
+        preferencesService.applyEditWithAutoCommit(userId, edit -> {
+            ResourcePropertiesEdit props = edit.getPropertiesEdit(DASHBOARD_CONFIG);
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, Object> all = new HashMap<>();
+                String existing = props.getProperty(PROP_COURSE_LAYOUTS);
+                if (StringUtils.isNotBlank(existing)) {
+                    all = mapper.readValue(existing, HashMap.class);
+                }
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("widgetLayout", layout);
+                entry.put("heroWidth", heroWidth);
+                all.put(siteId, entry);
+                props.addProperty(PROP_COURSE_LAYOUTS, mapper.writeValueAsString(all));
+            } catch (Exception e) {
+                log.warn("Could not save course dashboard layout for user [{}] site [{}]: {}",
+                        userId, siteId, e.toString());
+            }
+        });
+    }
+
+    private static String normalizeHeroWidth(String heroWidth) {
+        if ("full".equals(heroWidth) || "wide".equals(heroWidth) || "narrow".equals(heroWidth)) {
+            return heroWidth;
+        }
+        return "wide";
+    }
+
+    private Map<String, Object> siteChromeConfigForCopy(String fromConfigJson) {
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("showImage", Boolean.TRUE);
+        result.put("heroWidth", "wide");
+        if (StringUtils.isBlank(fromConfigJson)) {
+            return result;
+        }
+        try {
+            Map<String, Object> from = new ObjectMapper().readValue(fromConfigJson, HashMap.class);
+            Object showImage = from.get("showImage");
+            if (showImage instanceof Boolean) {
+                result.put("showImage", showImage);
+            }
+            if (from.get("heroWidth") instanceof String) {
+                result.put("heroWidth", normalizeHeroWidth((String) from.get("heroWidth")));
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse dashboard-config for site copy: {}", e.toString());
+        }
+        return result;
+    }
+
     private String sanitizeFormattedText(String text) {
         return formattedText.processFormattedText(text, null, FormattedText.Level.HIGH);
+    }
+
+    private List<String> withSitestatsWidgets(List<String> baseWidgets, List<String> sitestatsWidgets) {
+        List<String> widgets = new ArrayList<>(baseWidgets);
+        for (String widgetId : sitestatsWidgets) {
+            if (!widgets.contains(widgetId)) {
+                widgets.add(widgetId);
+            }
+        }
+        return widgets;
+    }
+
+    private List<String> sitestatsCourseWidgetIds(String siteId) {
+        if (!sitestatsDashboardEnabled || siteStatsViewService == null || StringUtils.isBlank(siteId)) {
+            return List.of();
+        }
+        try {
+            return toDashboardWidgetIds(siteStatsViewService.getCourseDashboardWidgetIds(siteId));
+        } catch (SecurityException e) {
+            log.debug("SiteStats course dashboard widgets unavailable for site {}", siteId);
+            return List.of();
+        } catch (RuntimeException e) {
+            log.warn("Failed to resolve SiteStats course dashboard widgets for site {}: {}", siteId, e.toString());
+            return List.of();
+        }
+    }
+
+    private List<String> sitestatsHomeWidgetIds() {
+        if (!sitestatsDashboardEnabled || siteStatsViewService == null) {
+            return List.of();
+        }
+        try {
+            return toDashboardWidgetIds(siteStatsViewService.getHomeDashboardWidgetIds(SiteService.ADMIN_SITE_ID));
+        } catch (SecurityException e) {
+            log.debug("SiteStats home dashboard widgets unavailable");
+            return List.of();
+        } catch (RuntimeException e) {
+            log.warn("Failed to resolve SiteStats home dashboard widgets: {}", e.toString());
+            return List.of();
+        }
+    }
+
+    private List<String> toDashboardWidgetIds(List<String> siteStatsWidgetIds) {
+        if (siteStatsWidgetIds == null || siteStatsWidgetIds.isEmpty()) {
+            return List.of();
+        }
+        return siteStatsWidgetIds.stream()
+                .filter(StringUtils::isNotBlank)
+                .map(id -> SITESTATS_WIDGET_PREFIX + id)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -357,13 +660,13 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
         try {
             Site fromSite = siteService.getSite(fromContext);
-            String fromConfig = fromSite.getProperties().getProperty("dashboard-config");
-            if (fromConfig != null) {
-                Site toSite = siteService.getSite(toContext);
-                toSite.setDescription(sanitizeFormattedText(fromSite.getDescription()));
-                toSite.getProperties().addProperty("dashboard-config", fromConfig);
-                siteService.save(toSite);
-            }
+            String fromConfig = fromSite.getProperties().getProperty(DASHBOARD_CONFIG);
+            Site toSite = siteService.getSite(toContext);
+            toSite.setDescription(sanitizeFormattedText(fromSite.getDescription()));
+            Map<String, Object> chrome = siteChromeConfigForCopy(fromConfig);
+            toSite.getProperties().addProperty(DASHBOARD_CONFIG,
+                    new ObjectMapper().writeValueAsString(chrome));
+            siteService.save(toSite);
         } catch (IdUnusedException idue) {
             log.error("No site found for {} or {}", fromContext, toContext);
         } catch (Exception e) {

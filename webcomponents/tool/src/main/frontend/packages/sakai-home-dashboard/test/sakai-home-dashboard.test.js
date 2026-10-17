@@ -39,5 +39,12 @@ describe("sakai-home-dashboard tests", () => {
     swMock.expects("register").once().returns(Promise.resolve());
 
     await expect(el).to.be.accessible();
+
+    const editBtn = el.querySelector(".btn-icon .si-edit");
+    expect(editBtn).to.exist;
+
+    const available = el.querySelector(".dashboard-widgets-available");
+    expect(available).to.exist;
+    expect(available.textContent).to.include("1");
   });
 });

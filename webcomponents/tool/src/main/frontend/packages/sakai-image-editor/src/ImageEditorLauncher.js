@@ -38,7 +38,7 @@ export class ImageEditorLauncher extends SakaiElement {
         </div>
       </div>
 
-      <div class="text-center mt-4">
+      <div class="text-center my-3">
         <button type="button"
             class="btn btn-secondary"
             data-bs-toggle="modal"

@@ -11,6 +11,7 @@ export class SakaiPageableElement extends SakaiShadowElement {
     dataPage: { type: Array },
     showPager: { type: Boolean },
     defer: { type: Boolean },
+    pageSize: { attribute: "page-size", type: Number },
   };
 
   constructor() {
@@ -29,6 +30,22 @@ export class SakaiPageableElement extends SakaiShadowElement {
 
     if (!this.defer) {
       this.loadData();
+    }
+  }
+
+  willUpdate(changedProperties) {
+
+    if (changedProperties.has("pageSize")) {
+      const size = Number(this.pageSize);
+      this.pageSize = Number.isFinite(size) && size > 0 ? size : 5;
+    }
+  }
+
+  updated(changedProperties) {
+
+    if (changedProperties.has("pageSize") && this.data) {
+      this.currentPage = 1;
+      this.repage();
     }
   }
 
@@ -61,7 +78,6 @@ export class SakaiPageableElement extends SakaiShadowElement {
     this._loadDataPage(e.detail.page);
   }
 
-  // Override this method in components that extend SakaiPageableElement to apply custom data filtering before re-paging.
   getFilteredDataBeforeRepaging() {
     return this.data;
   }
@@ -77,22 +93,26 @@ export class SakaiPageableElement extends SakaiShadowElement {
 
   content() {}
 
+  statusMessage() {
+    return null;
+  }
+
   shouldUpdate() {
     return this.dataPage;
   }
 
   render() {
 
+    const status = this.statusMessage();
+    const showPagerBar = this.showPager && this.count > 1;
+
     return html`
       <div id="wrapper">
         <div id="content">${this.content()}</div>
-        ${this.showPager ? html`
+        ${status ? html`<div id="widget-status" class="small">${status}</div>` : nothing}
+        ${showPagerBar ? html`
         <div id="pager">
-          ${this.count > 1 ? html`
-          <sakai-pager count="${this.count}" current="1" @page-selected=${this.pageClicked}></sakai-pager>
-          ` : html`
-          <div class="mb-3"></div>
-          `}
+          <sakai-pager count="${this.count}" current="${this.currentPage}" @page-selected=${this.pageClicked}></sakai-pager>
         </div>
         ` : nothing}
       </div>
@@ -102,12 +122,18 @@ export class SakaiPageableElement extends SakaiShadowElement {
   static styles = [
     SakaiShadowElement.styles,
     css`
-    #wrapper {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      padding-bottom: 0;
-    }
+      :host {
+        display: block;
+        height: 100%;
+        min-height: 0;
+      }
+
+      #wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+      }
 
       #topbar {
         display: flex;
@@ -117,11 +143,44 @@ export class SakaiPageableElement extends SakaiShadowElement {
 
       #content {
         background-color: var(--sakai-dashboard-widget-bg-color, white);
-        padding-bottom: 0;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+        padding: 0.5rem 0.75rem;
+      }
+
+      #widget-status {
+        flex: 0 0 auto;
+        background-color: var(--sakai-dashboard-widget-secondary-bg-color, rgb(244, 244, 244));
+        color: var(--sakai-text-color-2, #555);
+        padding: 0.25rem 0.75rem;
+        border-top: 1px solid var(--sakai-border-color, #ddd);
+        font-size: 0.8125rem;
+        line-height: 1.3;
+        text-align: center;
+        min-height: 2.5rem;
+        align-content: center;
       }
 
       #pager {
-        margin-top: auto;
+        flex: 0 0 auto;
+        background-color: var(--sakai-dashboard-widget-secondary-bg-color, rgb(244, 244, 244));
+        padding: 0.35rem 0.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-top: 1px solid var(--sakai-border-color, #ddd);
+      }
+
+      #pager sakai-pager {
+        margin: 0;
+        display: block;
+      }
+
+      #pager sakai-pager::part(pagination),
+      #pager .pagination {
+        margin: 0;
+        padding: 0;
       }
     `
   ];

@@ -59,16 +59,26 @@ function loadProperties(suppliedOptions) {
     console.debug(`cache: ${options.cache}`);
   }
 
-  window.sakai.translations[options.bundle] = window.sakai.translations[options.bundle] || {};
-
   const storageKey = options.lang + options.bundle;
+  const requiredKeys = Array.isArray(options.requiredKeys) ? options.requiredKeys : [];
+
   if (options.cache && window.sessionStorage.getItem(storageKey) !== null) {
-    options.debug && console.debug(`Returning ${ storageKey } from sessions storage ...`);
-    window.sakai.translations[options.bundle] = JSON.parse(window.sessionStorage[storageKey]);
-    return Promise.resolve(window.sakai.translations[options.bundle]);
+    const cached = JSON.parse(window.sessionStorage[storageKey]);
+    const cacheComplete = !requiredKeys.length || requiredKeys.every(k => cached?.[k]);
+    if (cacheComplete) {
+      options.debug && console.debug(`Returning ${storageKey} from sessions storage ...`);
+      window.sakai.translations[options.bundle] = cached;
+      return Promise.resolve(cached);
+    }
+    options.debug && console.debug(`Cached ${storageKey} missing required keys. Refreshing ...`);
+    window.sessionStorage.removeItem(storageKey);
+    delete window.sakai.translations.existingPromises[options.bundle];
   }
+
+  window.sakai.translations[options.bundle] = {};
+
   if (options.debug) {
-    console.debug(`${storageKey } not in sessions storage or cache is false. Pulling from webservice ...`);
+    console.debug(`${storageKey} not in sessions storage or cache is false. Pulling from webservice ...`);
   }
 
   const params = new URLSearchParams();
@@ -95,31 +105,31 @@ function loadProperties(suppliedOptions) {
       })
       .then(data => {
 
+        const bundleTranslations = {};
         data.split("\n").forEach(pair => {
 
           if (typeof pair === "string" && pair.length > 0) {
             const keyValue = pair.split(/=(.*)/);
             if (keyValue.length >= 2) {
-              window.sakai.translations[options.bundle][keyValue[0]] = keyValue[1];
+              bundleTranslations[keyValue[0]] = keyValue[1];
             } else {
               console.warn(`Omitting translation key: ${keyValue[0]}`);
             }
           }
         });
 
-        if (options.debug) {
-          console.debug("Updated translations: ");
-          console.debug(window.sakai.translations[options.bundle]);
-        }
+        window.sakai.translations[options.bundle] = bundleTranslations;
 
         if (options.debug) {
+          console.debug("Updated translations: ");
+          console.debug(bundleTranslations);
           console.debug(`Caching translations for ${options.bundle} against key ${storageKey} in sessionStorage ...`);
         }
 
         if (options.cache) {
-          window.sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.bundle]);
+          window.sessionStorage[storageKey] = JSON.stringify(bundleTranslations);
         }
-        resolve(window.sakai.translations[options.bundle]);
+        resolve(bundleTranslations);
       }).catch(error => { console.error(error); resolve(false); } );
   });
 

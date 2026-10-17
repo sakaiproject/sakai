@@ -13,6 +13,19 @@ public interface SiteStatsViewService {
 
 	public SiteStatsOverview getInstitutionalOverview(String siteId);
 
+	/**
+	 * Widget ids available for the course dashboard picker.
+	 * Returns {@code AUDIENCE_ALL} when the user has {@code sitestats.all}, otherwise
+	 * {@code AUDIENCE_OWN} when the user has {@code sitestats.own}. Empty when neither is granted.
+	 */
+	public List<String> getCourseDashboardWidgetIds(String siteId);
+
+	/**
+	 * Widget ids available for the home dashboard picker ({@code AUDIENCE_ADMIN} only).
+	 * Empty when the current user lacks {@code sitestats.admin.view} for the site.
+	 */
+	public List<String> getHomeDashboardWidgetIds(String siteId);
+
 	public SiteStatsWidgetTab getWidgetTab(String siteId, String widgetId, String tabId);
 
 	public List<SiteStatsWidgetMetric> getWidgetMetrics(String siteId, String widgetId);

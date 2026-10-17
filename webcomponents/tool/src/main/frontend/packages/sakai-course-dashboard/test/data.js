@@ -10,10 +10,15 @@ export const dashboardData = {
   title: "XYZ Course",
   programme: "XYZ Programme",
   overview: "XYZ Overview",
-  widgets: ["widget1", "widget2", "widget3"],
+  widgets: ["widget1", "widget2", "widget3", "widget4"],
   widgetLayout: [
-    ["widget1", "widget2", "widget3"],
+    { id: "widget1", w: 1, h: 1 },
+    { id: "widget2", w: 1, h: 1 },
+    { id: "widget3", w: 1, h: 1 },
   ],
-  template: 1,
+  heroWidth: "wide",
+  showImage: true,
   image: "/images/xyz.png",
+  layoutEditable: true,
+  siteEditable: true,
 };

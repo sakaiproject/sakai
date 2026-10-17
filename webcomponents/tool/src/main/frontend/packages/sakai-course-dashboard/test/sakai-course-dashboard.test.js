@@ -31,5 +31,38 @@ describe("sakai-course-dashboard tests", () => {
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
+
+    const editBtn = el.querySelector("#course-dashboard-edit");
+    expect(editBtn).to.exist;
+    expect(editBtn.querySelector(".si-edit")).to.exist;
+
+    const available = el.querySelector(".dashboard-widgets-available");
+    expect(available).to.exist;
+    expect(available.textContent).to.include("1");
+  });
+
+  it ("hides site-only controls for members without site.upd", async () => {
+
+    fetchMock.get(data.dashboardUrl, {
+      ...data.dashboardData,
+      siteEditable: false,
+      layoutEditable: true,
+    }, { overwriteRoutes: true });
+
+    let el = await fixture(html`
+      <sakai-course-dashboard
+          user-id="${data.userId}"
+          site-id="${data.siteId}">
+      </sakai-course-dashboard>
+    `);
+
+    await waitUntil(() => el.data);
+    await elementUpdated(el);
+
+    el.querySelector("#course-dashboard-edit").click();
+    await elementUpdated(el);
+
+    expect(el.querySelector("#course-dashboard-show-image")).to.not.exist;
+    expect(el.querySelector(".course-dashboard-hero-control select")).to.exist;
   });
 });

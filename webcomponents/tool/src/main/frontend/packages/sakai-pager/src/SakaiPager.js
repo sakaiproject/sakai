@@ -18,13 +18,25 @@ export class SakaiPager extends LionPagination {
     return [
       LionPagination.styles,
       css`
+        :host {
+          display: block;
+          margin: 0;
+        }
+
+        ul {
+          margin: 0;
+          padding: 0;
+        }
+
         button {
           background-color: var(--sakai-background-color-1);
           color: var(--sakai-text-color-2);
           border: solid 1px var(--sakai-border-color);
-          padding: 8px 12px;
+          padding: var(--sakai-pager-button-padding, 8px 12px);
+          font-size: var(--sakai-pager-font-size, inherit);
           border-radius: 4px;
           cursor: pointer;
+          line-height: 1.2;
         }
 
         button:hover {

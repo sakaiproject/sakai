@@ -2,13 +2,23 @@ import { html, css, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { repeat } from "lit/directives/repeat.js";
+import {
+  defaultTileSize,
+  isPickerTile,
+  layoutIds,
+  normalizeLayout,
+  PICKER_TILE_ID,
+  tileId,
+  tileKey,
+} from "./dashboard-layout.js";
+import { loadToolnames } from "./toolnames.js";
 import "../sakai-calendar-widget.js";
 import "../sakai-courses-widget.js";
 import "../sakai-tasks-widget.js";
 import "../sakai-grades-widget.js";
 import "../sakai-announcements-widget.js";
 import "../sakai-forums-widget.js";
-import "../sakai-widget-picker.js";
+import "../sakai-sitestats-widget.js";
 
 export class SakaiWidgetPanel extends SakaiShadowElement {
 
@@ -22,28 +32,79 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
     state: String,
     editing: { type: Boolean },
     _widgets: { state: true },
+    _dragIndex: { state: true },
+    _toolnames: { state: true },
+    _narrowColumns: { state: true },
+    widgetFilters: { type: Object },
+    gradesRevealOnClick: { attribute: "grades-reveal-on-click", type: Boolean },
   };
 
   constructor() {
 
     super();
     this.state = "view";
+    this._layout = [];
+    this._dragIndex = undefined;
+    this._narrowColumns = false;
+    this.gradesRevealOnClick = true;
     this.loadTranslations("widgetpanel");
+    loadToolnames().then(r => this._toolnames = r || {});
   }
 
-  set widgetIds(value) {
+  disconnectedCallback() {
 
-    this._widgetIds = value;
-    this._widgets = value.map(v => ({ id: v }));
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = undefined;
+    super.disconnectedCallback();
   }
 
-  get widgetIds() { return this._widgetIds; }
+  firstUpdated() {
+    this._observeGridWidth();
+  }
+
+  updated() {
+    this._observeGridWidth();
+  }
+
+  _observeGridWidth() {
+
+    const grid = this.renderRoot?.querySelector("#grid");
+    if (!grid) {
+      return;
+    }
+    if (this._resizeObserver && this._observedGrid === grid) {
+      return;
+    }
+    this._resizeObserver?.disconnect();
+    this._observedGrid = grid;
+    this._resizeObserver = new ResizeObserver(entries => {
+      const entry = entries[0];
+      if (entry) {
+        this._updateNarrowColumns(entry.contentRect.width);
+      }
+    });
+    this._resizeObserver.observe(grid);
+    this._updateNarrowColumns(grid.clientWidth);
+  }
+
+  _updateNarrowColumns(width) {
+
+    const styles = getComputedStyle(this);
+    const minWidget = parseFloat(styles.getPropertyValue("--sakai-widget-panel-min-widget-width")) || 380;
+    const gap = parseFloat(styles.getPropertyValue("--sakai-widget-panel-gutter-width")) || 14;
+    const narrow = width > 0 && width < (minWidget * 2 + gap);
+    if (narrow !== this._narrowColumns) {
+      this._narrowColumns = narrow;
+    }
+  }
 
   set editing(value) {
 
     const old = this._editing;
     this._editing = value;
-    if (!value) this.changeState("view");
+    if (!value) {
+      this._layout = this._layout.filter(t => !isPickerTile(t));
+    }
     this.requestUpdate("editing", old);
   }
 
@@ -51,118 +112,110 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
 
   set layout(value) {
 
-    this._layout = value;
+    let normalized = normalizeLayout(value);
 
     if (this.widgetIds) {
-      this._layout = this._layout.filter(l => this.widgetIds.includes(l));
+      normalized = normalized.filter(tile => this.widgetIds.includes(tile.id));
     }
+    this._layout = normalized;
+    this._notifyAvailableCount();
   }
 
   get layout() { return this._layout; }
+
+  set widgetIds(value) {
+
+    this._widgetIds = value;
+    this._widgets = (value || []).map(v => ({ id: v }));
+    this._notifyAvailableCount();
+  }
+
+  get widgetIds() { return this._widgetIds; }
 
   shouldUpdate() {
     return this._i18n;
   }
 
   fireChanged() {
-    this.dispatchEvent(new CustomEvent("changed", { bubbles: true, detail: { layout: this.layout } }));
+    this.dispatchEvent(new CustomEvent("changed", {
+      bubbles: true,
+      detail: {
+        layout: normalizeLayout(this._layout),
+        availableCount: this.availableWidgetCount(),
+      },
+    }));
+    this._notifyAvailableCount();
   }
 
-  showWidgetPicker() {
-
-    if (this.state === "add") {
-      this.changeState("view");
-    } else {
-      this.changeState("add");
-    }
+  _availableWidgets() {
+    const inLayout = new Set(layoutIds(this._layout));
+    return (this.widgetIds || []).filter(id => id && id !== PICKER_TILE_ID && !inLayout.has(id));
   }
 
-  stateSelected(e) {
-    this.changeState(e.target.value);
+  availableWidgetCount() {
+    return this._availableWidgets().length;
   }
 
-  changeState(state) {
+  _notifyAvailableCount() {
 
-    if (this.state === state) {
+    const count = this.availableWidgetCount();
+    if (count === this._lastAvailableCount) {
       return;
     }
+    this._lastAvailableCount = count;
+    this.dispatchEvent(new CustomEvent("available-changed", {
+      bubbles: true,
+      detail: { count },
+    }));
+  }
 
-    this.state = state;
+  _widgetName(id) {
+    return this._toolnames?.[id] || id;
+  }
 
-    if (this.state === "add") {
-      this._widgets.forEach(w => w.state = "view");
+  _addWidget(id, atIndex = 0) {
 
-      // Add in the picker widget
-      this.layout.unshift("picker");
-      this.requestUpdate();
-      this.updateComplete.then(() => {
-
-        // Set up the picker with the current and all widgets
-        const picker = this.shadowRoot.getElementById("picker");
-        picker.setAttribute("all", JSON.stringify(this.widgetIds));
-        picker.setAttribute("current", JSON.stringify(this.layout));
-        picker.setAttribute("state", "remove");
-
-        // After a widget's been picked
-        picker.addEventListener("widget-picked", e => {
-
-          const pickerIndex = this.layout.findIndex(w => w === "picker");
-          this.layout.splice(pickerIndex, 1);
-          this.state = "view";
-
-          this.layout.unshift(e.detail.id);
-          this.fireChanged();
-          this.requestUpdate();
-        });
-      });
-    } else {
-      this._widgets.forEach(w => w.state = this.state);
-      if (this.layout.indexOf("picker") !== -1) {
-        // The picker's currently visible. Remove it.
-        this.layout.shift();
-      }
-      this.requestUpdate();
+    if (!id || layoutIds(this._layout).includes(id)) {
+      return;
     }
+    const { w, h } = defaultTileSize(id);
+    this._layout.splice(atIndex, 0, { id, w, h });
+    this.fireChanged();
+    this.requestUpdate();
   }
 
   removeWidget(e) {
 
-    const i = this.layout.findIndex(w => w === e.target.id);
-    if (i !== -1) this.layout.splice(i, 1);
+    const i = this._layout.findIndex(w => tileId(w) === e.target.id);
+    if (i !== -1) this._layout.splice(i, 1);
     this.fireChanged();
     this.requestUpdate();
-
-    if (e.detail && e.detail.newState) {
-      this.updateComplete.then(() => this.changeState(e.detail.newState));
-    } else {
-      this.updateComplete.then(() => this.changeState("remove"));
-    }
   }
 
   moveWidget(e) {
 
-    const currentIndex = this.layout.findIndex(w => w === e.detail.widgetId);
+    const currentIndex = this._layout.findIndex(w => tileId(w) === e.detail.widgetId);
     if (currentIndex === -1) return;
 
     const movingBack = e.detail.direction === "up" || e.detail.direction === "left";
     const movingForward = e.detail.direction === "down" || e.detail.direction === "right";
 
-    if ((movingBack && currentIndex === 0) || (movingForward && currentIndex === this.layout.length - 1)) {
+    if ((movingBack && currentIndex === 0) || (movingForward && currentIndex === this._layout.length - 1)) {
       return;
     }
 
-    const tmpWidgetId = this.layout[currentIndex];
+    const tmpTile = this._layout[currentIndex];
 
     switch (e.detail.direction) {
       case "up":
       case "left":
-        this.layout[currentIndex] = this.layout[currentIndex - 1];
-        this.layout[currentIndex - 1] = tmpWidgetId;
+        this._layout[currentIndex] = this._layout[currentIndex - 1];
+        this._layout[currentIndex - 1] = tmpTile;
         break;
       case "down":
       case "right":
-        this.layout[currentIndex] = this.layout[currentIndex + 1];
-        this.layout[currentIndex + 1] = tmpWidgetId;
+        this._layout[currentIndex] = this._layout[currentIndex + 1];
+        this._layout[currentIndex + 1] = tmpTile;
         break;
       default:
     }
@@ -170,144 +223,300 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
     this.fireChanged();
   }
 
-  getWidget(r, index) {
+  resizeWidget(e) {
 
+    const index = this._layout.findIndex(w => tileId(w) === e.detail.widgetId);
+    if (index === -1) {
+      return;
+    }
+    const tile = this._layout[index];
+    this._layout[index] = {
+      id: tile.id,
+      w: Math.max(1, Math.min(2, e.detail.w)),
+      h: Math.max(1, Math.min(2, e.detail.h)),
+    };
+    this.requestUpdate();
+    this.fireChanged();
+  }
+
+  _onDragStart(e, index) {
+
+    if (!this.editing || isPickerTile(this._layout[index])) {
+      e.preventDefault();
+      return;
+    }
+    this._dragIndex = index;
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", `move:${index}`);
+  }
+
+  _onAvailableDragStart(e, id) {
+
+    e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData("text/plain", `add:${id}`);
+  }
+
+  _onDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = e.dataTransfer.effectAllowed === "copy" ? "copy" : "move";
+  }
+
+  _onDrop(e, targetIndex) {
+
+    e.preventDefault();
+    const data = e.dataTransfer.getData("text/plain") || "";
+    if (data.startsWith("add:")) {
+      this._addWidget(data.substring(4), targetIndex);
+      this._dragIndex = undefined;
+      return;
+    }
+
+    const fromIndex = this._dragIndex ?? (data.startsWith("move:") ? parseInt(data.substring(5), 10) : undefined);
+    if (fromIndex === undefined || Number.isNaN(fromIndex) || fromIndex === targetIndex) {
+      this._dragIndex = undefined;
+      return;
+    }
+    const moved = this._layout[fromIndex];
+    this._layout.splice(fromIndex, 1);
+    this._layout.splice(targetIndex, 0, moved);
+    this._dragIndex = undefined;
+    this.requestUpdate();
+    this.fireChanged();
+  }
+
+  _onDragEnd() {
+    this._dragIndex = undefined;
+  }
+
+  _tileSpan(tile) {
+    if (typeof tile === "string") {
+      return { w: 1, h: 1 };
+    }
+    return { w: tile.w || 1, h: tile.h || 1 };
+  }
+
+  _displaySpan(tile) {
+
+    const { w, h } = this._tileSpan(tile);
+    return {
+      w: this._narrowColumns ? 1 : w,
+      h,
+      configuredW: w,
+    };
+  }
+
+  _wrapTile(tile, index, content) {
+
+    const { w, h } = this._displaySpan(tile);
+
+    return html`
+      <div
+          class="widget-tile ${this._dragIndex === index ? "dragging" : ""}"
+          style="grid-column: span ${w}; grid-row: span ${h};"
+          draggable=${this.editing && !isPickerTile(tile) ? true : nothing}
+          @dragstart=${e => this._onDragStart(e, index)}
+          @dragover=${this._onDragOver}
+          @drop=${e => this._onDrop(e, index)}
+          @dragend=${this._onDragEnd}>
+        ${content}
+      </div>
+    `;
+  }
+
+  _editBindings(index, tile) {
+
+    const { w, h, configuredW } = this._displaySpan(tile);
+    return {
+      tileW: configuredW,
+      displayW: w,
+      tileH: h,
+      disableLeftAndUp: index === 0,
+      disableRightAndDown: index === this._layout.length - 1,
+    };
+  }
+
+  getWidget(tile, index) {
+
+    const r = tileId(tile);
     const w = this._widgets.find(widget => widget.id === r);
+    const bindings = this._editBindings(index, tile);
 
     switch (r) {
       case "tasks":
-        return html`
-          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
-            <sakai-tasks-widget
-              id="${r}"
-              site-id="${ifDefined(this.siteId ? this.siteId : "")}"
-              user-id="${ifDefined(this.userId ? this.userId : "")}"
-              class="widget"
-              state="${w.state}"
-              @remove=${this.removeWidget}
-              @move=${this.moveWidget}
-              ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this.layout.length - 1}
-              ?editing=${this.editing}>
-            </sakai-tasks-widget>
-          </div>
-        `;
+        return this._wrapTile(tile, index, html`
+          <sakai-tasks-widget
+            id="${r}"
+            site-id="${ifDefined(this.siteId ? this.siteId : "")}"
+            user-id="${ifDefined(this.userId ? this.userId : "")}"
+            class="widget"
+            state="${w?.state}"
+            tile-w="${bindings.tileW}"
+            display-w="${bindings.displayW}"
+            tile-h="${bindings.tileH}"
+            @remove=${this.removeWidget}
+            @move=${this.moveWidget}
+            @size-change=${this.resizeWidget}
+            ?disable-left-and-up=${bindings.disableLeftAndUp}
+            ?disable-right-and-down=${bindings.disableRightAndDown}
+            ?editing=${this.editing}>
+          </sakai-tasks-widget>
+        `);
       case "grades":
-        return html`
-          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
+        return this._wrapTile(tile, index, html`
             <sakai-grades-widget
               id="${r}"
               site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
               user-id="${ifDefined(this.userId ? this.userId : undefined)}"
+              .savedFilters=${this.widgetFilters?.grades}
+              ?reveal-on-click=${this.gradesRevealOnClick !== false}
               class="widget"
-              state="${w.state}"
-              @remove=${this.removeWidget}
-              @move=${this.moveWidget}
-              ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this.layout.length - 1}
-              ?editing=${this.editing}>
-            </sakai-grades-widget>
-          </div>
-        `;
+            state="${w?.state}"
+            tile-w="${bindings.tileW}"
+            display-w="${bindings.displayW}"
+            tile-h="${bindings.tileH}"
+            @remove=${this.removeWidget}
+            @move=${this.moveWidget}
+            @size-change=${this.resizeWidget}
+            ?disable-left-and-up=${bindings.disableLeftAndUp}
+            ?disable-right-and-down=${bindings.disableRightAndDown}
+            ?editing=${this.editing}>
+          </sakai-grades-widget>
+        `);
       case "announcements":
-        return html`
-          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
+        return this._wrapTile(tile, index, html`
             <sakai-announcements-widget
               id="${r}"
               site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
               user-id="${ifDefined(this.userId ? this.userId : undefined)}"
+              .savedFilters=${this.widgetFilters?.announcements}
               class="widget"
-              state="${w.state}"
-              @remove=${this.removeWidget}
-              @move=${this.moveWidget}
-              ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this.layout.length - 1}
-              ?editing=${this.editing}>
-            </sakai-announcements-widget>
-          </div>
-        `;
+            state="${w?.state}"
+            tile-w="${bindings.tileW}"
+            display-w="${bindings.displayW}"
+            tile-h="${bindings.tileH}"
+            @remove=${this.removeWidget}
+            @move=${this.moveWidget}
+            @size-change=${this.resizeWidget}
+            ?disable-left-and-up=${bindings.disableLeftAndUp}
+            ?disable-right-and-down=${bindings.disableRightAndDown}
+            ?editing=${this.editing}>
+          </sakai-announcements-widget>
+        `);
       case "calendar":
-        return html`
-          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
-            <sakai-calendar-widget
-              id="${r}"
-              site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
-              user-id="${ifDefined(this.userId ? this.userId : undefined)}"
-              class="widget"
-              state="${w.state}"
-              @remove=${this.removeWidget}
-              @move=${this.moveWidget}
-              ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this.layout.length - 1}
-              ?editing=${this.editing}>
-            </sakai-calendar-widget>
-          </div>
-        `;
+        return this._wrapTile(tile, index, html`
+          <sakai-calendar-widget
+            id="${r}"
+            site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
+            user-id="${ifDefined(this.userId ? this.userId : undefined)}"
+            class="widget"
+            state="${w?.state}"
+            tile-w="${bindings.tileW}"
+            display-w="${bindings.displayW}"
+            tile-h="${bindings.tileH}"
+            @remove=${this.removeWidget}
+            @move=${this.moveWidget}
+            @size-change=${this.resizeWidget}
+            ?disable-left-and-up=${bindings.disableLeftAndUp}
+            ?disable-right-and-down=${bindings.disableRightAndDown}
+            ?editing=${this.editing}>
+          </sakai-calendar-widget>
+        `);
       case "courses":
-        return html`
-          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
+        return this._wrapTile(tile, index, html`
             <sakai-courses-widget
               id="${r}"
               user-id="${ifDefined(this.userId ? this.userId : undefined)}"
+              .savedFilters=${this.widgetFilters?.courses}
               class="widget"
-              state="${w.state}"
-              @remove=${this.removeWidget}
-              @move=${this.moveWidget}
-              ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this.layout.length - 1}
-              ?editing=${this.editing}>
-            </sakai-courses-widget>
-          </div>
-        `;
+            state="${w?.state}"
+            tile-w="${bindings.tileW}"
+            display-w="${bindings.displayW}"
+            tile-h="${bindings.tileH}"
+            @remove=${this.removeWidget}
+            @move=${this.moveWidget}
+            @size-change=${this.resizeWidget}
+            ?disable-left-and-up=${bindings.disableLeftAndUp}
+            ?disable-right-and-down=${bindings.disableRightAndDown}
+            ?editing=${this.editing}>
+          </sakai-courses-widget>
+        `);
       case "forums":
-        return html`
-          <div class="widget-col ${this.state === "add" ? "faded" : ""}">
-            <sakai-forums-widget
+        return this._wrapTile(tile, index, html`
+          <sakai-forums-widget
+            id="${r}"
+            site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
+            user-id="${ifDefined(this.userId ? this.userId : undefined)}"
+            state="${w?.state}"
+            class="widget"
+            tile-w="${bindings.tileW}"
+            display-w="${bindings.displayW}"
+            tile-h="${bindings.tileH}"
+            @remove=${this.removeWidget}
+            @move=${this.moveWidget}
+            @size-change=${this.resizeWidget}
+            ?disable-left-and-up=${bindings.disableLeftAndUp}
+            ?disable-right-and-down=${bindings.disableRightAndDown}
+            ?editing=${this.editing}>
+          </sakai-forums-widget>
+        `);
+      case PICKER_TILE_ID:
+        return nothing;
+      default:
+        if (typeof r === "string" && r.startsWith("sitestats-")) {
+          return this._wrapTile(tile, index, html`
+            <sakai-sitestats-widget
               id="${r}"
+              sitestats-widget-id="${r.substring("sitestats-".length)}"
               site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
               user-id="${ifDefined(this.userId ? this.userId : undefined)}"
-              state="${w.state}"
               class="widget"
+              state="${w?.state}"
+              tile-w="${bindings.tileW}"
+              display-w="${bindings.displayW}"
+              tile-h="${bindings.tileH}"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
-              ?disable-left-and-up=${index === 0}
-              ?disable-right-and-down=${index === this.layout.length - 1}
+              @size-change=${this.resizeWidget}
+              ?disable-left-and-up=${bindings.disableLeftAndUp}
+              ?disable-right-and-down=${bindings.disableRightAndDown}
               ?editing=${this.editing}>
-            </sakai-forums-widget>
-          </div>
-        `;
-      case "picker":
-        return this.editing ? html`
-          <div class="widget-col">
-            <sakai-widget-picker @remove=${this.removeWidget}
-                id="picker"
-                state="remove">
-            </sakai-widget-picker></div>
-        ` : nothing;
-      default:
+            </sakai-sitestats-widget>
+          `);
+        }
         return "";
     }
   }
 
   render() {
 
+    const available = this.editing ? this._availableWidgets() : [];
+
     return html`
-      ${this.editing ? html`
-        <div id="add-button">
-          <button type="button"
-              class="btn btn-primary"
-              @click=${this.showWidgetPicker}
-              title="${this._i18n.add_a_widget}"
-              aria-label="${this._i18n.add_a_widget}">
-            <i class="si si-add"></i>
-            <div id="add-text">${this._i18n.add_a_widget}</div>
-          </button>
+      ${this.editing && available.length ? html`
+        <div id="available-widgets" role="list" aria-label="${this._i18n.add_a_widget}">
+          ${available.map(id => html`
+            <div class="available-widget"
+                role="listitem"
+                draggable="true"
+                @dragstart=${e => this._onAvailableDragStart(e, id)}>
+              <span class="available-title">${this._widgetName(id)}</span>
+              <button type="button"
+                  class="btn btn-icon btn-sm"
+                  @click=${() => this._addWidget(id)}
+                  title="${this._i18n.add_a_widget}: ${this._widgetName(id)}"
+                  aria-label="${this._i18n.add_a_widget}: ${this._widgetName(id)}">
+                <span class="si si-add fs-6" aria-hidden="true"></span>
+              </button>
+            </div>
+          `)}
         </div>
       ` : nothing}
 
-      <div id="grid">
-        ${repeat(this.layout, w => w, (w, i) => html`
-          ${this.getWidget(w, i)}
+      <div id="grid"
+          @dragover=${this.editing ? this._onDragOver : nothing}
+          @drop=${this.editing ? e => this._onDrop(e, this._layout.length) : nothing}>
+        ${repeat(this._layout ?? [], tileKey, (tile, i) => html`
+          ${this.getWidget(tile, i)}
         `)}
       </div>
     `;
@@ -318,53 +527,72 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
     css`
       :host {
         display: block;
-        width: var(--sakai-widget-panel-width);
+        width: var(--sakai-widget-panel-width, 100%);
         background-color: var(--sakai-tool-bg-color);
-      }
-      #add-button {
-        text-align: right;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-      }
-      #add-button i {
-        font-size: 16px;
-        font-weight: bold;
+        --sakai-widget-panel-row-height: 420px;
+        --sakai-widget-panel-min-widget-width: 380px;
       }
       a {
         color: var(--link-color);
       }
-      #add-text {
-        display: inline-block;
-        font-weight: bold;
-        color: var(--sakai-widget-panel-add-text-color);
-        font-size: var(--sakai-widget-panel-add-text-size, 14px);
-        margin-left: 6px;
+
+      #available-widgets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background-color: var(--sakai-dashboard-widget-secondary-bg-color, rgb(244, 244, 244));
+        border: 1px solid var(--sakai-border-color, #ddd);
+        border-radius: var(--bs-border-radius, 0.375rem);
       }
-      .faded {
-        pointer-events: none;
-        opacity: 0.4;
+
+      .available-widget {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.5rem 0.35rem 1rem;
+        background: var(--sakai-background-color-1, #fff);
+        border: 1px solid var(--sakai-border-color, #ddd);
+        border-radius: var(--bs-border-radius, 0.375rem);
+        cursor: grab;
+      }
+
+      .available-title {
+        font-size: 0.875rem;
+        font-weight: 600;
       }
 
       #grid {
-        column-width: var(--sakai-widget-panel-min-widget-width, 350px);
-        column-gap: var(--sakai-widget-panel-gutter-width, 1rem);
-        -webkit-column-width: var(--sakai-widget-panel-min-widget-width, 350px);
-        -webkit-column-gap: var(--sakai-widget-panel-gutter-width, 1rem);
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(min(100%, var(--sakai-widget-panel-min-widget-width)), 1fr)
+        );
+        grid-auto-rows: var(--sakai-widget-panel-row-height);
+        gap: var(--sakai-widget-panel-gutter-width, 1rem);
+        min-height: 4rem;
       }
 
-      .widget-col {
-        break-inside: avoid;
-        -webkit-column-break-inside: avoid;
-        width: 100%;
-        margin-bottom: var(--sakai-widget-panel-gutter-width, 1rem);
+      .widget-tile {
+        min-height: 0;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
-      @supports (font: -apple-system-body) {
-        .widget-col {
-          display: inline-block;
-        }
-    }
+
+      .widget-tile.dragging {
+        opacity: 0.5;
+      }
+
+      .widget-tile .widget {
+        flex: 1 1 auto;
+        min-height: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+      }
     `
   ];
 }
