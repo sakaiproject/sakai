@@ -327,8 +327,9 @@ class LessonsTest extends SakaiUiTestBase {
     private void assertNavigationLinkCount(String title, int expectedCount) {
         Locator currentSiteNavigation = page.locator(
             "li.site-list-item.is-current-site .site-page-list");
+        // Count membership in navigation even when the site's tool list is collapsed.
         assertThat(currentSiteNavigation.getByRole(AriaRole.LINK,
-            new Locator.GetByRoleOptions().setName(title).setExact(true)))
+            new Locator.GetByRoleOptions().setName(title).setExact(true).setIncludeHidden(true)))
             .hasCount(expectedCount);
     }
 
