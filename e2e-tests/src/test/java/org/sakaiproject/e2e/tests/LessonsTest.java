@@ -326,10 +326,10 @@ class LessonsTest extends SakaiUiTestBase {
 
     private void assertNavigationLinkCount(String title, int expectedCount) {
         Locator currentSiteNavigation = page.locator(
-            "li.site-list-item.is-current-site .site-page-list");
-        // Count membership in navigation even when the site's tool list is collapsed.
-        assertThat(currentSiteNavigation.getByRole(AriaRole.LINK,
-            new Locator.GetByRoleOptions().setName(title).setExact(true).setIncludeHidden(true)))
+            "li.site-list-item.is-current-site .site-page-list a.btn-nav");
+        // Count exact labels in the DOM, including links in collapsed tool lists.
+        assertThat(currentSiteNavigation.filter(new Locator.FilterOptions()
+            .setHas(page.getByText(title, new Page.GetByTextOptions().setExact(true)))))
             .hasCount(expectedCount);
     }
 
