@@ -1,0 +1,420 @@
+/**
+ * Copyright (c) 2003-2026 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.sakaiproject.sitestats.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.presence.api.PresenceService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.SiteStatsDemoSeedService;
+import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.StatsUpdateManager;
+import org.sakaiproject.user.api.User;
+
+/**
+ * Seeds SiteStats aggregates via {@link StatsUpdateManager} and sample session User-Agents for the sitestats tool demo.
+ */
+@Slf4j
+public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
+
+	public static final String SITE_PROP_SEEDED = "sitestats.demo.seeded";
+	public static final String SESSION_ID_PREFIX = "sitestats-demo-ua-";
+
+	private static final String[] ACTIVITY_EVENTS = {
+			"content.read",
+			"content.new",
+			"asn.submit.submission",
+			"asn.read.assignment",
+			"gradebook.studentView",
+			"conversations.post.viewed",
+			"conversations.topic.created"
+	};
+
+	private static final String[] DEMO_USER_AGENTS = {
+			// Desktop
+			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+			"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+			"Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0",
+			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+			// Mobile
+			"Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
+			"Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+			// Tablet
+			"Mozilla/5.0 (iPad; CPU OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
+			"Mozilla/5.0 (Linux; Android 13; SM-X700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+	};
+
+	@Setter private StatsUpdateManager statsUpdateManager;
+	@Setter private SiteService siteService;
+	@Setter private SqlService sqlService;
+	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private SimplePageToolDao simplePageToolDao;
+
+	private final Random random = new Random(42);
+
+	@Override
+	public void seed(Collection<Site> sites, Collection<User> students, Collection<User> instructors) {
+		if (sites == null || sites.isEmpty()) {
+			log.info("SiteStats demo seed skipped: no sites");
+			return;
+		}
+
+		int historyDays = serverConfigurationService.getInt("sitestats.demo.seed.days", 30);
+		int visitsPerUser = serverConfigurationService.getInt("sitestats.demo.seed.visits.per.user", 8);
+		int sessionCount = serverConfigurationService.getInt("sitestats.demo.seed.sessions", 24);
+
+		List<User> studentList = students == null ? List.of() : new ArrayList<>(students);
+		List<User> instructorList = instructors == null ? List.of() : new ArrayList<>(instructors);
+		List<User> actors = new ArrayList<>(studentList);
+		actors.addAll(instructorList);
+		if (actors.isEmpty()) {
+			log.warn("SiteStats demo seed: no users to attribute events to");
+			return;
+		}
+
+		int seededSites = 0;
+		for (Site site : sites) {
+			if (site == null || StringUtils.isBlank(site.getId())) {
+				continue;
+			}
+			if (isSiteAlreadySeeded(site)) {
+				log.debug("SiteStats demo seed already done for site {}", site.getId());
+				continue;
+			}
+			try {
+				seedSiteEvents(site, actors, studentList, historyDays, visitsPerUser);
+				markSiteSeeded(site);
+				seededSites++;
+			} catch (Exception e) {
+				log.warn("SiteStats demo seed failed for site {}: {}", site.getId(), e.toString());
+			}
+		}
+
+		seedServerEvents(actors, historyDays);
+		seedSessionUserAgents(actors, sessionCount, historyDays);
+
+		log.info("SiteStats demo seed completed: {} site(s), {} day history", seededSites, historyDays);
+	}
+
+	private void seedSiteEvents(Site site, List<User> actors, List<User> students, int historyDays, int visitsPerUser) {
+		String siteId = site.getId();
+		List<Event> events = new ArrayList<>();
+		List<User> visitors = students.isEmpty() ? actors : students;
+		int baseVisitorCount = Math.min(visitors.size(), Math.max(5, visitors.size() / 4));
+
+		for (int dayOffset = 0; dayOffset < historyDays; dayOffset++) {
+			Date day = daysAgo(dayOffset);
+			double intensity = visitDayIntensity(day, dayOffset);
+			if (intensity <= 0.05) {
+				// Quiet day: skip visits almost entirely
+				continue;
+			}
+			int visitorCount = Math.max(1, (int) Math.round(baseVisitorCount * intensity));
+			visitorCount = Math.min(visitorCount, visitors.size());
+
+			for (int v = 0; v < visitorCount; v++) {
+				User user = visitors.get((dayOffset + v) % visitors.size());
+				int maxVisits = Math.max(1, (int) Math.round((visitsPerUser / 4.0) * intensity));
+				int visitsToday = 1 + random.nextInt(maxVisits);
+				for (int i = 0; i < visitsToday; i++) {
+					Date begin = withHourOffset(day, random.nextInt(10));
+					Date end = new Date(begin.getTime() + TimeUnit.MINUTES.toMillis(5 + random.nextInt(55)));
+					String presenceRef = "/presence/" + siteId + PresenceService.PRESENCE_SUFFIX;
+					String sessionId = "demo-sess-" + siteId + "-" + user.getId() + "-" + dayOffset + "-" + i;
+					events.add(statsUpdateManager.buildEvent(begin, StatsManager.SITEVISIT_EVENTID,
+							presenceRef, null, user.getId(), sessionId));
+					events.add(statsUpdateManager.buildEvent(end, StatsManager.SITEVISITEND_EVENTID,
+							presenceRef, null, user.getId(), sessionId));
+				}
+			}
+
+			// Activity + resources (also scales with the day)
+			int activityCount = Math.max(1, (int) Math.round((3 + random.nextInt(4)) * intensity));
+			for (int a = 0; a < activityCount; a++) {
+				User user = actors.get(random.nextInt(actors.size()));
+				String eventId = ACTIVITY_EVENTS[random.nextInt(ACTIVITY_EVENTS.length)];
+				String ref;
+				if (eventId.startsWith("content.")) {
+					ref = "/content/group/" + siteId + "/searchdata/demo-file-" + (a + 1) + ".txt";
+				} else if (eventId.startsWith("asn.")) {
+					ref = "/assignment/a/" + siteId + "/demo-asn-" + (a + 1);
+				} else if (eventId.startsWith("conversations.")) {
+					ref = "/conversations/" + siteId + "/topic/demo-" + (a + 1);
+				} else {
+					ref = "/gradebook/" + siteId;
+				}
+				events.add(statsUpdateManager.buildEvent(withHourOffset(day, random.nextInt(12)),
+						eventId, ref, siteId, user.getId(), "demo-act-" + dayOffset + "-" + a));
+			}
+		}
+
+		// Lesson page reads against real pages when available
+		List<SimplePage> pages = listLessonPages(siteId);
+		if (!pages.isEmpty()) {
+			for (int dayOffset = 0; dayOffset < Math.min(historyDays, 14); dayOffset++) {
+				Date day = daysAgo(dayOffset);
+				SimplePage page = pages.get(dayOffset % pages.size());
+				User user = visitors.get(dayOffset % visitors.size());
+				String pageRef = "/lessonbuilder/page/" + page.getPageId();
+				events.add(statsUpdateManager.buildEvent(withHourOffset(day, 2),
+						LessonBuilderEvents.PAGE_READ, pageRef, siteId, user.getId(),
+						"demo-lb-" + dayOffset));
+			}
+		}
+
+		flushEvents(events);
+	}
+
+	private void seedServerEvents(List<User> actors, int historyDays) {
+		List<Event> events = new ArrayList<>();
+		int days = Math.min(historyDays, 14);
+		for (int dayOffset = 0; dayOffset < days; dayOffset++) {
+			Date day = daysAgo(dayOffset);
+			int logins = 5 + random.nextInt(15);
+			for (int i = 0; i < logins; i++) {
+				User user = actors.get(random.nextInt(actors.size()));
+				events.add(statsUpdateManager.buildEvent(withHourOffset(day, random.nextInt(20)),
+						StatsManager.LOGIN_EVENTID, "/user/" + user.getId(), null,
+						user.getId(), "demo-login-" + dayOffset + "-" + i));
+			}
+			if (dayOffset % 3 == 0) {
+				User user = actors.get(random.nextInt(actors.size()));
+				events.add(statsUpdateManager.buildEvent(day, "user.add", "/user/" + user.getId(),
+						null, user.getId(), "demo-useradd-" + dayOffset));
+				events.add(statsUpdateManager.buildEvent(day, "site.add", "/site/demo-site-" + dayOffset,
+						null, user.getId(), "demo-siteadd-" + dayOffset));
+			}
+		}
+		flushEvents(events);
+	}
+
+	private void seedSessionUserAgents(List<User> actors, int sessionCount, int historyDays) {
+		if (sessionCount <= 0 || actors.isEmpty()) {
+			return;
+		}
+		if (demoSessionsExist()) {
+			log.debug("SiteStats demo session User-Agents already present; skipping");
+			return;
+		}
+
+		Instant now = Instant.now();
+		for (int i = 0; i < sessionCount; i++) {
+			User user = actors.get(i % actors.size());
+			String sessionId = SESSION_ID_PREFIX + String.format("%03d", i);
+			String ua = DEMO_USER_AGENTS[i % DEMO_USER_AGENTS.length];
+			Instant start = now.minus(random.nextInt(Math.max(1, historyDays)), ChronoUnit.DAYS)
+					.minus(random.nextInt(12), ChronoUnit.HOURS);
+			Instant end = start.plus(30 + random.nextInt(120), ChronoUnit.MINUTES);
+			insertSession(sessionId, user.getId(), ua, start, end);
+		}
+		log.info("Inserted {} demo SAKAI_SESSION rows with User-Agents", sessionCount);
+	}
+
+	private void flushEvents(List<Event> events) {
+		if (events.isEmpty()) {
+			return;
+		}
+		// Process in chunks to bound memory
+		int chunkSize = 200;
+		for (int i = 0; i < events.size(); i += chunkSize) {
+			List<Event> chunk = events.subList(i, Math.min(i + chunkSize, events.size()));
+			statsUpdateManager.collectEvents(new ArrayList<>(chunk));
+		}
+	}
+
+	private List<SimplePage> listLessonPages(String siteId) {
+		if (simplePageToolDao == null) {
+			return List.of();
+		}
+		try {
+			List<SimplePage> pages = simplePageToolDao.getSitePages(siteId);
+			return pages == null ? List.of() : pages;
+		} catch (RuntimeException e) {
+			log.debug("Unable to list lesson pages for {}: {}", siteId, e.toString());
+			return List.of();
+		}
+	}
+
+	private boolean isSiteAlreadySeeded(Site site) {
+		try {
+			ResourceProperties props = site.getProperties();
+			if (props == null) {
+				Site fresh = siteService.getSite(site.getId());
+				props = fresh.getProperties();
+			}
+			return props != null && "true".equalsIgnoreCase(props.getProperty(SITE_PROP_SEEDED));
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	private void markSiteSeeded(Site site) {
+		try {
+			Site editable = siteService.getSite(site.getId());
+			ResourcePropertiesEdit props = editable.getPropertiesEdit();
+			props.addProperty(SITE_PROP_SEEDED, "true");
+			siteService.save(editable);
+		} catch (IdUnusedException | PermissionException e) {
+			log.warn("Could not mark site {} as sitestats-demo seeded: {}", site.getId(), e.toString());
+		} catch (RuntimeException e) {
+			log.warn("Could not mark site {} as sitestats-demo seeded: {}", site.getId(), e.toString());
+		}
+	}
+
+	private boolean demoSessionsExist() {
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		try {
+			connection = sqlService.borrowConnection();
+			statement = connection.prepareStatement(
+					"select count(*) from SAKAI_SESSION where SESSION_ID like ?");
+			statement.setString(1, SESSION_ID_PREFIX + "%");
+			result = statement.executeQuery();
+			if (result.next()) {
+				return result.getInt(1) > 0;
+			}
+		} catch (SQLException e) {
+			log.debug("Could not check demo sessions (table may be empty): {}", e.toString());
+		} finally {
+			closeQuietly(result, statement, connection);
+		}
+		return false;
+	}
+
+	private void insertSession(String sessionId, String userId, String userAgent, Instant start, Instant end) {
+		Connection connection = null;
+		PreparedStatement statement = null;
+		try {
+			connection = sqlService.borrowConnection();
+			statement = connection.prepareStatement(
+					"insert into SAKAI_SESSION (SESSION_ID, SESSION_SERVER, SESSION_USER, SESSION_IP, "
+							+ "SESSION_HOSTNAME, SESSION_USER_AGENT, SESSION_START, SESSION_END, SESSION_ACTIVE) "
+							+ "values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			statement.setString(1, sessionId);
+			statement.setString(2, "demo-server");
+			statement.setString(3, userId);
+			statement.setString(4, "127.0.0.1");
+			statement.setString(5, "localhost");
+			statement.setString(6, StringUtils.left(userAgent, 255));
+			statement.setTimestamp(7, Timestamp.from(start));
+			statement.setTimestamp(8, Timestamp.from(end));
+			statement.setBoolean(9, false);
+			statement.executeUpdate();
+			connection.commit();
+		} catch (SQLException e) {
+			log.debug("Could not insert demo session {}: {}", sessionId, e.toString());
+			if (connection != null) {
+				try {
+					connection.rollback();
+				} catch (SQLException ignored) {
+					// ignore
+				}
+			}
+		} finally {
+			closeQuietly(null, statement, connection);
+		}
+	}
+
+	/**
+	 * Day intensity for visits: weekends quieter, midweek stronger, plus sparse peak/quiet spikes.
+	 * @return multiplier typically in ~0.15–1.8; near-zero for occasional quiet days
+	 */
+	private double visitDayIntensity(Date day, int dayOffset) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(day);
+		int dow = cal.get(Calendar.DAY_OF_WEEK);
+		double base;
+		if (dow == Calendar.SATURDAY || dow == Calendar.SUNDAY) {
+			base = 0.25 + random.nextDouble() * 0.25;
+		} else if (dow == Calendar.TUESDAY || dow == Calendar.WEDNESDAY || dow == Calendar.THURSDAY) {
+			base = 0.9 + random.nextDouble() * 0.4;
+		} else {
+			base = 0.55 + random.nextDouble() * 0.35;
+		}
+		// Occasional assignment-deadline peaks and holiday-like troughs
+		if (dayOffset % 11 == 3) {
+			base *= 1.7;
+		} else if (dayOffset % 9 == 5) {
+			base *= 0.2;
+		} else if (dayOffset % 13 == 0) {
+			base = 0.0;
+		}
+		return Math.min(2.0, base);
+	}
+
+	private static Date daysAgo(int days) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 10);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.add(Calendar.DAY_OF_MONTH, -days);
+		return cal.getTime();
+	}
+
+	private static Date withHourOffset(Date day, int hours) {
+		return new Date(day.getTime() + TimeUnit.HOURS.toMillis(hours));
+	}
+
+	private void closeQuietly(ResultSet result, PreparedStatement statement, Connection connection) {
+		if (result != null) {
+			try {
+				result.close();
+			} catch (SQLException ignored) {
+				// ignore
+			}
+		}
+		if (statement != null) {
+			try {
+				statement.close();
+			} catch (SQLException ignored) {
+				// ignore
+			}
+		}
+		if (connection != null) {
+			sqlService.returnConnection(connection);
+		}
+	}
+}

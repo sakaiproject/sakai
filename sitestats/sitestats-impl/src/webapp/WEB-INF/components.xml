@@ -535,6 +535,31 @@
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
 
+	<!-- sitestats tool demo seed (invoked from SeedSitesAndUsersJob when sitestats.sakai.demo=true; optional Job Scheduler re-run) -->
+	<bean id="org.sakaiproject.sitestats.api.SiteStatsDemoSeedService"
+		  class="org.sakaiproject.sitestats.impl.SiteStatsDemoSeedServiceImpl">
+		<property name="statsUpdateManager" ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.SiteStatsDemoSeedJob"
+		  class="org.sakaiproject.sitestats.impl.SiteStatsDemoSeedJob">
+		<property name="siteStatsDemoSeedService" ref="org.sakaiproject.sitestats.api.SiteStatsDemoSeedService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.SiteStatsDemoSeedJobBeanWrapper"
+		  class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		  init-method="init">
+		<property name="jobName" value="SiteStats Tool Demo Seed"/>
+		<property name="beanId" value="org.sakaiproject.sitestats.api.SiteStatsDemoSeedJob"/>
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+	</bean>
+
 
 	<!-- DBHelper ______________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.DBHelper"
