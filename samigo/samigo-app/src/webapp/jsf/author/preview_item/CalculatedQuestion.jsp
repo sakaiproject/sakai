@@ -1,9 +1,18 @@
-<%-- $Id: Matching.jsp 59563 2009-04-02 15:18:05Z arwhyte@umich.edu $
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id: Matching.jsp 59563 2009-04-02 15:18:05Z arwhyte@umich.edu $
 include file for delivering matching questions
 should be included in file importing DeliveryMessages
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -21,38 +30,35 @@ should be included in file importing DeliveryMessages
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
-  <!-- ATTACHMENTS -->
-  <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
 
-  <h:outputText escape="false" value="#{question.instruction}" />
-  <!-- 1. print out the matching choices -->
+ -->
+  <!-- ATTACHMENTS  -->
+  <jsp:directive.include file="/jsf/author/preview_item/attachment.jsp"/>
+  <h:outputText escape="false" value="#{question.instruction}"/>
+  <!-- 1. print out the matching choices  -->
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
-    
   </h:dataTable>
-
-  
-
-
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-      <h:outputLabel value="#{authorMessages.correct}:"/>
-      <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
-<f:verbatim><br/></f:verbatim>
-</h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-     <h:outputLabel value="#{authorMessages.incorrect}:"/>
-      <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
-</h:panelGroup>
-
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-      <h:outputLabel value="#{authorMessages.correct}:"/>
-      <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
-<f:verbatim><br/></f:verbatim>
-</h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-     <h:outputLabel value="#{authorMessages.incorrect}:"/>
-      <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
-</h:panelGroup>
-
-<%@ include file="/jsf/author/preview_item/tags.jsp" %>
+  <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.correct}:"/>
+    <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
+    <f:verbatim>
+      <br/>
+    </f:verbatim>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.incorrect}:"/>
+    <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.correct}:"/>
+    <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
+    <f:verbatim>
+      <br/>
+    </f:verbatim>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.incorrect}:"/>
+    <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
+  </h:panelGroup>
+  <jsp:directive.include file="/jsf/author/preview_item/tags.jsp"/>
+</jsp:root>

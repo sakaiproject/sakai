@@ -1,4 +1,13 @@
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
 ***********************************************************************************
 *
 * Copyright (c) 2003-2018 The Apereo Foundation
@@ -16,19 +25,21 @@
 * limitations under the License.
 *
 **********************************************************************************/
---%>
-<div class="portletBody">
-    <%-- begin assessmentHasBeenSubmittedContent.jsp --%>
-    <h3><h:outputText value="#{deliveryMessages.assessment_has_been_submitted_title}"/></h3>
+ -->
+  <div class="portletBody">
+    <!-- begin assessmentHasBeenSubmittedContent.jsp  -->
+    <h3>
+      <h:outputText value="#{deliveryMessages.assessment_has_been_submitted_title}"/>
+    </h3>
     <h:outputText value="#{deliveryMessages.assessment_has_been_submitted}" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}"/>
     <h:outputText value="#{deliveryMessages.assessment_has_been_submitted_url}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
-
     <h:form id="assessment_has_been_submitted">
-        <p class="act">
-            <h:commandButton value="#{deliveryMessages.button_return}" type="submit" styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}">
-                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-            </h:commandButton>
-        </p>
+      <p class="act">
+        <h:commandButton value="#{deliveryMessages.button_return}" type="submit" styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}">
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener"/>
+        </h:commandButton>
+      </p>
     </h:form>
-    <%-- end assessmentHasBeenSubmittedContent.jsp --%>
-</div>
+    <!-- end assessmentHasBeenSubmittedContent.jsp  -->
+  </div>
+</jsp:root>

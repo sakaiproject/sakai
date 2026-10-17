@@ -1,10 +1,19 @@
-<%-- $Id: deliverCalculatedQuestion.jsp 59565 2009-04-02 15:30:35Z arwhyte@umich.edu $
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id: deliverCalculatedQuestion.jsp 59565 2009-04-02 15:30:35Z arwhyte@umich.edu $
 include file for delivering calculated questions
 should be included in file importing DeliveryMessages
---%>
-<!--
+ -->
+  <!--
 * $Id: deliverCalculatedQuestion.jsp 59565 2009-04-02 15:30:35Z arwhyte@umich.edu $
-<%--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -22,49 +31,64 @@ should be included in file importing DeliveryMessages
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
-  <!-- ATTACHMENTS -->
-<%@ include file="/jsf/author/preview_item/attachment.jsp" %>
 
-<div class="sr-only">
-  <h:outputFormat value="#{deliveryMessages.calcq_sr_explanation}" escape="false">
-    <f:param value="#{question.finArray.size()-1}" />
-  </h:outputFormat>
-</div>
-
-<samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0" rows="100">
-  <h:column>
-      <h:outputText id="calcq-question-text" styleClass="calcq-question-text" value="#{answer.text} " escape="false" >
-        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+ -->
+  <!-- ATTACHMENTS  -->
+  <jsp:directive.include file="/jsf/author/preview_item/attachment.jsp"/>
+  <div class="sr-only">
+    <h:outputFormat value="#{deliveryMessages.calcq_sr_explanation}" escape="false">
+      <f:param value="#{question.finArray.size()-1}"/>
+    </h:outputFormat>
+  </div>
+  <samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0" rows="100">
+    <h:column>
+      <h:outputText id="calcq-question-text" styleClass="calcq-question-text" value="#{answer.text} " escape="false">
+        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper"/>
       </h:outputText>
-      <f:verbatim>&nbsp;</f:verbatim>
+      <f:verbatim>
+        <jsp:text><![CDATA[&nbsp;]]></jsp:text>
+      </f:verbatim>
       <h:panelGroup styleClass="si si-check-lg" id="image" rendered="#{answer.isCorrect}">
       </h:panelGroup>
       <h:outputText style="text-decoration: underline" value="#{answer.response}"/>
-  </h:column>
-</samigo:dataLine>
-
-<f:verbatim><br /></f:verbatim>
-
-<h:panelGroup>
-  <f:verbatim><br /></f:verbatim>
+    </h:column>
+  </samigo:dataLine>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
   <h:panelGroup>
-    <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
-    <h:outputText id="answerKeyMC" value="#{question.key}" escape="false"/>
+    <f:verbatim>
+      <br/>
+    </f:verbatim>
+    <h:panelGroup>
+      <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: "/>
+      <h:outputText id="answerKeyMC" value="#{question.key}" escape="false"/>
+    </h:panelGroup>
+    <h:panelGroup>
+      <f:verbatim>
+        <br/>
+      </f:verbatim>
+      <h:panelGroup styleClass="si si-check-lg" id="imageCheck"/>
+      <f:verbatim>
+        <jsp:text><![CDATA[<b>]]></jsp:text>
+      </f:verbatim>
+      <h:outputLabel for="feedSC" value="#{authorMessages.correctItemFeedback}#{deliveryMessages.column} "/>
+      <f:verbatim>
+        <jsp:text><![CDATA[</b>]]></jsp:text>
+      </f:verbatim>
+      <h:outputText id="feedSC" value="#{question.itemData.correctItemFeedbackValue}" escape="false"/>
+      <f:verbatim>
+        <br/>
+      </f:verbatim>
+      <h:panelGroup styleClass="si si-remove feedBackCross" id="imageCross"/>
+      <f:verbatim>
+        <jsp:text><![CDATA[<b>]]></jsp:text>
+      </f:verbatim>
+      <h:outputLabel for="feedSCI" value="#{authorMessages.incorrectItemFeedback}#{deliveryMessages.column} "/>
+      <f:verbatim>
+        <jsp:text><![CDATA[</b>]]></jsp:text>
+      </f:verbatim>
+      <h:outputText id="feedSCI" value="#{question.itemData.inCorrectItemFeedbackValue}" escape="false"/>
+    </h:panelGroup>
   </h:panelGroup>
-  <h:panelGroup>
-    <f:verbatim><br /></f:verbatim>
-    <h:panelGroup styleClass="si si-check-lg" id="imageCheck"></h:panelGroup>
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{authorMessages.correctItemFeedback}#{deliveryMessages.column} " />
-    <f:verbatim></b></f:verbatim>
-    <h:outputText id="feedSC" value="#{question.itemData.correctItemFeedbackValue}" escape="false" />
-    <f:verbatim><br /></f:verbatim>
-    <h:panelGroup styleClass="si si-remove feedBackCross" id="imageCross"></h:panelGroup>
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSCI" value="#{authorMessages.incorrectItemFeedback}#{deliveryMessages.column} " />
-    <f:verbatim></b></f:verbatim>
-    <h:outputText id="feedSCI" value="#{question.itemData.inCorrectItemFeedbackValue}" escape="false" />
-  </h:panelGroup>
-</h:panelGroup>
+</jsp:root>

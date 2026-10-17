@@ -1,5 +1,14 @@
-<!--
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2011 The Sakai Foundation.
@@ -17,18 +26,29 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
 
-<script src="/library/webjars/jquery-blockui/2.65/jquery.blockUI.js"></script>
-
-<script>
-	var portal = portal || { locale: "<h:outputText value="#{delivery.localeString}"/>" };
-	portal.locale = portal.locale || "<h:outputText value="#{delivery.localeString}"/>";
+ -->
+  <jsp:element name="script">
+    <jsp:attribute name="src" trim="false">/library/webjars/jquery-blockui/2.65/jquery.blockUI.js</jsp:attribute>
+    <jsp:body>
+    </jsp:body>
+  </jsp:element>
+  <script>
+    <jsp:text>
+	var portal = portal || { locale: "</jsp:text>
+    <h:outputText value="#{delivery.localeString}"/>
+    <jsp:text>" };
+	portal.locale = portal.locale || "</jsp:text>
+    <h:outputText value="#{delivery.localeString}"/>
+    <jsp:text>";
 	var honorPledgeIsChecked = true;
 	var understandPledgeIsChecked = true;
-	var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";
-	var please_wait = "<h:outputText value="#{deliveryMessages.please_wait} "/>";
+	var button_ok = "</jsp:text>
+    <h:outputText value="#{deliveryMessages.button_ok} "/>
+    <jsp:text>";
+	var please_wait = "</jsp:text>
+    <h:outputText value="#{deliveryMessages.please_wait} "/>
+    <jsp:text><![CDATA[";
 	var beginButtonIds = ["takeAssessmentForm:beginAssessment1", "takeAssessmentForm:beginAssessment2", "takeAssessmentForm:beginAssessment3"];
 	var continueButtonIds = ["takeAssessmentForm:continueAssessment1", "takeAssessmentForm:continueAssessment2"];
 	var allAssessmentButtonIds = beginButtonIds.concat(continueButtonIds);
@@ -131,11 +151,15 @@
 		}
 
 		//Disable the back button
-		disableBackButton("<h:outputText value="#{deliveryMessages.use_form_navigation}"/>");
+		disableBackButton("]]></jsp:text>
+    <h:outputText value="#{deliveryMessages.use_form_navigation}"/>
+    <jsp:text><![CDATA[");
 
 		if($('#submittedForm\\:renderTimeoutMessage').length > 0){
 			showTimerExpiredWarning(function() { ($('#timer-expired-warning').parent()).css('display', 'none');});
 		}
 	});
 
-</script>
+]]></jsp:text>
+  </script>
+</jsp:root>

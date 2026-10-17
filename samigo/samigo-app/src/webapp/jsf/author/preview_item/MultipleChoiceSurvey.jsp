@@ -1,9 +1,18 @@
-<%-- $Id$
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id$
 include file for delivering multiple choice single correct survey questions
 should be included in file importing DeliveryMessages
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -21,35 +30,33 @@ should be included in file importing DeliveryMessages
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
 
-  <h:outputText escape="false" value="#{question.itemData.text}" />
-  <!-- ATTACHMENTS -->
-  <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
-
-  <f:verbatim><br/></f:verbatim>
+ -->
+  <h:outputText escape="false" value="#{question.itemData.text}"/>
+  <!-- ATTACHMENTS  -->
+  <jsp:directive.include file="/jsf/author/preview_item/attachment.jsp"/>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
-          <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o"></h:panelGroup>
-          <h:outputText escape="false" value="#{answer.text}" >
-          	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" /> 
+          <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o"/>
+          <h:outputText escape="false" value="#{answer.text}">
+            <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter"/>
           </h:outputText>
         </h:column>
       </h:dataTable>
-
-<h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-  <h:outputLabel value="#{authorMessages.generalItemFeedback}: " />
-  <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
-</h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-  <h:outputLabel value="#{authorMessages.generalItemFeedback}: " />
-  <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
-</h:panelGroup>
-
-</h:column>
-</h:dataTable>
-
-<%@ include file="/jsf/author/preview_item/tags.jsp" %>
+      <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.generalItemFeedback}: "/>
+        <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false"/>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.generalItemFeedback}: "/>
+        <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false"/>
+      </h:panelGroup>
+    </h:column>
+  </h:dataTable>
+  <jsp:directive.include file="/jsf/author/preview_item/tags.jsp"/>
+</jsp:root>

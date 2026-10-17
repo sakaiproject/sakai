@@ -1,8 +1,17 @@
-<%-- $Id: $
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id: $
 include file for displaying fill in the numeric questions
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -20,12 +29,12 @@ include file for displaying fill in the numeric questions
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
 
-<h:outputText value="#{question.description}" escape="false"/>
-<f:verbatim><br /></f:verbatim>
-<h:outputText value="#{question.text}"  escape="false"/>
-<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
-
-
+ -->
+  <h:outputText value="#{question.description}" escape="false"/>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <h:outputText value="#{question.text}" escape="false"/>
+  <jsp:directive.include file="/jsf/evaluation/item/displayTags.jsp"/>
+</jsp:root>

@@ -1,7 +1,16 @@
-<%--
-<!--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
+<!- -
 $Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
--->
+- ->
 ***********************************************************************************
 *
 * Copyright (c) 2008, 2013 The Sakai Foundation.
@@ -19,26 +28,58 @@ $Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
-
-<script>
+ -->
+  <script>
+    <jsp:text>
     $(document).ready(function() {
-        var localeLanguage = <h:outputText value="'#{person.localeLanguage}'" escape="false"/>;
-        var localeCountry = <h:outputText value="'#{person.localeCountry}'" escape="false"/>;
-        var unlimitedString = <h:outputText value="'#{deliveryMessages.unlimited}'" escape="false"/>;
-        var agentId = <h:outputText value="'#{person.id}'" escape="false"/>;
-        var maxSeconds = parseInt(<h:outputText value="'#{question.duration}'" escape="false"/>);
-        var attemptsAllowed = <h:outputText value="'#{question.triesAllowed}'" escape="false"/>;
-        var attemptsRemaining = parseInt(<h:outputText value="'#{question.attemptsRemaining}'" escape="false"/>);
-        var paramSeq = <h:outputText value="'#{param.sequence}'" escape="false"/>;
-        var questionId = <h:outputText value="'#{question.itemData.itemId}'" escape="false"/>;
-        var questionNumber = <h:outputText value="'#{question.number}'" escape="false"/>;
-        var questionTotal = <h:outputText value="'#{part.questions}'" escape="false"/>;
-        var assessmentGrading = <h:outputText value="'#{delivery.assessmentGrading.assessmentGradingId}'" escape="false"/>;
-        var postUrl = <h:outputText value="'#{delivery.protocol}/samigo-app/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}_#{question.itemData.itemId}'" />;
-        var deliveryProtocol = <h:outputText value="'#{delivery.protocol}'"/>;
-        var messagesSecs = <h:outputText value="'#{deliveryMessages.secs}'"/>;
-        var recordedOn = <h:outputText value="'#{deliveryMessages.recorded_on}'"/>;
+        var localeLanguage = </jsp:text>
+    <h:outputText value="'#{person.localeLanguage}'" escape="false"/>
+    <jsp:text>;
+        var localeCountry = </jsp:text>
+    <h:outputText value="'#{person.localeCountry}'" escape="false"/>
+    <jsp:text>;
+        var unlimitedString = </jsp:text>
+    <h:outputText value="'#{deliveryMessages.unlimited}'" escape="false"/>
+    <jsp:text>;
+        var agentId = </jsp:text>
+    <h:outputText value="'#{person.id}'" escape="false"/>
+    <jsp:text>;
+        var maxSeconds = parseInt(</jsp:text>
+    <h:outputText value="'#{question.duration}'" escape="false"/>
+    <jsp:text>);
+        var attemptsAllowed = </jsp:text>
+    <h:outputText value="'#{question.triesAllowed}'" escape="false"/>
+    <jsp:text>;
+        var attemptsRemaining = parseInt(</jsp:text>
+    <h:outputText value="'#{question.attemptsRemaining}'" escape="false"/>
+    <jsp:text>);
+        var paramSeq = </jsp:text>
+    <h:outputText value="'#{param.sequence}'" escape="false"/>
+    <jsp:text>;
+        var questionId = </jsp:text>
+    <h:outputText value="'#{question.itemData.itemId}'" escape="false"/>
+    <jsp:text>;
+        var questionNumber = </jsp:text>
+    <h:outputText value="'#{question.number}'" escape="false"/>
+    <jsp:text>;
+        var questionTotal = </jsp:text>
+    <h:outputText value="'#{part.questions}'" escape="false"/>
+    <jsp:text>;
+        var assessmentGrading = </jsp:text>
+    <h:outputText value="'#{delivery.assessmentGrading.assessmentGradingId}'" escape="false"/>
+    <jsp:text>;
+        var postUrl = </jsp:text>
+    <h:outputText value="'#{delivery.protocol}/samigo-app/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}_#{question.itemData.itemId}'"/>
+    <jsp:text>;
+        var deliveryProtocol = </jsp:text>
+    <h:outputText value="'#{delivery.protocol}'"/>
+    <jsp:text>;
+        var messagesSecs = </jsp:text>
+    <h:outputText value="'#{deliveryMessages.secs}'"/>
+    <jsp:text>;
+        var recordedOn = </jsp:text>
+    <h:outputText value="'#{deliveryMessages.recorded_on}'"/>
+    <jsp:text>;
 
         var $elem = $(".audioRecordingPopup-" + questionId);
         var sakaiRecorder = new SakaiRecorder($elem);
@@ -61,9 +102,8 @@ $Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
             recordedOn: recordedOn
         });
     });
-</script>
-
-<h:outputText escape="false" value="
-<input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\" value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}.au\"/>" />
-
-<%@ include file="/jsf/delivery/item/audioObject.jsp" %>
+</jsp:text>
+  </script>
+  <h:outputText escape="false" value="&#10;&lt;input type=&quot;hidden&quot; name=&quot;mediaLocation_#{question.itemData.itemId}&quot; value=&quot;jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}.au&quot;/&gt;"/>
+  <jsp:directive.include file="/jsf/delivery/item/audioObject.jsp"/>
+</jsp:root>

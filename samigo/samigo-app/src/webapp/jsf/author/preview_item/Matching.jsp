@@ -1,10 +1,18 @@
-<%-- $Id$
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id$
 include file for delivering matching questions
 should be included in file importing DeliveryMessages
---%>
-<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -22,20 +30,18 @@ should be included in file importing DeliveryMessages
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
-  <!-- ATTACHMENTS -->
-  <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
 
-  <h:outputText escape="false" value="#{question.instruction}" />
-  <!-- 1. print out the matching choices -->
+ -->
+  <!-- ATTACHMENTS  -->
+  <jsp:directive.include file="/jsf/author/preview_item/attachment.jsp"/>
+  <h:outputText escape="false" value="#{question.instruction}"/>
+  <!-- 1. print out the matching choices  -->
   <t:dataList layout="orderedList" styleClass="noListStyle" value="#{question.itemData.itemTextArraySorted[0].answerArrayWithDistractorSorted}" var="answer" rendered="#{question.itemData.itemTextArraySorted[0].sequence==1}">
-    <h:outputText escape="false" value="#{answer.label}." styleClass="author_mcLabelText" />
-    <h:outputText value="#{evaluationMessages.none_above}" rendered="#{answer.text eq 'none_above'}" styleClass="mcAnswerText" />    
-    <h:outputText value="#{answer.text}" escape="false" rendered="#{answer.text ne 'none_above'}" styleClass="mcAnswerText" />
+    <h:outputText escape="false" value="#{answer.label}." styleClass="author_mcLabelText"/>
+    <h:outputText value="#{evaluationMessages.none_above}" rendered="#{answer.text eq 'none_above'}" styleClass="mcAnswerText"/>
+    <h:outputText value="#{answer.text}" escape="false" rendered="#{answer.text ne 'none_above'}" styleClass="mcAnswerText"/>
   </t:dataList>
-
-  <!-- 2. print out the matching text -->
+  <!-- 2. print out the matching text  -->
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
       <h:panelGrid columns="2">
@@ -45,69 +51,68 @@ should be included in file importing DeliveryMessages
           <f:selectItem itemValue="" itemLabel="B"/>
           <f:selectItem itemValue="" itemLabel="C"/>
         </h:selectOneMenu>
-        <h:outputText escape="false" value="#{itemText.sequence}. #{itemText.text}" styleClass="mcAnswerText" />
-
-        <h:outputText value="" />
-
-        <%-- show correct & incorrect answer feedback, only need to show the set that is attached
+        <h:outputText escape="false" value="#{itemText.sequence}. #{itemText.text}" styleClass="mcAnswerText"/>
+        <h:outputText value=""/>
+        <!-- show correct & incorrect answer feedback, only need to show the set that is attached
              to the correct answer. Look at the data in the table and you may understand this part
-             better -daisyf --%>
+             better -daisyf  -->
         <h:dataTable value="#{itemText.answerArray}" var="answer">
-            <h:column>
-              <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
-                <h:outputLabel value="#{authorMessages.correct}: " />
-                <h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
-              </h:panelGroup>
-			  <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
-                <h:outputLabel value="#{authorMessages.correct}: " />
-                <h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
-              </h:panelGroup>
-            </h:column>
+          <h:column>
+            <h:panelGroup rendered="#{answer.isCorrect &amp;&amp; answer.correctAnswerFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+              <h:outputLabel value="#{authorMessages.correct}: "/>
+              <h:outputText escape="false" value="#{answer.correctAnswerFeedback}"/>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{answer.isCorrect &amp;&amp; answer.correctAnswerFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+              <h:outputLabel value="#{authorMessages.correct}: "/>
+              <h:outputText escape="false" value="#{answer.correctAnswerFeedback}"/>
+            </h:panelGroup>
+          </h:column>
         </h:dataTable>
-
-        <h:outputText value="" />
-
+        <h:outputText value=""/>
         <h:dataTable value="#{itemText.answerArray}" var="answer">
-            <h:column>
-              <h:panelGroup rendered="#{answer.isCorrect && answer.incorrectAnswerFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
-                <h:outputLabel value="#{authorMessages.incorrect}: " />
-                <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
-              </h:panelGroup>
-			  <h:panelGroup rendered="#{answer.isCorrect && answer.incorrectAnswerFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
-                <h:outputLabel value="#{authorMessages.incorrect}: " />
-                <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
-              </h:panelGroup>
-            </h:column>
+          <h:column>
+            <h:panelGroup rendered="#{answer.isCorrect &amp;&amp; answer.incorrectAnswerFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+              <h:outputLabel value="#{authorMessages.incorrect}: "/>
+              <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}"/>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{answer.isCorrect &amp;&amp; answer.incorrectAnswerFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+              <h:outputLabel value="#{authorMessages.incorrect}: "/>
+              <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}"/>
+            </h:panelGroup>
+          </h:column>
         </h:dataTable>
-
       </h:panelGrid>
     </h:column>
   </h:dataTable>
-
-      <%-- answer key --%>
- <h:panelGroup>
-      <h:outputLabel value="#{authorMessages.answerKey}: "/>
-      <h:outputText escape="false" value="#{question.itemData.answerKey}" />
-<f:verbatim><br/></f:verbatim>
-</h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-      <h:outputLabel value="#{authorMessages.correct}:"/>
-      <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
-<f:verbatim><br/></f:verbatim>
-</h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-     <h:outputLabel value="#{authorMessages.incorrect}:"/>
-      <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
-</h:panelGroup>
-
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-      <h:outputLabel value="#{authorMessages.correct}:"/>
-      <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
-<f:verbatim><br/></f:verbatim>
-</h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-     <h:outputLabel value="#{authorMessages.incorrect}:"/>
-      <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
-</h:panelGroup>
-
-<%@ include file="/jsf/author/preview_item/tags.jsp" %>
+  <!-- answer key  -->
+  <h:panelGroup>
+    <h:outputLabel value="#{authorMessages.answerKey}: "/>
+    <h:outputText escape="false" value="#{question.itemData.answerKey}"/>
+    <f:verbatim>
+      <br/>
+    </f:verbatim>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.correct}:"/>
+    <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
+    <f:verbatim>
+      <br/>
+    </f:verbatim>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.incorrect}:"/>
+    <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.correct}:"/>
+    <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
+    <f:verbatim>
+      <br/>
+    </f:verbatim>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.incorrect}:"/>
+    <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
+  </h:panelGroup>
+  <jsp:directive.include file="/jsf/author/preview_item/tags.jsp"/>
+</jsp:root>

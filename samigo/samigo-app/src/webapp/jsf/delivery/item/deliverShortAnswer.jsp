@@ -1,10 +1,19 @@
-<%-- $Id$
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id$
 include file for delivering short answer essay questions
 should be included in file importing DeliveryMessages
---%>
-<!--
+ -->
+  <!--
 * $Id$
-<%--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -22,94 +31,85 @@ should be included in file importing DeliveryMessages
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
 
-<h:outputText value="#{question.text}"  escape="false">
-  <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
-</h:outputText>
-
-<!-- ATTACHMENTS -->
-<%@ include file="/jsf/delivery/item/attachment.jsp" %>
-
-<h:panelGrid rendered="#{!(delivery.actionString=='reviewAssessment' || delivery.actionString=='gradeAssessment')}">
-<f:verbatim><br/></f:verbatim>
-<h:outputText value="#{deliveryMessages.maxSAText}"/>
-</h:panelGrid>
-
-<h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="sak-banner-error"/>
-
-<input type="hidden" id="ckeditor-autosave-context" value="samigo_deliverShortAnswer" />
-<h:panelGroup rendered="#{question.itemData.itemId!=null}">
-  <h:outputFormat escape="false" value="<input type='hidden' id='ckeditor-autosave-entity-id' value='{0}' />">
-    <f:param value="#{question.itemData.itemId}"/>
-  </h:outputFormat>
-</h:panelGroup>
-
-<h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'
-            && delivery.actionString!='gradeAssessment'}">
-	<samigo:wysiwyg rows="240" value="#{question.responseText}" hasToggle="yes" maxCharCount="32000">
-	</samigo:wysiwyg>
-</h:panelGrid>
-
-<h:outputText value="#{question.responseTextForDisplay}" 
-   rendered="#{delivery.actionString=='reviewAssessment'
-            || delivery.actionString=='gradeAssessment'}" escape="false"/>
-
-<f:verbatim><br /></f:verbatim>
-<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
-                || delivery.actionString=='takeAssessment' 
-                || delivery.actionString=='takeAssessmentViaUrl')
-             && delivery.navigation ne '1' && delivery.displayMardForReview }">
-<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
-	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
-	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();" >
-		<h:outputText value=" #{assessmentSettingsMessages.whats_this_link}"/>
-	</h:outputLink>
-</h:panelGroup>
-
-<f:verbatim><br /></f:verbatim>
-
-
-<h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <h:panelGrid rendered="#{((delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true' && question.modelAnswerIsNotEmpty) || (delivery.actionString=='gradeAssessment' && question.modelAnswerIsNotEmpty))}" >
-    <h:panelGroup> 
-      <h:outputLabel for="modelSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.model}" />
-      <h:outputText id="modelSC" value=" #{question.key} " escape="false"/>
-    </h:panelGroup> 
-    <h:outputText value=" "/>
+ -->
+  <h:outputText value="#{question.text}" escape="false">
+    <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper"/>
+  </h:outputText>
+  <!-- ATTACHMENTS  -->
+  <jsp:directive.include file="/jsf/delivery/item/attachment.jsp"/>
+  <h:panelGrid rendered="#{!(delivery.actionString=='reviewAssessment' || delivery.actionString=='gradeAssessment')}">
+    <f:verbatim>
+      <br/>
+    </f:verbatim>
+    <h:outputText value="#{deliveryMessages.maxSAText}"/>
   </h:panelGrid>
-  
-  <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
-    <h:panelGroup> 
-      <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}#{deliveryMessages.column}" />
-      <h:outputText id="feedSC" value=" #{question.feedback} " escape="false" />
-    </h:panelGroup> 
-    <h:outputText value=" "/>
+  <h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="sak-banner-error"/>
+  <input type="hidden" id="ckeditor-autosave-context" value="samigo_deliverShortAnswer"/>
+  <h:panelGroup rendered="#{question.itemData.itemId!=null}">
+    <h:outputFormat escape="false" value="&lt;input type='hidden' id='ckeditor-autosave-entity-id' value='{0}' /&gt;">
+      <f:param value="#{question.itemData.itemId}"/>
+    </h:outputFormat>
+  </h:panelGroup>
+  <h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'&#10;            &amp;&amp; delivery.actionString!='gradeAssessment'}">
+    <samigo:wysiwyg rows="240" value="#{question.responseText}" hasToggle="yes" maxCharCount="32000">
+    </samigo:wysiwyg>
   </h:panelGrid>
-  
-  <h:panelGrid rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && (question.gradingCommentIsNotEmpty || question.hasItemGradingAttachment)}" columns="1" border="0">
-    <h:panelGroup>  
-      <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
-	  <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" rendered="#{question.gradingCommentIsNotEmpty}"/>
-    </h:panelGroup>
-    
-	<h:panelGroup rendered="#{question.hasItemGradingAttachment}">
-      <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
-        <h:column>
-          <%@ include file="/jsf/shared/mimeicon.jsp" %>
-        </h:column>
-        <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink value="#{attach.location}" target="new_window">
-            <h:outputText value="#{attach.filename}" />
-          </h:outputLink>
-        </h:column>
-        <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
-        </h:column>
-      </h:dataTable>
-    </h:panelGroup>
-  </h:panelGrid>
-</h:panelGroup>
+  <h:outputText value="#{question.responseTextForDisplay}" rendered="#{delivery.actionString=='reviewAssessment'&#10;            || delivery.actionString=='gradeAssessment'}" escape="false"/>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'&#10;                || delivery.actionString=='takeAssessment' &#10;                || delivery.actionString=='takeAssessmentViaUrl')&#10;             &amp;&amp; delivery.navigation ne '1' &amp;&amp; delivery.displayMardForReview }">
+    <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"/>
+    <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}"/>
+    <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();">
+      <h:outputText value=" #{assessmentSettingsMessages.whats_this_link}"/>
+    </h:outputLink>
+  </h:panelGroup>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
+    <h:panelGrid rendered="#{((delivery.feedbackComponent.showCorrectResponse &amp;&amp; delivery.feedbackComponent.showCorrection &amp;&amp; !delivery.noFeedback=='true' &amp;&amp; question.modelAnswerIsNotEmpty) || (delivery.actionString=='gradeAssessment' &amp;&amp; question.modelAnswerIsNotEmpty))}">
+      <h:panelGroup>
+        <h:outputLabel for="modelSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.model}"/>
+        <h:outputText id="modelSC" value=" #{question.key} " escape="false"/>
+      </h:panelGroup>
+      <h:outputText value=" "/>
+    </h:panelGrid>
+    <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel &amp;&amp; !delivery.noFeedback=='true' &amp;&amp; question.feedbackIsNotEmpty}">
+      <h:panelGroup>
+        <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}#{deliveryMessages.column}"/>
+        <h:outputText id="feedSC" value=" #{question.feedback} " escape="false"/>
+      </h:panelGroup>
+      <h:outputText value=" "/>
+    </h:panelGrid>
+    <h:panelGrid rendered="#{delivery.actionString !='gradeAssessment' &amp;&amp; delivery.feedbackComponent.showGraderComment &amp;&amp; !delivery.noFeedback=='true' &amp;&amp; (question.gradingCommentIsNotEmpty || question.hasItemGradingAttachment)}" columns="1" border="0">
+      <h:panelGroup>
+        <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.comment}#{deliveryMessages.column} "/>
+        <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" rendered="#{question.gradingCommentIsNotEmpty}"/>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+        <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+          <h:column>
+            <jsp:directive.include file="/jsf/shared/mimeicon.jsp"/>
+          </h:column>
+          <h:column>
+            <f:verbatim>
+              <jsp:text><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;]]></jsp:text>
+            </f:verbatim>
+            <h:outputLink value="#{attach.location}" target="new_window">
+              <h:outputText value="#{attach.filename}"/>
+            </h:outputLink>
+          </h:column>
+          <h:column>
+            <f:verbatim>
+              <jsp:text><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;]]></jsp:text>
+            </f:verbatim>
+            <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
+          </h:column>
+        </h:dataTable>
+      </h:panelGroup>
+    </h:panelGrid>
+  </h:panelGroup>
+</jsp:root>

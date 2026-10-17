@@ -1,8 +1,17 @@
-<%-- $Id$
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id$
 include file for displaying short answer essay questions
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -20,24 +29,22 @@ include file for displaying short answer essay questions
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
 
-<h:panelGrid columns="1" width="100%">	
-<h:outputText value="#{question.text}"  escape="false"/>
-<h:panelGroup rendered="#{questionScores.haveModelShortAnswer}">
-<h:outputText value="#{evaluationMessages.model}"  escape="false"/>
-<h:dataTable value="#{question.itemTextArray}" var="itemText">
-    <h:column>
-        <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
+ -->
+  <h:panelGrid columns="1" width="100%">
+    <h:outputText value="#{question.text}" escape="false"/>
+    <h:panelGroup rendered="#{questionScores.haveModelShortAnswer}">
+      <h:outputText value="#{evaluationMessages.model}" escape="false"/>
+      <h:dataTable value="#{question.itemTextArray}" var="itemText">
+        <h:column>
+          <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
             <h:column>
-                <h:outputText escape="false" value="#{answer.text}"/>
+              <h:outputText escape="false" value="#{answer.text}"/>
             </h:column>
-        </h:dataTable>
-    </h:column>
-</h:dataTable>
-</h:panelGroup>
-</h:panelGrid>
-<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
-
-
+          </h:dataTable>
+        </h:column>
+      </h:dataTable>
+    </h:panelGroup>
+  </h:panelGrid>
+  <jsp:directive.include file="/jsf/evaluation/item/displayTags.jsp"/>
+</jsp:root>

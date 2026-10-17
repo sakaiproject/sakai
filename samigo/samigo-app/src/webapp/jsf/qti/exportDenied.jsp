@@ -1,14 +1,25 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<!--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+<jsp:directive.page pageEncoding="UTF-8" contentType="text/html;charset=utf-8" trimDirectiveWhitespaces="false" isELIgnored="false" deferredSyntaxAllowedAsLiteral="false"/>
+<jsp:output omit-xml-declaration="yes"/>
+  <jsp:directive.include file="/include/header.inc"/>
+  <jsp:directive.page language="java"/>
+  <jsp:text>&#13;
+&#13;
+&#13;
+&#13;<![CDATA[
+<!DOCTYPE html]]>&#13;
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"&#13;<![CDATA[
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]]>&#13;
+&#13;
+</jsp:text>
+  <!--
 * $Id: accessDenied.jsp 17146 2006-10-16 19:42:56Z daisyf@stanford.edu $
-<%--
+
 ***********************************************************************************
 *
 * Copyright (c) 2007 The Sakai Foundation.
@@ -26,27 +37,35 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
+
+ -->
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{authorImportExport.export_denied}"/></title>
+      <head>
+        <jsp:expression> request.getAttribute("html.head") </jsp:expression>
+        <title>
+          <h:outputText value="#{authorImportExport.export_denied}"/>
+        </title>
       </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
-
-<div class="portletBody">
-<h:form id="redirectLoginForm">
-  <h3><h:outputText value="#{authorImportExport.export_denied}"/></h3>
-   <div class="validation">
-  <h:outputText  value="#{authorImportExport.export_denied_message}" />
-  </div>
- <p class="act">
-  <h:commandButton value="#{authorImportExport.button_continue}" type="button"
-     styleClass="active" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
-</h:form>
-</div>
-      </body>
+      <jsp:element name="body">
+        <jsp:attribute name="onload" trim="false"><jsp:expression> request.getAttribute("html.body.onload") </jsp:expression></jsp:attribute>
+        <jsp:body>
+          <div class="portletBody">
+            <h:form id="redirectLoginForm">
+              <h3>
+                <h:outputText value="#{authorImportExport.export_denied}"/>
+              </h3>
+              <div class="validation">
+                <h:outputText value="#{authorImportExport.export_denied_message}"/>
+              </div>
+              <jsp:text>&#13;<![CDATA[
+ <p class="act">]]>&#13;
+  </jsp:text>
+              <h:commandButton value="#{authorImportExport.button_continue}" type="button" styleClass="active" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"/>
+            </h:form>
+          </div>
+        </jsp:body>
+      </jsp:element>
     </html>
   </f:view>
-
+</jsp:root>

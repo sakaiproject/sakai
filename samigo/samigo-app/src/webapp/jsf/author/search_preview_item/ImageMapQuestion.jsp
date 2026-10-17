@@ -1,9 +1,18 @@
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
 include file for preview image map questions
 should be included in file searchPreview
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -21,91 +30,98 @@ should be included in file searchPreview
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
-<h:outputLabel escape="false" value="#{authorMessages.image_map_question}" /></br>
-<h:dataTable value="#{searchQuestionBean.getData(param.idString)}" var="item" width="100%">
-	<h:column>
 
+ -->
+  <h:outputLabel escape="false" value="#{authorMessages.image_map_question}"/>
+  <jsp:text><![CDATA[</br>
+]]></jsp:text>
+  <h:dataTable value="#{searchQuestionBean.getData(param.idString)}" var="item" width="100%">
+    <h:column>
+      <!-- ATTACHMENTS  -->
+      <jsp:directive.include file="/jsf/author/search_preview_item/attachment.jsp"/>
+      <h:outputText escape="false" value="#{itemValue.instruction}"/>
+      <jsp:text><![CDATA[</br>
 
-<!-- ATTACHMENTS -->
-<%@ include file="/jsf/author/search_preview_item/attachment.jsp" %>
-<h:outputText escape="false" value="#{itemValue.instruction}" /></br>
-
-<div id="imageMapContainer" class="authorImageContainer">
-    <img id='img' src='<h:outputText value="#{item.imageMapSrc}"/>' alt='<h:outputText value="#{item.imageMapAltText}"/>' />
-</div>
-
-<h:dataTable id="items" value="#{item.itemTextArraySorted}" var="itemText">
-	<h:column>
-		<h:panelGrid columns="1">
-			<h:outputText escape="false" value="#{itemText.sequence}. #{itemText.text}" />
-		</h:panelGrid>
-	</h:column>
-	<h:column>
-		<h:dataTable id="answers" value="#{itemText.answerArraySorted}" var="answer">
-			<h:column>
-				<h:outputText escape='false' value='#{answer.text.substring(0,answer.text.indexOf("{\\\"x1"))}'/>
-			</h:column>
-		</h:dataTable>
-	</h:column>
-	<h:column>
-		<h:dataTable value="#{itemText.answerArray}" var="answer">
-			<h:column>
-				<h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
-					<h:outputLabel value="#{authorMessages.correct}: " />
-					<h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
-				</h:panelGroup>
-				<h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
-					<h:outputLabel value="#{authorMessages.correct}: " />
-					<h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
-				</h:panelGroup>
-			</h:column>
-		</h:dataTable>
-	</h:column>
-	<h:column>
-		<h:outputText value="" />
-
-		<h:dataTable value="#{itemText.answerArray}" var="answer">
-			<h:column>
-				<h:panelGroup rendered="#{answer.isCorrect && answer.incorrectAnswerFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
-					<h:outputLabel value="#{authorMessages.incorrect}: " />
-					<h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
-				</h:panelGroup>
-				<h:panelGroup rendered="#{answer.isCorrect && answer.incorrectAnswerFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
-					<h:outputLabel value="#{authorMessages.incorrect}: " />
-					<h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
-				</h:panelGroup>
-			</h:column>
-		</h:dataTable>
-	</h:column>
-</h:dataTable>
-
-
-
-<!-- 2. print out the matching text (none)-->
+]]></jsp:text>
+      <div id="imageMapContainer" class="authorImageContainer">
+        <jsp:text><![CDATA[
+    <img id='img' src=']]></jsp:text>
+        <h:outputText value="#{item.imageMapSrc}"/>
+        <jsp:text>' alt='</jsp:text>
+        <h:outputText value="#{item.imageMapAltText}"/>
+        <jsp:text><![CDATA[' />
+]]></jsp:text>
+      </div>
+      <h:dataTable id="items" value="#{item.itemTextArraySorted}" var="itemText">
+        <h:column>
+          <h:panelGrid columns="1">
+            <h:outputText escape="false" value="#{itemText.sequence}. #{itemText.text}"/>
+          </h:panelGrid>
+        </h:column>
+        <h:column>
+          <h:dataTable id="answers" value="#{itemText.answerArraySorted}" var="answer">
+            <h:column>
+              <h:outputText escape="false" value="#{answer.text.substring(0,answer.text.indexOf(&quot;{\&quot;x1&quot;))}"/>
+            </h:column>
+          </h:dataTable>
+        </h:column>
+        <h:column>
+          <h:dataTable value="#{itemText.answerArray}" var="answer">
+            <h:column>
+              <h:panelGroup rendered="#{answer.isCorrect &amp;&amp; answer.correctAnswerFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+                <h:outputLabel value="#{authorMessages.correct}: "/>
+                <h:outputText escape="false" value="#{answer.correctAnswerFeedback}"/>
+              </h:panelGroup>
+              <h:panelGroup rendered="#{answer.isCorrect &amp;&amp; answer.correctAnswerFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+                <h:outputLabel value="#{authorMessages.correct}: "/>
+                <h:outputText escape="false" value="#{answer.correctAnswerFeedback}"/>
+              </h:panelGroup>
+            </h:column>
+          </h:dataTable>
+        </h:column>
+        <h:column>
+          <h:outputText value=""/>
+          <h:dataTable value="#{itemText.answerArray}" var="answer">
+            <h:column>
+              <h:panelGroup rendered="#{answer.isCorrect &amp;&amp; answer.incorrectAnswerFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+                <h:outputLabel value="#{authorMessages.incorrect}: "/>
+                <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}"/>
+              </h:panelGroup>
+              <h:panelGroup rendered="#{answer.isCorrect &amp;&amp; answer.incorrectAnswerFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+                <h:outputLabel value="#{authorMessages.incorrect}: "/>
+                <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}"/>
+              </h:panelGroup>
+            </h:column>
+          </h:dataTable>
+        </h:column>
+      </h:dataTable>
+      <!-- 2. print out the matching text (none) -->
+      <jsp:text><![CDATA[
 </br>
-<h:panelGroup rendered="#{item.correctItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-	<h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
-	<h:outputText value="#{item.correctItemFeedback}" escape="false" />
-	<f:verbatim><br/></f:verbatim>
-</h:panelGroup>
-<h:panelGroup rendered="#{item.incorrectItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-	<h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
-	<h:outputText value="#{item.inCorrectItemFeedback}" escape="false" />
-</h:panelGroup>
-
-<h:panelGroup rendered="#{item.correctItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-	<h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
-	<h:outputText value="#{item.correctItemFeedback}" escape="false" />
-	<f:verbatim><br/></f:verbatim>
-</h:panelGroup>
-<h:panelGroup rendered="#{item.incorrectItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-	<h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
-	<h:outputText value="#{item.inCorrectItemFeedback}" escape="false" />
-</h:panelGroup>
-
-<%@ include file="/jsf/author/search_preview_item/tags.jsp" %>
-
-	</h:column>
-</h:dataTable>
+]]></jsp:text>
+      <h:panelGroup rendered="#{item.correctItemFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
+        <h:outputText value="#{item.correctItemFeedback}" escape="false"/>
+        <f:verbatim>
+          <br/>
+        </f:verbatim>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{item.incorrectItemFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
+        <h:outputText value="#{item.inCorrectItemFeedback}" escape="false"/>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{item.correctItemFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
+        <h:outputText value="#{item.correctItemFeedback}" escape="false"/>
+        <f:verbatim>
+          <br/>
+        </f:verbatim>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{item.incorrectItemFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
+        <h:outputText value="#{item.inCorrectItemFeedback}" escape="false"/>
+      </h:panelGroup>
+      <jsp:directive.include file="/jsf/author/search_preview_item/tags.jsp"/>
+    </h:column>
+  </h:dataTable>
+</jsp:root>

@@ -1,5 +1,14 @@
-<!-- $Id: questionScoreAttachment.jsp 11254 2006-06-28 03:38:28Z daisyf@stanford.edu $
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id: questionScoreAttachment.jsp 11254 2006-06-28 03:38:28Z daisyf@stanford.edu $
+
 ***********************************************************************************
 *
 * Copyright (c) 2006 The Sakai Foundation.
@@ -17,33 +26,30 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
-<!-- ASSESSMENT ATTACHMENTS -->
+
+ -->
+  <!-- ASSESSMENT ATTACHMENTS  -->
   <h:panelGrid border="0">
-  <h:panelGroup rendered="#{description.hasItemGradingAttachment}">
-    <h:dataTable value="#{description.itemGradingAttachmentList}" var="attach">
-      <h:column>
-        <%@ include file="/jsf/shared/mimeicon.jsp" %>
-      </h:column>
-      <h:column>
-        <h:outputLink value="#{attach.location}" target="new_window">
-          <h:outputText value="#{attach.filename}" />
-        </h:outputLink>
-      </h:column>
-      <h:column>
-        <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
-      </h:column>
-    </h:dataTable>
-  </h:panelGroup>
-
-  <h:panelGroup rendered="#{!description.hasItemGradingAttachment}">
-    <h:commandButton value="#{assessmentSettingsMessages.add_attachments}" action="#{description.addAttachmentsRedirect}"/>
-  </h:panelGroup>
-
-  <h:panelGroup rendered="#{description.hasItemGradingAttachment}">
-    <h:commandButton value="#{assessmentSettingsMessages.add_remove_attachments}" action="#{description.addAttachmentsRedirect}"/>
-  </h:panelGroup>
+    <h:panelGroup rendered="#{description.hasItemGradingAttachment}">
+      <h:dataTable value="#{description.itemGradingAttachmentList}" var="attach">
+        <h:column>
+          <jsp:directive.include file="/jsf/shared/mimeicon.jsp"/>
+        </h:column>
+        <h:column>
+          <h:outputLink value="#{attach.location}" target="new_window">
+            <h:outputText value="#{attach.filename}"/>
+          </h:outputLink>
+        </h:column>
+        <h:column>
+          <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
+        </h:column>
+      </h:dataTable>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{!description.hasItemGradingAttachment}">
+      <h:commandButton value="#{assessmentSettingsMessages.add_attachments}" action="#{description.addAttachmentsRedirect}"/>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{description.hasItemGradingAttachment}">
+      <h:commandButton value="#{assessmentSettingsMessages.add_remove_attachments}" action="#{description.addAttachmentsRedirect}"/>
+    </h:panelGroup>
   </h:panelGrid>
-
-
+</jsp:root>

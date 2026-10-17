@@ -1,6 +1,15 @@
-<!--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
 $Id: evaluationHeadings.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
-<%--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -18,72 +27,73 @@ $Id: evaluationHeadings.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 * limitations under the License.
 *
 **********************************************************************************/
---%>
--->
-<h:panelGroup>
+
+ -->
+  <h:panelGroup>
     <ul class="navIntraTool actionToolbar" role="menu">
-        <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
-            <li role="menuitem">
-                <span>
-                    <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true"  rendered="#{authorization.adminAssessment}">
-                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
-                        <h:outputText value="#{generalMessages.assessment}" />
-                    </h:commandLink>
-                </span>
-            </li>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{authorization.createAssessment}">
-            <li role="menuitem">
-                <span>
-                    <h:commandLink title="#{generalMessages.add}" action="#{author.getOutcome}" immediate="true">
-                        <f:param name="action" value="create_assessment_title" />
-                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
-                        <h:outputText value="#{generalMessages.add}" />
-                    </h:commandLink>
-                </span>
-            </li>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
-            <li role="menuitem">
-                <span>
-                    <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
-                        <h:outputText value="#{generalMessages.template}" />
-                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-                    </h:commandLink>
-                </span>
-            </li>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{authorization.adminQuestionPool}">
-            <li role="menuitem">
-                <span>
-                    <h:commandLink id="questionPoolsLink" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true">
-                        <h:outputText value="#{generalMessages.questionPool}" />
-                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
-                    </h:commandLink>
-                </span>
-            </li>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{authorization.adminQuestionPool}">
-            <li role="menuitem">
-                <span>
-                    <h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true">
-                        <h:outputText value="#{generalMessages.eventLog}" />
-                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-                    </h:commandLink>
-                </span>
-            </li>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{authorization.adminQuestionPool}">
-            <li role="menuitem">
-                <span>
-                    <h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true">
-                        <h:outputText value="#{generalMessages.section_activity}" />
-                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
-                    </h:commandLink>
-                </span>
-            </li>
-        </h:panelGroup>
-        <%@ include file="/jsf/author/permissionsNav.jsp" %>
+      <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
+        <li role="menuitem">
+          <span>
+            <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true" rendered="#{authorization.adminAssessment}">
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener"/>
+              <h:outputText value="#{generalMessages.assessment}"/>
+            </h:commandLink>
+          </span>
+        </li>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{authorization.createAssessment}">
+        <li role="menuitem">
+          <span>
+            <h:commandLink title="#{generalMessages.add}" action="#{author.getOutcome}" immediate="true">
+              <f:param name="action" value="create_assessment_title"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener"/>
+              <h:outputText value="#{generalMessages.add}"/>
+            </h:commandLink>
+          </span>
+        </li>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
+        <li role="menuitem">
+          <span>
+            <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
+              <h:outputText value="#{generalMessages.template}"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener"/>
+            </h:commandLink>
+          </span>
+        </li>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{authorization.adminQuestionPool}">
+        <li role="menuitem">
+          <span>
+            <h:commandLink id="questionPoolsLink" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true">
+              <h:outputText value="#{generalMessages.questionPool}"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener"/>
+            </h:commandLink>
+          </span>
+        </li>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{authorization.adminQuestionPool}">
+        <li role="menuitem">
+          <span>
+            <h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true">
+              <h:outputText value="#{generalMessages.eventLog}"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener"/>
+            </h:commandLink>
+          </span>
+        </li>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{authorization.adminQuestionPool}">
+        <li role="menuitem">
+          <span>
+            <h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true">
+              <h:outputText value="#{generalMessages.section_activity}"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener"/>
+            </h:commandLink>
+          </span>
+        </li>
+      </h:panelGroup>
+      <jsp:directive.include file="/jsf/author/permissionsNav.jsp"/>
     </ul>
-</h:panelGroup>
+  </h:panelGroup>
+</jsp:root>

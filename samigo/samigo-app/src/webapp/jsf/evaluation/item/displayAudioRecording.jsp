@@ -1,9 +1,18 @@
-<%-- $Id$
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id$
 include file for displaying file upload questions
 should be included in file importing DeliveryMessages
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -21,47 +30,42 @@ should be included in file importing DeliveryMessages
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
 
-<h:outputText value="#{question.text}"  escape="false"/>
-<f:verbatim><br /></f:verbatim>
-
-  <!-- ATTACHMENTS -->
-  <%@ include file="/jsf/delivery/item/attachment.jsp" %>
-
+ -->
+  <h:outputText value="#{question.text}" escape="false"/>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <!-- ATTACHMENTS  -->
+  <jsp:directive.include file="/jsf/delivery/item/attachment.jsp"/>
   <h:dataTable value="#{question.mediaArray}" var="media">
     <h:column>
-
-      <h:outputText escape="false" value="
-        	<audio controls=\"controls\">
-        		<source src=\"/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}\" type=\"audio/wav\"/>
-        	</audio>" 
-      />
-        
-      <f:verbatim><br /></f:verbatim>
+      <h:outputText escape="false" value="&#10;        &#9;&lt;audio controls=&quot;controls&quot;&gt;&#10;        &#9;&#9;&lt;source src=&quot;/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&quot; type=&quot;audio/wav&quot;/&gt;&#10;        &#9;&lt;/audio&gt;"/>
+      <f:verbatim>
+        <br/>
+      </f:verbatim>
       <h:outputText value="#{evaluationMessages.open_bracket}"/>
-		<h:outputText value="#{media.duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{!media.durationIsOver}" />
-		<h:outputText value="#{question.duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{media.durationIsOver}" />
+      <h:outputText value="#{media.duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{!media.durationIsOver}"/>
+      <h:outputText value="#{question.duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{media.durationIsOver}"/>
       <h:outputText value="#{media.createdDate}">
-        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}"/>
       </h:outputText>
       <h:outputText value="#{evaluationMessages.close_bracket}"/>
-      <f:verbatim><br /></f:verbatim>    
-	  
-	  <div>
-	   <h:outputFormat value=" #{deliveryMessages.can_you_hear}" escape="false">
-			<f:param value="<a href=\"#{author.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false\"/> #{deliveryMessages.can_you_hear_2}</a>" />
-      </h:outputFormat>
+      <f:verbatim>
+        <br/>
+      </f:verbatim>
+      <div>
+        <h:outputFormat value=" #{deliveryMessages.can_you_hear}" escape="false">
+          <f:param value="&lt;a href=&quot;#{author.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&amp;setMimeType=false&quot;/&gt; #{deliveryMessages.can_you_hear_2}&lt;/a&gt;"/>
+        </h:outputFormat>
       </div>
-	  
-	</h:column>
+    </h:column>
   </h:dataTable>
-
-  <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel &amp;&amp; question.feedbackIsNotEmpty}">
     <h:panelGroup>
-      <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}: " />
-      <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+      <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}: "/>
+      <h:outputText id="feedSC" value="#{question.feedback}" escape="false"/>
     </h:panelGroup>
-    <h:outputText value=" " />
+    <h:outputText value=" "/>
   </h:panelGrid>
+</jsp:root>

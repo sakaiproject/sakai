@@ -1,5 +1,13 @@
-
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -17,56 +25,48 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
-
-
-<h:outputLabel escape="false" value="#{authorMessages.matrix_choice_surv}" /></br>
-<h:dataTable value="#{searchQuestionBean.getData(param.idString)}" var="item" width="100%">
+ -->
+  <h:outputLabel escape="false" value="#{authorMessages.matrix_choice_surv}"/>
+  <jsp:text><![CDATA[</br>
+]]></jsp:text>
+  <h:dataTable value="#{searchQuestionBean.getData(param.idString)}" var="item" width="100%">
     <h:column>
-
-
-  <h:outputText escape="false" value="#{item.text}" />
- <f:verbatim><br /></f:verbatim>
-  <!-- ATTACHMENTS -->
-  <%@ include file="/jsf/author/search_preview_item/attachment.jsp" %>
-  <f:verbatim><br /></f:verbatim>
-   <t:dataTable id="table1"
-                         value="#{item.rowChoices}"
-                         var="row"
-                         rowIndexVar="rowIndex"
-                         columnClasses="matrixColumn"
-                         rowClasses=""
-                         frame="border"
-                         rules="rows"
-                         styleClass="matrixTable">
-                <t:column headerstyle="#{item.relativeWidthStyle}" style="text-align:right;padding-left:0.3em" >
-                    <f:facet name="header">
-                        <t:outputText value="                "/>
-                    </f:facet>
-                    <h:outputText value="#{row}"/>
-                </t:column>
-                
-                <t:columns value="#{item.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center matrixSurvey" >
-                    <f:facet name="header">
-                            <t:outputText value="#{item.columnChoices[colIndex]}" />
-                    </f:facet>
-                     <div style="text-align: center;">
-                  <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o"></h:panelGroup>
-                 </div>
-                </t:columns>
-            </t:dataTable>
-          <f:verbatim><br /></f:verbatim> 
-<h:panelGrid rendered="#{item.addCommentFlag}">
- 	<h:outputText value="#{item.commentField}" />
- 	
-</h:panelGrid>
-
-<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2' }">
-  <h:outputLabel value="#{commonMessages.feedback}: " />
-  <h:outputText value="#{item.generalItemFeedback}" escape="false" />
-</h:panelGroup>
-
-<%@ include file="/jsf/author/search_preview_item/tags.jsp" %>
-
+      <h:outputText escape="false" value="#{item.text}"/>
+      <f:verbatim>
+        <br/>
+      </f:verbatim>
+      <!-- ATTACHMENTS  -->
+      <jsp:directive.include file="/jsf/author/search_preview_item/attachment.jsp"/>
+      <f:verbatim>
+        <br/>
+      </f:verbatim>
+      <t:dataTable id="table1" value="#{item.rowChoices}" var="row" rowIndexVar="rowIndex" columnClasses="matrixColumn" rowClasses="" frame="border" rules="rows" styleClass="matrixTable">
+        <t:column headerstyle="#{item.relativeWidthStyle}" style="text-align:right;padding-left:0.3em">
+          <f:facet name="header">
+            <t:outputText value="                "/>
+          </f:facet>
+          <h:outputText value="#{row}"/>
+        </t:column>
+        <t:columns value="#{item.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center matrixSurvey">
+          <f:facet name="header">
+            <t:outputText value="#{item.columnChoices[colIndex]}"/>
+          </f:facet>
+          <div style="text-align: center;">
+            <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o"/>
+          </div>
+        </t:columns>
+      </t:dataTable>
+      <f:verbatim>
+        <br/>
+      </f:verbatim>
+      <h:panelGrid rendered="#{item.addCommentFlag}">
+        <h:outputText value="#{item.commentField}"/>
+      </h:panelGrid>
+      <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2' }">
+        <h:outputLabel value="#{commonMessages.feedback}: "/>
+        <h:outputText value="#{item.generalItemFeedback}" escape="false"/>
+      </h:panelGroup>
+      <jsp:directive.include file="/jsf/author/search_preview_item/tags.jsp"/>
     </h:column>
-</h:dataTable>
+  </h:dataTable>
+</jsp:root>

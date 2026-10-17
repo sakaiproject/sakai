@@ -1,15 +1,27 @@
-<html>
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+<jsp:directive.page pageEncoding="UTF-8" contentType="text/html;charset=utf-8" trimDirectiveWhitespaces="false" isELIgnored="false" deferredSyntaxAllowedAsLiteral="false"/>
+<jsp:output omit-xml-declaration="yes"/>
+  <jsp:directive.include file="/include/header.inc"/>
+  <jsp:text><![CDATA[<html>
+]]></jsp:text>
+  <jsp:directive.page language="java"/>
+  <jsp:text><![CDATA[
+
+
+
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
  
-<!--
+]]></jsp:text>
+  <!--
 * $Id: notSubmitted 4069 2005-11-21 19:33:41Z ktsao@stanford.edu $
-<%--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -27,26 +39,38 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
+
+ -->
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{deliveryMessages.not_submitted_title}"/></title>
+      <head>
+        <jsp:expression> request.getAttribute("html.head") </jsp:expression>
+        <title>
+          <h:outputText value="#{deliveryMessages.not_submitted_title}"/>
+        </title>
       </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
-
-<div class="portletBody">
-  <!-- content... -->
-  <h3><h:outputText value="#{deliveryMessages.not_submitted_title}"/></h3>
-  <br/>
-  <br/>
-  <h:outputText value="#{deliveryMessages.not_submitted}"/>
-  <p></p>
-
-  <!-- end content -->
-</div>
-      </body>
+      <jsp:element name="body">
+        <jsp:attribute name="onload" trim="false"><jsp:expression> request.getAttribute("html.body.onload") </jsp:expression></jsp:attribute>
+        <jsp:body>
+          <div class="portletBody">
+            <!-- content...  -->
+            <h3>
+              <h:outputText value="#{deliveryMessages.not_submitted_title}"/>
+            </h3>
+            <br/>
+            <br/>
+            <h:outputText value="#{deliveryMessages.not_submitted}"/>
+            <jsp:element name="p">
+              <jsp:body>
+              </jsp:body>
+            </jsp:element>
+            <!-- end content  -->
+          </div>
+        </jsp:body>
+      </jsp:element>
     </html>
   </f:view>
+  <jsp:text><![CDATA[
 </html>
+]]></jsp:text>
+</jsp:root>

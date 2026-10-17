@@ -1,15 +1,38 @@
-<script>includeWebjarLibrary('select2');</script>
-<script src="/library/webjars/select2/4.0.13/js/i18n/<h:outputText value='#{itemauthor.language}' rendered='#{not empty itemauthor.language}' /><h:outputText value='en' rendered='#{empty itemauthor.language}' />.js"></script>
-<f:subview id="delete" rendered="#{itemauthor.deleteTagsAllowed == true}">
-    <input type="hidden" id="item-tag-data" value="<h:outputText value="#{itemauthor.tagsListToJson}"/>"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <script>
+    <jsp:text>includeWebjarLibrary('select2');</jsp:text>
+  </script>
+  <jsp:text><![CDATA[
+<script src="/library/webjars/select2/4.0.13/js/i18n/]]></jsp:text>
+  <h:outputText value="#{itemauthor.language}" rendered="#{not empty itemauthor.language}"/>
+  <h:outputText value="en" rendered="#{empty itemauthor.language}"/>
+  <jsp:text><![CDATA[.js"></script>
+]]></jsp:text>
+  <f:subview id="delete" rendered="#{itemauthor.deleteTagsAllowed == true}">
+    <jsp:text><![CDATA[
+    <input type="hidden" id="item-tag-data" value="]]></jsp:text>
+    <h:outputText value="#{itemauthor.tagsListToJson}"/>
+    <jsp:text><![CDATA["/>
+    ]]></jsp:text>
     <script type="module">
+      <jsp:text>
         import { tagLabel } from "/samigo-app/js/tag-display.js";
 
 
         $(document).ready(function () {
             $(".tag_selector").select2({
                 width: '50%',
-                language: "<h:outputText value="#{itemauthor.language}"/>",
+                language: "</jsp:text>
+      <h:outputText value="#{itemauthor.language}"/>
+      <jsp:text>",
                 closeOnSelect: false,
                 ajax: {
                     url: "/direct/tagservice/getTagsPaginatedByPrefixInLabel.json",
@@ -17,7 +40,9 @@
                     delay: 500,
                     data: function (params) {
                         return {
-                            siteId: "<h:outputText value='#{author.currentSiteId}'/>",
+                            siteId: "</jsp:text>
+      <h:outputText value="#{author.currentSiteId}"/>
+      <jsp:text><![CDATA[",
                             prefix: params.term || "", // search term
                             page: params.page
                         };
@@ -90,50 +115,75 @@
             return $tag_formatted;
         }
 
+    ]]></jsp:text>
     </script>
+    <jsp:text><![CDATA[
 
-    <div class="longtext" id="tags_div" name="tags_div" style="<h:outputText value="#{itemauthor.showTagsStyle}"/>">
-        <h:outputLabel value="#{authorMessages.tag_question}"/><br/>
-
-        <h:panelGroup id="tags_panel_previous">
-            <select hidden class="tag_selector_previous" name="tag_selector_previous[]" id="tag_selector_previous"
-                    multiple="multiple">
-            </select>
-        </h:panelGroup>
-
-        <h:panelGroup id="tags_panel">
-
-
-            <select class="tag_selector" name="tag_selector[]" id="tag_selector" multiple="multiple">
-            </select>
-        </h:panelGroup>
-        <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
+    <div class="longtext" id="tags_div" name="tags_div" style="]]></jsp:text>
+    <h:outputText value="#{itemauthor.showTagsStyle}"/>
+    <jsp:text><![CDATA[">
+        ]]></jsp:text>
+    <h:outputLabel value="#{authorMessages.tag_question}"/>
+    <br/>
+    <h:panelGroup id="tags_panel_previous">
+      <jsp:element name="select">
+        <jsp:attribute name="hidden" trim="false"></jsp:attribute>
+        <jsp:attribute name="class" trim="false">tag_selector_previous</jsp:attribute>
+        <jsp:attribute name="name" trim="false">tag_selector_previous[]</jsp:attribute>
+        <jsp:attribute name="id" trim="false">tag_selector_previous</jsp:attribute>
+        <jsp:attribute name="multiple" trim="false">multiple</jsp:attribute>
+        <jsp:body>
+        </jsp:body>
+      </jsp:element>
+    </h:panelGroup>
+    <h:panelGroup id="tags_panel">
+      <jsp:element name="select">
+        <jsp:attribute name="class" trim="false">tag_selector</jsp:attribute>
+        <jsp:attribute name="name" trim="false">tag_selector[]</jsp:attribute>
+        <jsp:attribute name="id" trim="false">tag_selector</jsp:attribute>
+        <jsp:attribute name="multiple" trim="false">multiple</jsp:attribute>
+        <jsp:body>
+        </jsp:body>
+      </jsp:element>
+    </h:panelGroup>
+    <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
+      <jsp:text><![CDATA[
         </br><input name="multiTagsSingleCheck" id="multiTagsSingleCheck" type="checkbox" value="true"
-        </f:verbatim>
-            <h:outputText value="checked"
-                          rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true) && (itemauthor.multiTagsSingleQuestion == true)}"/>
-        <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
+        ]]></jsp:text>
+    </f:verbatim>
+    <h:outputText value="checked" rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true) &amp;&amp; (itemauthor.multiTagsSingleQuestion == true)}"/>
+    <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
+      <jsp:text><![CDATA[
         >
-        </f:verbatim>
-        <h:outputText value="#{authorMessages.tag_multitag_singlequestion_all} "
-                      rendered="#{(itemauthor.multiTagsSingleQuestion == true)}"/>
-        <h:outputText value="#{authorMessages.tag_multitag_singlequestion}"
-                      rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}"/><br/>
+        ]]></jsp:text>
+    </f:verbatim>
+    <h:outputText value="#{authorMessages.tag_multitag_singlequestion_all} " rendered="#{(itemauthor.multiTagsSingleQuestion == true)}"/>
+    <h:outputText value="#{authorMessages.tag_multitag_singlequestion}" rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}"/>
+    <br/>
+    <jsp:text><![CDATA[
 
     </div>
 
-</f:subview>
-<f:subview id="nodelete" rendered="#{itemauthor.deleteTagsAllowed == false}">
+]]></jsp:text>
+  </f:subview>
+  <f:subview id="nodelete" rendered="#{itemauthor.deleteTagsAllowed == false}">
+    <jsp:text><![CDATA[
 
-    <input type="hidden" id="item-tag-data" value="<h:outputText value="#{itemauthor.tagsListToJson}"/>"/>
+    <input type="hidden" id="item-tag-data" value="]]></jsp:text>
+    <h:outputText value="#{itemauthor.tagsListToJson}"/>
+    <jsp:text><![CDATA["/>
+    ]]></jsp:text>
     <script type="module">
+      <jsp:text>
         import { tagLabel } from "/samigo-app/js/tag-display.js";
 
 
         $(document).ready(function () {
             $(".tag_selector").select2({
                 width: '50%',
-                language: "<h:outputText value="#{itemauthor.language}"/>",
+                language: "</jsp:text>
+      <h:outputText value="#{itemauthor.language}"/>
+      <jsp:text>",
                 closeOnSelect: false,
                 ajax: {
                     url: "/direct/tagservice/getTagsPaginatedByPrefixInLabel.json",
@@ -141,7 +191,9 @@
                     delay: 500,
                     data: function (params) {
                         return {
-                            siteId: "<h:outputText value='#{author.currentSiteId}'/>",
+                            siteId: "</jsp:text>
+      <h:outputText value="#{author.currentSiteId}"/>
+      <jsp:text><![CDATA[",
                             prefix: params.term || "", // search term
                             page: params.page
                         };
@@ -177,7 +229,9 @@
 
             $(".tag_selector_previous").select2({
                 width: '50%',
-                language: "<h:outputText value="#{itemauthor.language}"/>",
+                language: "]]></jsp:text>
+      <h:outputText value="#{itemauthor.language}"/>
+      <jsp:text><![CDATA[",
                 disabled: true,
                 escapeMarkup: function (markup) {
                     return markup;
@@ -198,7 +252,9 @@
             $(".tag_selector_previous").trigger('change');
 
             //Load the unsaved tags
-            var arr =<h:outputText value="#{itemauthor.tagsTempListToJson}" escape="false"/>;
+            var arr =]]></jsp:text>
+      <h:outputText value="#{itemauthor.tagsTempListToJson}" escape="false"/>
+      <jsp:text><![CDATA[;
             for (var i = 0; i < arr.length; i++) {
                 var obj = arr[i];
                 var newOption = new Option(obj["tagLabel"], obj["tagId"], true, true);
@@ -249,39 +305,65 @@
             return $tag_formatted;
         }
 
+    ]]></jsp:text>
     </script>
+    <jsp:text><![CDATA[
 
-    <div class="longtext" id="tags_div" name="tags_div" style="<h:outputText value="#{itemauthor.showTagsStyle}"/>">
+    <div class="longtext" id="tags_div" name="tags_div" style="]]></jsp:text>
+    <h:outputText value="#{itemauthor.showTagsStyle}"/>
+    <jsp:text><![CDATA[">
 
-        <h:outputLabel value="#{authorMessages.tag_title}"/><br/>
-        <i><h:outputLabel value="#{authorMessages.tag_previous}"/></i><br/>
-
-
-        <h:panelGroup id="tags_panel_previous">
-            <select class="tag_selector_previous" name="tag_selector_previous[]" id="tag_selector_previous"
-                    multiple="multiple">
-            </select>
-        </h:panelGroup><br/><br/>
-
-        <i><h:outputLabel value="#{authorMessages.tag_question_new}"/></i><br/>
-        <h:panelGroup id="tags_panel">
-            <select class="tag_selector" name="tag_selector[]" id="tag_selector" multiple="multiple">
-            </select>
-        </h:panelGroup>
-
-        <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
+        ]]></jsp:text>
+    <h:outputLabel value="#{authorMessages.tag_title}"/>
+    <br/>
+    <i>
+      <h:outputLabel value="#{authorMessages.tag_previous}"/>
+    </i>
+    <br/>
+    <h:panelGroup id="tags_panel_previous">
+      <jsp:element name="select">
+        <jsp:attribute name="class" trim="false">tag_selector_previous</jsp:attribute>
+        <jsp:attribute name="name" trim="false">tag_selector_previous[]</jsp:attribute>
+        <jsp:attribute name="id" trim="false">tag_selector_previous</jsp:attribute>
+        <jsp:attribute name="multiple" trim="false">multiple</jsp:attribute>
+        <jsp:body>
+        </jsp:body>
+      </jsp:element>
+    </h:panelGroup>
+    <br/>
+    <br/>
+    <i>
+      <h:outputLabel value="#{authorMessages.tag_question_new}"/>
+    </i>
+    <br/>
+    <h:panelGroup id="tags_panel">
+      <jsp:element name="select">
+        <jsp:attribute name="class" trim="false">tag_selector</jsp:attribute>
+        <jsp:attribute name="name" trim="false">tag_selector[]</jsp:attribute>
+        <jsp:attribute name="id" trim="false">tag_selector</jsp:attribute>
+        <jsp:attribute name="multiple" trim="false">multiple</jsp:attribute>
+        <jsp:body>
+        </jsp:body>
+      </jsp:element>
+    </h:panelGroup>
+    <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
+      <jsp:text><![CDATA[
         </br><input name="multiTagsSingleCheck" id="multiTagsSingleCheck" type="checkbox" value="true"
-        </f:verbatim>
-            <h:outputText value="checked"
-                          rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true) && (itemauthor.multiTagsSingleQuestion == true)}"/>
-        <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
+        ]]></jsp:text>
+    </f:verbatim>
+    <h:outputText value="checked" rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true) &amp;&amp; (itemauthor.multiTagsSingleQuestion == true)}"/>
+    <f:verbatim rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}">
+      <jsp:text><![CDATA[
         >
-        </f:verbatim>
-        <h:outputText value="#{authorMessages.tag_multitag_singlequestion_all} "
-                      rendered="#{(itemauthor.multiTagsSingleQuestion == true)}"/>
-        <h:outputText value="#{authorMessages.tag_multitag_singlequestion}"
-                      rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}"/><br/>
+        ]]></jsp:text>
+    </f:verbatim>
+    <h:outputText value="#{authorMessages.tag_multitag_singlequestion_all} " rendered="#{(itemauthor.multiTagsSingleQuestion == true)}"/>
+    <h:outputText value="#{authorMessages.tag_multitag_singlequestion}" rendered="#{(itemauthor.multiTagsSingleQuestionCheck == true)}"/>
+    <br/>
+    <jsp:text><![CDATA[
 
 
     </div>
-</f:subview>
+]]></jsp:text>
+  </f:subview>
+</jsp:root>

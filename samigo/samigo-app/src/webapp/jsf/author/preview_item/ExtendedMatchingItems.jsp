@@ -1,9 +1,18 @@
-<%-- $Id: ExtendedMatchingItem.jsp 2009-12-10 $
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id: ExtendedMatchingItem.jsp 2009-12-10 $
 include file for delivering extended matching items
 should be included in file importing DeliveryMessages
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -21,118 +30,111 @@ should be included in file importing DeliveryMessages
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
-  
-  
-      
-  <!-- THEME TEXT -->
-  	<f:verbatim><h3></f:verbatim>
-      <h:outputText escape="false" value="#{question.itemData.themeText}" />
-      <f:verbatim></h3><br/></f:verbatim>
 
-   <!-- SIMPLE TEXT - EMI SIMPLE TEXT OPTIONS-->
-      <h:dataTable value="#{question.itemData.emiAnswerOptions}" var="option"  rendered="#{question.itemData.isAnswerOptionsSimple}" cellpadding="3">
-        <h:column> 
-            <h:outputText escape="false" value="#{option.label}. " /> 
-        </h:column>
-        <h:column> 
-            <h:outputText escape="false" value=" #{option.text}" /> 
-        </h:column>
-      </h:dataTable>
-      
-
-  <!-- RICH TEXT - EMI RICH ANSWER OPTIONS-->
-  <h:outputText value="#{question.itemData.emiAnswerOptionsRichText}"  escape="false" rendered="#{question.itemData.isAnswerOptionsRich}"/>
-      
-  <!-- ATTACHMENTS BELOW - EMI RICH ANSWER OPTIONS-->
-  <h:dataTable value="#{question.itemData.itemAttachmentList}" var="attach"  rendered="#{question.itemData.isAnswerOptionsRich}" cellpadding="4">
+ -->
+  <!-- THEME TEXT  -->
+  <f:verbatim>
+    <jsp:text><![CDATA[<h3>]]></jsp:text>
+  </f:verbatim>
+  <h:outputText escape="false" value="#{question.itemData.themeText}"/>
+  <f:verbatim>
+    <jsp:text><![CDATA[</h3>]]></jsp:text>
+    <br/>
+  </f:verbatim>
+  <!-- SIMPLE TEXT - EMI SIMPLE TEXT OPTIONS -->
+  <h:dataTable value="#{question.itemData.emiAnswerOptions}" var="option" rendered="#{question.itemData.isAnswerOptionsSimple}" cellpadding="3">
     <h:column>
-      <%@ include file="/jsf/shared/mimeicon.jsp" %>
+      <h:outputText escape="false" value="#{option.label}. "/>
+    </h:column>
+    <h:column>
+      <h:outputText escape="false" value=" #{option.text}"/>
+    </h:column>
+  </h:dataTable>
+  <!-- RICH TEXT - EMI RICH ANSWER OPTIONS -->
+  <h:outputText value="#{question.itemData.emiAnswerOptionsRichText}" escape="false" rendered="#{question.itemData.isAnswerOptionsRich}"/>
+  <!-- ATTACHMENTS BELOW - EMI RICH ANSWER OPTIONS -->
+  <h:dataTable value="#{question.itemData.itemAttachmentList}" var="attach" rendered="#{question.itemData.isAnswerOptionsRich}" cellpadding="4">
+    <h:column>
+      <jsp:directive.include file="/jsf/shared/mimeicon.jsp"/>
     </h:column>
     <h:column>
       <h:outputLink value="#{attach.location}" target="new_window">
-         <h:outputText escape="false" value="#{attach.filename}" />
+        <h:outputText escape="false" value="#{attach.filename}"/>
       </h:outputLink>
     </h:column>
     <h:column>
       <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink}"/>
     </h:column>
   </h:dataTable>
-  <!-- ATTACHMENTS ABOVE - EMI RICH ANSWER OPTIONS-->
-
-
-      
-  <!-- LEAD IN TEXT -->
-      <f:verbatim><h3></f:verbatim>
-      <h:outputText escape="false" value="#{question.itemData.leadInText}" />
-      <f:verbatim></h3><br/></f:verbatim>
-      
-      
-
-  <!-- EMI ITEMS -->
-      <h:dataTable value="#{question.itemData.emiQuestionAnswerCombinations}" var="item" styleClass="simpleBorder" cellspacing="0" cellpadding="4">
-
-        <h:column> 
-        
-            <h:outputText escape="false" value="#{item.emiCorrectOptionLabels}"/>
-      
-            <h:outputText escape="false" value="(#{item.requiredOptionsCount} #{authorMessages.answers_required})" rendered="#{item.requiredOptionsCount>0}"/>
-      
-        </h:column>
-
-        <h:column> 
-         <h:panelGroup rendered="#{(item.text != null && item.text ne '') || item.hasAttachment}">
-          <h:outputText escape="false" value="#{item.sequence}. #{item.text}" />
-          
-  <!-- ATTACHMENTS BELOW - EMI ITEMTEXT ATTACHMENTS-->
-  <h:dataTable value="#{item.itemTextAttachmentList}" var="attach" styleClass="noBorder">
+  <!-- ATTACHMENTS ABOVE - EMI RICH ANSWER OPTIONS -->
+  <!-- LEAD IN TEXT  -->
+  <f:verbatim>
+    <jsp:text><![CDATA[<h3>]]></jsp:text>
+  </f:verbatim>
+  <h:outputText escape="false" value="#{question.itemData.leadInText}"/>
+  <f:verbatim>
+    <jsp:text><![CDATA[</h3>]]></jsp:text>
+    <br/>
+  </f:verbatim>
+  <!-- EMI ITEMS  -->
+  <h:dataTable value="#{question.itemData.emiQuestionAnswerCombinations}" var="item" styleClass="simpleBorder" cellspacing="0" cellpadding="4">
     <h:column>
-      <%@ include file="/jsf/shared/mimeicon.jsp" %>
+      <h:outputText escape="false" value="#{item.emiCorrectOptionLabels}"/>
+      <h:outputText escape="false" value="(#{item.requiredOptionsCount} #{authorMessages.answers_required})" rendered="#{item.requiredOptionsCount&gt;0}"/>
     </h:column>
     <h:column>
-      <h:outputLink value="#{attach.location}" target="new_window">
-         <h:outputText escape="false" value="#{attach.filename}" />
-      </h:outputLink>
-    </h:column>
-    <h:column>
-      <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink}"/>
+      <h:panelGroup rendered="#{(item.text != null &amp;&amp; item.text ne '') || item.hasAttachment}">
+        <h:outputText escape="false" value="#{item.sequence}. #{item.text}"/>
+        <!-- ATTACHMENTS BELOW - EMI ITEMTEXT ATTACHMENTS -->
+        <h:dataTable value="#{item.itemTextAttachmentList}" var="attach" styleClass="noBorder">
+          <h:column>
+            <jsp:directive.include file="/jsf/shared/mimeicon.jsp"/>
+          </h:column>
+          <h:column>
+            <h:outputLink value="#{attach.location}" target="new_window">
+              <h:outputText escape="false" value="#{attach.filename}"/>
+            </h:outputLink>
+          </h:column>
+          <h:column>
+            <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink}"/>
+          </h:column>
+        </h:dataTable>
+        <!-- ATTACHMENTS ABOVE - EMI ITEMTEXT ATTACHMENTS -->
+      </h:panelGroup>
     </h:column>
   </h:dataTable>
-  <!-- ATTACHMENTS ABOVE - EMI ITEMTEXT ATTACHMENTS-->
-           
-         </h:panelGroup>
-         
-        </h:column>
-
-      </h:dataTable>
-      
-      <f:verbatim><br/><br/></f:verbatim>
-
-
-
-<h:panelGroup>
-  <h:outputLabel value="#{authorMessages.answerKey}: "/>
-  <h:outputText escape="false" value="#{question.itemData.answerKey}" />
-  <f:verbatim><br/></f:verbatim>
-</h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-  <h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
-  <h:outputText  value="#{question.itemData.correctItemFeedback}" escape="false" />
- <f:verbatim><br/></f:verbatim>
-</h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-  <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
-  <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
-</h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-  <h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
-  <h:outputText  value="#{question.itemData.correctItemFeedback}" escape="false" />
- <f:verbatim><br/></f:verbatim>
-</h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-  <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
-  <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
-</h:panelGroup>
-
-<%@ include file="/jsf/author/preview_item/tags.jsp" %>
+  <f:verbatim>
+    <br/>
+    <br/>
+  </f:verbatim>
+  <h:panelGroup>
+    <h:outputLabel value="#{authorMessages.answerKey}: "/>
+    <h:outputText escape="false" value="#{question.itemData.answerKey}"/>
+    <f:verbatim>
+      <br/>
+    </f:verbatim>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
+    <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
+    <f:verbatim>
+      <br/>
+    </f:verbatim>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
+    <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
+    <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
+    <f:verbatim>
+      <br/>
+    </f:verbatim>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}">
+    <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
+    <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
+  </h:panelGroup>
+  <jsp:directive.include file="/jsf/author/preview_item/tags.jsp"/>
+</jsp:root>

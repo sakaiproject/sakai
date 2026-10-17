@@ -1,10 +1,19 @@
-<%-- $Id$
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id$
 include file for delivering audio questions
 should be included in file importing DeliveryMessages
---%>
-<!--
+ -->
+  <!--
 * $Id$
-<%--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -22,15 +31,33 @@ should be included in file importing DeliveryMessages
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
 
-<script src="/library/webjars/wavesurfer.js/5.1.0/dist/wavesurfer.min.js"></script>
-<script src="/library/webjars/wavesurfer.js/5.1.0/dist/plugin/wavesurfer.microphone.min.js"></script>
-<script src="/library/js/recorder/recorder.js"></script>
-<script src="/library/js/sakai-recorder.js"></script>
-<script>includeWebjarLibrary('featherlight');</script>
-<script>
+ -->
+  <jsp:element name="script">
+    <jsp:attribute name="src" trim="false">/library/webjars/wavesurfer.js/5.1.0/dist/wavesurfer.min.js</jsp:attribute>
+    <jsp:body>
+    </jsp:body>
+  </jsp:element>
+  <jsp:element name="script">
+    <jsp:attribute name="src" trim="false">/library/webjars/wavesurfer.js/5.1.0/dist/plugin/wavesurfer.microphone.min.js</jsp:attribute>
+    <jsp:body>
+    </jsp:body>
+  </jsp:element>
+  <jsp:element name="script">
+    <jsp:attribute name="src" trim="false">/library/js/recorder/recorder.js</jsp:attribute>
+    <jsp:body>
+    </jsp:body>
+  </jsp:element>
+  <jsp:element name="script">
+    <jsp:attribute name="src" trim="false">/library/js/sakai-recorder.js</jsp:attribute>
+    <jsp:body>
+    </jsp:body>
+  </jsp:element>
+  <script>
+    <jsp:text>includeWebjarLibrary('featherlight');</jsp:text>
+  </script>
+  <script>
+    <jsp:text>
   $(document).ready(function() {
     if (typeof initiatedFeatherlight === "undefined") {
       var $elems = $("a[id$='deliverAudioRecording:openRecord']");
@@ -45,129 +72,161 @@ should be included in file importing DeliveryMessages
       initiatedFeatherlight = true;
     }
   });
-</script>
-
-<f:verbatim><br /></f:verbatim>
-
-<%-- this invisible text is a trick to get the value set in the component tree
+</jsp:text>
+  </script>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <!-- this invisible text is a trick to get the value set in the component tree
      without displaying it; audioMediaUploadPath will get this to the back end
---%>
-
-<%-- delivery action triggered by sakai-recorder js --%>
-<h:commandButton id="audioButton" styleClass="audioUploadListenerBtn d-none" value="Upload" type="submit"
-rendered="#{delivery.actionString=='takeAssessment'
-         || delivery.actionString=='takeAssessmentViaUrl'}">
-  <f:actionListener
-   type="org.sakaiproject.tool.assessment.ui.listener.delivery.AudioUploadActionListener" />
-</h:commandButton>
-
-<h:outputText escape="false" value="
-<input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\"  value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}.au\"/>" />
-
-<h:outputText value="#{question.text} "  escape="false">
-  <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
-</h:outputText>
-<!-- ATTACHMENTS -->
-<%@ include file="/jsf/delivery/item/attachment.jsp" %>
-
-<f:verbatim><br /></f:verbatim>
-<f:verbatim><br /></f:verbatim>
-<f:verbatim><div id="</f:verbatim><h:outputText value="question#{question.itemData.itemId}" /><f:verbatim>" style="</f:verbatim><h:outputText value="display:none;" rendered="#{question==null or question.hasNoMedia}" /><f:verbatim>" ></f:verbatim>
-
+ -->
+  <!-- delivery action triggered by sakai-recorder js  -->
+  <h:commandButton id="audioButton" styleClass="audioUploadListenerBtn d-none" value="Upload" type="submit" rendered="#{delivery.actionString=='takeAssessment'&#10;         || delivery.actionString=='takeAssessmentViaUrl'}">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.AudioUploadActionListener"/>
+  </h:commandButton>
+  <h:outputText escape="false" value="&#10;&lt;input type=&quot;hidden&quot; name=&quot;mediaLocation_#{question.itemData.itemId}&quot;  value=&quot;jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}.au&quot;/&gt;"/>
+  <h:outputText value="#{question.text} " escape="false">
+    <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper"/>
+  </h:outputText>
+  <!-- ATTACHMENTS  -->
+  <jsp:directive.include file="/jsf/delivery/item/attachment.jsp"/>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <f:verbatim>
+    <jsp:text><![CDATA[<div id="]]></jsp:text>
+  </f:verbatim>
+  <h:outputText value="question#{question.itemData.itemId}"/>
+  <f:verbatim>
+    <jsp:text>" style="</jsp:text>
+  </f:verbatim>
+  <h:outputText value="display:none;" rendered="#{question==null or question.hasNoMedia}"/>
+  <f:verbatim>
+    <jsp:text><![CDATA[" >]]></jsp:text>
+  </f:verbatim>
   <h:panelGrid cellpadding="10" columns="1">
     <h:panelGroup>
       <script>
+        <jsp:text>
         var audio = new Audio();
-        var deliveryProtocol = <h:outputText value="'#{delivery.protocol}'"/>;
-        var hasNoMedia = <h:outputText value="'#{question.hasNoMedia}'"/>;
-        var mediaId = <h:outputText value="'#{question.mediaArray[0].mediaId}'"/>;
-        var questionId = <h:outputText value="'#{question.itemData.itemId}'"/>;
+        var deliveryProtocol = </jsp:text>
+        <h:outputText value="'#{delivery.protocol}'"/>
+        <jsp:text>;
+        var hasNoMedia = </jsp:text>
+        <h:outputText value="'#{question.hasNoMedia}'"/>
+        <jsp:text>;
+        var mediaId = </jsp:text>
+        <h:outputText value="'#{question.mediaArray[0].mediaId}'"/>
+        <jsp:text>;
+        var questionId = </jsp:text>
+        <h:outputText value="'#{question.itemData.itemId}'"/>
+        <jsp:text><![CDATA[;
         if (!audio.canPlayType("audio/wav")) {
           document.write('<object><param name="autostart" value="false"/><param name="autoplay" value="false"/><param name="controller" value="true"/><embed id="audioEmbed' + questionId + '" src="' + deliveryProtocol + '/samigo-app/servlet/ShowMedia?mediaId=' + mediaId + '" volume="50" height="25" width="300" autostart="false" autoplay="false" controller="true" type="audio/basic"/></object>');
         } else {
           document.write('<audio controls="controls"><source class="audioSrc' + questionId + '"src="' + deliveryProtocol + '/samigo-app/servlet/ShowMedia?mediaId=' + mediaId + '" type="audio/wav"/></audio>');
         }
+      ]]></jsp:text>
       </script>
-
-      <f:verbatim><br /></f:verbatim>
+      <f:verbatim>
+        <br/>
+      </f:verbatim>
       <h:outputText value="#{deliveryMessages.open_bracket}"/>
-      <f:verbatim><span id="</f:verbatim><h:outputText value="details#{question.itemData.itemId}" /><f:verbatim>"></f:verbatim>
-		<h:outputText styleClass="recordedOn#{question.itemData.itemId}" value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{!question.mediaArray[0].durationIsOver}" />
-		<h:outputText value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{question.mediaArray[0].durationIsOver}" />
+      <f:verbatim>
+        <jsp:text><![CDATA[<span id="]]></jsp:text>
+      </f:verbatim>
+      <h:outputText value="details#{question.itemData.itemId}"/>
+      <f:verbatim>
+        <jsp:text><![CDATA[">]]></jsp:text>
+      </f:verbatim>
+      <h:outputText styleClass="recordedOn#{question.itemData.itemId}" value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{!question.mediaArray[0].durationIsOver}"/>
+      <h:outputText value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{question.mediaArray[0].durationIsOver}"/>
       <h:outputText value="#{question.mediaArray[0].createdDate}">
-        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{delivery.userTimeZone}" />
+        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{delivery.userTimeZone}"/>
       </h:outputText>
-      <f:verbatim></span></f:verbatim>
+      <f:verbatim>
+        <jsp:text><![CDATA[</span>]]></jsp:text>
+      </f:verbatim>
       <h:outputText value="#{deliveryMessages.close_bracket}"/>
-      <f:verbatim><br /></f:verbatim>
+      <f:verbatim>
+        <br/>
+      </f:verbatim>
       <h:outputFormat styleClass="can_you_hear_#{question.itemData.itemId}" value=" #{deliveryMessages.can_you_hear}" escape="false">
-		<f:param value="<a href=\"#{delivery.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{question.mediaArray[0].mediaId}&setMimeType=false\"/> #{deliveryMessages.can_you_hear_2}</a>" />
+        <f:param value="&lt;a href=&quot;#{delivery.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{question.mediaArray[0].mediaId}&amp;setMimeType=false&quot;/&gt; #{deliveryMessages.can_you_hear_2}&lt;/a&gt;"/>
       </h:outputFormat>
     </h:panelGroup>
   </h:panelGrid>
-<f:verbatim></div></f:verbatim>
-
-<f:verbatim><div id="</f:verbatim><h:outputText value="attempts#{question.itemData.itemId}" /><f:verbatim>"></f:verbatim>
-<h:panelGroup rendered="#{question.attemptsRemaining == null || question.attemptsRemaining > 0}">
-  <h:outputLink id="openRecord" title="#{assessmentSettingsMessages.record_your_answer}" value="#" rendered="#{delivery.actionString!='reviewAssessment'}">
-    <h:outputText value="#{assessmentSettingsMessages.record_your_answer}"/>
-  </h:outputLink>
-  <h:panelGroup rendered="#{delivery.actionString!='reviewAssessment'}" styleClass="audioRecordingPopup-#{question.itemData.itemId} hidden">
-    <h:outputText escape="false" value="<input type=\"hidden\" name=\"questionId\" value=\"#{question.itemData.itemId}\"/>" />
-    <f:subview id="audioRecordingPopup">
-      <%@ include file="/jsf/author/audioRecordingPopup.jsp" %>
-    </f:subview>
+  <f:verbatim>
+    <jsp:text><![CDATA[</div>]]></jsp:text>
+  </f:verbatim>
+  <f:verbatim>
+    <jsp:text><![CDATA[<div id="]]></jsp:text>
+  </f:verbatim>
+  <h:outputText value="attempts#{question.itemData.itemId}"/>
+  <f:verbatim>
+    <jsp:text><![CDATA[">]]></jsp:text>
+  </f:verbatim>
+  <h:panelGroup rendered="#{question.attemptsRemaining == null || question.attemptsRemaining &gt; 0}">
+    <h:outputLink id="openRecord" title="#{assessmentSettingsMessages.record_your_answer}" value="#" rendered="#{delivery.actionString!='reviewAssessment'}">
+      <h:outputText value="#{assessmentSettingsMessages.record_your_answer}"/>
+    </h:outputLink>
+    <h:panelGroup rendered="#{delivery.actionString!='reviewAssessment'}" styleClass="audioRecordingPopup-#{question.itemData.itemId} hidden">
+      <h:outputText escape="false" value="&lt;input type=&quot;hidden&quot; name=&quot;questionId&quot; value=&quot;#{question.itemData.itemId}&quot;/&gt;"/>
+      <f:subview id="audioRecordingPopup">
+        <jsp:directive.include file="/jsf/author/audioRecordingPopup.jsp"/>
+      </f:subview>
+    </h:panelGroup>
   </h:panelGroup>
-</h:panelGroup>
-<f:verbatim></div></f:verbatim>
-
-<h:panelGroup rendered="#{question.attemptsRemaining != null && question.attemptsRemaining < 1}">
-  <h:outputText value=" #{assessmentSettingsMessages.record_no_more_attempts}"/>
-</h:panelGroup>
-
-<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
-                || delivery.actionString=='takeAssessment' 
-                || delivery.actionString=='takeAssessmentViaUrl')
-             && delivery.navigation ne '1' && delivery.displayMardForReview }">
-<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
-	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
-	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/author/markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');event.preventDefault();" >
-		<h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
-	</h:outputLink>
-</h:panelGroup>
-
-<h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
-    <h:panelGroup>
-      <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
-      <h:outputText id="feedSC" value="#{question.feedback}" escape="false"/>
-    </h:panelGroup>
-    <h:outputText value=" "/>
-  </h:panelGrid>
-  
-  <h:panelGrid rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && (question.gradingCommentIsNotEmpty || question.hasItemGradingAttachment)}" columns="1" border="0">
-    <h:panelGroup>
-      <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
-	  <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" rendered="#{question.gradingCommentIsNotEmpty}"/>
-    </h:panelGroup>
-    
-	<h:panelGroup rendered="#{question.hasItemGradingAttachment}">
-      <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
-        <h:column>
-          <%@ include file="/jsf/shared/mimeicon.jsp" %>
-        </h:column>
-        <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink value="#{attach.location}" target="new_window">
-            <h:outputText value="#{attach.filename}" />
-          </h:outputLink>
-        </h:column>
-        <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
-        </h:column>
-      </h:dataTable>
-    </h:panelGroup>
-  </h:panelGrid>
-</h:panelGroup>
-
+  <f:verbatim>
+    <jsp:text><![CDATA[</div>]]></jsp:text>
+  </f:verbatim>
+  <h:panelGroup rendered="#{question.attemptsRemaining != null &amp;&amp; question.attemptsRemaining &lt; 1}">
+    <h:outputText value=" #{assessmentSettingsMessages.record_no_more_attempts}"/>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'&#10;                || delivery.actionString=='takeAssessment' &#10;                || delivery.actionString=='takeAssessmentViaUrl')&#10;             &amp;&amp; delivery.navigation ne '1' &amp;&amp; delivery.displayMardForReview }">
+    <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"/>
+    <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}"/>
+    <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/author/markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');event.preventDefault();">
+      <h:outputText value=" #{assessmentSettingsMessages.whats_this_link}"/>
+    </h:outputLink>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
+    <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel &amp;&amp; question.feedbackIsNotEmpty}">
+      <h:panelGroup>
+        <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}#{deliveryMessages.column} "/>
+        <h:outputText id="feedSC" value="#{question.feedback}" escape="false"/>
+      </h:panelGroup>
+      <h:outputText value=" "/>
+    </h:panelGrid>
+    <h:panelGrid rendered="#{delivery.actionString !='gradeAssessment' &amp;&amp; delivery.feedbackComponent.showGraderComment &amp;&amp; !delivery.noFeedback=='true' &amp;&amp; (question.gradingCommentIsNotEmpty || question.hasItemGradingAttachment)}" columns="1" border="0">
+      <h:panelGroup>
+        <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.comment}#{deliveryMessages.column} "/>
+        <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" rendered="#{question.gradingCommentIsNotEmpty}"/>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+        <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+          <h:column>
+            <jsp:directive.include file="/jsf/shared/mimeicon.jsp"/>
+          </h:column>
+          <h:column>
+            <f:verbatim>
+              <jsp:text><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;]]></jsp:text>
+            </f:verbatim>
+            <h:outputLink value="#{attach.location}" target="new_window">
+              <h:outputText value="#{attach.filename}"/>
+            </h:outputLink>
+          </h:column>
+          <h:column>
+            <f:verbatim>
+              <jsp:text><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;]]></jsp:text>
+            </f:verbatim>
+            <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
+          </h:column>
+        </h:dataTable>
+      </h:panelGroup>
+    </h:panelGrid>
+  </h:panelGroup>
+</jsp:root>

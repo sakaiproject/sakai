@@ -1,14 +1,26 @@
-<html>
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+<jsp:directive.page pageEncoding="UTF-8" contentType="text/html;charset=utf-8" trimDirectiveWhitespaces="false" isELIgnored="false" deferredSyntaxAllowedAsLiteral="false"/>
+<jsp:output omit-xml-declaration="yes"/>
+  <jsp:directive.include file="/include/header.inc"/>
+  <jsp:text><![CDATA[<html>]]>&#13;
+</jsp:text>
+  <jsp:directive.page language="java"/>
+  <jsp:text>&#13;
+&#13;
+&#13;
+&#13;<![CDATA[
+<!DOCTYPE html]]>&#13;
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"&#13;<![CDATA[
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]]>&#13;
+&#13;
+</jsp:text>
+  <!-- $Id: confirmAssessmentRetract.jsp 17095 2006-10-12 22:32:50Z ktsao@stanford.edu $
 
-<!-- $Id: confirmAssessmentRetract.jsp 17095 2006-10-12 22:32:50Z ktsao@stanford.edu $
-<%--
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -26,44 +38,52 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
+
+ -->
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{authorMessages.edit_published_assessment_heading_conf}"/></title>
+      <head>
+        <jsp:expression> request.getAttribute("html.head") </jsp:expression>
+        <title>
+          <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf}"/>
+        </title>
       </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
-  <!-- content... -->
- <div class="portletBody">
-  <h3><h:outputText value="#{authorMessages.edit_published_assessment_heading_conf}"/></h3>
- <h:form id="editPublishedAssessmentForm">
-     <div class="sak-banner-warn tier1">
-       <h:outputText value="#{authorMessages.warning}" />
-   	   <br/>
-       <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_1}" />
-	   <br/>
-       <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_2}" />
-	   <br/>
-	   <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_3}" />
-	   <br/>
-	   <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_4}" />
-     </div>
-       <p class="act">
-       <h:commandButton id="edit" value="#{commonMessages.edit_action}" type="submit"
-         styleClass="active" action="#{author.getOutcome}" >
-         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
-       </h:commandButton>
-
-       <h:commandButton value="#{commonMessages.cancel_action}" type="submit" style="act" action="author" >
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-       </h:commandButton>
-
-       </p>
- </h:form>
-  <!-- end content -->
-</div>
-      </body>
+      <jsp:element name="body">
+        <jsp:attribute name="onload" trim="false"><jsp:expression> request.getAttribute("html.body.onload") </jsp:expression></jsp:attribute>
+        <jsp:body>
+          <!-- content...  -->
+          <div class="portletBody">
+            <h3>
+              <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf}"/>
+            </h3>
+            <h:form id="editPublishedAssessmentForm">
+              <div class="sak-banner-warn tier1">
+                <h:outputText value="#{authorMessages.warning}"/>
+                <br/>
+                <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_1}"/>
+                <br/>
+                <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_2}"/>
+                <br/>
+                <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_3}"/>
+                <br/>
+                <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_4}"/>
+              </div>
+              <p class="act">
+                <h:commandButton id="edit" value="#{commonMessages.edit_action}" type="submit" styleClass="active" action="#{author.getOutcome}">
+                  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener"/>
+                </h:commandButton>
+                <h:commandButton value="#{commonMessages.cancel_action}" type="submit" style="act" action="author">
+                  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener"/>
+                </h:commandButton>
+              </p>
+            </h:form>
+            <!-- end content  -->
+          </div>
+        </jsp:body>
+      </jsp:element>
     </html>
   </f:view>
-</html>
+  <jsp:text>&#13;<![CDATA[
+</html>]]>&#13;
+</jsp:text>
+</jsp:root>

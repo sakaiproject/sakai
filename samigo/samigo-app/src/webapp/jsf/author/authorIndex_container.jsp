@@ -1,4 +1,15 @@
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+<jsp:directive.page pageEncoding="UTF-8" contentType="text/html;charset=UTF-8" trimDirectiveWhitespaces="false" isELIgnored="false" deferredSyntaxAllowedAsLiteral="false"/>
+<jsp:output omit-xml-declaration="yes"/>
+  <jsp:directive.include file="/include/header.inc"/>
+  <!--
   ~ /**
   ~  * Copyright (c) 2016, The Apereo Foundation
   ~  *
@@ -14,18 +25,20 @@
   ~  * See the License for the specific language governing permissions and
   ~  * limitations under the License.
   ~  */
-  --%>
+   -->
+  <jsp:directive.page language="java"/>
+  <jsp:text><![CDATA[
 
-<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
+
+
+
 
 <!DOCTYPE html
 PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<f:view>
-    <%@ include file="../author/authorIndex_content.jsp"%>
-</f:view>
+]]></jsp:text>
+  <f:view>
+    <jsp:directive.include file="../author/authorIndex_content.jsp"/>
+  </f:view>
+</jsp:root>

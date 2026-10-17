@@ -291,7 +291,7 @@
     <jsp-property-group>
       <url-pattern>*.jsp</url-pattern>
       <el-ignored>false</el-ignored>
-      <include-prelude>/include/header.inc</include-prelude>
+      <is-xml>true</is-xml>
     </jsp-property-group>
   </jsp-config>
   <!-- JSPs are JSF view templates. External requests must enter through a JSF mapping. -->

@@ -1,22 +1,27 @@
-<%@ page import="org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean" %>
-<%@ page import="org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean" %>
-<%@ page import="org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil" %>
-<%@ page import="org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean" %>
-<%@ page import="org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean" %>
-<%@ page import="org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean" %>
-<%@ page import="org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean" %>
-<%@ page import="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmEditPublishedAssessmentListener" %>
-<%@ page import="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" %>
-<%@ page import="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" %>
-<%@ page import="org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI" %>
-<%@ page import="org.sakaiproject.tool.assessment.services.PersistenceService" %>
-<%@ page import="org.sakaiproject.tool.cover.ToolManager" %>
-<%@ page import="org.sakaiproject.site.api.Site" %>
-<%@ page import="org.sakaiproject.site.api.ToolConfiguration" %>
-<%@ page import="org.sakaiproject.site.cover.SiteService" %>
-<%@ page import="jakarta.faces.context.FacesContext" %>
-
-<%
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page">
+<jsp:directive.page pageEncoding="UTF-8" contentType="text/html;charset=UTF-8" trimDirectiveWhitespaces="false" isELIgnored="false" deferredSyntaxAllowedAsLiteral="false"/>
+<jsp:output omit-xml-declaration="yes"/>
+  <jsp:directive.include file="/include/header.inc"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmEditPublishedAssessmentListener"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI"/>
+  <jsp:directive.page import="org.sakaiproject.tool.assessment.services.PersistenceService"/>
+  <jsp:directive.page import="org.sakaiproject.tool.cover.ToolManager"/>
+  <jsp:directive.page import="org.sakaiproject.site.api.Site"/>
+  <jsp:directive.page import="org.sakaiproject.site.api.ToolConfiguration"/>
+  <jsp:directive.page import="org.sakaiproject.site.cover.SiteService"/>
+  <jsp:directive.page import="jakarta.faces.context.FacesContext"/>
+  <jsp:scriptlet>
 
          DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", request, response, application);
          PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet("person", request, response, application);
@@ -59,5 +64,5 @@
             response.sendRedirect("/portal/tool/" + tool.getId() + "/jsf/author/confirmEditPublishedAssessment");
          }
 
-%>
-
+</jsp:scriptlet>
+</jsp:root>

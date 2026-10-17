@@ -1,5 +1,14 @@
-<!-- $Id: publishedSettings_attachment.jsp 11254 2006-06-28 03:38:28Z daisyf@stanford.edu $
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id: publishedSettings_attachment.jsp 11254 2006-06-28 03:38:28Z daisyf@stanford.edu $
+
 ***********************************************************************************
 *
 * Copyright (c) 2008 The Sakai Foundation.
@@ -17,43 +26,42 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
-<!-- ASSESSMENT ATTACHMENTS -->
-<h:outputLabel styleClass="col-md-10 form-label" value="#{assessmentSettingsMessages.attachments}" />
+
+ -->
+  <!-- ASSESSMENT ATTACHMENTS  -->
+  <h:outputLabel styleClass="col-md-10 form-label" value="#{assessmentSettingsMessages.attachments}"/>
   <h:panelGroup styleClass="col-md-10" rendered="#{publishedSettings.hasAttachment}">
     <h:dataTable value="#{publishedSettings.attachmentList}" var="attach">
       <h:column>
-        <%@ include file="/jsf/shared/mimeicon.jsp" %>
+        <jsp:directive.include file="/jsf/shared/mimeicon.jsp"/>
       </h:column>
       <h:column>
-        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+        <f:verbatim>
+          <jsp:text><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;]]></jsp:text>
+        </f:verbatim>
         <h:outputLink value="#{attach.location}" target="new_window">
-          <h:outputText value="#{attach.filename}" />
+          <h:outputText value="#{attach.filename}"/>
         </h:outputLink>
       </h:column>
       <h:column>
-        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+        <f:verbatim>
+          <jsp:text><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;]]></jsp:text>
+        </f:verbatim>
         <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
       </h:column>
     </h:dataTable>
   </h:panelGroup>
   <h:panelGroup styleClass="col-md-10" rendered="#{!publishedSettings.hasAttachment}">
-    <h:outputText escape="false" value="#{assessmentSettingsMessages.no_attachments}" />
+    <h:outputText escape="false" value="#{assessmentSettingsMessages.no_attachments}"/>
   </h:panelGroup>
-
   <h:panelGroup styleClass="col-md-offset-2 col-md-10" rendered="#{!publishedSettings.hasAttachment}">
     <sakai:button_bar>
-      <h:commandButton action="#{publishedSettings.addAttachmentsRedirect}"
-             value="#{assessmentSettingsMessages.add_attachments}"/>
+      <h:commandButton action="#{publishedSettings.addAttachmentsRedirect}" value="#{assessmentSettingsMessages.add_attachments}"/>
     </sakai:button_bar>
   </h:panelGroup>
-
   <h:panelGroup styleClass="col-md-offset-2 col-md-10" rendered="#{publishedSettings.hasAttachment}">
     <sakai:button_bar>
-      <h:commandButton action="#{publishedSettings.addAttachmentsRedirect}"
-             value="#{assessmentSettingsMessages.add_remove_attachments}"/>
+      <h:commandButton action="#{publishedSettings.addAttachmentsRedirect}" value="#{assessmentSettingsMessages.add_remove_attachments}"/>
     </sakai:button_bar>
   </h:panelGroup>
-  
-
+</jsp:root>

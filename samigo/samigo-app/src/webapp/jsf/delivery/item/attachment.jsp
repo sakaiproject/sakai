@@ -1,6 +1,15 @@
-<!--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
 * $Id: attachment.jsp 6874 2006-03-22 17:01:47Z hquinn@stanford.edu $
-<%--
+
 ***********************************************************************************
 *
 * Copyright (c) 2006 The Sakai Foundation.
@@ -18,12 +27,11 @@
 * limitations under the License. 
 *
 ***********************************************************************************/
---%>
--->
-<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 
-<!-- ATTACHMENTS -->
-<%-- Expects 'question' is an instance of ItemContentsBean --%>
-<t:aliasBean alias="#{itemAttachmentList}" value="#{question.itemData.itemAttachmentList}" >
-  <%@ include file="/jsf/shared/itemAttachmentList.jsp" %>
-</t:aliasBean>
+ -->
+  <!-- ATTACHMENTS  -->
+  <!-- Expects 'question' is an instance of ItemContentsBean  -->
+  <t:aliasBean alias="#{itemAttachmentList}" value="#{question.itemData.itemAttachmentList}">
+    <jsp:directive.include file="/jsf/shared/itemAttachmentList.jsp"/>
+  </t:aliasBean>
+</jsp:root>

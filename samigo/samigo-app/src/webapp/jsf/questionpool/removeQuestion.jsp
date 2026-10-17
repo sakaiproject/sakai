@@ -1,13 +1,24 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+<jsp:directive.page pageEncoding="UTF-8" contentType="text/html;charset=utf-8" trimDirectiveWhitespaces="false" isELIgnored="false" deferredSyntaxAllowedAsLiteral="false"/>
+<jsp:output omit-xml-declaration="yes"/>
+  <jsp:directive.include file="/include/header.inc"/>
+  <jsp:directive.page language="java"/>
+  <jsp:text><![CDATA[
+
+
+
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<!-- $Id$
-<%--
+]]></jsp:text>
+  <!-- $Id$
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -25,47 +36,49 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
-  <f:view>   
+
+ -->
+  <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{questionPoolMessages.rm_q}"/></title>
+      <head>
+        <jsp:expression> request.getAttribute("html.head") </jsp:expression>
+        <title>
+          <h:outputText value="#{questionPoolMessages.rm_q}"/>
+        </title>
       </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
-<!-- content... -->
-<div class="portletBody">
- <h:form id="removePoolForm">
-   <h:panelGrid cellpadding="5" cellspacing="3">
-     <h:panelGroup>
-       <f:verbatim><h3 style="insColor insBak"></f:verbatim>
-       <h:outputText  value="#{questionPoolMessages.rm_q_confirm}" />
-       <f:verbatim></h3></f:verbatim>
-     </h:panelGroup>
-     <h:outputText styleClass="validation" value="#{questionPoolMessages.remove_sure_q}" />
-
-<h:dataTable value="#{questionpool.itemsToDelete}" var="question">
-      <h:column>
-       <h:outputText escape="false" value="#{question.text}" />
-      </h:column>
-</h:dataTable>
-
-     <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-  <h:commandButton type="submit" immediate="true" id="Submit" value="#{commonMessages.remove_action}"
-    action="#{questionpool.removeQuestionsFromPool}" >
-  </h:commandButton>
-
-<h:commandButton id="cancel" style="act" value="#{commonMessages.cancel_action}" action="editPool"/>
-
-     </h:panelGrid>
-   </h:panelGrid>
-
- </h:form>
- <!-- end content -->
-
-
-</div>
-
-</body>
-</html>
-</f:view>
+      <jsp:element name="body">
+        <jsp:attribute name="onload" trim="false"><jsp:expression> request.getAttribute("html.body.onload") </jsp:expression></jsp:attribute>
+        <jsp:body>
+          <!-- content...  -->
+          <div class="portletBody">
+            <h:form id="removePoolForm">
+              <h:panelGrid cellpadding="5" cellspacing="3">
+                <h:panelGroup>
+                  <f:verbatim>
+                    <jsp:text><![CDATA[<h3 style="insColor insBak">]]></jsp:text>
+                  </f:verbatim>
+                  <h:outputText value="#{questionPoolMessages.rm_q_confirm}"/>
+                  <f:verbatim>
+                    <jsp:text><![CDATA[</h3>]]></jsp:text>
+                  </f:verbatim>
+                </h:panelGroup>
+                <h:outputText styleClass="validation" value="#{questionPoolMessages.remove_sure_q}"/>
+                <h:dataTable value="#{questionpool.itemsToDelete}" var="question">
+                  <h:column>
+                    <h:outputText escape="false" value="#{question.text}"/>
+                  </h:column>
+                </h:dataTable>
+                <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
+                  <h:commandButton type="submit" immediate="true" id="Submit" value="#{commonMessages.remove_action}" action="#{questionpool.removeQuestionsFromPool}">
+                  </h:commandButton>
+                  <h:commandButton id="cancel" style="act" value="#{commonMessages.cancel_action}" action="editPool"/>
+                </h:panelGrid>
+              </h:panelGrid>
+            </h:form>
+            <!-- end content  -->
+          </div>
+        </jsp:body>
+      </jsp:element>
+    </html>
+  </f:view>
+</jsp:root>

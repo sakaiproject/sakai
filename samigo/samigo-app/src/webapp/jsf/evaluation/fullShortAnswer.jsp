@@ -1,15 +1,25 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+<jsp:directive.page pageEncoding="UTF-8" contentType="text/html;charset=utf-8" trimDirectiveWhitespaces="false" isELIgnored="false" deferredSyntaxAllowedAsLiteral="false"/>
+<jsp:output omit-xml-declaration="yes"/>
+  <jsp:directive.include file="/include/header.inc"/>
+  <jsp:text><![CDATA[
+
+
+
 
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<!--
+]]></jsp:text>
+  <!--
 $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
-<%--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -27,27 +37,31 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
+
+ -->
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText
-        value="#{evaluationMessages.title_question}" /></title>
+      <head>
+        <jsp:expression> request.getAttribute("html.head") </jsp:expression>
+        <title>
+          <h:outputText value="#{evaluationMessages.title_question}"/>
+        </title>
       </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
-<%--
+      <jsp:element name="body">
+        <jsp:attribute name="onload" trim="false"><jsp:expression> request.getAttribute("html.body.onload") </jsp:expression></jsp:attribute>
+        <jsp:body>
+          <!--
  <h:outputText escape="false"
       value="<input type='hidden' name='agentId' value='#{param.idString}'" />
 <h:outputText escape="false" value="#{description.fullAnswer}"/>
---%>
-
-<h:dataTable cellpadding="0" cellspacing="0" id="questionScoreTable" value="#{questionScores.agents}"
-    var="description" style="listHier tier2" columnClasses="textTable">
-<h:column>
-<h:outputText rendered="#{param.idString eq description.assessmentGradingId}" escape="false" value="#{description.fullAnswer}"/>
-</h:column>
-</h:dataTable>
-      </body>
+ -->
+          <h:dataTable cellpadding="0" cellspacing="0" id="questionScoreTable" value="#{questionScores.agents}" var="description" style="listHier tier2" columnClasses="textTable">
+            <h:column>
+              <h:outputText rendered="#{param.idString eq description.assessmentGradingId}" escape="false" value="#{description.fullAnswer}"/>
+            </h:column>
+          </h:dataTable>
+        </jsp:body>
+      </jsp:element>
     </html>
   </f:view>
+</jsp:root>

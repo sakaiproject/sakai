@@ -1,15 +1,27 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://java.sun.com/upload" prefix="corejsf" %>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<!--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:corejsf="http://java.sun.com/upload">
+<jsp:directive.page pageEncoding="UTF-8" contentType="text/html;charset=utf-8" trimDirectiveWhitespaces="false" isELIgnored="false" deferredSyntaxAllowedAsLiteral="false"/>
+<jsp:output omit-xml-declaration="yes"/>
+  <jsp:directive.include file="/include/header.inc"/>
+  <jsp:directive.page language="java"/>
+  <jsp:text>&#13;
+&#13;
+&#13;
+&#13;
+&#13;<![CDATA[
+<!DOCTYPE html]]>&#13;
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"&#13;<![CDATA[
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]]>&#13;
+&#13;
+</jsp:text>
+  <!--
 * $Id: reviewAssessmentError.jsp 22618 2007-03-14 19:58:35Z ktsao@stanford.edu $
-<%--
+
 ***********************************************************************************
 *
 * Copyright (c) 2008 The Sakai Foundation.
@@ -27,42 +39,45 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
+
+ -->
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title> <h:outputText value="#{delivery.assessmentTitle}"/>
-      </title>
+      <head>
+        <jsp:expression> request.getAttribute("html.head") </jsp:expression>
+        <title>
+          <jsp:text> </jsp:text>
+          <h:outputText value="#{delivery.assessmentTitle}"/>
+        </title>
       </head>
-       <body onload="<%= request.getAttribute("html.body.onload") %>;">
-
-      <h:outputText value="<a name='top'></a>" escape="false" />
-<div class="portletBody">
- <h:outputText value="<div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
-
-<!-- content... -->
-<h:form id="takeAssessmentForm" enctype="multipart/form-data">
-
-<!-- JAVASCRIPT -->
-<%@ include file="/js/delivery.js" %>
-
-<!-- HEADING -->
-<f:subview id="assessmentDeliveryHeading">
-<%@ include file="/jsf/delivery/assessmentDeliveryHeading.jsp" %>
-</f:subview>
-
-  <h:panelGroup styleClass="sak-banner-error">
-    <h:panelGrid  columns="1">
-	   <h:outputText value="#{deliveryMessages.review_error_1}" />
-       <h:outputText value="#{deliveryMessages.review_error_2}"/>
-    </h:panelGrid>
-  </h:panelGroup>
-
-</h:form>
-<!-- end content -->
-  </div>
-</div>
-    </body>
-  </html>
-</f:view>
+      <jsp:element name="body">
+        <jsp:attribute name="onload" trim="false"><jsp:expression> request.getAttribute("html.body.onload") </jsp:expression>;</jsp:attribute>
+        <jsp:body>
+          <h:outputText value="&lt;a name='top'&gt;&lt;/a&gt;" escape="false"/>
+          <div class="portletBody">
+            <h:outputText value="&lt;div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'&gt;" escape="false"/>
+            <!-- content...  -->
+            <h:form id="takeAssessmentForm" enctype="multipart/form-data">
+              <!-- JAVASCRIPT  -->
+              <jsp:directive.include file="/js/delivery.js"/>
+              <!-- HEADING  -->
+              <f:subview id="assessmentDeliveryHeading">
+                <jsp:directive.include file="/jsf/delivery/assessmentDeliveryHeading.jsp"/>
+              </f:subview>
+              <h:panelGroup styleClass="sak-banner-error">
+                <h:panelGrid columns="1">
+                  <h:outputText value="#{deliveryMessages.review_error_1}"/>
+                  <h:outputText value="#{deliveryMessages.review_error_2}"/>
+                </h:panelGrid>
+              </h:panelGroup>
+            </h:form>
+            <!-- end content  -->
+          </div>
+          <jsp:text>&#13;<![CDATA[
+</div>]]>&#13;
+    </jsp:text>
+        </jsp:body>
+      </jsp:element>
+    </html>
+  </f:view>
+</jsp:root>

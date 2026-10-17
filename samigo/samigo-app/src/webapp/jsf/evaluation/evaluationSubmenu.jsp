@@ -1,4 +1,13 @@
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
 ***********************************************************************************
 *
 * Copyright (c) 2020 Apereo Foundation
@@ -16,73 +25,74 @@
 * limitations under the License.
 *
 **********************************************************************************/
---%>
-<h:panelGroup>
-  <ul class='navIntraTool actionToolbar' role='menu'>
-    <h:panelGroup rendered="#{(histogramScores.hasNav==null || histogramScores.hasNav=='true') && totalScores.anonymous eq 'false'}">
-    <li role='menuitem'>
-      <h:panelGroup id="submissionStatusMenuLink" rendered="#{totalScores.anonymous eq 'false'}">
-        <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true" rendered="#{totalScores.anonymous eq 'false'}">
-          <h:outputText value="#{evaluationMessages.sub_status}" />
-          <f:param name="allSubmissions" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
-        </h:commandLink>
+ -->
+  <h:panelGroup>
+    <ul class="navIntraTool actionToolbar" role="menu">
+      <h:panelGroup rendered="#{(histogramScores.hasNav==null || histogramScores.hasNav=='true') &amp;&amp; totalScores.anonymous eq 'false'}">
+        <li role="menuitem">
+          <h:panelGroup id="submissionStatusMenuLink" rendered="#{totalScores.anonymous eq 'false'}">
+            <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true" rendered="#{totalScores.anonymous eq 'false'}">
+              <h:outputText value="#{evaluationMessages.sub_status}"/>
+              <f:param name="allSubmissions" value="true"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener"/>
+            </h:commandLink>
+          </h:panelGroup>
+        </li>
       </h:panelGroup>
-    </li>
-    </h:panelGroup>
-    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-    <li role='menuitem'>
-      <h:panelGroup id="totalScoresMenuLink">
-        <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-          <h:outputText value="#{commonMessages.total_scores}" />
-        </h:commandLink>
+      <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+        <li role="menuitem">
+          <h:panelGroup id="totalScoresMenuLink">
+            <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener"/>
+              <h:outputText value="#{commonMessages.total_scores}"/>
+            </h:commandLink>
+          </h:panelGroup>
+        </li>
       </h:panelGroup>
-    </li>
-    </h:panelGroup>
-    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-    <li role='menuitem'>
-      <h:panelGroup id="questionScoresMenuLink">
-        <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true">
-          <h:outputText value="#{evaluationMessages.q_view}" />
-          <f:param name="allSubmissions" value="3"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-        </h:commandLink>
+      <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+        <li role="menuitem">
+          <h:panelGroup id="questionScoresMenuLink">
+            <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true">
+              <h:outputText value="#{evaluationMessages.q_view}"/>
+              <f:param name="allSubmissions" value="3"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener"/>
+            </h:commandLink>
+          </h:panelGroup>
+        </li>
       </h:panelGroup>
-    </li>
-    </h:panelGroup>
-    <li role='menuitem'>
-      <h:panelGroup id="histogramScoresMenuLink">
-        <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true">
-          <h:outputText value="#{evaluationMessages.stat_view}" />
-          <f:param name="hasNav" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-        </h:commandLink>
+      <li role="menuitem">
+        <h:panelGroup id="histogramScoresMenuLink">
+          <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true">
+            <h:outputText value="#{evaluationMessages.stat_view}"/>
+            <f:param name="hasNav" value="true"/>
+            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener"/>
+          </h:commandLink>
+        </h:panelGroup>
+      </li>
+      <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+        <li role="menuitem">
+          <h:panelGroup id="detailedStatisticsMenuLink">
+            <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true">
+              <h:outputText value="#{evaluationMessages.item_analysis}"/>
+              <f:param name="hasNav" value="true"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener"/>
+            </h:commandLink>
+          </h:panelGroup>
+        </li>
       </h:panelGroup>
-    </li>
-    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-    <li role='menuitem'>
-      <h:panelGroup id="detailedStatisticsMenuLink">
-        <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true">
-          <h:outputText value="#{evaluationMessages.item_analysis}" />
-          <f:param name="hasNav" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-        </h:commandLink>
+      <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+        <li role="menuitem">
+          <h:panelGroup id="exportResponsesMenuLink">
+            <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true">
+              <h:outputText value="#{commonMessages.export_action}"/>
+              <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener"/>
+            </h:commandLink>
+          </h:panelGroup>
+        </li>
       </h:panelGroup>
-    </li>
-    </h:panelGroup>
-    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-    <li role='menuitem'>
-      <h:panelGroup id="exportResponsesMenuLink">
-        <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true">
-          <h:outputText value="#{commonMessages.export_action}" />
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener" />
-        </h:commandLink>
-      </h:panelGroup>
-    </li>
-    </h:panelGroup>
-  </ul>
-</h:panelGroup>
+    </ul>
+  </h:panelGroup>
+</jsp:root>

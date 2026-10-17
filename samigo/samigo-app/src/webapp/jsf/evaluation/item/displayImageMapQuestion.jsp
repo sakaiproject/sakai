@@ -1,8 +1,17 @@
-<%-- $Id: $
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id: $
 include file for displaying fill in the numeric questions
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -20,17 +29,28 @@ include file for displaying fill in the numeric questions
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
 
-<script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-<script src="/samigo-app/js/selection.author.preview.js"></script>
-<script src="/samigo-app/js/selection.student.preview.js"></script>
-<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
-<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
-
-<f:verbatim>
-<script>	
+ -->
+  <jsp:element name="script">
+    <jsp:attribute name="src" trim="false">/library/webjars/jquery/1.12.4/jquery.min.js</jsp:attribute>
+    <jsp:body>
+    </jsp:body>
+  </jsp:element>
+  <jsp:element name="script">
+    <jsp:attribute name="src" trim="false">/samigo-app/js/selection.author.preview.js</jsp:attribute>
+    <jsp:body>
+    </jsp:body>
+  </jsp:element>
+  <jsp:element name="script">
+    <jsp:attribute name="src" trim="false">/samigo-app/js/selection.student.preview.js</jsp:attribute>
+    <jsp:body>
+    </jsp:body>
+  </jsp:element>
+  <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css"/>
+  <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css"/>
+  <f:verbatim>
+    <script>
+      <jsp:text><![CDATA[	
 	jQuery(window).load(function(){
 			
 		$('input:hidden[id^=hiddenSerializedCoords_]').each(function(){
@@ -73,23 +93,28 @@ include file for displaying fill in the numeric questions
 			}catch(err){}
 		}
 	}
-</script>
-</f:verbatim>
-
-<h:outputText value="#{question.text}"  escape="false"/>
-
-<h:dataTable value="#{question.itemTextArraySorted}" var="itemText">
- <h:column>
-   <h:outputText value="#{itemText.sequence}#{evaluationMessages.dot} #{itemText.text}" escape="false" />
-   <h:dataTable value="#{itemText.answerArraySorted}" var="answer">     
-     <h:column> 
-	   <h:outputText escape="false" value="<input type='hidden' id='hiddenSerializedCoords_#{question.sequence}_#{itemText.sequence}' value='#{answer.text}' />" /> 
-     </h:column>
-   </h:dataTable>
- </h:column>
-</h:dataTable>
-
-<div id="imageMapContainer" class='authorImageContainer'>
-    <img id='img' src='<h:outputText value="#{question.imageMapSrc}"/>' alt='<h:outputText value="#{question.imageMapAltText}"/>'/>
-</div>
-<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
+]]></jsp:text>
+    </script>
+  </f:verbatim>
+  <h:outputText value="#{question.text}" escape="false"/>
+  <h:dataTable value="#{question.itemTextArraySorted}" var="itemText">
+    <h:column>
+      <h:outputText value="#{itemText.sequence}#{evaluationMessages.dot} #{itemText.text}" escape="false"/>
+      <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
+        <h:column>
+          <h:outputText escape="false" value="&lt;input type='hidden' id='hiddenSerializedCoords_#{question.sequence}_#{itemText.sequence}' value='#{answer.text}' /&gt;"/>
+        </h:column>
+      </h:dataTable>
+    </h:column>
+  </h:dataTable>
+  <div id="imageMapContainer" class="authorImageContainer">
+    <jsp:text><![CDATA[
+    <img id='img' src=']]></jsp:text>
+    <h:outputText value="#{question.imageMapSrc}"/>
+    <jsp:text>' alt='</jsp:text>
+    <h:outputText value="#{question.imageMapAltText}"/>
+    <jsp:text><![CDATA['/>
+]]></jsp:text>
+  </div>
+  <jsp:directive.include file="/jsf/evaluation/item/displayTags.jsp"/>
+</jsp:root>

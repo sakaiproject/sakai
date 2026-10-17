@@ -1,6 +1,15 @@
-<!--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
 * $Id$
-<%--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -18,25 +27,30 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
-<%-- $Id$
+
+ -->
+  <!-- $Id$
 include file for delivering file upload questions
 should be included in file importing DeliveryMessages
---%>
-<h:outputText value="#{question.text} "  escape="false"/>
-<f:verbatim><br /></f:verbatim>
-<h:panelGroup>
-  <h:outputText value="#{evaluationMessages.file}#{evaluationMessages.column} " />
-  <!-- note that target represent the location where the upload medis will be temporarily stored -->
-  <!-- For ItemGradingData, it is very important that target must be in this format: -->
-  <!-- assessmentXXX/questionXXX/agentId -->
-  <!-- please check the valueChangeListener to get the final destination -->
-  <h:inputText size="50" />
-  <h:outputText value="  " />
-  <h:commandButton value="#{evaluationMessages.browse}" type="button"/>
-  <h:outputText value="  " />
-  <h:commandButton value="#{evaluationMessages.upload}" type="button"/>
-  <%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
-</h:panelGroup>
-<f:verbatim><br /></f:verbatim>
+ -->
+  <h:outputText value="#{question.text} " escape="false"/>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <h:panelGroup>
+    <h:outputText value="#{evaluationMessages.file}#{evaluationMessages.column} "/>
+    <!-- note that target represent the location where the upload medis will be temporarily stored  -->
+    <!-- For ItemGradingData, it is very important that target must be in this format:  -->
+    <!-- assessmentXXX/questionXXX/agentId  -->
+    <!-- please check the valueChangeListener to get the final destination  -->
+    <h:inputText size="50"/>
+    <h:outputText value="  "/>
+    <h:commandButton value="#{evaluationMessages.browse}" type="button"/>
+    <h:outputText value="  "/>
+    <h:commandButton value="#{evaluationMessages.upload}" type="button"/>
+    <jsp:directive.include file="/jsf/evaluation/item/displayTags.jsp"/>
+  </h:panelGroup>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+</jsp:root>

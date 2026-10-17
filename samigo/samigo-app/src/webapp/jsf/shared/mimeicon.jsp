@@ -1,4 +1,13 @@
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
 ***********************************************************************************
 *
 * Copyright (c) 2019 Apereo Foundation
@@ -16,40 +25,40 @@
 * limitations under the License.
 *
 **********************************************************************************/
---%>
-<%-- Application Extensions --%>
-<h:panelGroup rendered="#{attach.mimeType == 'application/mac-binhex40'}" styleClass="fa fa-file-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/mathematica'}" styleClass="fa fa-file-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/postscript'}" styleClass="fa fa-file-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/x-stuffit'}" styleClass="fa fa-file-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/octet-stream'}" styleClass="fa fa-file-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/pdf'}" styleClass="fa fa-file-pdf-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/msword'}" styleClass="fa fa-file-word-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}" styleClass="fa fa-file-word-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/vnd.ms-excel'}" styleClass="fa fa-file-excel-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/vnd.ms-powerpoint'}" styleClass="fa fa-file-powerpoint-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/xhtml+xml'}" styleClass="fa fa-file-code-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/xml'}" styleClass="fa fa-file-code-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/xml-dtd'}" styleClass="fa fa-file-code-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'application/zip'}" styleClass="fa fa-file-archive-o"></h:panelGroup>
-<%-- Audio Extensions --%>
-<h:panelGroup rendered="#{attach.mimeType == 'audio/basic'}" styleClass="fa fa-file-audio-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'audio/mpeg'}" styleClass="fa fa-file-audio-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'audio/x-wav'}" styleClass="fa fa-file-audio-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'audio/x-mpegurl'}" styleClass="fa fa-file-audio-o"></h:panelGroup>
-<%-- Image Extensions --%>
-<h:panelGroup rendered="#{attach.mimeType == 'image/vnd.djvu'}" styleClass="fa fa-file-image-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'image/bmp'}" styleClass="fa fa-file-image-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'image/gif'}" styleClass="fa fa-file-image-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'image/jpeg'}" styleClass="fa fa-file-image-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'image/tiff'}" styleClass="fa fa-file-image-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'image/png'}" styleClass="fa fa-file-image-o"></h:panelGroup>
-<%-- Text Extensions --%>
-<h:panelGroup rendered="#{attach.mimeType == 'text/html'}" styleClass="fa fa-file-code-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'text/url'}" styleClass="fa fa-file-code-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'text/plain'}" styleClass="fa fa-file-text-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'text/xml'}" styleClass="fa fa-file-text-o"></h:panelGroup>
-<%-- Video Extensions --%>
-<h:panelGroup rendered="#{attach.mimeType == 'video/mpeg'}" styleClass="fa fa-file-video-o"></h:panelGroup>
-<h:panelGroup rendered="#{attach.mimeType == 'video/quicktime'}" styleClass="fa fa-file-video-o"></h:panelGroup>
-
+ -->
+  <!-- Application Extensions  -->
+  <h:panelGroup rendered="#{attach.mimeType == 'application/mac-binhex40'}" styleClass="fa fa-file-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/mathematica'}" styleClass="fa fa-file-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/postscript'}" styleClass="fa fa-file-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/x-stuffit'}" styleClass="fa fa-file-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/octet-stream'}" styleClass="fa fa-file-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/pdf'}" styleClass="fa fa-file-pdf-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/msword'}" styleClass="fa fa-file-word-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}" styleClass="fa fa-file-word-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/vnd.ms-excel'}" styleClass="fa fa-file-excel-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/vnd.ms-powerpoint'}" styleClass="fa fa-file-powerpoint-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/xhtml+xml'}" styleClass="fa fa-file-code-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/xml'}" styleClass="fa fa-file-code-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/xml-dtd'}" styleClass="fa fa-file-code-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'application/zip'}" styleClass="fa fa-file-archive-o"/>
+  <!-- Audio Extensions  -->
+  <h:panelGroup rendered="#{attach.mimeType == 'audio/basic'}" styleClass="fa fa-file-audio-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'audio/mpeg'}" styleClass="fa fa-file-audio-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'audio/x-wav'}" styleClass="fa fa-file-audio-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'audio/x-mpegurl'}" styleClass="fa fa-file-audio-o"/>
+  <!-- Image Extensions  -->
+  <h:panelGroup rendered="#{attach.mimeType == 'image/vnd.djvu'}" styleClass="fa fa-file-image-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'image/bmp'}" styleClass="fa fa-file-image-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'image/gif'}" styleClass="fa fa-file-image-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'image/jpeg'}" styleClass="fa fa-file-image-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'image/tiff'}" styleClass="fa fa-file-image-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'image/png'}" styleClass="fa fa-file-image-o"/>
+  <!-- Text Extensions  -->
+  <h:panelGroup rendered="#{attach.mimeType == 'text/html'}" styleClass="fa fa-file-code-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'text/url'}" styleClass="fa fa-file-code-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'text/plain'}" styleClass="fa fa-file-text-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'text/xml'}" styleClass="fa fa-file-text-o"/>
+  <!-- Video Extensions  -->
+  <h:panelGroup rendered="#{attach.mimeType == 'video/mpeg'}" styleClass="fa fa-file-video-o"/>
+  <h:panelGroup rendered="#{attach.mimeType == 'video/quicktime'}" styleClass="fa fa-file-video-o"/>
+</jsp:root>

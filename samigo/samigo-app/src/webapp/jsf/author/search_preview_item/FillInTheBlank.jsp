@@ -1,9 +1,18 @@
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
 include file for preview fill in the blank questions
 should be included in file importing searchPreview
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -21,50 +30,42 @@ should be included in file importing searchPreview
 * limitations under the License.
 *
 **********************************************************************************/
---%>
--->
-<h:outputLabel escape="false" value="#{authorMessages.fill_in_the_blank}" /></br>
-<h:dataTable value="#{searchQuestionBean.getData(param.idString)}" var="item" width="100%">
-  <h:column>
 
-<h:outputText escape="false" value="#{item.text}" />
-<!-- ATTACHMENTS -->
-<%@ include file="/jsf/author/search_preview_item/attachment.jsp" %>
-
-<h:dataTable value="#{item.itemTextArraySorted}" var="itemText">
-  <h:column>
-  </h:column>
-</h:dataTable>
-<br/>
-
-<h:outputLabel value="#{authorMessages.answerKey}: "/><br/>
-<h:dataTable value="#{item.itemTextArraySorted}" var="itemText">
-  <h:column>
-    <samigo:dataLine value="#{itemText.answerArraySorted}" var="answer"
-                     separator=", " first="0" rows="100" >
-      <h:column>
-        <h:outputText escape="false" value="#{answer.text}" />
-      </h:column>
-    </samigo:dataLine>
-  </h:column>
-</h:dataTable>
-<br/>
-<h:outputLabel rendered="#{item.correctItemFeedback != null && item.correctItemFeedback ne '' && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.correctItemFeedback}: "/>
-<h:outputText rendered="#{item.correctItemFeedback != null && item.correctItemFeedback ne '' && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}"
-              value="#{item.correctItemFeedback}</br>" escape="false" />
-<h:outputLabel rendered="#{item.inCorrectItemFeedback != null && item.inCorrectItemFeedback ne '' && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.incorrectItemFeedback}: "/>
-<h:outputText rendered="#{item.inCorrectItemFeedback != null && item.inCorrectItemFeedback ne '' && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}"
-              value="#{item.inCorrectItemFeedback}" escape="false" />
-
-<h:outputLabel rendered="#{item.correctItemFeedback != null && item.correctItemFeedback ne '' && !author.isEditPendingAssessmentFlow &&  publishedSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.correctItemFeedback}: "/>
-<h:outputText rendered="#{item.correctItemFeedback != null && item.correctItemFeedback ne '' && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}"
-              value="#{item.correctItemFeedback}</br>" escape="false" />
-<h:outputLabel rendered="#{item.inCorrectItemFeedback != null && item.inCorrectItemFeedback ne '' && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.incorrectItemFeedback}: "/>
-<h:outputText rendered="#{item.inCorrectItemFeedback != null && item.inCorrectItemFeedback ne '' && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}"
-              value="#{item.inCorrectItemFeedback}" escape="false" />
-
-
-<%@ include file="/jsf/author/search_preview_item/tags.jsp" %>
-
-  </h:column>
-</h:dataTable>
+ -->
+  <h:outputLabel escape="false" value="#{authorMessages.fill_in_the_blank}"/>
+  <jsp:text><![CDATA[</br>
+]]></jsp:text>
+  <h:dataTable value="#{searchQuestionBean.getData(param.idString)}" var="item" width="100%">
+    <h:column>
+      <h:outputText escape="false" value="#{item.text}"/>
+      <!-- ATTACHMENTS  -->
+      <jsp:directive.include file="/jsf/author/search_preview_item/attachment.jsp"/>
+      <h:dataTable value="#{item.itemTextArraySorted}" var="itemText">
+        <h:column>
+        </h:column>
+      </h:dataTable>
+      <br/>
+      <h:outputLabel value="#{authorMessages.answerKey}: "/>
+      <br/>
+      <h:dataTable value="#{item.itemTextArraySorted}" var="itemText">
+        <h:column>
+          <samigo:dataLine value="#{itemText.answerArraySorted}" var="answer" separator=", " first="0" rows="100">
+            <h:column>
+              <h:outputText escape="false" value="#{answer.text}"/>
+            </h:column>
+          </samigo:dataLine>
+        </h:column>
+      </h:dataTable>
+      <br/>
+      <h:outputLabel rendered="#{item.correctItemFeedback != null &amp;&amp; item.correctItemFeedback ne '' &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.correctItemFeedback}: "/>
+      <h:outputText rendered="#{item.correctItemFeedback != null &amp;&amp; item.correctItemFeedback ne '' &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}" value="#{item.correctItemFeedback}&lt;/br&gt;" escape="false"/>
+      <h:outputLabel rendered="#{item.inCorrectItemFeedback != null &amp;&amp; item.inCorrectItemFeedback ne '' &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.incorrectItemFeedback}: "/>
+      <h:outputText rendered="#{item.inCorrectItemFeedback != null &amp;&amp; item.inCorrectItemFeedback ne '' &amp;&amp; author.isEditPendingAssessmentFlow &amp;&amp; assessmentSettings.feedbackAuthoring ne '2'}" value="#{item.inCorrectItemFeedback}" escape="false"/>
+      <h:outputLabel rendered="#{item.correctItemFeedback != null &amp;&amp; item.correctItemFeedback ne '' &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp;  publishedSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.correctItemFeedback}: "/>
+      <h:outputText rendered="#{item.correctItemFeedback != null &amp;&amp; item.correctItemFeedback ne '' &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}" value="#{item.correctItemFeedback}&lt;/br&gt;" escape="false"/>
+      <h:outputLabel rendered="#{item.inCorrectItemFeedback != null &amp;&amp; item.inCorrectItemFeedback ne '' &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.incorrectItemFeedback}: "/>
+      <h:outputText rendered="#{item.inCorrectItemFeedback != null &amp;&amp; item.inCorrectItemFeedback ne '' &amp;&amp; !author.isEditPendingAssessmentFlow &amp;&amp; publishedSettings.feedbackAuthoring ne '2'}" value="#{item.inCorrectItemFeedback}" escape="false"/>
+      <jsp:directive.include file="/jsf/author/search_preview_item/tags.jsp"/>
+    </h:column>
+  </h:dataTable>
+</jsp:root>

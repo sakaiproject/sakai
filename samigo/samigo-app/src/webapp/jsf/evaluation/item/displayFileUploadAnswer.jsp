@@ -1,9 +1,18 @@
-<%-- $Id$
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id$
 include file for displaying file upload questions
 should be included in file importing DeliveryMessages
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -21,26 +30,24 @@ should be included in file importing DeliveryMessages
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
 
-      <%-- media list, note that question is ItemContentsBean --%>
+ -->
+  <!-- media list, note that question is ItemContentsBean  -->
   <h:dataTable value="#{description.itemGradingArrayList}" var="itemGradingArrayList">
     <h:column>
-	  <h:outputText value="#{description.answer}" escape="false" rendered="#{itemGradingArrayList.mediaArray.size() == 0}" />
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{itemGradingArrayList.mediaArray.size() == 0}"/>
       <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
         <h:column>
-          <h:outputLink title="#{evaluationMessages.t_fileUpload}" value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false" target="new_window">
-             <h:outputText value="#{media.filename}" />
+          <h:outputLink title="#{evaluationMessages.t_fileUpload}" value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&amp;setMimeType=false" target="new_window">
+            <h:outputText value="#{media.filename}"/>
           </h:outputLink>
         </h:column>
         <h:column>
-         <h:outputText value="#{evaluationMessages.open_bracket}"/>
-         	<h:outputText value="#{media.fileSizeKBFormat} #{generalMessages.kb}"/>
-         <h:outputText value="#{evaluationMessages.close_bracket}"/>
+          <h:outputText value="#{evaluationMessages.open_bracket}"/>
+          <h:outputText value="#{media.fileSizeKBFormat} #{generalMessages.kb}"/>
+          <h:outputText value="#{evaluationMessages.close_bracket}"/>
         </h:column>
       </h:dataTable>
     </h:column>
   </h:dataTable>
-
-
+</jsp:root>

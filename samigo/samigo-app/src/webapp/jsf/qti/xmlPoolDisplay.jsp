@@ -1,12 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<%@ page contentType="text/xml;charset=utf-8" pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<% response.setHeader("Cache-Control", "private"); %>
-<% response.setHeader("Pragma", "cache"); %>
-<% response.setHeader("Content-Disposition", "attachment; filename=exportPool.xml"); %>
-
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core">
+<jsp:directive.page pageEncoding="UTF-8" contentType="text/xml;charset=utf-8" trimDirectiveWhitespaces="true" isELIgnored="false" deferredSyntaxAllowedAsLiteral="false"/>
+<jsp:output omit-xml-declaration="yes"/>
+  <jsp:directive.include file="/include/header.inc"/>
+  <jsp:text>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+</jsp:text>
+  <jsp:directive.page trimDirectiveWhitespaces="true"/>
+  <jsp:scriptlet> response.setHeader("Cache-Control", "private"); </jsp:scriptlet>
+  <jsp:scriptlet> response.setHeader("Pragma", "cache"); </jsp:scriptlet>
+  <jsp:scriptlet> response.setHeader("Content-Disposition", "attachment; filename=exportPool.xml"); </jsp:scriptlet>
+  <!--
 /**
  * Copyright (c) 2023 The Apereo Foundation
  *
@@ -22,7 +28,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
---%>
-<f:view>
-  <h:outputText value="#{xml.xml}" escape="false" />
-</f:view>
+ -->
+  <f:view>
+    <h:outputText value="#{xml.xml}" escape="false"/>
+  </f:view>
+</jsp:root>

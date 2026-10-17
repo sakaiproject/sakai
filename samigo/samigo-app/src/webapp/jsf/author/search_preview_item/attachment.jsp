@@ -1,5 +1,14 @@
-<!--
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2006 The Sakai Foundation.
@@ -17,25 +26,28 @@
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
-<!-- ATTACHMENTS -->
 
-<h:outputLabel value="</br>#{authorMessages.attachments}"
-               rendered="#{item.itemAttachmentList.size()>0}"/>
-<h:dataTable value="#{item.itemAttachmentList}" var="attach">
+ -->
+  <!-- ATTACHMENTS  -->
+  <h:outputLabel value="&lt;/br&gt;#{authorMessages.attachments}" rendered="#{item.itemAttachmentList.size()&gt;0}"/>
+  <h:dataTable value="#{item.itemAttachmentList}" var="attach">
     <h:column>
-        <%@ include file="/jsf/shared/mimeicon.jsp" %>
+      <jsp:directive.include file="/jsf/shared/mimeicon.jsp"/>
     </h:column>
     <h:column>
-        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-        <h:outputLink value="#{attach.location}" target="new_window">
-            <h:outputText value="#{attach.filename}"/>
-        </h:outputLink>
+      <f:verbatim>
+        <jsp:text><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;]]></jsp:text>
+      </f:verbatim>
+      <h:outputLink value="#{attach.location}" target="new_window">
+        <h:outputText value="#{attach.filename}"/>
+      </h:outputLink>
     </h:column>
     <h:column>
-        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-        <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink}"/>
+      <f:verbatim>
+        <jsp:text><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;]]></jsp:text>
+      </f:verbatim>
+      <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink}"/>
     </h:column>
-</h:dataTable><br/>
-  
+  </h:dataTable>
+  <br/>
+</jsp:root>

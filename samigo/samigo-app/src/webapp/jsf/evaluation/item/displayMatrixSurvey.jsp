@@ -1,8 +1,17 @@
-<%-- $Id: displayMatrix.jsp 59356 2009-03-31 17:23:25Z kimhuang@oit.rutgers.edu$
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!-- $Id: displayMatrix.jsp 59356 2009-03-31 17:23:25Z kimhuang@oit.rutgers.edu$
 include file for displaying matrix choices question
---%>
-<!--
-<%--
+ -->
+  <!--
+
 ***********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -20,40 +29,43 @@ include file for displaying matrix choices question
 * limitations under the License. 
 *
 **********************************************************************************/
---%>
--->
 
-  <h:outputText escape="false" value="#{question.text}" />
-  <f:verbatim><br /></f:verbatim>
-  <f:verbatim><br /></f:verbatim>
-  <!-- ATTACHMENTS -->
- <t:dataTable id="table1"
-                         value="#{question.rowChoices}"
-                         var="row"
-                         rowIndexVar="rowIndex"
-                         columnClasses="center"
-                         rowClasses="">
-                <t:column headerstyle="#{question.relativeWidthStyle}" style="text-align:right;padding-left:0.3em" >
-                    <f:facet name="header">
-                        <t:outputText value="                "/>
-                    </f:facet>
-                    <h:outputText value="#{row}"/>
-                </t:column>
-                
-                <t:columns value="#{question.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center" >
-                    <f:facet name="header">
-                            <t:outputText value="#{question.columnChoices[colIndex]}" />
-                    </f:facet>
-                   <div style="text-align: center;">
-                 <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o"></h:panelGroup>
-                 <f:verbatim><br /></f:verbatim>
-           
-                 </div>
-                </t:columns>
-            </t:dataTable>
-            <f:verbatim><br /></f:verbatim>
-             <h:panelGrid rendered="#{question.addCommentFlag}">  
- 			<h:outputText value="#{question.commentField}" />
-		</h:panelGrid>
-		<f:verbatim><br /></f:verbatim>
-<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
+ -->
+  <h:outputText escape="false" value="#{question.text}"/>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <!-- ATTACHMENTS  -->
+  <t:dataTable id="table1" value="#{question.rowChoices}" var="row" rowIndexVar="rowIndex" columnClasses="center" rowClasses="">
+    <t:column headerstyle="#{question.relativeWidthStyle}" style="text-align:right;padding-left:0.3em">
+      <f:facet name="header">
+        <t:outputText value="                "/>
+      </f:facet>
+      <h:outputText value="#{row}"/>
+    </t:column>
+    <t:columns value="#{question.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center">
+      <f:facet name="header">
+        <t:outputText value="#{question.columnChoices[colIndex]}"/>
+      </f:facet>
+      <div style="text-align: center;">
+        <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o"/>
+        <f:verbatim>
+          <br/>
+        </f:verbatim>
+      </div>
+    </t:columns>
+  </t:dataTable>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <h:panelGrid rendered="#{question.addCommentFlag}">
+    <h:outputText value="#{question.commentField}"/>
+  </h:panelGrid>
+  <f:verbatim>
+    <br/>
+  </f:verbatim>
+  <jsp:directive.include file="/jsf/evaluation/item/displayTags.jsp"/>
+</jsp:root>

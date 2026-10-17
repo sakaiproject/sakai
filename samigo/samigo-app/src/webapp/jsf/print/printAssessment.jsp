@@ -1,23 +1,28 @@
-<%@ page contentType="text/html;charset=UTF-8" pageEncoding="utf-8" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-
-<f:view>
-  <f:verbatim>
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+<jsp:directive.page pageEncoding="UTF-8" contentType="text/html;charset=UTF-8" trimDirectiveWhitespaces="false" isELIgnored="false" deferredSyntaxAllowedAsLiteral="false"/>
+<jsp:output omit-xml-declaration="yes"/>
+  <jsp:directive.include file="/include/header.inc"/>
+  <f:view>
+    <f:verbatim>
+      <jsp:text><![CDATA[
     <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-  </f:verbatim>
-
-  <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-    <head>
-      <%= request.getAttribute("html.head") %>
-      <title>
-        <h:outputText value="Quiz: #{pdfAssessment.title}" />
-      </title>
-
-      <script>
+  ]]></jsp:text>
+    </f:verbatim>
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+      <head>
+        <jsp:expression> request.getAttribute("html.head") </jsp:expression>
+        <title>
+          <h:outputText value="Quiz: #{pdfAssessment.title}"/>
+        </title>
+        <script>
+          <jsp:text><![CDATA[
         // Only resizes the frame. Never touches src: reassigning it navigates the frame,
         // which tears down the pdf.js viewer and refetches the PDF on every resize event.
         function sizePrintPdfPreview() {
@@ -66,81 +71,78 @@
             });
           });
         });
-      </script>
-    </head>
-
-    <body id="qb_print" class="view_student">
-      <h:form id="assessmentForm">
-        <h:commandLink styleClass="printReturnLink" action="#{pdfAssessment.getActionString}">
-          <h:outputText value="#{printMessages.back_to_assessmt}" rendered="#{pdfAssessment.actionString == 'editAssessment'}" escape="false" />
-          <h:outputText value="#{printMessages.back_to_landingpage}" rendered="#{pdfAssessment.actionString != 'editAssessment'}" escape="false" />
-        </h:commandLink>
-
-        <div class="container-fluid mt-3">
-          <div class="navModeAction">
-            <div class="vstack gap-2">
-              <div class="form-check">
-                <h:selectBooleanCheckbox id="showKeys" value="#{printSettings.showKeys}" styleClass="form-check-input" />
-                <h:outputLabel for="showKeys" styleClass="form-check-label">
-                  <h:outputText value="#{printMessages.show_answer_key}" />
-                </h:outputLabel>
-              </div>
-
-              <div class="ms-4 mb-2">
-                <h:selectOneRadio id="answerKeyFeedbackMode" value="#{printSettings.showKeysFeedback}" layout="pageDirection" styleClass="form-check" disabled="#{not printSettings.showKeys}">
-                  <f:selectItem itemValue="#{false}" itemLabel="#{printMessages.show_answer_key_only}" />
-                  <f:selectItem itemValue="#{true}" itemLabel="#{printMessages.show_answer_key_with_feedback}" />
-                </h:selectOneRadio>
-              </div>
-
-              <div class="form-check">
-                <h:selectBooleanCheckbox id="showPartIntros" value="#{printSettings.showPartIntros}" styleClass="form-check-input" />
-                <h:outputLabel for="showPartIntros" styleClass="form-check-label">
-                  <h:outputText value="#{printMessages.show_intros_titles}" />
-                </h:outputLabel>
-              </div>
-
-              <div class="form-check">
-                <h:selectBooleanCheckbox id="showSamePage" value="#{printSettings.showSamePage}" styleClass="form-check-input" />
-                <h:outputLabel for="showSamePage" styleClass="form-check-label">
-                  <h:outputText value="#{printMessages.show_same_page}" />
-                </h:outputLabel>
-              </div>
-
-              <div class="mb-3 col-md-3">
-                <h:outputLabel for="fontSize" styleClass="form-label">
-                  <h:outputText value="#{printMessages.font_size}:" />
-                </h:outputLabel>
-                <h:selectOneMenu id="fontSize" value="#{printSettings.fontSize}" styleClass="form-select">
-                  <f:selectItem itemLabel="#{printMessages.size_xsmall}" itemValue="1" />
-                  <f:selectItem itemLabel="#{printMessages.size_small}" itemValue="2" />
-                  <f:selectItem itemLabel="#{printMessages.size_medium}" itemValue="3" />
-                  <f:selectItem itemLabel="#{printMessages.size_large}" itemValue="4" />
-                  <f:selectItem itemLabel="#{printMessages.size_xlarge}" itemValue="5" />
-                </h:selectOneMenu>
-              </div>
-
-              <div class="d-flex gap-2">
-                <h:commandButton action="#{pdfAssessment.applyPrintSettings}" value="#{printMessages.apply_settings}" styleClass="btn btn-primary d-none auto-apply-settings" />
-                <h:commandButton action="#{pdfAssessment.getPDFAttachment}" value="#{printMessages.print_pdf}" styleClass="btn btn-secondary" />
+      ]]></jsp:text>
+        </script>
+      </head>
+      <body id="qb_print" class="view_student">
+        <h:form id="assessmentForm">
+          <h:commandLink styleClass="printReturnLink" action="#{pdfAssessment.getActionString}">
+            <h:outputText value="#{printMessages.back_to_assessmt}" rendered="#{pdfAssessment.actionString == 'editAssessment'}" escape="false"/>
+            <h:outputText value="#{printMessages.back_to_landingpage}" rendered="#{pdfAssessment.actionString != 'editAssessment'}" escape="false"/>
+          </h:commandLink>
+          <div class="container-fluid mt-3">
+            <div class="navModeAction">
+              <div class="vstack gap-2">
+                <div class="form-check">
+                  <h:selectBooleanCheckbox id="showKeys" value="#{printSettings.showKeys}" styleClass="form-check-input"/>
+                  <h:outputLabel for="showKeys" styleClass="form-check-label">
+                    <h:outputText value="#{printMessages.show_answer_key}"/>
+                  </h:outputLabel>
+                </div>
+                <div class="ms-4 mb-2">
+                  <h:selectOneRadio id="answerKeyFeedbackMode" value="#{printSettings.showKeysFeedback}" layout="pageDirection" styleClass="form-check" disabled="#{not printSettings.showKeys}">
+                    <f:selectItem itemValue="#{false}" itemLabel="#{printMessages.show_answer_key_only}"/>
+                    <f:selectItem itemValue="#{true}" itemLabel="#{printMessages.show_answer_key_with_feedback}"/>
+                  </h:selectOneRadio>
+                </div>
+                <div class="form-check">
+                  <h:selectBooleanCheckbox id="showPartIntros" value="#{printSettings.showPartIntros}" styleClass="form-check-input"/>
+                  <h:outputLabel for="showPartIntros" styleClass="form-check-label">
+                    <h:outputText value="#{printMessages.show_intros_titles}"/>
+                  </h:outputLabel>
+                </div>
+                <div class="form-check">
+                  <h:selectBooleanCheckbox id="showSamePage" value="#{printSettings.showSamePage}" styleClass="form-check-input"/>
+                  <h:outputLabel for="showSamePage" styleClass="form-check-label">
+                    <h:outputText value="#{printMessages.show_same_page}"/>
+                  </h:outputLabel>
+                </div>
+                <div class="mb-3 col-md-3">
+                  <h:outputLabel for="fontSize" styleClass="form-label">
+                    <h:outputText value="#{printMessages.font_size}:"/>
+                  </h:outputLabel>
+                  <h:selectOneMenu id="fontSize" value="#{printSettings.fontSize}" styleClass="form-select">
+                    <f:selectItem itemLabel="#{printMessages.size_xsmall}" itemValue="1"/>
+                    <f:selectItem itemLabel="#{printMessages.size_small}" itemValue="2"/>
+                    <f:selectItem itemLabel="#{printMessages.size_medium}" itemValue="3"/>
+                    <f:selectItem itemLabel="#{printMessages.size_large}" itemValue="4"/>
+                    <f:selectItem itemLabel="#{printMessages.size_xlarge}" itemValue="5"/>
+                  </h:selectOneMenu>
+                </div>
+                <div class="d-flex gap-2">
+                  <h:commandButton action="#{pdfAssessment.applyPrintSettings}" value="#{printMessages.apply_settings}" styleClass="btn btn-primary d-none auto-apply-settings"/>
+                  <h:commandButton action="#{pdfAssessment.getPDFAttachment}" value="#{printMessages.print_pdf}" styleClass="btn btn-secondary"/>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="container-fluid my-4">
-          <span id="pdf-preview-url" class="visually-hidden" aria-hidden="true">
-            <h:outputText value="#{pdfAssessment.pdfJsViewerUrl}" />
-          </span>
-          <span id="pdf-preview-title" class="visually-hidden" aria-hidden="true">
-            <h:outputText value="#{printMessages.print_pdf}" />
-          </span>
-          <iframe id="print-pdf-preview"
-            width="100%"
-            style="min-height: 600px;">
-          </iframe>
-        </div>
-      </h:form>
-    </body>
-  </html>
-</f:view>
+          <div class="container-fluid my-4">
+            <span id="pdf-preview-url" class="visually-hidden" aria-hidden="true">
+              <h:outputText value="#{pdfAssessment.pdfJsViewerUrl}"/>
+            </span>
+            <span id="pdf-preview-title" class="visually-hidden" aria-hidden="true">
+              <h:outputText value="#{printMessages.print_pdf}"/>
+            </span>
+            <jsp:element name="iframe">
+              <jsp:attribute name="id" trim="false">print-pdf-preview</jsp:attribute>
+              <jsp:attribute name="width" trim="false">100%</jsp:attribute>
+              <jsp:attribute name="style" trim="false">min-height: 600px;</jsp:attribute>
+              <jsp:body>
+              </jsp:body>
+            </jsp:element>
+          </div>
+        </h:form>
+      </body>
+    </html>
+  </f:view>
+</jsp:root>

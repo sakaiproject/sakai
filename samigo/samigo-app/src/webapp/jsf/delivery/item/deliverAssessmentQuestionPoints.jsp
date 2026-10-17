@@ -1,4 +1,13 @@
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root version="3.0"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+  <!--
 ***********************************************************************************
 * Copyright (c) 2003-2022 The Apereo Foundation
 *
@@ -14,18 +23,18 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 **********************************************************************************/
---%>
-
-<p class="input-group-addon ps-4 border-start-0">
-  <%-- REVIEW ASSESSMENT --%>
-  <h:outputText value="#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-  <%-- DELIVER ASSESSMENT --%>
-  <h:outputText value="#{question.roundedMaxPoints}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  >
-    <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
-  </h:outputText>
-  <h:outputText value=" #{deliveryMessages.pt}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  />
-  <h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "  rendered="#{question.itemData.discount!='0.0' && delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag}"  >
-    <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
-  </h:outputText>
-  <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value="#{deliveryMessages.extra_credit_preview}" />
-</p>
+ -->
+  <p class="input-group-addon ps-4 border-start-0">
+    <!-- REVIEW ASSESSMENT  -->
+    <h:outputText value="#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+    <!-- DELIVER ASSESSMENT  -->
+    <h:outputText value="#{question.roundedMaxPoints}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' &amp;&amp; question.itemData.scoreDisplayFlag &amp;&amp; delivery.actionString!='reviewAssessment'}">
+      <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
+    </h:outputText>
+    <h:outputText value=" #{deliveryMessages.pt}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' &amp;&amp; question.itemData.scoreDisplayFlag &amp;&amp; delivery.actionString!='reviewAssessment'}"/>
+    <h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} " rendered="#{question.itemData.discount!='0.0' &amp;&amp; delivery.settings.displayScoreDuringAssessments != '2' &amp;&amp; question.itemData.scoreDisplayFlag}">
+      <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
+    </h:outputText>
+    <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value="#{deliveryMessages.extra_credit_preview}"/>
+  </p>
+</jsp:root>
