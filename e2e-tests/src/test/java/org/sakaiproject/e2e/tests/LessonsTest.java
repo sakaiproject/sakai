@@ -291,8 +291,8 @@ class LessonsTest extends SakaiUiTestBase {
 
     private void removeTopLevelPageViaToolOrder(String title) {
         sakai.toolClick("Site Info");
-        page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("Tool Order", Pattern.CASE_INSENSITIVE))).first().click();
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Tool Order").setExact(true)).click();
         page.waitForLoadState();
 
         Locator app = page.locator("#tool-order-app");
