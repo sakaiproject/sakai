@@ -39,6 +39,40 @@ describe("sakai-rubrics tests", () => {
     await checkRubricTitleChanges(data.rubric3);
   });
 
+  it ("restores the grading mode and weights when the mode save fails", async () => {
+    fetchMock.removeRoutes();
+    let finishSave;
+    fetchMock.get(data.i18nUrl, data.i18n).patch(data.rubric4OwnerUrl, () => new Promise(resolve => {
+      finishSave = () => resolve(409);
+    }));
+
+    for (const weighted of [false, true]) {
+      const rubric = structuredClone(data.rubric4);
+      rubric.weighted = weighted;
+      rubric.criteria.forEach((criterion, index) => criterion.weight = weighted ? [40, 60][index] : 0);
+      const weights = rubric.criteria.map(criterion => criterion.weight);
+      const el = await fixture(html`
+        <sakai-rubric site-id="${data.siteId}" .rubric=${rubric}></sakai-rubric>
+      `);
+      await waitUntil(() => el.renderRoot.querySelector("button.weighted"));
+      const button = el.renderRoot.querySelector("button.weighted");
+      const label = button.title;
+      button.click();
+      await waitUntil(() => button.disabled, "Mode toggle was not disabled during the save");
+      await waitUntil(() => finishSave, "Mode save did not start");
+      button.click();
+      el.weightedChange();
+      finishSave();
+      finishSave = null;
+      await waitUntil(() => el.renderRoot.querySelector("[role=alert]"), "Mode save error was not displayed");
+      await waitUntil(() => !button.disabled, "Mode toggle was not re-enabled after the save failed");
+      expect(rubric.weighted).to.equal(weighted);
+      expect(rubric.criteria.map(criterion => criterion.weight)).to.deep.equal(weights);
+      expect(button.title).to.equal(label);
+    }
+    expect(fetchMock.callHistory.calls(data.rubric4OwnerUrl)).to.have.length(2);
+  });
+
   /**
    * Perform a title update and make sure all places are changed
    **/
