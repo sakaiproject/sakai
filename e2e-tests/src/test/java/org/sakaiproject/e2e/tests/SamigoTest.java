@@ -557,6 +557,8 @@ class SamigoTest extends SakaiUiTestBase {
             sakai.toolClick("Tests");
             page.locator("[id='selectIndexForm:selectTable'] a[id$=':takeAssessment']")
                 .filter(new Locator.FilterOptions().setHasText(title)).click();
+            assertThat(page.locator("#takeAssessmentForm")).containsText(title);
+            page.waitForLoadState();
             Locator honorPledge = page.locator("[id='takeAssessmentForm:honor_pledge']");
             if (honorPledge.isVisible()) {
                 honorPledge.check();
