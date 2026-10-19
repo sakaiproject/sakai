@@ -53,7 +53,7 @@ public class ReturnedEvaluationRepositoryImpl extends SpringCrudRepositoryImpl<R
         Session session = sessionFactory.getCurrentSession();
         Optional<ReturnedEvaluation> returnedEvaluationOptional = findByOriginalEvaluationId(originalEvaluationId);
         if (returnedEvaluationOptional.isPresent()) {
-            session.delete(returnedEvaluationOptional.get());
+            session.remove(returnedEvaluationOptional.get());
         }
     }
 

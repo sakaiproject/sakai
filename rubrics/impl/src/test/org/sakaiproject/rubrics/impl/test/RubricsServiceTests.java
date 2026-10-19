@@ -414,7 +414,10 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(2, associationRepository.findAll().size());
 
         EvaluationTransferBean etb1 = buildEvaluation(association1.getId(), rubricBean, toolItem1);
+        etb1.setStatus(EvaluationStatus.RETURNED);
         etb1 = rubricsService.saveEvaluation(etb1, siteId);
+        etb1.setStatus(EvaluationStatus.DRAFT);
+        rubricsService.saveEvaluation(etb1, siteId);
         EvaluationTransferBean etb2 = buildEvaluation(association2.getId(), rubricBean, toolItem2);
         etb2 = rubricsService.saveEvaluation(etb2, siteId);
 
@@ -425,6 +428,12 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(0, associationRepository.findAll().size());
         assertEquals(0, evaluationRepository.findAll().size());
         assertEquals(0, rubricsService.getRubricsForSite(siteId).size());
+        assertFalse(returnedEvaluationRepository.findByOriginalEvaluationId(etb1.getId()).isPresent());
+        sessionFactory.getCurrentSession().flush();
+        for (String table : List.of("rbc_criterion_outcome", "rbc_returned_criterion_out",
+                "rbc_eval_criterion_outcomes", "rbc_returned_criterion_outs")) {
+            assertEquals(table, Integer.valueOf(0), jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + table, Integer.class));
+        }
     }
 
     @Test
@@ -639,10 +648,25 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertTrue(optAssociation.isPresent());
 
         assertTrue(rubricsService.getRubricAssociation(toolId, toolItemId).isPresent());
+        EvaluationTransferBean evaluation = buildEvaluation(optAssociation.get().getId(), rubricBean, toolItemId);
+        evaluation.setStatus(EvaluationStatus.RETURNED);
+        evaluation = rubricsService.saveEvaluation(evaluation, siteId);
+        evaluation.setStatus(EvaluationStatus.DRAFT);
+        rubricsService.saveEvaluation(evaluation, siteId);
+        assertTrue(returnedEvaluationRepository.findByOriginalEvaluationId(evaluation.getId()).isPresent());
 
         rubricsService.deleteRubricAssociation(toolId, toolItemId);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
 
         assertFalse(rubricsService.getRubricAssociation(toolId, toolItemId).isPresent());
+        assertFalse(evaluationRepository.findById(evaluation.getId()).isPresent());
+        assertFalse(returnedEvaluationRepository.findByOriginalEvaluationId(evaluation.getId()).isPresent());
+        for (String table : List.of("rbc_criterion_outcome", "rbc_returned_criterion_out",
+                "rbc_eval_criterion_outcomes", "rbc_returned_criterion_outs")) {
+            assertEquals(table, Integer.valueOf(0), jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + table, Integer.class));
+        }
+        assertTrue(rubricsService.getRubric(rubricBean.getId()).isPresent());
     }
 
     @Test
