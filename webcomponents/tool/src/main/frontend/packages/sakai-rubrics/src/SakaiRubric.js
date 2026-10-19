@@ -156,7 +156,6 @@ export class SakaiRubric extends RubricsElement {
                   class="btn btn-sm ${(this.rubric.draft && this.rubric.weighted && !this._validWeight) ? "disabled" : ""} draft"
                   title="${this.draftLabel}"
                   aria-label="${this.draftLabel}"
-                  @keyup=${this.openEditWithKeyboard}
                   @click=${this.draftChange}>
                 <span class="fa ${this.draftIcon}" aria-hidden="true"></span>
               </button>
@@ -166,7 +165,6 @@ export class SakaiRubric extends RubricsElement {
                   class="btn btn-sm weighted"
                   title="${this.weightLabel}"
                   aria-label="${this.weightLabel}"
-                  @keyup=${this.openEditWithKeyboard}
                   @click=${this.weightedChange}>
                 <span class="fa ${this._weightedIcon}" aria-hidden="true"></span>
               </button>
@@ -177,7 +175,6 @@ export class SakaiRubric extends RubricsElement {
                 class="btn btn-sm share"
                 title="${this.tr(this.shareTitleKey, [ this.rubric.title ])}"
                 aria-label="${this.tr(this.shareTitleKey, [ this.rubric.title ])}"
-                @keyup=${this.openEditWithKeyboard}
                 @click=${this.sharingChange}>
               <span class="fa ${this._shareIcon}" aria-hidden="true"></span>
             </button>
@@ -187,7 +184,6 @@ export class SakaiRubric extends RubricsElement {
                 class="btn btn-sm clone"
                 title="${this.tr("copy")} ${this.rubric.title}"
                 aria-label="${this.tr("copy")} ${this.rubric.title}"
-                @keyup=${this.openEditWithKeyboard}
                 @click=${this.cloneRubric}>
               <span class="fa fa-copy" aria-hidden="true"></span>
             </button>
@@ -468,26 +464,6 @@ export class SakaiRubric extends RubricsElement {
     sakaiRubricPdf && sakaiRubricPdf.requestUpdate();
   }
 
-  openEditWithKeyboard(e) {
-
-    const spaceBarKeyCode = (e.keyCode == 32);
-
-    if (spaceBarKeyCode && e.target.classList.contains("weighted")) {
-      this.weightedChange(e);
-    }
-
-    if (spaceBarKeyCode && e.target.classList.contains("share")) {
-      this.sharingChange(e);
-    }
-
-    if (spaceBarKeyCode && e.target.classList.contains("clone")) {
-      this.cloneRubric(e);
-    }
-
-    if (spaceBarKeyCode && e.target.classList.contains("draft")) {
-      this.draftChange(e);
-    }
-  }
 
   // SAK-47640 - Get the maximum and minimum possible grade of the whole rubric,
   // multiplying the max-min rating points of each criterion by the criterion weight, and adding them up
