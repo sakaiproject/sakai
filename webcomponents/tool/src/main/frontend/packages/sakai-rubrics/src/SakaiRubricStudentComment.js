@@ -41,6 +41,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
         <button class="btn btn-icon"
             type="button"
             data-bs-toggle="dropdown"
+            ?disabled=${!this.criterion.comments?.trim()}
             data-bs-auto-close="false"
             aria-label="${this._i18n.criterion_comment_student}"
             aria-expanded="false">
