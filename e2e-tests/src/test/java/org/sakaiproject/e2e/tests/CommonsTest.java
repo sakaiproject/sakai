@@ -63,4 +63,28 @@ class CommonsTest extends SakaiUiTestBase {
 
         assertThat(page.locator("body")).containsText("This is a test post");
     }
+
+    @Test
+    @Order(4)
+    void canInsertAndPostALink() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Commons");
+
+        page.locator("#commons-post-creator-editor").click();
+        page.locator("#commons-editor-link-button").click();
+        assertThat(page.locator("#commons-link-dialog-load-thumbnail")).hasCount(0);
+        page.locator("#commons-link-dialog-text").fill("Sakai project");
+        page.locator("#commons-link-dialog-url").pressSequentially("https://www.sakaiproject.org/");
+        page.locator("#commons-link-dialog-insert-button").click();
+
+        assertThat(page.locator("#commons-link-dialog")).isHidden();
+        assertThat(page.locator("#commons-post-creator-editor a")).hasText("Sakai project");
+        page.locator("#commons-editor-post-button").click();
+
+        assertThat(page.locator("#commons-posts a[href='https://www.sakaiproject.org/']")).hasText("Sakai project");
+        page.reload();
+        assertThat(page.locator("#commons-posts a[href='https://www.sakaiproject.org/']")).hasText("Sakai project");
+    }
+
 }

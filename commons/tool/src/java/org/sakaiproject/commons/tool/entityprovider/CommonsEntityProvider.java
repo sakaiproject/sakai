@@ -15,19 +15,6 @@
  */
 package org.sakaiproject.commons.tool.entityprovider;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -84,9 +71,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CommonsEntityProvider extends AbstractEntityProvider implements RequestAware, AutoRegisterEntityProvider, Outputable, Describeable, ActionsExecutable, ReferenceParseable {
 
     public final static String ENTITY_PREFIX = "commons";
-
-    private final static String USER_AGENT
-        = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2";
 
     private CommonsManager commonsManager;
     private CommonsSecurityManager commonsSecurityManager;
@@ -450,87 +434,6 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
             return "success";
         } else {
             throw new EntityException("Failed to set perms", "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @EntityCustomAction(action = "getUrlMarkup", viewKey = EntityView.VIEW_LIST)
-    public ActionReturn getUrlMarkup(OutputStream outputStream, EntityView view, Map<String, Object> params) {
-
-        String userId = getCheckedUser();
-
-        String urlString = (String) params.get("url");
-
-        if (StringUtils.isBlank(urlString)) {
-            throw new EntityException("No url supplied", "", HttpServletResponse.SC_BAD_REQUEST);
-        }
-
-        try {
-            CookieHandler.setDefault( new CookieManager(null, CookiePolicy.ACCEPT_ALL));
-            URL url = new URL(urlString);
-            URLConnection c = url.openConnection();
-
-            if (c instanceof HttpURLConnection) {
-                HttpURLConnection conn = (HttpURLConnection) c;
-                conn.setRequestProperty("User-Agent", USER_AGENT);
-                conn.setInstanceFollowRedirects(false);
-                conn.connect();
-                String contentEncoding = conn.getContentEncoding();
-                String contentType = conn.getContentType();
-                int responseCode = conn.getResponseCode();
-                log.debug("Response code: {}", responseCode);
-
-                int redirectCounter = 1;
-                while ((responseCode == HttpURLConnection.HTTP_MOVED_PERM
-                        || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
-                        || responseCode == HttpURLConnection.HTTP_SEE_OTHER) && redirectCounter < 20) {
-                    String newUri = conn.getHeaderField("Location");
-                    log.debug("{}. New URI: {}", responseCode, newUri);
-                    String cookies = conn.getHeaderField("Set-Cookie");
-                    url = new URL(newUri);
-                    c = url.openConnection();
-                    conn = (HttpURLConnection) c;
-                    conn.setInstanceFollowRedirects(false);
-                    conn.setRequestProperty("User-Agent", USER_AGENT);
-                    conn.setRequestProperty("Cookie", cookies);
-                    conn.connect();
-                    contentEncoding = conn.getContentEncoding();
-                    contentType = conn.getContentType();
-                    responseCode = conn.getResponseCode();
-                    log.debug("Redirect counter: {}", redirectCounter);
-                    log.debug("Response code: {}", responseCode);
-                    redirectCounter += 1;
-                }
-
-                if (contentType != null
-                        && (contentType.startsWith("text/html")
-                                || contentType.startsWith("application/xhtml+xml")
-                                || contentType.startsWith("application/xml"))) {
-                    String mimeType = contentType.split(";")[0].trim();
-                    log.debug("mimeType: {}", mimeType);
-                    log.debug("encoding: {}", contentEncoding);
-
-                    BufferedReader reader
-                        = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    BufferedWriter writer
-                        = new BufferedWriter(new OutputStreamWriter(outputStream));
-
-                    String line = null;
-                    while ((line = reader.readLine()) != null) {
-                        writer.write(line);
-                    }
-
-                    return new ActionReturn(contentEncoding, mimeType, outputStream);
-                } else {
-                    log.debug("Invalid content type {}. Throwing bad request ...", contentType);
-                    throw new EntityException("Url content type not supported", "", HttpServletResponse.SC_BAD_REQUEST);
-                }
-            } else {
-                throw new EntityException("Url content type not supported", "", HttpServletResponse.SC_BAD_REQUEST);
-            }
-        } catch (MalformedURLException mue) {
-            throw new EntityException("Invalid url supplied", "", HttpServletResponse.SC_BAD_REQUEST);
-        } catch (IOException ioe) {
-            throw new EntityException("Failed to download url contents", "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
