@@ -7273,6 +7273,8 @@ public class AssignmentAction extends PagedResourceActionII {
             if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null)) {
                 AssignmentSubmission submission;
                 if (contentReviewService != null && Boolean.valueOf(eulaAgreementYes)
+                        && StringUtils.isNotEmpty(contentReviewService.getEndUserLicenseAgreementLink(
+                                sessionManager.getCurrentSessionUserId()))
                         && !contentReviewService.updateUserEULATimestamp(sessionManager.getCurrentSessionUserId())) {
                     addAlert(state, rb.getString("saved.error"));
                     return;
