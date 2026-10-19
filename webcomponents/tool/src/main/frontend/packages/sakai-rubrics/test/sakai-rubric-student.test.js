@@ -55,6 +55,37 @@ describe("sakai-rubric-student tests", () => {
     await expect(el).to.be.accessible();
   });
 
+  it ("shows saved points without a selected rating and includes them in the total", async () => {
+
+    const evaluation = {
+      criterionOutcomes: [
+        { criterionId: 1, selectedRatingId: null, pointsAdjusted: false, points: 2.5 },
+        { criterionId: 3, selectedRatingId: 4, pointsAdjusted: true, points: 1.25 },
+      ],
+    };
+    fetchMock.removeRoutes();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.rubric1Url, structuredClone(data.rubric1))
+      .get(data.associationUrl, data.association)
+      .get(data.evaluationUrl, evaluation)
+      .get("*", 500);
+
+    const el = await fixture(html`
+      <sakai-rubric-student site-id="${data.siteId}"
+          tool-id="${data.toolId}"
+          entity-id="${data.entityId}"
+          evaluated-item-id="${data.evaluatedItemId}"
+          evaluated-item-owner-id="${data.evaluatedItemOwnerId}">
+      </sakai-rubric-student>
+    `);
+
+    await waitUntil(() => el.querySelector(".total-points strong"));
+    const scores = Array.from(el.querySelectorAll(".rubric-grading-points-value .points-display"), score => score.textContent.trim());
+    expect(scores).to.deep.equal([ "2.5", "1.25" ]);
+    expect(el.querySelector(".total-points strong").textContent.trim()).to.equal("3.75");
+  });
+
   it ("rubric student preview renders correctly", async () => {
 
     let el = await fixture(html`
