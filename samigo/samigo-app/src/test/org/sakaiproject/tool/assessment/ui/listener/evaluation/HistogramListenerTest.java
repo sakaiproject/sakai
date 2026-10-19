@@ -274,7 +274,7 @@ public class HistogramListenerTest {
     }
 
     @Test
-    public void testGetMatchingScoresMarksNonDistractorsAsCorrectBars() throws Exception {
+    public void testGetMatchingScoresMarksAllPromptsAsCorrectBars() throws Exception {
         HistogramListener listener = new HistogramListener();
         GradingService gradingService = mock(GradingService.class);
         setDelegate(listener, gradingService);
@@ -304,7 +304,7 @@ public class HistogramListenerTest {
         HistogramBarBean[] bars = qbean.getHistogramBars();
         assertEquals(2, bars.length);
         assertTrue(bars[0].getIsCorrect());
-        assertFalse(bars[1].getIsCorrect());
+        assertTrue(bars[1].getIsCorrect());
     }
 
     @Test
