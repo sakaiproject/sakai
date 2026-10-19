@@ -7,7 +7,7 @@
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="annotatedClasses">
             <list>
-                <value>org.sakaiproject.user.impl.PreferencesRecord</value>
+                <value>org.sakaiproject.user.api.model.PreferencesRecord</value>
             </list>
         </property>
     </bean>

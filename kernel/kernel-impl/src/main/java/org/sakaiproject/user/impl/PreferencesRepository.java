@@ -22,6 +22,7 @@ import jakarta.persistence.OptimisticLockException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.sakaiproject.user.api.PreferencesConflictException;
+import org.sakaiproject.user.api.model.PreferencesRecord;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.transaction.PlatformTransactionManager;

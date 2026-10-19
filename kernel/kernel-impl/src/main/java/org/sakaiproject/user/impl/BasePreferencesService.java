@@ -50,6 +50,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesConflictException;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.model.PreferencesRecord;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;

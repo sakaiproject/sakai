@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.user.impl;
+package org.sakaiproject.user.api.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
