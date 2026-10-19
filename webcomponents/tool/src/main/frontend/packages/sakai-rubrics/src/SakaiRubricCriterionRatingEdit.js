@@ -147,7 +147,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
       // Check points value. Blank breaks things.
       if (isFinite(points)) {
         // Round user input to two digits.
-        this.rating.points = points.toFixed(2);
+        this.rating.points = Number(points.toFixed(2));
       } // Else, previous saved score or default one will be used.
     }
 
