@@ -18,6 +18,7 @@ export class SakaiRubric extends RubricsElement {
 
     _shareIcon: { state: true },
     _weightedIcon: { state: true },
+    _savingWeighted: { state: true },
     _totalWeight: { state: true },
     _validWeight: { state: true },
     _maxPoints: { state: true },
@@ -166,6 +167,7 @@ export class SakaiRubric extends RubricsElement {
             <div class="action-container">
               <button type="button"
                   class="btn btn-sm weighted"
+                  ?disabled=${this._savingWeighted}
                   title="${this.weightLabel}"
                   aria-label="${this.weightLabel}"
                   @keyup=${this.openEditWithKeyboard}
@@ -365,11 +367,17 @@ export class SakaiRubric extends RubricsElement {
   }
 
   weightedChange() {
+    if (this._savingWeighted) { return; }
+    this._savingWeighted = true;
+    const previousWeighted = this.rubric.weighted;
+    const previousWeights = this.rubric.criteria.map(criterion => criterion.weight);
     this.rubric.weighted = !this.rubric.weighted;
     if (this.rubric.weighted) {
-      this.rubric.criteria.forEach(criterion => criterion.weight = 0);
-      const firstCriterion = this.rubric.criteria.find(criterion => criterion.ratings?.length > 0);
-      if (firstCriterion) { firstCriterion.weight = 100; }
+      if (!this.rubric.criteria.some(criterion => criterion.weight !== 0)) {
+        // Initialize weights only when none have been configured.
+        const firstCriterion = this.rubric.criteria.find(criterion => criterion.ratings?.length > 0);
+        if (firstCriterion) { firstCriterion.weight = 100; }
+      }
       this.handleRefreshTotalWeight();
     }
     this.patchRubric([
@@ -378,7 +386,13 @@ export class SakaiRubric extends RubricsElement {
     ]).then(() => {
       this.handleWeightBtn();
       this.requestUpdate();
-    }).catch(error => this.reportSaveError(error));
+    }).catch(error => {
+      this.rubric.weighted = previousWeighted;
+      this.rubric.criteria.forEach((criterion, index) => criterion.weight = previousWeights[index]);
+      this.handleRefreshTotalWeight();
+      this.reportSaveError(error);
+      this.requestUpdate();
+    }).finally(() => this._savingWeighted = false);
   }
 
   sharingChange() {
