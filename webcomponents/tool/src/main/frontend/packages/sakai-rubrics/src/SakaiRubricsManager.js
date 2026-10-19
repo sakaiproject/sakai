@@ -1,5 +1,5 @@
 import { RubricsElement } from "./RubricsElement.js";
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "../sakai-rubrics-list.js";
 import "../sakai-rubrics-shared-list.js";
@@ -8,6 +8,7 @@ export class SakaiRubricsManager extends RubricsElement {
 
   static properties = {
 
+    _searchTerm: { state: true },
     siteId: { attribute: "site-id", type: String },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
     isSuperUser: { attribute: "is-super-user", type: Boolean },
@@ -17,6 +18,7 @@ export class SakaiRubricsManager extends RubricsElement {
 
     super();
 
+    this._searchTerm = "";
     this.siteRubricsExpanded = "true";
     this.sharedRubricsExpanded = "false";
     this.enablePdfExport = false;
@@ -59,7 +61,14 @@ export class SakaiRubricsManager extends RubricsElement {
       <div class="row">
         <div class="col-md-4 form-group">
           <label class="label-rubrics" for="rubrics-search-bar">${this.tr("search_rubrics")}</label>
-          <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @keyup=${this.filterRubrics}>
+          <div class="input-group">
+            <input type="text" role="searchbox" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @input=${this.filterRubrics}>
+            ${this._searchTerm ? html`
+              <button type="button" class="btn btn-outline-secondary" @click=${this.clearSearch} aria-label=${this.tr("clear_search")}>
+                <span class="fa fa-times" aria-hidden="true"></span>
+              </button>
+            ` : nothing}
+          </div>
         </div>
       </div>
 
@@ -200,11 +209,20 @@ export class SakaiRubricsManager extends RubricsElement {
     this.querySelector("sakai-rubrics-list").refresh();
   }
 
-  filterRubrics(e) {
+  filterRubrics() {
 
-    this.querySelectorAll("sakai-rubrics-list, sakai-rubrics-shared-list").forEach(rubricList => {
-      rubricList.search(e.target.value);
+    this._searchTerm = this.renderRoot.querySelector("#rubrics-search-bar").value;
+    this.renderRoot.querySelectorAll("sakai-rubrics-list, sakai-rubrics-shared-list").forEach(rubricList => {
+      rubricList.search(this._searchTerm);
     });
+  }
+
+  clearSearch() {
+
+    const input = this.renderRoot.querySelector("#rubrics-search-bar");
+    input.value = "";
+    this.filterRubrics();
+    input.focus();
   }
 
   sortRubrics(event) {
