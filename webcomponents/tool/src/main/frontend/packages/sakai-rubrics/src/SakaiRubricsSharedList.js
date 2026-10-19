@@ -33,6 +33,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     }
 
     return html`
+      ${this.renderSaveError()}
       <div role="tablist">
       ${this._paginatedRubrics?.map(r => html`
         <sakai-rubric-readonly .rubric=${r}
@@ -118,7 +119,9 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     .then(r => {
 
       if (!r.ok) {
-        throw new Error(`Failed to delete shared rubric with id ${this.rubricIdToDelete}`);
+        const error = new Error(`Failed to delete shared rubric with id ${this.rubricIdToDelete}`);
+        error.status = r.status;
+        throw error;
       }
 
       this._rubrics = this._rubrics.filter(rubric => rubric.id !== this.rubricIdToDelete);

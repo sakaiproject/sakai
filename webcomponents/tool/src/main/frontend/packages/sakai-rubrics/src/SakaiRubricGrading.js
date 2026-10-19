@@ -613,7 +613,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       // And set the original ones
       this.decorateCriteria();
     })
-    .catch(error => console.error(error));
+    .catch(error => this.reportSaveError(error));
   }
 
   _getAssociation() {

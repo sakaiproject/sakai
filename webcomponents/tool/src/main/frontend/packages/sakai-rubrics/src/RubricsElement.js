@@ -16,6 +16,14 @@ export class RubricsElement extends SakaiElement {
     this._i18nLoaded = this.loadTranslations("rubrics");
   }
 
+  enqueueMutation(run) {
+    const owner = this.closest("sakai-rubric") ?? this;
+    // Wait for the previous request, while leaving failures visible to its caller.
+    const queued = (owner._mutationQueue ?? Promise.resolve()).then(run, run);
+    owner._mutationQueue = queued;
+    return queued;
+  }
+
   async readSaveResponse(response) {
     if (!response.ok) {
       const error = new Error(`Rubric save failed (${response.status})`);

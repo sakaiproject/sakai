@@ -118,7 +118,7 @@ export class SakaiItemDelete extends RubricsElement {
       url += this.rubric.id;
     }
 
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "DELETE",
       headers: { "If-Match": `"${this.type === "criterion" ? this.closest("sakai-rubric").rubric.version : this.rubric.version}"` },
       credentials: "include",
@@ -135,7 +135,7 @@ export class SakaiItemDelete extends RubricsElement {
         error.status = r.status;
         throw error;
       }
-    })
+    }))
     .catch(error => this.reportSaveError(error));
   }
 }

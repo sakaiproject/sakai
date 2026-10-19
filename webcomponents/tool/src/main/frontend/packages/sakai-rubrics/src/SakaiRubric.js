@@ -266,14 +266,23 @@ export class SakaiRubric extends RubricsElement {
     this.dispatchEvent(new CustomEvent("clone-rubric", { detail: this.rubric, bubbles: true, composed: true }));
   }
 
-  async patchRubric(patch) {
-    const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
-    const response = await fetch(url, {
-      ...this.updateRubricOptions,
-      headers: { ...this.updateRubricOptions.headers, "If-Match": `"${this.rubric.version}"` },
-      body: JSON.stringify(patch),
+  patchRubric(patch) {
+    return this.enqueueMutation(async () => {
+      const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
+      const response = await fetch(url, {
+        ...this.updateRubricOptions,
+        headers: { ...this.updateRubricOptions.headers, "If-Match": `"${this.rubric.version}"` },
+        body: JSON.stringify(patch),
+      });
+      return this.readSaveResponse(response);
     });
-    return this.readSaveResponse(response);
+  }
+
+  criterionWeightPatch() {
+    return this.rubric.criteria.flatMap((criterion, index) => [
+      { op: "test", path: `/criteria/${index}/id`, value: criterion.id },
+      { op: "replace", path: `/criteria/${index}/weight`, value: criterion.weight },
+    ]);
   }
 
   updateRubricTitle(e) {
@@ -290,9 +299,7 @@ export class SakaiRubric extends RubricsElement {
   }
 
   saveCriterionWeights() {
-    const save = this.patchRubric(this.rubric.criteria.map((criterion, index) => ({
-      op: "replace", path: `/criteria/${index}/weight`, value: criterion.weight,
-    })));
+    const save = this.patchRubric(this.criterionWeightPatch());
     save.then(() => {
       this.dispatchEvent(new SharingChangeEvent());
       const banner = this.renderRoot.querySelector(".sak-banner-success");
@@ -350,7 +357,7 @@ export class SakaiRubric extends RubricsElement {
 
     this.patchRubric([
       { op: "replace", path: "/draft", value: this.rubric.draft },
-      ...this.rubric.criteria.map((criterion, index) => ({ op: "replace", path: `/criteria/${index}/weight`, value: criterion.weight })),
+      ...this.criterionWeightPatch(),
     ]).then(() => {
       this.handleDraftBtn();
       this.requestUpdate();
@@ -367,7 +374,7 @@ export class SakaiRubric extends RubricsElement {
     }
     this.patchRubric([
       { op: "replace", path: "/weighted", value: this.rubric.weighted },
-      ...this.rubric.criteria.map((criterion, index) => ({ op: "replace", path: `/criteria/${index}/weight`, value: criterion.weight })),
+      ...this.criterionWeightPatch(),
     ]).then(() => {
       this.handleWeightBtn();
       this.requestUpdate();

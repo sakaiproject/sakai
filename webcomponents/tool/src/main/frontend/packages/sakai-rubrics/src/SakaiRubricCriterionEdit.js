@@ -137,13 +137,13 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     ]);
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${this.criterion.id}`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       credentials: "include",
-      headers: { "Content-Type": "application/json-patch+json", "If-Match": `"${this.criterionClone.rubricVersion}"` },
+      headers: { "Content-Type": "application/json-patch+json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
       method: "PATCH",
       body
     })
-    .then(r => this.readSaveResponse(r))
+    .then(r => this.readSaveResponse(r)))
     .then(criterion => {
 
       const originalEditor = document.getElementById(`criterion-edit-${this.criterion.id}`);

@@ -42,13 +42,13 @@ export class SakaiRubricCriteria extends RubricsElement {
     this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/sort`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
       credentials: "include",
       body: JSON.stringify(e.detail.reorderedIds),
     })
-    .then(r => this.readSaveResponse(r))
+    .then(r => this.readSaveResponse(r)))
     .catch(error => this.reportSaveError(error));
   }
 
@@ -69,13 +69,13 @@ export class SakaiRubricCriteria extends RubricsElement {
     });
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/sort`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
       credentials: "include",
       body: JSON.stringify(e.detail.reorderedIds),
     })
-    .then(r => this.readSaveResponse(r))
+    .then(r => this.readSaveResponse(r)))
     .catch(error => this.reportSaveError(error));
   }
 
@@ -94,13 +94,13 @@ export class SakaiRubricCriteria extends RubricsElement {
     criterion.ratings = sortedIds.map(id => criterion.ratings.find(r => r.id == id));
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/sort`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
       credentials: "include",
       body: JSON.stringify(sortedIds),
     })
-    .then(r => this.readSaveResponse(r))
+    .then(r => this.readSaveResponse(r)))
     .catch(error => this.reportSaveError(error));
   }
 
@@ -109,13 +109,16 @@ export class SakaiRubricCriteria extends RubricsElement {
     e.stopPropagation();
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.detail.criterionId}/ratings/${e.detail.rating.id}`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       credentials: "include",
       headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
       method: "POST",
-      body: JSON.stringify(e.detail.rating)
+      body: JSON.stringify({
+        ...e.detail.rating,
+        version: this.criteria.find(c => c.id == e.detail.criterionId).ratings.find(r => r.id == e.detail.rating.id).version,
+      })
     })
-    .then(r => this.readSaveResponse(r))
+    .then(r => this.readSaveResponse(r)))
     .then(saved => {
       const criterion = this.criteria.find(c => c.id == e.detail.criterionId);
       Object.assign(criterion.ratings.find(rating => rating.id == saved.id), saved, { new: false });
@@ -162,12 +165,12 @@ export class SakaiRubricCriteria extends RubricsElement {
     const ratingPos = e.target.dataset.ratingPos;
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/default?position=${ratingPos}`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
     })
-    .then(r => this.readSaveResponse(r))
+    .then(r => this.readSaveResponse(r)))
     .then(nr => this.addRatingResponse(criterionId, ratingPos, nr))
     .catch(error => this.reportSaveError(error));
   }
@@ -198,12 +201,12 @@ export class SakaiRubricCriteria extends RubricsElement {
     }
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.detail.criterionId}/ratings/${e.detail.id}`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "DELETE",
-      headers: { "If-Match": `"${e.detail.version}"` },
+      headers: { "If-Match": `"${criterion.ratings.find(r => r.id == e.detail.id).version}"` },
       credentials: "include",
     })
-    .then(r => this.readSaveResponse(r))
+    .then(r => this.readSaveResponse(r)))
     .then(c => {
 
       // The current weight may be lost because comes from DB and the UI can have a different value.
@@ -241,14 +244,14 @@ export class SakaiRubricCriteria extends RubricsElement {
   cloneCriterion(e) {
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.currentTarget.dataset.criterionId}/copy`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
     })
-    .then(r => this.readSaveResponse(r))
+    .then(r => this.readSaveResponse(r)))
     .then(clone => this.createCriterionResponse(clone))
-    .catch(error => console.error(error));
+    .catch(error => this.reportSaveError(error));
   }
 
   createCriterionResponse(nc) {
@@ -293,14 +296,14 @@ export class SakaiRubricCriteria extends RubricsElement {
   createCriterion(e, empty = false) {
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/default${empty ? "Empty" : ""}`;
-    fetch(url, {
+    this.enqueueMutation(() => fetch(url, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json", "If-Match": `"${this.closest("sakai-rubric").rubric.version}"` },
     })
-    .then(r => this.readSaveResponse(r))
+    .then(r => this.readSaveResponse(r)))
     .then(nc => this.createCriterionResponse(nc))
-    .catch(error => console.error(error));
+    .catch(error => this.reportSaveError(error));
   }
 
   openEditWithKeyboard(e) {
