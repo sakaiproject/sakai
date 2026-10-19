@@ -118,7 +118,7 @@ class PortalPreferencesTest extends SakaiUiTestBase {
         sakai.login("admin");
         APIResponse created = page.request().post("/direct/user/new", RequestOptions.create().setForm(FormData.create()
             .set("eid", username).set("firstName", "Portal").set("lastName", "Pins")
-            .set("email", username + "@example.invalid").set("type", "registered")
+            .set("email", username + "@example.com").set("type", "registered")
             .set("password", sakai.passwordFor(username))));
         try {
             assertTrue(created.ok(), "Unable to create isolated pin-test account: HTTP " + created.status());
@@ -127,13 +127,13 @@ class PortalPreferencesTest extends SakaiUiTestBase {
         }
         try {
             sakai.login(username);
-            String firstSite = sakai.createCourse(username, List.of("sakai.announcements"));
-            sakai.createProject(username, List.of("sakai.announcements"));
+            String firstSite = sakai.createProject(username, List.of("sakai.announcements"));
+            sakai.createProject(username, List.of("sakai.announcements", "sakai.schedule"));
             page.navigate(firstSite);
             String siteId = sakai.siteIdFromUrl(firstSite);
             List<Object> expectedIds = new ArrayList<>((List<?>) page.evaluate(
                 "async () => (await (await fetch('/portal/favorites/list')).json()).favoriteSiteIds"));
-            page.locator("[data-bs-target='#select-site-sidebar']:visible").first().click();
+            page.locator("button[data-bs-target='#select-site-sidebar']:visible").first().click();
             Locator individualPin = page.locator("#select-site-sidebar .site-favorite-btn[data-site-id='" + siteId + "']");
             assertThat(individualPin).isVisible();
             assertThat(individualPin).hasAttribute("data-pinned-state", "pinned");
@@ -195,7 +195,7 @@ class PortalPreferencesTest extends SakaiUiTestBase {
     private Map<?, ?> preferences(String key) {
         return (Map<?, ?>) page.evaluate("""
             async key => {
-              const response = await fetch(`/direct/userPrefs/key/${portal.user.id}/${key}.json`);
+              const response = await fetch(`/direct/userPrefs/key/${portal.user.id}/${key}.json`, { cache: 'no-store' });
               if (!response.ok) throw new Error(`Unable to read preferences: ${response.status}`);
               return (await response.json()).data;
             }
