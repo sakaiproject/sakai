@@ -17,19 +17,13 @@
  */
 package org.sakaiproject.lti13;
 
-import io.jsonwebtoken.Jws;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.OutputStream;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
-import java.util.HashSet;
-import java.util.stream.Collectors;
 
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,16 +37,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import java.security.Key;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -94,8 +81,6 @@ import org.tsugi.lti13.LTI13ConstantsUtil;
 
 import org.tsugi.oauth2.objects.AccessToken;
 import org.tsugi.oauth2.objects.ClientAssertion;
-import org.tsugi.lti13.objects.Endpoint;
-import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.ags2.objects.Result;
 import org.tsugi.ags2.objects.Score;
 import org.tsugi.lti13.objects.LaunchJWT;
@@ -118,8 +103,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
-import org.tsugi.lti.LTIUtil;
-
 @SuppressWarnings("deprecation")
 @Slf4j
 public class LTI13Servlet extends HttpServlet {
@@ -128,10 +111,6 @@ public class LTI13Servlet extends HttpServlet {
 	private static final String APPLICATION_JSON = "application/json; charset=utf-8";
 	private static final String APPLICATION_JWT = "application/jwt";
 	private static final String ERROR_DETAIL = "X-Sakai-LTI13-Error-Detail";
-	private static final String CACHE_NAME = LTI13Servlet.class.getName() + "_cache";
-	private static final String CLIENT_ASSERTION_REPLAY_CACHE_NAME = "org.sakaiproject.lti13.ClientAssertionReplay_cache";
-	private static final String CACHE_PUBLIC = "key::public";
-	private static final String CACHE_PRIVATE = "key::private";
 	private static final String PLUS_NRPS_PAGING = "plus:nrps_paging";
 
 	@Setter
@@ -1583,12 +1562,6 @@ public class LTI13Servlet extends HttpServlet {
 		return parts.length == 3 ? parts[2] : null;
 	}
 
-	// Assumes signature is correct and format is correct - call after loadContentCheckSignature
-	protected static String getContextId(String signed_placement, HttpServletResponse response) {
-		String[] parts = signed_placement.split(":::");
-		return parts.length == 3 ? parts[1] : null;
-	}
-
 	protected static LtiContentBean loadContentCheckSignature(String signed_placement, HttpServletResponse response) {
 
 		String[] parts = splitSignedPlacement(signed_placement, response);
@@ -1759,20 +1732,6 @@ public class LTI13Servlet extends HttpServlet {
 		}
 		log.debug("jsonString={}", jsonString);
 		return jsonString;
-	}
-
-	protected Object getJSONFromPOST(HttpServletRequest request, HttpServletResponse response)
-	{
-		String jsonString = getPostData(request, response);
-		if ( jsonString == null ) return null; // Error already set
-
-		Object js = JSONValue.parse(jsonString);
-		if (js == null || !(js instanceof JSONObject)) {
-			log.error("Badly formatted JSON");
-			LTI13Util.return400(response, "Badly formatted JSON");
-			return null;
-		}
-		return js;
 	}
 
 	protected Object getObjectFromPOST(HttpServletRequest request, HttpServletResponse response, Class whichClass) {
