@@ -775,7 +775,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			return client.execute(request, httpResponse -> {
 				int responseCode = httpResponse.getCode();
 				String responseMessage = httpResponse.getReasonPhrase();
-				String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+				HttpEntity entity = httpResponse.getEntity();
+				String responseBody = entity != null
+					? IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8)
+					: "";
 
 				log.debug("Turnitin response code: {}; message: {}; body:\n{}", responseCode, responseMessage, responseBody);
 				HashMap<String, Object> response = new HashMap<>();
