@@ -62,6 +62,33 @@ class RubricsTest extends SakaiUiTestBase {
         page.locator("button:visible").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Save", Pattern.CASE_INSENSITIVE))).first().click(new Locator.ClickOptions().setForce(true));
 
         assertThat(page.locator("body")).containsText(RUBRIC_TITLE);
+
+        Page stalePage = context.newPage();
+        try {
+            stalePage.navigate(page.url());
+            Locator staleRubric = stalePage.locator("sakai-rubric").filter(new Locator.FilterOptions().setHasText(RUBRIC_TITLE)).first();
+            staleRubric.locator("sakai-rubric-edit button.edit-button").click();
+            Locator staleModal = staleRubric.locator("sakai-rubric-edit .modal.show");
+            staleModal.locator("input").fill("Unsaved concurrent title");
+
+            Locator rubric = page.locator("sakai-rubric").filter(new Locator.FilterOptions().setHasText(RUBRIC_TITLE)).first();
+            rubric.locator("sakai-rubric-edit button.edit-button").click();
+            Locator modal = rubric.locator("sakai-rubric-edit .modal.show");
+            modal.locator("input").fill(RUBRIC_TITLE + " updated");
+            page.waitForResponse(response -> response.url().contains("/rubrics/") && response.request().method().equals("PATCH") && response.status() == 200,
+                    () -> modal.locator("button.btn-primary").click());
+            assertThat(rubric.locator(".rubric-name")).hasText(RUBRIC_TITLE + " updated");
+            assertThat(rubric.locator(".rubric-last-modified-by")).isVisible();
+
+            stalePage.waitForResponse(response -> response.url().contains("/rubrics/") && response.request().method().equals("PATCH") && response.status() == 409,
+                    () -> staleModal.locator("button.btn-primary").click());
+            assertThat(staleModal.locator("[role=alert]")).containsText("Someone else changed");
+            assertThat(staleModal.locator("input")).hasValue("Unsaved concurrent title");
+            page.reload();
+            assertThat(page.locator("body")).containsText(RUBRIC_TITLE + " updated");
+        } finally {
+            stalePage.close();
+        }
     }
 
     @Test

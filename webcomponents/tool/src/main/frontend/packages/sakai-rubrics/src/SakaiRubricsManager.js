@@ -104,6 +104,7 @@ export class SakaiRubricsManager extends RubricsElement {
                 <span class="collpase-icon fa fa-chevron-up site-creator sort-element-site" aria-hidden="true"></span>
               </button>
             </div>
+            <div>${this.tr("last_modified_by")}</div>
             <div>
               <button class="btn p-0"
                   @click=${this.sortRubrics}
@@ -166,6 +167,7 @@ export class SakaiRubricsManager extends RubricsElement {
                   <span class="collpase-icon fa shared-creator sort-element-shared" aria-hidden="true"></span>
                 </button>
               </div>
+              <div>${this.tr("last_modified_by")}</div>
               <div>
                 <button class="btn p-0"
                     @click=${this.sortRubrics}

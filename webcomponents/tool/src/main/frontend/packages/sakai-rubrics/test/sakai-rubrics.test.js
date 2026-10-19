@@ -16,11 +16,11 @@ describe("sakai-rubrics tests", () => {
     fetchMock
       .get(data.i18nUrl, data.i18n)
       .get(data.rubric1Url, data.rubric1)
-      .patch(data.rubric1OwnerUrl, 200)
-      .patch(data.rubric3OwnerUrl, 200)
+      .patch(data.rubric1OwnerUrl, () => ({ ...data.rubric1, version: (data.rubric1.version ?? 0) + 1 }))
+      .patch(data.rubric3OwnerUrl, () => ({ ...data.rubric3, version: (data.rubric3.version ?? 0) + 1 }))
       .get(data.associationUrl, data.association)
-      .put(data.rubric4CriteriaSortUrl, 200)
-      .patch(data.rubric4OwnerUrl, 200)
+      .put(data.rubric4CriteriaSortUrl, () => ({ ...data.rubric4, version: (data.rubric4.version ?? 0) + 1 }))
+      .patch(data.rubric4OwnerUrl, () => ({ ...data.rubric4, version: (data.rubric4.version ?? 0) + 1 }))
       .patch(data.rubric4Criteria5Url, 200)
       .patch(data.rubric4Criteria6Url, 200)
       .get("*", 500);
@@ -68,8 +68,22 @@ describe("sakai-rubrics tests", () => {
 
     await waitUntil(() => el._i18n);
 
+    await waitUntil(() => el.querySelector(".rubric-name").textContent === newTitle);
     // Validate that current data is the updated title
     validateRubricTitle(rubricData, el, newTitle);
+
+    fetchMock.removeRoutes();
+    const url = `/api/sites/${rubricData.ownerId}/rubrics/${rubricData.id}`;
+    fetchMock.patch(url, 409);
+    editElement.querySelector("button.edit-button").click();
+    await waitUntil(() => editElement.querySelector(".modal.show"));
+    editElement.querySelector("input").value = "Unsaved concurrent title";
+    editElement.querySelector("button.btn-primary").click();
+    await waitUntil(() => editElement.querySelector("[role=alert]"));
+    expect(editElement.querySelector(".modal.show")).to.exist;
+    expect(editElement.querySelector("input").value).to.equal("Unsaved concurrent title");
+    expect(fetchMock.callHistory.calls(url, { method: "PATCH" })).to.have.length(2);
+    editElement.saved();
   }
 
   /**

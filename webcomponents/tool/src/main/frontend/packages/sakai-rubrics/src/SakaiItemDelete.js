@@ -72,6 +72,7 @@ export class SakaiItemDelete extends RubricsElement {
               </button>
             </div>
             <div class="modal-body">
+              ${this.renderSaveError()}
               <div>${this.tr("confirm_remove", [ this.item.title ])}</div>
             </div>
             <div class="modal-footer">
@@ -119,18 +120,22 @@ export class SakaiItemDelete extends RubricsElement {
 
     fetch(url, {
       method: "DELETE",
+      headers: { "If-Match": `"${this.type === "criterion" ? this.closest("sakai-rubric").rubric.version : this.rubric.version}"` },
       credentials: "include",
     })
-    .then(r => {
+    .then(async r => {
 
       if (r.ok) {
+        if (this.type === "criterion") { await this.readSaveResponse(r); }
 
         this.hideToolTip();
         this.dispatchEvent(new CustomEvent("delete-item", { detail: this.item, bubbles: true, composed: true }));
       } else {
-        throw new Error("Network error while deleting rubric/criterion");
+        const error = new Error("Unable to delete rubric/criterion");
+        error.status = r.status;
+        throw error;
       }
     })
-    .catch (error => console.error(error));
+    .catch(error => this.reportSaveError(error));
   }
 }

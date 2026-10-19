@@ -22,6 +22,7 @@ import org.hibernate.stat.Statistics;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.rubrics.api.model.Evaluation;
+import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
@@ -35,6 +36,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThrows;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = RubricsTestConfiguration.class)
@@ -86,6 +88,17 @@ public class EvaluationRepositoryTest extends AbstractTransactionalJUnit4SpringC
         } finally {
             statistics.setStatisticsEnabled(statisticsEnabled);
         }
+
+        Evaluation stale = evaluationRepository.findFirstByAssociationIdAndOwnerId(associationId, "site1").get();
+        Long version = stale.getVersion();
+        sessionFactory.getCurrentSession().clear();
+        Evaluation current = evaluationRepository.findById(stale.getId()).get();
+        current.setOverallComment("Newer comment");
+        Evaluation saved = evaluationRepository.save(current);
+        assertTrue(saved.getVersion() > version);
+        sessionFactory.getCurrentSession().clear();
+        stale.setOverallComment("Stale comment");
+        assertThrows(RubricsConflictException.class, () -> evaluationRepository.save(stale));
     }
 
     private void saveEvaluation(Long associationId, String siteId, String itemId) {

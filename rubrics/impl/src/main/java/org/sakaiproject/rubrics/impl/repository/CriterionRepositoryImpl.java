@@ -22,10 +22,30 @@
 
 package org.sakaiproject.rubrics.impl.repository;
 
+import jakarta.persistence.OptimisticLockException;
+import org.hibernate.StaleStateException;
+import org.sakaiproject.rubrics.api.RubricsConflictException;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.sakaiproject.rubrics.api.model.Criterion;
+
 import org.sakaiproject.rubrics.api.repository.CriterionRepository;
+
 
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class CriterionRepositoryImpl extends SpringCrudRepositoryImpl<Criterion, Long> implements CriterionRepository {
+
+    @Override
+    @Transactional
+    public <S extends Criterion> S save(S entity) {
+        try {
+            S saved = super.save(entity);
+            sessionFactory.getCurrentSession().flush();
+            return saved;
+        } catch (OptimisticLockException | StaleStateException e) {
+            throw new RubricsConflictException(e);
+        }
+    }
+
 }

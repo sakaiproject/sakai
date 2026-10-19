@@ -60,6 +60,7 @@ export class SakaiRubricReadonly extends SakaiRubric {
 
         <div class="d-none d-sm-block rubric-site-title">${this.rubric.siteTitle}</div>
         <div class="d-none d-sm-block rubric-creator-name">${this.rubric.creatorDisplayName}</div>
+        <div class="d-none d-sm-block rubric-last-modified-by">${this.rubric.lastModifiedByDisplayName || this.tr("unknown_user")}</div>
         <div class="d-none d-sm-block">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">

@@ -82,6 +82,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this._i18n.close_dialog}"></button>
             </div>
             <div class="modal-body">
+              ${this.renderSaveError()}
               <div class="mb-3">
                 <label class="label-rubrics form-label" for="criterion-title-edit-${this.criterion.id}">
                   ${this._i18n.criterion_title}
@@ -138,27 +139,20 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${this.criterion.id}`;
     fetch(url, {
       credentials: "include",
-      headers: { "Content-Type": "application/json-patch+json" },
+      headers: { "Content-Type": "application/json-patch+json", "If-Match": `"${this.criterionClone.rubricVersion}"` },
       method: "PATCH",
       body
     })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-
-      throw new Error(`Network error while updating criterion at url ${url}`);
-    })
+    .then(r => this.readSaveResponse(r))
     .then(criterion => {
 
       const originalEditor = document.getElementById(`criterion-edit-${this.criterion.id}`);
       originalEditor.dispatchEvent(new CustomEvent("criterion-edited", { detail: criterion }));
       originalEditor.dispatchEvent(new SharingChangeEvent());
+      bootstrap.Modal.getInstance(this.renderRoot.querySelector(`#edit-criterion-${this.criterion.id}`)).hide();
     })
-    .catch (error => console.error(error));
+    .catch(error => this.reportSaveError(error));
 
-    bootstrap.Modal.getInstance(this.querySelector(`#edit-criterion-${this.criterion.id}`)).hide();
   }
 
   _cancelEdit() {

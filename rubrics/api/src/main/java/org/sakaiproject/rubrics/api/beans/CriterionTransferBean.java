@@ -28,6 +28,11 @@ import lombok.NoArgsConstructor;
 public class CriterionTransferBean {
 
     private Long id;
+    private Long version;
+    private Long rubricVersion;
+    private String rubricLastModifiedBy;
+    private String rubricLastModifiedByDisplayName;
+    private String rubricFormattedModifiedDate;
     private String title;
     private String description;
     private Float weight;
@@ -39,6 +44,9 @@ public class CriterionTransferBean {
 
         Objects.requireNonNull(criterion, "criterion must not be null in constructor");
         id = criterion.getId();
+        version = criterion.getVersion();
+        rubricVersion = criterion.getRubric().getVersion();
+        rubricLastModifiedBy = criterion.getRubric().getLastModifiedBy();
         title = criterion.getTitle();
         description = criterion.getDescription();
         weight = criterion.getWeight();

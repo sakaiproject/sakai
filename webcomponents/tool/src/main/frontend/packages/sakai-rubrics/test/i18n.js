@@ -1,6 +1,10 @@
 export const i18nUrl = /getI18nProperties.*rubrics$/;
 
 export const i18n = `
+last_modified_by=Last Modified By
+unknown_user=Unknown
+save_conflict=Someone else changed this rubric or evaluation. Your changes have not been saved.
+operation_failed=Unable to save your changes. Try again.
 grading_rubric=Grading Rubric
 rubric=Rubric
 criterion=Criterion

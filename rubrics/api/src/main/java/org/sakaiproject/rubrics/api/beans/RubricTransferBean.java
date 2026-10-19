@@ -32,6 +32,7 @@ import lombok.NoArgsConstructor;
 public class RubricTransferBean {
 
     private Long id;
+    private Long version;
     private Instant created;
     private String creatorDisplayName;
     private String creatorId;
@@ -43,6 +44,8 @@ public class RubricTransferBean {
     private Map<String, Set<String>> lockedBy = new LinkedHashMap<>();
     private Double maxPoints;
     private Instant modified;
+    private String lastModifiedBy;
+    private String lastModifiedByDisplayName;
     private String ownerId;
     private Boolean shared;
     private String siteTitle;
@@ -54,6 +57,7 @@ public class RubricTransferBean {
 
         Objects.requireNonNull(rubric, "rubric must not be null in constructor");
         id = rubric.getId();
+        version = rubric.getVersion();
         created = rubric.getCreated();
         creatorId = rubric.getCreatorId();
         criteria = rubric.getCriteria().stream()
@@ -64,6 +68,7 @@ public class RubricTransferBean {
         locked = rubric.getLocked();
         maxPoints = rubric.getMaxPoints();
         modified = rubric.getModified();
+        lastModifiedBy = rubric.getLastModifiedBy();
         ownerId = rubric.getOwnerId();
         shared = rubric.getShared();
         title = rubric.getTitle();

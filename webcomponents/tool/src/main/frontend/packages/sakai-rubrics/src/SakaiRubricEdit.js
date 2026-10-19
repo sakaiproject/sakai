@@ -60,6 +60,7 @@ export class SakaiRubricEdit extends RubricsElement {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this._i18n.close_dialog}"></button>
             </div>
             <div class="modal-body">
+              ${this.renderSaveError()}
               <div>
                 <label class="label-rubrics form-label" for="rubric_title_edit">
                   ${this._i18n.rubric_title}
@@ -87,7 +88,11 @@ export class SakaiRubricEdit extends RubricsElement {
     e.stopPropagation();
     const title = this.querySelector("input[type='text']").value;
     this.dispatchEvent(new CustomEvent("update-rubric-title", { detail: title }));
-    bootstrap.Modal.getInstance(this.querySelector("div.modal")).hide();
+  }
+
+  saved() {
+    this._saveError = null;
+    bootstrap.Modal.getInstance(this.renderRoot.querySelector("div.modal"))?.hide();
   }
 
 }

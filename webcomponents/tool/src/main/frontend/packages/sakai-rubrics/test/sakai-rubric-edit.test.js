@@ -91,6 +91,7 @@ describe("sakai-rubric-edit tests", () => {
     const { detail } = await oneEvent(el, "update-rubric-title");
 
     expect(detail).to.equal(newTitle);
+    el.saved();
 
     await oneEvent(el, "hidden.bs.modal");
 

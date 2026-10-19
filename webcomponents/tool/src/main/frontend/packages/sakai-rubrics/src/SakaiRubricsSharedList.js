@@ -27,6 +27,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
     if (!this._rubrics) {
       return html`
+      ${this.renderSaveError()}
         <div class="sak-banner-warn">${this._i18n.loading}</div>
       `;
     }
@@ -92,6 +93,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
     e.stopPropagation();
     this.rubricIdToDelete = e.detail.id;
+    this.rubricVersionToDelete = e.detail.version;
     this.rubricTitleToDelete = e.detail.title;
     this.requestUpdate();
     const modal = new bootstrap.Modal(document.getElementById("delete-modal"));
@@ -111,7 +113,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     fetch(url, {
       method: "DELETE",
       credentials: "include",
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json", "If-Match": `"${this.rubricVersionToDelete}"` }
     })
     .then(r => {
 
@@ -131,7 +133,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       bootstrap.Modal.getOrCreateInstance(this.querySelector(".modal")).hide();
       this.dispatchEvent(new CustomEvent("update-rubric-list"));
     })
-    .catch(error => console.error(error));
+    .catch(error => this.reportSaveError(error));
   }
 
   sharingChange(e) {
@@ -141,17 +143,12 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
     this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/shared", "value": e.detail.shared } ]);
     const url = `/api/sites/${e.detail.ownerId}/rubrics/${e.detail.id}`;
-    fetch(url, this.updateRubricOptions)
-    .then(r => {
-
-      if (r.ok) {
-        this.dispatchEvent(new SharingChangeEvent());
-        this.refresh();
-        this.dispatchEvent(new CustomEvent("update-rubric-list"));
-      } else {
-        throw new Error("Network error while updating rubric");
-      }
-    })
-    .catch (error => console.error(error));
+    fetch(url, { ...this.updateRubricOptions, headers: { ...this.updateRubricOptions.headers, "If-Match": `"${e.detail.version}"` } })
+    .then(r => this.readSaveResponse(r))
+    .then(() => {
+      this.dispatchEvent(new SharingChangeEvent());
+      this.refresh();
+      this.dispatchEvent(new CustomEvent("update-rubric-list"));
+    }).catch(error => this.reportSaveError(error));
   }
 }

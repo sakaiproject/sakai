@@ -22,8 +22,10 @@
 
 package org.sakaiproject.rubrics.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import jakarta.persistence.Column;
+import jakarta.persistence.Version;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -32,6 +34,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import org.hibernate.Length;
+import org.hibernate.annotations.ColumnDefault;
 import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -49,6 +52,12 @@ import lombok.ToString;
 @Table(name = "rbc_returned_criterion_out")
 @ToString()
 public class ReturnedCriterionOutcome implements PersistableEntity<Long>, Serializable {
+
+    @Version
+    @Column(name = "VERSION", nullable = false)
+    @ColumnDefault("0")
+    @JsonIgnore
+    private Long version;
 
     @Id
     @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_crit_out_seq", sequenceName = "rbc_ret_crit_out_seq"))

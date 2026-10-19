@@ -31,6 +31,7 @@ import lombok.NoArgsConstructor;
 public class EvaluationTransferBean {
 
     private Long id;
+    private Long version;
     private Long associationId;
     private Instant created;
     private String creatorId;
@@ -50,6 +51,7 @@ public class EvaluationTransferBean {
     public EvaluationTransferBean(Evaluation evaluation) {
         Objects.requireNonNull(evaluation, "evaluation must not be null in constructor");
         id = evaluation.getId();
+        version = evaluation.getVersion();
         associationId = evaluation.getAssociationId();
         created = evaluation.getCreated();
         creatorId = evaluation.getCreatorId();

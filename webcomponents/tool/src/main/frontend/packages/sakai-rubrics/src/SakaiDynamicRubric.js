@@ -77,6 +77,7 @@ export class SakaiDynamicRubric extends SakaiShadowElement {
       this._evaluation = evaluation ?? { criterionOutcomes: [] };
       this._criteria = rubric.criteria.map(criterion => ({
         id: this._nextId++, pointsVal: Number(criterion.ratings[0].points).toFixed(2), description: criterion.title,
+        version: criterion.version, ratingVersion: criterion.ratings[0].version,
         storedId: criterion.id, storedRatingId: criterion.ratings[0].id, selected: false,
       }));
       if (!this._criteria.length) { this._addRow(); }
@@ -94,8 +95,8 @@ export class SakaiDynamicRubric extends SakaiShadowElement {
 
   _projectCriteria() {
     return this._criteria.map(criterion => ({
-      title: criterion.description, id: criterion.storedId,
-      ratings: [ { title: "-", points: Number(criterion.pointsVal).toFixed(2), id: criterion.storedRatingId } ],
+      title: criterion.description, id: criterion.storedId, version: criterion.version,
+      ratings: [ { title: "-", points: Number(criterion.pointsVal).toFixed(2), id: criterion.storedRatingId, version: criterion.ratingVersion } ],
     }));
   }
 
@@ -144,6 +145,7 @@ export class SakaiDynamicRubric extends SakaiShadowElement {
     const evaluation = {
       evaluatorId: window.top?.portal?.user?.id,
       id: this._evaluation.id,
+      version: this._evaluation.version,
       evaluatedItemId: this.gradingId,
       evaluatedItemOwnerId: this.evaluatedItemOwnerId,
       evaluatedItemOwnerType: "USER",
@@ -163,7 +165,7 @@ export class SakaiDynamicRubric extends SakaiShadowElement {
       if (saved && context === this._context) { this._evaluation = saved; }
       return saved;
     } catch (error) {
-      if (context === this._context) { this._error = true; }
+      if (context === this._context) { this._error = error.status === 409 ? "save_conflict" : "operation_failed"; }
       console.error("Unable to save dynamic rubric evaluation", error);
     } finally {
       this._busy = false;
@@ -187,7 +189,7 @@ export class SakaiDynamicRubric extends SakaiShadowElement {
         window.location.href = url.href;
       }
     } catch (error) {
-      this._error = true;
+      this._error = error.status === 409 ? "save_conflict" : "operation_failed";
       console.error("Unable to update dynamic rubric", error);
     } finally {
       this._busy = false;
@@ -198,7 +200,7 @@ export class SakaiDynamicRubric extends SakaiShadowElement {
     if (!this._i18n) { return nothing; }
     return html`
       ${this._loading ? html`<span role="status">${this._i18n.loading}</span>` : nothing}
-      ${this._error ? html`<p role="alert">${this._i18n.operation_failed}
+      ${this._error ? html`<p role="alert">${this._i18n[this._error] ?? this._i18n.operation_failed}
         <button type="button" @click=${this._load}>${this._i18n.retry}</button></p>` : nothing}
       ${!this._loading && this._rubric ? html`
         <div class="rubric-actions">

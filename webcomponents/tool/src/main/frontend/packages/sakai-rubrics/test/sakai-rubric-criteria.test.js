@@ -17,8 +17,8 @@ describe("sakai-rubric-criteria tests", () => {
     fetchMock.mockGlobal();
     fetchMock
       .get(data.i18nUrl, data.i18n)
-      .put(data.rubric4CriteriaSortUrl, 200)
-      .patch(data.rubric4OwnerUrl, 200)
+      .put(data.rubric4CriteriaSortUrl, () => ({ ...data.rubric4, version: (data.rubric4.version ?? 0) + 1 }))
+      .patch(data.rubric4OwnerUrl, () => ({ ...data.rubric4, version: (data.rubric4.version ?? 0) + 1 }))
       .patch(data.rubric4Criteria5Url, 200)
       .patch(data.rubric4Criteria6Url, 200)
       .get("*", 500);

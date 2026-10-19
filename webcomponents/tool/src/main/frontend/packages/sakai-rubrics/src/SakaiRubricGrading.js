@@ -108,6 +108,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   render() {
 
     return html`
+      ${this.renderSaveError()}
       <div class="rubric-details grading">
         <h3>
           <span>${this._rubric.title}</span>
@@ -318,7 +319,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       }
 
       // A queued POST may have created the evaluation since this save was requested.
-      const payload = { ...evaluation, id: this._evaluation.id, metadata: this._evaluation.metadata };
+      const payload = { ...evaluation, id: this._evaluation.id, version: this._evaluation.version, metadata: this._evaluation.metadata };
       let url = `/api/sites/${this.siteId}/rubric-evaluations`;
       if (payload.id) url += `/${payload.id}`;
       const response = await fetch(url, {
@@ -326,9 +327,13 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
         headers: { "Content-Type": "application/json" },
         method: payload.id ? "PUT" : "POST",
       });
-      if (!response.ok) throw new Error("Server error while saving rubric evaluation");
-
-      const saved = await response.json();
+      let saved;
+      try {
+        saved = await this.readSaveResponse(response);
+      } catch (error) {
+        this.reportSaveError(error);
+        throw error;
+      }
       if (context === this._saveContext) {
         this._evaluation = saved;
         this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
@@ -598,15 +603,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
     const url = `/api/sites/${this.siteId}/rubric-evaluations/${this._evaluation.id}/cancel`;
 
-    return fetch(url, { credentials: "include" })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-
-      throw new Error("Failed to cancel rubric evaluation");
-    })
+    return fetch(url, { credentials: "include", headers: { "If-Match": `"${this._evaluation.version}"` } })
+    .then(r => this.readSaveResponse(r))
     .then(restored => {
 
       this._evaluation = restored;

@@ -29,6 +29,7 @@ import org.sakaiproject.hibernate.annotations.NativeGenerator;
 import lombok.EqualsAndHashCode;
 
 import org.hibernate.Length;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -50,6 +51,12 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 @NoArgsConstructor
 @Table(name = "rbc_rating")
 public class Rating implements PersistableEntity<Long>, Serializable {
+
+    @Version
+    @Column(name = "VERSION", nullable = false)
+    @ColumnDefault("0")
+    @JsonIgnore
+    private Long version;
 
     @Id
     @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_rat_seq", sequenceName ="rbc_rat_seq"))
