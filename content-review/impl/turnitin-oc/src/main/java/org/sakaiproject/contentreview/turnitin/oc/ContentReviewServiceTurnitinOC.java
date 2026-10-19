@@ -39,7 +39,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -56,10 +55,8 @@ import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.utils.Hex;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.entity.BufferedHttpEntity;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -775,23 +772,19 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				}
 			}
 	
-			Future<ClassicHttpResponse> future =  client.execute(HttpHost.create(urlStr), request, null, null);
-			ClassicHttpResponse httpResponse = future.get();
-	
-	
-			// Send request:
-			int responseCode = httpResponse.getCode();
-			String responseMessage = httpResponse.getReasonPhrase();
-			String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
-	
-	
-			log.debug("Turnitin response code: {}; message: {}; body:\n{}", responseCode, responseMessage, responseBody);
-			HashMap<String, Object> response = new HashMap<>();
-			response.put(RESPONSE_CODE, responseCode);
-			response.put(RESPONSE_MESSAGE, responseMessage);
-			response.put(RESPONSE_BODY, responseBody);
-	
-			return response;
+			return client.execute(request, httpResponse -> {
+				int responseCode = httpResponse.getCode();
+				String responseMessage = httpResponse.getReasonPhrase();
+				String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+
+				log.debug("Turnitin response code: {}; message: {}; body:\n{}", responseCode, responseMessage, responseBody);
+				HashMap<String, Object> response = new HashMap<>();
+				response.put(RESPONSE_CODE, responseCode);
+				response.put(RESPONSE_MESSAGE, responseMessage);
+				response.put(RESPONSE_BODY, responseBody);
+
+				return response;
+			});
 		}finally {
 			if(is != null) {
 				try {
