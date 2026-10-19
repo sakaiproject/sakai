@@ -179,7 +179,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                         <h5 class="criterion-item-title">${r.title}</h5>
                         <p>${r.description}</p>
                         <span class="points" data-points="${r.points}">
-                          ${this._rubric.weighted && r.points > 0 ? html`
+                          ${this._rubric.weighted && r.points !== 0 ? html`
                             <b>
                               (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
                             </b>
