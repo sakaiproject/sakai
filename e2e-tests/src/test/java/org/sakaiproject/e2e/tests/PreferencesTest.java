@@ -61,7 +61,9 @@ class PreferencesTest extends SakaiUiTestBase {
 
     @Test
     void administratorCanReviewAndResubmitAConflictingEdit() {
-        String siteUrl = sakai.createProject("admin", List.of("sakai.admin.prefs"));
+        sakai.login("instructor1");
+        String siteUrl = sakai.createProject("instructor1", List.of("sakai.admin.prefs"));
+        sakai.login("admin");
         page.navigate(siteUrl);
         sakai.toolClick("Administrator Preferences");
         String toolUrl = page.url();
@@ -117,7 +119,7 @@ class PreferencesTest extends SakaiUiTestBase {
     }
 
     private void setPreference(String name, String value) {
-        APIResponse response = page.request().post("/direct/userPrefs/saveDivState",
+        APIResponse response = page.request().post("/direct/userPrefs/admin/saveDivState",
                 RequestOptions.create().setQueryParam("key", name).setQueryParam("state", value));
         try {
             assertTrue(response.ok(), "Could not save the concurrent preference: HTTP " + response.status());
