@@ -65,6 +65,10 @@ abstract class AbstractSiteStatsWidgetDefinition implements SiteStatsWidgetDefin
 		return support.getGradesAnalytics();
 	}
 
+	protected SiteStatsCommunicationAnalytics communicationAnalytics() {
+		return support.getCommunicationAnalytics();
+	}
+
 	protected WidgetSpec widgetSpec(String id, String titleKey, String icon, String audience, BooleanSupplier available,
 			List<WidgetTabSpec> tabs, List<WidgetMetricSpec> metrics) {
 		return widgetSpec(id, titleKey, icon, audience, available, tabs, metrics, Collections.emptyList());

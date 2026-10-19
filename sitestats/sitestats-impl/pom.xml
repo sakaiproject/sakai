@@ -117,6 +117,24 @@
             <artifactId>messageforums-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.conversations</groupId>
+            <artifactId>sakai-conversations-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.commons</groupId>
+            <artifactId>commons-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.polls</groupId>
             <artifactId>polls-api</artifactId>
         </dependency>
