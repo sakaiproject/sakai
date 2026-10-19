@@ -99,6 +99,10 @@ allsites.updateButton = (btn, state) => {
 allsites.setButton = function (btn, state) {
 
   allsites.updateButton(btn, state);
+  if (state === "unpinned") {
+    document.querySelector(
+      `#organize-favorites-list .organize-favorite-item[data-site-id="${CSS.escape(btn.dataset.siteId)}"]`)?.remove();
+  }
 
   // TODO: this needs to be implemented at some point. It would remove the annoying 
   // refresh message in the all sites sidebar
@@ -174,8 +178,10 @@ allsites.setup = function () {
 
   const update = () => {
 
-    allsites.pinnedQueue.favoriteSiteIds
-      = Array.from(list.querySelectorAll(".organize-favorite-item")).map(el => el.dataset.siteId);
+    const pinnedIds = allsites.getPinnedSiteIds();
+    const orderedIds = Array.from(list.querySelectorAll(".organize-favorite-item"))
+      .map(el => el.dataset.siteId).filter(id => pinnedIds.includes(id));
+    allsites.pinnedQueue.favoriteSiteIds = [...new Set([...orderedIds, ...pinnedIds])];
 
     allsites.updatePinned(true);
   };

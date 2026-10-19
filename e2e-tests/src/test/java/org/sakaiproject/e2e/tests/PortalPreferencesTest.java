@@ -17,16 +17,22 @@ package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Request;
 import com.microsoft.playwright.options.ColorScheme;
+import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.RequestOptions;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -108,14 +114,25 @@ class PortalPreferencesTest extends SakaiUiTestBase {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void immediatePinSaveCancelsPendingIndividualSave(boolean reorder) {
-        String username = sakai.resolveUsername("instructor1");
-        sakai.login(username);
-        String firstSite = sakai.createCourse(username, List.of("sakai.announcements"));
-        sakai.createProject(username, List.of("sakai.announcements"));
-        page.navigate(firstSite);
-        String siteId = firstSite.substring(firstSite.lastIndexOf('/') + 1);
-        Object originalFavorites = page.evaluate("async () => (await fetch('/portal/favorites/list')).json()");
+        String username = "portal-pins-" + UUID.randomUUID();
+        sakai.login("admin");
+        APIResponse created = page.request().post("/direct/user/new", RequestOptions.create().setForm(FormData.create()
+            .set("eid", username).set("firstName", "Portal").set("lastName", "Pins")
+            .set("email", username + "@example.invalid").set("type", "registered")
+            .set("password", sakai.passwordFor(username))));
         try {
+            assertTrue(created.ok(), "Unable to create isolated pin-test account: HTTP " + created.status());
+        } finally {
+            created.dispose();
+        }
+        try {
+            sakai.login(username);
+            String firstSite = sakai.createCourse(username, List.of("sakai.announcements"));
+            sakai.createProject(username, List.of("sakai.announcements"));
+            page.navigate(firstSite);
+            String siteId = sakai.siteIdFromUrl(firstSite);
+            List<Object> expectedIds = new ArrayList<>((List<?>) page.evaluate(
+                "async () => (await (await fetch('/portal/favorites/list')).json()).favoriteSiteIds"));
             page.locator("[data-bs-target='#select-site-sidebar']:visible").first().click();
             Locator individualPin = page.locator("#select-site-sidebar .site-favorite-btn[data-site-id='" + siteId + "']");
             assertThat(individualPin).isVisible();
@@ -131,9 +148,12 @@ class PortalPreferencesTest extends SakaiUiTestBase {
             individualPin.click();
             assertTrue(saves.isEmpty());
             if (reorder) {
-                // Switch panes before the pending save can display the reload notification.
+                expectedIds.remove(siteId);
                 page.locator("#allsites-organize-favourites-tab").click();
-                Locator last = page.locator("#organize-favorites-list .organize-favorite-item").last();
+                Locator last = page.locator("#organize-favorites-list .organize-favorite-item:visible").last();
+                if (expectedIds.size() > 1) {
+                    Collections.swap(expectedIds, expectedIds.size() - 2, expectedIds.size() - 1);
+                }
                 page.waitForResponse(response -> response.url().contains("/portal/favorites/update"),
                     () -> last.press("e"));
             } else {
@@ -143,24 +163,24 @@ class PortalPreferencesTest extends SakaiUiTestBase {
             }
             page.clock().runFor(1000);
             assertEquals(1, saves.size(), "The immediate save must cancel the pending 500ms save");
-            Object expectedIds = page.evaluate(reorder
-                ? "Array.from(document.querySelectorAll('#organize-favorites-list .organize-favorite-item')).map(el => el.dataset.siteId)"
-                : "allsites.getPinnedSiteIds()");
-            Object actualIds = page.evaluate("async () => (await (await fetch('/portal/favorites/list')).json()).favoriteSiteIds");
+            List<?> actualIds = (List<?>) page.evaluate(
+                "async () => (await (await fetch('/portal/favorites/list')).json()).favoriteSiteIds");
             if (reorder) {
+                assertFalse(actualIds.contains(siteId), "Reordering must not pin the site just unpinned");
                 assertEquals(expectedIds, actualIds, "The final pin order must be persisted");
             } else {
-                assertEquals(new HashSet<>((List<?>) expectedIds), new HashSet<>((List<?>) actualIds),
+                Object selectedIds = page.evaluate("allsites.getPinnedSiteIds()");
+                assertEquals(new HashSet<>((List<?>) selectedIds), new HashSet<>(actualIds),
                     "The final pin selection must be persisted");
             }
         } finally {
-            page.evaluate("""
-                async favorites => {
-                  const response = await fetch('/portal/favorites/update', { method: 'POST',
-                    body: new URLSearchParams({ userFavorites: JSON.stringify(favorites), reorder: 'true' }) });
-                  if (!response.ok) throw new Error(`Unable to restore favorites: ${response.status}`);
-                }
-                """, originalFavorites);
+            sakai.login("admin");
+            APIResponse removed = page.request().delete("/direct/user/" + username);
+            try {
+                assertTrue(removed.ok(), "Unable to remove isolated pin-test account: HTTP " + removed.status());
+            } finally {
+                removed.dispose();
+            }
         }
     }
 
