@@ -2295,8 +2295,8 @@ public class HistogramListener extends SpringBeanAutowiringSupport
 	      numarray[i] = num;
 	      bars[i] = new HistogramBarBean();
 	      bars[i].setLabel(text.getText());
-	      // Matching bars represent prompt rows; non-distractors have a correct match and should be highlighted.
-	      bars[i].setIsCorrect(!distractors.contains(textId));
+	      // Matching bars count correct responses, including None of the Above for distractors.
+	      bars[i].setIsCorrect(Boolean.TRUE);
       bars[i].setNumStudents(num);
       bars[i].setNumStudentsText(String.valueOf(num));
 
