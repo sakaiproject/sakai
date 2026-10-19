@@ -88,9 +88,6 @@ public class UserPrefsTool
 	private static final String PREFS_EXPAND_TRUE = "1";
 	private static final String PREFS_EXPAND_FALSE = "0";
 
-	/** The PreferencesEdit being worked on. */
-	protected PreferencesEdit m_edit = null;
-
 	/** Preferences service (injected dependency) */
 	protected PreferencesService preferencesService = null;
 	
@@ -98,9 +95,6 @@ public class UserPrefsTool
 
 	/** Session manager (injected dependency) */
 	protected SessionManager sessionManager = null;
-
-	/** The PreferencesEdit in KeyNameValue collection form. */
-	protected Collection m_stuff = null;
 
 	/** For display and selection of Items in JSF-- edit.jsp */
 	private List prefExcludeItems = new ArrayList();
@@ -155,7 +149,6 @@ public class UserPrefsTool
 
 	protected final static String THEME_PREF = "sakai:portal:theme";
 
-	protected boolean isNewUser = false;
 
 	// user's currently selected time zone
 	private TimeZone m_timeZone = null;
@@ -209,54 +202,6 @@ public class UserPrefsTool
 	@Getter @Setter
 	protected boolean themeUpdated = false;
 
-
-	/**
-	 * Represents a name value pair in a keyed preferences set.
-	 */
-    @Getter @Setter
-	public class KeyNameValue
-	{
-		/** Is this value a list?. */
-		protected boolean isList = false;
-
-		/** The key. */
-		protected String key = null;
-
-		/** The name. */
-		protected String name = null;
-
-		/** The original is this value a list?. */
-		protected boolean origIsList = false;
-
-		/** The original key. */
-		protected String origKey = null;
-
-		/** The original name. */
-		protected String origName = null;
-
-		/** The original value. */
-		protected String origValue = null;
-
-		/** The value. */
-		protected String value = null;
-
-		public KeyNameValue(String key, String name, String value, boolean isList)
-		{
-			this.key = key;
-			this.origKey = key;
-			this.name = name;
-			this.origName = name;
-			this.value = value;
-			this.origValue = value;
-			this.isList = isList;
-			this.origIsList = isList;
-		}
-
-		public boolean isChanged()
-		{
-			return ((!name.equals(origName)) || (!value.equals(origValue)) || (!key.equals(origKey)) || (isList != origIsList));
-		}
-	}
 
 	// //////////////////////////////// PROPERTY GETTER AND SETTER ////////////////////////////////////////////
 
@@ -688,7 +633,7 @@ public class UserPrefsTool
 		prefTabLabel = null; // reset to retrieve original prefs
 
 		// remove session variables
-		cancelEdit();
+		resetForm();
 		// To stay on the same page - load the page data
 
 		return m_TabOutcome;
@@ -703,7 +648,7 @@ public class UserPrefsTool
 	{
 		log.debug("processActionNotiFrmEdit()");
 		refreshMode=false;
-		cancelEdit();
+		resetForm();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "noti";
 	}
@@ -718,7 +663,7 @@ public class UserPrefsTool
 		log.debug("processActionTZFrmEdit()");
 
 		refreshMode=false;
-		cancelEdit();
+		resetForm();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "timezone";
 	}
@@ -733,7 +678,7 @@ public class UserPrefsTool
 		log.debug("processActionEditorFrmEdit()");
 
 		refreshMode=false;
-		cancelEdit();
+		resetForm();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "editor";
 	}
@@ -748,7 +693,7 @@ public class UserPrefsTool
 		log.debug("processActionLocFrmEdit()");
 
 		refreshMode=false;
-		cancelEdit();
+		resetForm();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "locale";
 	}
@@ -763,7 +708,7 @@ public class UserPrefsTool
 		log.debug("processActionThemeFrmEdit()");
 
 		refreshMode=false;
-		cancelEdit();
+		resetForm();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "theme";
 	}
@@ -777,7 +722,7 @@ public class UserPrefsTool
 	{
 		log.debug("processActionPrivFrmEdit()");
 
-		cancelEdit();
+		resetForm();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "privacy";
 	}
@@ -786,7 +731,7 @@ public class UserPrefsTool
 	{
 		log.debug("processActionHiddenFrmEdit()");
 
-		cancelEdit();
+		resetForm();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "hidden";
 	}
@@ -801,25 +746,22 @@ public class UserPrefsTool
 		log.debug("processActionRefreshFrmEdit()");
 
 		// is required as user editing is set on while entering to tab customization page
-		cancelEdit();
+		resetForm();
 		loadRefreshData();
 		return "refresh";
 	}
 
 	// //////////////////////////////////// HELPER METHODS TO ACTIONS ////////////////////////////////////////////
 	/**
-	 * Cancel the edit and cleanup.
+	 * Reset the form and its success messages.
 	 */
-	protected void cancelEdit()
+	protected void resetForm()
 	{
-		log.debug("cancelEdit()");
+		log.debug("resetForm()");
 
 		// cleanup
-		m_stuff = null;
-		m_edit = null;
 		prefExcludeItems = new ArrayList();
 		prefOrderItems = new ArrayList();
-		isNewUser = false;
 
 		notiUpdated = false;
 		tzUpdated = false;
@@ -855,78 +797,9 @@ public class UserPrefsTool
 		return result;
 	}
 
-	/**
-	 * Set editing mode on for user and add user if not existing
-	 */
-	protected void setUserEditingOn()
-	{
-		log.debug("setUserEditingOn()");
-
-		try
-		{
-			m_edit = preferencesService.edit(getUserId());
-		}
-		catch (IdUnusedException e)
-		{
-			try
-			{
-				m_edit = preferencesService.add(getUserId());
-				isNewUser = true;
-			}
-			catch (Exception ee)
-			{
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(ee.toString()));
-			}
-		}
-		catch (Exception e)
-		{
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.toString()));
-		}
-	}
-
-	/**
-	 * Save any changed values from the edit and cleanup.
-	 */
-	protected void saveEdit()
-	{
-		log.debug("saveEdit()");
-
-		// user editing is required as commit() disable isActive() flag
-		setUserEditingOn();
-		// move the stuff from m_stuff into the edit
-		if (m_stuff != null)
-		{
-			for (Iterator i = m_stuff.iterator(); i.hasNext();)
-			{
-				KeyNameValue knv = (KeyNameValue) i.next();
-				// find the original to remove (unless this one was new)
-				if (!knv.getOrigKey().equals(""))
-				{
-					ResourcePropertiesEdit props = m_edit.getPropertiesEdit(knv.getOrigKey());
-					props.removeProperty(knv.getOrigName());
-				}
-				// add the new if we have a key and name and value
-				if ((!knv.getKey().equals("")) && (!knv.getName().equals("")) && (!knv.getValue().equals("")))
-				{
-					ResourcePropertiesEdit props = m_edit.getPropertiesEdit(knv.getKey());
-					if (knv.isList())
-					{
-						// split by ", "
-						String[] parts = knv.getValue().split(", ");
-						for (int p = 0; p < parts.length; p++)
-						{
-							props.addPropertyToList(knv.getName(), parts[p]);
-						}
-					}
-					else
-					{
-						props.addProperty(knv.getName(), knv.getValue());
-					}
-				}
-			}
-		}
-		// save the preferences, release the edit
-		preferencesService.commit(m_edit);
+	private void showSaveError() {
+		FacesContext.getCurrentInstance().addMessage(null,
+				new FacesMessage(FacesMessage.SEVERITY_ERROR, msgs.getString("prefs_save_failed"), null));
 	}
 
 	/**
@@ -990,24 +863,27 @@ public class UserPrefsTool
 	{
 		log.debug("processActionNotiSave()");
 
-		// get an edit
-		setUserEditingOn();
-		if (m_edit != null)
-		{
-			
-			List<DecoratedNotificationPreference> items = getRegisteredNotificationItems();
-			for(UserNotificationPreferencesRegistration upr : userNotificationPreferencesRegistrationService.getRegisteredItems()) {
-				readTypePrefs(upr.getType(), upr.getPrefix(), m_edit, getSelectedNotificationItemByKey(upr.getType(), items));
-				
-				DecoratedNotificationPreference dnp = getDecoItemByKey(upr.getType(), items);
-				if (dnp != null) {
-					readOverrideTypePrefs(upr.getType() + NotificationService.NOTI_OVERRIDE_EXTENSION, upr.getPrefix(), m_edit, dnp.getSiteOverrides());
+		List<DecoratedNotificationPreference> items = getRegisteredNotificationItems();
+		Collection<UserNotificationPreferencesRegistration> registrations =
+				new ArrayList<>(userNotificationPreferencesRegistrationService.getRegisteredItems());
+		if (!preferencesService.applyEditWithAutoCommit(getUserId(), edit -> {
+			for (UserNotificationPreferencesRegistration registration : registrations) {
+				readTypePrefs(registration.getType(), registration.getPrefix(), edit,
+						getSelectedNotificationItemByKey(registration.getType(), items));
+				DecoratedNotificationPreference item = getDecoItemByKey(registration.getType(), items);
+				if (item != null) {
+					readOverrideTypePrefs(registration.getType() + NotificationService.NOTI_OVERRIDE_EXTENSION,
+							registration.getPrefix(), edit, item.getSiteOverrides());
 				}
 			}
-
-			// update the edit and release it
-			preferencesService.commit(m_edit);
+		})) {
+			showSaveError();
+			return null;
 		}
+		for (DecoratedNotificationPreference item : items) {
+			item.getSiteOverrides().removeIf(override -> override.remove);
+		}
+
 		processRegisteredNotificationItems();
 		notiUpdated = true;
 		return "noti";
@@ -1032,10 +908,12 @@ public class UserPrefsTool
 	 */
 	public String processActionTzSave()
 	{
-		setUserEditingOn();
-		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(TimeService.APPLICATION_ID);
-		props.addProperty(TimeService.TIMEZONE_KEY, m_timeZone.getID());
-		preferencesService.commit(m_edit);
+		String timeZoneId = m_timeZone.getID();
+		if (!preferencesService.applyEditWithAutoCommit(getUserId(),
+				edit -> edit.getPropertiesEdit(TimeService.APPLICATION_ID).addProperty(TimeService.TIMEZONE_KEY, timeZoneId))) {
+			showSaveError();
+			return null;
+		}
 
 		TimeService.clearLocalTimeZone(getUserId()); // clear user's cached timezone
 
@@ -1050,10 +928,12 @@ public class UserPrefsTool
 	
 	public String processActionEditorSave() 
 	{
-		setUserEditingOn();
-		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(PreferencesService.EDITOR_PREFS_KEY);
-		props.addProperty(PreferencesService.EDITOR_PREFS_TYPE, m_editorType);
-		preferencesService.commit(m_edit);
+		String editorType = m_editorType;
+		if (!preferencesService.applyEditWithAutoCommit(getUserId(),
+				edit -> edit.getPropertiesEdit(PreferencesService.EDITOR_PREFS_KEY).addProperty(PreferencesService.EDITOR_PREFS_TYPE, editorType))) {
+			showSaveError();
+			return null;
+		}
 
 
 		
@@ -1101,10 +981,12 @@ public class UserPrefsTool
 	 */
 	public String processActionLocSave()
 	{
-		setUserEditingOn();
-		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
-		props.addProperty(ResourceLoader.LOCALE_KEY, m_locale.toString());
-		preferencesService.commit(m_edit);
+		String locale = m_locale.toString();
+		if (!preferencesService.applyEditWithAutoCommit(getUserId(),
+				edit -> edit.getPropertiesEdit(ResourceLoader.APPLICATION_ID).addProperty(ResourceLoader.LOCALE_KEY, locale))) {
+			showSaveError();
+			return null;
+		}
 
 		TimeService.clearLocalTimeZone(getUserId()); // clear user's cached timezone
 
@@ -1142,10 +1024,12 @@ public class UserPrefsTool
 	 */
 	public String processActionThemeSave() 
 	{
-		setUserEditingOn();
-		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(PreferencesService.USER_SELECTED_UI_THEME_PREFS);
-		props.addProperty("theme", m_theme);
-		preferencesService.commit(m_edit);
+		String theme = m_theme;
+		if (!preferencesService.applyEditWithAutoCommit(getUserId(),
+				edit -> edit.getPropertiesEdit(PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", theme))) {
+			showSaveError();
+			return null;
+		}
 
 		themeUpdated = true; // set for display of text message
 		return "theme";
@@ -1230,8 +1114,6 @@ public class UserPrefsTool
 					+ ")");
 		}
 		
-		List<SiteOverrideBean> toDel = new ArrayList<>();
-
 		// update the default settings from the form
 		ResourcePropertiesEdit props = edit.getPropertiesEdit(NotificationService.PREFS_TYPE + type);
 
@@ -1242,10 +1124,8 @@ public class UserPrefsTool
 			}
 			else {
 				props.removeProperty(sob.getSiteId());
-				toDel.add(sob);
 			}
 		}
-		data.removeAll(toDel);
 
 	} // readOverrideTypePrefs
 	
@@ -1937,51 +1817,30 @@ public class UserPrefsTool
 		public String processActionSiteOverrideSave() {
 			log.debug("processActionSiteOverrideSave()");
 			
-			// get an edit
-			setUserEditingOn();
-			if (m_edit != null)
-			{
-				List<SiteOverrideBean> toAdd = new ArrayList<>();
-				List<String> toDel = new ArrayList<>();
-				
-				/** previously saved choices */
-				List<String> existingList = convertToStringList(getSiteOverrides());
-				
-				log.debug("processActionSiteOverrideSave().existingList: " + convertListToString(existingList));
-				
-				for (DecoratedSiteTypeBean dstb : siteList) {
-					for (DecoratedSiteBean dsb : dstb.getSites()) {
-						String siteId = dsb.getSite().getId();
-						log.debug("processActionSiteOverrideSave().selected?: " +siteId + ": " + dsb.selected);
-						SiteOverrideBean sob = new SiteOverrideBean(siteId, Integer.toString(NotificationService.PREF_NONE));
-						if (dsb.selected && !existingList.contains(siteId)) {
-							toAdd.add(sob);
-							//siteOverrides.add(sob);
-						}
-						else if (!dsb.selected && existingList.contains(siteId)) {
-							toDel.add(siteId);
-							//siteOverrides.remove(sob);
-						}
+			List<SiteOverrideBean> toAdd = new ArrayList<>();
+			List<String> toDelete = new ArrayList<>();
+			List<String> existing = convertToStringList(getSiteOverrides());
+			for (DecoratedSiteTypeBean siteType : siteList) {
+				for (DecoratedSiteBean site : siteType.getSites()) {
+					String siteId = site.getSite().getId();
+					if (site.selected && !existing.contains(siteId)) {
+						toAdd.add(new SiteOverrideBean(siteId, Integer.toString(NotificationService.PREF_NONE)));
+					} else if (!site.selected && existing.contains(siteId)) {
+						toDelete.add(siteId);
 					}
 				}
-
-				log.debug("processActionSiteOverrideSave().toAdd: " + convertListToString(toAdd));
-				log.debug("processActionSiteOverrideSave().toDel: " + convertListToString(toDel));
-				//adds
-				readOverrideTypePrefs(userNotificationPreferencesRegistration.getType() + NotificationService.NOTI_OVERRIDE_EXTENSION, 
-						m_edit, toAdd);
-
-				//deletes
-				deleteOverrideTypePrefs(userNotificationPreferencesRegistration.getType() + NotificationService.NOTI_OVERRIDE_EXTENSION, 
-						userNotificationPreferencesRegistration.getPrefix(), m_edit, toDel);
-
-				// update the edit and release it
-				preferencesService.commit(m_edit);
-				
-				//make sure the list gets updated
-				initRegisteredNotificationItems();
 			}
-			
+			String type = userNotificationPreferencesRegistration.getType() + NotificationService.NOTI_OVERRIDE_EXTENSION;
+			String prefix = userNotificationPreferencesRegistration.getPrefix();
+			if (!preferencesService.applyEditWithAutoCommit(getUserId(), edit -> {
+				readOverrideTypePrefs(type, edit, toAdd);
+				deleteOverrideTypePrefs(type, prefix, edit, toDelete);
+			})) {
+				showSaveError();
+				return null;
+			}
+			initRegisteredNotificationItems();
+
 			notiUpdated = true;
 			return "noti";
 		}
@@ -2040,47 +1899,23 @@ public class UserPrefsTool
 
 	public String processHiddenSites()
 	{
-		setUserEditingOn();
-		if (m_edit != null) {
-			// Remove existing property
-			ResourcePropertiesEdit props = m_edit.getPropertiesEdit(PreferencesService.SITENAV_PREFS_KEY);
-
-			List currentFavoriteSites = props.getPropertyList(ORDER_SITE_LISTS);
-
-			if (currentFavoriteSites == null) {
-				currentFavoriteSites = Collections.<String>emptyList();
-			}
-
-			props.removeProperty(PreferencesService.TAB_LABEL_PREF);
-			props.removeProperty(ORDER_SITE_LISTS);
+		String label = prefTabLabel;
+		String[] hiddenSiteIds = hiddenSitesInput == null || hiddenSitesInput.isEmpty()
+				? new String[0] : hiddenSitesInput.split(",");
+		if (!preferencesService.applyEditWithAutoCommit(getUserId(), edit -> {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(PreferencesService.SITENAV_PREFS_KEY);
 			props.removeProperty(EXCLUDE_SITE_LISTS);
-
-			preferencesService.commit(m_edit);
-			cancelEdit();
-
-			// Set favorites and hidden sites
-			setUserEditingOn();
-			props = m_edit.getPropertiesEdit(PreferencesService.SITENAV_PREFS_KEY);
-
-			for (Object siteId : currentFavoriteSites) {
-				props.addPropertyToList(ORDER_SITE_LISTS, (String)siteId);
+			for (String siteId : hiddenSiteIds) {
+				props.addPropertyToList(EXCLUDE_SITE_LISTS, siteId);
 			}
-
-			if (hiddenSitesInput != null && !hiddenSitesInput.isEmpty()) {
-				for (String siteId : hiddenSitesInput.split(",")) {
-					props.addPropertyToList(EXCLUDE_SITE_LISTS, siteId);
-				}
-			}
-
-			props.addProperty(PreferencesService.TAB_LABEL_PREF, prefTabLabel);
-
-			preferencesService.commit(m_edit);
-			cancelEdit();
-
-			hiddenUpdated = true;
-
-			m_reloadTop = Boolean.TRUE;
+			props.addProperty(PreferencesService.TAB_LABEL_PREF, label);
+		})) {
+			showSaveError();
+			return null;
 		}
+		resetForm();
+		hiddenUpdated = true;
+		m_reloadTop = Boolean.TRUE;
 
 		return "hidden";
 	}

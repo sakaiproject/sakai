@@ -112,12 +112,13 @@ public abstract class BaseContentReviewService implements ContentReviewService{
     public void updateUserEULATimestamp(String userId) {
         if (StringUtils.isBlank(userId)) return;
 
+		String key = PROP_KEY_EULA + getProviderId();
+		String timestamp = Long.toString(Instant.now().toEpochMilli());
+		String EULAVersion = getEndUserLicenseAgreementVersion();
 		preferencesService.applyEditWithAutoCommit(userId, edit -> {
-			String key = PROP_KEY_EULA + getProviderId();
 			ResourcePropertiesEdit resourcePropEdit = edit.getPropertiesEdit(key);
 			if (resourcePropEdit != null) {
-				resourcePropEdit.addProperty(PROP_KEY_EULA_TIMESTAMP, "" + Instant.now().toEpochMilli());
-				String EULAVersion = getEndUserLicenseAgreementVersion();
+				resourcePropEdit.addProperty(PROP_KEY_EULA_TIMESTAMP, timestamp);
 				if (StringUtils.isNotEmpty(EULAVersion)) {
 					resourcePropEdit.addProperty(PROP_KEY_EULA_VERSION, EULAVersion);
 				}

@@ -45,18 +45,16 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionBindingEvent;
-import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesConflictException;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.StorageUtils;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
@@ -66,20 +64,15 @@ import org.springframework.cache.CacheManager;
  * </p>
  */
 @Slf4j
-public abstract class BasePreferencesService implements PreferencesService, SingleStorageUser
+public class BasePreferencesService implements PreferencesService
 {
-	/**
-	 * Key used to store the locale preferences
-	 */
+	/** Key used to store the locale preferences. */
 	private static final String LOCALE_PREFERENCE_KEY = "sakai:resourceloader";
-	/** Storage manager for this service. */
-	protected Storage m_storage = null;
+	@Setter private PreferencesRepository repository;
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 	/** the cache for Preference objects **/
 	private Cache m_cache;
-
-	protected abstract Storage newStorage();
 
 	/**
 	 * Access the partial URL that forms the root of resource URLs.
@@ -166,10 +159,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		{
 			m_relativeAccessPoint = REFERENCE_ROOT;
 
-			// construct storage and read
-			m_storage = newStorage();
-			m_storage.open();
-
 			// register as an entity producer
 			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
@@ -195,9 +184,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	 */
 	public void destroy()
 	{
-		m_storage.close();
-		m_storage = null;
-
 		log.info("destroy()");
 	}
 
@@ -227,66 +213,44 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 
     @Override
     public boolean applyEditWithAutoCommit(String userId, Consumer<PreferencesEdit> editFunction) {
+        if (StringUtils.isBlank(userId)) {
+            throw new IllegalArgumentException("The user ID must not be empty");
+        }
+        Objects.requireNonNull(editFunction, "The preferences edit function must not be null");
+
         PreferencesEdit edit = null;
         try {
             edit = edit(userId);
-        } catch (IdUnusedException iue) {
-            try {
-                edit = add(userId);
-            } catch (PermissionException | IdUsedException e) {
-                log.warn("Failed to add preferences for user {}, {}", userId, e.toString());
-            }
-        } catch (PermissionException | InUseException e) {
-            log.warn("Failed to obtain edit preferences for user {}, {}", userId, e.toString());
-        }
-
-        // failed to get an edit
-        if (edit != null) {
-            try {
-                // have an edit, perform the supplied operation
-                editFunction.accept(edit);
-                return true;
-            } catch (Exception e) {
-                log.warn("Encountered an exception while editing preferences for user {}, {}", userId, e.toString());
-                log.debug("Full Exception:", e);
+            editFunction.accept(edit);
+            commit(edit);
+            return true;
+        } catch (PreferencesConflictException e) {
+            log.debug("Concurrent preferences update for user {}", userId);
+            return false;
+        } catch (Exception e) {
+            log.warn("Could not update preferences for user {}", userId, e);
+            return false;
+        } finally {
+            if (edit != null && edit.isActiveEdit()) {
                 cancel(edit);
-                edit = null; // prevents commit in finally
-            } finally {
-                if (edit != null) commit(edit);
             }
         }
-        return false;
     }
 
-	@Override
-	public PreferencesEdit edit(String id) throws PermissionException, InUseException, IdUnusedException
-	{
-		// security
-		unlock(SECURE_EDIT_PREFS, preferencesReference(id));
-
-		// check for existance
-		if (!m_storage.check(id))
-		{
-			//Try to add and return this value
-			try {
-				return add(id);
-			}
-			catch (IdUsedException e) {
-				//This should never happen
-				log.warn("Could not add "+id+" even after checking that it didn't exist in storage. Throwing IdUnusedException but this shouldn't be possible.",e);
-				throw new IdUnusedException(id);
-			
-			}
-		}
-
-		// ignore the cache - get the user with a lock from the info store
-		PreferencesEdit edit = m_storage.edit(id);
-		if (edit == null) throw new InUseException(id);
-
-		((BasePreferences) edit).setEvent(SECURE_EDIT_PREFS);
-
-		return edit;
-	}
+    @Override
+    public PreferencesEdit edit(String id) throws PermissionException, InUseException, IdUnusedException {
+        unlock(SECURE_EDIT_PREFS, preferencesReference(id));
+        BasePreferences edit = readPreferences(id);
+        if (edit == null) {
+            unlock(SECURE_ADD_PREFS, preferencesReference(id));
+            edit = new BasePreferences(id);
+            edit.setEvent(SECURE_ADD_PREFS);
+        } else {
+            edit.setEvent(SECURE_EDIT_PREFS);
+        }
+        edit.activate();
+        return edit;
+    }
 
 	@Override
 	public void commit(PreferencesEdit edit)
@@ -307,57 +271,26 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 				return;
 			}
 
-			// update the properties
-			// addLiveUpdateProperties(user.getPropertiesEdit());
-			
-			//invalidate the cache
+			try {
+				BasePreferences preferences = (BasePreferences) edit;
+				PreferencesRecord saved = repository.save(toRecord(preferences));
+				preferences.m_version = saved.getVersion();
+			} finally {
+				((BasePreferences) edit).closeEdit();
+			}
 			m_cache.evict(edit.getId());
 
-			// complete the edit
-			m_storage.commit(edit);
-		
-			SessionManager sManager = sessionManager;
-			Session s = sManager.getCurrentSession();
-		
 			// track it
 			eventTrackingService.post(eventTrackingService.newEvent(((BasePreferences) edit).getEvent(), edit.getReference(), true));
-
-			// close the edit object
-			((BasePreferences) edit).closeEdit();
 		}
 	}
 
+	@Override
 	public void cancel(PreferencesEdit edit)
 	{
 		if (edit != null)
 		{
-			// if this was an add, remove it
-			if (SECURE_ADD_PREFS.equals(((BasePreferences) edit).m_event))
-			{
-				remove(edit);
-			}
-			else
-			{
-				// check for closed edit
-				if (!edit.isActiveEdit())
-				{
-					try
-					{
-						throw new Exception();
-					}
-					catch (Exception e)
-					{
-						log.warn("cancel(): closed PreferencesEdit", e);
-					}
-					return;
-				}
-
-				// release the edit lock
-				m_storage.cancel(edit);
-
-				// close the edit object
-				((BasePreferences) edit).closeEdit();
-			}
+			((BasePreferences) edit).closeEdit();
 		}
 	}
 
@@ -378,16 +311,19 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			return;
 		}
 
-		// complete the edit
-		m_storage.remove(edit);
+		try {
+			BasePreferences preferences = (BasePreferences) edit;
+			if (preferences.m_version != null) {
+				repository.remove(toRecord(preferences));
+			}
+		} finally {
+			((BasePreferences) edit).closeEdit();
+		}
 
 		m_cache.evict(edit.getId());
 
 		// track it
 		eventTrackingService.post(eventTrackingService.newEvent(SECURE_REMOVE_PREFS, edit.getReference(), true));
-
-		// close the edit object
-		((BasePreferences) edit).closeEdit();
 	}
 
 	/**
@@ -409,7 +345,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 
 		// Failing that, try the storage
 		if (prefs == null) {
-			prefs = (BasePreferences) m_storage.get(id);
+			prefs = readPreferences(id);
 		}
 
 		if (prefs != null) {
@@ -477,14 +413,12 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_PREFS, preferencesReference(id));
 
-		// reserve a user with this id from the info store - if it's in use, this will return null
-		PreferencesEdit edit = m_storage.put(id);
-		if (edit == null)
-		{
-			throw new IdUsedException(id);
-		}
-
-		((BasePreferences) edit).setEvent(SECURE_ADD_PREFS);
+        if (repository.find(id) != null) {
+            throw new IdUsedException(id);
+        }
+        BasePreferences edit = new BasePreferences(id);
+        edit.setEvent(SECURE_ADD_PREFS);
+        edit.activate();
 
 		return edit;
 	}
@@ -564,134 +498,29 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		return rv;
 	}
 
-	@Override
-	public Entity newResource(Entity container, String id, Object[] others)
-	{
-		return new BasePreferences(id);
-	}
+    private BasePreferences readPreferences(String id) {
+        PreferencesRecord record = repository.find(id);
+        if (record == null) {
+            return null;
+        }
+        Document document = StorageUtils.readDocumentFromString(record.getXml());
+        if (document == null || !"preferences".equals(document.getDocumentElement().getTagName())) {
+            throw new IllegalStateException("Invalid preferences document for user " + id);
+        }
+        BasePreferences preferences = new BasePreferences(document.getDocumentElement());
+        if (!id.equals(preferences.getId())) {
+            throw new IllegalStateException("Preferences document does not match user " + id);
+        }
+        preferences.m_version = record.getVersion();
+        return preferences;
+    }
 
-	@Override
-	public Entity newResource(Entity container, Element element)
-	{
-		return new BasePreferences(element);
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * StorageUser implementation (no container)
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	@Override
-	public Entity newResource(Entity container, Entity other)
-	{
-		return new BasePreferences((Preferences) other);
-	}
-
-	@Override
-	public Edit newResourceEdit(Entity container, String id, Object[] others)
-	{
-		BasePreferences e = new BasePreferences(id);
-		e.activate();
-		return e;
-	}
-
-	@Override
-	public Edit newResourceEdit(Entity container, Element element)
-	{
-		BasePreferences e = new BasePreferences(element);
-		e.activate();
-		return e;
-	}
-
-	@Override
-	public Edit newResourceEdit(Entity container, Entity other)
-	{
-		BasePreferences e = new BasePreferences((Preferences) other);
-		e.activate();
-		return e;
-	}
-
-	@Override
-	public Object[] storageFields(Entity r)
-	{
-		return null;
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Storage
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	protected interface Storage
-	{
-		/**
-		 * Open.
-		 */
-		public void open();
-
-		/**
-		 * Close.
-		 */
-		public void close();
-
-		/**
-		 * Check if a preferences by this id exists.
-		 *
-		 * @param id
-		 *        The user id.
-		 * @return true if a preferences for this id exists, false if not.
-		 */
-		public boolean check(String id);
-
-		/**
-		 * Get the preferences with this id, or null if not found.
-		 *
-		 * @param id
-		 *        The preferences id.
-		 * @return The preferences with this id, or null if not found.
-		 */
-		public Preferences get(String id);
-
-		/**
-		 * Add a new preferences with this id.
-		 *
-		 * @param id
-		 *        The preferences id.
-		 * @return The locked Preferences object with this id, or null if the id is in use.
-		 */
-		public PreferencesEdit put(String id);
-
-		/**
-		 * Get a lock on the preferences with this id, or null if a lock cannot be gotten.
-		 *
-		 * @param id
-		 *        The preferences id.
-		 * @return The locked Preferences with this id, or null if this records cannot be locked.
-		 */
-		public PreferencesEdit edit(String id);
-
-		/**
-		 * Commit the changes and release the lock.
-		 *
-		 * @param edit
-		 *        The edit to commit.
-		 */
-		public void commit(PreferencesEdit edit);
-
-		/**
-		 * Cancel the changes and release the lock.
-		 *
-		 * @param edit
-		 *        The edit to commit.
-		 */
-		public void cancel(PreferencesEdit edit);
-
-		/**
-		 * Remove this edit and release the lock.
-		 *
-		 * @param edit
-		 *        The edit to remove.
-		 */
-		public void remove(PreferencesEdit edit);
-	}
+    private PreferencesRecord toRecord(BasePreferences preferences) {
+        Document document = StorageUtils.createDocument();
+        preferences.toXml(document, new Stack<>());
+        return new PreferencesRecord(preferences.getId(), StorageUtils.writeDocumentToString(document),
+                preferences.m_version);
+    }
 
 	/**
 	 * A cacheable, static (no enclosing-instance reference) snapshot of a BasePreferences'
@@ -717,7 +546,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	 * Preferences implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BasePreferences implements PreferencesEdit, SessionBindingListener
+	public class BasePreferences implements PreferencesEdit
 	{
 		/** The user id. */
 		protected String m_id = null;
@@ -727,6 +556,8 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 
 		/** The sets of keyed ResourceProperties. */
 		protected Map<String, ResourcePropertiesEdit> m_props = null;
+		/** Version of the detached document being edited; null until first persisted. */
+		protected Long m_version;
 		/** The event code for this edit. */
 		protected String m_event = null;
 		/** Active flag. */
@@ -1058,18 +889,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		}
 
 		/**
-		 * Clean up.
-		 */
-		protected void finalize()
-		{
-			// catch the case where an edit was made but never resolved
-			if (m_active)
-			{
-				cancel(this);
-			}
-		}
-
-		/**
 		 * Take all values from this object.
 		 *
 		 * @param prefs
@@ -1129,25 +948,5 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			m_active = false;
 		}
 
-		/******************************************************************************************************************************************************************************************************************************************************
-		 * SessionBindingListener implementation
-		 *****************************************************************************************************************************************************************************************************************************************************/
-
-		@Override
-		public void valueBound(SessionBindingEvent event)
-		{
-		}
-
-		@Override
-		public void valueUnbound(SessionBindingEvent event)
-		{
-			if (log.isDebugEnabled()) log.debug("valueUnbound()");
-
-			// catch the case where an edit was made but never resolved
-			if (m_active)
-			{
-				cancel(this);
-			}
-		}
 	}
 }
