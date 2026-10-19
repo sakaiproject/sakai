@@ -66,6 +66,7 @@ import org.sakaiproject.rubrics.api.model.Evaluation;
 import org.sakaiproject.rubrics.api.model.EvaluationStatus;
 import org.sakaiproject.rubrics.api.model.Rating;
 import org.sakaiproject.rubrics.api.model.ReturnedEvaluation;
+import org.sakaiproject.rubrics.api.model.ReturnedCriterionOutcome;
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
@@ -654,6 +655,13 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         evaluation.setStatus(EvaluationStatus.DRAFT);
         rubricsService.saveEvaluation(evaluation, siteId);
         assertTrue(returnedEvaluationRepository.findByOriginalEvaluationId(evaluation.getId()).isPresent());
+
+        // Older concurrent writes could create more than one returned snapshot for an evaluation.
+        ReturnedEvaluation duplicate = new ReturnedEvaluation();
+        duplicate.setOriginalEvaluationId(evaluation.getId());
+        evaluationRepository.findById(evaluation.getId()).get().getCriterionOutcomes().stream()
+                .map(ReturnedCriterionOutcome::new).forEach(duplicate.getCriterionOutcomes()::add);
+        returnedEvaluationRepository.save(duplicate);
 
         rubricsService.deleteRubricAssociation(toolId, toolItemId);
         sessionFactory.getCurrentSession().flush();

@@ -51,10 +51,11 @@ public class ReturnedEvaluationRepositoryImpl extends SpringCrudRepositoryImpl<R
 
     public void deleteByOriginalEvaluationId(Long originalEvaluationId) {
         Session session = sessionFactory.getCurrentSession();
-        Optional<ReturnedEvaluation> returnedEvaluationOptional = findByOriginalEvaluationId(originalEvaluationId);
-        if (returnedEvaluationOptional.isPresent()) {
-            session.remove(returnedEvaluationOptional.get());
-        }
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ReturnedEvaluation> query = cb.createQuery(ReturnedEvaluation.class);
+        Root<ReturnedEvaluation> evaluation = query.from(ReturnedEvaluation.class);
+        query.where(cb.equal(evaluation.get("originalEvaluationId"), originalEvaluationId));
+        session.createQuery(query).getResultList().forEach(session::remove);
     }
 
 
