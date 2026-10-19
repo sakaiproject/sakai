@@ -83,6 +83,54 @@ describe("sakai-rubric-criteria tests", () => {
     }
   });
 
+  for (const { draft, weights, canSave } of [
+    { draft: true, weights: [20, 30], canSave: true },
+    { draft: false, weights: [20, 30], canSave: false },
+    { draft: true, weights: [40, 60], canSave: true },
+    { draft: false, weights: [40, 60], canSave: true },
+  ]) {
+    it (`${draft ? "draft" : "published"} weights ${weights.join(" + ")} ${canSave ? "can" : "cannot"} be saved`, async () => {
+      const rubric = structuredClone(data.rubric4);
+      rubric.version = 0;
+      rubric.draft = draft;
+      rubric.weighted = true;
+      rubric.criteria.forEach((criterion, index) => criterion.weight = weights[index]);
+      const el = await fixture(html`
+        <sakai-rubric site-id="${data.siteId}" .rubric=${rubric}></sakai-rubric>
+      `);
+      await waitUntil(() => el.renderRoot.querySelector(".rubric-toggle"));
+      el.renderRoot.querySelector(".rubric-toggle").click();
+      await waitUntil(() => el.renderRoot.querySelector(".save-weights"));
+
+      const criteria = el.renderRoot.querySelector("sakai-rubric-criteria");
+      const save = criteria.renderRoot.querySelector(".save-weights");
+      expect(save.disabled).to.equal(!canSave);
+      if (draft && weights.reduce((total, weight) => total + weight, 0) !== 100) {
+        const publish = el.renderRoot.querySelector("button.draft");
+        expect(publish.classList.contains("disabled")).to.be.true;
+        publish.click();
+        expect(rubric.draft).to.be.true;
+        expect(fetchMock.callHistory.calls(data.rubric4OwnerUrl)).to.have.length(0);
+      }
+
+      save.click();
+      // Also exercise the handler guard before the pending save completes.
+      criteria.saveWeights();
+      if (canSave) {
+        await waitUntil(() => !el.renderRoot.querySelector(".sak-banner-success").classList.contains("d-none"));
+      }
+      const calls = fetchMock.callHistory.calls(data.rubric4OwnerUrl);
+      expect(calls).to.have.length(canSave ? 1 : 0);
+      if (canSave) {
+        expect(new Headers(calls[0].options.headers).get("If-Match")).to.equal('"0"');
+        expect(JSON.parse(calls[0].options.body)).to.deep.equal(rubric.criteria.flatMap((criterion, index) => [
+          { op: "test", path: `/criteria/${index}/id`, value: criterion.id },
+          { op: "replace", path: `/criteria/${index}/weight`, value: criterion.weight },
+        ]));
+      }
+    });
+  }
+
   it ("Criterion reorder, then mark as draft", async () => {
 
     const el = await fixture(html`
