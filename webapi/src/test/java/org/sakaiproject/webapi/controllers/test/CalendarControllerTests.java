@@ -81,14 +81,14 @@ public class CalendarControllerTests extends BaseControllerTests {
     @Before
     public void setup() {
 
-        reset(calendarService, sessionManager);
+        reset(calendarService, contentHostingService, entityManager, portalService, siteService, userDirectoryService, sessionManager);
 
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("user1");
         when(sessionManager.getCurrentSession()).thenReturn(session);
 
         buildMockMvc(controller);
-	  }
+    }
 
     @Test
     public void testMissingSession() throws Exception {

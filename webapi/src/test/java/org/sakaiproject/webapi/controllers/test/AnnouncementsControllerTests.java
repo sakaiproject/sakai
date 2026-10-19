@@ -88,14 +88,14 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
 
         faker = new Faker(new Random(24));
 
-        reset(announcementService, sessionManager);
+        reset(announcementService, contentHostingService, entityManager, portalService, siteService, userDirectoryService, sessionManager);
 
-        var session = mock(Session.class);
+        Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("user3");
         when(sessionManager.getCurrentSession()).thenReturn(session);
 
         buildMockMvc(controller);
-	  }
+    }
 
     @Test
     public void testMissingSession() throws Exception {

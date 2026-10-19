@@ -101,9 +101,9 @@ public class GradesControllerTests extends BaseControllerTests {
     @Before
     public void setup() {
 
-        reset(gradingService, sessionManager);
+        reset(authzGroupService, entityManager, gradingService, portalService, securityService, siteService, sessionManager);
 
-        var session = mock(Session.class);
+        Session session = mock(Session.class);
         when(session.getUserId()).thenReturn(user1Id);
         when(sessionManager.getCurrentSession()).thenReturn(session);
 

@@ -26,14 +26,13 @@ import org.springframework.restdocs.mockmvc.UriConfigurer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.webapi.controllers.AbstractSakaiApiController;
 import org.sakaiproject.webapi.exception.GlobalExceptionHandler;
 import org.sakaiproject.webapi.exception.MissingSessionException;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import static org.junit.Assert.assertTrue;
 
@@ -63,12 +62,17 @@ public abstract class BaseControllerTests {
             .withPort(80);
     }
 
-    protected void buildMockMvc(AbstractSakaiApiController controller) {
+    protected void buildMockMvc(Object controller) {
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
-          .setControllerAdvice(new GlobalExceptionHandler())
-          .apply(configurer)
-          .build();
+            .defaultRequest(get("/").with(request -> {
+                request.setContextPath("/api");
+                request.setRequestURI("/api" + request.getRequestURI());
+                return request;
+            }))
+            .setControllerAdvice(new GlobalExceptionHandler())
+            .apply(configurer)
+            .build();
     }
 
     protected void testMissingSession(String path) throws Exception {
@@ -78,7 +82,7 @@ public abstract class BaseControllerTests {
         when(sessionManager.getCurrentSession()).thenReturn(session);
 
         mockMvc.perform(get(path))
-            .andExpect(status().is(403))
+            .andExpect(status().isForbidden())
             .andExpect(result -> assertTrue(result.getResolvedException() instanceof MissingSessionException));
     }
 }

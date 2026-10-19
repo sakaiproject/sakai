@@ -3,7 +3,7 @@
 __See the login api about session cookies__
 
 === GET /api/users/{userId}/dashboard
-Returns the dashboad json for the currently authenticated user across all their sites.
+Returns the dashboard json for the currently authenticated user across all their sites.
 
 [cols="1h,3", grid=rows, frame=topbot]
 |===
@@ -18,7 +18,7 @@ include::{snippets}/get-user-dashboard/curl-request.adoc[]
 [cols="1,2,2", options="header"]
 |===
 | Status Code | Status | Details
-| 200 OK | Success | Returns a calendar object containing a list of calendar events.
+| 200 OK | Success | Returns a dashboard object containing available widgets and the widget layout.
 | 403 Forbidden | Error | User is not authenticated.
 |===
 
@@ -26,7 +26,7 @@ include::{snippets}/get-user-dashboard/curl-request.adoc[]
 include::{snippets}/get-user-dashboard/response-body.adoc[]
 
 === PUT /api/sites/{siteId}/dashboard
-Updates the specified site dashboad
+Updates the specified site dashboard
 
 [cols="1h,3", grid=rows, frame=topbot]
 |===

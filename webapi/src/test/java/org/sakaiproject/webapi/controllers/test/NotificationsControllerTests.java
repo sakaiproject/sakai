@@ -16,7 +16,9 @@
 package org.sakaiproject.webapi.controllers.test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.request.RequestDocumentation.formParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -34,8 +36,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.messaging.api.UserNotificationTransferBean;
-import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.webapi.controllers.NotificationsController;
 
@@ -51,18 +51,12 @@ public class NotificationsControllerTests extends BaseControllerTests {
     @Autowired
     private UserMessagingService userMessagingService;
 
-    @Autowired
-    private PortalService portalService;
-
-    @Autowired
-    private SiteService siteService;
-
     private String user1Id = "user1";
 
     @Before
     public void setup() {
 
-        reset(userMessagingService, portalService, sessionManager, siteService);
+        reset(userMessagingService, sessionManager);
 
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn(user1Id);
@@ -94,7 +88,7 @@ public class NotificationsControllerTests extends BaseControllerTests {
         noti1.tool = "sakai.announcements";
         noti1.fromDisplayName = "Sender Uno";
         noti1.siteTitle = "Math 101";
-        noti1.eventDate = Instant.now();
+        noti1.eventDate = Instant.parse("2024-12-12T12:00:00Z");
         noti1.formattedEventDate = "12 Dec 2024";
 
         String event2 = "assn.new";
@@ -110,7 +104,7 @@ public class NotificationsControllerTests extends BaseControllerTests {
         noti2.tool = "sakai.assignments";
         noti2.fromDisplayName = "Sender Uno";
         noti2.siteTitle = "Math 101";
-        noti2.eventDate = Instant.now();
+        noti2.eventDate = Instant.parse("2026-01-18T12:00:00Z");
         noti2.formattedEventDate = "18 Jan 2026";
 
         when(userMessagingService.getNotifications()).thenReturn(List.of(noti1, noti2));
@@ -171,7 +165,10 @@ public class NotificationsControllerTests extends BaseControllerTests {
         String toolId = "tool1";
         mockMvc.perform(post("/users/me/notifications/markViewed").param("siteId", siteId).param("toolId", toolId))
             .andExpect(status().isOk())
-            .andDo(document("mark-user-notifications-viewed"));
+            .andDo(document("mark-user-notifications-viewed", formParameters(
+                parameterWithName("siteId").optional().description("Limit notifications to this site"),
+                parameterWithName("toolId").optional().description("Limit notifications to this tool")
+            )));
 
         verify(userMessagingService).markAllNotificationsViewed(siteId, toolId);
     }
@@ -185,4 +182,69 @@ public class NotificationsControllerTests extends BaseControllerTests {
 
         verify(userMessagingService).sendTestNotification();
     }
+
+    @Test
+    public void testNotificationMutationsRequireSession() throws Exception {
+
+        Session session = mock(Session.class);
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+
+        for (String path : List.of("/1/clear", "/clear", "/markViewed", "/test")) {
+            mockMvc.perform(post("/users/me/notifications" + path))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Missing or invalid Sakai session"));
+        }
+
+        verifyNoInteractions(userMessagingService);
+    }
+
+    @Test
+    public void testUnavailableSession() throws Exception {
+
+        when(sessionManager.getCurrentSession()).thenThrow(new IllegalStateException("Session unavailable"));
+
+        mockMvc.perform(get("/users/me/notifications"))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.message").value("Missing or invalid Sakai session"));
+
+        verifyNoInteractions(userMessagingService);
+    }
+
+    @Test
+    public void testMarkAllNotificationsViewedWithoutFilters() throws Exception {
+
+        mockMvc.perform(post("/users/me/notifications/markViewed"))
+            .andExpect(status().isOk());
+
+        verify(userMessagingService).markAllNotificationsViewed(null, null);
+    }
+
+    @Test
+    public void testClearNotificationFailure() throws Exception {
+
+        doThrow(new RuntimeException("Messaging unavailable")).when(userMessagingService).clearNotification(1L);
+
+        mockMvc.perform(post("/users/me/notifications/1/clear"))
+            .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void testClearAllNotificationsFailure() throws Exception {
+
+        doThrow(new RuntimeException("Messaging unavailable")).when(userMessagingService).clearAllNotifications();
+
+        mockMvc.perform(post("/users/me/notifications/clear"))
+            .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void testMarkAllNotificationsViewedFailure() throws Exception {
+
+        doThrow(new RuntimeException("Messaging unavailable"))
+            .when(userMessagingService).markAllNotificationsViewed(null, null);
+
+        mockMvc.perform(post("/users/me/notifications/markViewed"))
+            .andExpect(status().isInternalServerError());
+    }
+
 }

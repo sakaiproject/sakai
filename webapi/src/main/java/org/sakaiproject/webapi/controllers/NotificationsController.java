@@ -28,7 +28,6 @@ import org.sakaiproject.messaging.api.UserNotificationTransferBean;
 
 import java.util.List;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -36,7 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationsController extends AbstractSakaiApiController {
 
     @Autowired
-    @Setter
     private UserMessagingService userMessagingService;
 
     @GetMapping(value = "/users/me/notifications", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -99,4 +97,5 @@ public class NotificationsController extends AbstractSakaiApiController {
 
         userMessagingService.sendTestNotification();
     }
+
 }

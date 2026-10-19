@@ -69,7 +69,7 @@ public class WebApiTestConfiguration {
     }
 
     @Bean
-    public CalendarService CalendarService() {
+    public CalendarService calendarService() {
         return mock(CalendarService.class);
     }
 
@@ -98,7 +98,7 @@ public class WebApiTestConfiguration {
         return mock(UsageSessionService.class);
     }
 
-    @Bean
+    @Bean(name = {"gradingService", "org.sakaiproject.grading.api.GradingService"})
     public GradingService gradingService() {
         return mock(GradingService.class);
     }
@@ -134,6 +134,7 @@ public class WebApiTestConfiguration {
     }
 
     @Bean
+    @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
         return mock(ServerConfigurationService.class);
     }
@@ -189,8 +190,8 @@ public class WebApiTestConfiguration {
         return mock(TagService.class);
     }
 
-		@Bean
-		public SiteStatsViewService siteStatsViewService() {
-			  return mock(SiteStatsViewService.class);
-		}
+    @Bean
+    public SiteStatsViewService siteStatsViewService() {
+        return mock(SiteStatsViewService.class);
+    }
 }

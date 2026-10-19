@@ -24,7 +24,7 @@ Ensure your HTTP client is configured to handle cookies for subsequent requests.
 ====
 
 ==== Request Body Parameters
-include::{snippets}/login/request-parameters.adoc[]
+include::{snippets}/login/form-parameters.adoc[]
 
 ==== Example Request
 include::{snippets}/login/curl-request.adoc[]

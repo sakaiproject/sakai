@@ -48,7 +48,6 @@ import org.sakaiproject.scorm.service.api.launch.ScormRuntimeInvocation;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeResult;
 import org.sakaiproject.scorm.service.api.launch.ScormTocEntry;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.controllers.ScormController;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +70,7 @@ public class ScormControllerTest extends BaseControllerTests {
     @Before
     public void setUp() {
 
-        reset(sessionManager);
+        reset(scormLaunchService, sessionManager);
 
         Session session = mock(Session.class);
         when(sessionManager.getCurrentSession()).thenReturn(session);

@@ -44,8 +44,6 @@ import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.controllers.LoginController;
 
-import static org.mockito.Mockito.*;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { WebApiTestConfiguration.class, LoginController.class })
 public class LoginControllerTests extends BaseControllerTests {
@@ -65,23 +63,23 @@ public class LoginControllerTests extends BaseControllerTests {
     @Before
     public void setup() {
 
-        reset(sessionManager);
+        reset(authenticationManager, usageSessionService, userDirectoryService, sessionManager);
 
         buildMockMvc(controller);
-	  }
+    }
 
     @Test
     public void testSuccessfulLogin() throws Exception {
 
-        var auth = mock(Authentication.class);
+        Authentication auth = mock(Authentication.class);
         when(authenticationManager.authenticate(any())).thenReturn(auth);
 
-        var session = mock(Session.class);
+        Session session = mock(Session.class);
         when(session.getId()).thenReturn("session1");
         when(sessionManager.startSession()).thenReturn(session);
 
-        var username = "user1";
-        var password = "password1";
+        String username = "user1";
+        String password = "password1";
 
         MvcResult result = mockMvc.perform(post("/login")
                 .param("username", username)
@@ -105,8 +103,8 @@ public class LoginControllerTests extends BaseControllerTests {
 
         when(sessionManager.startSession()).thenReturn(null);
 
-        var username = "user1";
-        var password = "password1";
+        String username = "user1";
+        String password = "password1";
 
         mockMvc.perform(post("/login").param("username", username).param("password", password))
             .andExpect(status().isInternalServerError());

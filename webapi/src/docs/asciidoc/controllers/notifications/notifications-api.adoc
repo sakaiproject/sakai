@@ -66,8 +66,8 @@ include::{snippets}/clear-user-notifications/curl-request.adoc[]
 |===
 
 === POST /api/users/me/notifications/markViewed
-Marks notifications as viewed. You can supply a siteId and toolId to just mark those notifications
-as viewed
+Marks notifications as viewed. Use the optional `siteId` and `toolId` parameters to filter by site and tool.
+Omit both parameters to mark all notifications as viewed.
 
 [cols="1h,3", grid=rows, frame=topbot]
 |===
@@ -77,6 +77,9 @@ as viewed
 
 ==== Example Request
 include::{snippets}/mark-user-notifications-viewed/curl-request.adoc[]
+
+==== Form Parameters
+include::{snippets}/mark-user-notifications-viewed/form-parameters.adoc[]
 
 ==== Responses
 [cols="1,2,2", options="header"]

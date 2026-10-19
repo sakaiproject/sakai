@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Setter
-public class AbstractSakaiApiController {
+abstract class AbstractSakaiApiController {
 
     @Autowired
     @Qualifier("org.sakaiproject.tool.api.SessionManager")
