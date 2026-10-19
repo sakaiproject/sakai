@@ -16,6 +16,21 @@
 package org.sakaiproject.webapi.controllers.test;
 
 import static org.mockito.Mockito.mock;
+
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.privacy.PrivacyManager;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.cardgame.api.CardGameService;
+import org.sakaiproject.condition.api.ConditionService;
+import org.sakaiproject.conversations.api.ConversationsService;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.util.api.LocaleService;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -181,6 +196,7 @@ public class WebApiTestConfiguration {
     }
 
     @Bean
+    @Qualifier("org.sakaiproject.lti.api.SakaiAccessTokenService")
     public SakaiAccessTokenService accessTokenService() {
         return mock(SakaiAccessTokenService.class);
     }
@@ -193,5 +209,77 @@ public class WebApiTestConfiguration {
     @Bean
     public SiteStatsViewService siteStatsViewService() {
         return mock(SiteStatsViewService.class);
+    }
+
+    @Bean
+    public SynopticMsgcntrManager synopticMsgcntrManager() {
+        return mock(SynopticMsgcntrManager.class);
+    }
+
+    @Bean
+    public DiscussionForumManager discussionForumManager() {
+        return mock(DiscussionForumManager.class);
+    }
+
+    @Bean
+    public PrivacyManager privacyManager() {
+        return mock(PrivacyManager.class);
+    }
+
+    @Bean
+    public AssignmentService assignmentService() {
+        return mock(AssignmentService.class);
+    }
+
+    @Bean
+    public FunctionManager functionManager() {
+        return mock(FunctionManager.class);
+    }
+
+    @Bean
+    public CardGameService cardGameService() {
+        return mock(CardGameService.class);
+    }
+
+    @Bean
+    public ConditionService conditionService() {
+        return mock(ConditionService.class);
+    }
+
+    @Bean
+    public ConversationsService conversationsService() {
+        return mock(ConversationsService.class);
+    }
+
+    @Bean
+    @Qualifier("org.sakaiproject.coursemanagement.api.CourseManagementService")
+    public CourseManagementService courseManagementService() {
+        return mock(CourseManagementService.class);
+    }
+
+    @Bean
+    @Qualifier("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
+    public SimplePageToolDao lessonService() {
+        return mock(SimplePageToolDao.class);
+    }
+
+    @Bean
+    public RubricsService rubricsService() {
+        return mock(RubricsService.class);
+    }
+
+    @Bean
+    public SearchService searchService() {
+        return mock(SearchService.class);
+    }
+
+    @Bean
+    public PersistenceService persistenceService() {
+        return mock(PersistenceService.class);
+    }
+
+    @Bean
+    public LocaleService localeService() {
+        return mock(LocaleService.class);
     }
 }
