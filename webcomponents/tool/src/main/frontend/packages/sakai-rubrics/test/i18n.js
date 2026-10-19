@@ -5,6 +5,7 @@ last_modified_by=Last Modified By
 unknown_user=Unknown
 save_conflict=Someone else changed this rubric or evaluation. Your changes have not been saved.
 operation_failed=Unable to save your changes. Try again.
+rating_points_required=Enter a point value for this rating.
 grading_rubric=Grading Rubric
 rubric=Rubric
 criterion=Criterion
