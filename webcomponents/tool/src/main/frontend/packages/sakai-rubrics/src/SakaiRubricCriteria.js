@@ -284,6 +284,9 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   saveWeights() {
 
+    if (this._savingWeights || (!this.isDraft && !this.validWeight)) {
+      return;
+    }
     this._savingWeights = true;
 
     const parentRubric = this.closest("sakai-rubric");
@@ -542,7 +545,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                 <span>${this.maxPoints}</span>
               </div>
             </div>
-            <button class="btn-link save-weights" @click="${this.saveWeights}" .disabled=${this._savingWeights || (!this.validWeight && !this.isDraft)}>
+            <button type="button" class="btn-link save-weights" @click="${this.saveWeights}" ?disabled=${this._savingWeights || (!this.isDraft && !this.validWeight)}>
               <span class="add fa fa-save" aria-hidden="true"></span>
               ${this._i18n.save_weights}
             </button>
