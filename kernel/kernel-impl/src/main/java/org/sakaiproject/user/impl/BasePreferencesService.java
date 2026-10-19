@@ -345,7 +345,12 @@ public class BasePreferencesService implements PreferencesService
 
 		// Failing that, try the storage
 		if (prefs == null) {
-			prefs = readPreferences(id);
+			try {
+				prefs = readPreferences(id);
+			} catch (IllegalStateException e) {
+				log.warn("Ignoring invalid preferences for user {}: {}", id, e.getMessage());
+				return null;
+			}
 		}
 
 		if (prefs != null) {

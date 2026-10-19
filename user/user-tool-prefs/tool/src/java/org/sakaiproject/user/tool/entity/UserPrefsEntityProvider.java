@@ -48,6 +48,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesConflictException;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.tool.UserPrefsTool;
 import org.sakaiproject.exception.InUseException;
@@ -116,6 +117,14 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 
 		return preference;
 	}
+
+    private void commitPreferences(PreferencesEdit edit) {
+        try {
+            preferencesService.commit(edit);
+        } catch (PreferencesConflictException e) {
+            throw new EntityException("Preferences changed in another session. Reload and try again.", edit.getId(), 409);
+        }
+    }
 	
 	public Object getEntity(EntityReference ref) {
 
@@ -174,6 +183,10 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 			// now remove the preference 
 			preferencesService.remove(edit);
 		}
+		catch (PreferencesConflictException e)
+		{
+			throw new EntityException("Preferences changed in another session. Reload and try again.", requestedUserID, 409);
+		}
 		catch (IdUnusedException e)
 		{
 			log.warn("user = {}", ref, e.getMessage());
@@ -229,7 +242,7 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
                 preferencesService.cancel(preferences);
                 preferences = null;
             } finally {
-                if (preferences != null) preferencesService.commit(preferences);
+                if (preferences != null) commitPreferences(preferences);
             }
         }
     }
@@ -369,7 +382,7 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 							preferencesService.cancel(editPrefs);
 							editPrefs = null;
 						} finally {
-							if (editPrefs != null) preferencesService.commit(editPrefs);
+							if (editPrefs != null) commitPreferences(editPrefs);
 						}
 					} else {
 						log.warn("Could not get a lock on prefs to update for user: {}", requestedUserID);
