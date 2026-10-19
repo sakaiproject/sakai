@@ -278,9 +278,10 @@ public class NoOpContentReviewService extends BaseContentReviewService {
 	}
 	
 	@Override
-	public void updateUserEULATimestamp(String userId) {
+	public boolean updateUserEULATimestamp(String userId) {
 		String ret = "There is no content review service configured, please see your administrator";
 		log.debug("{} updateUserEULATimestamp {}", ret, userId);
+		return false;
 	}
 
 	@Override
