@@ -2,6 +2,7 @@ import { RubricsElement } from "./RubricsElement.js";
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { repeat } from "lit/directives/repeat.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 import "../sakai-rubric-edit.js";
 import "../sakai-item-delete.js";
 import "../sakai-rubric-criterion-edit.js";
@@ -514,8 +515,8 @@ export class SakaiRubricCriteria extends RubricsElement {
                           criterion-id="${c.id}"
                           @save-rating=${this.saveRating}
                           @delete-rating=${this.deleteRating}
-                          minpoints="${c.pointrange ? c.pointrange.low : 0}"
-                          maxpoints="${c.pointrange ? c.pointrange.high : 0}"
+                          minpoints="${ifDefined(c.pointrange?.low)}"
+                          maxpoints="${ifDefined(c.pointrange?.high)}"
                           .rating=${r}
                           ?removable="${ this.isRatingRemovable(c) }"
                           ?is-locked="${this.isLocked}">

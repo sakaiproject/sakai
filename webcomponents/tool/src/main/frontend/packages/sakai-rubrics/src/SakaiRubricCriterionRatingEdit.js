@@ -83,7 +83,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
                 </div>
                 <div class="ms-auto points ${this.isLocked ? "d-none" : ""}">
                   <label class="label-rubrics form-label" for="rating-points-${this.rating.id}">${this._i18n.points}</label>
-                  <input type="number"
+                  <input type="number" required step="any"
                       id="rating-points-${this.rating.id}"
                       class="form-control hide-input-arrows"
                       name="quantity"
@@ -131,11 +131,18 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     e.stopPropagation();
 
-    this.rating.title = document.getElementById(`rating-title-edit-${this.rating.id}`).value;
+    const pointsInput = this.renderRoot.querySelector(`#rating-points-${this.rating.id}`);
+    pointsInput.setCustomValidity(pointsInput.validity.valueMissing || pointsInput.validity.badInput
+      ? this.tr("rating_points_required") : "");
+    if (!this.isLocked && !pointsInput.reportValidity()) {
+      return;
+    }
+
+    this.rating.title = this.renderRoot.querySelector(`#rating-title-edit-${this.rating.id}`).value;
 
     if (!this.isLocked) {
 
-      const points = parseFloat(document.getElementById(`rating-points-${this.rating.id}`).value);
+      const points = parseFloat(pointsInput.value);
       // Check points value. Blank breaks things.
       if (isFinite(points)) {
         // Round user input to two digits.

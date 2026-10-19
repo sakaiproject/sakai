@@ -1,6 +1,7 @@
 export const i18nUrl = /getI18nProperties.*rubrics$/;
 
 export const i18n = `
+rating_points_required=Enter a point value for this rating.
 grading_rubric=Grading Rubric
 rubric=Rubric
 criterion=Criterion
