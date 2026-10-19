@@ -73,13 +73,17 @@ class CommonsTest extends SakaiUiTestBase {
 
         page.locator("#commons-post-creator-editor").click();
         page.locator("#commons-editor-link-button").click();
+        // Bootstrap focuses the dialog after its opening transition.
+        assertThat(page.locator("#commons-link-dialog")).isFocused();
         assertThat(page.locator("#commons-link-dialog-load-thumbnail")).hasCount(0);
         page.locator("#commons-link-dialog-text").fill("Sakai project");
         page.locator("#commons-link-dialog-url").pressSequentially("https://www.sakaiproject.org/");
+        assertThat(page.locator("#commons-link-dialog-url")).hasValue("https://www.sakaiproject.org/");
         page.locator("#commons-link-dialog-insert-button").click();
 
         assertThat(page.locator("#commons-link-dialog")).isHidden();
         assertThat(page.locator("#commons-post-creator-editor a")).hasText("Sakai project");
+        assertThat(page.locator("#commons-post-creator-editor a")).hasAttribute("href", "https://www.sakaiproject.org/");
         page.locator("#commons-editor-post-button").click();
 
         assertThat(page.locator("#commons-posts a[href='https://www.sakaiproject.org/']")).hasText("Sakai project");
