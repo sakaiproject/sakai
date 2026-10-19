@@ -140,6 +140,28 @@ public class RemovedPageServiceTest {
     }
 
     @Test
+    public void deleteRemovesLinksFromPreservedPages() {
+        SimplePage parent = savePage("removed-tool", "Preserved page", null);
+        SimplePage preserved = savePage("removed-tool", "Preserved content", parent.getPageId());
+        SimplePage removed = savePage("removed-tool", "Page to delete", parent.getPageId());
+        SimplePageItem preservedLink = savePageItem(parent.getPageId(), preserved, false);
+        savePageItem(parent.getPageId(), removed, false);
+        savePageItem(0, removed, false);
+
+        DeleteResult result = service.deleteRemovedPages(SITE_ID, List.of(removed.getPageId()));
+        dao.flush();
+        dao.clear();
+
+        assertEquals(OperationStatus.SUCCESS, result.status());
+        assertNull(dao.getPage(removed.getPageId()));
+        assertTrue(dao.findPageItemsBySakaiId(Long.toString(removed.getPageId())).isEmpty());
+        List<SimplePageItem> remainingItems = dao.findItemsOnPage(parent.getPageId());
+        assertEquals(1, remainingItems.size());
+        assertEquals(preservedLink.getId(), remainingItems.get(0).getId());
+        assertTrue(dao.getPage(preserved.getPageId()) != null);
+    }
+
+    @Test
     public void deleteCancelsResourceEditWhenVisibilityRestoreFails() throws Exception {
         SimplePage removed = savePage("removed-tool", "Removed", null);
         SimplePageItem resourceItem = dao.makeItem(

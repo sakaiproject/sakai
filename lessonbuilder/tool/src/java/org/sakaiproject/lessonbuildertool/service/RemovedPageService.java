@@ -140,9 +140,10 @@ public class RemovedPageService {
             throw new RemovedPageOperationException("Unable to remove gradebook entry for Lessons page " + pageId);
         }
 
-        SimplePageItem topLevelItem = simplePageToolDao.findTopLevelPageItemBySakaiId(pageId.toString());
-        if (topLevelItem != null) {
-            deletePersistedObject(topLevelItem, "top-level item for page " + pageId);
+        // Retained pages must not keep links to a permanently deleted page.
+        for (SimplePageItem link : simplePageToolDao.findPageItemsBySakaiId(pageId.toString())) {
+            removeGradebookEntries(siteId, link);
+            deletePersistedObject(link, "link to page " + pageId);
         }
         deletePersistedObject(page, "page " + pageId);
     }
