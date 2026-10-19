@@ -129,6 +129,7 @@ class PortalPreferencesTest extends SakaiUiTestBase {
             sakai.login(username);
             String firstSite = sakai.createProject(username, List.of("sakai.announcements"));
             sakai.createProject(username, List.of("sakai.announcements", "sakai.schedule"));
+            sakai.createProject(username, List.of("sakai.schedule"));
             page.navigate(firstSite);
             String siteId = sakai.siteIdFromUrl(firstSite);
             List<Object> expectedIds = new ArrayList<>((List<?>) page.evaluate(
