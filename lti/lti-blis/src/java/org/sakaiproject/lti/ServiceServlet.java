@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.TreeMap;
 import java.util.Properties;
 import java.util.Set;
 
@@ -57,9 +56,7 @@ import org.tsugi.lti.objects.DeleteResultResponse;
 import org.tsugi.lti.objects.ReadResultResponse;
 import org.tsugi.lti.objects.ReplaceResultResponse;
 import org.tsugi.lti.objects.Result;
-import org.tsugi.lti.objects.ResultData;
 import org.tsugi.lti.objects.ResultRecord;
-import org.tsugi.lti.objects.ResultScore;
 import org.tsugi.lti.objects.POXRequestBody;
 import org.tsugi.lti.POXRequestHandler;
 import org.tsugi.lti13.LTI13ConstantsUtil;
@@ -74,7 +71,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -120,7 +116,6 @@ public class ServiceServlet extends HttpServlet {
 	private static final String ERROR_SERVICE_NOTALLOWED = "service.notallowed";
 	private static final String ERROR_OUTCOMES_MISSING = "outcomes.missing";
 	private static final String ERROR_OUTCOMES_FAIL = "outcomes.fail";
-	private static final String ERROR_OUTCOME_FAIL = "outcome.fail";
 	private static final String ERROR_OUTCOME_NO_VALIDATE = "outcome.no.validate";
 	private static final String ERROR_OUTCOME_GRADE_FAIL = "outcome.grade.fail";
 	private static final String ERROR_OUTCOMES_SOURCEDID = "outcomes.sourcedid";
@@ -292,9 +287,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Check the message signature using OAuth
 		String oauth_secret = normalProps.getProperty(LTIService.LTI_SECRET);
-		log.debug("oauth_secret: {}", oauth_secret);
 		oauth_secret = SakaiLTIUtil.decryptSecret(oauth_secret);
-		log.debug("oauth_secret (decrypted): {}", oauth_secret);
 
 		String URL = SakaiLTIUtil.getOurServletPath(request);
 		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
@@ -644,9 +637,7 @@ public class ServiceServlet extends HttpServlet {
 		// Check the message signature using OAuth
 		String oauth_consumer_key = pox.getOAuthConsumerKey();
 		String oauth_secret = normalProps.getProperty(LTIService.LTI_SECRET);
-		log.debug("oauth_secret: {}", oauth_secret);
 		oauth_secret = SakaiLTIUtil.decryptSecret(oauth_secret);
-		log.debug("oauth_secret (decrypted): {}", oauth_secret);
 
 		String URL = SakaiLTIUtil.getOurServletPath(request);
 		pox.validateRequest(oauth_consumer_key, oauth_secret, request, URL);

@@ -20,8 +20,6 @@ package org.tsugi.lti13;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -47,50 +45,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class LTI13Util {
-
-	public static Map<String, String> generateKeys()
-			throws java.security.NoSuchAlgorithmException {
-		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-		keyGen.initialize(2048);
-
-		KeyPair kp = keyGen.genKeyPair();
-		byte[] publicKey = kp.getPublic().getEncoded();
-		byte[] privateKey = kp.getPrivate().getEncoded();
-
-		String publicRSA = "-----BEGIN PUBLIC KEY-----\n"
-				+ base64Encode(privateKey)
-				+ "\n-----END PUBLIC KEY-----\n";
-		String privateRSA = "-----BEGIN PRIVATE KEY-----\n"
-				+ base64Encode(privateKey)
-				+ "\n-----END PRIVATE KEY-----\n";
-
-		// If we need a pem style for these keys
-		// String pemBase64 = javax.xml.bind.DatatypeConverter.printBase64Binary(publicKey);
-		Map<String, String> returnMap = new TreeMap<>();
-		returnMap.put("platform_public", publicRSA);
-		returnMap.put("platform_private", privateRSA);
-
-		// Do it again for the tool
-		keyGen = KeyPairGenerator.getInstance("RSA");
-		keyGen.initialize(2048);
-
-		kp = keyGen.genKeyPair();
-		publicKey = kp.getPublic().getEncoded();
-		privateKey = kp.getPrivate().getEncoded();
-
-		publicRSA = "-----BEGIN RSA PUBLIC KEY-----\n"
-				+ base64Encode(privateKey)
-				+ "\n-----END RSA PUBLIC KEY-----\n";
-		privateRSA = "-----BEGIN RSA PRIVATE KEY-----\n"
-				+ base64Encode(privateKey)
-				+ "\n-----END RSA PRIVATE KEY-----\n";
-
-		returnMap.put("tool_public", publicRSA);
-		returnMap.put("tool_private", privateRSA);
-
-		return returnMap;
-
-	}
 
 	public static String base64Encode(byte[] input) {
 		Base64.Encoder encoder = Base64.getEncoder();

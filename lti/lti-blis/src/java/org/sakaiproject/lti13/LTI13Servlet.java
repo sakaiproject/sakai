@@ -705,14 +705,14 @@ public class LTI13Servlet extends HttpServlet {
 		String body = LTI13JwtUtil.rawJwtBody(client_assertion);
 		if (body == null) {
 			LTI13Util.return400(response, "Could not find Jwt Body in client_assertion");
-			log.error("Could not find Jwt Body in client_assertion\n{}", client_assertion);
+			log.error("Could not find Jwt Body in client_assertion");
 			return;
 		}
 
 		JSONObject jsonHeader = LTI13JwtUtil.jsonJwtHeader(client_assertion);
 		if (jsonHeader == null) {
 			LTI13Util.return400(response, "Could not parse Jwt Header in client_assertion");
-			log.error("Could not parse Jwt Header in client_assertion\n{}", client_assertion);
+			log.error("Could not parse Jwt Header in client_assertion");
 			return;
 		}
 
@@ -1000,7 +1000,7 @@ public class LTI13Servlet extends HttpServlet {
 		// Check the one time use token expiration
 		int delta = 60*60; // An hour
 		if ( ! LTI13Util.timeStampCheck(registration_token, delta) ) {
-			log.error("Expired registration_token \n"+registration_token+":\n tool_token=\n"+tool_token+":");
+			log.error("Expired registration_token");
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}

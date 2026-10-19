@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 
-import org.apache.commons.codec.binary.Base64;
-
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;

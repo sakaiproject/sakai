@@ -270,14 +270,6 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 
 	}
 
-	protected void requireAdminUser(String siteId) {
-                if (!inAdmin(siteId)) {
-                        throw new SecurityException(
-                                "The requested site is not accessible to the current user.");
-                }
-
-	}
-
 	protected boolean inAdmin(String siteId) {
 		if ( ! ADMIN_SITE.equals(siteId) ) return false;
 		return isMaintain(siteId);
