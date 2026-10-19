@@ -221,7 +221,8 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			if(microsoftCredentials.hasValue()) {
 				try {
 					log.debug(MicrosoftCredentials.KEY_CLIENT_ID+"="+microsoftCredentials.getClientId());
-					log.debug(MicrosoftCredentials.KEY_SECRET+"="+microsoftCredentials.getSecret());
+					// avoid to show secret in log
+					// log.debug(MicrosoftCredentials.KEY_SECRET+"="+microsoftCredentials.getSecret());
 					log.debug(MicrosoftCredentials.KEY_SCOPE+"="+microsoftCredentials.getScope());
 					log.debug(MicrosoftCredentials.KEY_AUTHORITY+"="+microsoftCredentials.getAuthority());
 
