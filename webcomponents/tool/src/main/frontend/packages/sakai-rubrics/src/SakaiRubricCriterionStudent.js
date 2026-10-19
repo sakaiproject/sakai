@@ -118,13 +118,12 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
                   <sakai-rubric-student-comment .criterion=${c}></sakai-rubric-student-comment>
                 ` : nothing }
                 <div class="rubric-grading-points-value">
-                  <strong class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
-                    ${c.selectedRatingId ? c.selectedvalue.toLocaleString(this.locale) : "0"}
+                  <strong class="points-display">
+                    ${this.isOverridden(c.pointoverride, c.selectedvalue)
+                      ? c.pointoverride.toLocaleString(this.locale)
+                      : (c.selectedvalue ?? 0).toLocaleString(this.locale)}
                   </strong>
                 </div>
-                ${this.isOverridden(c.pointoverride, c.selectedvalue) ?
-                  html`<strong class="points-display">${c.pointoverride.toLocaleString(this.locale)}</strong>`
-                  : nothing }
               ` : nothing }
               </div>
             </div>
