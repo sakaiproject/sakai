@@ -13,6 +13,9 @@ allsites.resetSearch = function () {
 
 allsites.updatePinned = function (reorder) {
 
+  clearTimeout(allsites.updateTimeoutId);
+  allsites.updateTimeoutId = undefined;
+
   const data = new URLSearchParams();
   data.append("userFavorites", JSON.stringify(allsites.pinnedQueue));
   if (reorder) data.append("reorder", "true");
