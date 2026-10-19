@@ -22,7 +22,7 @@ import org.hibernate.stat.Statistics;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.rubrics.api.model.Evaluation;
-import org.sakaiproject.rubrics.api.RubricsConflictException;
+import jakarta.persistence.OptimisticLockException;
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
@@ -95,10 +95,11 @@ public class EvaluationRepositoryTest extends AbstractTransactionalJUnit4SpringC
         Evaluation current = evaluationRepository.findById(stale.getId()).get();
         current.setOverallComment("Newer comment");
         Evaluation saved = evaluationRepository.save(current);
+        sessionFactory.getCurrentSession().flush();
         assertTrue(saved.getVersion() > version);
         sessionFactory.getCurrentSession().clear();
         stale.setOverallComment("Stale comment");
-        assertThrows(RubricsConflictException.class, () -> evaluationRepository.save(stale));
+        assertThrows(OptimisticLockException.class, () -> evaluationRepository.save(stale));
     }
 
     private void saveEvaluation(Long associationId, String siteId, String itemId) {

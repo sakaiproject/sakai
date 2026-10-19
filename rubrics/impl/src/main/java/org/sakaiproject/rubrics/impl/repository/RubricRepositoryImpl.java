@@ -22,9 +22,6 @@
 
 package org.sakaiproject.rubrics.impl.repository;
 
-import jakarta.persistence.OptimisticLockException;
-import org.hibernate.StaleStateException;
-import org.sakaiproject.rubrics.api.RubricsConflictException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -45,29 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class RubricRepositoryImpl extends SpringCrudRepositoryImpl<Rubric, Long> implements RubricRepository {
 
-    @Override
-    @Transactional
-    public void delete(Rubric entity) {
-        try {
-            Session session = sessionFactory.getCurrentSession();
-            session.remove(session.contains(entity) ? entity : session.merge(entity));
-            session.flush();
-        } catch (OptimisticLockException | StaleStateException e) {
-            throw new RubricsConflictException(e);
-        }
-    }
-
-    @Override
-    @Transactional
-    public <S extends Rubric> S save(S entity) {
-        try {
-            S saved = super.save(entity);
-            sessionFactory.getCurrentSession().flush();
-            return saved;
-        } catch (OptimisticLockException | StaleStateException e) {
-            throw new RubricsConflictException(e);
-        }
-    }
 
     @Autowired
     private EvaluationRepository evaluationRepository;

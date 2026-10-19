@@ -22,7 +22,10 @@
 
 package org.sakaiproject.webapi.controllers;
 
+import jakarta.persistence.OptimisticLockException;
+
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.StaleStateException;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.RubricsConflictException;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
@@ -38,6 +41,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ContentDisposition;
@@ -58,6 +62,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -69,6 +74,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -134,11 +140,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
                 return ResponseEntity.ok(rubricsService.updateCriterion(criterion, siteId));
             } catch (SecurityException se) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            } catch (RubricsConflictException | ResponseStatusException e) {
-                throw e;
-            } catch (Exception e) {
-                log.error("Failed to patch rubric", e);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -319,9 +320,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                 RubricTransferBean patchedBean = jsonMapper.treeToValue(patched, RubricTransferBean.class);
                 patchedBean.setVersion(parseRevision(revision));
                 return ResponseEntity.ok(rubricsService.saveRubric(patchedBean));
-            } catch (RubricsConflictException | ResponseStatusException e) {
-                throw e;
-            } catch (Exception e) {
+            } catch (JsonPatchException | JsonProcessingException e) {
                 log.error("Failed to patch rubric", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
@@ -417,9 +416,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                 EvaluationTransferBean patchedBean  = jsonMapper.treeToValue(patched, EvaluationTransferBean.class);
                 patchedBean.setVersion(parseRevision(revision));
                 return ResponseEntity.ok(rubricsService.saveEvaluation(patchedBean, siteId));
-            } catch (RubricsConflictException | ResponseStatusException e) {
-                throw e;
-            } catch (Exception e) {
+            } catch (JsonPatchException | JsonProcessingException e) {
                 log.error("Failed to patch evaluation", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
@@ -516,9 +513,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                 CriterionTransferBean patchedBean  = jsonMapper.treeToValue(patched, CriterionTransferBean.class);
                 patchedBean.setRubricVersion(parseRevision(revision));
                 return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.updateCriterion(patchedBean, siteId)));
-            } catch (RubricsConflictException | ResponseStatusException e) {
-                throw e;
-            } catch (Exception e) {
+            } catch (JsonPatchException | JsonProcessingException e) {
                 log.error("Failed to patch criterion", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
@@ -570,7 +565,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
                 .body(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
     }
 
-    @ExceptionHandler(RubricsConflictException.class)
+    @ExceptionHandler({ RubricsConflictException.class, OptimisticLockException.class,
+            StaleStateException.class, OptimisticLockingFailureException.class })
     public ResponseEntity<Void> conflict() {
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }

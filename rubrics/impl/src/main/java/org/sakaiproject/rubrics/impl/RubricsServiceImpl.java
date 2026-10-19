@@ -105,6 +105,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
+import org.hibernate.SessionFactory;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -157,6 +159,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     private SecurityService securityService;
     private ServerConfigurationService serverConfigurationService;
     private SessionManager sessionManager;
+    private SessionFactory sessionFactory;
     private SiteService siteService;
     private AssociationRepository associationRepository;
     private ToolManager toolManager;
@@ -261,6 +264,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         rubric.setModified(now);
 
         Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+        sessionFactory.getCurrentSession().flush();
         return decorateRubricBean(new RubricTransferBean(savedRubric));
     }
 
@@ -280,7 +284,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             copy.setCreatorId(sessionManager.getCurrentSessionUserId());
             copy.setTitle(copy.getTitle() + " " + resourceLoader.getString("copy"));
             sanitizeRubric(copy);
-            return decorateRubricBean(new RubricTransferBean(rubricRepository.save(copy)));
+            Rubric savedRubric = rubricRepository.save(copy);
+            sessionFactory.getCurrentSession().flush();
+            return decorateRubricBean(new RubricTransferBean(savedRubric));
         }).orElseThrow(() -> new IllegalArgumentException("No rubric with id: " + rubricId));
     }
 
@@ -344,6 +350,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         rubric.getAssociations().forEach(ass -> evaluationRepository.deleteByToolItemRubricAssociation_Id(ass.getId()));
 
         rubricRepository.delete(rubric);
+        sessionFactory.getCurrentSession().flush();
         return true;
     }
 
@@ -397,6 +404,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         sanitizeCriterion(clone);
 
         Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+        sessionFactory.getCurrentSession().flush();
         Criterion newCriterion = savedRubric.getCriteria().stream()
                 .filter(c -> !criterionIds.contains(c.getId()))
                 .findAny()
@@ -436,7 +444,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
             rubric.getCriteria().clear();
             rubric.getCriteria().addAll(sorted);
-            return decorateRubricBean(new RubricTransferBean(rubricRepository.save(updateRubricMaxPoints(rubric))));
+            Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+            sessionFactory.getCurrentSession().flush();
+            return decorateRubricBean(new RubricTransferBean(savedRubric));
         }).orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
     }
 
@@ -478,8 +488,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
             criterion.getRatings().clear();
             criterion.getRatings().addAll(sorted);
-            criterionRepository.save(criterion);
+            criterion = criterionRepository.save(criterion);
             rubricRepository.save(updateRubricMaxPoints(criterion.getRubric()));
+            sessionFactory.getCurrentSession().flush();
             return criterionBean(criterion);
         }).orElseThrow(() -> new IllegalArgumentException("No criterion for id " + criterionId));
     }
@@ -523,6 +534,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
             rubric.getCriteria().add(criterion);
             Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+            sessionFactory.getCurrentSession().flush();
 
             Criterion newCriterion = savedRubric.getCriteria().stream()
                     .filter(c -> !criterionIds.contains(c.getId()))
@@ -552,6 +564,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             criterion.setTitle(resourceLoader.getString("default_empty_criterion_title"));
             rubric.getCriteria().add(criterion);
             Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+            sessionFactory.getCurrentSession().flush();
 
             Criterion newCriterion = savedRubric.getCriteria().stream()
                     .filter(c -> !criterionIds.contains(c.getId()))
@@ -577,7 +590,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         checkVersion(version, rubric.getVersion());
 
-        Optional<RatingTransferBean> bean = criterionRepository.findById(criterionId).map(criterion -> {
+        Optional<Rating> savedRating = criterionRepository.findById(criterionId).map(criterion -> {
 
             Rating rating = new Rating();
             rating.setTitle(resourceLoader.getString("default_rating_title"));
@@ -588,18 +601,12 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
             criterion = criterionRepository.save(criterion);
 
-            return ratingBean(criterion.getRatings().get(position));
+            return criterion.getRatings().get(position);
         });
 
         rubricRepository.save(updateRubricMaxPoints(rubric));
-        bean.ifPresent(b -> {
-            b.setRubricVersion(rubric.getVersion());
-            b.setRubricLastModifiedBy(rubric.getLastModifiedBy());
-            b.setRubricLastModifiedByDisplayName(getModifierDisplayName(rubric.getLastModifiedBy()));
-            b.setRubricFormattedModifiedDate(userTimeService.dateTimeFormat(rubric.getModified(), FormatStyle.MEDIUM, FormatStyle.SHORT));
-        });
-
-        return bean;
+        sessionFactory.getCurrentSession().flush();
+        return savedRating.map(this::ratingBean);
     }
 
     public RubricTransferBean saveRubric(RubricTransferBean bean) {
@@ -702,7 +709,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         rubric.setMaxPoints(bean.getMaxPoints());
         rubric.setAdhoc(bean.getAdhoc());
 
-        return decorateRubricBean(new RubricTransferBean(rubricRepository.save(updateRubricMaxPoints(rubric))));
+        Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+        sessionFactory.getCurrentSession().flush();
+        return decorateRubricBean(new RubricTransferBean(savedRubric));
     }
 
     public CriterionTransferBean updateCriterion(CriterionTransferBean bean, String siteId) {
@@ -737,6 +746,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                             }));
             criterion = criterionRepository.save(criterion);
             rubricRepository.save(updateRubricMaxPoints(criterion.getRubric()));
+            sessionFactory.getCurrentSession().flush();
             return criterionBean(criterion);
         }
 
@@ -755,7 +765,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         checkVersion(version, rubric.getVersion());
         rubric.getCriteria().removeIf(c -> c.getId().equals(criterionId));
 
-        return decorateRubricBean(new RubricTransferBean(rubricRepository.save(updateRubricMaxPoints(rubric))));
+        Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+        sessionFactory.getCurrentSession().flush();
+        return decorateRubricBean(new RubricTransferBean(savedRubric));
     }
 
     public RatingTransferBean updateRating(RatingTransferBean bean, String siteId) {
@@ -780,6 +792,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
             // since the rating points may have changed a rubric update may be needed
             rubricRepository.save(updateRubricMaxPoints(updatedRating.getCriterion().getRubric()));
+            sessionFactory.getCurrentSession().flush();
 
             return ratingBean(updatedRating);
         }
@@ -792,17 +805,16 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             throw new SecurityException("You must be a rubrics editor to create/edit ratings");
         }
 
-        CriterionTransferBean bean = criterionRepository.findById(criterionId).map(criterion -> {
+        Criterion savedCriterion = criterionRepository.findById(criterionId).map(criterion -> {
 
             Rating rating = criterion.getRatings().stream().filter(r -> r.getId().equals(ratingId))
                     .findFirst().orElseThrow(RubricsConflictException::new);
             checkVersion(version, rating.getVersion());
             criterion.getRatings().remove(rating);
-            criterion = criterionRepository.save(criterion);
-            return criterionBean(criterion);
+            return criterionRepository.save(criterion);
         }).orElseThrow(() -> new IllegalArgumentException("Could not remove rating for criterion [" + criterionId + "]"));
 
-        log.debug("ratings: {}", bean.getRatings());
+        log.debug("ratings: {}", savedCriterion.getRatings());
 
         Rubric rubric = rubricRepository
                 .findById(rubricId)
@@ -811,12 +823,8 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         log.debug("Rubric max points before update: {}", rubric.getMaxPoints());
         rubric = rubricRepository.save(updateRubricMaxPoints(rubric));
         log.debug("Rubric max points after update:: {}", rubric.getMaxPoints());
-        bean.setRubricVersion(rubric.getVersion());
-        bean.setRubricLastModifiedBy(rubric.getLastModifiedBy());
-        bean.setRubricLastModifiedByDisplayName(getModifierDisplayName(rubric.getLastModifiedBy()));
-        bean.setRubricFormattedModifiedDate(userTimeService.dateTimeFormat(rubric.getModified(), FormatStyle.MEDIUM, FormatStyle.SHORT));
-
-        return bean;
+        sessionFactory.getCurrentSession().flush();
+        return criterionBean(savedCriterion);
     }
 
     @Transactional(readOnly = true)
@@ -1091,45 +1099,54 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         evaluation.setEvaluatedItemOwnerType(evaluationBean.getEvaluatedItemOwnerType());
         evaluation.setModified(Instant.now());
 
-        Evaluation savedEvaluation = evaluationRepository.save(evaluation);
+        boolean insert = evaluation.getId() == null;
+        try {
+            Evaluation savedEvaluation = evaluationRepository.save(evaluation);
 
-        // If this evaluation has been returned, back it up.
-        if (savedEvaluation.getStatus() == EvaluationStatus.RETURNED) {
+            // If this evaluation has been returned, back it up.
+            if (savedEvaluation.getStatus() == EvaluationStatus.RETURNED) {
 
-            ReturnedEvaluation returnedEvaluation = returnedEvaluationRepository.findByOriginalEvaluationId(evaluation.getId())
-                .map(re -> {
-                    re.setOverallComment(savedEvaluation.getOverallComment());
-                    Map<Long, CriterionOutcome> outcomesById = savedEvaluation.getCriterionOutcomes().stream()
-                            .collect(Collectors.toMap(CriterionOutcome::getCriterionId, co -> co));
-                    re.getCriterionOutcomes().removeIf(o -> outcomesById.get(o.getCriterionId()) == null);
-                    re.getCriterionOutcomes().forEach(rco -> {
-                        CriterionOutcome o = outcomesById.get(rco.getCriterionId());
-                        rco.setSelectedRatingId(o.getSelectedRatingId());
-                        rco.setPointsAdjusted(o.getPointsAdjusted());
-                        rco.setPoints(o.getPoints());
-                        rco.setComments(o.getComments());
-                    });
-                    if (!newOutcomesCriterionIds.isEmpty()) {
-                        savedEvaluation.getCriterionOutcomes().stream().filter(o -> newOutcomesCriterionIds.contains(o.getCriterionId())).findAny().ifPresent(o -> {
-                            ReturnedCriterionOutcome rco = new ReturnedCriterionOutcome(o);
-                            re.getCriterionOutcomes().add(rco);
+                ReturnedEvaluation returnedEvaluation = returnedEvaluationRepository.findByOriginalEvaluationId(evaluation.getId())
+                    .map(re -> {
+                        re.setOverallComment(savedEvaluation.getOverallComment());
+                        Map<Long, CriterionOutcome> outcomesById = savedEvaluation.getCriterionOutcomes().stream()
+                                .collect(Collectors.toMap(CriterionOutcome::getCriterionId, co -> co));
+                        re.getCriterionOutcomes().removeIf(o -> outcomesById.get(o.getCriterionId()) == null);
+                        re.getCriterionOutcomes().forEach(rco -> {
+                            CriterionOutcome o = outcomesById.get(rco.getCriterionId());
+                            rco.setSelectedRatingId(o.getSelectedRatingId());
+                            rco.setPointsAdjusted(o.getPointsAdjusted());
+                            rco.setPoints(o.getPoints());
+                            rco.setComments(o.getComments());
                         });
-                    }
-                    return re;
-                }).orElseGet(() -> {
-                    ReturnedEvaluation re = new ReturnedEvaluation();
-                    re.setOverallComment(savedEvaluation.getOverallComment());
-                    re.setOriginalEvaluationId(savedEvaluation.getId());
-                    List<ReturnedCriterionOutcome> criterionOutcomes = re.getCriterionOutcomes();
-                    savedEvaluation.getCriterionOutcomes().forEach(co -> {
-                        ReturnedCriterionOutcome rco = new ReturnedCriterionOutcome(co);
-                        criterionOutcomes.add(rco);
+                        if (!newOutcomesCriterionIds.isEmpty()) {
+                            savedEvaluation.getCriterionOutcomes().stream().filter(o -> newOutcomesCriterionIds.contains(o.getCriterionId())).findAny().ifPresent(o -> {
+                                ReturnedCriterionOutcome rco = new ReturnedCriterionOutcome(o);
+                                re.getCriterionOutcomes().add(rco);
+                            });
+                        }
+                        return re;
+                    }).orElseGet(() -> {
+                        ReturnedEvaluation re = new ReturnedEvaluation();
+                        re.setOverallComment(savedEvaluation.getOverallComment());
+                        re.setOriginalEvaluationId(savedEvaluation.getId());
+                        List<ReturnedCriterionOutcome> criterionOutcomes = re.getCriterionOutcomes();
+                        savedEvaluation.getCriterionOutcomes().forEach(co -> {
+                            ReturnedCriterionOutcome rco = new ReturnedCriterionOutcome(co);
+                            criterionOutcomes.add(rco);
+                        });
+                        return re;
                     });
-                    return re;
-                });
-            returnedEvaluationRepository.save(returnedEvaluation);
+                returnedEvaluationRepository.save(returnedEvaluation);
+            }
+            sessionFactory.getCurrentSession().flush();
+            return new EvaluationTransferBean(savedEvaluation);
+        } catch (ConstraintViolationException e) {
+            if (insert && e.getKind() == ConstraintViolationException.ConstraintKind.UNIQUE) {
+                throw new RubricsConflictException(e);
+            }
+            throw e;
         }
-        return new EvaluationTransferBean(savedEvaluation);
     }
 
     public EvaluationTransferBean cancelDraftEvaluation(Long draftEvaluationId, Long version) {
@@ -1160,9 +1177,12 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             });
             evaluation.setStatus(EvaluationStatus.RETURNED);
             sanitizeEvaluation(evaluation);
-            return new EvaluationTransferBean(evaluationRepository.save(evaluation));
+            Evaluation savedEvaluation = evaluationRepository.save(evaluation);
+            sessionFactory.getCurrentSession().flush();
+            return new EvaluationTransferBean(savedEvaluation);
         } else {
             evaluationRepository.deleteById(draftEvaluationId);
+            sessionFactory.getCurrentSession().flush();
             return new EvaluationTransferBean(new Evaluation());
         }
     }

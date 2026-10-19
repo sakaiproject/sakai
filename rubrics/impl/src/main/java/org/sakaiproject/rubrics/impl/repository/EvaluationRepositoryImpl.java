@@ -22,9 +22,6 @@
 
 package org.sakaiproject.rubrics.impl.repository;
 
-import jakarta.persistence.OptimisticLockException;
-import org.hibernate.StaleStateException;
-import org.sakaiproject.rubrics.api.RubricsConflictException;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,46 +37,9 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 
 import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.transaction.annotation.Transactional;
 
 public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluation, Long> implements EvaluationRepository {
 
-    @Override
-    @Transactional
-    public void delete(Evaluation entity) {
-        try {
-            Session session = sessionFactory.getCurrentSession();
-            session.remove(session.contains(entity) ? entity : session.merge(entity));
-            session.flush();
-        } catch (OptimisticLockException | StaleStateException e) {
-            throw new RubricsConflictException(e);
-        }
-    }
-
-    @Override
-    @Transactional
-    public void deleteById(Long id) {
-        findById(id).ifPresent(this::delete);
-    }
-
-    @Override
-    @Transactional
-    public <S extends Evaluation> S save(S entity) {
-        boolean insert = entity.getId() == null;
-        try {
-            S saved = super.save(entity);
-            sessionFactory.getCurrentSession().flush();
-            return saved;
-        } catch (OptimisticLockException | StaleStateException e) {
-            throw new RubricsConflictException(e);
-        } catch (ConstraintViolationException e) {
-            if (insert && e.getKind() == ConstraintViolationException.ConstraintKind.UNIQUE) {
-                throw new RubricsConflictException(e);
-            }
-            throw e;
-        }
-    }
 
     public List<Evaluation> findByAssociationId(Long associationId) {
 

@@ -22,29 +22,9 @@
 
 package org.sakaiproject.rubrics.impl.repository;
 
-import jakarta.persistence.OptimisticLockException;
-import org.hibernate.StaleStateException;
-import org.sakaiproject.rubrics.api.RubricsConflictException;
-import org.springframework.transaction.annotation.Transactional;
-
 import org.sakaiproject.rubrics.api.model.Rating;
-
 import org.sakaiproject.rubrics.api.repository.RatingRepository;
-
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class RatingRepositoryImpl extends SpringCrudRepositoryImpl<Rating, Long> implements RatingRepository {
-
-    @Override
-    @Transactional
-    public <S extends Rating> S save(S entity) {
-        try {
-            S saved = super.save(entity);
-            sessionFactory.getCurrentSession().flush();
-            return saved;
-        } catch (OptimisticLockException | StaleStateException e) {
-            throw new RubricsConflictException(e);
-        }
-    }
-
 }
