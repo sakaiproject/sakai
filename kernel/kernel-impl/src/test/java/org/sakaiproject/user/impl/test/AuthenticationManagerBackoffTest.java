@@ -276,6 +276,41 @@ public class AuthenticationManagerBackoffTest extends SakaiKernelTestBase {
     }
 
     @Test
+    public void requestClockAheadCannotBypassPreliminaryPauseCheck() throws Exception {
+        String key = "ahead-check-" + UUID.randomUUID();
+        for (int attempt = 0; attempt < 5; attempt++) {
+            backoff.reserve(key);
+        }
+        PasswordLoginBackoff caller = callerWithClockOffset(3600);
+        assertThrows(AuthenticationThrottledException.class, () -> caller.check(key));
+    }
+
+    @Test
+    public void requestClockAheadCannotBypassReservationPause() throws Exception {
+        String key = "ahead-reserve-" + UUID.randomUUID();
+        for (int attempt = 0; attempt < 5; attempt++) {
+            backoff.reserve(key);
+        }
+        PasswordLoginBackoff caller = callerWithClockOffset(3600);
+        assertThrows(AuthenticationThrottledException.class, () -> caller.reserve(key));
+    }
+
+    @Test
+    public void requestClockBehindCannotLengthenPause() throws Exception {
+        String key = "behind-" + UUID.randomUUID();
+        for (int attempt = 0; attempt < 5; attempt++) {
+            backoff.reserve(key);
+        }
+        PasswordLoginBackoff caller = callerWithClockOffset(-3600);
+        advanceSeconds(2);
+        caller.check(key);
+        caller.reserve(key);
+        assertThrows(AuthenticationThrottledException.class, () -> backoff.check(key));
+        advanceSeconds(4);
+        backoff.check(key);
+    }
+
+    @Test
     public void concurrentReservationsCannotExceedTheInitialAllowance() throws Exception {
         String key = "concurrent-" + UUID.randomUUID();
         ExecutorService executor = Executors.newFixedThreadPool(12);
@@ -302,6 +337,17 @@ public class AuthenticationManagerBackoffTest extends SakaiKernelTestBase {
             executor.shutdownNow();
             backoff.clear(key);
         }
+    }
+
+    private PasswordLoginBackoff callerWithClockOffset(long seconds) {
+        // A separate request-side instance uses the real cache and configuration. The
+        // cache-side processor must use the Spring-wired owner's clock, not this one.
+        PasswordLoginBackoff caller = new PasswordLoginBackoff();
+        caller.setIgnite((Ignite) getService("org.sakaiproject.ignite.SakaiIgnite"));
+        caller.setServerConfigurationService(getService(ServerConfigurationService.class));
+        caller.setClock(Clock.fixed(now.plusSeconds(seconds), ZoneOffset.UTC));
+        caller.init();
+        return caller;
     }
 
     private String login(String identifier, String password) throws AuthenticationException {

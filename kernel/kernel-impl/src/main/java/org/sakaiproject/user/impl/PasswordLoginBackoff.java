@@ -25,6 +25,7 @@ import javax.cache.processor.MutableEntry;
 
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
+import org.apache.ignite.resources.SpringResource;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationThrottledException;
@@ -87,8 +88,7 @@ public class PasswordLoginBackoff {
     /** Reject paused requests before they can inspect or evict credential cache entries. */
     public void check(String accountKey) throws AuthenticationException {
         try {
-            Attempts attempts = cache.get(accountKey);
-            if (attempts != null && clock.millis() < attempts.blockedUntil) {
+            if (!cache.invoke(accountKey, new ReserveAttempt(threshold, windowMillis, maxDelayMillis, false))) {
                 throw paused();
             }
         } catch (CacheException | IllegalStateException e) {
@@ -104,7 +104,7 @@ public class PasswordLoginBackoff {
      */
     public void reserve(String accountKey) throws AuthenticationException {
         try {
-            if (!cache.invoke(accountKey, new ReserveAttempt(clock.millis(), threshold, windowMillis, maxDelayMillis))) {
+            if (!cache.invoke(accountKey, new ReserveAttempt(threshold, windowMillis, maxDelayMillis, true))) {
                 throw paused();
             }
         } catch (CacheException | IllegalStateException e) {
@@ -134,13 +134,17 @@ public class PasswordLoginBackoff {
 
     private static class ReserveAttempt implements EntryProcessor<String, Attempts, Boolean>, Serializable {
         private static final long serialVersionUID = 1L;
-        private final long now;
+        // Resolved on the cache-owning node; no request-side clock or timestamp is serialized.
+        @SpringResource(resourceName = "org.sakaiproject.user.impl.PasswordLoginBackoff")
+        private transient PasswordLoginBackoff backoff;
+
+        private final boolean reserve;
         private final int threshold;
         private final long windowMillis;
         private final long maxDelayMillis;
 
-        ReserveAttempt(long now, int threshold, long windowMillis, long maxDelayMillis) {
-            this.now = now;
+        ReserveAttempt(int threshold, long windowMillis, long maxDelayMillis, boolean reserve) {
+            this.reserve = reserve;
             this.threshold = threshold;
             this.windowMillis = windowMillis;
             this.maxDelayMillis = maxDelayMillis;
@@ -148,9 +152,13 @@ public class PasswordLoginBackoff {
 
         @Override
         public Boolean process(MutableEntry<String, Attempts> entry, Object... arguments) {
+            long now = backoff.clock.millis();
             Attempts previous = entry.exists() ? entry.getValue() : null;
             if (previous != null && now < previous.blockedUntil) {
                 return false;
+            }
+            if (!reserve) {
+                return true;
             }
             int failures = previous == null || now - previous.lastAttempt >= windowMillis
                     ? 1 : Math.min(previous.failures + 1, threshold + 5);
