@@ -30,12 +30,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.view.SiteStatsChart;
@@ -53,11 +55,16 @@ public class SiteStatsClientEnvironmentAnalytics {
 
 	public static final String PROP_ENABLED = "sitestats.institutional.clientEnv.enabled";
 
+	private static final int MAX_SESSION_ROWS = 50000;
+	private static final int MAX_ROLLUP_CACHE = 32;
+
 	@Setter private SqlService sqlService;
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private SiteStatsWidgetContext context;
 	@Setter private WidgetFilterCatalog filterCatalog;
 	@Setter private WidgetMetricSupport metricSupport;
+
+	private final ConcurrentHashMap<String, ClientRollup> rollupByPeriod = new ConcurrentHashMap<String, ClientRollup>();
 
 	boolean isEnabled() {
 		return serverConfigurationService == null
@@ -196,12 +203,31 @@ public class SiteStatsClientEnvironmentAnalytics {
 	}
 
 	private ClientRollup rollup(SiteStatsReportRequest request) {
-		ClientRollup rollup = new ClientRollup();
 		if (!isEnabled()) {
-			return rollup;
+			return new ClientRollup();
 		}
 		Date from = filterCatalog == null ? null : filterCatalog.periodFrom(request);
 		Date to = filterCatalog == null ? null : filterCatalog.periodTo(request);
+		String cacheKey = periodCacheKey(from, to);
+		ClientRollup cached = rollupByPeriod.get(cacheKey);
+		if (cached != null) {
+			return cached;
+		}
+		ClientRollup loaded = loadRollup(from, to);
+		if (rollupByPeriod.size() >= MAX_ROLLUP_CACHE) {
+			rollupByPeriod.clear();
+		}
+		rollupByPeriod.put(cacheKey, loaded);
+		return loaded;
+	}
+
+	private static String periodCacheKey(Date from, Date to) {
+		return (from == null ? "" : Long.toString(from.getTime())) + "|"
+				+ (to == null ? "" : Long.toString(to.getTime()));
+	}
+
+	private ClientRollup loadRollup(Date from, Date to) {
+		ClientRollup rollup = new ClientRollup();
 		StringBuilder sql = new StringBuilder(
 				"select SESSION_USER_AGENT from SAKAI_SESSION where SESSION_USER_AGENT is not null");
 		List<Object> params = new ArrayList<Object>();
@@ -213,17 +239,16 @@ public class SiteStatsClientEnvironmentAnalytics {
 			sql.append(" and SESSION_START <= ?");
 			params.add(to);
 		}
-		// Cap rows scanned for safety on large instances.
 		sql.append(" order by SESSION_START desc");
-		final int maxRows = 50000;
+		appendVendorRowLimit(sql, params, MAX_SESSION_ROWS);
 		try {
 			List<?> rows = sqlService.dbRead(sql.toString(), params.toArray(), new SqlReader() {
 				private int counted;
 
 				@Override
-				public Object readSqlResultRecord(ResultSet result) {
-					if (counted >= maxRows) {
-						return null;
+				public Object readSqlResultRecord(ResultSet result) throws SqlReaderFinishedException {
+					if (counted >= MAX_SESSION_ROWS) {
+						throw new SqlReaderFinishedException();
 					}
 					counted++;
 					try {
@@ -251,6 +276,16 @@ public class SiteStatsClientEnvironmentAnalytics {
 			log.warn("Unable to aggregate client environment sessions", e);
 		}
 		return rollup;
+	}
+
+	private void appendVendorRowLimit(StringBuilder sql, List<Object> params, int maxRows) {
+		String vendor = sqlService == null ? null : sqlService.getVendor();
+		if ("oracle".equalsIgnoreCase(vendor)) {
+			sql.append(" FETCH FIRST ? ROWS ONLY");
+		} else {
+			sql.append(" LIMIT ?");
+		}
+		params.add(Integer.valueOf(maxRows));
 	}
 
 	private static void increment(Map<String, Long> map, String key) {

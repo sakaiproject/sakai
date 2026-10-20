@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.sitestats.impl.view;
 
+import java.util.Locale;
+
 import org.apache.commons.lang3.StringUtils;
 
 public final class SiteStatsUserAgentClassifier {
@@ -45,7 +47,7 @@ public final class SiteStatsUserAgentClassifier {
 		if (StringUtils.isBlank(ua)) {
 			return new Classification(DEVICE_OTHER, OS_OTHER, BROWSER_OTHER);
 		}
-		String lower = ua.toLowerCase();
+		String lower = ua.toLowerCase(Locale.ROOT);
 		return new Classification(deviceClass(lower), operatingSystem(lower), browserFamily(lower));
 	}
 

@@ -113,10 +113,6 @@ public class SiteStatsInstitutionalAnalytics {
 		return view;
 	}
 
-	SiteStatsReportView presenceByDateReport(String siteId, SiteStatsReportRequest request, String userId) {
-		return presenceBySiteReport(siteId, request, userId);
-	}
-
 	SiteStatsChart presenceShareHighlight(String siteId, String userId, SiteStatsReportRequest request) {
 		PresenceRollup rollup = presenceRollup(request);
 		long healthy = Math.max(0L, rollup.activeSites - rollup.lowActivitySites);
@@ -193,12 +189,12 @@ public class SiteStatsInstitutionalAnalytics {
 
 		PresenceRollup rollup = new PresenceRollup();
 		rollup.totalSites = scope.size();
-		List<SiteVisitRow> ranked = new ArrayList<SiteVisitRow>();
+		List<Map.Entry<String, Long>> ranked = new ArrayList<Map.Entry<String, Long>>();
 		for (String id : scope.getSiteIds()) {
 			long visits = visitsBySite.getOrDefault(id, Long.valueOf(0L)).longValue();
 			if (visits > 0L) {
 				rollup.activeSites++;
-				ranked.add(new SiteVisitRow(id, siteTitle(id), visits));
+				ranked.add(Map.entry(id, Long.valueOf(visits)));
 			} else {
 				rollup.neverVisitedSites++;
 			}
@@ -206,9 +202,14 @@ public class SiteStatsInstitutionalAnalytics {
 				rollup.lowActivitySites++;
 			}
 		}
-		ranked.sort(Comparator.comparingLong((SiteVisitRow r) -> r.visits).reversed());
+		ranked.sort(Comparator.<Map.Entry<String, Long>>comparingLong(e -> e.getValue().longValue()).reversed()
+				.thenComparing(Map.Entry::getKey));
 		int limit = Math.min(TOP_SITES, ranked.size());
-		rollup.rows.addAll(ranked.subList(0, limit));
+		for (int i = 0; i < limit; i++) {
+			Map.Entry<String, Long> entry = ranked.get(i);
+			String id = entry.getKey();
+			rollup.rows.add(new SiteVisitRow(id, siteTitle(id), entry.getValue().longValue()));
+		}
 		return rollup;
 	}
 

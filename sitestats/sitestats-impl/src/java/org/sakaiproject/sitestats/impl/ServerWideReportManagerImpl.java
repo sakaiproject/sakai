@@ -23,7 +23,11 @@ package org.sakaiproject.sitestats.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -253,14 +257,15 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				" from " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS" +
 				" where EVENT_ID='user.login' " +
 				" and ACTIVITY_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY)" +
-				" group by 1";
+				" group by 1 order by 1";
 		
 		String oracle = "select trunc(ACTIVITY_DATE, 'DDD') as session_date," +
 				" sum(ACTIVITY_COUNT) as user_logins" +
 				" from " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS" +
 				" where EVENT_ID='user.login' " +
 				" and ACTIVITY_DATE > (SYSDATE - 90)" +
-				" group by trunc(ACTIVITY_DATE, 'DDD')";
+				" group by trunc(ACTIVITY_DATE, 'DDD')" +
+				" order by 1";
 		
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
@@ -278,11 +283,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			}
 		});
 
-		// remove the last entry, as it might not be a complete period
-		if (result.size() > 1) {
-			result.remove (result.size () - 1);
-		}
-
+		removeIncompleteCurrentPeriod(result);
 		return result;
 	}
 	
@@ -296,13 +297,14 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				" count(distinct user_id) as unique_users" +
 				" from " + getExternalDbNameAsPrefix() + "SST_USERSTATS" +
 				" where LOGIN_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY)" +
-				" group by session_date";
+				" group by session_date order by session_date";
 		
 		String oracle = "select trunc(LOGIN_DATE, 'DDD') as session_date, " +
 				" count(distinct user_id) as unique_users" +
 				" from " + getExternalDbNameAsPrefix() + "SST_USERSTATS" +
 				" where LOGIN_DATE > (SYSDATE - 90)" +
-				" group by trunc(LOGIN_DATE, 'DDD')";
+				" group by trunc(LOGIN_DATE, 'DDD')" +
+				" order by 1";
 		
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
@@ -320,11 +322,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			}
 		});
 
-		// remove the last entry, as it might not be a complete period
-		if (result.size() > 1) {
-			result.remove (result.size () - 1);
-		}
-
+		removeIncompleteCurrentPeriod(result);
 		return result;
 	}
 
@@ -347,7 +345,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			mysql = mysql + "where ACTIVITY_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY) ";
 		}
 		
-		mysql = mysql + "group by event_period";
+		mysql = mysql + "group by event_period order by event_period";
 		
 		
 		String oraclePeriod = "";
@@ -368,7 +366,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		if (period.equals ("daily")) {
 			oracle = oracle + "where ACTIVITY_DATE > (SYSDATE - 90) ";
 		}	
-		oracle = oracle + "group by " + oraclePeriod;
+		oracle = oracle + "group by " + oraclePeriod + " order by 1";
 		
 
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
@@ -388,9 +386,11 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			}
 		});
 
-		// remove the last entry, as it might not be a complete period
-		if(result.size() > 0) {
-			result.remove (result.size() - 1);
+		if (period.equals("daily")) {
+			removeIncompleteCurrentPeriod(result);
+		} else if (result.size() > 0) {
+			// weekly/monthly: drop trailing incomplete bucket
+			result.remove(result.size() - 1);
 		}
 		return result;
 	}
@@ -415,7 +415,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		if (period.equals ("daily")) {
 			mysql = mysql + " and ACTIVITY_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY) ";
 		}
-		mysql = mysql + " group by 1";
+		mysql = mysql + " group by 1 order by 1";
 		
 
 		String oraclePeriod = "";
@@ -435,7 +435,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		if (period.equals ("daily")) {
 			oracle = oracle + " AND ACTIVITY_DATE > (SYSDATE - 90) ";
 		}
-		oracle = oracle + " group by " + oraclePeriod;
+		oracle = oracle + " group by " + oraclePeriod + " order by 1";
 
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
@@ -453,11 +453,11 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			}
 		});
 
-		// remove the last entry, as it might not be a complete period
-		if(result.size () > 0){
-			result.remove (result.size () - 1);
+		if (period.equals("daily")) {
+			removeIncompleteCurrentPeriod(result);
+		} else if (result.size() > 0) {
+			result.remove(result.size() - 1);
 		}
-
 		return result;
 	}
 
@@ -631,6 +631,38 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 		return result;
 	}
+	/**
+	 * Drop the newest row only when it belongs to the current calendar day
+	 * (still an incomplete period). Requires results ordered ascending by date.
+	 */
+	private void removeIncompleteCurrentPeriod(List result) {
+		if (result == null || result.isEmpty()) {
+			return;
+		}
+		Object last = result.get(result.size() - 1);
+		if (!(last instanceof ServerWideStatsRecord)) {
+			return;
+		}
+		LocalDate date = recordDate((ServerWideStatsRecord) last);
+		if (date != null && date.equals(LocalDate.now())) {
+			result.remove(result.size() - 1);
+		}
+	}
+
+	private static LocalDate recordDate(ServerWideStatsRecord row) {
+		Object value = row.get(0);
+		if (value instanceof LocalDate) {
+			return (LocalDate) value;
+		}
+		if (value instanceof java.sql.Date) {
+			return ((java.sql.Date) value).toLocalDate();
+		}
+		if (value instanceof Date) {
+			return Instant.ofEpochMilli(((Date) value).getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+		}
+		return null;
+	}
+
 	/**
 	 * Helper method to return the appropriate SQL for the DB vendor
 	 * Everything should be lowercase.

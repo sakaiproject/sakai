@@ -25,7 +25,6 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_PRESENCE_ACTIVE_SITES;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_PRESENCE_LOW_ACTIVITY;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_PRESENCE_NEVER_VISITED;
-import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_DATE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.TAB_BY_SITE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_INSTITUTIONAL_PRESENCE;
 
@@ -41,8 +40,6 @@ public class InstitutionalPresenceWidgetDefinition extends AbstractSiteStatsWidg
 				AUDIENCE_ADMIN, () -> true,
 				tabs(
 						viewTabSpec(WIDGET_INSTITUTIONAL_PRESENCE, TAB_BY_SITE, "overview_tab_bysite", this::bySite,
-								FILTER_DATE, FILTER_SITE_TYPE, FILTER_SITE_PREFIX, FILTER_PUBLISHED_ONLY),
-						viewTabSpec(WIDGET_INSTITUTIONAL_PRESENCE, TAB_BY_DATE, "overview_tab_bydate", this::byDate,
 								FILTER_DATE, FILTER_SITE_TYPE, FILTER_SITE_PREFIX, FILTER_PUBLISHED_ONLY)),
 				metrics(
 						metricSpec(WIDGET_INSTITUTIONAL_PRESENCE, METRIC_INST_PRESENCE_ACTIVE_SITES,
@@ -67,10 +64,6 @@ public class InstitutionalPresenceWidgetDefinition extends AbstractSiteStatsWidg
 
 	private SiteStatsReportView bySite(String siteId, SiteStatsReportRequest request, String userId) {
 		return institutionalAnalytics().presenceBySiteReport(siteId, request, userId);
-	}
-
-	private SiteStatsReportView byDate(String siteId, SiteStatsReportRequest request, String userId) {
-		return institutionalAnalytics().presenceByDateReport(siteId, request, userId);
 	}
 
 	private WidgetMetricValue activeSites(String siteId, String userId, SiteStatsReportRequest request) {

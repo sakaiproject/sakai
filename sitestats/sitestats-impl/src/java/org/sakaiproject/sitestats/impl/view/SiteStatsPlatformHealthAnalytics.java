@@ -17,7 +17,13 @@ package org.sakaiproject.sitestats.impl.view;
 
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.CHART_COLOR_INFO;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import lombok.Setter;
@@ -36,32 +42,34 @@ import org.sakaiproject.sitestats.api.view.SiteStatsTableRow;
 
 public class SiteStatsPlatformHealthAnalytics {
 
+	private static final int LAST_DAYS = 30;
+
 	@Setter private ServerWideReportManager serverWideReportManager;
 	@Setter private SiteStatsWidgetContext context;
 	@Setter private WidgetMetricSupport metricSupport;
 
 	WidgetMetricValue loginsValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = sumLastDays(serverWideReportManager.getDailyTotalLogins(), 30, 1);
+		long total = sumLastDays(serverWideReportManager.getDailyTotalLogins(), LAST_DAYS, 1);
 		return WidgetMetricValue.of(metricSupport.formatNumber(total));
 	}
 
 	WidgetMetricValue uniqueLoginsValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = sumLastDays(serverWideReportManager.getDailyUniqueLogins(), 30, 1);
+		long total = sumLastDays(serverWideReportManager.getDailyUniqueLogins(), LAST_DAYS, 1);
 		return WidgetMetricValue.of(metricSupport.formatNumber(total));
 	}
 
 	WidgetMetricValue sitesCreatedValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = sumPeriodField(serverWideReportManager.getSiteCreatedDeletedStats("daily"), 30, 1);
+		long total = sumPeriodField(serverWideReportManager.getSiteCreatedDeletedStats("daily"), LAST_DAYS, 1);
 		return WidgetMetricValue.of(metricSupport.formatNumber(total));
 	}
 
 	WidgetMetricValue sitesDeletedValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = sumPeriodField(serverWideReportManager.getSiteCreatedDeletedStats("daily"), 30, 2);
+		long total = sumPeriodField(serverWideReportManager.getSiteCreatedDeletedStats("daily"), LAST_DAYS, 2);
 		return WidgetMetricValue.of(metricSupport.formatNumber(total));
 	}
 
 	WidgetMetricValue newUsersValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = sumPeriodField(serverWideReportManager.getNewUserStats("daily"), 30, 1);
+		long total = sumPeriodField(serverWideReportManager.getNewUserStats("daily"), LAST_DAYS, 1);
 		return WidgetMetricValue.of(metricSupport.formatNumber(total));
 	}
 
@@ -99,19 +107,15 @@ public class SiteStatsPlatformHealthAnalytics {
 		dataset.setKey("logins");
 		dataset.setLabel(message("legend_logins"));
 		dataset.setColor(CHART_COLOR_INFO);
-		List<ServerWideStatsRecord> rows = serverWideReportManager.getDailyTotalLogins();
-		int from = rows == null ? 0 : Math.max(0, rows.size() - 30);
-		if (rows != null) {
-			for (int i = from; i < rows.size(); i++) {
-				ServerWideStatsRecord row = rows.get(i);
-				SiteStatsChartPoint point = new SiteStatsChartPoint();
-				Object label = row.get(0);
-				point.setX(label == null ? "" : String.valueOf(label));
-				point.setLabel(label == null ? "" : String.valueOf(label));
-				Number value = numberAt(row, 1);
-				point.setY(Double.valueOf(value == null ? 0d : value.doubleValue()));
-				dataset.getPoints().add(point);
-			}
+		for (ServerWideStatsRecord row : rowsInLastDays(serverWideReportManager.getDailyTotalLogins(), LAST_DAYS)) {
+			SiteStatsChartPoint point = new SiteStatsChartPoint();
+			LocalDate date = recordDate(row);
+			String label = date == null ? stringAt(row, 0) : date.toString();
+			point.setX(label);
+			point.setLabel(label);
+			Number value = numberAt(row, 1);
+			point.setY(Double.valueOf(value == null ? 0d : value.doubleValue()));
+			dataset.getPoints().add(point);
 		}
 		chart.getDatasets().add(dataset);
 		return chart;
@@ -121,24 +125,19 @@ public class SiteStatsPlatformHealthAnalytics {
 		SiteStatsReportView view = new SiteStatsReportView();
 		view.setSiteId(siteId);
 		view.setTitle(message("overview_title_platform_login_trend"));
-		view.setGeneratedOn(java.time.Instant.now().toString());
+		view.setGeneratedOn(Instant.now().toString());
 		if (request.isIncludeTable()) {
 			SiteStatsTable table = new SiteStatsTable();
 			table.setCaption(view.getTitle());
 			table.getColumns().add(column("date", "th_date", "text"));
 			table.getColumns().add(column("logins", "legend_logins", "number"));
-			List<ServerWideStatsRecord> rows = serverWideReportManager.getDailyTotalLogins();
-			int from = rows == null ? 0 : Math.max(0, rows.size() - 30);
-			if (rows != null) {
-				for (int i = from; i < rows.size(); i++) {
-					ServerWideStatsRecord row = rows.get(i);
-					SiteStatsTableRow tableRow = new SiteStatsTableRow();
-					Object label = row.get(0);
-					tableRow.getCells().put("date", textCell(label == null ? "" : String.valueOf(label)));
-					Number value = numberAt(row, 1);
-					tableRow.getCells().put("logins", numberCell(value == null ? 0L : value.longValue()));
-					table.getRows().add(tableRow);
-				}
+			for (ServerWideStatsRecord row : rowsInLastDays(serverWideReportManager.getDailyTotalLogins(), LAST_DAYS)) {
+				SiteStatsTableRow tableRow = new SiteStatsTableRow();
+				LocalDate date = recordDate(row);
+				tableRow.getCells().put("date", textCell(date == null ? stringAt(row, 0) : date.toString()));
+				Number value = numberAt(row, 1);
+				tableRow.getCells().put("logins", numberCell(value == null ? 0L : value.longValue()));
+				table.getRows().add(tableRow);
 			}
 			view.setTable(table);
 		}
@@ -152,7 +151,7 @@ public class SiteStatsPlatformHealthAnalytics {
 		SiteStatsReportView view = new SiteStatsReportView();
 		view.setSiteId(siteId);
 		view.setTitle(message("overview_title_platform_tool_installs"));
-		view.setGeneratedOn(java.time.Instant.now().toString());
+		view.setGeneratedOn(Instant.now().toString());
 		if (request.isIncludeTable()) {
 			SiteStatsTable table = new SiteStatsTable();
 			table.setCaption(view.getTitle());
@@ -207,13 +206,9 @@ public class SiteStatsPlatformHealthAnalytics {
 	}
 
 	private long sumLastDays(List<ServerWideStatsRecord> rows, int days, int valueIndex) {
-		if (rows == null || rows.isEmpty()) {
-			return 0L;
-		}
-		int from = Math.max(0, rows.size() - days);
 		long total = 0L;
-		for (int i = from; i < rows.size(); i++) {
-			Number value = numberAt(rows.get(i), valueIndex);
+		for (ServerWideStatsRecord row : rowsInLastDays(rows, days)) {
+			Number value = numberAt(row, valueIndex);
 			if (value != null) {
 				total += value.longValue();
 			}
@@ -223,6 +218,41 @@ public class SiteStatsPlatformHealthAnalytics {
 
 	private long sumPeriodField(List<ServerWideStatsRecord> rows, int days, int valueIndex) {
 		return sumLastDays(rows, days, valueIndex);
+	}
+
+	private List<ServerWideStatsRecord> rowsInLastDays(List<ServerWideStatsRecord> rows, int days) {
+		if (rows == null || rows.isEmpty() || days <= 0) {
+			return Collections.emptyList();
+		}
+		LocalDate end = LocalDate.now();
+		LocalDate start = end.minusDays(days - 1L);
+		List<ServerWideStatsRecord> filtered = new ArrayList<ServerWideStatsRecord>();
+		for (ServerWideStatsRecord row : rows) {
+			LocalDate date = recordDate(row);
+			if (date != null && !date.isBefore(start) && !date.isAfter(end)) {
+				filtered.add(row);
+			}
+		}
+		filtered.sort(Comparator.comparing(SiteStatsPlatformHealthAnalytics::recordDate,
+				Comparator.nullsLast(Comparator.naturalOrder())));
+		return filtered;
+	}
+
+	private static LocalDate recordDate(ServerWideStatsRecord row) {
+		if (row == null) {
+			return null;
+		}
+		Object value = row.get(0);
+		if (value instanceof LocalDate) {
+			return (LocalDate) value;
+		}
+		if (value instanceof java.sql.Date) {
+			return ((java.sql.Date) value).toLocalDate();
+		}
+		if (value instanceof Date) {
+			return Instant.ofEpochMilli(((Date) value).getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+		}
+		return null;
 	}
 
 	private static String stringAt(ServerWideStatsRecord row, int index) {
