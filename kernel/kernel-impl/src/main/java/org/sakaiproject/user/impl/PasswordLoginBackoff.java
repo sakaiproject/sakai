@@ -55,24 +55,33 @@ public class PasswordLoginBackoff {
             log.warn("Invalid login.password.backoff.threshold {}, using {}", threshold, DEFAULT_THRESHOLD);
             threshold = DEFAULT_THRESHOLD;
         }
-        int maxDelaySeconds = serverConfigurationService.getInt("login.password.backoff.maxDelaySeconds", DEFAULT_MAX_DELAY_SECONDS);
-        if (maxDelaySeconds < 2 || maxDelaySeconds > DEFAULT_MAX_DELAY_SECONDS) {
-            log.warn("Invalid login.password.backoff.maxDelaySeconds {}, using {}", maxDelaySeconds, DEFAULT_MAX_DELAY_SECONDS);
-            maxDelaySeconds = DEFAULT_MAX_DELAY_SECONDS;
-        }
-        int windowSeconds = serverConfigurationService.getInt("login.password.backoff.windowSeconds", DEFAULT_WINDOW_SECONDS);
-        if (windowSeconds <= maxDelaySeconds) {
-            // The cache expiry in ignite-components.xml reads this property directly and is not corrected here.
-            log.warn("Invalid login.password.backoff.windowSeconds {}, must exceed maxDelaySeconds {}; using {}",
-                    windowSeconds, maxDelaySeconds, DEFAULT_WINDOW_SECONDS);
-            windowSeconds = DEFAULT_WINDOW_SECONDS;
-        }
-        windowMillis = TimeUnit.SECONDS.toMillis(windowSeconds);
-        maxDelayMillis = TimeUnit.SECONDS.toMillis(maxDelaySeconds);
+        windowMillis = TimeUnit.SECONDS.toMillis(windowSeconds(serverConfigurationService));
+        maxDelayMillis = TimeUnit.SECONDS.toMillis(maxDelaySeconds(serverConfigurationService));
         cache = ignite.cache(PasswordLoginBackoff.class.getName());
         if (cache == null) {
             throw new IllegalStateException("Password login backoff cache is not configured");
         }
+    }
+
+    /** Effective history window; ignite-components.xml uses this for the cache expiry so both agree. */
+    public static int windowSeconds(ServerConfigurationService serverConfigurationService) {
+        int maxDelaySeconds = maxDelaySeconds(serverConfigurationService);
+        int windowSeconds = serverConfigurationService.getInt("login.password.backoff.windowSeconds", DEFAULT_WINDOW_SECONDS);
+        if (windowSeconds <= maxDelaySeconds) {
+            log.warn("Invalid login.password.backoff.windowSeconds {}, must exceed maxDelaySeconds {}; using {}",
+                    windowSeconds, maxDelaySeconds, DEFAULT_WINDOW_SECONDS);
+            return DEFAULT_WINDOW_SECONDS;
+        }
+        return windowSeconds;
+    }
+
+    private static int maxDelaySeconds(ServerConfigurationService serverConfigurationService) {
+        int maxDelaySeconds = serverConfigurationService.getInt("login.password.backoff.maxDelaySeconds", DEFAULT_MAX_DELAY_SECONDS);
+        if (maxDelaySeconds < 2 || maxDelaySeconds > DEFAULT_MAX_DELAY_SECONDS) {
+            log.warn("Invalid login.password.backoff.maxDelaySeconds {}, using {}", maxDelaySeconds, DEFAULT_MAX_DELAY_SECONDS);
+            return DEFAULT_MAX_DELAY_SECONDS;
+        }
+        return maxDelaySeconds;
     }
 
     /** Reject paused requests before they can inspect or evict credential cache entries. */

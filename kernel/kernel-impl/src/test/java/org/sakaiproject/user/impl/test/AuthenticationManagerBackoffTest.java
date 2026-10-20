@@ -48,6 +48,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.impl.PasswordLoginBackoff;
 import org.sakaiproject.user.impl.AuthenticationCache;
+import org.sakaiproject.util.BasicConfigItem;
 import org.sakaiproject.util.ExternalTrustedEvidence;
 import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.WebDavEvidence;
@@ -101,6 +102,18 @@ public class AuthenticationManagerBackoffTest extends SakaiKernelTestBase {
         assertEquals(TimeUnit.SECONDS, expiry.getExpiryForUpdate().getTimeUnit());
         assertEquals(1200, expiry.getExpiryForUpdate().getDurationAmount());
         assertNull(expiry.getExpiryForAccess());
+    }
+
+    @Test
+    public void windowNoLongerThanMaxDelayFallsBackToDefault() {
+        ServerConfigurationService config = getService(ServerConfigurationService.class);
+        try {
+            config.registerConfigItem(BasicConfigItem.makeConfigItem("login.password.backoff.windowSeconds", "1", "test"));
+            assertEquals(900, PasswordLoginBackoff.windowSeconds(config));
+        } finally {
+            config.registerConfigItem(BasicConfigItem.makeConfigItem("login.password.backoff.windowSeconds", "1200", "test"));
+        }
+        assertEquals(1200, PasswordLoginBackoff.windowSeconds(config));
     }
 
     @Test

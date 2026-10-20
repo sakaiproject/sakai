@@ -141,7 +141,11 @@
                             <constructor-arg>
                                 <bean class="javax.cache.expiry.Duration">
                                     <constructor-arg value="SECONDS"/>
-                                    <constructor-arg value="${login.password.backoff.windowSeconds:900}"/>
+                                    <constructor-arg>
+                                        <bean class="org.sakaiproject.user.impl.PasswordLoginBackoff" factory-method="windowSeconds">
+                                            <constructor-arg ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+                                        </bean>
+                                    </constructor-arg>
                                 </bean>
                             </constructor-arg>
                         </bean>
