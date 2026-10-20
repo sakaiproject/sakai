@@ -194,7 +194,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
     this.totalPoints = this.criteria.reduce((a, c) => {
 
-      if (c.pointoverride) {
+      if (c.pointoverride !== "" && c.pointoverride !== null && c.pointoverride !== undefined) {
         return a + parseFloat(c.pointoverride);
       } else if (c.selectedvalue) {
         return a + parseFloat(c.selectedvalue);
