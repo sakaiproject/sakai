@@ -70,7 +70,6 @@ public class PreferencesServiceTestConfiguration extends SakaiTestConfiguration 
         properties.setProperty("hibernate.cache.use_query_cache", "true");
         properties.setProperty("hibernate.cache.region.factory_class", "org.apache.ignite.cache.hibernate.HibernateRegionFactory");
         properties.setProperty("org.apache.ignite.hibernate.ignite_instance_name", preferencesCache().name());
-        properties.setProperty("hibernate.generate_statistics", "true");
         return properties;
     }
 

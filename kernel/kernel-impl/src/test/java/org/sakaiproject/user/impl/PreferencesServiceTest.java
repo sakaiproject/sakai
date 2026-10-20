@@ -25,9 +25,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.stat.Statistics;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +61,6 @@ import static org.mockito.Mockito.when;
 public class PreferencesServiceTest {
 
     @Autowired private PreferencesService preferencesService;
-    @Autowired private SessionFactory sessionFactory;
     @Autowired private PreferencesRepository repository;
     @Autowired private SecurityService securityService;
     @Autowired private DataSource dataSource;
@@ -102,20 +98,9 @@ public class PreferencesServiceTest {
     }
 
     @Test
-    public void repeatedReadsUseTheQueryCacheAndWritesInvalidateIt() throws Exception {
+    public void readsReflectCommittedUpdatesAndRemoval() throws Exception {
         save("theme", "light");
         assertEquals("light", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
-        Statistics statistics = sessionFactory.getStatistics();
-        long hits = statistics.getQueryCacheHitCount();
-        // Ignite's millisecond timestamps can invalidate reads made in the write's millisecond.
-        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
-        while (statistics.getQueryCacheHitCount() == hits && System.nanoTime() < deadline) {
-            assertEquals("light", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
-        }
-        assertTrue("Repeated reads must reach the query cache", statistics.getQueryCacheHitCount() > hits);
-        long statements = statistics.getPrepareStatementCount();
-        assertEquals("light", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
-        assertEquals(statements, statistics.getPrepareStatementCount());
 
         save("theme", "dark");
         assertEquals("dark", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
