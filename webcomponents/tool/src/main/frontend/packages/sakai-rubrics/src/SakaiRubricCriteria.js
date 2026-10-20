@@ -259,6 +259,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     this.criteria.push(nc);
     this.criteriaMap.set(nc.id, nc);
+    this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
 
     // Add the criterion to the rubric
     this.requestUpdate();
