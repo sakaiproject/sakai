@@ -90,10 +90,10 @@ class LessonsTest extends SakaiUiTestBase {
 
         addSubpage("Promote Me");
 
-        // Returning through the tool menu can retain the current subpage. More Tools
-        // belongs to the top-level page, so return through its breadcrumb explicitly.
-        page.locator("#subpage-breadcrumb-div").getByRole(AriaRole.LINK,
-            new Locator.GetByRoleOptions().setName("Lessons").setExact(true)).click();
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Back").setExact(true)).first().click();
+        assertThat(page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("Promote Me").setExact(true))).isVisible();
         openAddMorePages();
         chooseExistingPageForSiteNavigation();
 
