@@ -525,9 +525,6 @@ public class SakaiIFrame extends GenericPortlet {
 			response.setPortletMode(PortletMode.VIEW);
 		}
 
-	/** Valid digits for custom height from user input **/
-	protected static final String VALID_DIGITS = "0123456789";
-
 	/* Parse the source URL to extract the content identifier */
 	private Long getContentIdFromSource(String source)
 	{
@@ -545,22 +542,6 @@ public class SakaiIFrame extends GenericPortlet {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Check if the string from user input contains any characters other than digits
-	 * 
-	 * @param height
-	 *        String from user input
-	 * @return True if all are digits. Or False if any is not digit.
-	 */
-	private boolean checkDigits(String height)
-	{
-		for (int i = 0; i < height.length(); i++)
-		{
-			if (VALID_DIGITS.indexOf(height.charAt(i)) == -1) return false;
-		}
-		return true;
 	}
 
 	private Long getLongNull(Object key) {

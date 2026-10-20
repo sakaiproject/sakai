@@ -40,7 +40,6 @@
     <sakai.jsoup.version>1.23.2</sakai.jsoup.version>
     <sakai.woodstox.version>7.3.0</sakai.woodstox.version>
     <sakai.stax2.version>4.3.2</sakai.stax2.version>
-    <sakai.java.jwt.version>4.5.1</sakai.java.jwt.version>
     <sakai.jaxb.version>4.0.9</sakai.jaxb.version>
     <sakai.jstl.version>3.0.1</sakai.jstl.version>
     <sakai.lombok.version>1.18.48</sakai.lombok.version>

@@ -634,7 +634,6 @@ public class IMSLTIPortlet extends GenericPortlet {
 				}
 			}
 
-			log.debug("old placementsecret={}", oldPlacementSecret);
 			if ( oldPlacementSecret == null &&
 					("true".equals(allowOutcomes) ||
                      "true".equals(allowRoster) ) ) {
@@ -645,7 +644,6 @@ public class IMSLTIPortlet extends GenericPortlet {
 					String date_secret = sdf.format(date);
 					prefs.setValue("sakai:imsti."+LTI_PORTLET_PLACEMENTSECRET, uuid);
 					prefs.setValue("sakai:imsti.placementsecretdate", date_secret);
-					log.debug("placementsecret set to={} data={}", uuid, date_secret);
 					changed = true;
 				} catch (ReadOnlyException e) {
 					setErrorMessage(request, rb.getString("error.modify.prefs") );
