@@ -58,6 +58,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -79,6 +80,7 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 public class RubricsRestController extends AbstractSakaiApiController {
 
@@ -548,7 +550,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
     }
 
     @ResponseBody
-    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/pdf")
+    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> getPdf(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId,
         @RequestParam(name = "toolId", required = false) String toolId, @RequestParam(name = "itemId", required = false) String itemId,
         @RequestParam(name = "evaluatedItemId", required = false) String evaluatedItemId) throws Exception {

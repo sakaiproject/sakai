@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.Cookie;
 import java.util.List;
@@ -59,7 +60,10 @@ class RubricsTest extends SakaiUiTestBase {
         }
 
         page.locator("input[title=\"Rubric Title\"]:visible").first().fill(RUBRIC_TITLE);
-        page.locator("button:visible").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Save", Pattern.CASE_INSENSITIVE))).first().click(new Locator.ClickOptions().setForce(true));
+        Response saveResponse = page.waitForResponse(response -> response.url().contains("/rubrics/") && response.request().method().equals("PATCH"),
+            () -> page.locator("button:visible").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Save", Pattern.CASE_INSENSITIVE))).first().click(new Locator.ClickOptions().setForce(true)));
+        assertEquals(200, saveResponse.status());
+        assertEquals("application/json", saveResponse.headerValue("Content-Type").split(";")[0]);
 
         assertThat(page.locator("body")).containsText(RUBRIC_TITLE);
 
