@@ -23,7 +23,6 @@ package org.sakaiproject.user.impl;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import jakarta.persistence.OptimisticLockException;
 
@@ -241,7 +240,7 @@ public class BasePreferencesService implements PreferencesService
     @Override
     public PreferencesEdit edit(String id) throws PermissionException, InUseException, IdUnusedException {
         unlock(SECURE_EDIT_PREFS, preferencesReference(id));
-        BasePreferences edit = readPreferences(id);
+        BasePreferences edit = fromRecord(findRecord(id, transactionTemplate));
         if (edit == null) {
             unlock(SECURE_ADD_PREFS, preferencesReference(id));
             edit = new BasePreferences(id);
@@ -261,28 +260,20 @@ public class BasePreferencesService implements PreferencesService
 			// check for closed edit
 			if (!edit.isActiveEdit())
 			{
-				try
-				{
-					throw new Exception();
-				}
-				catch (Exception e)
-				{
-					log.warn("commit(): closed PreferencesEdit", e);
-				}
+				log.warn("Cannot commit closed preferences edit for user {}", edit.getId());
 				return;
 			}
 
+			BasePreferences preferences = (BasePreferences) edit;
 			try {
-				BasePreferences preferences = (BasePreferences) edit;
-				PreferencesRecord record = toRecord(preferences);
-				PreferencesRecord saved = writePreferences(record, () -> repository.save(record));
+				PreferencesRecord saved = savePreferences(toRecord(preferences));
 				preferences.m_version = saved.getVersion();
 			} finally {
-				((BasePreferences) edit).closeEdit();
+				preferences.closeEdit();
 			}
 
 			// track it
-			eventTrackingService.post(eventTrackingService.newEvent(((BasePreferences) edit).getEvent(), edit.getReference(), true));
+			eventTrackingService.post(eventTrackingService.newEvent(preferences.getEvent(), edit.getReference(), true));
 		}
 	}
 
@@ -301,30 +292,21 @@ public class BasePreferencesService implements PreferencesService
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				log.warn("remove(): closed PreferencesEdit", e);
-			}
+			log.warn("Cannot remove closed preferences edit for user {}", edit.getId());
 			return;
 		}
 
+		BasePreferences preferences = (BasePreferences) edit;
 		try {
-			BasePreferences preferences = (BasePreferences) edit;
 			if (preferences.m_version != null) {
-				PreferencesRecord record = toRecord(preferences);
-				writePreferences(record, () -> {
-					if (repository.deleteByIdAndVersion(record.getId(), record.getVersion()) == 0) {
-						throw new OptimisticLockingFailureException("Preferences changed before removal");
-					}
-					return null;
-				});
+				int deleted = transactionTemplate.execute(status ->
+						repository.deleteByIdAndVersion(preferences.getId(), preferences.m_version));
+				if (deleted == 0) {
+					throw new PreferencesConflictException(preferences.getId());
+				}
 			}
 		} finally {
-			((BasePreferences) edit).closeEdit();
+			preferences.closeEdit();
 		}
 
 		// track it
@@ -345,7 +327,7 @@ public class BasePreferencesService implements PreferencesService
 		}
 
 		try {
-			return readPreferences(id, readTransactionTemplate);
+			return fromRecord(findRecord(id, readTransactionTemplate));
 		} catch (IllegalStateException e) {
 			log.warn("Ignoring invalid preferences for user {}: {}", id, e.getMessage());
 			return null;
@@ -395,7 +377,7 @@ public class BasePreferencesService implements PreferencesService
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_PREFS, preferencesReference(id));
 
-        if (findRecord(id) != null) {
+        if (findRecord(id, transactionTemplate) != null) {
             throw new IdUsedException(id);
         }
         BasePreferences edit = new BasePreferences(id);
@@ -481,38 +463,30 @@ public class BasePreferencesService implements PreferencesService
 	}
 
     // Finish each transaction before returning an edit or reporting a successful save.
-    private PreferencesRecord findRecord(String id) {
-        return findRecord(id, transactionTemplate);
-    }
-
     private PreferencesRecord findRecord(String id, TransactionTemplate transaction) {
         return transaction.execute(status -> repository.findCurrentById(id).orElse(null));
     }
 
-    private <T> T writePreferences(PreferencesRecord record, Supplier<T> operation) {
+    private PreferencesRecord savePreferences(PreferencesRecord record) {
         // Hibernate may assign the initial version before a failed insert is flushed.
         boolean inserting = record.getVersion() == null;
         try {
-            return transactionTemplate.execute(status -> operation.get());
+            return transactionTemplate.execute(status -> repository.save(record));
         } catch (OptimisticLockException | OptimisticLockingFailureException e) {
             throw new PreferencesConflictException(record.getId(), e);
         } catch (DataIntegrityViolationException e) {
-            if (inserting && findRecord(record.getId()) != null) {
+            if (inserting && findRecord(record.getId(), transactionTemplate) != null) {
                 throw new PreferencesConflictException(record.getId(), e);
             }
             throw e;
         }
     }
 
-    private BasePreferences readPreferences(String id) {
-        return readPreferences(id, transactionTemplate);
-    }
-
-    private BasePreferences readPreferences(String id, TransactionTemplate transaction) {
-        PreferencesRecord record = findRecord(id, transaction);
+    private BasePreferences fromRecord(PreferencesRecord record) {
         if (record == null) {
             return null;
         }
+        String id = record.getId();
         Document document = StorageUtils.readDocumentFromString(record.getXml());
         if (document == null || !"preferences".equals(document.getDocumentElement().getTagName())) {
             throw new IllegalStateException("Invalid preferences document for user " + id);

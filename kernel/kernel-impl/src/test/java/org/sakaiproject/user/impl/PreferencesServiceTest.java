@@ -107,9 +107,14 @@ public class PreferencesServiceTest {
         assertEquals("light", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
         Statistics statistics = sessionFactory.getStatistics();
         long hits = statistics.getQueryCacheHitCount();
+        // Ignite's millisecond timestamps can invalidate reads made in the write's millisecond.
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+        while (statistics.getQueryCacheHitCount() == hits && System.nanoTime() < deadline) {
+            assertEquals("light", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
+        }
+        assertTrue("Repeated reads must reach the query cache", statistics.getQueryCacheHitCount() > hits);
         long statements = statistics.getPrepareStatementCount();
         assertEquals("light", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
-        assertTrue(statistics.getQueryCacheHitCount() > hits);
         assertEquals(statements, statistics.getPrepareStatementCount());
 
         save("theme", "dark");

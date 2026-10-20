@@ -18,6 +18,10 @@ package org.sakaiproject.user.api;
 /** A preferences document changed after it was read. Open a fresh edit before retrying. */
 public class PreferencesConflictException extends RuntimeException {
 
+    public PreferencesConflictException(String userId) {
+        this(userId, null);
+    }
+
     public PreferencesConflictException(String userId, Throwable cause) {
         super("Preferences changed concurrently for user " + userId, cause);
     }
