@@ -24,6 +24,9 @@ package org.sakaiproject.user.impl;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import jakarta.persistence.OptimisticLockException;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +49,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.springframework.data.SpringCrudRepository;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesConflictException;
@@ -58,6 +62,11 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.StorageUtils;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * <p>
@@ -69,7 +78,14 @@ public class BasePreferencesService implements PreferencesService
 {
 	/** Key used to store the locale preferences. */
 	private static final String LOCALE_PREFERENCE_KEY = "sakai:resourceloader";
-	@Setter private PreferencesRepository repository;
+	@Setter private SpringCrudRepository<PreferencesRecord, String> repository;
+	private TransactionTemplate transactions;
+
+	public void setTransactionManager(PlatformTransactionManager transactionManager) {
+		transactions = new TransactionTemplate(transactionManager);
+		transactions.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+	}
+
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 	/** the cache for Preference objects **/
@@ -274,7 +290,8 @@ public class BasePreferencesService implements PreferencesService
 
 			try {
 				BasePreferences preferences = (BasePreferences) edit;
-				PreferencesRecord saved = repository.save(toRecord(preferences));
+				PreferencesRecord record = toRecord(preferences);
+				PreferencesRecord saved = writePreferences(record, () -> repository.save(record));
 				preferences.m_version = saved.getVersion();
 			} finally {
 				((BasePreferences) edit).closeEdit();
@@ -315,7 +332,11 @@ public class BasePreferencesService implements PreferencesService
 		try {
 			BasePreferences preferences = (BasePreferences) edit;
 			if (preferences.m_version != null) {
-				repository.remove(toRecord(preferences));
+				PreferencesRecord record = toRecord(preferences);
+				writePreferences(record, () -> {
+					repository.delete(record);
+					return null;
+				});
 			}
 		} finally {
 			((BasePreferences) edit).closeEdit();
@@ -419,7 +440,7 @@ public class BasePreferencesService implements PreferencesService
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_PREFS, preferencesReference(id));
 
-        if (repository.find(id) != null) {
+        if (findRecord(id) != null) {
             throw new IdUsedException(id);
         }
         BasePreferences edit = new BasePreferences(id);
@@ -504,8 +525,28 @@ public class BasePreferencesService implements PreferencesService
 		return rv;
 	}
 
+    // Finish each transaction before returning an edit or reporting a successful save.
+    private PreferencesRecord findRecord(String id) {
+        return transactions.execute(status -> repository.findById(id).orElse(null));
+    }
+
+    private <T> T writePreferences(PreferencesRecord record, Supplier<T> operation) {
+        // Hibernate may assign the initial version before a failed insert is flushed.
+        boolean inserting = record.getVersion() == null;
+        try {
+            return transactions.execute(status -> operation.get());
+        } catch (OptimisticLockException | OptimisticLockingFailureException e) {
+            throw new PreferencesConflictException(record.getId(), e);
+        } catch (DataIntegrityViolationException e) {
+            if (inserting && findRecord(record.getId()) != null) {
+                throw new PreferencesConflictException(record.getId(), e);
+            }
+            throw e;
+        }
+    }
+
     private BasePreferences readPreferences(String id) {
-        PreferencesRecord record = repository.find(id);
+        PreferencesRecord record = findRecord(id);
         if (record == null) {
             return null;
         }

@@ -30,6 +30,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.springframework.data.SpringCrudRepository;
+import org.sakaiproject.user.api.model.PreferencesRecord;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.user.api.Preferences;
@@ -41,6 +43,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 
@@ -57,9 +61,10 @@ import static org.mockito.Mockito.when;
 public class PreferencesServiceTest {
 
     @Autowired private PreferencesService preferencesService;
-    @Autowired private PreferencesRepository repository;
+    @Autowired private SpringCrudRepository<PreferencesRecord, String> repository;
     @Autowired private SecurityService securityService;
     @Autowired private DataSource dataSource;
+    @Autowired private PlatformTransactionManager transactionManager;
 
     private String userId;
 
@@ -77,12 +82,12 @@ public class PreferencesServiceTest {
             edit.getPropertiesEdit("calendar").addPropertyToList("sites", "one");
             edit.getPropertiesEdit("calendar").addPropertyToList("sites", "two");
         }));
-        Long firstVersion = repository.find(userId).getVersion();
+        Long firstVersion = repository.findById(userId).orElseThrow().getVersion();
         assertNotNull(firstVersion);
 
         assertTrue(preferencesService.applyEditWithAutoCommit(userId,
                 edit -> edit.getPropertiesEdit("account").addProperty("language", "fr")));
-        assertTrue(repository.find(userId).getVersion() > firstVersion);
+        assertTrue(repository.findById(userId).orElseThrow().getVersion() > firstVersion);
         Preferences saved = preferencesService.getPreferences(userId);
         assertEquals("value", saved.getProperties().getProperty("root"));
         assertEquals("dark", saved.getProperties("portal").getProperty("theme"));
@@ -93,14 +98,25 @@ public class PreferencesServiceTest {
     }
 
     @Test
+    public void commitsPreferencesIndependentlyOfTheCallerTransaction() {
+        new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+            save("independent", "saved");
+            status.setRollbackOnly();
+        });
+
+        assertEquals("saved", preferencesService.getPreferences(userId).getProperties().getProperty("independent"));
+        assertTrue(repository.findById(userId).isPresent());
+    }
+
+    @Test
     public void readsAndUpdatesAnExistingXmlDocument() {
         new JdbcTemplate(dataSource).update("INSERT INTO SAKAI_PREFERENCES (PREFERENCES_ID, XML) VALUES (?, ?)",
                 userId, "<preferences id=\"" + userId + "\"><properties><property name=\"old\" value=\"saved\"/></properties></preferences>");
-        assertEquals(Long.valueOf(0), repository.find(userId).getVersion());
+        assertEquals(Long.valueOf(0), repository.findById(userId).orElseThrow().getVersion());
         assertEquals("saved", preferencesService.getPreferences(userId).getProperties().getProperty("old"));
         save("new", "value");
         assertEquals("saved", preferencesService.getPreferences(userId).getProperties().getProperty("old"));
-        assertEquals(Long.valueOf(1), repository.find(userId).getVersion());
+        assertEquals(Long.valueOf(1), repository.findById(userId).orElseThrow().getVersion());
     }
 
     @Test
@@ -177,7 +193,7 @@ public class PreferencesServiceTest {
         PreferencesEdit edit = preferencesService.add(userId);
         edit.getPropertiesEdit().addProperty("unsaved", "value");
         preferencesService.cancel(edit);
-        assertNull(repository.find(userId));
+        assertTrue(repository.findById(userId).isEmpty());
     }
 
     @Test
@@ -197,7 +213,7 @@ public class PreferencesServiceTest {
             edit.getPropertiesEdit().addProperty("partial", "value");
             throw new IllegalStateException("An edit failed");
         }));
-        assertNull(repository.find(userId));
+        assertTrue(repository.findById(userId).isEmpty());
     }
 
     @Test
@@ -209,7 +225,7 @@ public class PreferencesServiceTest {
         assertFalse(stale.isActiveEdit());
         assertEquals("value", preferencesService.getPreferences(userId).getProperties().getProperty("new"));
         preferencesService.remove(preferencesService.edit(userId));
-        assertNull(repository.find(userId));
+        assertTrue(repository.findById(userId).isEmpty());
         assertNull(preferencesService.getPreferences(userId).getProperties().getProperty("new"));
     }
 
@@ -225,7 +241,7 @@ public class PreferencesServiceTest {
         AtomicBoolean called = new AtomicBoolean();
         assertFalse(preferencesService.applyEditWithAutoCommit(userId, edit -> called.set(true)));
         assertFalse(called.get());
-        assertNull(repository.find(userId));
+        assertTrue(repository.findById(userId).isEmpty());
         assertThrows(PermissionException.class, () -> preferencesService.edit(userId));
     }
 

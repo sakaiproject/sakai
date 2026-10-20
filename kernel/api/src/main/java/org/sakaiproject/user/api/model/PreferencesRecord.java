@@ -26,13 +26,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.hibernate.annotations.ColumnDefault;
+import org.sakaiproject.springframework.data.PersistableEntity;
 
 @Entity
 @Table(name = "SAKAI_PREFERENCES")
 @Getter
 @Setter
 @NoArgsConstructor
-public class PreferencesRecord {
+public class PreferencesRecord implements PersistableEntity<String> {
 
     @Id
     @Column(name = "PREFERENCES_ID", length = 99, nullable = false)

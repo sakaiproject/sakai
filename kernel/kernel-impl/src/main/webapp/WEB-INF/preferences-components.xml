@@ -14,8 +14,7 @@
 
     <bean id="org.sakaiproject.user.impl.PreferencesRepository"
           class="org.sakaiproject.user.impl.PreferencesRepository">
-        <constructor-arg ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-        <constructor-arg ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <bean id="org.sakaiproject.user.api.PreferencesService"
@@ -24,6 +23,7 @@
           destroy-method="destroy">
 
         <property name="repository" ref="org.sakaiproject.user.impl.PreferencesRepository"/>
+        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
         <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
