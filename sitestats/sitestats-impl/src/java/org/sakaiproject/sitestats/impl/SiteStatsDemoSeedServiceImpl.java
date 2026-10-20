@@ -51,6 +51,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.SiteStatsDemoSeedService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.User;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -93,6 +94,7 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 	@Setter private SqlService sqlService;
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private SimplePageToolDao simplePageToolDao;
+	@Setter private UserTimeService userTimeService;
 
 	private final Random random = new Random(42);
 
@@ -131,6 +133,7 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		}
 
 		int seededSites = 0;
+		int completedSites = 0;
 		for (Site site : demoSites) {
 			Set<String> memberIds = site.getUsers();
 			List<User> siteActors = actors.stream().filter(user -> memberIds.contains(user.getId())).toList();
@@ -140,33 +143,39 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 				continue;
 			}
 			try {
-				Boolean seeded = transactionTemplate.execute(status -> {
-					Session session = sessionFactory.getCurrentSession();
-					if (session.find(DemoSeed.class, site.getId()) != null) {
-						return false;
-					}
-					// Reserve the site before aggregation; a failed run rolls this record back too.
-					session.persist(new DemoSeed(site.getId()));
-					session.flush();
-					seedSiteEvents(statsUpdateManagerFactory.getObject(), site, siteActors, siteStudents,
-							historyDays, visitsPerUser);
-					return true;
-				});
-				if (Boolean.TRUE.equals(seeded)) {
+				if (seedOnce("site:" + site.getId(), () -> seedSiteEvents(statsUpdateManagerFactory.getObject(),
+						site, siteActors, siteStudents, historyDays, visitsPerUser))) {
 					seededSites++;
 				}
+				completedSites++;
 			} catch (Exception e) {
-				log.warn("SiteStats demo seed failed for site {}: {}", site.getId(), e.toString());
+				log.warn("SiteStats demo seed failed for site {}", site.getId(), e);
 			}
 		}
 
-		if (seededSites > 0) {
-			transactionTemplate.executeWithoutResult(status ->
-					seedServerEvents(statsUpdateManagerFactory.getObject(), actors, historyDays));
+		if (completedSites == 0) {
+			log.warn("SiteStats demo seed skipped: no completed sites");
+			return;
 		}
+		seedOnce("server", () -> seedServerEvents(statsUpdateManagerFactory.getObject(), actors, historyDays));
 		seedSessionUserAgents(actors, sessionCount, historyDays);
 
 		log.info("SiteStats demo seed completed: {} site(s), {} day history", seededSites, historyDays);
+	}
+
+	private boolean seedOnce(String seedKey, Runnable seedAction) {
+		Boolean seeded = transactionTemplate.execute(status -> {
+			Session session = sessionFactory.getCurrentSession();
+			if (session.find(DemoSeed.class, seedKey) != null) {
+				return false;
+			}
+			// The reservation and aggregates commit together; failed work can be retried.
+			session.persist(new DemoSeed(seedKey));
+			session.flush();
+			seedAction.run();
+			return true;
+		});
+		return Boolean.TRUE.equals(seeded);
 	}
 
 	private void seedSiteEvents(StatsUpdateManager statsUpdateManager, Site site, List<User> actors,
@@ -175,10 +184,11 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		List<Event> events = new ArrayList<>();
 		List<User> visitors = students.isEmpty() ? actors : students;
 		int baseVisitorCount = Math.min(visitors.size(), Math.max(5, visitors.size() / 4));
-		ZoneId zone = ZoneId.systemDefault();
+		ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+		LocalDate today = LocalDate.now(zone);
 
 		for (int dayOffset = 0; dayOffset < historyDays; dayOffset++) {
-			LocalDate day = LocalDate.now(zone).minusDays(dayOffset);
+			LocalDate day = today.minusDays(dayOffset);
 			double intensity = visitDayIntensity(day, dayOffset);
 			if (intensity <= 0.05) {
 				// Quiet day: skip visits almost entirely
@@ -227,7 +237,7 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		List<SimplePage> pages = listLessonPages(siteId);
 		if (!pages.isEmpty()) {
 			for (int dayOffset = 0; dayOffset < Math.min(historyDays, 14); dayOffset++) {
-				LocalDate day = LocalDate.now(zone).minusDays(dayOffset);
+				LocalDate day = today.minusDays(dayOffset);
 				SimplePage page = pages.get(dayOffset % pages.size());
 				User user = visitors.get(dayOffset % visitors.size());
 				String pageRef = "/lessonbuilder/page/" + page.getPageId();
@@ -242,10 +252,11 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 
 	private void seedServerEvents(StatsUpdateManager statsUpdateManager, List<User> actors, int historyDays) {
 		List<Event> events = new ArrayList<>();
-		ZoneId zone = ZoneId.systemDefault();
+		ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+		LocalDate today = LocalDate.now(zone);
 		int days = Math.min(historyDays, 14);
 		for (int dayOffset = 0; dayOffset < days; dayOffset++) {
-			LocalDate day = LocalDate.now(zone).minusDays(dayOffset);
+			LocalDate day = today.minusDays(dayOffset);
 			int logins = 5 + random.nextInt(15);
 			for (int i = 0; i < logins; i++) {
 				User user = actors.get(random.nextInt(actors.size()));
@@ -277,9 +288,9 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 				continue;
 			}
 			String ua = DEMO_USER_AGENTS[i % DEMO_USER_AGENTS.length];
-			Instant start = now.minus(random.nextInt(Math.max(1, historyDays)), ChronoUnit.DAYS)
+			Instant end = now.minus(random.nextInt(Math.max(1, historyDays)), ChronoUnit.DAYS)
 					.minus(random.nextInt(12), ChronoUnit.HOURS);
-			Instant end = start.plus(30 + random.nextInt(120), ChronoUnit.MINUTES);
+			Instant start = end.minus(30 + random.nextInt(120), ChronoUnit.MINUTES);
 			insertSession(sessionId, user.getId(), ua, start, end);
 		}
 		log.info("Completed demo SAKAI_SESSION seeding for {} session IDs", sessionCount);
@@ -314,56 +325,53 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 
 	private boolean demoSessionExists(String sessionId) {
 		Connection connection = null;
-		PreparedStatement statement = null;
-		ResultSet result = null;
 		try {
 			connection = sqlService.borrowConnection();
-			statement = connection.prepareStatement(
-					"select count(*) from SAKAI_SESSION where SESSION_ID = ?");
-			statement.setString(1, sessionId);
-			result = statement.executeQuery();
-			if (result.next()) {
-				return result.getInt(1) > 0;
+			try (PreparedStatement statement = connection.prepareStatement(
+					"select count(*) from SAKAI_SESSION where SESSION_ID = ?")) {
+				statement.setString(1, sessionId);
+				try (ResultSet result = statement.executeQuery()) {
+					return result.next() && result.getInt(1) > 0;
+				}
 			}
 		} catch (SQLException e) {
-			log.debug("Could not check demo session {}: {}", sessionId, e.toString());
+			throw new IllegalStateException("Could not check demo session " + sessionId, e);
 		} finally {
-			closeQuietly(result, statement, connection);
+			sqlService.returnConnection(connection);
 		}
-		return false;
 	}
 
 	private void insertSession(String sessionId, String userId, String userAgent, Instant start, Instant end) {
 		Connection connection = null;
-		PreparedStatement statement = null;
 		try {
 			connection = sqlService.borrowConnection();
-			statement = connection.prepareStatement(
+			try (PreparedStatement statement = connection.prepareStatement(
 					"insert into SAKAI_SESSION (SESSION_ID, SESSION_SERVER, SESSION_USER, SESSION_IP, "
 							+ "SESSION_HOSTNAME, SESSION_USER_AGENT, SESSION_START, SESSION_END, SESSION_ACTIVE) "
-							+ "values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-			statement.setString(1, sessionId);
-			statement.setString(2, "demo-server");
-			statement.setString(3, userId);
-			statement.setString(4, "127.0.0.1");
-			statement.setString(5, "localhost");
-			statement.setString(6, StringUtils.left(userAgent, 255));
-			statement.setTimestamp(7, Timestamp.from(start));
-			statement.setTimestamp(8, Timestamp.from(end));
-			statement.setBoolean(9, false);
-			statement.executeUpdate();
-			connection.commit();
+							+ "values (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+				statement.setString(1, sessionId);
+				statement.setString(2, "demo-server");
+				statement.setString(3, userId);
+				statement.setString(4, "127.0.0.1");
+				statement.setString(5, "localhost");
+				statement.setString(6, StringUtils.left(userAgent, 255));
+				statement.setTimestamp(7, Timestamp.from(start));
+				statement.setTimestamp(8, Timestamp.from(end));
+				statement.setBoolean(9, false);
+				statement.executeUpdate();
+				connection.commit();
+			}
 		} catch (SQLException e) {
-			log.debug("Could not insert demo session {}: {}", sessionId, e.toString());
 			if (connection != null) {
 				try {
 					connection.rollback();
-				} catch (SQLException ignored) {
-					// ignore
+				} catch (SQLException rollbackFailure) {
+					e.addSuppressed(rollbackFailure);
 				}
 			}
+			throw new IllegalStateException("Could not insert demo session " + sessionId, e);
 		} finally {
-			closeQuietly(null, statement, connection);
+			sqlService.returnConnection(connection);
 		}
 	}
 
@@ -396,23 +404,4 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		return ZonedDateTime.of(day, LocalTime.of(hour, 0), zone).toInstant();
 	}
 
-	private void closeQuietly(ResultSet result, PreparedStatement statement, Connection connection) {
-		if (result != null) {
-			try {
-				result.close();
-			} catch (SQLException ignored) {
-				// ignore
-			}
-		}
-		if (statement != null) {
-			try {
-				statement.close();
-			} catch (SQLException ignored) {
-				// ignore
-			}
-		}
-		if (connection != null) {
-			sqlService.returnConnection(connection);
-		}
-	}
 }

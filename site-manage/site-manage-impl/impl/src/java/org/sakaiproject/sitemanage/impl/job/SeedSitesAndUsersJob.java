@@ -76,6 +76,7 @@ import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.github.javafaker.Faker;
 
@@ -126,6 +127,8 @@ public class SeedSitesAndUsersJob implements Job {
 	private SimplePageToolDao simplePageToolDao;
 	@Setter
 	private SiteStatsDemoSeedService siteStatsDemoSeedService;
+	@Setter
+	private TransactionTemplate transactionTemplate;
 
 	private int numberOfSites;
 	private int numberOfStudents;
@@ -416,8 +419,8 @@ public class SeedSitesAndUsersJob implements Job {
 					for (User student : enrolledStudents) {
 						int bucket = studentIndex % 3;
 						studentIndex++;
-						if (bucket == 2) {
-							// missing submission
+						if (bucket == 2 || (bucket == 1 && !due.isBefore(now))) {
+							// Missing work, including work that cannot be late yet.
 							continue;
 						}
 						try {
@@ -428,13 +431,8 @@ public class SeedSitesAndUsersJob implements Job {
 							submission.setSubmitted(true);
 							submission.setUserSubmission(true);
 							submission.setSubmittedText(faker.lorem().paragraph());
-							if (bucket == 0) {
-								// on time
-								submission.setDateSubmitted(due.minus(1, ChronoUnit.DAYS));
-							} else {
-								// late
-								submission.setDateSubmitted(due.plus(2, ChronoUnit.DAYS));
-							}
+							Instant submittedAt = bucket == 0 ? due.minus(1, ChronoUnit.DAYS) : due.plus(2, ChronoUnit.DAYS);
+							submission.setDateSubmitted(submittedAt.isAfter(now) ? now : submittedAt);
 							// Grade most past-due work; leave some awaiting grading
 							boolean pastDue = due.isBefore(now);
 							if (pastDue && studentIndex % 4 != 0) {
@@ -447,7 +445,8 @@ public class SeedSitesAndUsersJob implements Job {
 								submission.setGradeReleased(true);
 								submission.setGradedBy(instructorId);
 								submission.setReturned(true);
-								submission.setDateReturned(due.plus(3, ChronoUnit.DAYS));
+								Instant returnedAt = due.plus(3, ChronoUnit.DAYS);
+								submission.setDateReturned(returnedAt.isAfter(now) ? now : returnedAt);
 							}
 							assignmentService.updateSubmission(submission);
 						} catch (PermissionException pe) {
@@ -477,29 +476,30 @@ public class SeedSitesAndUsersJob implements Job {
 				continue;
 			}
 			String toolPageId = lessonsTool.getPageId();
-			SimplePage rootPage = null;
-			for (int i = 0; i < numberOfLessonPages; i++) {
-				String title = "Demo Lesson " + (i + 1);
-				try {
-					Long parentId = rootPage == null ? null : rootPage.getPageId();
-					SimplePage page = simplePageToolDao.makePage(toolPageId, siteId, title, parentId, parentId);
-					if (!simplePageToolDao.saveItem(page, new ArrayList<>(), "ignored", false)) {
-						log.warn("Failed to save lesson page '{}' in site {}", title, siteId);
-						continue;
+			try {
+				transactionTemplate.executeWithoutResult(status -> {
+					SimplePage rootPage = null;
+					for (int i = 0; i < numberOfLessonPages; i++) {
+						String title = "Demo Lesson " + (i + 1);
+						Long parentId = rootPage == null ? null : rootPage.getPageId();
+						SimplePage page = simplePageToolDao.makePage(toolPageId, siteId, title, parentId, parentId);
+						if (!simplePageToolDao.saveItem(page, new ArrayList<>(), "ignored", false)) {
+							throw new IllegalStateException("Failed to save lesson page " + title);
+						}
+						SimplePageItem item = simplePageToolDao.makeItem(parentId == null ? 0 : parentId, i,
+								SimplePageItem.PAGE, Long.toString(page.getPageId()), page.getTitle());
+						if (!simplePageToolDao.saveItem(item, new ArrayList<>(), "ignored", false)) {
+							throw new IllegalStateException("Failed to save navigation item for lesson page " + page.getPageId());
+						}
+						if (rootPage == null) {
+							rootPage = page;
+						}
 					}
-					SimplePageItem item = simplePageToolDao.makeItem(parentId == null ? 0 : parentId, i,
-							SimplePageItem.PAGE, Long.toString(page.getPageId()), page.getTitle());
-					if (!simplePageToolDao.saveItem(item, new ArrayList<>(), "ignored", false)) {
-						throw new IllegalStateException("Failed to save navigation item for lesson page " + page.getPageId());
-					}
-					if (rootPage == null) {
-						rootPage = page;
-					}
-				} catch (Exception e) {
-					log.warn("Failed creating lesson page in site {}: {}", siteId, e.toString());
-				}
+				});
+				log.info("Created {} lesson pages in site {}", numberOfLessonPages, siteId);
+			} catch (RuntimeException e) {
+				log.warn("Failed creating lesson pages in site {}", siteId, e);
 			}
-			log.info("Created {} lesson pages in site {}", numberOfLessonPages, siteId);
 		}
 	}
 

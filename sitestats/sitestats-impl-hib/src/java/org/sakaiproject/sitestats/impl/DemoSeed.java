@@ -17,25 +17,25 @@ package org.sakaiproject.sitestats.impl;
 
 import java.io.Serializable;
 
-/** Completion record committed in the same transaction as a site's demo aggregates. */
+/** Completion record committed in the same transaction as the corresponding demo aggregates. */
 public class DemoSeed implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String siteId;
+	private String seedKey;
 
 	public DemoSeed() {
 	}
 
-	public DemoSeed(String siteId) {
-		this.siteId = siteId;
+	public DemoSeed(String seedKey) {
+		this.seedKey = seedKey;
 	}
 
-	public String getSiteId() {
-		return siteId;
+	public String getSeedKey() {
+		return seedKey;
 	}
 
-	public void setSiteId(String siteId) {
-		this.siteId = siteId;
+	public void setSeedKey(String seedKey) {
+		this.seedKey = seedKey;
 	}
 }

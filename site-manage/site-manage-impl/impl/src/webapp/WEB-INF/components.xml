@@ -174,6 +174,11 @@
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
         <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
         <property name="siteStatsDemoSeedService" ref="org.sakaiproject.sitestats.api.SiteStatsDemoSeedService" />
+        <property name="transactionTemplate">
+            <bean class="org.springframework.transaction.support.TransactionTemplate">
+                <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SeedSitesAndUsers"
