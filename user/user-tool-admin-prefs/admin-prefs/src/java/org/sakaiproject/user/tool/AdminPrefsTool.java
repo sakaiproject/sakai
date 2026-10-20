@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesConflictException;
@@ -273,19 +272,6 @@ public class AdminPrefsTool
 		{
 			m_edit = m_preferencesService.edit(getUserId());
 			return "edit";
-		}
-		catch (IdUnusedException e)
-		{
-			try
-			{
-				m_edit = m_preferencesService.add(getUserId());
-				return "edit";
-			}
-			catch (Exception ee)
-			{
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(ee.toString()));
-				return null;
-			}
 		}
 		catch (Exception e)
 		{

@@ -255,26 +255,25 @@ public class BasePreferencesService implements PreferencesService
 	@Override
 	public void commit(PreferencesEdit edit)
 	{
-		if (edit != null)
+		if (edit == null)
 		{
-			// check for closed edit
-			if (!edit.isActiveEdit())
-			{
-				log.warn("Cannot commit closed preferences edit for user {}", edit.getId());
-				return;
-			}
-
-			BasePreferences preferences = (BasePreferences) edit;
-			try {
-				PreferencesRecord saved = savePreferences(toRecord(preferences));
-				preferences.m_version = saved.getVersion();
-			} finally {
-				preferences.closeEdit();
-			}
-
-			// track it
-			eventTrackingService.post(eventTrackingService.newEvent(preferences.getEvent(), edit.getReference(), true));
+			return;
 		}
+
+		if (!edit.isActiveEdit())
+		{
+			log.warn("Cannot commit closed preferences edit for user {}", edit.getId());
+			return;
+		}
+
+		BasePreferences preferences = (BasePreferences) edit;
+		try {
+			savePreferences(toRecord(preferences));
+		} finally {
+			preferences.closeEdit();
+		}
+
+		eventTrackingService.post(eventTrackingService.newEvent(preferences.getEvent(), edit.getReference(), true));
 	}
 
 	@Override
@@ -467,11 +466,11 @@ public class BasePreferencesService implements PreferencesService
         return transaction.execute(status -> repository.findCurrentById(id).orElse(null));
     }
 
-    private PreferencesRecord savePreferences(PreferencesRecord record) {
+    private void savePreferences(PreferencesRecord record) {
         // Hibernate may assign the initial version before a failed insert is flushed.
         boolean inserting = record.getVersion() == null;
         try {
-            return transactionTemplate.execute(status -> repository.save(record));
+            transactionTemplate.executeWithoutResult(status -> repository.save(record));
         } catch (OptimisticLockException | OptimisticLockingFailureException e) {
             throw new PreferencesConflictException(record.getId(), e);
         } catch (DataIntegrityViolationException e) {

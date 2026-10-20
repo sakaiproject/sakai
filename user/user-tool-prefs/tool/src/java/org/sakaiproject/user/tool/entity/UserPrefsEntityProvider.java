@@ -99,23 +99,13 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 		}
 	}
 	
-    /**
-	 * Set editing mode on for user and add user if not existing
-	 */
 	private PreferencesEdit getPreferencesEdit(String userId) {
-
-		PreferencesEdit preference = null;
 		try {
-			try {
-				preference = preferencesService.edit(userId);
-			} catch (IdUnusedException iue) {
-				preference = preferencesService.add(userId);
-			}
+			return preferencesService.edit(userId);
 		} catch (Exception e) {
 			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+			return null;
 		}
-
-		return preference;
 	}
 
     private void commitPreferences(PreferencesEdit edit) {
@@ -146,14 +136,6 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 				}
 
 				rv = preferencesService.getPreferences(requestedUserID);
-				if (rv == null)
-				{
-					try {
-						rv = preferencesService.add(requestedUserID);
-					} catch (Exception ee) {
-						log.error(ee.getMessage());
-					}
-				}
 				
 			}
 		}
@@ -234,16 +216,13 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
         if (preferences != null) {
             try {
                 ResourcePropertiesEdit expandProps = preferences.getPropertiesEdit(UserPrefsTool.PREFS_EXPAND);
-                if (expandProps != null) {
-                    expandProps.addProperty(key, state);
-                }
+                expandProps.addProperty(key, state);
             } catch (Exception e) {
                 log.warn("Could not set the preference prefs.expand for user [{}], {}", userId, e.toString());
                 preferencesService.cancel(preferences);
-                preferences = null;
-            } finally {
-                if (preferences != null) commitPreferences(preferences);
+                return;
             }
+            commitPreferences(preferences);
         }
     }
     
@@ -369,7 +348,7 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 				}
 
 				if (!propsToSet.isEmpty()) {
-					log.debug("We have some props to set. Getting edit lock ...");
+					log.debug("Preparing preferences edit for user {}", requestedUserID);
 					PreferencesEdit editPrefs = getPreferencesEdit(requestedUserID);
 
 					if (editPrefs != null) {
@@ -380,12 +359,11 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 						} catch (Exception e) {
 							log.warn("Could not update keys for user [{}], {}", requestedUserID, e.toString());
 							preferencesService.cancel(editPrefs);
-							editPrefs = null;
-						} finally {
-							if (editPrefs != null) commitPreferences(editPrefs);
+							return;
 						}
+						commitPreferences(editPrefs);
 					} else {
-						log.warn("Could not get a lock on prefs to update for user: {}", requestedUserID);
+						log.warn("Could not prepare preferences edit for user {}", requestedUserID);
 					}
 				} else {
 					log.debug("No new props to set");
