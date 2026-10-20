@@ -31,7 +31,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
   }
 
   hideComment() {
-    bootstrap.Dropdown.getOrCreateInstance(this.querySelector(".dropdown-menu"))?.hide();
+    bootstrap.Dropdown.getInstance(this.renderRoot.querySelector("[data-bs-toggle='dropdown']"))?.hide();
   }
 
   render() {
