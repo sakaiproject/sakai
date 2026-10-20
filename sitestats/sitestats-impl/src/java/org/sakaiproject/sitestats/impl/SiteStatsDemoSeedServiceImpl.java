@@ -32,28 +32,28 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.SiteStatsDemoSeedService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.user.api.User;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Seeds SiteStats aggregates via {@link StatsUpdateManager} and sample session User-Agents for the sitestats tool demo.
@@ -61,7 +61,6 @@ import org.sakaiproject.user.api.User;
 @Slf4j
 public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 
-	public static final String SITE_PROP_SEEDED = "sitestats.demo.seeded";
 	public static final String SESSION_ID_PREFIX = "sitestats-demo-ua-";
 
 	private static final String[] ACTIVITY_EVENTS = {
@@ -88,8 +87,9 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 			"Mozilla/5.0 (Linux; Android 13; SM-X700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 	};
 
-	@Setter private StatsUpdateManager statsUpdateManager;
-	@Setter private SiteService siteService;
+	@Setter private ObjectFactory<StatsUpdateManager> statsUpdateManagerFactory;
+	@Setter private SessionFactory sessionFactory;
+	@Setter private TransactionTemplate transactionTemplate;
 	@Setter private SqlService sqlService;
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private SimplePageToolDao simplePageToolDao;
@@ -132,28 +132,45 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 
 		int seededSites = 0;
 		for (Site site : demoSites) {
-			if (isSiteAlreadySeeded(site)) {
-				log.debug("SiteStats demo seed already done for site {}", site.getId());
+			Set<String> memberIds = site.getUsers();
+			List<User> siteActors = actors.stream().filter(user -> memberIds.contains(user.getId())).toList();
+			List<User> siteStudents = studentList.stream().filter(user -> memberIds.contains(user.getId())).toList();
+			if (siteActors.isEmpty()) {
+				log.warn("SiteStats demo seed skipped: no enrolled users in site {}", site.getId());
 				continue;
 			}
 			try {
-				seedSiteEvents(site, actors, studentList, historyDays, visitsPerUser);
-				markSiteSeeded(site);
-				seededSites++;
+				Boolean seeded = transactionTemplate.execute(status -> {
+					Session session = sessionFactory.getCurrentSession();
+					if (session.find(DemoSeed.class, site.getId()) != null) {
+						return false;
+					}
+					// Reserve the site before aggregation; a failed run rolls this record back too.
+					session.persist(new DemoSeed(site.getId()));
+					session.flush();
+					seedSiteEvents(statsUpdateManagerFactory.getObject(), site, siteActors, siteStudents,
+							historyDays, visitsPerUser);
+					return true;
+				});
+				if (Boolean.TRUE.equals(seeded)) {
+					seededSites++;
+				}
 			} catch (Exception e) {
 				log.warn("SiteStats demo seed failed for site {}: {}", site.getId(), e.toString());
 			}
 		}
 
 		if (seededSites > 0) {
-			seedServerEvents(actors, historyDays);
+			transactionTemplate.executeWithoutResult(status ->
+					seedServerEvents(statsUpdateManagerFactory.getObject(), actors, historyDays));
 		}
 		seedSessionUserAgents(actors, sessionCount, historyDays);
 
 		log.info("SiteStats demo seed completed: {} site(s), {} day history", seededSites, historyDays);
 	}
 
-	private void seedSiteEvents(Site site, List<User> actors, List<User> students, int historyDays, int visitsPerUser) {
+	private void seedSiteEvents(StatsUpdateManager statsUpdateManager, Site site, List<User> actors,
+			List<User> students, int historyDays, int visitsPerUser) {
 		String siteId = site.getId();
 		List<Event> events = new ArrayList<>();
 		List<User> visitors = students.isEmpty() ? actors : students;
@@ -220,10 +237,10 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 			}
 		}
 
-		flushEvents(events);
+		flushEvents(statsUpdateManager, events);
 	}
 
-	private void seedServerEvents(List<User> actors, int historyDays) {
+	private void seedServerEvents(StatsUpdateManager statsUpdateManager, List<User> actors, int historyDays) {
 		List<Event> events = new ArrayList<>();
 		ZoneId zone = ZoneId.systemDefault();
 		int days = Math.min(historyDays, 14);
@@ -245,7 +262,7 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 						null, user.getId(), "demo-siteadd-" + dayOffset));
 			}
 		}
-		flushEvents(events);
+		flushEvents(statsUpdateManager, events);
 	}
 
 	private void seedSessionUserAgents(List<User> actors, int sessionCount, int historyDays) {
@@ -268,7 +285,7 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		log.info("Completed demo SAKAI_SESSION seeding for {} session IDs", sessionCount);
 	}
 
-	private void flushEvents(List<Event> events) {
+	private void flushEvents(StatsUpdateManager statsUpdateManager, List<Event> events) {
 		if (events.isEmpty()) {
 			return;
 		}
@@ -292,32 +309,6 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		} catch (RuntimeException e) {
 			log.debug("Unable to list lesson pages for {}: {}", siteId, e.toString());
 			return List.of();
-		}
-	}
-
-	private boolean isSiteAlreadySeeded(Site site) {
-		try {
-			ResourceProperties props = site.getProperties();
-			if (props == null) {
-				Site fresh = siteService.getSite(site.getId());
-				props = fresh.getProperties();
-			}
-			return props != null && "true".equalsIgnoreCase(props.getProperty(SITE_PROP_SEEDED));
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	private void markSiteSeeded(Site site) {
-		try {
-			Site editable = siteService.getSite(site.getId());
-			ResourcePropertiesEdit props = editable.getPropertiesEdit();
-			props.addProperty(SITE_PROP_SEEDED, "true");
-			siteService.save(editable);
-		} catch (IdUnusedException | PermissionException e) {
-			log.warn("Could not mark site {} as sitestats-demo seeded: {}", site.getId(), e.toString());
-		} catch (RuntimeException e) {
-			log.warn("Could not mark site {} as sitestats-demo seeded: {}", site.getId(), e.toString());
 		}
 	}
 

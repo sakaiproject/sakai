@@ -17,6 +17,7 @@
 				<value>org/sakaiproject/sitestats/impl/hbm/SitePresenceImpl.hbm.xml</value>
 				<value>org/sakaiproject/sitestats/impl/hbm/SitePresenceTotalImpl.hbm.xml</value>
 				<value>org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/DemoSeed.hbm.xml</value>
 				<value>org/sakaiproject/sitestats/impl/hbm/ReportDef.hbm.xml</value>
 				<value>org/sakaiproject/sitestats/impl/hbm/ServerStat.hbm.xml</value>
 				<value>org/sakaiproject/sitestats/impl/hbm/UserStat.hbm.xml</value>
@@ -536,10 +537,23 @@
 	</bean>
 
 	<!-- sitestats tool demo seed (invoked from SeedSitesAndUsersJob when sitestats.sakai.demo=true; optional Job Scheduler re-run) -->
+	<bean id="org.sakaiproject.sitestats.impl.DemoStatsUpdateManager"
+		  parent="org.sakaiproject.sitestats.api.StatsUpdateManager.target" scope="prototype" autowire-candidate="false">
+		<property name="collectThreadEnabled" value="false"/>
+	</bean>
+	<bean id="org.sakaiproject.sitestats.impl.DemoStatsUpdateManagerFactory"
+		  class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+		<property name="targetBeanName" value="org.sakaiproject.sitestats.impl.DemoStatsUpdateManager"/>
+	</bean>
 	<bean id="org.sakaiproject.sitestats.api.SiteStatsDemoSeedService"
 		  class="org.sakaiproject.sitestats.impl.SiteStatsDemoSeedServiceImpl">
-		<property name="statsUpdateManager" ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="statsUpdateManagerFactory" ref="org.sakaiproject.sitestats.impl.DemoStatsUpdateManagerFactory"/>
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+		<property name="transactionTemplate">
+			<bean class="org.springframework.transaction.support.TransactionTemplate">
+				<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+			</bean>
+		</property>
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>

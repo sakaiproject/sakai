@@ -477,20 +477,23 @@ public class SeedSitesAndUsersJob implements Job {
 				continue;
 			}
 			String toolPageId = lessonsTool.getPageId();
+			SimplePage rootPage = null;
 			for (int i = 0; i < numberOfLessonPages; i++) {
 				String title = "Demo Lesson " + (i + 1);
 				try {
-					SimplePage page = simplePageToolDao.makePage(toolPageId, siteId, title, null, null);
+					Long parentId = rootPage == null ? null : rootPage.getPageId();
+					SimplePage page = simplePageToolDao.makePage(toolPageId, siteId, title, parentId, parentId);
 					if (!simplePageToolDao.saveItem(page, new ArrayList<>(), "ignored", false)) {
 						log.warn("Failed to save lesson page '{}' in site {}", title, siteId);
 						continue;
 					}
-					if (i == 0) {
-						SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE,
-								Long.toString(page.getPageId()), page.getTitle());
-						if (!simplePageToolDao.saveItem(item, new ArrayList<>(), "ignored", false)) {
-							log.warn("Failed to save top-level lesson item in site {}", siteId);
-						}
+					SimplePageItem item = simplePageToolDao.makeItem(parentId == null ? 0 : parentId, i,
+							SimplePageItem.PAGE, Long.toString(page.getPageId()), page.getTitle());
+					if (!simplePageToolDao.saveItem(item, new ArrayList<>(), "ignored", false)) {
+						throw new IllegalStateException("Failed to save navigation item for lesson page " + page.getPageId());
+					}
+					if (rootPage == null) {
+						rootPage = page;
 					}
 				} catch (Exception e) {
 					log.warn("Failed creating lesson page in site {}: {}", siteId, e.toString());

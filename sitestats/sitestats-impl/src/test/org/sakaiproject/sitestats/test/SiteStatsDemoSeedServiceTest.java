@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.sitestats.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -33,8 +34,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.site.api.Site;
@@ -44,7 +43,6 @@ import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
-import org.sakaiproject.sitestats.impl.SiteStatsDemoSeedServiceImpl;
 import org.sakaiproject.sitestats.impl.StatsManagerImpl;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
@@ -62,10 +60,9 @@ public class SiteStatsDemoSeedServiceTest extends AbstractTransactionalJUnit4Spr
 	@Autowired private StatsManager statsManager;
 	@Autowired private StatsUpdateManager statsUpdateManager;
 	@Autowired private ServerConfigurationService serverConfigurationService;
-	@Autowired private SqlService sqlService;
 	@Autowired private SimplePageToolDao simplePageToolDao;
 
-	private SiteStatsDemoSeedService seeder;
+	@Autowired private SiteStatsDemoSeedService seeder;
 
 	@Before
 	public void setUp() throws Exception {
@@ -98,13 +95,6 @@ public class SiteStatsDemoSeedServiceTest extends AbstractTransactionalJUnit4Spr
 		((StatsManagerImpl) ((Advised) statsManager).getTargetSource().getTarget()).setShowAnonymousAccessEvents(true);
 		((StatsManagerImpl) ((Advised) statsManager).getTargetSource().getTarget()).setEnableSitePresences(true);
 
-		SiteStatsDemoSeedServiceImpl impl = new SiteStatsDemoSeedServiceImpl();
-		impl.setStatsUpdateManager(statsUpdateManager);
-		impl.setSiteService(siteService);
-		impl.setSqlService(sqlService);
-		impl.setServerConfigurationService(serverConfigurationService);
-		impl.setSimplePageToolDao(simplePageToolDao);
-		seeder = impl;
 	}
 
 	@Test
@@ -125,19 +115,18 @@ public class SiteStatsDemoSeedServiceTest extends AbstractTransactionalJUnit4Spr
 	}
 
 	@Test
-	public void seedIsIdempotentWhenSiteAlreadyFlagged() throws Exception {
-		ResourceProperties props = mock(ResourceProperties.class);
-		when(props.getProperty(SiteStatsDemoSeedService.DEMO_SITE_PROPERTY)).thenReturn("true");
-		when(props.getProperty(SiteStatsDemoSeedServiceImpl.SITE_PROP_SEEDED)).thenReturn("true");
+	public void seedIsIdempotentWhenSiteAlreadySeeded() throws Exception {
 		Site site = siteService.getSite(FakeData.SITE_A_ID);
-		when(site.getProperties()).thenReturn(props);
 
 		User studentA = mockUser(FakeData.USER_A_ID);
+		seeder.seed(List.of(site), List.of(studentA), List.of());
+		long visits = statsManager.getSummaryVisitsTotals(FakeData.SITE_A_ID).getTotalVisits();
+		assertTrue("Expected the first seed to create visits", visits > 0);
 		seeder.seed(List.of(site), List.of(studentA), List.of());
 
 		SummaryVisitsTotals totals = statsManager.getSummaryVisitsTotals(FakeData.SITE_A_ID);
 		assertNotNull(totals);
-		assertTrue(totals.getTotalVisits() == 0);
+		assertEquals("Repeating a completed seed must not add visits", visits, totals.getTotalVisits());
 	}
 
 	private static User mockUser(String id) {
