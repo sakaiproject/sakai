@@ -13,10 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.user.impl;
+package org.sakaiproject.user.api.repository;
 
-import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
+import java.util.Optional;
+
+import org.sakaiproject.springframework.data.SpringCrudRepository;
 import org.sakaiproject.user.api.model.PreferencesRecord;
 
-public class PreferencesRepository extends SpringCrudRepositoryImpl<PreferencesRecord, String> {
+public interface PreferencesRepository extends SpringCrudRepository<PreferencesRecord, String> {
+
+    /**
+     * Read the stored row, bypassing the session's persistence context.
+     * The returned record is not managed by the session.
+     */
+    Optional<PreferencesRecord> findCurrentById(String id);
+
+    /**
+     * Delete the row only if it still has the given version.
+     *
+     * @return the number of rows deleted, zero when the row changed or no longer exists
+     */
+    int deleteByIdAndVersion(String id, Long version);
 }

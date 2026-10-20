@@ -49,12 +49,12 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.springframework.data.SpringCrudRepository;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesConflictException;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.model.PreferencesRecord;
+import org.sakaiproject.user.api.repository.PreferencesRepository;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
@@ -64,8 +64,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -78,17 +77,9 @@ public class BasePreferencesService implements PreferencesService
 {
 	/** Key used to store the locale preferences. */
 	private static final String LOCALE_PREFERENCE_KEY = "sakai:resourceloader";
-	@Setter private SpringCrudRepository<PreferencesRecord, String> repository;
-	private TransactionTemplate transactions;
-	private TransactionTemplate reads;
-
-	public void setTransactionManager(PlatformTransactionManager transactionManager) {
-		transactions = new TransactionTemplate(transactionManager);
-		transactions.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-		reads = new TransactionTemplate(transactionManager);
-		reads.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-		reads.setReadOnly(true);
-	}
+	@Setter private PreferencesRepository repository;
+	@Setter private TransactionTemplate transactionTemplate;
+	@Setter private TransactionTemplate readTransactionTemplate;
 
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
@@ -338,7 +329,9 @@ public class BasePreferencesService implements PreferencesService
 			if (preferences.m_version != null) {
 				PreferencesRecord record = toRecord(preferences);
 				writePreferences(record, () -> {
-					repository.delete(record);
+					if (repository.deleteByIdAndVersion(record.getId(), record.getVersion()) == 0) {
+						throw new OptimisticLockingFailureException("Preferences changed before removal");
+					}
 					return null;
 				});
 			}
@@ -370,16 +363,19 @@ public class BasePreferencesService implements PreferencesService
 		BasePreferences prefs = snapshot != null ? fromSnapshot(snapshot) : null;
 
 		// Failing that, try the storage
+		// A caller's transaction may see an older database snapshot, so do not share what it reads.
+		boolean shareable = true;
 		if (prefs == null) {
+			shareable = !TransactionSynchronizationManager.isActualTransactionActive();
 			try {
-				prefs = readPreferences(id, reads);
+				prefs = readPreferences(id, readTransactionTemplate);
 			} catch (IllegalStateException e) {
 				log.warn("Ignoring invalid preferences for user {}: {}", id, e.getMessage());
 				return null;
 			}
 		}
 
-		if (prefs != null) {
+		if (prefs != null && shareable) {
 			m_cache.put(id, prefs.toSnapshot());
 		}
 
@@ -531,18 +527,18 @@ public class BasePreferencesService implements PreferencesService
 
     // Finish each transaction before returning an edit or reporting a successful save.
     private PreferencesRecord findRecord(String id) {
-        return findRecord(id, transactions);
+        return findRecord(id, transactionTemplate);
     }
 
     private PreferencesRecord findRecord(String id, TransactionTemplate transaction) {
-        return transaction.execute(status -> repository.findById(id).orElse(null));
+        return transaction.execute(status -> repository.findCurrentById(id).orElse(null));
     }
 
     private <T> T writePreferences(PreferencesRecord record, Supplier<T> operation) {
         // Hibernate may assign the initial version before a failed insert is flushed.
         boolean inserting = record.getVersion() == null;
         try {
-            return transactions.execute(status -> operation.get());
+            return transactionTemplate.execute(status -> operation.get());
         } catch (OptimisticLockException | OptimisticLockingFailureException e) {
             throw new PreferencesConflictException(record.getId(), e);
         } catch (DataIntegrityViolationException e) {
@@ -554,7 +550,7 @@ public class BasePreferencesService implements PreferencesService
     }
 
     private BasePreferences readPreferences(String id) {
-        return readPreferences(id, transactions);
+        return readPreferences(id, transactionTemplate);
     }
 
     private BasePreferences readPreferences(String id, TransactionTemplate transaction) {

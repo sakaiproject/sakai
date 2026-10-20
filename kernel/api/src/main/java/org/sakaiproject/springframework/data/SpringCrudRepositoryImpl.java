@@ -28,7 +28,6 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -93,7 +92,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
         Session session = sessionFactory.getCurrentSession();
 
-        boolean isNew = JpaEntityInformationSupport.getEntityInformation(domainClass, session).isNew(entity);
+        boolean isNew = entity.getId() == null;
         if (isNew) {
             session.persist(entity);
             return entity;
@@ -201,15 +200,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     @Transactional
     public void delete(T entity) {
         if (entity != null) {
-            if (sessionFactory.getMetamodel().entity(domainClass).hasVersionAttribute()) {
-                Session session = sessionFactory.getCurrentSession();
-                if (!JpaEntityInformationSupport.getEntityInformation(domainClass, session).isNew(entity)) {
-                    // Preserve the supplied version instead of loading the latest row by ID.
-                    session.remove(session.contains(entity) ? entity : session.merge(entity));
-                }
-            } else {
-                deleteById(entity.getId());
-            }
+            deleteById(entity.getId());
         } else {
             log.warn("Can not perform delete on a null entity");
         }

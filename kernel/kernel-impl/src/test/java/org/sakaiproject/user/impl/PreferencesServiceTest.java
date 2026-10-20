@@ -30,8 +30,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.springframework.data.SpringCrudRepository;
 import org.sakaiproject.user.api.model.PreferencesRecord;
+import org.sakaiproject.user.api.repository.PreferencesRepository;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.user.api.Preferences;
@@ -61,7 +61,7 @@ import static org.mockito.Mockito.when;
 public class PreferencesServiceTest {
 
     @Autowired private PreferencesService preferencesService;
-    @Autowired private SpringCrudRepository<PreferencesRecord, String> repository;
+    @Autowired private PreferencesRepository repository;
     @Autowired private SecurityService securityService;
     @Autowired private DataSource dataSource;
     @Autowired private PlatformTransactionManager transactionManager;
@@ -106,6 +106,18 @@ public class PreferencesServiceTest {
 
             assertEquals("visible", preferencesService.getPreferences(userId).getProperties().getProperty("joined"));
         });
+    }
+
+    @Test
+    public void readsInsideACallerTransactionDoNotKeepAStaleCopy() {
+        save("theme", "light");
+        new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+            assertEquals("light", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
+            save("theme", "dark");
+            assertEquals("dark", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
+        });
+
+        assertEquals("dark", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
     }
 
     @Test
