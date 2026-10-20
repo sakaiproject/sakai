@@ -163,6 +163,8 @@ import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
+import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
+import org.sakaiproject.rubrics.api.model.EvaluatedItemOwnerType;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Group;
@@ -1442,17 +1444,38 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (submissions.isEmpty()) {
             return Collections.emptySet();
         }
-        Site site;
+        Set<String> assignedGroupReferences = new HashSet<>(assignedReferences);
+        Set<String> rubricGroupIds = getGroupIdsWithRubricEvaluations(assignment, submissions);
+        return submissions.stream().filter(submission -> hasSubmissionWork(submission)
+                        || rubricGroupIds.contains(submission.getGroupId()))
+                .map(AssignmentSubmission::getGroupId).filter(StringUtils::isNotBlank)
+                .filter(groupId -> assignedGroupReferences.contains(siteService.siteGroupReference(assignment.getContext(), groupId)))
+                .collect(Collectors.toSet());
+    }
+
+    private Set<String> getGroupIdsWithRubricEvaluations(Assignment assignment, List<AssignmentSubmission> submissions) {
+        TransactionTemplate rubricRead = new TransactionTemplate(transactionTemplate.getTransactionManager());
+        rubricRead.setReadOnly(true);
+        rubricRead.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         try {
-            site = siteService.getSite(assignment.getContext());
-        } catch (IdUnusedException e) {
-            throw new IllegalStateException("Cannot resolve groups for assignment " + assignment.getId(), e);
+            List<EvaluationTransferBean> evaluations = rubricRead.execute(status -> {
+                if (rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId()).isEmpty()) {
+                    return Collections.emptyList();
+                }
+                return rubricsService.getEvaluationsForToolAndItem(AssignmentConstants.TOOL_ID, assignment.getId(), assignment.getContext());
+            });
+            Set<String> evaluatedSubmissionIds = evaluations.stream().map(EvaluationTransferBean::getEvaluatedItemId)
+                    .collect(Collectors.toSet());
+            Set<String> evaluatedGroupIds = evaluations.stream()
+                    .filter(evaluation -> evaluation.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.GROUP)
+                    .map(EvaluationTransferBean::getEvaluatedItemOwnerId).collect(Collectors.toSet());
+            return submissions.stream().filter(submission -> evaluatedSubmissionIds.contains(submission.getId())
+                            || evaluatedGroupIds.contains(submission.getGroupId()))
+                    .map(AssignmentSubmission::getGroupId).collect(Collectors.toSet());
+        } catch (RuntimeException e) {
+            log.warn("Unable to check rubric evaluations for assignment {}; retaining recorded groups", assignment.getId(), e);
+            return submissions.stream().map(AssignmentSubmission::getGroupId).collect(Collectors.toSet());
         }
-        Set<String> assignedIds = assignedReferences.stream().map(site::getGroup).filter(Objects::nonNull)
-                .map(Group::getId).collect(Collectors.toSet());
-        boolean rubricWork = hasRubricSubmissionWork(assignment);
-        return submissions.stream().filter(submission -> rubricWork || hasSubmissionWork(submission))
-                .map(AssignmentSubmission::getGroupId).filter(assignedIds::contains).collect(Collectors.toSet());
     }
 
     private boolean hasSubmissionWork(AssignmentSubmission submission) {
@@ -1750,8 +1773,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    @Transactional(rollbackFor = PermissionException.class)
-    public void updateAssignmentGroups(Assignment assignment, Set<String> requestedGroupReferences) throws PermissionException {
+    @Transactional(rollbackFor = {PermissionException.class, IdUnusedException.class})
+    public void updateAssignmentGroups(Assignment assignment, Set<String> requestedGroupReferences) throws PermissionException, IdUnusedException {
         Assert.notNull(assignment, "Assignment cannot be null");
         Assert.notNull(assignment.getId(), "Assignment doesn't appear to have been persisted yet");
         Assert.notNull(requestedGroupReferences, "Requested groups cannot be null");
@@ -1766,12 +1789,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Set<String> previousReferences = new HashSet<>(assignmentRepository.findGroupsForAssignmentById(assignment.getId()));
         List<AssignmentSubmission> submissions = assignmentRepository.findSubmissions(Collections.singleton(assignment.getId()));
         Set<String> protectedIds = getGroupIdsWithSubmissionWork(assignment, previousReferences, submissions);
-        Site site;
-        try {
-            site = siteService.getSite(assignment.getContext());
-        } catch (IdUnusedException e) {
-            throw new IllegalStateException("Cannot resolve groups for assignment " + assignment.getId(), e);
-        }
+        Site site = siteService.getSite(assignment.getContext());
         Set<String> effectiveReferences = new HashSet<>();
         for (String groupReference : requestedGroupReferences) {
             Group group = site.getGroup(groupReference);

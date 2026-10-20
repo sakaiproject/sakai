@@ -697,6 +697,40 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void bulkEvaluationsUseOwnerIdsWhenOwnersAreGroupsOrUnavailableUsers() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = AssignmentConstants.TOOL_ID;
+        String toolItemId = "group-owner-evaluations";
+        Map<String, String> params = new HashMap<>();
+        params.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        params.put(RubricsConstants.RBCS_LIST, rubric.getId().toString());
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, toolItemId, params).orElseThrow();
+        EvaluationTransferBean groupEvaluation = buildEvaluation(association.getId(), rubric, "group-submission");
+        groupEvaluation.setEvaluatedItemOwnerId("group-owner");
+        groupEvaluation.setEvaluatedItemOwnerType(EvaluatedItemOwnerType.GROUP);
+        groupEvaluation.setStatus(EvaluationStatus.DRAFT);
+        Long groupEvaluationId = rubricsService.saveEvaluation(groupEvaluation, siteId).getId();
+        EvaluationTransferBean missingUserEvaluation = buildEvaluation(association.getId(), rubric, "missing-user-submission");
+        missingUserEvaluation.setEvaluatedItemOwnerId("missing-user");
+        missingUserEvaluation.setStatus(EvaluationStatus.DRAFT);
+        Long missingUserEvaluationId = rubricsService.saveEvaluation(missingUserEvaluation, siteId).getId();
+        EvaluationTransferBean userEvaluation = buildEvaluation(association.getId(), rubric, "user-submission");
+        userEvaluation.setStatus(EvaluationStatus.DRAFT);
+        Long userEvaluationId = rubricsService.saveEvaluation(userEvaluation, siteId).getId();
+        when(userDirectoryService.getUsers(any())).thenReturn(List.of(user2User));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        List<EvaluationTransferBean> evaluations = rubricsService.getEvaluationsForToolAndItem(toolId, toolItemId, siteId);
+        assertEquals(3, evaluations.size());
+        Map<Long, EvaluationTransferBean> byId = evaluations.stream().collect(Collectors.toMap(EvaluationTransferBean::getId, evaluation -> evaluation));
+        assertEquals(EvaluatedItemOwnerType.GROUP, byId.get(groupEvaluationId).getEvaluatedItemOwnerType());
+        assertEquals("group-owner", byId.get(groupEvaluationId).getSortName());
+        assertEquals("missing-user", byId.get(missingUserEvaluationId).getSortName());
+        assertEquals(user2SortName, byId.get(userEvaluationId).getSortName());
+    }
+
+    @Test
     public void saveEvaluation() {
 
         switchToInstructor();

@@ -103,6 +103,9 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
+import org.sakaiproject.rubrics.api.model.EvaluatedItemOwnerType;
+import org.sakaiproject.rubrics.api.model.EvaluationStatus;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -197,6 +200,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Before
     public void setUp() {
+        when(siteService.siteGroupReference(anyString(), anyString())).thenAnswer(invocation ->
+                "/site/" + invocation.getArgument(0) + "/group/" + invocation.getArgument(1));
         when(serverConfigurationService.getBoolean("tagservice.enable.integrations", true)).thenReturn(false);
         when(serverConfigurationService.getAccessUrl()).thenReturn("http://localhost:8080/access");
         resourceLoader = mock(ResourceLoader.class);
@@ -927,16 +932,175 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void rubricProtectionAppliesOnlyToGroupsWithSubmissionRecords() throws Exception {
-        Assignment assignment = createThreeGroupAssignment(false);
-        AssignmentSubmission submission = assignmentService.getSubmissions(assignment).iterator().next();
+    public void rubricAssociationAloneDoesNotProtectEmptyGradingPlaceholdersDuringEditing() throws Exception {
+        Assignment assignment = createThreeGroupAssignment();
         when(rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId()))
                 .thenReturn(Optional.of(new ToolItemRubricAssociation()));
-        Assert.assertEquals(Set.of(submission.getGroupId()), assignmentService.getGroupIdsWithSubmissionWork(assignment));
+        Assert.assertTrue(assignmentService.getGroupIdsWithSubmissionWork(assignment).isEmpty());
+        // Soft deletion deliberately keeps its assignment-wide association rule.
+        Assert.assertFalse(assignmentService.canReleaseGroupLocks(assignment));
         assignmentService.updateAssignmentGroups(assignment, Collections.emptySet());
-        Assert.assertEquals(Set.of(siteService.getSite(assignment.getContext()).getGroup(submission.getGroupId()).getReference()),
-                assignment.getGroups());
-        Assert.assertEquals(submission.getId(), assignmentService.getSubmissions(assignment).iterator().next().getId());
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        Assignment saved = assignmentService.getAssignment(assignment.getId());
+        Assert.assertTrue(saved.getGroups().isEmpty());
+        Assert.assertTrue(assignmentService.getSubmissions(saved).isEmpty());
+    }
+
+    @Test
+    public void onlyActualRubricEvaluationsProtectTheirSubmissionGroup() throws Exception {
+        assertRubricEvaluationProtectsOnlyOneGroup(false, false);
+    }
+
+    @Test
+    public void groupOwnerRubricEvaluationsProtectTheirGroupIncludingPeerAndSelfEvaluations() throws Exception {
+        assertRubricEvaluationProtectsOnlyOneGroup(true, false);
+        assertRubricEvaluationProtectsOnlyOneGroup(true, true);
+    }
+
+    private void assertRubricEvaluationProtectsOnlyOneGroup(boolean groupOwner, boolean peerOrSelf) throws Exception {
+        Assignment assignment = createThreeGroupAssignment();
+        List<AssignmentSubmission> submissions = new ArrayList<>(assignmentService.getSubmissions(assignment));
+        AssignmentSubmission evaluated = submissions.get(0);
+        String evaluatedId = evaluated.getId();
+        String groupId = evaluated.getGroupId();
+        String groupReference = siteService.siteGroupReference(assignment.getContext(), groupId);
+        EvaluationTransferBean evaluation = new EvaluationTransferBean();
+        evaluation.setEvaluatedItemId(groupOwner ? "reviewer-group" : evaluatedId);
+        evaluation.setEvaluatedItemOwnerType(groupOwner ? EvaluatedItemOwnerType.GROUP : EvaluatedItemOwnerType.USER);
+        evaluation.setEvaluatedItemOwnerId(groupOwner ? groupId : "student");
+        evaluation.setPeerOrSelf(peerOrSelf);
+        evaluation.setStatus(EvaluationStatus.DRAFT);
+        evaluation.setScore(0);
+        EvaluationTransferBean unrelated = new EvaluationTransferBean();
+        unrelated.setEvaluatedItemId("unrelated-submission");
+        unrelated.setEvaluatedItemOwnerType(EvaluatedItemOwnerType.USER);
+        unrelated.setEvaluatedItemOwnerId(submissions.get(1).getGroupId());
+        when(rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId()))
+                .thenReturn(Optional.of(new ToolItemRubricAssociation()));
+        when(rubricsService.getEvaluationsForToolAndItem(AssignmentConstants.TOOL_ID, assignment.getId(), assignment.getContext()))
+                .thenReturn(List.of(evaluation, unrelated));
+        Assert.assertEquals(Set.of(groupId), assignmentService.getGroupIdsWithSubmissionWork(assignment));
+        assignmentService.updateAssignmentGroups(assignment, Collections.emptySet());
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        Assignment saved = assignmentService.getAssignment(assignment.getId());
+        Assert.assertEquals(Set.of(groupReference), saved.getGroups());
+        Assert.assertEquals(Set.of(evaluatedId), assignmentService.getSubmissions(saved).stream()
+                .map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+        verify(rubricsService, Mockito.times(2)).getEvaluationsForToolAndItem(
+                AssignmentConstants.TOOL_ID, assignment.getId(), assignment.getContext());
+    }
+
+    @Test
+    public void bulkRubricLookupFailureRetainsRecordedGroupsWithoutPoisoningTheSaveTransaction() throws Exception {
+        Assignment assignment = createThreeGroupAssignment();
+        Set<String> groups = new HashSet<>(assignment.getGroups());
+        Set<String> submissionIds = assignmentService.getSubmissions(assignment).stream()
+                .map(AssignmentSubmission::getId).collect(Collectors.toSet());
+        when(rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId()))
+                .thenReturn(Optional.of(new ToolItemRubricAssociation()));
+        org.hibernate.Session assignmentSession = sessionFactory.getCurrentSession();
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Mockito.doAnswer(invocation -> {
+            Assert.assertTrue(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
+            Assert.assertNotSame(assignmentSession, sessionFactory.getCurrentSession());
+            return transaction.execute(status -> {
+                status.setRollbackOnly();
+                throw new org.springframework.dao.DataAccessResourceFailureException("Rubric evaluations unavailable");
+            });
+        }).when(rubricsService).getEvaluationsForToolAndItem(AssignmentConstants.TOOL_ID, assignment.getId(), assignment.getContext());
+        transaction.executeWithoutResult(status -> {
+            try {
+                assignment.setTitle("Save survives failed bulk rubric lookup");
+                assignmentService.updateAssignmentGroups(assignment, Collections.emptySet());
+                Assert.assertFalse(status.isRollbackOnly());
+            } catch (PermissionException | IdUnusedException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        Assignment saved = assignmentService.getAssignment(assignment.getId());
+        Assert.assertEquals("Save survives failed bulk rubric lookup", saved.getTitle());
+        Assert.assertEquals(groups, saved.getGroups());
+        Assert.assertEquals(submissionIds, assignmentService.getSubmissions(saved).stream()
+                .map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void protectedGroupQuerySurvivesMissingSiteAndSaveRejectsItWithoutChanges() throws Exception {
+        assertInvalidGroupEditDoesNotPersistChanges(true);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void invalidGroupReferencesDoNotPersistAssignmentEditsOrRemoveSubmissions() throws Exception {
+        assertInvalidGroupEditDoesNotPersistChanges(false);
+    }
+
+    private void assertInvalidGroupEditDoesNotPersistChanges(boolean missingSite) throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment assignment = transaction.execute(status -> {
+            try {
+                Assignment created = createThreeGroupAssignment();
+                AssignmentSubmission graded = assignmentService.getSubmissions(created).iterator().next();
+                graded.setGrade("0");
+                assignmentService.updateSubmission(graded);
+                initializeAssignmentCollections(created);
+                return created;
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        Site site = siteService.getSite(assignment.getContext());
+        Set<String> groups = new HashSet<>(assignment.getGroups());
+        Set<String> submissionIds = assignment.getSubmissions().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet());
+        String title = assignment.getTitle();
+        String gradedGroupId = assignment.getSubmissions().stream().filter(submission -> "0".equals(submission.getGrade()))
+                .map(AssignmentSubmission::getGroupId).findFirst().orElseThrow();
+        if (missingSite) {
+            when(siteService.getSite(assignment.getContext())).thenThrow(new IdUnusedException(assignment.getContext()));
+            Mockito.clearInvocations(siteService);
+            Assert.assertEquals(Set.of(gradedGroupId), assignmentService.getGroupIdsWithSubmissionWork(assignment));
+            verify(siteService, Mockito.never()).getSite(assignment.getContext());
+        }
+        assignment.setTitle("Must not save");
+        try {
+            if (missingSite) {
+                Assert.assertThrows(IdUnusedException.class,
+                        () -> assignmentService.updateAssignmentGroups(assignment, Collections.emptySet()));
+            } else {
+                Assert.assertThrows(IllegalArgumentException.class,
+                        () -> assignmentService.updateAssignmentGroups(assignment, Set.of("/site/another-site/group/invalid")));
+            }
+        } finally {
+            Mockito.doReturn(site).when(siteService).getSite(assignment.getContext());
+        }
+        try {
+            transaction.executeWithoutResult(status -> {
+                try {
+                    Assignment saved = assignmentService.getAssignment(assignment.getId());
+                    Assert.assertEquals(title, saved.getTitle());
+                    Assert.assertEquals(groups, saved.getGroups());
+                    Assert.assertEquals(submissionIds, assignmentService.getSubmissions(saved).stream()
+                            .map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+        } finally {
+            String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+            transaction.executeWithoutResult(status -> {
+                try {
+                    assignmentService.deleteAssignment(assignmentService.getAssignment(assignment.getId()));
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+        }
     }
 
     @Test
@@ -1385,7 +1549,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Mockito.clearInvocations(group);
 
         Assert.assertFalse(assignmentService.canReleaseGroupLocks(assignment));
-        Assert.assertEquals(Set.of(groupId), assignmentService.getGroupIdsWithSubmissionWork(assignment));
         assignmentService.softDeleteAssignment(assignment);
         Mockito.verifyNoInteractions(group);
         Assignment restored = assignmentService.restoreAssignment(assignment.getId());

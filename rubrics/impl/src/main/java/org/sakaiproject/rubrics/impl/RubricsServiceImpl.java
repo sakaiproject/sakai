@@ -956,7 +956,8 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             .map(e -> {
 
                 EvaluationTransferBean bean = new EvaluationTransferBean(e);
-                bean.setSortName(userMap.get(bean.getEvaluatedItemOwnerId()).getSortName());
+                User owner = userMap.get(bean.getEvaluatedItemOwnerId());
+                bean.setSortName(owner != null ? owner.getSortName() : bean.getEvaluatedItemOwnerId());
                 return bean;
             })
             .collect(Collectors.toList());

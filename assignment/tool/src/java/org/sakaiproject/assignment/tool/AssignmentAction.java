@@ -9211,14 +9211,16 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 // persist the Assignment changes
-                commitAssignment(state, post, a, assignmentReference, title, submissionType, useReviewService, allowStudentViewReport,
+                if (!commitAssignment(state, post, a, assignmentReference, title, submissionType, useReviewService, allowStudentViewReport,
                         gradeType, gradePoints, description, checkAddHonorPledge, attachments, section, rangeAndGroupSettings.range,
                         visibleTime, openTime, dueTime, closeTime, hideDueDate, enableCloseDate, emailReminder, rangeAndGroupSettings.isGroupSubmit, rangeAndGroupSettings.groups,
                         usePeerAssessment, peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions,
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted,
                         excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId, contentLaunchNewWindow,
                         BooleanUtils.toBoolean(allowUnrestrictedExternalToolLaunch), BooleanUtils.toBoolean(ltiAutoReleaseGrades),
-                        checkIsEstimate, checkEstimateRequired, timeEstimate);
+                        checkIsEstimate, checkEstimateRequired, timeEstimate)) {
+                    return;
+                }
 
                 //RUBRICS, Save the binding between the assignment and the rubric
                 Map<String, String> rubricParams = getRubricConfigurationParameters(params, gradeType);
@@ -9765,7 +9767,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private void commitAssignment(SessionState state,
+    private boolean commitAssignment(SessionState state,
                                   boolean post,
                                   // Assignment options
                                   Assignment a,
@@ -9914,14 +9916,21 @@ public class AssignmentAction extends PagedResourceActionII {
             if (Assignment.Access.SITE.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.SITE);
                 a.getGroups().clear();
+                assignmentService.updateAssignment(a);
             } else if (Assignment.Access.GROUP.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.GROUP);
-                Set<String> previousGroupRefs = new HashSet<>(a.getGroups());
                 Set<String> currentGroupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
 
                 if (a.getIsGroup()) {
-                    assignmentService.updateAssignmentGroups(a, currentGroupRefs);
+                    try {
+                        assignmentService.updateAssignmentGroups(a, currentGroupRefs);
+                    } catch (IdUnusedException | IllegalArgumentException e) {
+                        log.warn("Unable to save groups for assignment {} in site {}", a.getId(), a.getContext(), e);
+                        addAlert(state, rb.getString("saved.error"));
+                        return false;
+                    }
                 } else {
+                    Set<String> previousGroupRefs = new HashSet<>(a.getGroups());
                     // Individual assignments released to groups retain their existing cleanup semantics.
                     if (!previousGroupRefs.equals(currentGroupRefs)) {
                         previousGroupRefs.removeAll(currentGroupRefs);
@@ -9953,9 +9962,6 @@ public class AssignmentAction extends PagedResourceActionII {
                     assignmentService.updateAssignment(a);
                 }
             }
-            if (Assignment.Access.SITE.toString().equals(range)) {
-                assignmentService.updateAssignment(a);
-            }
 
             // content review (after changes are stored)
             if (a.getContentReview()) {
@@ -9971,6 +9977,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } catch (PermissionException e) {
             log.warn("Can't update Assignment, {}", e.getMessage());
             addAlert(state, rb.getString("youarenot_addAssignmentContent"));
+            return false;
         }
 
         if (a.getIsGroup() || gradingService.isGradebookGroupEnabled(a.getContext())) {
@@ -9988,7 +9995,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } else {
             assignmentDueReminderService.removeScheduledReminder(a.getId());
         }
-
+        return true;
     }
 
     /**

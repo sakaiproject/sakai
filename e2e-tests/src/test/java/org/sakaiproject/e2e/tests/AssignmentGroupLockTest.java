@@ -228,6 +228,47 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         assertGroupMembershipLocked(group);
     }
 
+    @Test
+    void rubricAssociationLeavesEmptyGradingPlaceholdersRemovable() {
+        String suffix = Long.toString(System.nanoTime());
+        String retainedGroup = "Rubric retained group " + suffix;
+        String removedGroup = "Rubric empty group " + suffix;
+        String title = "Rubric empty grading " + suffix;
+        sakai.login("instructor1");
+        String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.assignment\\.grades", "sakai\\.rubrics"));
+        addStudent(courseUrl, "student0011");
+        addStudent(courseUrl, "student0012");
+        createGroupThroughUi(courseUrl, retainedGroup, "student0011");
+        createGroupThroughUi(courseUrl, removedGroup, "student0012");
+        sakai.createRubric("instructor1", courseUrl);
+        page.locator(".modal-footer").getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Save").setExact(true)).click();
+        createGradedGroupAssignment(courseUrl, title, List.of(retainedGroup, removedGroup), true);
+        openAssignments(courseUrl);
+        assignmentRow(title).getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("Grade " + title).setExact(true)).click();
+        // Loading this list creates empty grading records; no rubric evaluation has been saved.
+        assertThat(page.locator("#submissionList")).containsText(retainedGroup);
+        assertThat(page.locator("#submissionList")).containsText(removedGroup);
+        editAssignment(courseUrl, title);
+        assertThat(page.locator("input[name=rbcs-associate][value='1']")).isChecked();
+        assertGroupOption(retainedGroup, true, false);
+        assertGroupOption(removedGroup, true, false);
+        openGroupChoices();
+        assertThat(groupCheckbox(removedGroup)).isEnabled();
+        groupCheckbox(removedGroup).uncheck();
+        openGroupChoices();
+        saveAssignment(title);
+        editAssignment(courseUrl, title);
+        assertThat(page.locator("input[name=rbcs-associate][value='1']")).isChecked();
+        assertGroupOption(retainedGroup, true, false);
+        assertGroupOption(removedGroup, false, false);
+        saveAssignment(title);
+        openGroups(courseUrl);
+        assertThat(groupRow(removedGroup).getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName(removedGroup).setExact(true))).isVisible();
+    }
+
     private void addStudent(String courseUrl, String eid) {
         APIResponse user = page.request().get("/direct/user/" + eid + ".json");
         assertTrue(user.ok(), user.text());
@@ -252,6 +293,10 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
     }
 
     private void createGradedGroupAssignment(String courseUrl, String title, List<String> groups) {
+        createGradedGroupAssignment(courseUrl, title, groups, false);
+    }
+
+    private void createGradedGroupAssignment(String courseUrl, String title, List<String> groups, boolean associateRubric) {
         openAssignments(courseUrl);
         page.locator(".navIntraTool").getByRole(AriaRole.LINK,
                 new Locator.GetByRoleOptions().setName("Add").setExact(true)).click();
@@ -259,6 +304,9 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         page.locator("#subType").selectOption("1");
         page.locator("#gradeAssignment").check();
         page.locator("#new_assignment_grade_points").fill("10");
+        if (associateRubric) {
+            page.locator("input[name=rbcs-associate][value='1']").check();
+        }
         page.locator("#new_assignment_check_add_honor_pledge").uncheck();
         sakai.typeCkEditor("new_assignment_instructions", "<p>Submit work as a group.</p>");
         LocalDateTime openDate = LocalDateTime.parse(page.locator("#opendate input[type=datetime-local]").inputValue());
