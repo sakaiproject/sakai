@@ -216,7 +216,9 @@ public class LtiTool implements PersistableEntity<Long>, Serializable {
 
     @ElementCollection
     @Column(name="permission", length = 255)
-    @CollectionTable(name = "lti_tool_permissions", joinColumns = @JoinColumn(name = "tool_id", referencedColumnName = "id"))
+    @CollectionTable(name = "lti_tool_permissions",
+        joinColumns = @JoinColumn(name = "tool_id", referencedColumnName = "id"),
+        uniqueConstraints = @UniqueConstraint(name = "uk_lti_tool_permissions", columnNames = {"tool_id", "permission"}))
     private Set<String> permissions = new HashSet<>();
 
     @OneToMany(cascade = ALL, mappedBy = "tool")
