@@ -165,6 +165,9 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("#new_assignment_title")).hasValue(rubricAssignmentTitle);
         assertThat(rubricSelector).hasValue(rubricId);
         assertThat(associateRubric).isChecked();
+        // Exit the edit form so returning to Assignments restores the list.
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+        assertThat(page.locator("#assignments-list")).isVisible();
 
         page.navigate(courseUrl);
         sakai.toolClick("Rubrics");
@@ -175,6 +178,7 @@ class AssignmentTest extends SakaiUiTestBase {
 
         page.navigate(courseUrl);
         sakai.toolClick("Assignments");
+        assertThat(page.locator("#assignments-list")).isVisible();
         editAssignment(rubricAssignmentTitle);
         assertThat(rubricSelector).hasValue(rubricId);
         page.locator("input[name=rbcs-associate][value=\"0\"]").check();
