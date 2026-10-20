@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.BoundingBox;
 import com.microsoft.playwright.options.SelectOption;
@@ -117,8 +118,10 @@ class AssignmentTest extends SakaiUiTestBase {
     void canAssociateRubricWithAssignment() {
         String courseUrl = ensureCourseUrl();
         String rubricAssignmentTitle = "Rubric Assignment " + System.currentTimeMillis();
+        String rubricTitle = "Draft restriction " + System.currentTimeMillis();
 
         sakai.createRubric("instructor1", courseUrl);
+        page.locator("input[title=\"Rubric Title\"]:visible").fill(rubricTitle);
         page.locator(".modal-footer button:visible, div.popover button:visible, button:visible")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Save", Pattern.CASE_INSENSITIVE)))
             .first()
@@ -142,9 +145,12 @@ class AssignmentTest extends SakaiUiTestBase {
         }
 
         Locator associateRubric = page.locator("input[name=\"rbcs-associate\"][value=\"1\"]").first();
-        if (associateRubric.count() > 0) {
-            associateRubric.check(new Locator.CheckOptions().setForce(true));
-        }
+        assertThat(associateRubric).isVisible();
+        associateRubric.check();
+        Locator rubricSelector = page.locator("select[name=rbcs-rubricslist]");
+        rubricSelector.selectOption(rubricSelector.locator("option")
+                .filter(new Locator.FilterOptions().setHasText(rubricTitle)).getAttribute("value"));
+        String rubricId = rubricSelector.inputValue();
 
         fillAssignmentInstructions("<p>Rubric assignment prompt.</p>");
         submitAssignmentForm();
@@ -155,10 +161,34 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(rubricRow).containsText(Pattern.compile("55\\.13|55", Pattern.CASE_INSENSITIVE));
 
         Locator editLink = rubricRow.locator("a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Edit\\b", Pattern.CASE_INSENSITIVE))).first();
-        if (editLink.count() > 0) {
-            editLink.click(new Locator.ClickOptions().setForce(true));
-            assertThat(page.locator("#new_assignment_title")).hasValue(rubricAssignmentTitle);
-        }
+        editLink.click();
+        assertThat(page.locator("#new_assignment_title")).hasValue(rubricAssignmentTitle);
+        assertThat(rubricSelector).hasValue(rubricId);
+        assertThat(associateRubric).isChecked();
+
+        page.navigate(courseUrl);
+        sakai.toolClick("Rubrics");
+        Locator rubric = page.locator("sakai-rubric").filter(new Locator.FilterOptions().setHasText(rubricTitle));
+        Locator draftButton = rubric.locator("button.draft");
+        assertThat(draftButton).hasAttribute("aria-disabled", "true");
+        assertThat(draftButton).hasAttribute("title", "Unlink this rubric from all items before saving it as a draft.");
+
+        page.navigate(courseUrl);
+        sakai.toolClick("Assignments");
+        editAssignment(rubricAssignmentTitle);
+        assertThat(rubricSelector).hasValue(rubricId);
+        page.locator("input[name=rbcs-associate][value=\"0\"]").check();
+        submitAssignmentForm();
+
+        page.navigate(courseUrl);
+        sakai.toolClick("Rubrics");
+        assertThat(draftButton).hasAttribute("aria-disabled", "false");
+        Response draftSave = page.waitForResponse(response -> response.url().endsWith("/rubrics/" + rubricId)
+                && response.request().method().equals("PATCH"), () -> draftButton.click());
+        assertTrue(draftSave.ok());
+        assertThat(draftButton).hasAttribute("title", "Publish Rubric");
+        page.reload();
+        assertThat(draftButton).hasAttribute("title", "Publish Rubric");
     }
 
     @Test

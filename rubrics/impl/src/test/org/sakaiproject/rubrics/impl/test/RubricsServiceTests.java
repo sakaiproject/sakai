@@ -306,6 +306,108 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void unlinkedRubricCanReturnToDraft() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        assertFalse(rubric.getAssociated());
+        rubric.setDraft(true);
+        rubric = rubricsService.saveRubric(rubric);
+        assertTrue(rubric.getDraft());
+        rubric.setDraft(false);
+        rubric = rubricsService.saveRubric(rubric);
+        rubric.setDraft(true);
+        assertTrue(rubricsService.saveRubric(rubric).getDraft());
+    }
+
+    @Test
+    public void linkedRubricsCannotReturnToDraftAcrossTools() {
+        switchToInstructor();
+        for (String toolId : List.of(AssignmentConstants.TOOL_ID, RubricsConstants.RBCS_TOOL_GRADEBOOKNG,
+                RubricsConstants.RBCS_TOOL_SAMIGO)) {
+            RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+            String itemId = "draft-" + toolId;
+            rubricsService.saveRubricAssociation(toolId, itemId, Map.of(
+                    RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString()));
+            RubricTransferBean current = rubricsService.getRubric(rubric.getId()).get();
+            assertTrue(current.getAssociated());
+            assertTrue(rubricsService.getRubricsForSite(siteId).stream()
+                    .filter(bean -> bean.getId().equals(rubric.getId())).findFirst().get().getAssociated());
+            // Association state supplied by a client must not bypass the service check.
+            current.setAssociated(false);
+            current.setDraft(true);
+            assertThrows(RubricsConflictException.class, () -> rubricsService.saveRubric(current));
+            assertFalse(rubricsService.getRubric(rubric.getId()).get().getDraft());
+            assertEquals(rubric.getId(), rubricsService.getRubricAssociation(toolId, itemId).get().getRubric().getId());
+        }
+    }
+
+    @Test
+    public void draftBecomesAvailableOnlyAfterAllItemsAreUnlinked() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        List<String> tools = List.of(AssignmentConstants.TOOL_ID, RubricsConstants.RBCS_TOOL_GRADEBOOKNG,
+                RubricsConstants.RBCS_TOOL_SAMIGO);
+        for (String tool : tools) {
+            rubricsService.saveRubricAssociation(tool, "draft-" + tool, Map.of(
+                    RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString()));
+        }
+        // A soft-deleted item retains its link so that restoring it is safe.
+        rubricsService.softDeleteRubricAssociation(tools.get(0), "draft-" + tools.get(0));
+        assertTrue(rubricsService.getRubric(rubric.getId()).get().getAssociated());
+        rubricsService.saveRubricAssociation(tools.get(1), "draft-" + tools.get(1), Map.of(
+                RubricsConstants.RBCS_ASSOCIATE, "0", RubricsConstants.RBCS_LIST, "0"));
+        assertTrue(rubricsService.getRubric(rubric.getId()).get().getAssociated());
+        rubricsService.deleteRubricAssociation(tools.get(2), "draft-" + tools.get(2));
+        assertTrue(rubricsService.getRubric(rubric.getId()).get().getAssociated());
+        rubricsService.restoreRubricAssociation(tools.get(0), "draft-" + tools.get(0));
+        rubricsService.saveRubricAssociation(tools.get(0), "draft-" + tools.get(0), Map.of(
+                RubricsConstants.RBCS_ASSOCIATE, "0", RubricsConstants.RBCS_LIST, "0"));
+        RubricTransferBean unlinked = rubricsService.getRubric(rubric.getId()).get();
+        assertFalse(unlinked.getAssociated());
+        unlinked.setDraft(true);
+        assertTrue(rubricsService.saveRubric(unlinked).getDraft());
+    }
+
+    @Test
+    public void evaluationsStillPreventDraftAfterUnlinking() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = AssignmentConstants.TOOL_ID;
+        String itemId = "evaluated-draft";
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, itemId, Map.of(
+                RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString())).get();
+        rubricsService.saveEvaluation(buildEvaluation(association.getId(), rubric, itemId), siteId);
+        rubricsService.saveRubricAssociation(toolId, itemId, Map.of(
+                RubricsConstants.RBCS_ASSOCIATE, "0", RubricsConstants.RBCS_LIST, "0"));
+        RubricTransferBean current = rubricsService.getRubric(rubric.getId()).get();
+        assertFalse(current.getAssociated());
+        assertTrue(current.getLocked());
+        current.setDraft(true);
+        assertThrows(RubricsConflictException.class, () -> rubricsService.saveRubric(current));
+        assertFalse(rubricsService.getRubric(rubric.getId()).get().getDraft());
+    }
+
+    @Test
+    public void existingAttachedDraftRubricCanBeEditedAndPublished() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        rubric.setDraft(true);
+        rubric = rubricsService.saveRubric(rubric);
+        String toolId = AssignmentConstants.TOOL_ID;
+        String itemId = "existing-draft";
+        rubricsService.saveRubricAssociation(toolId, itemId, Map.of(
+                RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString()));
+        rubric = rubricsService.getRubric(rubric.getId()).get();
+        rubric.setTitle("Existing attached draft");
+        rubric = rubricsService.saveRubric(rubric);
+        assertTrue(rubric.getDraft());
+        assertTrue(rubric.getAssociated());
+        rubric.setDraft(false);
+        assertFalse(rubricsService.saveRubric(rubric).getDraft());
+        assertEquals(rubric.getId(), rubricsService.getRubricAssociation(toolId, itemId).get().getRubric().getId());
+    }
+
+    @Test
     public void saveRubricSanitizesRichTextFields() {
 
         switchToInstructor();

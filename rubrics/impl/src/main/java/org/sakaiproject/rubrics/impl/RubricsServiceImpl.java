@@ -637,6 +637,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         } else if (bean.getAdhoc()) {
             rubric = rubricRepository.getById(bean.getId());
             checkVersion(bean.getVersion(), rubric.getVersion());
+            checkDraftTransition(bean, rubric);
             checkCriteriaVersions(bean, rubric);
             List<Criterion> oldCriterion = new ArrayList<>();
 
@@ -682,6 +683,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         } else {
             rubric = rubricRepository.getById(bean.getId());
             checkVersion(bean.getVersion(), rubric.getVersion());
+            checkDraftTransition(bean, rubric);
             checkCriteriaVersions(bean, rubric);
             rubric.getCriteria().forEach(c -> bean.getCriteria().stream()
                     .filter(bc -> bc.getId().equals(c.getId()))
@@ -712,6 +714,16 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
         sessionFactory.getCurrentSession().flush();
         return decorateRubricBean(new RubricTransferBean(savedRubric));
+    }
+
+    private void checkDraftTransition(RubricTransferBean bean, Rubric rubric) {
+
+        if (Boolean.TRUE.equals(bean.getDraft()) && !Boolean.TRUE.equals(rubric.getDraft())
+                && (Boolean.TRUE.equals(rubric.getLocked()) || rubric.getAssociations().stream()
+                        .anyMatch(association -> Boolean.TRUE.equals(association.getActive())))) {
+            throw new RubricsConflictException("Rubric " + rubric.getId()
+                    + " cannot be saved as draft while it is linked to an item or has evaluations");
+        }
     }
 
     public CriterionTransferBean updateCriterion(CriterionTransferBean bean, String siteId) {

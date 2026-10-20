@@ -13,12 +13,16 @@
  ******************************************************************************/
 package org.sakaiproject.rubrics.api;
 
-/** A rubric or evaluation changed since the caller loaded it. */
+/** A requested change conflicts with the current rubric or evaluation state. */
 public class RubricsConflictException extends RuntimeException {
 
     public RubricsConflictException() {
         super("Rubrics changed in another session. Review your changes and reload before saving.");
     }
+    public RubricsConflictException(String message) {
+        super(message);
+    }
+
     public RubricsConflictException(Throwable cause) {
         super("Rubrics changed in another session", cause);
     }
