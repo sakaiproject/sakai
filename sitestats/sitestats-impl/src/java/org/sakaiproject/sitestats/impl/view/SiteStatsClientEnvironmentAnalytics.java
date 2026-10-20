@@ -236,15 +236,19 @@ public class SiteStatsClientEnvironmentAnalytics {
 		}
 		Object lock = loadLocks.computeIfAbsent(cacheKey, key -> new Object());
 		synchronized (lock) {
-			cached = cachedRollup(cacheKey);
-			if (cached != null) {
-				return cached;
+			try {
+				cached = cachedRollup(cacheKey);
+				if (cached != null) {
+					return cached;
+				}
+				ClientRollup loaded = loadRollup(from, to);
+				if (!loaded.failed && rollupCache != null) {
+					rollupCache.put(cacheKey, loaded);
+				}
+				return loaded;
+			} finally {
+				loadLocks.remove(cacheKey, lock);
 			}
-			ClientRollup loaded = loadRollup(from, to);
-			if (!loaded.failed && rollupCache != null) {
-				rollupCache.put(cacheKey, loaded);
-			}
-			return loaded;
 		}
 	}
 

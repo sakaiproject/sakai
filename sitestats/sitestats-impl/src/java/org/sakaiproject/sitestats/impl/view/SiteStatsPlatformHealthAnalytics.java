@@ -69,27 +69,29 @@ public class SiteStatsPlatformHealthAnalytics {
 	}
 
 	WidgetMetricValue loginsValue(String siteId, String userId, SiteStatsReportRequest request) {
-		return loginsValue(snapshot());
+		return loginsValue(withDailyLogins(nullToEmpty(serverWideReportManager.getDailyTotalLogins())));
 	}
 
 	WidgetMetricValue uniqueLoginsValue(String siteId, String userId, SiteStatsReportRequest request) {
-		return uniqueLoginsValue(snapshot());
+		PlatformSnapshot snapshot = new PlatformSnapshot();
+		snapshot.uniqueLogins = serverWideReportManager.getUniqueLoginsInLastDays(LAST_DAYS);
+		return uniqueLoginsValue(snapshot);
 	}
 
 	WidgetMetricValue sitesCreatedValue(String siteId, String userId, SiteStatsReportRequest request) {
-		return sitesCreatedValue(snapshot());
+		return sitesCreatedValue(withSiteCreatedDeleted(nullToEmpty(serverWideReportManager.getSiteCreatedDeletedStats("daily"))));
 	}
 
 	WidgetMetricValue sitesDeletedValue(String siteId, String userId, SiteStatsReportRequest request) {
-		return sitesDeletedValue(snapshot());
+		return sitesDeletedValue(withSiteCreatedDeleted(nullToEmpty(serverWideReportManager.getSiteCreatedDeletedStats("daily"))));
 	}
 
 	WidgetMetricValue newUsersValue(String siteId, String userId, SiteStatsReportRequest request) {
-		return newUsersValue(snapshot());
+		return newUsersValue(withNewUsers(nullToEmpty(serverWideReportManager.getNewUserStats("daily"))));
 	}
 
 	WidgetMetricValue topToolValue(String siteId, String userId, SiteStatsReportRequest request) {
-		return topToolValue(snapshot());
+		return topToolValue(withTools(nullToEmpty(serverWideReportManager.getToolCount())));
 	}
 
 	private WidgetMetricValue loginsValue(PlatformSnapshot snapshot) {
@@ -136,11 +138,11 @@ public class SiteStatsPlatformHealthAnalytics {
 	}
 
 	SiteStatsChart loginTrendHighlight(String siteId, String userId, SiteStatsReportRequest request) {
-		return loginTrendChart(snapshot().dailyLogins);
+		return loginTrendChart(nullToEmpty(serverWideReportManager.getDailyTotalLogins()));
 	}
 
 	SiteStatsReportView loginsByDateReport(String siteId, SiteStatsReportRequest request, String userId) {
-		List<ServerWideStatsRecord> dailyLogins = snapshot().dailyLogins;
+		List<ServerWideStatsRecord> dailyLogins = nullToEmpty(serverWideReportManager.getDailyTotalLogins());
 		SiteStatsReportView view = new SiteStatsReportView();
 		view.setSiteId(siteId);
 		view.setTitle(message("overview_title_platform_login_trend"));
@@ -167,7 +169,7 @@ public class SiteStatsPlatformHealthAnalytics {
 	}
 
 	SiteStatsReportView toolInstallsReport(String siteId, SiteStatsReportRequest request, String userId) {
-		List<ServerWideStatsRecord> tools = snapshot().tools;
+		List<ServerWideStatsRecord> tools = nullToEmpty(serverWideReportManager.getToolCount());
 		SiteStatsReportView view = new SiteStatsReportView();
 		view.setSiteId(siteId);
 		view.setTitle(message("overview_title_platform_tool_installs"));
@@ -254,6 +256,30 @@ public class SiteStatsPlatformHealthAnalytics {
 		snapshot.siteCreatedDeleted = nullToEmpty(serverWideReportManager.getSiteCreatedDeletedStats("daily"));
 		snapshot.newUsers = nullToEmpty(serverWideReportManager.getNewUserStats("daily"));
 		snapshot.tools = nullToEmpty(serverWideReportManager.getToolCount());
+		return snapshot;
+	}
+
+	private static PlatformSnapshot withDailyLogins(List<ServerWideStatsRecord> dailyLogins) {
+		PlatformSnapshot snapshot = new PlatformSnapshot();
+		snapshot.dailyLogins = dailyLogins;
+		return snapshot;
+	}
+
+	private static PlatformSnapshot withSiteCreatedDeleted(List<ServerWideStatsRecord> siteCreatedDeleted) {
+		PlatformSnapshot snapshot = new PlatformSnapshot();
+		snapshot.siteCreatedDeleted = siteCreatedDeleted;
+		return snapshot;
+	}
+
+	private static PlatformSnapshot withNewUsers(List<ServerWideStatsRecord> newUsers) {
+		PlatformSnapshot snapshot = new PlatformSnapshot();
+		snapshot.newUsers = newUsers;
+		return snapshot;
+	}
+
+	private static PlatformSnapshot withTools(List<ServerWideStatsRecord> tools) {
+		PlatformSnapshot snapshot = new PlatformSnapshot();
+		snapshot.tools = tools;
 		return snapshot;
 	}
 
