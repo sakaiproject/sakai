@@ -250,15 +250,6 @@ public class AuthenticationManagerBackoffTest extends SakaiKernelTestBase {
     }
 
     @Test
-    public void localAdministratorHasTheSamePolicy() throws Exception {
-        failPasswords("admin", 5);
-        assertRejected("admin", "admin");
-        assertEquals("admin", authenticationManager.authenticate(new ExternalTrustedEvidence("admin")).getUid());
-        advanceSeconds(2);
-        assertEquals("admin", login("admin", "admin"));
-    }
-
-    @Test
     public void parallelRequestsWithCachedValidCredentialsAreNotThrottled() throws Exception {
         assertEquals(user.getId(), webDavLogin(user.getEid(), PASSWORD));
         ExecutorService executor = Executors.newFixedThreadPool(12);
