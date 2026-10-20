@@ -54,25 +54,7 @@
 		<property name="authenticationCache" ref="org.sakaiproject.user.impl.AuthenticationCache"/>
 	</bean>
 
-	<bean id="org.sakaiproject.user.api.PreferencesService"
-		  class="org.sakaiproject.user.impl.DbPreferencesService"
-		  init-method="init"
-		  destroy-method="destroy">
-
-     	<property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
-		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
-		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-
- 		<property name="tableName"><value>SAKAI_PREFERENCES</value></property>
- 		<property name="locksInDb"><value>false</value></property>
- 		<property name="autoDdl"><value>${auto.ddl}</value></property>
-	</bean>
+    <import resource="preferences-components.xml"/>
 
 	<!--
 		Authentication cache to improve the efficiency of clients that don't maintain

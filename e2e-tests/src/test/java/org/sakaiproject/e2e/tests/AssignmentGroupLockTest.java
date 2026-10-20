@@ -66,6 +66,9 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         assignmentRow(assignmentTitle).getByRole(AriaRole.LINK,
                 new Locator.GetByRoleOptions().setName("View Submissions " + assignmentTitle).setExact(true)).click();
         assertThat(page.locator("body")).containsText(groupTitle);
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("Assignments").setExact(true)).click();
+        assertThat(page.locator("#assignments-list")).isVisible();
 
         openGroups(courseUrl);
         assertThat(groupRow(groupTitle).getByRole(AriaRole.LINK,

@@ -33,9 +33,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesConflictException;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.user.api.PreferencesService;
 
 /**
@@ -46,6 +47,7 @@ import org.sakaiproject.user.api.PreferencesService;
 @Slf4j
 public class AdminPrefsTool
 {
+	private static final ResourceLoader msgs = new ResourceLoader("admin-prefs");
 	/**
 	 * Represents a name value pair in a keyed preferences set.
 	 */
@@ -271,19 +273,6 @@ public class AdminPrefsTool
 			m_edit = m_preferencesService.edit(getUserId());
 			return "edit";
 		}
-		catch (IdUnusedException e)
-		{
-			try
-			{
-				m_edit = m_preferencesService.add(getUserId());
-				return "edit";
-			}
-			catch (Exception ee)
-			{
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(ee.toString()));
-				return null;
-			}
-		}
 		catch (Exception e)
 		{
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.toString()));
@@ -301,16 +290,22 @@ public class AdminPrefsTool
 		if (log.isDebugEnabled()) log.debug("save");
 
 		// save
-		saveEdit();
-
-		return "list";
+		return saveEdit() ? "list" : null;
 	}
 
 	/**
 	 * Save any changed values from the edit and cleanup.
 	 */
-	protected void saveEdit()
+	protected boolean saveEdit()
 	{
+		if (m_edit == null || !m_edit.isActiveEdit()) {
+			try {
+				m_edit = m_preferencesService.edit(getUserId());
+			} catch (Exception e) {
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.toString()));
+				return false;
+			}
+		}
 		// move the stuff from m_stuff into the edit
 		for (Iterator i = m_stuff.iterator(); i.hasNext();)
 		{
@@ -347,10 +342,17 @@ public class AdminPrefsTool
 		}
 
 		// save the preferences, release the edit
-		m_preferencesService.commit(m_edit);
+		try {
+			m_preferencesService.commit(m_edit);
+		} catch (PreferencesConflictException e) {
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, msgs.getString("prefs_conflict"), null));
+			return false;
+		}
 
 		m_stuff = null;
 		m_edit = null;
+		return true;
 	}
 
 	/**
