@@ -819,6 +819,12 @@
             <artifactId>httpcore5</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- HttpClient's TLS configuration requires HttpVersionPolicy from this jar. -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5-h2</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- hibernate -->
         <dependency>
