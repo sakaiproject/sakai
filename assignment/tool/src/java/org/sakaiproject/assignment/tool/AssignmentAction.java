@@ -3182,23 +3182,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 rangeAndGroups.buildInstructorNewEditAssignmentContextGroupCheck(context, a);
 
-                // controls to disable which groups can be changed
-                Collection<Group> groupsWithUserSubmission = new ArrayList<>();
-                if (a.getIsGroup()) {
-                    try {
-                        Site site = siteService.getSite(a.getContext());
-                        Collection<Group> siteGroups = site.getGroups();
-
-                        a.getSubmissions().stream()
-                                .filter(AssignmentSubmission::getUserSubmission)
-                                .forEach(s -> siteGroups.stream()
-                                        .filter(g -> g.getId().equals(s.getGroupId()))
-                                        .findAny().ifPresent(groupsWithUserSubmission::add));
-                    } catch (IdUnusedException e) {
-                        log.warn("Site not found for context {}, {}", a.getContext(), e.getMessage());
-                    }
-                }
-                context.put("groupsWithUserSubmission", groupsWithUserSubmission);
+                // Saved submission and grading work must stay assigned to its original group.
+                context.put("groupsWithSubmissionWork", assignmentService.getGroupIdsWithSubmissionWork(a));
             }
         } else {
             boolean instructorGroupsProp = serverConfigurationService.getBoolean("assignments.assign.to.instructor.groups", false);
@@ -9934,49 +9919,43 @@ public class AssignmentAction extends PagedResourceActionII {
                 Set<String> previousGroupRefs = new HashSet<>(a.getGroups());
                 Set<String> currentGroupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
 
-                // if groups have changed
-                if (!previousGroupRefs.equals(currentGroupRefs)) {
-                    previousGroupRefs.removeAll(currentGroupRefs);
-                    Set<String> submitterIds;
-
-                    if (a.getIsGroup()) {
-                        submitterIds = previousGroupRefs.stream().map(ref -> {
-                            String[] parts = StringUtils.split(ref, '/');
-                            return "group".equals(parts[2]) ? parts[3] : null;
-                        }).filter(Objects::nonNull).collect(Collectors.toSet());
-                    } else {
-                        submitterIds = previousGroupRefs.stream().map(ref -> {
+                if (a.getIsGroup()) {
+                    assignmentService.updateAssignmentGroups(a, currentGroupRefs);
+                } else {
+                    // Individual assignments released to groups retain their existing cleanup semantics.
+                    if (!previousGroupRefs.equals(currentGroupRefs)) {
+                        previousGroupRefs.removeAll(currentGroupRefs);
+                        Set<String> submitterIds = previousGroupRefs.stream().map(ref -> {
                             try {
                                 return authzGroupService.getAuthzGroup(ref);
                             } catch (GroupNotDefinedException e) {
                                 return null;
                             }
                         }).filter(Objects::nonNull).flatMap(ag -> ag.getMembers().stream()).map(Member::getUserId).collect(Collectors.toSet());
+
+                        List<AssignmentSubmission> submissionsToRemove = submitterIds.stream().map(id -> {
+                            try {
+                                return assignmentService.getSubmission(a.getId(), id);
+                            } catch (PermissionException pe) {
+                                return null;
+                            }
+                        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+                        submissionsToRemove.stream().filter(s -> !s.getUserSubmission()).forEach(s -> {
+                            try {
+                                assignmentService.removeSubmission(s);
+                            } catch (PermissionException pe) {
+                                log.warn("Group update detected on assignment {}, could not remove submission {}", a.getId(), s);
+                            }
+                        });
+                        a.setGroups(currentGroupRefs);
                     }
-
-                    List<AssignmentSubmission> submissionsToRemove = submitterIds.stream().map(id -> {
-                        try {
-                            return assignmentService.getSubmission(a.getId(), id);
-                        } catch (PermissionException pe) {
-                            return null;
-                        }
-                    }).filter(Objects::nonNull).collect(Collectors.toList());
-
-                    submissionsToRemove.stream()
-                            .filter(s -> !s.getUserSubmission())
-                            .forEach(s -> {
-                                try {
-                                    assignmentService.removeSubmission(s);
-                                } catch (PermissionException pe) {
-                                    log.warn("Group update detected on assignment {}, could not remove submission {}", a.getId(), s);
-                                }
-                            });
-                    a.setGroups(currentGroupRefs);
+                    assignmentService.updateAssignment(a);
                 }
             }
-
-            // commit the changes
-            assignmentService.updateAssignment(a);
+            if (Assignment.Access.SITE.toString().equals(range)) {
+                assignmentService.updateAssignment(a);
+            }
 
             // content review (after changes are stored)
             if (a.getContentReview()) {

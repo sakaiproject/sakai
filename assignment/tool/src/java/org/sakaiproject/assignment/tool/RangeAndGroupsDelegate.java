@@ -154,14 +154,12 @@ class RangeAndGroupsDelegate
 			try {
 				Assignment assignment = assignmentService.getAssignment(assignmentId);
 				if (assignment.getIsGroup()) {
-					// If this assignment has any group submissions, ensure the group id is not removed
-					// from the list. The html form will not submit disabled fields, so it can happen.
-					assignment.getSubmissions().stream().filter(as -> as.getUserSubmission()).forEach(as -> {
-
-						if (!groupChoice.contains(as.getGroupId())) {
-							groupChoice.add(as.getGroupId());
+					// Disabled options are omitted by HTML forms, including preview and validation posts.
+					for (String groupId : assignmentService.getGroupIdsWithSubmissionWork(assignment)) {
+						if (!groupChoice.contains(groupId)) {
+							groupChoice.add(groupId);
 						}
-					});
+					}
 				}
 			} catch (Exception e) {
 				log.warn("Failed to retrieve assignment with id {}, {}", assignmentId, e.getMessage());

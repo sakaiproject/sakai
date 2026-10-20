@@ -1407,18 +1407,52 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (submissions.stream().anyMatch(this::hasSubmissionWork)) {
             return false;
         }
-        // Isolate lookup failures so deletion/restore can continue while retaining the locks.
+        return !hasRubricSubmissionWork(assignment);
+    }
+
+    private boolean hasRubricSubmissionWork(Assignment assignment) {
+        // Isolate lookup failures so assignment changes can continue while retaining work.
         TransactionTemplate rubricRead = new TransactionTemplate(transactionTemplate.getTransactionManager());
         rubricRead.setReadOnly(true);
         rubricRead.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         try {
             // Rubric evaluations are saved separately. Preserve their submission identities.
-            return Boolean.TRUE.equals(rubricRead.execute(status ->
+            return !Boolean.TRUE.equals(rubricRead.execute(status ->
                     rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId()).isEmpty()));
         } catch (RuntimeException e) {
             log.warn("Unable to check rubric association for assignment {}; retaining group locks", assignment.getId(), e);
-            return false;
+            return true;
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<String> getGroupIdsWithSubmissionWork(Assignment assignment) {
+        if (assignment == null || assignment.getId() == null
+                || !Boolean.TRUE.equals(assignment.getIsGroup()) || assignment.getTypeOfAccess() != GROUP) {
+            return Collections.emptySet();
+        }
+        return getGroupIdsWithSubmissionWork(assignment,
+                assignmentRepository.findGroupsForAssignmentById(assignment.getId()),
+                assignmentRepository.findSubmissions(Collections.singleton(assignment.getId())));
+    }
+
+    private Set<String> getGroupIdsWithSubmissionWork(Assignment assignment, Collection<String> assignedReferences,
+            List<AssignmentSubmission> submissions) {
+        if (submissions.isEmpty()) {
+            return Collections.emptySet();
+        }
+        Site site;
+        try {
+            site = siteService.getSite(assignment.getContext());
+        } catch (IdUnusedException e) {
+            throw new IllegalStateException("Cannot resolve groups for assignment " + assignment.getId(), e);
+        }
+        Set<String> assignedIds = assignedReferences.stream().map(site::getGroup).filter(Objects::nonNull)
+                .map(Group::getId).collect(Collectors.toSet());
+        boolean rubricWork = hasRubricSubmissionWork(assignment);
+        return submissions.stream().filter(submission -> rubricWork || hasSubmissionWork(submission))
+                .map(AssignmentSubmission::getGroupId).filter(assignedIds::contains).collect(Collectors.toSet());
     }
 
     private boolean hasSubmissionWork(AssignmentSubmission submission) {
@@ -1712,7 +1746,75 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
 
-        Collection<String> prevAssignedGroupRefs = assignmentRepository.findGroupsForAssignmentById(assignment.getId());
+        updateAssignment(assignment, assignmentRepository.findGroupsForAssignmentById(assignment.getId()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = PermissionException.class)
+    public void updateAssignmentGroups(Assignment assignment, Set<String> requestedGroupReferences) throws PermissionException {
+        Assert.notNull(assignment, "Assignment cannot be null");
+        Assert.notNull(assignment.getId(), "Assignment doesn't appear to have been persisted yet");
+        Assert.notNull(requestedGroupReferences, "Requested groups cannot be null");
+        Assert.isTrue(Boolean.TRUE.equals(assignment.getIsGroup()) && assignment.getTypeOfAccess() == GROUP,
+                "Assignment must use group submissions");
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        if (!allowUpdateAssignment(reference) || Boolean.TRUE.equals(assignment.getDeleted())
+                || assignmentRepository.lockAssignmentAndCheckDeleted(assignment.getId())) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, reference);
+        }
+        // Read the saved selection before changing a managed collection and triggering an auto-flush.
+        Set<String> previousReferences = new HashSet<>(assignmentRepository.findGroupsForAssignmentById(assignment.getId()));
+        List<AssignmentSubmission> submissions = assignmentRepository.findSubmissions(Collections.singleton(assignment.getId()));
+        Set<String> protectedIds = getGroupIdsWithSubmissionWork(assignment, previousReferences, submissions);
+        Site site;
+        try {
+            site = siteService.getSite(assignment.getContext());
+        } catch (IdUnusedException e) {
+            throw new IllegalStateException("Cannot resolve groups for assignment " + assignment.getId(), e);
+        }
+        Set<String> effectiveReferences = new HashSet<>();
+        for (String groupReference : requestedGroupReferences) {
+            Group group = site.getGroup(groupReference);
+            Assert.isTrue(group != null && groupReference.equals(group.getReference()), "Unknown site group reference");
+            effectiveReferences.add(groupReference);
+        }
+        Set<String> removedIds = new HashSet<>();
+        for (String groupReference : previousReferences) {
+            Group group = site.getGroup(groupReference);
+            if (group != null && protectedIds.contains(group.getId())) {
+                effectiveReferences.add(groupReference);
+            } else if (group != null && !effectiveReferences.contains(groupReference)) {
+                removedIds.add(group.getId());
+            }
+        }
+        List<AssignmentSubmission> removedSubmissions = submissions.stream()
+                .filter(submission -> removedIds.contains(submission.getGroupId())).collect(Collectors.toList());
+        // Check every removal before changing persistent state or emitting removal events.
+        for (AssignmentSubmission submission : removedSubmissions) {
+            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            if (!allowRemoveSubmission(submissionReference)) {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT_SUBMISSION, submissionReference);
+            }
+        }
+        Assignment persistedAssignment = assignmentRepository.findAssignment(assignment.getId());
+        Set<String> removedSubmissionIds = removedSubmissions.stream().map(AssignmentSubmission::getId).collect(Collectors.toSet());
+        // Remove through the collection iterator: newly persisted submissions can have changed hash codes.
+        persistedAssignment.getSubmissions().removeIf(submission -> removedSubmissionIds.contains(submission.getId()));
+        for (AssignmentSubmission submission : removedSubmissions) {
+            removeSubmission(submission);
+        }
+        submissions.removeAll(removedSubmissions);
+        // Detached editor models may contain stale grades or deleted placeholders. Merge only fresh records.
+        if (persistedAssignment != assignment) {
+            assignment.setSubmissions(new HashSet<>(submissions));
+        }
+        assignment.setGroups(effectiveReferences);
+        updateAssignment(assignment, previousReferences);
+    }
+
+    private void updateAssignment(Assignment assignment, Collection<String> previousGroupReferences) throws PermissionException {
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        Collection<String> prevAssignedGroupRefs = new HashSet<>(previousGroupReferences);
         switch (assignment.getTypeOfAccess()) {
             case GROUP:
                 Collection<String> currentAssignedGroupRefs = assignment.getGroups();
