@@ -18,7 +18,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
   }
 
   hideEditor() {
-    bootstrap.Dropdown.getOrCreateInstance(this.querySelector(".dropdown-menu"))?.hide();
+    bootstrap.Dropdown.getInstance(this.renderRoot.querySelector("[data-bs-toggle='dropdown']"))?.hide();
   }
 
   _setupEditor() {
