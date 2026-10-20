@@ -374,8 +374,8 @@ export class SakaiRubric extends RubricsElement {
         const firstCriterion = this.rubric.criteria.find(criterion => criterion.ratings?.length > 0);
         if (firstCriterion) { firstCriterion.weight = 100; }
       }
-      this.handleRefreshTotalWeight();
     }
+    this.handleRefreshTotalWeight();
     this.patchRubric([
       { op: "replace", path: "/weighted", value: this.rubric.weighted },
       ...this.criterionWeightPatch(),
@@ -466,7 +466,7 @@ export class SakaiRubric extends RubricsElement {
   // SAK-47640 - Get the maximum and minimum possible grade of the whole rubric,
   // multiplying the max-min rating points of each criterion by the criterion weight, and adding them up
   getMaxPoints(criterions) {
-    return this.getPoints(criterions, Math.max);
+    return this.getPoints(criterions, (...points) => Math.max(0, ...points));
   }
 
   getMinPoints(criterions) {
@@ -481,7 +481,7 @@ export class SakaiRubric extends RubricsElement {
     .filter(criterion => criterion.ratings.length > 0)
     .forEach(criterion => {
       totalPoints += minOrMax(...criterion.ratings.map(rating => {
-        return rating.points * (criterion.weight / 100);
+        return rating.points * (this.rubric.weighted ? criterion.weight / 100 : 1);
       }));
     });
     return parseFloat(totalPoints).toLocaleString(this.locale);
