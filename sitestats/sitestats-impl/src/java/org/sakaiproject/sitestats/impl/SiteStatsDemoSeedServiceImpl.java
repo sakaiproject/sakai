@@ -252,22 +252,20 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		if (sessionCount <= 0 || actors.isEmpty()) {
 			return;
 		}
-		if (demoSessionsExist()) {
-			log.debug("SiteStats demo session User-Agents already present; skipping");
-			return;
-		}
-
 		Instant now = Instant.now();
 		for (int i = 0; i < sessionCount; i++) {
 			User user = actors.get(i % actors.size());
 			String sessionId = SESSION_ID_PREFIX + String.format("%03d", i);
+			if (demoSessionExists(sessionId)) {
+				continue;
+			}
 			String ua = DEMO_USER_AGENTS[i % DEMO_USER_AGENTS.length];
 			Instant start = now.minus(random.nextInt(Math.max(1, historyDays)), ChronoUnit.DAYS)
 					.minus(random.nextInt(12), ChronoUnit.HOURS);
 			Instant end = start.plus(30 + random.nextInt(120), ChronoUnit.MINUTES);
 			insertSession(sessionId, user.getId(), ua, start, end);
 		}
-		log.info("Inserted {} demo SAKAI_SESSION rows with User-Agents", sessionCount);
+		log.info("Completed demo SAKAI_SESSION seeding for {} session IDs", sessionCount);
 	}
 
 	private void flushEvents(List<Event> events) {
@@ -278,7 +276,9 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		int chunkSize = 200;
 		for (int i = 0; i < events.size(); i += chunkSize) {
 			List<Event> chunk = events.subList(i, Math.min(i + chunkSize, events.size()));
-			statsUpdateManager.collectEvents(new ArrayList<>(chunk));
+			if (!statsUpdateManager.collectEvents(new ArrayList<>(chunk))) {
+				throw new IllegalStateException("Failed to persist SiteStats demo event chunk starting at index " + i);
+			}
 		}
 	}
 
@@ -321,21 +321,21 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		}
 	}
 
-	private boolean demoSessionsExist() {
+	private boolean demoSessionExists(String sessionId) {
 		Connection connection = null;
 		PreparedStatement statement = null;
 		ResultSet result = null;
 		try {
 			connection = sqlService.borrowConnection();
 			statement = connection.prepareStatement(
-					"select count(*) from SAKAI_SESSION where SESSION_ID like ?");
-			statement.setString(1, SESSION_ID_PREFIX + "%");
+					"select count(*) from SAKAI_SESSION where SESSION_ID = ?");
+			statement.setString(1, sessionId);
 			result = statement.executeQuery();
 			if (result.next()) {
 				return result.getInt(1) > 0;
 			}
 		} catch (SQLException e) {
-			log.debug("Could not check demo sessions (table may be empty): {}", e.toString());
+			log.debug("Could not check demo session {}: {}", sessionId, e.toString());
 		} finally {
 			closeQuietly(result, statement, connection);
 		}
