@@ -1867,6 +1867,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                                 //3b if samigo
                                 if(itemId.startsWith(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX)) {
                                     log.debug("Skipping published item {}", itemId);
+                                    return;
                                 }
                                 log.debug("Handling Rubrics association transfer for Samigo entry " + itemId);
                                 if(transversalMap.get("sam_item/"+itemId) != null) {
