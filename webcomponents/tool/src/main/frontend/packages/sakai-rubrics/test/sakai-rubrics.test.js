@@ -31,6 +31,31 @@ describe("sakai-rubrics tests", () => {
     await checkRubricTitleChanges(data.rubric3);
   });
 
+  it("refreshes the displayed maximum when switching grading modes", async () => {
+    const rubric = structuredClone(data.rubric4);
+    rubric.weighted = true;
+    rubric.criteria[0].weight = 100;
+    rubric.criteria[1].weight = 0;
+    const el = await fixture(html`<sakai-rubric site-id="${data.siteId}" .rubric=${rubric}></sakai-rubric>`);
+    await waitUntil(() => el.querySelector(".rubric-toggle"));
+    el.querySelector(".rubric-toggle").click();
+    await waitUntil(() => el.querySelector(".card"));
+    expect(el.querySelector(".card > div:last-child > span:last-child").textContent.trim()).to.equal("2");
+
+    el.querySelector("button.weighted").click();
+    await waitUntil(
+      () => el.querySelector(".rubric-totals")?.textContent.includes("4") && !el.querySelector("button.weighted").disabled,
+      "Standard maximum did not refresh or mode save did not finish"
+    );
+
+    el.querySelector("button.weighted").click();
+    await waitUntil(
+      () => el.querySelector(".card > div:last-child > span:last-child")?.textContent.trim() === "2",
+      "Weighted maximum did not refresh"
+    );
+    expect(el.querySelector(".card > div:last-child > span:last-child").textContent.trim()).to.equal("2");
+  });
+
   /**
    * Perform a title update and make sure all places are changed
    **/
