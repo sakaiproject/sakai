@@ -26,8 +26,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "SAKAI_PREFERENCES")
@@ -40,7 +38,6 @@ public class PreferencesRecord {
     @Column(name = "PREFERENCES_ID", length = 99, nullable = false)
     private String id;
 
-    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "XML", length = Integer.MAX_VALUE)
     private String xml;
 
