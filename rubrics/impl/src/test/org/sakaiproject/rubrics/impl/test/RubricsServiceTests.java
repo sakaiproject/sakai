@@ -303,6 +303,10 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(newTitle, rubricsService.getRubric(stale.getId()).get().getTitle());
         assertThrows(RubricsConflictException.class, () -> rubricsService.deleteRubric(stale.getId(), stale.getVersion()));
         assertThrows(RubricsConflictException.class, () -> rubricsService.sortRubricCriteria(stale.getId(), List.of(), stale.getVersion()));
+
+        RubricTransferBean blankTitle = rubricsService.getRubric(rubricBean.getId()).orElseThrow();
+        blankTitle.setTitle("  ");
+        assertThrows(IllegalArgumentException.class, () -> rubricsService.saveRubric(blankTitle));
     }
 
     @Test
