@@ -17,6 +17,7 @@ package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonParser;
@@ -27,9 +28,9 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FormData;
 import com.microsoft.playwright.options.RequestOptions;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -309,9 +310,15 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
     }
 
     private void assertSavedGradeAndFeedback(String grade, String feedback) {
-        assertThat(page.locator("#grade").first()).hasValue(grade);
-        assertThat(page.locator("#grade_submission_feedback_comment"))
-                .hasValue(Pattern.compile("(?s).*" + Pattern.quote(feedback) + ".*"));
+        String savedGrade = page.locator("#grade").first().inputValue();
+        if (grade.isEmpty()) {
+            assertEquals("", savedGrade, "Feedback-only grading must retain an empty score");
+        } else {
+            assertEquals(0, new BigDecimal(grade).compareTo(new BigDecimal(savedGrade)),
+                    "Saved group score must be unchanged");
+        }
+        assertTrue(page.locator("#grade_submission_feedback_comment").inputValue().contains(feedback),
+                "Saved group feedback must be unchanged");
         assertThat(page.locator("#grade-is-released")).hasValue("false");
     }
 
