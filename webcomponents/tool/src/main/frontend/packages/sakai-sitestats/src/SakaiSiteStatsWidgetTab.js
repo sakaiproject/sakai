@@ -290,13 +290,13 @@ export class SakaiSiteStatsWidgetTab extends SakaiShadowElement {
     };
 
     const metrics = widget.querySelector("sakai-sitestats-widget-metrics");
-    if (metrics && widget.dataset.metricsEndpoint) {
-      metrics.endpoint = applyShared(widget.dataset.metricsEndpoint);
+    if (metrics && (metrics.endpoint || widget.dataset.metricsEndpoint)) {
+      metrics.endpoint = applyShared(metrics.endpoint || widget.dataset.metricsEndpoint);
     }
 
     const highlights = widget.querySelector("sakai-sitestats-highlights");
-    if (highlights && widget.dataset.highlightsEndpoint) {
-      highlights.endpoint = applyShared(widget.dataset.highlightsEndpoint);
+    if (highlights && (highlights.endpoint || widget.dataset.highlightsEndpoint)) {
+      highlights.endpoint = applyShared(highlights.endpoint || widget.dataset.highlightsEndpoint);
     }
 
     widget.querySelectorAll("sakai-sitestats-widget-tab").forEach(tab => {
