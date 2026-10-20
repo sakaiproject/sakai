@@ -894,11 +894,12 @@ public class MainController {
             return jsonResponse;
         }
 
-        log.debug(vc.getUserEid() + ": " + vc.getPassword1());
-        User u = userDirectoryService.authenticate(vc.getUserEid(), vc.getPassword1());
-
-        if (u == null) {
-            log.warn("authentification failed for " + vc.getUserEid());
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new IdPwEvidence(vc.getUserEid(), vc.getPassword1(), httpServletRequest.getRemoteAddr()));
+        } catch (AuthenticationException e) {
+            log.debug("Account claim authentication failed for {}", vc.getUserEid());
             jsonResponse.put("error", loginFailed);
             return jsonResponse;
         }
@@ -935,14 +936,14 @@ public class MainController {
         authenticateUser(vc, oldUserRef);
 
         //we can't merge an account into itself
-        if (u.getId().equals(va.getUserId())) {
+        if (authentication.getUid().equals(va.getUserId())) {
             log.warn("using the same accounts for validation!"); 
             jsonResponse.put("error", messageSource.getMessage("validate.sameAccount", null, userLocale));
             return jsonResponse;
         }
 
         try {
-            avService.mergeAccounts(va.getUserId(), u.getReference());
+            avService.mergeAccounts(va.getUserId(), userDirectoryService.userReference(authentication.getUid()));
             //delete the token
             avService.deleteValidationAccount(va);
 
@@ -977,14 +978,13 @@ public class MainController {
 
     private boolean validateLogin(String userId, String password) {
         try {
-            User u = userDirectoryService.authenticate(userDirectoryService.getUserEid(userId), password);
-            if (u != null) {
-                return true;
-            }
-        } catch (UserNotDefinedException e) {
-            log.error(e.getMessage(), e);
+            authenticationManager.authenticate(new IdPwEvidence(
+                    userDirectoryService.getUserEid(userId), password, httpServletRequest.getRemoteAddr()));
+            return true;
+        } catch (UserNotDefinedException | AuthenticationException e) {
+            log.debug("Account validation authentication failed for {}", userId);
+            return false;
         }
-        return false;
     }
 
     /**

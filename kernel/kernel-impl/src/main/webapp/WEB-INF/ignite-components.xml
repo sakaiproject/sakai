@@ -130,6 +130,27 @@
           class="java.util.ArrayList">
         <constructor-arg>
             <list>
+                <!-- Password guesses need synchronous replication and primary-node reads. -->
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.user.impl.PasswordLoginBackoff"/>
+                    <property name="dataRegionName" value="spring_region"/>
+                    <property name="writeSynchronizationMode" value="FULL_SYNC"/>
+                    <property name="readFromBackup" value="false"/>
+                    <property name="expiryPolicyFactory">
+                        <bean class="javax.cache.expiry.ModifiedExpiryPolicy" factory-method="factoryOf">
+                            <constructor-arg>
+                                <bean class="javax.cache.expiry.Duration">
+                                    <constructor-arg value="SECONDS"/>
+                                    <constructor-arg>
+                                        <bean class="org.sakaiproject.user.impl.PasswordLoginBackoff" factory-method="windowSeconds">
+                                            <constructor-arg ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+                                        </bean>
+                                    </constructor-arg>
+                                </bean>
+                            </constructor-arg>
+                        </bean>
+                    </property>
+                </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.user.api.AuthenticationManager"/>
                     <property name="dataRegionName" value="spring_region"/>
