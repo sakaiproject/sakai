@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.hibernate.SessionFactory;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,6 +41,7 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.SiteService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
@@ -62,6 +65,9 @@ public class LTIServiceToolPermissionTest extends AbstractTransactionalJUnit4Spr
 
 	@Autowired
 	private SiteService siteService;
+
+	@Autowired
+	private SessionFactory sessionFactory;
 
 	@Before
 	public void setUp() {
@@ -92,6 +98,35 @@ public class LTIServiceToolPermissionTest extends AbstractTransactionalJUnit4Spr
 		assertEquals(2, stored.size());
 		assertTrue(stored.contains("content.read"));
 		assertTrue(stored.contains("gradebook.write"));
+	}
+
+	@Test
+	public void duplicateToolPermissionRejectedByDatabase() throws Exception {
+		Long toolId = insertTestTool();
+		when(siteService.allowUpdateSite(ADMIN_SITE)).thenReturn(true);
+		when(functionManager.getRegisteredFunctions()).thenReturn(List.of("content.read"));
+
+		ltiService.setToolPermissions(toolId, Set.of("content.read"), ADMIN_SITE);
+		sessionFactory.getCurrentSession().flush();
+
+		assertThrows(DataIntegrityViolationException.class, () -> jdbcTemplate.update(
+			"INSERT INTO lti_tool_permissions (tool_id, permission) VALUES (?, ?)", toolId, "content.read"));
+	}
+
+	@Test
+	public void samePermissionCanBeGrantedToDifferentTools() throws Exception {
+		Long firstToolId = insertTestTool();
+		Long secondToolId = insertTestTool();
+		when(siteService.allowUpdateSite(ADMIN_SITE)).thenReturn(true);
+		when(functionManager.getRegisteredFunctions()).thenReturn(List.of("content.read"));
+
+		ltiService.setToolPermissions(firstToolId, Set.of("content.read"), ADMIN_SITE);
+		ltiService.setToolPermissions(secondToolId, Set.of("content.read"), ADMIN_SITE);
+		sessionFactory.getCurrentSession().flush();
+
+		assertEquals(Integer.valueOf(2), jdbcTemplate.queryForObject(
+			"SELECT COUNT(*) FROM lti_tool_permissions WHERE tool_id IN (?, ?) AND permission = ?",
+			Integer.class, firstToolId, secondToolId, "content.read"));
 	}
 
 	@Test
