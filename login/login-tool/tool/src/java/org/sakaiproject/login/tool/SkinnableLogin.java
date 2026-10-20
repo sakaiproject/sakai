@@ -379,9 +379,6 @@ public class SkinnableLogin extends HttpServlet implements Login {
 					rcontext.put(ATTR_MSG, rb.getString("log.invalid.with.penalty"));
 					showAdvice = true;
 					logFailedAttempt(credentials);
-				} else if (message.equals(EXCEPTION_THROTTLED)) {
-					rcontext.put(ATTR_MSG, rb.getString("log.throttled"));
-					logFailedAttempt(credentials);
 				} else if (message.equals(EXCEPTION_MISSING_CREDENTIALS)) {
 					rcontext.put(ATTR_MSG, rb.getString("log.tryagain"));
 					//Do we need to log this one? You can't really brute force with empty credentials...

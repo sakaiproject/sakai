@@ -40,7 +40,6 @@ import org.sakaiproject.login.api.LoginService;
 
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
-import org.sakaiproject.user.api.AuthenticationThrottledException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.util.IdPwEvidence;
@@ -121,10 +120,6 @@ public abstract class LoginServiceComponent implements LoginService {
 			 */
 			if (ex.getMessage().equals(Login.EXCEPTION_DISABLED))
 				throw new LoginException(Login.EXCEPTION_DISABLED);
-			
-			// The password was not checked, so this is not another failure for the login advisor.
-			if (ex instanceof AuthenticationThrottledException)
-				throw new LoginException(Login.EXCEPTION_THROTTLED);
 			
 			boolean isPenaltyImposed = false;
 			
