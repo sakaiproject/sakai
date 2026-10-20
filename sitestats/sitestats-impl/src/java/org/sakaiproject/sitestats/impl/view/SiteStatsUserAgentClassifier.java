@@ -19,6 +19,12 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Estimates browser, platform, and device families from stored session User-Agent strings.
+ * Reduced strings retain broad family tokens but do not identify physical hardware:
+ * tablets requesting desktop sites can report the same platform as desktop computers.
+ * These classifications are for aggregate statistics, not feature or access decisions.
+ */
 public final class SiteStatsUserAgentClassifier {
 
 	public static final String DEVICE_DESKTOP = "Desktop";
@@ -31,6 +37,7 @@ public final class SiteStatsUserAgentClassifier {
 	public static final String OS_IOS = "iOS";
 	public static final String OS_ANDROID = "Android";
 	public static final String OS_LINUX = "Linux";
+	public static final String OS_CHROMEOS = "ChromeOS";
 	public static final String OS_OTHER = "Other";
 
 	public static final String BROWSER_CHROME = "Chrome";
@@ -79,14 +86,18 @@ public final class SiteStatsUserAgentClassifier {
 		if (lower.contains("mac os") || lower.contains("macintosh")) {
 			return OS_MACOS;
 		}
-		if (lower.contains("linux") || lower.contains("cros") || lower.contains("x11")) {
+		if (lower.contains("cros")) {
+			return OS_CHROMEOS;
+		}
+		if (lower.contains("linux") || lower.contains("x11")) {
 			return OS_LINUX;
 		}
 		return OS_OTHER;
 	}
 
 	private static String browserFamily(String lower) {
-		if (lower.contains("edg/") || lower.contains("edge/")) {
+		if (lower.contains("edg/") || lower.contains("edga/") || lower.contains("edgios/")
+				|| lower.contains("edge/")) {
 			return BROWSER_EDGE;
 		}
 		if (lower.contains("firefox/") || lower.contains("fxios/")) {
