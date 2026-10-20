@@ -327,8 +327,8 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
     }
 
     private Locator groupCheckbox(String title) {
-        return page.locator("#groupTableContainer .multiselect-container").getByRole(AriaRole.CHECKBOX,
-                new Locator.GetByRoleOptions().setName(title).setExact(true));
+        return page.locator("#groupTableContainer .multiselect-container").getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName(title).setExact(true)).locator("input[type=checkbox]");
     }
 
     private void assertGroupMembershipLocked(String title) {
