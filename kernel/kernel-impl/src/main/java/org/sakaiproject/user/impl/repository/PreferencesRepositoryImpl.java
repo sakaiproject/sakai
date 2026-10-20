@@ -29,6 +29,7 @@ public class PreferencesRepositoryImpl extends SpringCrudRepositoryImpl<Preferen
                 .createQuery("select new org.sakaiproject.user.api.model.PreferencesRecord(p.id, p.xml, p.version) "
                         + "from PreferencesRecord p where p.id = :id", PreferencesRecord.class)
                 .setParameter("id", id)
+                .setCacheable(true)
                 .uniqueResultOptional();
     }
 

@@ -25,6 +25,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,6 +64,7 @@ import static org.mockito.Mockito.when;
 public class PreferencesServiceTest {
 
     @Autowired private PreferencesService preferencesService;
+    @Autowired private SessionFactory sessionFactory;
     @Autowired private PreferencesRepository repository;
     @Autowired private SecurityService securityService;
     @Autowired private DataSource dataSource;
@@ -95,6 +99,37 @@ public class PreferencesServiceTest {
         assertEquals(List.of("one", "two"), saved.getProperties("calendar").getPropertyList("sites"));
         assertEquals(Integer.valueOf(0), new JdbcTemplate(dataSource).queryForObject(
                 "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'SAKAI_LOCKS'", Integer.class));
+    }
+
+    @Test
+    public void repeatedReadsUseTheQueryCacheAndWritesInvalidateIt() throws Exception {
+        save("theme", "light");
+        assertEquals("light", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
+        Statistics statistics = sessionFactory.getStatistics();
+        long hits = statistics.getQueryCacheHitCount();
+        long statements = statistics.getPrepareStatementCount();
+        assertEquals("light", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
+        assertTrue(statistics.getQueryCacheHitCount() > hits);
+        assertEquals(statements, statistics.getPrepareStatementCount());
+
+        save("theme", "dark");
+        assertEquals("dark", preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
+        preferencesService.remove(preferencesService.edit(userId));
+        assertNull(preferencesService.getPreferences(userId).getProperties().getProperty("theme"));
+    }
+
+    @Test
+    public void aReadInARolledBackTransactionDoesNotPopulateTheCache() {
+        new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+            repository.save(new PreferencesRecord(userId,
+                    "<preferences id=\"" + userId + "\"><properties><property name=\"temporary\" value=\"visible\"/></properties></preferences>",
+                    null));
+            assertEquals("visible", preferencesService.getPreferences(userId).getProperties().getProperty("temporary"));
+            status.setRollbackOnly();
+        });
+
+        assertNull(preferencesService.getPreferences(userId).getProperties().getProperty("temporary"));
+        assertTrue(repository.findById(userId).isEmpty());
     }
 
     @Test

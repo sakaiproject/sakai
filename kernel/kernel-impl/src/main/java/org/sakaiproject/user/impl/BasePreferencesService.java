@@ -21,7 +21,6 @@
 
 package org.sakaiproject.user.impl;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -60,11 +59,8 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.StorageUtils;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -83,8 +79,6 @@ public class BasePreferencesService implements PreferencesService
 
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
-	/** the cache for Preference objects **/
-	private Cache m_cache;
 
 	/**
 	 * Access the partial URL that forms the root of resource URLs.
@@ -156,7 +150,6 @@ public class BasePreferencesService implements PreferencesService
 		}
 	}
 
-	@Setter protected CacheManager cacheManager;
 	@Setter protected ServerConfigurationService serverConfigurationService;
 	@Setter protected EntityManager entityManager;
 	@Setter protected SecurityService securityService;
@@ -179,10 +172,6 @@ public class BasePreferencesService implements PreferencesService
 			functionManager.registerFunction(SECURE_EDIT_PREFS);
 			functionManager.registerFunction(SECURE_REMOVE_PREFS);
 
-			
-			//register a cache
-			m_cache = cacheManager.getCache(BasePreferencesService.class.getName() +".preferences");
-			
 			log.info("init()");
 		}
 		catch (Exception t)
@@ -291,7 +280,6 @@ public class BasePreferencesService implements PreferencesService
 			} finally {
 				((BasePreferences) edit).closeEdit();
 			}
-			m_cache.evict(edit.getId());
 
 			// track it
 			eventTrackingService.post(eventTrackingService.newEvent(((BasePreferences) edit).getEvent(), edit.getReference(), true));
@@ -339,18 +327,16 @@ public class BasePreferencesService implements PreferencesService
 			((BasePreferences) edit).closeEdit();
 		}
 
-		m_cache.evict(edit.getId());
-
 		// track it
 		eventTrackingService.post(eventTrackingService.newEvent(SECURE_REMOVE_PREFS, edit.getReference(), true));
 	}
 
 	/**
-	 * Find the preferences object in cache or storage.
+	 * Find the preferences object in storage.
 	 * 
 	 * @param id
 	 *        The preferences id.
-	 * @return The preferences object found in cache or storage, or null if not found.
+	 * @return The preferences object found in storage, or null if not found.
 	 */
 	protected BasePreferences findPreferences(String id)
 	{
@@ -358,43 +344,12 @@ public class BasePreferencesService implements PreferencesService
 			return null;
 		}
 
-		// Try the cache
-		PreferencesSnapshot snapshot = m_cache.get(id, PreferencesSnapshot.class);
-		BasePreferences prefs = snapshot != null ? fromSnapshot(snapshot) : null;
-
-		// Failing that, try the storage
-		// A caller's transaction may see an older database snapshot, so do not share what it reads.
-		boolean shareable = true;
-		if (prefs == null) {
-			shareable = !TransactionSynchronizationManager.isActualTransactionActive();
-			try {
-				prefs = readPreferences(id, readTransactionTemplate);
-			} catch (IllegalStateException e) {
-				log.warn("Ignoring invalid preferences for user {}: {}", id, e.getMessage());
-				return null;
-			}
+		try {
+			return readPreferences(id, readTransactionTemplate);
+		} catch (IllegalStateException e) {
+			log.warn("Ignoring invalid preferences for user {}: {}", id, e.getMessage());
+			return null;
 		}
-
-		if (prefs != null && shareable) {
-			m_cache.put(id, prefs.toSnapshot());
-		}
-
-		return prefs;
-	}
-
-	/**
-	 * Rebuild a (non-editable) BasePreferences from a cached snapshot. BasePreferences itself
-	 * can't be cached directly since it's a non-static inner class carrying an implicit
-	 * reference to this service.
-	 */
-	private BasePreferences fromSnapshot(PreferencesSnapshot snapshot)
-	{
-		BasePreferences prefs = new BasePreferences(snapshot.id);
-		prefs.m_properties = snapshot.properties;
-		Map<String, ResourcePropertiesEdit> props = new Hashtable<>();
-		props.putAll(snapshot.props);
-		prefs.m_props = props;
-		return prefs;
 	}
 
 	/**
@@ -577,26 +532,6 @@ public class BasePreferencesService implements PreferencesService
                 preferences.m_version);
     }
 
-	/**
-	 * A cacheable, static (no enclosing-instance reference) snapshot of a BasePreferences'
-	 * read-only state, for storing in the distributed cache in place of BasePreferences itself.
-	 */
-	static class PreferencesSnapshot implements Serializable
-	{
-		private static final long serialVersionUID = 1L;
-
-		final String id;
-		final BaseResourcePropertiesEdit properties;
-		final Map<String, BaseResourcePropertiesEdit> props;
-
-		PreferencesSnapshot(String id, BaseResourcePropertiesEdit properties, Map<String, BaseResourcePropertiesEdit> props)
-		{
-			this.id = id;
-			this.properties = properties;
-			this.props = props;
-		}
-	}
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Preferences implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -769,19 +704,6 @@ public class BasePreferencesService implements PreferencesService
 			// %%% is this deep enough? -ggolden
 			m_props = new Hashtable<>();
 			m_props.putAll(((BasePreferences) prefs).m_props);
-		}
-
-		/**
-		 * Capture this preferences' state as a cacheable snapshot (see PreferencesSnapshot).
-		 */
-		PreferencesSnapshot toSnapshot()
-		{
-			Map<String, BaseResourcePropertiesEdit> propsCopy = new HashMap<>();
-			for (Map.Entry<String, ResourcePropertiesEdit> entry : m_props.entrySet())
-			{
-				propsCopy.put(entry.getKey(), (BaseResourcePropertiesEdit) entry.getValue());
-			}
-			return new PreferencesSnapshot(m_id, (BaseResourcePropertiesEdit) m_properties, propsCopy);
 		}
 
 		@Override
