@@ -6,8 +6,6 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
 
   initLightbox(i18n, siteId) {
 
-    const rubrics = window.top.rubrics;
-
     if (this.lightbox) {
       return;
     }
@@ -51,11 +49,13 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
     el.removeAttribute("is-peer-or-self");
   },
 
-  showRubric(id, attributes, launchingElement) {
+  showRubric(id, attributes) {
 
-    const rubrics = this.windowRef.rubrics;
-
-    const el = this.windowRef.document.querySelector("sakai-rubric-student");
+    const previous = this.lightbox.querySelector("sakai-rubric-student");
+    previous.handleClose?.();
+    const el = this.windowRef.document.createElement("sakai-rubric-student");
+    el.setAttribute("site-id", previous.getAttribute("site-id"));
+    previous.replaceWith(el);
 
     if (!attributes) {
       el.setAttribute("rubric-id", id);
