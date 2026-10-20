@@ -173,6 +173,7 @@
         <property name="conversationsService" ref="org.sakaiproject.conversations.api.ConversationsService" />
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
         <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+        <property name="siteStatsDemoSeedService" ref="org.sakaiproject.sitestats.api.SiteStatsDemoSeedService" />
     </bean>
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SeedSitesAndUsers"

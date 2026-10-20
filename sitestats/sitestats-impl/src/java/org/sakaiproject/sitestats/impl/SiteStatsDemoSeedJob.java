@@ -16,7 +16,9 @@
 package org.sakaiproject.sitestats.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +28,12 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.SiteStatsDemoSeedService;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -46,9 +50,15 @@ public class SiteStatsDemoSeedJob implements Job {
 	@Setter private UserDirectoryService userDirectoryService;
 	@Setter private SessionManager sessionManager;
 	@Setter private SecurityService securityService;
+	@Setter private ServerConfigurationService serverConfigurationService;
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
+		if (!serverConfigurationService.getBoolean("sitestats.sakai.demo", false)) {
+			log.info("sitestats.sakai.demo is false; skipping SiteStatsDemoSeedJob");
+			return;
+		}
+
 		log.info("SiteStatsDemoSeedJob started");
 
 		Session session = sessionManager.getCurrentSession();
@@ -64,7 +74,11 @@ public class SiteStatsDemoSeedJob implements Job {
 			for (String siteId : siteService.getSiteIds(SiteService.SelectionType.NON_USER, "course",
 					null, null, SiteService.SortType.CREATED_ON_DESC, null)) {
 				try {
-					sites.add(siteService.getSite(siteId));
+					Site site = siteService.getSite(siteId);
+					// Only course sites that include the sitestats tool (as SeedSites creates)
+					if (site.getToolForCommonId(StatsManager.SITESTATS_TOOLID) != null) {
+						sites.add(site);
+					}
 				} catch (IdUnusedException e) {
 					log.debug("Skipping missing site {}", siteId);
 				}
@@ -72,15 +86,17 @@ public class SiteStatsDemoSeedJob implements Job {
 
 			List<User> students = new ArrayList<>();
 			List<User> instructors = new ArrayList<>();
+			Set<String> studentIds = new HashSet<>();
+			Set<String> instructorIds = new HashSet<>();
 			for (Site site : sites) {
 				for (String userId : site.getUsers()) {
 					try {
 						User user = userDirectoryService.getUser(userId);
 						if ("maintain".equals(user.getType())) {
-							if (!instructors.contains(user)) {
+							if (instructorIds.add(user.getId())) {
 								instructors.add(user);
 							}
-						} else if (!students.contains(user)) {
+						} else if (studentIds.add(user.getId())) {
 							students.add(user);
 						}
 					} catch (Exception e) {

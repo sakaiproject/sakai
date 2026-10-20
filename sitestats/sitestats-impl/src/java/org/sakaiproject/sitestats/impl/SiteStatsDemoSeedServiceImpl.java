@@ -20,15 +20,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -131,7 +134,9 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 			}
 		}
 
-		seedServerEvents(actors, historyDays);
+		if (seededSites > 0) {
+			seedServerEvents(actors, historyDays);
+		}
 		seedSessionUserAgents(actors, sessionCount, historyDays);
 
 		log.info("SiteStats demo seed completed: {} site(s), {} day history", seededSites, historyDays);
@@ -142,9 +147,10 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		List<Event> events = new ArrayList<>();
 		List<User> visitors = students.isEmpty() ? actors : students;
 		int baseVisitorCount = Math.min(visitors.size(), Math.max(5, visitors.size() / 4));
+		ZoneId zone = ZoneId.systemDefault();
 
 		for (int dayOffset = 0; dayOffset < historyDays; dayOffset++) {
-			Date day = daysAgo(dayOffset);
+			LocalDate day = LocalDate.now(zone).minusDays(dayOffset);
 			double intensity = visitDayIntensity(day, dayOffset);
 			if (intensity <= 0.05) {
 				// Quiet day: skip visits almost entirely
@@ -158,13 +164,13 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 				int maxVisits = Math.max(1, (int) Math.round((visitsPerUser / 4.0) * intensity));
 				int visitsToday = 1 + random.nextInt(maxVisits);
 				for (int i = 0; i < visitsToday; i++) {
-					Date begin = withHourOffset(day, random.nextInt(10));
-					Date end = new Date(begin.getTime() + TimeUnit.MINUTES.toMillis(5 + random.nextInt(55)));
+					Instant begin = dayAtHour(day, random.nextInt(10), zone);
+					Instant end = begin.plus(5 + random.nextInt(55), ChronoUnit.MINUTES);
 					String presenceRef = "/presence/" + siteId + PresenceService.PRESENCE_SUFFIX;
 					String sessionId = "demo-sess-" + siteId + "-" + user.getId() + "-" + dayOffset + "-" + i;
-					events.add(statsUpdateManager.buildEvent(begin, StatsManager.SITEVISIT_EVENTID,
+					events.add(statsUpdateManager.buildEvent(Date.from(begin), StatsManager.SITEVISIT_EVENTID,
 							presenceRef, null, user.getId(), sessionId));
-					events.add(statsUpdateManager.buildEvent(end, StatsManager.SITEVISITEND_EVENTID,
+					events.add(statsUpdateManager.buildEvent(Date.from(end), StatsManager.SITEVISITEND_EVENTID,
 							presenceRef, null, user.getId(), sessionId));
 				}
 			}
@@ -184,7 +190,7 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 				} else {
 					ref = "/gradebook/" + siteId;
 				}
-				events.add(statsUpdateManager.buildEvent(withHourOffset(day, random.nextInt(12)),
+				events.add(statsUpdateManager.buildEvent(Date.from(dayAtHour(day, random.nextInt(12), zone)),
 						eventId, ref, siteId, user.getId(), "demo-act-" + dayOffset + "-" + a));
 			}
 		}
@@ -193,11 +199,11 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		List<SimplePage> pages = listLessonPages(siteId);
 		if (!pages.isEmpty()) {
 			for (int dayOffset = 0; dayOffset < Math.min(historyDays, 14); dayOffset++) {
-				Date day = daysAgo(dayOffset);
+				LocalDate day = LocalDate.now(zone).minusDays(dayOffset);
 				SimplePage page = pages.get(dayOffset % pages.size());
 				User user = visitors.get(dayOffset % visitors.size());
 				String pageRef = "/lessonbuilder/page/" + page.getPageId();
-				events.add(statsUpdateManager.buildEvent(withHourOffset(day, 2),
+				events.add(statsUpdateManager.buildEvent(Date.from(dayAtHour(day, 2, zone)),
 						LessonBuilderEvents.PAGE_READ, pageRef, siteId, user.getId(),
 						"demo-lb-" + dayOffset));
 			}
@@ -208,21 +214,23 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 
 	private void seedServerEvents(List<User> actors, int historyDays) {
 		List<Event> events = new ArrayList<>();
+		ZoneId zone = ZoneId.systemDefault();
 		int days = Math.min(historyDays, 14);
 		for (int dayOffset = 0; dayOffset < days; dayOffset++) {
-			Date day = daysAgo(dayOffset);
+			LocalDate day = LocalDate.now(zone).minusDays(dayOffset);
 			int logins = 5 + random.nextInt(15);
 			for (int i = 0; i < logins; i++) {
 				User user = actors.get(random.nextInt(actors.size()));
-				events.add(statsUpdateManager.buildEvent(withHourOffset(day, random.nextInt(20)),
+				events.add(statsUpdateManager.buildEvent(Date.from(dayAtHour(day, random.nextInt(20), zone)),
 						StatsManager.LOGIN_EVENTID, "/user/" + user.getId(), null,
 						user.getId(), "demo-login-" + dayOffset + "-" + i));
 			}
 			if (dayOffset % 3 == 0) {
 				User user = actors.get(random.nextInt(actors.size()));
-				events.add(statsUpdateManager.buildEvent(day, "user.add", "/user/" + user.getId(),
+				Date dayDate = Date.from(dayAtHour(day, 10, zone));
+				events.add(statsUpdateManager.buildEvent(dayDate, "user.add", "/user/" + user.getId(),
 						null, user.getId(), "demo-useradd-" + dayOffset));
-				events.add(statsUpdateManager.buildEvent(day, "site.add", "/site/demo-site-" + dayOffset,
+				events.add(statsUpdateManager.buildEvent(dayDate, "site.add", "/site/demo-site-" + dayOffset,
 						null, user.getId(), "demo-siteadd-" + dayOffset));
 			}
 		}
@@ -361,14 +369,12 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 	 * Day intensity for visits: weekends quieter, midweek stronger, plus sparse peak/quiet spikes.
 	 * @return multiplier typically in ~0.15–1.8; near-zero for occasional quiet days
 	 */
-	private double visitDayIntensity(Date day, int dayOffset) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(day);
-		int dow = cal.get(Calendar.DAY_OF_WEEK);
+	private double visitDayIntensity(LocalDate day, int dayOffset) {
+		DayOfWeek dow = day.getDayOfWeek();
 		double base;
-		if (dow == Calendar.SATURDAY || dow == Calendar.SUNDAY) {
+		if (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY) {
 			base = 0.25 + random.nextDouble() * 0.25;
-		} else if (dow == Calendar.TUESDAY || dow == Calendar.WEDNESDAY || dow == Calendar.THURSDAY) {
+		} else if (dow == DayOfWeek.TUESDAY || dow == DayOfWeek.WEDNESDAY || dow == DayOfWeek.THURSDAY) {
 			base = 0.9 + random.nextDouble() * 0.4;
 		} else {
 			base = 0.55 + random.nextDouble() * 0.35;
@@ -384,18 +390,8 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		return Math.min(2.0, base);
 	}
 
-	private static Date daysAgo(int days) {
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.HOUR_OF_DAY, 10);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		cal.add(Calendar.DAY_OF_MONTH, -days);
-		return cal.getTime();
-	}
-
-	private static Date withHourOffset(Date day, int hours) {
-		return new Date(day.getTime() + TimeUnit.HOURS.toMillis(hours));
+	private static Instant dayAtHour(LocalDate day, int hour, ZoneId zone) {
+		return ZonedDateTime.of(day, LocalTime.of(hour, 0), zone).toInstant();
 	}
 
 	private void closeQuietly(ResultSet result, PreparedStatement statement, Connection connection) {

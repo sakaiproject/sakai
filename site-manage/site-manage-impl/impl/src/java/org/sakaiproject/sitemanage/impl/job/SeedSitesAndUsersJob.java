@@ -41,7 +41,6 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -125,6 +124,8 @@ public class SeedSitesAndUsersJob implements Job {
 	private AssignmentService assignmentService;
 	@Setter
 	private SimplePageToolDao simplePageToolDao;
+	@Setter
+	private SiteStatsDemoSeedService siteStatsDemoSeedService;
 
 	private int numberOfSites;
 	private int numberOfStudents;
@@ -391,8 +392,9 @@ public class SeedSitesAndUsersJob implements Job {
 							org.sakaiproject.assignment.api.model.Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION);
 					assignment.setTypeOfGrade(
 							org.sakaiproject.assignment.api.model.Assignment.GradeType.SCORE_GRADE_TYPE);
-					assignment.setMaxGradePoint(100);
+					// SCORE_GRADE_TYPE stores scaled points (100.0 with scaleFactor 10 → 1000)
 					assignment.setScaleFactor(10);
+					assignment.setMaxGradePoint(1000);
 					// Mix due dates: past (late possible), recent, and upcoming
 					Instant due;
 					if (i % 3 == 0) {
@@ -502,13 +504,12 @@ public class SeedSitesAndUsersJob implements Job {
 			log.info("sitestats.sakai.demo is false; skipping sitestats tool demo seed");
 			return;
 		}
-		SiteStatsDemoSeedService seeder = (SiteStatsDemoSeedService) ComponentManager.get(SiteStatsDemoSeedService.class);
-		if (seeder == null) {
+		if (siteStatsDemoSeedService == null) {
 			log.warn("SiteStatsDemoSeedService not available; skipping sitestats tool demo seed");
 			return;
 		}
 		try {
-			seeder.seed(sites.values(), students.values(), instructors.values());
+			siteStatsDemoSeedService.seed(sites.values(), students.values(), instructors.values());
 		} catch (Exception e) {
 			log.error("sitestats tool demo seed failed: ", e);
 		}
