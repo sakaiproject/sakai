@@ -86,6 +86,42 @@ describe("sakai-rubric-student tests", () => {
     expect(el.querySelector(".total-points strong").textContent.trim()).to.equal("3.75");
   });
 
+  it ("shows precise criterion scores while rounding only the total", async () => {
+
+    const points = [ 1.000999, 2.000999, 3.000999, 4.000999, 5.000999 ];
+    const criteria = points.map((_, index) => ({
+      ...structuredClone(data.criterion1),
+      id: index + 1,
+      ratings: [ { ...data.criterion1.ratings[0], id: index + 1 } ],
+    }));
+
+    for (const [ locale, decimalSeparator ] of [ [ "en-US", "." ], [ "de-DE", "," ] ]) {
+      for (const pointsAdjusted of [ true, false ]) {
+        const outcomes = points.map((value, index) => ({
+          criterionId: index + 1,
+          selectedRatingId: index + 1,
+          points: value,
+          pointsAdjusted,
+        }));
+        const el = await fixture(html`
+          <sakai-rubric-criterion-student
+              .locale=${locale}
+              .criteria=${structuredClone(criteria)}
+              .association=${data.association}
+              .outcomes=${outcomes}>
+          </sakai-rubric-criterion-student>
+        `);
+
+        await waitUntil(() => el.renderRoot.querySelectorAll(".criterion-row").length === 5, "No criterion rows rendered");
+
+        const displayedPoints = [ ...el.renderRoot.querySelectorAll(".criterion-actions .points-display") ]
+          .map(element => element.textContent.trim());
+        expect(displayedPoints).to.deep.equal(points.map(value => String(value).replace(".", decimalSeparator)));
+        expect(el.renderRoot.querySelector(".total-points strong").textContent.trim()).to.equal("15");
+      }
+    }
+  });
+
   it ("rubric student preview renders correctly", async () => {
 
     let el = await fixture(html`
