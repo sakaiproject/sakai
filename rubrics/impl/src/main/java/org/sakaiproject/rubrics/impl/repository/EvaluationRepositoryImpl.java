@@ -40,7 +40,6 @@ import org.hibernate.Session;
 
 public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluation, Long> implements EvaluationRepository {
 
-
     public List<Evaluation> findByAssociationId(Long associationId) {
 
         Session session = sessionFactory.getCurrentSession();
@@ -133,6 +132,7 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         
         return session.createQuery(delete).executeUpdate();
     }
+
 
     @Override
     public int deleteByOwnerId(String ownerId) {
