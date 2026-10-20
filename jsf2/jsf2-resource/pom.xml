@@ -10,7 +10,7 @@
 
     <name>Sakai JSF widgets resources (jsf-resource)</name>
     <groupId>org.sakaiproject.jsf2</groupId>
-    <artifactId>jsf2-resource</artifactId>
+    <artifactId>jsf-resource</artifactId>
     <packaging>war</packaging>
 
     <description>
