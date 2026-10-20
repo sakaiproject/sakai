@@ -26,8 +26,11 @@ import org.sakaiproject.user.api.User;
  */
 public interface SiteStatsDemoSeedService {
 
+	String DEMO_SITE_PROPERTY = "sitestats.demo.site";
+
 	/**
 	 * Seed SST_* events for the given course sites and insert sample SAKAI_SESSION rows with User-Agents.
+	 * Requires {@code sitestats.sakai.demo=true} and sites marked with {@link #DEMO_SITE_PROPERTY}.
 	 * Idempotent per site via site property {@code sitestats.demo.seeded}; session UAs are keyed by id prefix.
 	 *
 	 * @param sites course sites to seed (typically those just created by SeedSites)

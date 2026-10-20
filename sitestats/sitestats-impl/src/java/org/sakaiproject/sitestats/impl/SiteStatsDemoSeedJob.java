@@ -75,8 +75,10 @@ public class SiteStatsDemoSeedJob implements Job {
 					null, null, SiteService.SortType.CREATED_ON_DESC, null)) {
 				try {
 					Site site = siteService.getSite(siteId);
-					// Only course sites that include the sitestats tool (as SeedSites creates)
-					if (site.getToolForCommonId(StatsManager.SITESTATS_TOOLID) != null) {
+					// A SiteStats tool alone does not identify a demo course.
+					if (site.getToolForCommonId(StatsManager.SITESTATS_TOOLID) != null
+							&& site.getProperties() != null
+							&& "true".equalsIgnoreCase(site.getProperties().getProperty(SiteStatsDemoSeedService.DEMO_SITE_PROPERTY))) {
 						sites.add(site);
 					}
 				} catch (IdUnusedException e) {

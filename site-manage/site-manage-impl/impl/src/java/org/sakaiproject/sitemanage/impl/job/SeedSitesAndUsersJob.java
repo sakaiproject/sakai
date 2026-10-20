@@ -348,6 +348,7 @@ public class SeedSitesAndUsersJob implements Job {
 	
 	private void createSite(String title, String type) throws IdInvalidException, IdUsedException, PermissionException, IdUnusedException {
 		Site site = siteService.addSite(title, type);
+		site.getPropertiesEdit().addProperty(SiteStatsDemoSeedService.DEMO_SITE_PROPERTY, "true");
 		site.setPublished(true);
 		site.setTitle(title);
 		site.addPage().addTool("sakai.search");
@@ -500,7 +501,7 @@ public class SeedSitesAndUsersJob implements Job {
 	}
 
 	private void seedSiteStatsDemoData() {
-		if (!serverConfigurationService.getBoolean("sitestats.sakai.demo", true)) {
+		if (!serverConfigurationService.getBoolean("sitestats.sakai.demo", false)) {
 			log.info("sitestats.sakai.demo is false; skipping sitestats tool demo seed");
 			return;
 		}

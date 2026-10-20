@@ -82,11 +82,13 @@ public class SiteStatsDemoSeedServiceTest extends AbstractTransactionalJUnit4Spr
 
 		ResourcePropertiesEdit props = mock(ResourcePropertiesEdit.class);
 		when(props.getProperty(anyString())).thenReturn(null);
+		when(props.getProperty(SiteStatsDemoSeedService.DEMO_SITE_PROPERTY)).thenReturn("true");
 		when(siteA.getProperties()).thenReturn(props);
 		when(siteA.getPropertiesEdit()).thenReturn(props);
 
 		when(simplePageToolDao.getSitePages(anyString())).thenReturn(Collections.emptyList());
 
+		when(serverConfigurationService.getBoolean("sitestats.sakai.demo", false)).thenReturn(true);
 		when(serverConfigurationService.getInt("sitestats.demo.seed.days", 30)).thenReturn(7);
 		when(serverConfigurationService.getInt("sitestats.demo.seed.visits.per.user", 8)).thenReturn(3);
 		when(serverConfigurationService.getInt("sitestats.demo.seed.sessions", 24)).thenReturn(0);
@@ -125,6 +127,7 @@ public class SiteStatsDemoSeedServiceTest extends AbstractTransactionalJUnit4Spr
 	@Test
 	public void seedIsIdempotentWhenSiteAlreadyFlagged() throws Exception {
 		ResourceProperties props = mock(ResourceProperties.class);
+		when(props.getProperty(SiteStatsDemoSeedService.DEMO_SITE_PROPERTY)).thenReturn("true");
 		when(props.getProperty(SiteStatsDemoSeedServiceImpl.SITE_PROP_SEEDED)).thenReturn("true");
 		Site site = siteService.getSite(FakeData.SITE_A_ID);
 		when(site.getProperties()).thenReturn(props);

@@ -98,8 +98,22 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 
 	@Override
 	public void seed(Collection<Site> sites, Collection<User> students, Collection<User> instructors) {
+		if (!serverConfigurationService.getBoolean("sitestats.sakai.demo", false)) {
+			log.info("sitestats.sakai.demo is false; skipping SiteStats demo seed");
+			return;
+		}
 		if (sites == null || sites.isEmpty()) {
 			log.info("SiteStats demo seed skipped: no sites");
+			return;
+		}
+
+		List<Site> demoSites = sites.stream()
+				.filter(site -> site != null && StringUtils.isNotBlank(site.getId()))
+				.filter(site -> site.getProperties() != null
+						&& "true".equalsIgnoreCase(site.getProperties().getProperty(DEMO_SITE_PROPERTY)))
+				.toList();
+		if (demoSites.isEmpty()) {
+			log.info("SiteStats demo seed skipped: no marked demo sites");
 			return;
 		}
 
@@ -117,10 +131,7 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 		}
 
 		int seededSites = 0;
-		for (Site site : sites) {
-			if (site == null || StringUtils.isBlank(site.getId())) {
-				continue;
-			}
+		for (Site site : demoSites) {
 			if (isSiteAlreadySeeded(site)) {
 				log.debug("SiteStats demo seed already done for site {}", site.getId());
 				continue;
