@@ -318,9 +318,10 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return rubricsService.getRubric(rubricId).map(rubric -> {
 
             try {
+                Long expectedRevision = checkRevision(revision, rubric.getVersion());
                 JsonNode patched = patch.apply(jsonMapper.convertValue(rubric, JsonNode.class));
                 RubricTransferBean patchedBean = jsonMapper.treeToValue(patched, RubricTransferBean.class);
-                patchedBean.setVersion(parseRevision(revision));
+                patchedBean.setVersion(expectedRevision);
                 return ResponseEntity.ok(rubricsService.saveRubric(patchedBean));
             } catch (JsonPatchException | JsonProcessingException e) {
                 log.error("Failed to patch rubric", e);
@@ -414,9 +415,10 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return rubricsService.getEvaluation(evaluationId, siteId).map(evaluation -> {
 
             try {
+                Long expectedRevision = checkRevision(revision, evaluation.getVersion());
                 JsonNode patched = patch.apply(jsonMapper.convertValue(evaluation, JsonNode.class));
                 EvaluationTransferBean patchedBean  = jsonMapper.treeToValue(patched, EvaluationTransferBean.class);
-                patchedBean.setVersion(parseRevision(revision));
+                patchedBean.setVersion(expectedRevision);
                 return ResponseEntity.ok(rubricsService.saveEvaluation(patchedBean, siteId));
             } catch (JsonPatchException | JsonProcessingException e) {
                 log.error("Failed to patch evaluation", e);
@@ -511,9 +513,10 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return rubricsService.getCriterion(criterionId, siteId).map(criterion -> {
 
             try {
+                Long expectedRevision = checkRevision(revision, criterion.getRubricVersion());
                 JsonNode patched = patch.apply(jsonMapper.convertValue(criterion, JsonNode.class));
                 CriterionTransferBean patchedBean  = jsonMapper.treeToValue(patched, CriterionTransferBean.class);
-                patchedBean.setRubricVersion(parseRevision(revision));
+                patchedBean.setRubricVersion(expectedRevision);
                 return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.updateCriterion(patchedBean, siteId)));
             } catch (JsonPatchException | JsonProcessingException e) {
                 log.error("Failed to patch criterion", e);
@@ -571,6 +574,14 @@ public class RubricsRestController extends AbstractSakaiApiController {
             StaleStateException.class, OptimisticLockingFailureException.class })
     public ResponseEntity<Void> conflict() {
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    private Long checkRevision(String revision, Long currentRevision) {
+        Long expectedRevision = parseRevision(revision);
+        if (!expectedRevision.equals(currentRevision)) {
+            throw new RubricsConflictException();
+        }
+        return expectedRevision;
     }
 
     private Long parseRevision(String revision) {
