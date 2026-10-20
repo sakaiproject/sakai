@@ -24,8 +24,8 @@
           th:attr="endpoint=${metricEndpoints.get(widget.id)}">
       </sakai-sitestats-widget-metrics>
       <sakai-sitestats-highlights class="sitestats-highlights"
-                                  th:if="${widget.highlightsConfigured and !#lists.isEmpty(widget.highlights)}"
-                                  th:attr="charts=${widgetHighlightsJson.get(widget.id)}">
+                                  th:if="${widget.highlightsConfigured}"
+                                  th:attr="endpoint=${highlightEndpoints.get(widget.id)}">
       </sakai-sitestats-highlights>
       <sakai-sitestats-widget-tab class="sitestats-widget-tab"
                                   th:each="tab : ${widget.tabs}"

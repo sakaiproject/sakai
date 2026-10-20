@@ -91,6 +91,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsChartPoint;
 import org.sakaiproject.sitestats.api.view.SiteStatsFilter;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
@@ -396,10 +397,13 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		db.insertObject(presenceStat(SITE_ID, OTHER_USER_ID, today, 90000L));
 
 		SiteStatsOverview overview = service.getOverview(SITE_ID);
+		assertTrue(widget(overview, WIDGET_PRESENCE_ACCESS).getHighlights().isEmpty());
+		assertTrue(widget(overview, WIDGET_PRESENCE_ACCESS).isHighlightsConfigured());
 
-		assertEquals(1, widget(overview, WIDGET_PRESENCE_ACCESS).getHighlights().size());
-		List<SiteStatsChartPoint> points = widget(overview, WIDGET_PRESENCE_ACCESS)
-				.getHighlights().get(0).getDatasets().get(0).getPoints();
+		List<SiteStatsChart> highlights = service.getWidgetHighlights(SITE_ID, WIDGET_PRESENCE_ACCESS,
+				new SiteStatsReportRequest());
+		assertEquals(1, highlights.size());
+		List<SiteStatsChartPoint> points = highlights.get(0).getDatasets().get(0).getPoints();
 		assertEquals(30, points.size());
 		long totalMinutes = 0L;
 		for (SiteStatsChartPoint point : points) {
@@ -423,14 +427,19 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertEquals(Integer.valueOf(50),
 				snapshot(WIDGET_VISITS, METRIC_VISITS_USERS_WITH_VISITS).getPercentage());
 		assertTrue(widget(overview, WIDGET_VISITS).getHighlights().isEmpty());
+		assertTrue(service.getWidgetHighlights(SITE_ID, WIDGET_VISITS, new SiteStatsReportRequest()).isEmpty());
 
 		// Keep the visit inside the reporting window when server and user dates differ.
 		LocalDate yesterday = LocalDate.now(userTimeService.getLocalTimeZone().toZoneId()).minusDays(1);
 		db.insertObject(visitStat(SITE_ID, Date.valueOf(yesterday), 2, 1));
 		overview = service.getOverview(SITE_ID);
-		assertEquals(1, widget(overview, WIDGET_VISITS).getHighlights().size());
-		assertEquals(30, widget(overview, WIDGET_VISITS).getHighlights().get(0).getDatasets().get(0).getPoints().size());
-		assertTrue(widget(overview, WIDGET_VISITS).getHighlights().get(0).isCompact());
+		assertTrue(widget(overview, WIDGET_VISITS).getHighlights().isEmpty());
+		assertTrue(widget(overview, WIDGET_VISITS).isHighlightsConfigured());
+		List<SiteStatsChart> visitHighlights = service.getWidgetHighlights(SITE_ID, WIDGET_VISITS,
+				new SiteStatsReportRequest());
+		assertEquals(1, visitHighlights.size());
+		assertEquals(30, visitHighlights.get(0).getDatasets().get(0).getPoints().size());
+		assertTrue(visitHighlights.get(0).isCompact());
 
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setDate(ReportManager.WHEN_ALL);

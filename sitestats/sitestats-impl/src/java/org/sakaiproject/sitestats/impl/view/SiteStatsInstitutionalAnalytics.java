@@ -343,11 +343,23 @@ public class SiteStatsInstitutionalAnalytics {
 		if (siteIds == null || siteIds.isEmpty()) {
 			return QueryResult.ok(visits);
 		}
+		for (List<String> batch : siteIdBatches(siteIds)) {
+			QueryResult<Map<String, Long>> batchResult = loadVisitsBySiteBatch(batch, from, to);
+			if (batchResult.failed) {
+				return QueryResult.failed();
+			}
+			visits.putAll(batchResult.value);
+		}
+		return QueryResult.ok(visits);
+	}
+
+	private QueryResult<Map<String, Long>> loadVisitsBySiteBatch(List<String> siteIds, Date from, Date to) {
+		Map<String, Long> visits = new HashMap<String, Long>();
 		String table = sstTable("SST_SITEVISITS");
 		StringBuilder sql = new StringBuilder(
 				"select SITE_ID, sum(TOTAL_VISITS) from ").append(table).append(" where 1=1");
 		List<Object> params = new ArrayList<Object>();
-		boolean scopedInSql = appendSiteIdInClause(sql, params, siteIds);
+		appendSiteIdInClause(sql, params, siteIds);
 		appendDateBounds(sql, params, "VISITS_DATE", from, to);
 		sql.append(" group by SITE_ID");
 		try {
@@ -366,10 +378,7 @@ public class SiteStatsInstitutionalAnalytics {
 				for (Object row : rows) {
 					if (row instanceof Object[]) {
 						Object[] values = (Object[]) row;
-						String siteId = String.valueOf(values[0]);
-						if (scopedInSql || siteIds.contains(siteId)) {
-							visits.put(siteId, (Long) values[1]);
-						}
+						visits.put(String.valueOf(values[0]), (Long) values[1]);
 					}
 				}
 			}
@@ -386,13 +395,26 @@ public class SiteStatsInstitutionalAnalytics {
 		if (siteIds == null || siteIds.isEmpty()) {
 			return QueryResult.ok(out);
 		}
+		for (List<String> batch : siteIdBatches(siteIds)) {
+			QueryResult<List<Object[]>> batchResult = loadSiteActivityRowsBatch(events, batch, from, to);
+			if (batchResult.failed) {
+				return QueryResult.failed();
+			}
+			out.addAll(batchResult.value);
+		}
+		return QueryResult.ok(out);
+	}
+
+	private QueryResult<List<Object[]>> loadSiteActivityRowsBatch(List<String> events, List<String> siteIds,
+			Date from, Date to) {
+		List<Object[]> out = new ArrayList<Object[]>();
 		String table = sstTable("SST_SITEACTIVITY");
 		StringBuilder sql = new StringBuilder(
 				"select SITE_ID, EVENT_ID, sum(ACTIVITY_COUNT) from ").append(table)
 				.append(" where EVENT_ID in (").append(placeholders(events.size())).append(")");
 		List<Object> params = new ArrayList<Object>();
 		params.addAll(events);
-		boolean scopedInSql = appendSiteIdInClause(sql, params, siteIds);
+		appendSiteIdInClause(sql, params, siteIds);
 		appendDateBounds(sql, params, "ACTIVITY_DATE", from, to);
 		sql.append(" group by SITE_ID, EVENT_ID");
 		try {
@@ -413,11 +435,7 @@ public class SiteStatsInstitutionalAnalytics {
 			if (rows != null) {
 				for (Object row : rows) {
 					if (row instanceof Object[]) {
-						Object[] values = (Object[]) row;
-						String siteId = (String) values[0];
-						if (scopedInSql || siteIds.contains(siteId)) {
-							out.add(values);
-						}
+						out.add((Object[]) row);
 					}
 				}
 			}
@@ -428,19 +446,18 @@ public class SiteStatsInstitutionalAnalytics {
 		}
 	}
 
-	/**
-	 * When the scoped site set is small enough, restrict the aggregate in SQL.
-	 * Larger sets stay filtered in memory to avoid oversized IN lists.
-	 *
-	 * @return true when SITE_ID IN (...) was appended
-	 */
-	private boolean appendSiteIdInClause(StringBuilder sql, List<Object> params, Collection<String> siteIds) {
-		if (siteIds == null || siteIds.isEmpty() || siteIds.size() > MAX_SITE_IN_CLAUSE) {
-			return false;
+	private List<List<String>> siteIdBatches(Collection<String> siteIds) {
+		List<String> ids = new ArrayList<String>(siteIds);
+		List<List<String>> batches = new ArrayList<List<String>>();
+		for (int i = 0; i < ids.size(); i += MAX_SITE_IN_CLAUSE) {
+			batches.add(ids.subList(i, Math.min(i + MAX_SITE_IN_CLAUSE, ids.size())));
 		}
+		return batches;
+	}
+
+	private void appendSiteIdInClause(StringBuilder sql, List<Object> params, Collection<String> siteIds) {
 		sql.append(" and SITE_ID in (").append(placeholders(siteIds.size())).append(")");
 		params.addAll(siteIds);
-		return true;
 	}
 
 	private void appendDateBounds(StringBuilder sql, List<Object> params, String column, Date from, Date to) {

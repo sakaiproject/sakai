@@ -193,9 +193,13 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 		stubEssayWithOneGrade();
 
 		SiteStatsOverview overview = service.getOverview(SITE_ID);
-		SiteStatsChart chart = widget(overview, WIDGET_GRADES).getHighlights().get(0);
+		assertTrue(widget(overview, WIDGET_GRADES).getHighlights().isEmpty());
+		assertTrue(widget(overview, WIDGET_GRADES).isHighlightsConfigured());
+		List<SiteStatsChart> highlights = service.getWidgetHighlights(SITE_ID, WIDGET_GRADES,
+				new SiteStatsReportRequest());
+		SiteStatsChart chart = highlights.get(0);
 
-		assertEquals(1, widget(overview, WIDGET_GRADES).getHighlights().size());
+		assertEquals(1, highlights.size());
 		assertTrue(chart.isCompact());
 		assertTrue(chart.isHorizontal());
 		assertTrue(chart.isStacked());
@@ -217,7 +221,9 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
 
 		SiteStatsOverview overview = service.getOverview(SITE_ID);
-		SiteStatsChart chart = widget(overview, WIDGET_STUDENT_GRADES).getHighlights().get(0);
+		assertTrue(widget(overview, WIDGET_STUDENT_GRADES).isHighlightsConfigured());
+		SiteStatsChart chart = service.getWidgetHighlights(SITE_ID, WIDGET_STUDENT_GRADES,
+				new SiteStatsReportRequest()).get(0);
 
 		assertEquals(Integer.valueOf(1), chart.getDatasets().get(0).getPoints().get(0).getY());
 		assertEquals(Integer.valueOf(1), chart.getDatasets().get(0).getPoints().get(1).getY());
@@ -230,8 +236,8 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 	public void instructorOverviewSplitsWithGradesBetweenCompleteAndPartial() {
 		stubTwoItemsWithOnePartialGrade();
 
-		SiteStatsOverview overview = service.getOverview(SITE_ID);
-		SiteStatsChart chart = widget(overview, WIDGET_GRADES).getHighlights().get(0);
+		SiteStatsChart chart = service.getWidgetHighlights(SITE_ID, WIDGET_GRADES,
+				new SiteStatsReportRequest()).get(0);
 
 		assertEquals(Integer.valueOf(2), chart.getDatasets().get(0).getPoints().get(0).getY());
 		assertEquals(Integer.valueOf(0), chart.getDatasets().get(0).getPoints().get(1).getY());
@@ -479,8 +485,8 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 				snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_BELOW_THRESHOLD).getPrimary());
 		assertEquals(Integer.valueOf(50), snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_COMPLETE).getPercentage());
 
-		SiteStatsOverview overview = service.getOverview(SITE_ID);
-		SiteStatsChart funnel = widget(overview, WIDGET_STUDENT_GRADES).getHighlights().get(0);
+		SiteStatsChart funnel = service.getWidgetHighlights(SITE_ID, WIDGET_STUDENT_GRADES,
+				new SiteStatsReportRequest()).get(0);
 		assertEquals(Integer.valueOf(0), funnel.getDatasets().get(0).getPoints().get(2).getY());
 	}
 
@@ -627,10 +633,10 @@ public class SiteStatsGradesViewServiceTest extends AbstractTransactionalJUnit4S
 		assertEquals("1 / 1", snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_GRADED).getPrimary());
 		assertEquals("8 / 10", snapshot(WIDGET_STUDENT_GRADES, METRIC_STUDENT_GRADES_COMPLETE).getPrimary());
 
-		SiteStatsOverview overview = service.getOverview(SITE_ID);
-		assertEquals(1, widget(overview, WIDGET_STUDENT_GRADES).getHighlights().size());
-		assertEquals(Integer.valueOf(1), widget(overview, WIDGET_STUDENT_GRADES).getHighlights().get(0)
-				.getDatasets().get(0).getPoints().get(1).getY());
+		List<SiteStatsChart> highlights = service.getWidgetHighlights(SITE_ID, WIDGET_STUDENT_GRADES,
+				new SiteStatsReportRequest());
+		assertEquals(1, highlights.size());
+		assertEquals(Integer.valueOf(1), highlights.get(0).getDatasets().get(0).getPoints().get(1).getY());
 	}
 
 	@Test

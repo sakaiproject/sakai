@@ -25,6 +25,7 @@ import static org.sakaiproject.sitestats.impl.view.SiteStatsUserAgentClassifier.
 import static org.sakaiproject.sitestats.impl.view.SiteStatsUserAgentClassifier.DEVICE_MOBILE;
 import static org.sakaiproject.sitestats.impl.view.SiteStatsUserAgentClassifier.DEVICE_TABLET;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -35,10 +36,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
@@ -60,13 +64,24 @@ public class SiteStatsClientEnvironmentAnalytics {
 
 	public static final String PROP_ENABLED = "sitestats.institutional.clientEnv.enabled";
 
+	private static final String ROLLUP_CACHE = SiteStatsClientEnvironmentAnalytics.class.getName() + "#rollup";
 	private static final int MAX_SESSION_ROWS = 50000;
 
 	@Setter private SqlService sqlService;
 	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private CacheManager cacheManager;
 	@Setter private SiteStatsWidgetContext context;
 	@Setter private WidgetFilterCatalog filterCatalog;
 	@Setter private WidgetMetricSupport metricSupport;
+
+	private Cache rollupCache;
+	private final ConcurrentHashMap<String, Object> loadLocks = new ConcurrentHashMap<String, Object>();
+
+	public void init() {
+		if (cacheManager != null) {
+			rollupCache = cacheManager.getCache(ROLLUP_CACHE);
+		}
+	}
 
 	boolean isEnabled() {
 		return serverConfigurationService == null
@@ -214,7 +229,35 @@ public class SiteStatsClientEnvironmentAnalytics {
 		}
 		Date from = filterCatalog == null ? null : filterCatalog.periodFrom(request);
 		Date to = filterCatalog == null ? null : filterCatalog.periodTo(request);
-		return loadRollup(from, to);
+		String cacheKey = periodCacheKey(from, to);
+		ClientRollup cached = cachedRollup(cacheKey);
+		if (cached != null) {
+			return cached;
+		}
+		Object lock = loadLocks.computeIfAbsent(cacheKey, key -> new Object());
+		synchronized (lock) {
+			cached = cachedRollup(cacheKey);
+			if (cached != null) {
+				return cached;
+			}
+			ClientRollup loaded = loadRollup(from, to);
+			if (!loaded.failed && rollupCache != null) {
+				rollupCache.put(cacheKey, loaded);
+			}
+			return loaded;
+		}
+	}
+
+	private ClientRollup cachedRollup(String cacheKey) {
+		if (rollupCache == null) {
+			return null;
+		}
+		return rollupCache.get(cacheKey, ClientRollup.class);
+	}
+
+	private static String periodCacheKey(Date from, Date to) {
+		return (from == null ? "" : Long.toString(from.getTime())) + "|"
+				+ (to == null ? "" : Long.toString(to.getTime()));
 	}
 
 	private ClientRollup loadRollup(Date from, Date to) {
@@ -359,7 +402,8 @@ public class SiteStatsClientEnvironmentAnalytics {
 		return context == null ? key : context.message(key);
 	}
 
-	private static final class ClientRollup {
+	private static final class ClientRollup implements Serializable {
+		private static final long serialVersionUID = 1L;
 		boolean failed;
 		long total;
 		Map<String, Long> devices = new HashMap<String, Long>();

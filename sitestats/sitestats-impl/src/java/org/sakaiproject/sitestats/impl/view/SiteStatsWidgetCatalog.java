@@ -23,6 +23,7 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_COMM
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_INSTITUTIONAL_AUTHORING_ACTIVITY;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_INSTITUTIONAL_LEARNER_ACTIVITY;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_INSTITUTIONAL_PRESENCE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_PLATFORM_HEALTH;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_COMMUNICATION;
 
 import java.util.ArrayList;
@@ -229,7 +230,7 @@ public class SiteStatsWidgetCatalog {
 		}
 		widget.setTabs(tabs);
 		widget.setMetrics(toMetrics(siteId, spec, userId, false, null));
-		widget.setHighlights(toHighlights(siteId, spec, userId, null));
+		widget.setHighlights(Collections.emptyList());
 		widget.setToolFilters(support.getFilterCatalog().toolFilters(siteId, spec.getId(), spec.getToolFilterIds()));
 		widget.setHighlightsConfigured(spec.getHighlights() != null && !spec.getHighlights().isEmpty());
 		return widget;
@@ -272,6 +273,10 @@ public class SiteStatsWidgetCatalog {
 		if (!institutional.isEmpty()) {
 			return institutional;
 		}
+		Map<String, WidgetMetricValue> platform = platformMetricValues(spec, request);
+		if (!platform.isEmpty()) {
+			return platform;
+		}
 		return clientEnvironmentMetricValues(spec, request);
 	}
 
@@ -301,6 +306,13 @@ public class SiteStatsWidgetCatalog {
 			return support.getInstitutionalAnalytics().authoringMetricValues(safe);
 		}
 		return Collections.emptyMap();
+	}
+
+	private Map<String, WidgetMetricValue> platformMetricValues(WidgetSpec spec, SiteStatsReportRequest request) {
+		if (support.getPlatformHealthAnalytics() == null || !WIDGET_PLATFORM_HEALTH.equals(spec.getId())) {
+			return Collections.emptyMap();
+		}
+		return support.getPlatformHealthAnalytics().metricValues(SiteStatsReportRequest.normalized(request));
 	}
 
 	private Map<String, WidgetMetricValue> clientEnvironmentMetricValues(WidgetSpec spec, SiteStatsReportRequest request) {

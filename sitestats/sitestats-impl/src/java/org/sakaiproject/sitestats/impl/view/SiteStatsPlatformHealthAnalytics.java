@@ -16,6 +16,12 @@
 package org.sakaiproject.sitestats.impl.view;
 
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.CHART_COLOR_INFO;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PLATFORM_LOGINS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PLATFORM_NEW_USERS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PLATFORM_SITES_CREATED;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PLATFORM_SITES_DELETED;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PLATFORM_TOP_TOOL;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_PLATFORM_UNIQUE_LOGINS;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -24,7 +30,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Setter;
 
@@ -48,37 +56,67 @@ public class SiteStatsPlatformHealthAnalytics {
 	@Setter private SiteStatsWidgetContext context;
 	@Setter private WidgetMetricSupport metricSupport;
 
+	Map<String, WidgetMetricValue> metricValues(SiteStatsReportRequest request) {
+		PlatformSnapshot snapshot = snapshot();
+		Map<String, WidgetMetricValue> values = new LinkedHashMap<String, WidgetMetricValue>();
+		values.put(METRIC_PLATFORM_LOGINS, loginsValue(snapshot));
+		values.put(METRIC_PLATFORM_UNIQUE_LOGINS, uniqueLoginsValue(snapshot));
+		values.put(METRIC_PLATFORM_SITES_CREATED, sitesCreatedValue(snapshot));
+		values.put(METRIC_PLATFORM_SITES_DELETED, sitesDeletedValue(snapshot));
+		values.put(METRIC_PLATFORM_NEW_USERS, newUsersValue(snapshot));
+		values.put(METRIC_PLATFORM_TOP_TOOL, topToolValue(snapshot));
+		return values;
+	}
+
 	WidgetMetricValue loginsValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = sumLastDays(serverWideReportManager.getDailyTotalLogins(), LAST_DAYS, 1);
-		return WidgetMetricValue.of(metricSupport.formatNumber(total));
+		return loginsValue(snapshot());
 	}
 
 	WidgetMetricValue uniqueLoginsValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = serverWideReportManager.getUniqueLoginsInLastDays(LAST_DAYS);
-		return WidgetMetricValue.of(metricSupport.formatNumber(total));
+		return uniqueLoginsValue(snapshot());
 	}
 
 	WidgetMetricValue sitesCreatedValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = sumPeriodField(serverWideReportManager.getSiteCreatedDeletedStats("daily"), LAST_DAYS, 1);
-		return WidgetMetricValue.of(metricSupport.formatNumber(total));
+		return sitesCreatedValue(snapshot());
 	}
 
 	WidgetMetricValue sitesDeletedValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = sumPeriodField(serverWideReportManager.getSiteCreatedDeletedStats("daily"), LAST_DAYS, 2);
-		return WidgetMetricValue.of(metricSupport.formatNumber(total));
+		return sitesDeletedValue(snapshot());
 	}
 
 	WidgetMetricValue newUsersValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = sumPeriodField(serverWideReportManager.getNewUserStats("daily"), LAST_DAYS, 1);
-		return WidgetMetricValue.of(metricSupport.formatNumber(total));
+		return newUsersValue(snapshot());
 	}
 
 	WidgetMetricValue topToolValue(String siteId, String userId, SiteStatsReportRequest request) {
-		List<ServerWideStatsRecord> tools = serverWideReportManager.getToolCount();
-		if (tools == null || tools.isEmpty()) {
+		return topToolValue(snapshot());
+	}
+
+	private WidgetMetricValue loginsValue(PlatformSnapshot snapshot) {
+		return WidgetMetricValue.of(metricSupport.formatNumber(sumLastDays(snapshot.dailyLogins, LAST_DAYS, 1)));
+	}
+
+	private WidgetMetricValue uniqueLoginsValue(PlatformSnapshot snapshot) {
+		return WidgetMetricValue.of(metricSupport.formatNumber(snapshot.uniqueLogins));
+	}
+
+	private WidgetMetricValue sitesCreatedValue(PlatformSnapshot snapshot) {
+		return WidgetMetricValue.of(metricSupport.formatNumber(sumLastDays(snapshot.siteCreatedDeleted, LAST_DAYS, 1)));
+	}
+
+	private WidgetMetricValue sitesDeletedValue(PlatformSnapshot snapshot) {
+		return WidgetMetricValue.of(metricSupport.formatNumber(sumLastDays(snapshot.siteCreatedDeleted, LAST_DAYS, 2)));
+	}
+
+	private WidgetMetricValue newUsersValue(PlatformSnapshot snapshot) {
+		return WidgetMetricValue.of(metricSupport.formatNumber(sumLastDays(snapshot.newUsers, LAST_DAYS, 1)));
+	}
+
+	private WidgetMetricValue topToolValue(PlatformSnapshot snapshot) {
+		if (snapshot.tools == null || snapshot.tools.isEmpty()) {
 			return WidgetMetricValue.of("-");
 		}
-		ServerWideStatsRecord top = tools.get(0);
+		ServerWideStatsRecord top = snapshot.tools.get(0);
 		String toolId = stringAt(top, 0);
 		String label = toolLabel(toolId);
 		Number count = numberAt(top, 1);
@@ -98,30 +136,11 @@ public class SiteStatsPlatformHealthAnalytics {
 	}
 
 	SiteStatsChart loginTrendHighlight(String siteId, String userId, SiteStatsReportRequest request) {
-		SiteStatsChart chart = new SiteStatsChart();
-		chart.setTitle(message("overview_title_platform_login_trend"));
-		chart.setType("line");
-		chart.setXKey("label");
-		chart.setYKey("value");
-		SiteStatsChartDataset dataset = new SiteStatsChartDataset();
-		dataset.setKey("logins");
-		dataset.setLabel(message("legend_logins"));
-		dataset.setColor(CHART_COLOR_INFO);
-		for (ServerWideStatsRecord row : rowsInLastDays(serverWideReportManager.getDailyTotalLogins(), LAST_DAYS)) {
-			SiteStatsChartPoint point = new SiteStatsChartPoint();
-			LocalDate date = recordDate(row);
-			String label = date == null ? stringAt(row, 0) : date.toString();
-			point.setX(label);
-			point.setLabel(label);
-			Number value = numberAt(row, 1);
-			point.setY(Double.valueOf(value == null ? 0d : value.doubleValue()));
-			dataset.getPoints().add(point);
-		}
-		chart.getDatasets().add(dataset);
-		return chart;
+		return loginTrendChart(snapshot().dailyLogins);
 	}
 
 	SiteStatsReportView loginsByDateReport(String siteId, SiteStatsReportRequest request, String userId) {
+		List<ServerWideStatsRecord> dailyLogins = snapshot().dailyLogins;
 		SiteStatsReportView view = new SiteStatsReportView();
 		view.setSiteId(siteId);
 		view.setTitle(message("overview_title_platform_login_trend"));
@@ -131,7 +150,7 @@ public class SiteStatsPlatformHealthAnalytics {
 			table.setCaption(view.getTitle());
 			table.getColumns().add(column("date", "th_date", "text"));
 			table.getColumns().add(column("logins", "legend_logins", "number"));
-			for (ServerWideStatsRecord row : rowsInLastDays(serverWideReportManager.getDailyTotalLogins(), LAST_DAYS)) {
+			for (ServerWideStatsRecord row : rowsInLastDays(dailyLogins, LAST_DAYS)) {
 				SiteStatsTableRow tableRow = new SiteStatsTableRow();
 				LocalDate date = recordDate(row);
 				tableRow.getCells().put("date", textCell(date == null ? stringAt(row, 0) : date.toString()));
@@ -142,12 +161,13 @@ public class SiteStatsPlatformHealthAnalytics {
 			view.setTable(table);
 		}
 		if (request.isIncludeChart()) {
-			view.setChart(loginTrendHighlight(siteId, userId, request));
+			view.setChart(loginTrendChart(dailyLogins));
 		}
 		return view;
 	}
 
 	SiteStatsReportView toolInstallsReport(String siteId, SiteStatsReportRequest request, String userId) {
+		List<ServerWideStatsRecord> tools = snapshot().tools;
 		SiteStatsReportView view = new SiteStatsReportView();
 		view.setSiteId(siteId);
 		view.setTitle(message("overview_title_platform_tool_installs"));
@@ -157,7 +177,6 @@ public class SiteStatsPlatformHealthAnalytics {
 			table.setCaption(view.getTitle());
 			table.getColumns().add(column("tool", "th_tool", "text"));
 			table.getColumns().add(column("count", "th_installs", "number"));
-			List<ServerWideStatsRecord> tools = serverWideReportManager.getToolCount();
 			if (tools != null) {
 				int limit = Math.min(20, tools.size());
 				for (int i = 0; i < limit; i++) {
@@ -173,12 +192,36 @@ public class SiteStatsPlatformHealthAnalytics {
 			view.setTable(table);
 		}
 		if (request.isIncludeChart()) {
-			view.setChart(toolInstallsChart());
+			view.setChart(toolInstallsChart(tools));
 		}
 		return view;
 	}
 
-	private SiteStatsChart toolInstallsChart() {
+	private SiteStatsChart loginTrendChart(List<ServerWideStatsRecord> dailyLogins) {
+		SiteStatsChart chart = new SiteStatsChart();
+		chart.setTitle(message("overview_title_platform_login_trend"));
+		chart.setType("line");
+		chart.setXKey("label");
+		chart.setYKey("value");
+		SiteStatsChartDataset dataset = new SiteStatsChartDataset();
+		dataset.setKey("logins");
+		dataset.setLabel(message("legend_logins"));
+		dataset.setColor(CHART_COLOR_INFO);
+		for (ServerWideStatsRecord row : rowsInLastDays(dailyLogins, LAST_DAYS)) {
+			SiteStatsChartPoint point = new SiteStatsChartPoint();
+			LocalDate date = recordDate(row);
+			String label = date == null ? stringAt(row, 0) : date.toString();
+			point.setX(label);
+			point.setLabel(label);
+			Number value = numberAt(row, 1);
+			point.setY(Double.valueOf(value == null ? 0d : value.doubleValue()));
+			dataset.getPoints().add(point);
+		}
+		chart.getDatasets().add(dataset);
+		return chart;
+	}
+
+	private SiteStatsChart toolInstallsChart(List<ServerWideStatsRecord> tools) {
 		SiteStatsChart chart = new SiteStatsChart();
 		chart.setTitle(message("overview_title_platform_tool_installs"));
 		chart.setType("bar");
@@ -189,7 +232,6 @@ public class SiteStatsPlatformHealthAnalytics {
 		dataset.setKey("installs");
 		dataset.setLabel(message("th_installs"));
 		dataset.setColor(CHART_COLOR_INFO);
-		List<ServerWideStatsRecord> tools = serverWideReportManager.getToolCount();
 		int limit = tools == null ? 0 : Math.min(15, tools.size());
 		for (int i = 0; i < limit; i++) {
 			ServerWideStatsRecord row = tools.get(i);
@@ -205,6 +247,20 @@ public class SiteStatsPlatformHealthAnalytics {
 		return chart;
 	}
 
+	private PlatformSnapshot snapshot() {
+		PlatformSnapshot snapshot = new PlatformSnapshot();
+		snapshot.dailyLogins = nullToEmpty(serverWideReportManager.getDailyTotalLogins());
+		snapshot.uniqueLogins = serverWideReportManager.getUniqueLoginsInLastDays(LAST_DAYS);
+		snapshot.siteCreatedDeleted = nullToEmpty(serverWideReportManager.getSiteCreatedDeletedStats("daily"));
+		snapshot.newUsers = nullToEmpty(serverWideReportManager.getNewUserStats("daily"));
+		snapshot.tools = nullToEmpty(serverWideReportManager.getToolCount());
+		return snapshot;
+	}
+
+	private static List<ServerWideStatsRecord> nullToEmpty(List<ServerWideStatsRecord> rows) {
+		return rows == null ? Collections.emptyList() : rows;
+	}
+
 	private long sumLastDays(List<ServerWideStatsRecord> rows, int days, int valueIndex) {
 		long total = 0L;
 		for (ServerWideStatsRecord row : rowsInLastDays(rows, days)) {
@@ -214,10 +270,6 @@ public class SiteStatsPlatformHealthAnalytics {
 			}
 		}
 		return total;
-	}
-
-	private long sumPeriodField(List<ServerWideStatsRecord> rows, int days, int valueIndex) {
-		return sumLastDays(rows, days, valueIndex);
 	}
 
 	private List<ServerWideStatsRecord> rowsInLastDays(List<ServerWideStatsRecord> rows, int days) {
@@ -292,5 +344,13 @@ public class SiteStatsPlatformHealthAnalytics {
 
 	private String message(String key) {
 		return context == null ? key : context.message(key);
+	}
+
+	private static final class PlatformSnapshot {
+		List<ServerWideStatsRecord> dailyLogins = Collections.emptyList();
+		long uniqueLogins;
+		List<ServerWideStatsRecord> siteCreatedDeleted = Collections.emptyList();
+		List<ServerWideStatsRecord> newUsers = Collections.emptyList();
+		List<ServerWideStatsRecord> tools = Collections.emptyList();
 	}
 }
