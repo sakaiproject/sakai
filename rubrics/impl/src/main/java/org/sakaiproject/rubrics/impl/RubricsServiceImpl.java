@@ -2087,6 +2087,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
+        if (StringUtils.isBlank(currentUserId)) {
+            return false;
+        }
+
         if (isEvaluator(siteId)) {
             return true;
         }
@@ -2116,6 +2120,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     private boolean canGrade(EvaluationTransferBean eval, String siteId) {
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(currentUserId)) {
+            return false;
+        }
 
         if (isEvaluator(siteId)) {
             return true;

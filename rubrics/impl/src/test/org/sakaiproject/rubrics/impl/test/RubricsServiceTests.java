@@ -708,6 +708,17 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void anonymousUserCannotSavePeerEvaluation() {
+
+        switchToUser1();
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(null);
+        EvaluationTransferBean evaluation = new EvaluationTransferBean();
+        evaluation.setPeerOrSelf(true);
+        evaluation.setEvaluatedItemOwnerType(EvaluatedItemOwnerType.USER);
+        assertThrows(SecurityException.class, () -> rubricsService.saveEvaluation(evaluation, siteId));
+    }
+
+    @Test
     public void saveEvaluation() {
 
         switchToInstructor();
