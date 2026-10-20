@@ -41,10 +41,83 @@ public class SiteStatsUserAgentClassifierTest {
 	}
 
 	@Test
+	public void classifiesEdgeOnAndroidBeforeChrome() {
+		assertClassification(
+				"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 EdgA/120.0.0.0",
+				SiteStatsUserAgentClassifier.DEVICE_MOBILE, SiteStatsUserAgentClassifier.OS_ANDROID,
+				SiteStatsUserAgentClassifier.BROWSER_EDGE);
+	}
+
+	@Test
+	public void classifiesEdgeOnIphoneBeforeSafari() {
+		assertClassification(
+				"Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) EdgiOS/120.0.0.0 Version/17.0 Mobile/15E148 Safari/605.1.15",
+				SiteStatsUserAgentClassifier.DEVICE_MOBILE, SiteStatsUserAgentClassifier.OS_IOS,
+				SiteStatsUserAgentClassifier.BROWSER_EDGE);
+	}
+
+	@Test
+	public void classifiesEdgeOnDesktopBeforeChrome() {
+		assertClassification(
+				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+				SiteStatsUserAgentClassifier.DEVICE_DESKTOP, SiteStatsUserAgentClassifier.OS_WINDOWS,
+				SiteStatsUserAgentClassifier.BROWSER_EDGE);
+	}
+
+	@Test
+	public void classifiesReducedChromeOnAndroidPhone() {
+		assertClassification(
+				"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+				SiteStatsUserAgentClassifier.DEVICE_MOBILE, SiteStatsUserAgentClassifier.OS_ANDROID,
+				SiteStatsUserAgentClassifier.BROWSER_CHROME);
+	}
+
+	@Test
+	public void classifiesReducedChromeOnAndroidTablet() {
+		assertClassification(
+				"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+				SiteStatsUserAgentClassifier.DEVICE_TABLET, SiteStatsUserAgentClassifier.OS_ANDROID,
+				SiteStatsUserAgentClassifier.BROWSER_CHROME);
+	}
+
+	@Test
+	public void classifiesChromeOsSeparatelyFromLinux() {
+		assertClassification(
+				"Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+				SiteStatsUserAgentClassifier.DEVICE_DESKTOP, SiteStatsUserAgentClassifier.OS_CHROMEOS,
+				SiteStatsUserAgentClassifier.BROWSER_CHROME);
+	}
+
+	@Test
+	public void desktopModeAndroidTabletUsesReportedLinuxPlatform() {
+		// Chrome desktop mode hides Android and tablet tokens; the UA cannot identify the hardware.
+		assertClassification(
+				"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+				SiteStatsUserAgentClassifier.DEVICE_DESKTOP, SiteStatsUserAgentClassifier.OS_LINUX,
+				SiteStatsUserAgentClassifier.BROWSER_CHROME);
+	}
+
+	@Test
+	public void desktopModeIpadUsesReportedMacPlatform() {
+		// Safari desktop mode shares its platform tokens with macOS; do not guess iPad hardware.
+		assertClassification(
+				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+				SiteStatsUserAgentClassifier.DEVICE_DESKTOP, SiteStatsUserAgentClassifier.OS_MACOS,
+				SiteStatsUserAgentClassifier.BROWSER_SAFARI);
+	}
+
+	@Test
 	public void classifiesBlankAsOther() {
 		SiteStatsUserAgentClassifier.Classification c = SiteStatsUserAgentClassifier.classify(null);
 		assertEquals(SiteStatsUserAgentClassifier.DEVICE_OTHER, c.getDevice());
 		assertEquals(SiteStatsUserAgentClassifier.OS_OTHER, c.getOs());
 		assertEquals(SiteStatsUserAgentClassifier.BROWSER_OTHER, c.getBrowser());
+	}
+
+	private void assertClassification(String userAgent, String device, String os, String browser) {
+		SiteStatsUserAgentClassifier.Classification classification = SiteStatsUserAgentClassifier.classify(userAgent);
+		assertEquals(device, classification.getDevice());
+		assertEquals(os, classification.getOs());
+		assertEquals(browser, classification.getBrowser());
 	}
 }
