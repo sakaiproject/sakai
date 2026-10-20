@@ -42,7 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class RubricRepositoryImpl extends SpringCrudRepositoryImpl<Rubric, Long> implements RubricRepository {
 
-
     @Autowired
     private EvaluationRepository evaluationRepository;
 
