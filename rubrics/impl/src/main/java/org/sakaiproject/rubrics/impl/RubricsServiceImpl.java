@@ -337,7 +337,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
 
         // SAK-42944 removing the soft-deleted associations
-        rubric.getAssociations().forEach(ass -> evaluationRepository.deleteByToolItemRubricAssociation_Id(ass.getId()));
+        rubric.getAssociations().forEach(ass -> deleteRubricEvaluationsForAssociation(ass.getId()));
 
         rubricRepository.delete(rubric);
         return true;
@@ -888,9 +888,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         ToolItemRubricAssociation association = associationRepository.findByToolIdAndItemId(toolId, itemId)
             .orElseThrow(() -> new IllegalArgumentException("No association for toolId " + toolId + " and itemId " + itemId));
 
-        int count = evaluationRepository.deleteByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId);
-
-        return count == 1;
+        List<Evaluation> evaluations = evaluationRepository.findAllByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId);
+        evaluations.forEach(this::deleteRubricEvaluation);
+        return evaluations.size() == 1;
     }
 
     @Transactional(readOnly = true)
@@ -1319,12 +1319,8 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         associationRepository.findByItemIdPrefix(toolId, itemId).forEach(assoc -> {
 
             if (securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteService.siteReference(assoc.getRubric().getOwnerId()))) {
-                try {
-                    evaluationRepository.deleteByToolItemRubricAssociation_Id(assoc.getId());
-                    associationRepository.delete(assoc);
-                } catch (Exception e) {
-                    log.warn("Error deleting rubric association for id {} : {}", itemId, e.toString());
-                }
+                deleteRubricEvaluationsForAssociation(assoc.getId());
+                associationRepository.delete(assoc);
             }
         });
     }
@@ -1369,7 +1365,12 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     }
 
     private void deleteRubricEvaluationsForAssociation(Long associationId) {
-        evaluationRepository.deleteByToolItemRubricAssociation_Id(associationId);
+        evaluationRepository.findByAssociationId(associationId).forEach(this::deleteRubricEvaluation);
+    }
+
+    private void deleteRubricEvaluation(Evaluation evaluation) {
+        returnedEvaluationRepository.deleteByOriginalEvaluationId(evaluation.getId());
+        evaluationRepository.delete(evaluation);
     }
 
     public void softDeleteRubricAssociation(String toolId, String id) {
@@ -1387,15 +1388,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     public void deleteRubricAssociation(String tool, String id) {
 
-        try {
-            getRubricAssociationCheckPermission(tool, id).ifPresent(assoc -> {
-
-                evaluationRepository.deleteByToolItemRubricAssociation_Id(assoc.getId());
-                associationRepository.delete(assoc);
-            });
-        } catch (Exception e) {
-            log.warn("Error deleting rubric association for tool {} and id {} : {}", tool, id, e.toString());
-        }
+        getRubricAssociationCheckPermission(tool, id).ifPresent(assoc -> {
+            deleteRubricEvaluationsForAssociation(assoc.getId());
+            associationRepository.delete(assoc);
+        });
     }
 
     public String createContextualFilename(RubricTransferBean rubric, String toolId, String itemId, String evaluatedItemId, String siteId) {
@@ -1924,10 +1920,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
 
         List<Evaluation> evaluations = evaluationRepository.findByOwnerId(siteId);
-        evaluations.stream().filter(e -> e.getStatus() == EvaluationStatus.RETURNED)
-                .map(Evaluation::getId)
-                .forEach(returnedEvaluationRepository::deleteByOriginalEvaluationId);
-        evaluations.forEach(evaluation -> {evaluationRepository.deleteById(evaluation.getId());});
+        evaluations.forEach(this::deleteRubricEvaluation);
         rubricRepository.deleteByOwnerId(siteId);
     }
 

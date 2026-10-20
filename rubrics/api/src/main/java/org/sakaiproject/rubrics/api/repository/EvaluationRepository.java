@@ -35,8 +35,7 @@ public interface EvaluationRepository extends SpringCrudRepository<Evaluation, L
     Optional<Evaluation> findByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId);
     Optional<Evaluation> findByAssociationIdAndEvaluatedItemIdAndOwner(Long associationId, String evaluatedItemId, String evaluatedItemOwnerId);
     Optional<Evaluation> findByAssociationIdAndUserId(Long associationId, String userId);
-    int deleteByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId);
-    int deleteByToolItemRubricAssociation_Id(Long associationId);
+    List<Evaluation> findAllByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId);
     int deleteByOwnerId(String ownerId);
     List<Evaluation> findByOwnerId(String ownerId);
 }

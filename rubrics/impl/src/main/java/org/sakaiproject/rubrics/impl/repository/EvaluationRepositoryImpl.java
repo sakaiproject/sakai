@@ -31,7 +31,6 @@ import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
@@ -108,31 +107,16 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         return session.createQuery(query).uniqueResultOptional();
     }
 
-    public int deleteByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId) {
+    public List<Evaluation> findAllByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId) {
 
         Session session = sessionFactory.getCurrentSession();
-
         CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<Evaluation> delete = cb.createCriteriaDelete(Evaluation.class);
-        Root<Evaluation> eval = delete.from(Evaluation.class);
-        delete.where(cb.and(cb.equal(eval.get("associationId"), associationId),
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> eval = query.from(Evaluation.class);
+        query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
                             cb.equal(eval.get("evaluatedItemId"), evaluatedItemId)));
-
-        return session.createQuery(delete).executeUpdate();
+        return session.createQuery(query).list();
     }
-
-    public int deleteByToolItemRubricAssociation_Id(Long associationId) {
-
-        Session session = sessionFactory.getCurrentSession();
-
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<Evaluation> delete = cb.createCriteriaDelete(Evaluation.class);
-        Root<Evaluation> eval = delete.from(Evaluation.class);
-        delete.where(cb.equal(eval.get("associationId"), associationId));
-        
-        return session.createQuery(delete).executeUpdate();
-    }
-
 
     @Override
     public int deleteByOwnerId(String ownerId) {
