@@ -846,6 +846,12 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
                 toolItemId, evaluation.getEvaluatedItemId()));
         assertTrue(pdfText.contains("export_adjusted: 1.5"));
 
+        when(resourceLoader.getLocale()).thenReturn(Locale.forLanguageTag("es"));
+        pdfText = extractPdfText(rubricsService.createPdf(siteId, rubric.getId(), AssignmentConstants.TOOL_ID,
+                toolItemId, evaluation.getEvaluatedItemId()));
+        assertTrue(pdfText.contains("export_adjusted: 1,5"));
+        when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
+
         rubric.setWeighted(true);
         rubric.getCriteria().get(0).setWeight(33.333F);
         rubric = rubricsService.saveRubric(rubric);
