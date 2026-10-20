@@ -185,6 +185,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (!criterion.ratings) criterion.ratings = [];
 
     criterion.ratings.splice(parseInt(ratingPos), 0, newRating);
+    this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
 
     this.letShareKnow();
     this.requestUpdate();

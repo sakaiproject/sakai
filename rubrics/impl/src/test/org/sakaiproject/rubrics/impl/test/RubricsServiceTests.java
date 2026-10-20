@@ -608,6 +608,17 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         rubricsService.copyCriterion(rubricBean.getId(), rubricBean.getCriteria().get(1).getId(), rubricBean.getVersion());
         rubricBean2 = rubricsService.getRubricsForSite(siteId).get(2);
         assertEquals(42D, rubricBean2.getMaxPoints(), 0);
+
+        RubricTransferBean weighted = rubricsService.createDefaultRubric(siteId);
+        weighted.setWeighted(true);
+        weighted.getCriteria().get(0).setWeight(100F);
+        weighted = rubricsService.saveRubric(weighted);
+        for (CriterionTransferBean criterion : weighted.getCriteria()) {
+            criterion.setWeight(50F);
+            criterion.setRubricVersion(weighted.getVersion());
+            weighted.setVersion(rubricsService.updateCriterion(criterion, siteId).getRubricVersion());
+        }
+        assertEquals(11D, rubricsService.getRubric(weighted.getId()).orElseThrow().getMaxPoints(), 0);
     }
 
     @Test
