@@ -27,6 +27,7 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.AuthenticationThrottledException;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,11 @@ import lombok.extern.slf4j.Slf4j;
 /** Shared, temporary backoff for password evidence only. No source-address limits. */
 @Slf4j
 public class PasswordLoginBackoff {
+    private static final int DEFAULT_THRESHOLD = 5;
+    private static final int DEFAULT_WINDOW_SECONDS = 900;
+    private static final int DEFAULT_MAX_DELAY_SECONDS = 16;
+    private static final String INVALID_LOGIN = "Invalid Login: Either user not found or password incorrect.";
+
     @Setter private Ignite ignite;
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private Clock clock = Clock.systemUTC();
@@ -44,12 +50,22 @@ public class PasswordLoginBackoff {
     private long maxDelayMillis;
 
     public void init() {
-        threshold = serverConfigurationService.getInt("login.password.backoff.threshold", 5);
-        int windowSeconds = serverConfigurationService.getInt("login.password.backoff.windowSeconds", 900);
-        int maxDelaySeconds = serverConfigurationService.getInt("login.password.backoff.maxDelaySeconds", 16);
-        if (threshold < 1 || threshold > 100 || maxDelaySeconds < 2 || maxDelaySeconds > 16
-                || windowSeconds <= maxDelaySeconds) {
-            throw new IllegalArgumentException("Invalid password login backoff configuration");
+        threshold = serverConfigurationService.getInt("login.password.backoff.threshold", DEFAULT_THRESHOLD);
+        if (threshold < 1 || threshold > 100) {
+            log.warn("Invalid login.password.backoff.threshold {}, using {}", threshold, DEFAULT_THRESHOLD);
+            threshold = DEFAULT_THRESHOLD;
+        }
+        int maxDelaySeconds = serverConfigurationService.getInt("login.password.backoff.maxDelaySeconds", DEFAULT_MAX_DELAY_SECONDS);
+        if (maxDelaySeconds < 2 || maxDelaySeconds > DEFAULT_MAX_DELAY_SECONDS) {
+            log.warn("Invalid login.password.backoff.maxDelaySeconds {}, using {}", maxDelaySeconds, DEFAULT_MAX_DELAY_SECONDS);
+            maxDelaySeconds = DEFAULT_MAX_DELAY_SECONDS;
+        }
+        int windowSeconds = serverConfigurationService.getInt("login.password.backoff.windowSeconds", DEFAULT_WINDOW_SECONDS);
+        if (windowSeconds <= maxDelaySeconds) {
+            // The cache expiry in ignite-components.xml reads this property directly and is not corrected here.
+            log.warn("Invalid login.password.backoff.windowSeconds {}, must exceed maxDelaySeconds {}; using {}",
+                    windowSeconds, maxDelaySeconds, DEFAULT_WINDOW_SECONDS);
+            windowSeconds = DEFAULT_WINDOW_SECONDS;
         }
         windowMillis = TimeUnit.SECONDS.toMillis(windowSeconds);
         maxDelayMillis = TimeUnit.SECONDS.toMillis(maxDelaySeconds);
@@ -64,7 +80,7 @@ public class PasswordLoginBackoff {
         try {
             Attempts attempts = cache.get(accountKey);
             if (attempts != null && clock.millis() < attempts.blockedUntil) {
-                throw invalidLogin();
+                throw paused();
             }
         } catch (CacheException | IllegalStateException e) {
             log.warn("Password login backoff unavailable", e);
@@ -80,7 +96,7 @@ public class PasswordLoginBackoff {
     public void reserve(String accountKey) throws AuthenticationException {
         try {
             if (!cache.invoke(accountKey, new ReserveAttempt(clock.millis(), threshold, windowMillis, maxDelayMillis))) {
-                throw invalidLogin();
+                throw paused();
             }
         } catch (CacheException | IllegalStateException e) {
             log.warn("Password login backoff unavailable", e);
@@ -99,7 +115,12 @@ public class PasswordLoginBackoff {
     }
 
     private static AuthenticationException invalidLogin() {
-        return new AuthenticationException("Invalid Login: Either user not found or password incorrect.");
+        return new AuthenticationException(INVALID_LOGIN);
+    }
+
+    private static AuthenticationThrottledException paused() {
+        // Password clients other than the login tool keep seeing the usual invalid-login message.
+        return new AuthenticationThrottledException(INVALID_LOGIN);
     }
 
     private static class ReserveAttempt implements EntryProcessor<String, Attempts, Boolean>, Serializable {

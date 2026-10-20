@@ -122,7 +122,10 @@ public class UserAuthnComponent implements AuthenticationManager {
                 authenticationCache.putAuthentication(evidence.getIdentifier(), evidence.getPassword(), rv);
             }
 
-            passwordLoginBackoff.clear(accountKey);
+            if (cached == null) {
+                // Only verified passwords clear history; cached WebDAV hits would reset it on every request.
+                passwordLoginBackoff.clear(accountKey);
+            }
             return rv;
         } else if (e instanceof ExternalTrustedEvidence) {
             ExternalTrustedEvidence evidence = (ExternalTrustedEvidence) e;

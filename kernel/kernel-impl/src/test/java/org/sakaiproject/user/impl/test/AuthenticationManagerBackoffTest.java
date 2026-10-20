@@ -43,6 +43,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationManager;
+import org.sakaiproject.user.api.AuthenticationThrottledException;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.impl.PasswordLoginBackoff;
@@ -126,14 +127,34 @@ public class AuthenticationManagerBackoffTest extends SakaiKernelTestBase {
     }
 
     @Test
-    public void successfulAndCachedLoginsClearHistory() throws Exception {
+    public void successfulLoginsClearHistory() throws Exception {
         failPasswords(user.getEid(), 4);
         assertEquals(user.getId(), login(user.getEid(), PASSWORD));
         assertEquals(user.getId(), webDavLogin(user.getEid(), PASSWORD));
-        // This second WebDAV success uses the existing credential cache.
         assertEquals(user.getId(), webDavLogin(user.getEid(), PASSWORD));
         failPasswords(user.getEid(), 4);
         assertEquals(user.getId(), login(user.getEid(), PASSWORD));
+    }
+
+    @Test
+    public void cachedWebDavLoginsDoNotClearHistory() throws Exception {
+        assertEquals(user.getId(), webDavLogin(user.getEid(), PASSWORD));
+        failPasswords(user.getEid(), 4);
+        assertEquals(user.getId(), webDavLogin(user.getEid(), PASSWORD));
+        assertRejected(user.getEid(), "wrong-after-cached-login");
+        assertThrows(AuthenticationThrottledException.class, () -> login(user.getEid(), PASSWORD));
+    }
+
+    @Test
+    public void onlyPausedRequestsReportThrottling() throws Exception {
+        AuthenticationException failure = assertThrows(AuthenticationException.class,
+                () -> login(user.getEid(), "wrong"));
+        assertFalse(failure instanceof AuthenticationThrottledException);
+        failPasswords(user.getEid(), 4);
+        AuthenticationException paused = assertThrows(AuthenticationThrottledException.class,
+                () -> login(user.getEid(), PASSWORD));
+        assertEquals(failure.getMessage(), paused.getMessage());
+        assertThrows(AuthenticationThrottledException.class, () -> webDavLogin(user.getEid(), PASSWORD));
     }
 
     @Test
