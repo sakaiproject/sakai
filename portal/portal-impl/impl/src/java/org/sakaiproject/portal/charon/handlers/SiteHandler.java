@@ -48,7 +48,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -525,28 +524,6 @@ public class SiteHandler extends WorksiteHandler
 		// Note that this does not call includeTool()
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site.getSkin(), req, site);
 
-		if (userId != null) {
-			final Preferences readOnlyPrefs = preferencesService.getPreferences(userId);
-			final ResourceProperties siteNavProps = readOnlyPrefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-			final String currentExpanded = siteNavProps.getProperty(PortalConstants.PROP_CURRENT_EXPANDED);
-			final String expandedSite = siteNavProps.getProperty(PortalConstants.PROP_EXPANDED_SITE);
-
-			// We need to modify the user's properties. We need to lock the table.
-			if (!StringUtils.equals(currentExpanded, "true") || !StringUtils.equals(expandedSite, siteId)) {
-				String finalSiteId = siteId;
-				preferencesService.applyEditWithAutoCommit(userId, edit -> {
-					ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-					props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
-					props.addProperty(PortalConstants.PROP_EXPANDED_SITE, finalSiteId);
-
-					boolean themeEnabled = serverConfigurationService.getBoolean(PortalConstants.PROP_PORTAL_THEMES, true);
-					if (!themeEnabled) {
-						edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
-					}
-				});
-			}
-		}
-
 		if ( allowBuffer ) {
 			log.debug("Starting the buffer process...");
 
@@ -939,26 +916,28 @@ public class SiteHandler extends WorksiteHandler
 			int tabDisplayLabel = PreferencesService.USE_SITE_TITLE;
 			boolean sidebarCollapsed = false;
 			boolean currentExpanded = false;
-			String expandedSite = siteId;
 			boolean toolMaximised = false;
 
 			if (loggedIn) 
 			{
 				tabDisplayLabel = preferencesService.getSiteTitleDisplayPreference();
+				currentExpanded = true;
 
 				Preferences prefs = preferencesService.getPreferences(session.getUserId());
 				ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
 				sidebarCollapsed = props.getBooleanProperty(PortalConstants.PROP_SIDEBAR_COLLAPSED, false);
-				currentExpanded = props.getBooleanProperty(PortalConstants.PROP_CURRENT_EXPANDED, false);
-				expandedSite = props.getProperty(PortalConstants.PROP_EXPANDED_SITE);
+				String expandedSite = props.getProperty(PortalConstants.PROP_EXPANDED_SITE);
+				if (StringUtils.equals(expandedSite, siteId)) {
+					currentExpanded = props.getBooleanProperty(PortalConstants.PROP_CURRENT_EXPANDED, true);
+				}
 				toolMaximised = props.getBooleanProperty("toolMaximised", false);
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
 			rcontext.put(PortalConstants.PROP_SIDEBAR_COLLAPSED, Boolean.valueOf(sidebarCollapsed));
 			rcontext.put(PortalConstants.PROP_CURRENT_EXPANDED,
-					Boolean.valueOf(StringUtils.equals(expandedSite, siteId) && currentExpanded));
+					Boolean.valueOf(currentExpanded));
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(

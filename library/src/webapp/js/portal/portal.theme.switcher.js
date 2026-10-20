@@ -9,6 +9,7 @@ portal.darkThemeClass = 'sakaiUserTheme-dark';
 portal.toggleDarkTheme = () => {
   // toggle the dark theme switch to the opposite state
   portal.darkThemeSwitcher && portal.darkThemeSwitcher.getAttribute("aria-checked") === "false" ? portal.enableDarkTheme() : portal.enableLightTheme();
+  portal.setPortalThemeUserPref(portal.getCurrentThemeClass());
 };
 
 portal.setDarkThemeSwitcherToggle = onOff => {
@@ -71,9 +72,10 @@ portal.enableDarkTheme = () => {
   portal.removeCssClassFromMarkup(portal.defaultThemeClass);
   portal.removeCssClassFromMarkup(portal.lightThemeClass);
   portal.addCssClassToMarkup(portal.darkThemeClass);
-  portal.setPortalThemeUserPref(portal.darkThemeClass);
   portal.updateIframeTheme();
-  portal.darkThemeSwitcher.title = portal.i18n.theme_switch_to_light;
+  if (portal.darkThemeSwitcher) {
+    portal.darkThemeSwitcher.title = portal.i18n.theme_switch_to_light;
+  }
 };
 
 portal.enableLightTheme = () => {
@@ -82,9 +84,10 @@ portal.enableLightTheme = () => {
   portal.removeCssClassFromMarkup(portal.defaultThemeClass);
   portal.removeCssClassFromMarkup(portal.darkThemeClass);
   portal.addCssClassToMarkup(portal.lightThemeClass);
-  portal.setPortalThemeUserPref(portal.lightThemeClass);
   portal.updateIframeTheme();
-  portal.darkThemeSwitcher.title = portal.i18n.theme_switch_to_dark;
+  if (portal.darkThemeSwitcher) {
+    portal.darkThemeSwitcher.title = portal.i18n.theme_switch_to_dark;
+  }
 };
 
 
@@ -97,7 +100,7 @@ if (portal.userThemeAutoDetectDark) {
     // only check for unset theme preference because light and dark themes are already set by Java
     if (portal.userTheme === portal.defaultThemeClass) {
       // if the user has dark mode set on their OS, enable dark mode
-      portal.isOsDarkThemeSet() ? portal.enableDarkTheme() : portal.setPortalThemeUserPref(portal.lightThemeClass);
+      portal.isOsDarkThemeSet() ? portal.enableDarkTheme() : portal.enableLightTheme();
     }
   } else if (portal.isOsDarkThemeSet()) {
     // just add the dark theme to the markup if not logged in and the user has dark mode set on their OS (no prefs to save)
