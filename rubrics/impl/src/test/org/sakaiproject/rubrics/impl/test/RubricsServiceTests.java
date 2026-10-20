@@ -40,6 +40,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.OptimisticLockException;
+
 import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.parser.PdfTextExtractor;
 
@@ -93,6 +95,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -115,6 +123,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SessionFactory sessionFactory;
+    @Autowired private PlatformTransactionManager transactionManager;
     @Autowired private SiteService siteService;
     @Autowired private ToolManager toolManager;
     @Autowired private UserDirectoryService userDirectoryService;
@@ -405,6 +414,63 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         rubric.setDraft(false);
         assertFalse(rubricsService.saveRubric(rubric).getDraft());
         assertEquals(rubric.getId(), rubricsService.getRubricAssociation(toolId, itemId).get().getRubric().getId());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void reactivationPreventsAnOverlappingDraftSave() {
+        switchToInstructor();
+        String itemId = "reactivation-first";
+        TransactionTemplate transactions = rubricRaceTransactions();
+        RubricTransferBean original = transactions.execute(status -> createUnlinkedRubric(itemId));
+        try {
+            assertThrows(OptimisticLockException.class, () -> transactions.executeWithoutResult(status -> {
+                RubricTransferBean stale = rubricsService.getRubric(original.getId()).get();
+                assertFalse(stale.getAssociated());
+                transactions.executeWithoutResult(concurrent -> rubricsService.saveRubricAssociation(
+                        AssignmentConstants.TOOL_ID, itemId, Map.of(RubricsConstants.RBCS_ASSOCIATE, "1",
+                                RubricsConstants.RBCS_LIST, original.getId().toString())));
+                stale.setDraft(true);
+                rubricsService.saveRubric(stale);
+            }));
+            RubricTransferBean current = rubricsService.getRubric(original.getId()).get();
+            assertTrue(current.getVersion() > original.getVersion());
+            assertTrue(current.getAssociated());
+            assertFalse(current.getDraft());
+        } finally {
+            transactions.executeWithoutResult(status -> deleteDraftRaceRubric(original.getId(), itemId));
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void draftSavePreventsAnOverlappingReactivation() {
+        switchToInstructor();
+        String itemId = "draft-first";
+        TransactionTemplate transactions = rubricRaceTransactions();
+        RubricTransferBean original = transactions.execute(status -> createUnlinkedRubric(itemId));
+        try {
+            assertThrows(OptimisticLockingFailureException.class, () -> transactions.executeWithoutResult(status -> {
+                // Cache the published rubric in this transaction before the other transaction saves draft.
+                rubricsService.getRubric(original.getId());
+                transactions.executeWithoutResult(concurrent -> {
+                    RubricTransferBean current = rubricsService.getRubric(original.getId()).get();
+                    current.setDraft(true);
+                    rubricsService.saveRubric(current);
+                });
+                rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, itemId, Map.of(
+                        RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, original.getId().toString()));
+            }));
+            RubricTransferBean current = rubricsService.getRubric(original.getId()).get();
+            assertTrue(current.getDraft());
+            assertFalse(current.getAssociated());
+            assertFalse(rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, itemId).isPresent());
+            assertThrows(RubricsConflictException.class, () -> rubricsService.saveRubricAssociation(
+                    AssignmentConstants.TOOL_ID, itemId, Map.of(RubricsConstants.RBCS_ASSOCIATE, "1",
+                            RubricsConstants.RBCS_LIST, original.getId().toString())));
+        } finally {
+            transactions.executeWithoutResult(status -> deleteDraftRaceRubric(original.getId(), itemId));
+        }
     }
 
     @Test
@@ -737,6 +803,12 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         Optional<ToolItemRubricAssociation> association2 = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams2);
         assertTrue(association2.isPresent());
         assertEquals(rubricBean2.getId(), association2.get().getRubric().getId());
+
+        // Switching back must reactivate and return the original association.
+        ToolItemRubricAssociation reactivated = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams).get();
+        assertEquals(association.get().getId(), reactivated.getId());
+        assertTrue(reactivated.getActive());
+        assertFalse(association2.get().getActive());
 
         // remove association
         Map<String, String> rbcsParams3 = new HashMap<>();
@@ -1313,6 +1385,28 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         assertTrue(evaluationRepository.findByAssociationIdAndEvaluatedItemId(association.getId(), toolItemId).isPresent());
         assertTrue(evaluationRepository.findByAssociationIdAndEvaluatedItemIdAndOwner(association.getId(), toolItemId, user2).isPresent());
+    }
+
+    private TransactionTemplate rubricRaceTransactions() {
+        TransactionTemplate transactions = new TransactionTemplate(transactionManager);
+        transactions.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        transactions.setTimeout(10);
+        return transactions;
+    }
+
+    private RubricTransferBean createUnlinkedRubric(String itemId) {
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, itemId, Map.of(
+                RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString()));
+        rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, itemId, Map.of(
+                RubricsConstants.RBCS_ASSOCIATE, "0", RubricsConstants.RBCS_LIST, "0"));
+        return rubricsService.getRubric(rubric.getId()).get();
+    }
+
+    private void deleteDraftRaceRubric(Long rubricId, String itemId) {
+        rubricsService.deleteRubricAssociation(AssignmentConstants.TOOL_ID, itemId);
+        RubricTransferBean current = rubricsService.getRubric(rubricId).get();
+        rubricsService.deleteRubric(rubricId, current.getVersion());
     }
 
     private EvaluationTransferBean buildEvaluation(Long associationId, RubricTransferBean rubricBean, String toolItemId) {
