@@ -617,6 +617,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             throw new SecurityException("You must be a rubrics editor to create/edit rubrics");
         }
 
+        if (StringUtils.isBlank(bean.getTitle())) {
+            throw new IllegalArgumentException("Rubric title must not be blank");
+        }
+
         sanitizeRubricBean(bean);
 
         Rubric rubric;
