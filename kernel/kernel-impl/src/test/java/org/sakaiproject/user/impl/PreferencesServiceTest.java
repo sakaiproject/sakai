@@ -109,7 +109,7 @@ public class PreferencesServiceTest {
     }
 
     @Test
-    public void aReadInARolledBackTransactionDoesNotPopulateTheCache() {
+    public void aReadInARolledBackTransactionDoesNotPersistPreferences() {
         new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
             repository.save(new PreferencesRecord(userId,
                     "<preferences id=\"" + userId + "\"><properties><property name=\"temporary\" value=\"visible\"/></properties></preferences>",
@@ -123,7 +123,7 @@ public class PreferencesServiceTest {
     }
 
     @Test
-    public void cacheMissJoinsTheCallerTransaction() {
+    public void readsJoinTheCallerTransaction() {
         new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
             repository.save(new PreferencesRecord(userId,
                     "<preferences id=\"" + userId + "\"><properties><property name=\"joined\" value=\"visible\"/></properties></preferences>",
