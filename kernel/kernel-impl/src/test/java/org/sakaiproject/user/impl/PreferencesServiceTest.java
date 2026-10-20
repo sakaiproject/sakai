@@ -98,6 +98,17 @@ public class PreferencesServiceTest {
     }
 
     @Test
+    public void cacheMissJoinsTheCallerTransaction() {
+        new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+            repository.save(new PreferencesRecord(userId,
+                    "<preferences id=\"" + userId + "\"><properties><property name=\"joined\" value=\"visible\"/></properties></preferences>",
+                    null));
+
+            assertEquals("visible", preferencesService.getPreferences(userId).getProperties().getProperty("joined"));
+        });
+    }
+
+    @Test
     public void commitsPreferencesIndependentlyOfTheCallerTransaction() {
         new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
             save("independent", "saved");

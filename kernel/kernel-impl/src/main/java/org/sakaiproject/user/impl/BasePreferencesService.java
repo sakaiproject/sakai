@@ -80,10 +80,14 @@ public class BasePreferencesService implements PreferencesService
 	private static final String LOCALE_PREFERENCE_KEY = "sakai:resourceloader";
 	@Setter private SpringCrudRepository<PreferencesRecord, String> repository;
 	private TransactionTemplate transactions;
+	private TransactionTemplate reads;
 
 	public void setTransactionManager(PlatformTransactionManager transactionManager) {
 		transactions = new TransactionTemplate(transactionManager);
 		transactions.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		reads = new TransactionTemplate(transactionManager);
+		reads.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+		reads.setReadOnly(true);
 	}
 
 	/** The initial portion of a relative access point URL. */
@@ -368,7 +372,7 @@ public class BasePreferencesService implements PreferencesService
 		// Failing that, try the storage
 		if (prefs == null) {
 			try {
-				prefs = readPreferences(id);
+				prefs = readPreferences(id, reads);
 			} catch (IllegalStateException e) {
 				log.warn("Ignoring invalid preferences for user {}: {}", id, e.getMessage());
 				return null;
@@ -527,7 +531,11 @@ public class BasePreferencesService implements PreferencesService
 
     // Finish each transaction before returning an edit or reporting a successful save.
     private PreferencesRecord findRecord(String id) {
-        return transactions.execute(status -> repository.findById(id).orElse(null));
+        return findRecord(id, transactions);
+    }
+
+    private PreferencesRecord findRecord(String id, TransactionTemplate transaction) {
+        return transaction.execute(status -> repository.findById(id).orElse(null));
     }
 
     private <T> T writePreferences(PreferencesRecord record, Supplier<T> operation) {
@@ -546,7 +554,11 @@ public class BasePreferencesService implements PreferencesService
     }
 
     private BasePreferences readPreferences(String id) {
-        PreferencesRecord record = findRecord(id);
+        return readPreferences(id, transactions);
+    }
+
+    private BasePreferences readPreferences(String id, TransactionTemplate transaction) {
+        PreferencesRecord record = findRecord(id, transaction);
         if (record == null) {
             return null;
         }
