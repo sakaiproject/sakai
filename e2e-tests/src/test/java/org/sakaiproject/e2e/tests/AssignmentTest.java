@@ -181,8 +181,11 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("#assignments-list")).isVisible();
         editAssignment(rubricAssignmentTitle);
         assertThat(rubricSelector).hasValue(rubricId);
-        page.locator("input[name=rbcs-associate][value=\"0\"]").check();
+        page.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions()
+                .setName("Do not use a rubric to grade this assignment").setExact(true)).check();
+        assertThat(rubricSelector).isDisabled();
         submitAssignmentForm();
+        assertThat(page.locator("#assignments-list")).isVisible();
 
         page.navigate(courseUrl);
         sakai.toolClick("Rubrics");
