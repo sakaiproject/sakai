@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
@@ -1525,6 +1526,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             itemName = getAssociatedName(eval, siteId).get();
         }
 
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(resourceLoader.getLocale());
+        numberFormat.setMaximumFractionDigits(20);
+
         // Create pdf document
         Document document = new Document(PageSize.A4.rotate());
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -1556,7 +1560,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         header.setBackgroundColor(Color.LIGHT_GRAY);
 
         if (optEvaluation.isPresent()) {
-            paragraph.add(resourceLoader.getFormattedMessage("export_total_points", points));
+            paragraph.add(resourceLoader.getFormattedMessage("export_total_points", numberFormat.format(points)));
             paragraph.add(Chunk.NEWLINE);
         }
         paragraph.add(Chunk.NEWLINE);
@@ -1591,17 +1595,17 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
                         //Instrucor adjusted the rating point value on evaluation
                         //Chunk for the points we want to display as original
-                        Chunk originalPoints = new Chunk(selectedRatingOriginalPoints.toString());
+                        Chunk originalPoints = new Chunk(numberFormat.format(selectedRatingOriginalPoints));
                         originalPoints.getFont().setStyle(Font.STRIKETHRU);
                         //Construct Phrase containing both point values
                         Phrase pointsPhrase = new Phrase();
                         pointsPhrase.add(originalPoints);
                         pointsPhrase.add(" ");
-                        pointsPhrase.add(evaluatedPoints.get().toString());
+                        pointsPhrase.add(numberFormat.format(evaluatedPoints.get()));
                         //Split message from resourceloader where we want to inset the poit values a Phrase
                         String message;
                         if (rubric.getWeighted()) {
-                            message = resourceLoader.getFormattedMessage("export_rubrics_weight", cri.getTitle(), "{1}", cri.getWeight());
+                            message = resourceLoader.getFormattedMessage("export_rubrics_weight", cri.getTitle(), "{1}", numberFormat.format(new BigDecimal(cri.getWeight().toString())));
                         } else {
                             message = resourceLoader.getFormattedMessage("export_rubrics_points", cri.getTitle());
                         }
@@ -1611,9 +1615,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                         criterionParagraph.add(new Phrase(StringUtils.substringAfter(message, "{1}")));
                     } else {
                         if (rubric.getWeighted()) {
-                            criterionParagraph.add(resourceLoader.getFormattedMessage("export_rubrics_weight", cri.getTitle(), evaluatedPoints.get().toString(), cri.getWeight()));
+                            criterionParagraph.add(resourceLoader.getFormattedMessage("export_rubrics_weight", cri.getTitle(), numberFormat.format(evaluatedPoints.get()), numberFormat.format(new BigDecimal(cri.getWeight().toString()))));
                         } else {
-                            criterionParagraph.add(resourceLoader.getFormattedMessage("export_rubrics_points", cri.getTitle(), evaluatedPoints.get().toString()));
+                            criterionParagraph.add(resourceLoader.getFormattedMessage("export_rubrics_points", cri.getTitle(), numberFormat.format(evaluatedPoints.get())));
                         }
                     }
                 }
@@ -1621,7 +1625,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 //A rubric that is not graded (PDF export from within rubrics tool) or a criterion group
                 //Just display title of criterion without points
                 if (rubric.getWeighted() && !isCriterionGroup) {
-                    criterionParagraph.add(String.format("%s (%s%%)", cri.getTitle(), cri.getWeight()));
+                    criterionParagraph.add(String.format("%s (%s%%)", cri.getTitle(), numberFormat.format(new BigDecimal(cri.getWeight().toString()))));
                 } else {
                     criterionParagraph.add(cri.getTitle());
                 }
@@ -1641,9 +1645,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 Paragraph ratingsParagraph = new Paragraph("", BOLD_FONT);
                 String weightString = "";
                 if(rubric.getWeighted()){
-                    weightString = "(" + BigDecimal.valueOf(rating.getPoints() * (cri.getWeight()/100.0D)).setScale(2, RoundingMode.HALF_UP) + ") ";
+                    weightString = "(" + numberFormat.format(BigDecimal.valueOf(rating.getPoints() * (cri.getWeight()/100.0D)).setScale(2, RoundingMode.HALF_UP)) + ") ";
                 }
-                String ratingPoints = resourceLoader.getFormattedMessage("export_rubrics_points", rating.getTitle(), weightString + rating.getPoints());
+                String ratingPoints = resourceLoader.getFormattedMessage("export_rubrics_points", rating.getTitle(), weightString + numberFormat.format(rating.getPoints()));
                 ratingsParagraph.add(ratingPoints);
                 ratingsParagraph.add(Chunk.NEWLINE);
                 Paragraph ratingsDesc = new Paragraph("", NORMAL_FONT);
@@ -1667,7 +1671,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             if(adjustedScoreCell.isPresent()){
                 PdfPCell newCell = new PdfPCell();
                 newCell.setBackgroundColor(Color.GRAY);
-                Paragraph adjustedParagraph = new Paragraph(resourceLoader.getFormattedMessage("export_adjusted", adjustedScoreCell.get().toString()), BOLD_FONT);
+                Paragraph adjustedParagraph = new Paragraph(resourceLoader.getFormattedMessage("export_adjusted", numberFormat.format(adjustedScoreCell.get())), BOLD_FONT);
                 newCell.addElement(adjustedParagraph);
                 criterionTable.addCell(newCell);
             }
