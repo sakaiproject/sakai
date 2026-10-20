@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Version;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
@@ -43,11 +44,13 @@ import org.sakaiproject.hibernate.annotations.NativeGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -65,6 +68,12 @@ import lombok.NoArgsConstructor;
 )
 @ToString(exclude = {"criterionOutcomes"})
 public class ReturnedEvaluation implements PersistableEntity<Long>, Serializable {
+
+    @Version
+    @Column(name = "VERSION", nullable = false)
+    @ColumnDefault("0")
+    @JsonIgnore
+    private Long version;
 
     @Id
     @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_ret_eval_seq", sequenceName = "rbc_ret_eval_seq"))

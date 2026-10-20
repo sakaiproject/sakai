@@ -1,7 +1,10 @@
+import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { getUserLocale } from "@sakai-ui/sakai-portal-utils";
 
 export class RubricsElement extends SakaiElement {
+
+  static properties = { _saveError: { state: true } };
 
   constructor() {
 
@@ -11,6 +14,59 @@ export class RubricsElement extends SakaiElement {
 
     // Keep a reference to the i18n promise so that sub classes can wait on it.
     this._i18nLoaded = this.loadTranslations("rubrics");
+  }
+
+  enqueueMutation(run) {
+    const owner = this.closest("sakai-rubric") ?? this;
+    // Wait for the previous request, while leaving failures visible to its caller.
+    const queued = (owner._mutationQueue ?? Promise.resolve()).then(run, run);
+    owner._mutationQueue = queued;
+    return queued;
+  }
+
+  async readSaveResponse(response) {
+    if (!response.ok) {
+      const error = new Error(`Rubric save failed (${response.status})`);
+      error.status = response.status;
+      throw error;
+    }
+    this._saveError = null;
+    const saved = await response.json();
+    this.updateVersions(saved);
+    return saved;
+  }
+
+  updateVersions(saved) {
+    const rubric = this.closest("sakai-rubric")?.rubric;
+    if (!rubric) { return; }
+    rubric.version = saved.rubricVersion ?? saved.version;
+    rubric.lastModifiedBy = saved.rubricLastModifiedBy ?? saved.lastModifiedBy;
+    rubric.lastModifiedByDisplayName = saved.rubricLastModifiedByDisplayName ?? saved.lastModifiedByDisplayName;
+    rubric.formattedModifiedDate = saved.rubricFormattedModifiedDate ?? saved.formattedModifiedDate;
+    this.closest("sakai-rubric").requestUpdate();
+    for (const criterion of rubric.criteria) {
+      criterion.rubricVersion = rubric.version;
+      criterion.ratings.forEach(rating => rating.rubricVersion = rubric.version);
+    }
+    const criteria = saved.criteria ?? (saved.ratings ? [ saved ] : []);
+    for (const incoming of criteria) {
+      const criterion = rubric.criteria.find(c => c.id === incoming.id);
+      if (!criterion) { continue; }
+      criterion.version = incoming.version;
+      for (const rating of incoming.ratings) {
+        const current = criterion.ratings.find(r => r.id === rating.id);
+        if (current) { current.version = rating.version; }
+      }
+    }
+  }
+
+  reportSaveError(error) {
+    this._saveError = error.status === 409 ? "save_conflict" : "operation_failed";
+    console.error(error);
+  }
+
+  renderSaveError() {
+    return this._saveError ? html`<div class="sak-banner-error" role="alert">${this.tr(this._saveError)}</div>` : nothing;
   }
 
   isUtilsAvailable() {

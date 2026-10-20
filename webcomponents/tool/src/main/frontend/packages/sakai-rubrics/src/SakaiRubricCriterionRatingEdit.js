@@ -72,6 +72,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this._i18n.close_dialog}"></button>
             </div>
             <div class="modal-body">
+              ${this.renderSaveError()}
               <div class="d-flex">
                 <div class="">
                   <label class="label-rubrics form-label" for="rating-title-edit-${this.rating.id}">${this._i18n.rating_title}</label>
@@ -151,7 +152,11 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     this.requestUpdate();
     this.dispatchEvent(new CustomEvent("save-rating", { detail: { rating: this.rating, criterionId: this.criterionId } }));
 
-    bootstrap.Modal.getInstance(this.querySelector(`#edit-criterion-rating-${this.rating.id}`)).hide();
+  }
+
+  saved() {
+    this._saveError = null;
+    bootstrap.Modal.getInstance(this.renderRoot.querySelector(`#edit-criterion-rating-${this.rating.id}`))?.hide();
   }
 
   deleteRating(e) {

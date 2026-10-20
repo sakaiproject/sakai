@@ -24,7 +24,6 @@ package org.sakaiproject.rubrics.impl.repository;
 
 import org.sakaiproject.rubrics.api.model.Criterion;
 import org.sakaiproject.rubrics.api.repository.CriterionRepository;
-
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class CriterionRepositoryImpl extends SpringCrudRepositoryImpl<Criterion, Long> implements CriterionRepository {

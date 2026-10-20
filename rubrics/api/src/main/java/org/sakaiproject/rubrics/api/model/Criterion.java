@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Version;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -43,6 +44,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import org.hibernate.Length;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -66,6 +68,12 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 @Table(name = "rbc_criterion")
 @ToString(exclude = {"ratings"})
 public class Criterion implements PersistableEntity<Long>, Serializable {
+
+    @Version
+    @Column(name = "VERSION", nullable = false)
+    @ColumnDefault("0")
+    @JsonIgnore
+    private Long version;
 
     @Id
     @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_crit_seq", sequenceName="rbc_crit_seq"))

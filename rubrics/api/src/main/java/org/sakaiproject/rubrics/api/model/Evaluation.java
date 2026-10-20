@@ -22,6 +22,7 @@
 
 package org.sakaiproject.rubrics.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Version;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -45,6 +47,7 @@ import org.sakaiproject.hibernate.annotations.NativeGenerator;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -67,6 +70,12 @@ import lombok.NonNull;
 )
 @ToString(exclude = {"criterionOutcomes"})
 public class Evaluation implements PersistableEntity<Long>, Serializable {
+
+    @Version
+    @Column(name = "VERSION", nullable = false)
+    @ColumnDefault("0")
+    @JsonIgnore
+    private Long version;
 
     @Id
     @NativeGenerator(sequenceForm = @SequenceGenerator(name="rbc_eval_seq", sequenceName = "rbc_eval_seq"))

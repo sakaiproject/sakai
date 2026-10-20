@@ -48,6 +48,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
   render() {
 
     return html`
+      ${this.renderSaveError()}
       <a @click=${this.showRubric} href="javascript:;" title="${this._i18n.preview_rubric}">
         <span class="si si-sakai-rubrics"></span>
       </a>
@@ -100,17 +101,12 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
             { "op": "replace", "path": "/status", "value": evaluationStatus }
           ]),
           credentials: "include",
-          headers: { "Content-Type": "application/json-patch+json" },
+          headers: { "Content-Type": "application/json-patch+json", "If-Match": `"${evaluation.version}"` },
           method: "PATCH",
         })
-        .then(r => {
-
-          if (!r.ok) {
-            throw new Error("Failed to release evaluation");
-          }
-        });
+        .then(r => this.readSaveResponse(r));
       }
     })
-    .catch (error => console.error(error));
+    .catch(error => { this.reportSaveError(error); throw error; });
   }
 }

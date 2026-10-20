@@ -26,7 +26,7 @@ describe("sakai-dynamic-rubric", () => {
     mockTranslations(fetchMock);
     fetchMock.get("/api/sites/site/rubric-associations/tools/sakai.samigo/items/entity", { id: "association", rubricId: "rubric" });
     fetchMock.get("/api/sites/site/rubrics/rubric", rubric);
-    fetchMock.get(evaluationUrl, { id: "evaluation", metadata: { note: "keep" }, criterionOutcomes: [
+    fetchMock.get(evaluationUrl, { id: "evaluation", version: 7, metadata: { note: "keep" }, criterionOutcomes: [
       { criterionId: "one", selectedRatingId: "r1" },
     ] });
     fetchMock.put("/api/sites/site/rubric-evaluations/evaluation", ({ options }) => JSON.parse(options.body));
@@ -59,6 +59,7 @@ describe("sakai-dynamic-rubric", () => {
     expect(total(el)).to.equal("9.00");
     const saved = await el.release();
     expect(saved.overallComment).to.equal("9.00");
+    expect(saved.version).to.equal(7);
     expect(saved.metadata).to.deep.equal({ note: "keep" });
     expect(saved.criterionOutcomes.map(outcome => outcome.selectedRatingId)).to.deep.equal([ "r1", null, "r3" ]);
     expect(saved.associationId).to.equal("association");

@@ -26,10 +26,14 @@ describe("sakai-rubric-grading tests", () => {
       .get(data.evaluationUrl, data.evaluation)
       .post(`/api/sites/${data.siteId}/rubric-evaluations`, ({ options }) => {
 
-        return { ...JSON.parse(options.body), id: "saved-evaluation" };
+        return { ...JSON.parse(options.body), id: "saved-evaluation", version: 0 };
       })
       .put(`/api/sites/${data.siteId}/rubric-evaluations/saved-evaluation`,
-        ({ options }) => JSON.parse(options.body));
+        ({ options }) => {
+          const payload = JSON.parse(options.body);
+          expect(payload.version).to.equal(0);
+          return { ...payload, version: 1 };
+        });
 
     const el = await fixture(html`
       <sakai-rubric-grading
@@ -373,7 +377,7 @@ describe("deferred rubric grading", () => {
   });
 
   it("retains edits and propagates a failed save so it can be retried", async () => {
-    fetchMock.post(saveUrl, 500, { repeat: 1 });
+    fetchMock.post(saveUrl, 409, { repeat: 1 });
     const el = await grading();
     el.querySelector("#rating-item-1").click();
     let failure;
@@ -383,6 +387,10 @@ describe("deferred rubric grading", () => {
       failure = error;
     }
     expect(failure).to.be.instanceOf(Error);
+    expect(failure.status).to.equal(409);
+    await elementUpdated(el);
+    expect(el.renderRoot.querySelector("[role=alert]")).to.exist;
+    expect(fetchMock.callHistory.calls(saveUrl, { method: "POST" })).to.have.length(1);
     expect(el.hasPendingChanges()).to.be.true;
     fetchMock.removeRoutes();
     fetchMock.post(saveUrl, ({ options }) => ({ ...JSON.parse(options.body), id: "retry" }));

@@ -6,7 +6,11 @@ async function request(url, options = {}) {
     ...options,
   });
   if (response.status === 204 || (response.status === 404 && !options.method)) { return null; }
-  if (!response.ok) { throw new Error(`Rubric request failed (${response.status}): ${url}`); }
+  if (!response.ok) {
+    const error = new Error(`Rubric request failed (${response.status}): ${url}`);
+    error.status = response.status;
+    throw error;
+  }
   return response.json();
 }
 

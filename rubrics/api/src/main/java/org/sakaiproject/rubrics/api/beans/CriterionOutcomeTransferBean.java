@@ -25,6 +25,7 @@ import java.util.Objects;
 public class CriterionOutcomeTransferBean {
 
     private Long id;
+    private Long version;
     private Long criterionId;
     private Long selectedRatingId;
     private Boolean pointsAdjusted;
@@ -34,6 +35,7 @@ public class CriterionOutcomeTransferBean {
     public CriterionOutcomeTransferBean(CriterionOutcome outcome) {
         Objects.requireNonNull(outcome, "outcome must not be null in constructor");
         id = outcome.getId();
+        version = outcome.getVersion();
         comments = outcome.getComments();
         criterionId = outcome.getCriterionId();
         points = outcome.getPoints();

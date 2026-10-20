@@ -95,6 +95,7 @@ export class SakaiRubric extends RubricsElement {
   render() {
 
     return html`
+      ${this.renderSaveError()}
       <div class="rubric-title">
         <div>
           <button type="button"
@@ -147,6 +148,7 @@ export class SakaiRubric extends RubricsElement {
 
         <div class="d-none d-sm-block rubric-site-title">${this.rubric.siteTitle}</div>
         <div class="d-none d-sm-block rubric-creator-name">${this.rubric.creatorDisplayName}</div>
+        <div class="d-none d-sm-block rubric-last-modified-by">${this.rubric.lastModifiedByDisplayName || this.tr("unknown_user")}</div>
         <div class="d-none d-sm-block">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">
@@ -264,60 +266,47 @@ export class SakaiRubric extends RubricsElement {
     this.dispatchEvent(new CustomEvent("clone-rubric", { detail: this.rubric, bubbles: true, composed: true }));
   }
 
+  patchRubric(patch) {
+    return this.enqueueMutation(async () => {
+      const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
+      const response = await fetch(url, {
+        ...this.updateRubricOptions,
+        headers: { ...this.updateRubricOptions.headers, "If-Match": `"${this.rubric.version}"` },
+        body: JSON.stringify(patch),
+      });
+      return this.readSaveResponse(response);
+    });
+  }
+
+  criterionWeightPatch() {
+    return this.rubric.criteria.flatMap((criterion, index) => [
+      { op: "test", path: `/criteria/${index}/id`, value: criterion.id },
+      { op: "replace", path: `/criteria/${index}/weight`, value: criterion.weight },
+    ]);
+  }
+
   updateRubricTitle(e) {
 
-    this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/title", "value": e.detail } ]);
-    const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
-    fetch(url, this.updateRubricOptions)
-    .then(r => {
-
-      if (r.ok) {
+    this.patchRubric([ { op: "replace", path: "/title", value: e.detail } ])
+      .then(() => {
+        e.target.saved();
         this.rubric.title = e.detail;
         this.rubric.new = false;
         this.requestUpdate();
         this.updateOtherItems();
         this.dispatchEvent(new SharingChangeEvent());
-      } else {
-        throw new Error("Network error while updating rubric title");
-      }
-    })
-    .catch (error => console.error(error));
+      }).catch(error => e.target.reportSaveError(error));
   }
 
   saveCriterionWeights() {
-
-    const all = Promise.all(this.rubric.criteria.map(cr => {
-
-      this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/weight", "value": cr.weight } ]);
-
-      const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}/criteria/${cr.id}`;
-
-      return fetch(url, this.updateRubricOptions)
-        .then(r => {
-
-          if (!r.ok) {
-            throw new Error(`Network error while setting criterion weight for ${cr.id}`);
-          }
-        });
-    }));
-
-    all.then(() => {
-
+    const save = this.patchRubric(this.criterionWeightPatch());
+    save.then(() => {
       this.dispatchEvent(new SharingChangeEvent());
-
-      const successBanner = this.renderRoot.querySelector(".sak-banner-success");
-      successBanner?.classList.remove("d-none");
-
-      setTimeout(() => successBanner?.classList.add("d-none"), 5000);
-    }).catch(() => {
-
-      const errorBanner = this.renderRoot.querySelector(".sak-banner-error");
-      errorBanner?.classList.remove("d-none");
-
-      setTimeout(() => errorBanner?.classList.add("d-none"), 5000);
-    });
-
-    return all;
+      const banner = this.renderRoot.querySelector(".sak-banner-success");
+      banner?.classList.remove("d-none");
+      setTimeout(() => banner?.classList.add("d-none"), 5000);
+    }).catch(error => this.reportSaveError(error));
+    return save;
   }
 
   handleCriterionWeightChange(e) {
@@ -366,64 +355,39 @@ export class SakaiRubric extends RubricsElement {
     }
     this.rubric.draft = !this.rubric.draft;
 
-    this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/draft", "value": this.rubric.draft } ]);
-    const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
-    fetch(url, this.updateRubricOptions)
-    .then(r => {
-
-      if (r.ok) {
-        this.saveCriterionWeights();
-        this.handleDraftBtn();
-        this.requestUpdate();
-      }
-    });
+    this.patchRubric([
+      { op: "replace", path: "/draft", value: this.rubric.draft },
+      ...this.criterionWeightPatch(),
+    ]).then(() => {
+      this.handleDraftBtn();
+      this.requestUpdate();
+    }).catch(error => this.reportSaveError(error));
   }
 
-  weightedChange(e) {
-
+  weightedChange() {
     this.rubric.weighted = !this.rubric.weighted;
     if (this.rubric.weighted) {
-      this.rubric.criteria.forEach(cr => cr.weight = 0);
-      //Try to get first criterion, that is not a criterion group
-      const firstCriterion = this.rubric.criteria.find(criteria => criteria.ratings?.length > 0);
-      if (firstCriterion) {
-        //Set weight of first criterion to 100 (%)
-        firstCriterion.weight = 100;
-        this.saveCriterionWeights(e);
-      }
+      this.rubric.criteria.forEach(criterion => criterion.weight = 0);
+      const firstCriterion = this.rubric.criteria.find(criterion => criterion.ratings?.length > 0);
+      if (firstCriterion) { firstCriterion.weight = 100; }
       this.handleRefreshTotalWeight();
     }
-
-    this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/weighted", "value": this.rubric.weighted } ]);
-    const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
-    fetch(url, this.updateRubricOptions)
-    .then(r => {
-
-      if (r.ok) {
-        this.handleWeightBtn();
-        this.requestUpdate();
-      }
-    });
+    this.patchRubric([
+      { op: "replace", path: "/weighted", value: this.rubric.weighted },
+      ...this.criterionWeightPatch(),
+    ]).then(() => {
+      this.handleWeightBtn();
+      this.requestUpdate();
+    }).catch(error => this.reportSaveError(error));
   }
 
   sharingChange() {
-
-
     this.rubric.shared = !this.rubric.shared;
-
-    this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/shared", "value": this.rubric.shared } ]);
-    const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
-    fetch(url, this.updateRubricOptions)
-    .then(r => {
-
-      if (r.ok) {
+    this.patchRubric([ { op: "replace", path: "/shared", value: this.rubric.shared } ])
+      .then(() => {
         this.dispatchEvent(new SharingChangeEvent());
         this.handleShareBtn();
-      } else {
-        throw new Error("Network error while updating rubric");
-      }
-    })
-    .catch (error => console.error(error));
+      }).catch(error => this.reportSaveError(error));
   }
 
   handleDraftBtn() {

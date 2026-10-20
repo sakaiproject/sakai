@@ -60,6 +60,7 @@ export class SakaiRubricReadonly extends SakaiRubric {
 
         <div class="d-none d-sm-block rubric-site-title">${this.rubric.siteTitle}</div>
         <div class="d-none d-sm-block rubric-creator-name">${this.rubric.creatorDisplayName}</div>
+        <div class="d-none d-sm-block rubric-last-modified-by">${this.rubric.lastModifiedByDisplayName || this.tr("unknown_user")}</div>
         <div class="d-none d-sm-block">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">
@@ -110,12 +111,12 @@ export class SakaiRubricReadonly extends SakaiRubric {
   deleteRubric(e) {
 
     e.stopPropagation();
-    this.dispatchEvent(new CustomEvent("delete-rubric", { detail: { id: this.rubric.id, title: this.rubric.title }, bubbles: true, composed: true, }));
+    this.dispatchEvent(new CustomEvent("delete-rubric", { detail: { id: this.rubric.id, title: this.rubric.title, version: this.rubric.version }, bubbles: true, composed: true, }));
   }
 
   revokeShareRubric(e) {
 
     e.stopPropagation();
-    this.dispatchEvent(new CustomEvent("revoke-shared-rubric", { detail: { id: this.rubric.id, title: this.rubric.title, shared: this.rubric.shared }, bubbles: true, composed: true, }));
+    this.dispatchEvent(new CustomEvent("revoke-shared-rubric", { detail: { id: this.rubric.id, title: this.rubric.title, shared: this.rubric.shared, ownerId: this.rubric.ownerId, version: this.rubric.version }, bubbles: true, composed: true, }));
   }
 }
