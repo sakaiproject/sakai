@@ -82,7 +82,7 @@ public final class SiteStatsApiUrls {
 		endpoint.append("/widgets/");
 		endpoint.append(encode(widgetId));
 		endpoint.append("/metrics");
-		appendItemType(endpoint, request, true);
+		appendWidgetFilters(endpoint, request, true);
 		return endpoint.toString();
 	}
 
@@ -97,7 +97,7 @@ public final class SiteStatsApiUrls {
 		endpoint.append("/widgets/");
 		endpoint.append(encode(widgetId));
 		endpoint.append("/highlights");
-		appendItemType(endpoint, request, true);
+		appendWidgetFilters(endpoint, request, true);
 		return endpoint.toString();
 	}
 
@@ -135,35 +135,38 @@ public final class SiteStatsApiUrls {
 		endpoint.append(request.getPageSize());
 
 		if (includeWidgetFilters) {
-			appendParam(endpoint, "date", request.getDate());
-			appendParam(endpoint, "whenFrom", request.getWhenFrom());
-			appendParam(endpoint, "whenTo", request.getWhenTo());
-			appendParam(endpoint, "role", request.getRole());
-			appendParam(endpoint, "tool", request.getTool());
-			appendParam(endpoint, "resourceAction", request.getResourceAction());
-			appendParam(endpoint, "lessonAction", request.getLessonAction());
-			appendParam(endpoint, "itemType", request.getItemType());
-			appendParam(endpoint, "group", request.getGroup());
-			appendParam(endpoint, "item", request.getItem());
-			if (request.getThreshold() != null) {
-				appendParam(endpoint, "threshold", request.getThreshold().toString());
-			}
-			appendParam(endpoint, "siteType", request.getSiteType());
-			appendParam(endpoint, "sitePrefix", request.getSitePrefix());
-			if (request.getPublishedOnly() != null) {
-				appendParam(endpoint, "publishedOnly", request.getPublishedOnly().toString());
-			}
+			appendWidgetFilterParams(endpoint, request, false);
 		}
 	}
 
-	private static void appendItemType(StringBuilder endpoint, SiteStatsReportRequest request, boolean startQuery) {
-		String itemType = request == null ? null : SiteStatsReportRequest.normalized(request).getItemType();
-		if (StringUtils.isBlank(itemType)) {
+	private static void appendWidgetFilters(StringBuilder endpoint, SiteStatsReportRequest request, boolean startQuery) {
+		if (request == null) {
 			return;
 		}
-		endpoint.append(startQuery ? '?' : '&');
-		endpoint.append("itemType=");
-		endpoint.append(encode(itemType));
+		appendWidgetFilterParams(endpoint, SiteStatsReportRequest.normalized(request), startQuery);
+	}
+
+	private static void appendWidgetFilterParams(StringBuilder endpoint, SiteStatsReportRequest request,
+			boolean startQuery) {
+		boolean first = startQuery;
+		first = appendParam(endpoint, "date", request.getDate(), first);
+		first = appendParam(endpoint, "whenFrom", request.getWhenFrom(), first);
+		first = appendParam(endpoint, "whenTo", request.getWhenTo(), first);
+		first = appendParam(endpoint, "role", request.getRole(), first);
+		first = appendParam(endpoint, "tool", request.getTool(), first);
+		first = appendParam(endpoint, "resourceAction", request.getResourceAction(), first);
+		first = appendParam(endpoint, "lessonAction", request.getLessonAction(), first);
+		first = appendParam(endpoint, "itemType", request.getItemType(), first);
+		first = appendParam(endpoint, "group", request.getGroup(), first);
+		first = appendParam(endpoint, "item", request.getItem(), first);
+		if (request.getThreshold() != null) {
+			first = appendParam(endpoint, "threshold", request.getThreshold().toString(), first);
+		}
+		first = appendParam(endpoint, "siteType", request.getSiteType(), first);
+		first = appendParam(endpoint, "sitePrefix", request.getSitePrefix(), first);
+		if (request.getPublishedOnly() != null) {
+			appendParam(endpoint, "publishedOnly", request.getPublishedOnly().toString(), first);
+		}
 	}
 
 	private static String include(SiteStatsReportRequest request) {
@@ -178,12 +181,18 @@ public final class SiteStatsApiUrls {
 	}
 
 	private static void appendParam(StringBuilder endpoint, String name, String value) {
-		if (StringUtils.isNotBlank(value)) {
-			endpoint.append('&');
-			endpoint.append(name);
-			endpoint.append('=');
-			endpoint.append(encode(value));
+		appendParam(endpoint, name, value, false);
+	}
+
+	private static boolean appendParam(StringBuilder endpoint, String name, String value, boolean startQuery) {
+		if (StringUtils.isBlank(value)) {
+			return startQuery;
 		}
+		endpoint.append(startQuery ? '?' : '&');
+		endpoint.append(name);
+		endpoint.append('=');
+		endpoint.append(encode(value));
+		return false;
 	}
 
 	private static String encode(String value) {

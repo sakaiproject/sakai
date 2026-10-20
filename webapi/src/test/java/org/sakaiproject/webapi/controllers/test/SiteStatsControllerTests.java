@@ -163,6 +163,24 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 	}
 
 	@Test
+	public void getWidgetMetricsPassesInstitutionalFilters() throws Exception {
+		when(siteStatsViewService.getWidgetMetrics(eq(SITE_ID), eq("institutional-presence"), any(SiteStatsReportRequest.class)))
+			.thenReturn(Collections.emptyList());
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/institutional-presence/metrics"
+				+ "?date=when-last30days&siteType=course&sitePrefix=2026&publishedOnly=true"))
+			.andExpect(status().isOk());
+
+		ArgumentCaptor<SiteStatsReportRequest> captor = ArgumentCaptor.forClass(SiteStatsReportRequest.class);
+		verify(siteStatsViewService).getWidgetMetrics(eq(SITE_ID), eq("institutional-presence"), captor.capture());
+		SiteStatsReportRequest request = captor.getValue();
+		org.junit.Assert.assertEquals("when-last30days", request.getDate());
+		org.junit.Assert.assertEquals("course", request.getSiteType());
+		org.junit.Assert.assertEquals("2026", request.getSitePrefix());
+		org.junit.Assert.assertEquals(Boolean.TRUE, request.getPublishedOnly());
+	}
+
+	@Test
 	public void getWidgetHighlightsReturnsChartJson() throws Exception {
 		SiteStatsChart chart = new SiteStatsChart();
 		chart.setTitle("Submission status");

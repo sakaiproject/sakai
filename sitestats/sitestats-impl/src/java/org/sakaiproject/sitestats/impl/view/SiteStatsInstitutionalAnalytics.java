@@ -19,11 +19,22 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.CHART_COLOR
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.CHART_COLOR_INFO;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.CHART_COLOR_SUCCESS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.CHART_COLOR_WARNING;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_AUTHORING_EVENTS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_AUTHORING_SITES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_AUTHORING_TOP_EVENT;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_LEARNER_EVENTS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_LEARNER_SITES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_LEARNER_TOP_EVENT;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_PRESENCE_ACTIVE_30D;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_PRESENCE_ACTIVE_SITES;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_PRESENCE_LOW_ACTIVITY;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_INST_PRESENCE_NEVER_VISITED;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,6 +60,7 @@ import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsChartDataset;
 import org.sakaiproject.sitestats.api.view.SiteStatsChartPoint;
 import org.sakaiproject.sitestats.api.view.SiteStatsInstitutionalEventDictionary;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportInfoItem;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsTable;
@@ -62,6 +74,8 @@ public class SiteStatsInstitutionalAnalytics {
 	private static final long LOW_ACTIVITY_VISIT_THRESHOLD = 5L;
 	private static final int TOP_SITES = 25;
 	private static final int TOP_EVENTS = 10;
+	/** Oracle/MySQL-friendly upper bound for a single IN list. */
+	private static final int MAX_SITE_IN_CLAUSE = 500;
 
 	@Setter private SiteStatsInstitutionalScope institutionalScope;
 	@Setter private SiteStatsWidgetContext context;
@@ -71,39 +85,54 @@ public class SiteStatsInstitutionalAnalytics {
 	@Setter private SqlService sqlService;
 	@Setter private ServerConfigurationService serverConfigurationService;
 
+	Map<String, WidgetMetricValue> presenceMetricValues(SiteStatsReportRequest request) {
+		PresenceRollup rollup = presenceRollup(request, false);
+		SiteStatsReportRequest last30 = SiteStatsReportRequest.normalized(request);
+		last30.setDate(ReportManager.WHEN_LAST30DAYS);
+		PresenceRollup rollup30 = presenceRollup(last30, false);
+		Map<String, WidgetMetricValue> values = new LinkedHashMap<String, WidgetMetricValue>();
+		values.put(METRIC_INST_PRESENCE_ACTIVE_SITES, presenceActiveSitesValue(rollup));
+		values.put(METRIC_INST_PRESENCE_ACTIVE_30D, presenceActiveSitesValue(rollup30));
+		values.put(METRIC_INST_PRESENCE_LOW_ACTIVITY, presenceLowActivityValue(rollup));
+		values.put(METRIC_INST_PRESENCE_NEVER_VISITED, presenceNeverVisitedValue(rollup));
+		return values;
+	}
+
+	Map<String, WidgetMetricValue> learnerMetricValues(SiteStatsReportRequest request) {
+		return activityMetricValues(request, SiteStatsInstitutionalEventDictionary.LEARNER_EVENTS,
+				METRIC_INST_LEARNER_EVENTS, METRIC_INST_LEARNER_SITES, METRIC_INST_LEARNER_TOP_EVENT);
+	}
+
+	Map<String, WidgetMetricValue> authoringMetricValues(SiteStatsReportRequest request) {
+		return activityMetricValues(request, SiteStatsInstitutionalEventDictionary.AUTHORING_EVENTS,
+				METRIC_INST_AUTHORING_EVENTS, METRIC_INST_AUTHORING_SITES, METRIC_INST_AUTHORING_TOP_EVENT);
+	}
+
 	WidgetMetricValue presenceActiveSitesValue(String siteId, String userId, SiteStatsReportRequest request) {
-		PresenceRollup rollup = presenceRollup(request);
-		return WidgetMetricValue.withPercentage(
-				rollup.activeSites + " / " + rollup.totalSites,
-				percent(rollup.activeSites, rollup.totalSites));
+		return presenceActiveSitesValue(presenceRollup(request, false));
 	}
 
 	WidgetMetricValue presenceActive30dValue(String siteId, String userId, SiteStatsReportRequest request) {
 		SiteStatsReportRequest last30 = SiteStatsReportRequest.normalized(request);
 		last30.setDate(ReportManager.WHEN_LAST30DAYS);
-		PresenceRollup rollup = presenceRollup(last30);
-		return WidgetMetricValue.withPercentage(
-				rollup.activeSites + " / " + rollup.totalSites,
-				percent(rollup.activeSites, rollup.totalSites));
+		return presenceActiveSitesValue(presenceRollup(last30, false));
 	}
 
 	WidgetMetricValue presenceLowActivityValue(String siteId, String userId, SiteStatsReportRequest request) {
-		PresenceRollup rollup = presenceRollup(request);
-		return WidgetMetricValue.withPercentage(
-				String.valueOf(rollup.lowActivitySites),
-				percent(rollup.lowActivitySites, rollup.totalSites));
+		return presenceLowActivityValue(presenceRollup(request, false));
 	}
 
 	WidgetMetricValue presenceNeverVisitedValue(String siteId, String userId, SiteStatsReportRequest request) {
-		PresenceRollup rollup = presenceRollup(request);
-		return WidgetMetricValue.withPercentage(
-				String.valueOf(rollup.neverVisitedSites),
-				percent(rollup.neverVisitedSites, rollup.totalSites));
+		return presenceNeverVisitedValue(presenceRollup(request, false));
 	}
 
 	SiteStatsReportView presenceBySiteReport(String siteId, SiteStatsReportRequest request, String userId) {
-		PresenceRollup rollup = presenceRollup(request);
+		PresenceRollup rollup = presenceRollup(request, true);
 		SiteStatsReportView view = reportShell(siteId, "overview_title_institutional_presence");
+		if (rollup.failed) {
+			markUnavailable(view);
+			return view;
+		}
 		if (request.isIncludeTable()) {
 			view.setTable(siteVisitsTable(rollup.rows, request));
 		}
@@ -114,7 +143,10 @@ public class SiteStatsInstitutionalAnalytics {
 	}
 
 	SiteStatsChart presenceShareHighlight(String siteId, String userId, SiteStatsReportRequest request) {
-		PresenceRollup rollup = presenceRollup(request);
+		PresenceRollup rollup = presenceRollup(request, false);
+		if (rollup.failed) {
+			return null;
+		}
 		long healthy = Math.max(0L, rollup.activeSites - rollup.lowActivitySites);
 		String category = message("overview_title_inst_presence_share");
 		SiteStatsChart chart = compactStackedBar(category);
@@ -128,15 +160,11 @@ public class SiteStatsInstitutionalAnalytics {
 	}
 
 	WidgetMetricValue learnerEventsValue(String siteId, String userId, SiteStatsReportRequest request) {
-		ActivityRollup rollup = activityRollup(request, SiteStatsInstitutionalEventDictionary.LEARNER_EVENTS);
-		return WidgetMetricValue.of(metricSupport.formatNumber(rollup.totalEvents));
+		return activityEventsValue(activityRollup(request, SiteStatsInstitutionalEventDictionary.LEARNER_EVENTS));
 	}
 
 	WidgetMetricValue learnerSitesValue(String siteId, String userId, SiteStatsReportRequest request) {
-		ActivityRollup rollup = activityRollup(request, SiteStatsInstitutionalEventDictionary.LEARNER_EVENTS);
-		return WidgetMetricValue.withPercentage(
-				rollup.activeSites + " / " + rollup.scopedSites,
-				percent(rollup.activeSites, rollup.scopedSites));
+		return activitySitesValue(activityRollup(request, SiteStatsInstitutionalEventDictionary.LEARNER_EVENTS));
 	}
 
 	WidgetMetricValue learnerTopEventValue(String siteId, String userId, SiteStatsReportRequest request) {
@@ -144,15 +172,11 @@ public class SiteStatsInstitutionalAnalytics {
 	}
 
 	WidgetMetricValue authoringEventsValue(String siteId, String userId, SiteStatsReportRequest request) {
-		ActivityRollup rollup = activityRollup(request, SiteStatsInstitutionalEventDictionary.AUTHORING_EVENTS);
-		return WidgetMetricValue.of(metricSupport.formatNumber(rollup.totalEvents));
+		return activityEventsValue(activityRollup(request, SiteStatsInstitutionalEventDictionary.AUTHORING_EVENTS));
 	}
 
 	WidgetMetricValue authoringSitesValue(String siteId, String userId, SiteStatsReportRequest request) {
-		ActivityRollup rollup = activityRollup(request, SiteStatsInstitutionalEventDictionary.AUTHORING_EVENTS);
-		return WidgetMetricValue.withPercentage(
-				rollup.activeSites + " / " + rollup.scopedSites,
-				percent(rollup.activeSites, rollup.scopedSites));
+		return activitySitesValue(activityRollup(request, SiteStatsInstitutionalEventDictionary.AUTHORING_EVENTS));
 	}
 
 	WidgetMetricValue authoringTopEventValue(String siteId, String userId, SiteStatsReportRequest request) {
@@ -170,31 +194,95 @@ public class SiteStatsInstitutionalAnalytics {
 	}
 
 	SiteStatsChart learnerEventShareHighlight(String siteId, String userId, SiteStatsReportRequest request) {
-		return activityEventShareHighlight(
-				activityRollup(request, SiteStatsInstitutionalEventDictionary.LEARNER_EVENTS),
-				message("overview_title_inst_learner_event_share"));
+		ActivityRollup rollup = activityRollup(request, SiteStatsInstitutionalEventDictionary.LEARNER_EVENTS);
+		if (rollup.failed) {
+			return null;
+		}
+		return activityEventShareHighlight(rollup, message("overview_title_inst_learner_event_share"));
 	}
 
 	SiteStatsChart authoringEventShareHighlight(String siteId, String userId, SiteStatsReportRequest request) {
-		return activityEventShareHighlight(
-				activityRollup(request, SiteStatsInstitutionalEventDictionary.AUTHORING_EVENTS),
-				message("overview_title_inst_authoring_event_share"));
+		ActivityRollup rollup = activityRollup(request, SiteStatsInstitutionalEventDictionary.AUTHORING_EVENTS);
+		if (rollup.failed) {
+			return null;
+		}
+		return activityEventShareHighlight(rollup, message("overview_title_inst_authoring_event_share"));
 	}
 
-	private PresenceRollup presenceRollup(SiteStatsReportRequest request) {
+	private Map<String, WidgetMetricValue> activityMetricValues(SiteStatsReportRequest request, List<String> events,
+			String eventsMetricId, String sitesMetricId, String topEventMetricId) {
+		ActivityRollup rollup = activityRollup(request, events);
+		Map<String, WidgetMetricValue> values = new LinkedHashMap<String, WidgetMetricValue>();
+		values.put(eventsMetricId, activityEventsValue(rollup));
+		values.put(sitesMetricId, activitySitesValue(rollup));
+		values.put(topEventMetricId, topEventMetric(rollup));
+		return values;
+	}
+
+	private WidgetMetricValue presenceActiveSitesValue(PresenceRollup rollup) {
+		if (rollup.failed) {
+			return unavailable();
+		}
+		return WidgetMetricValue.withPercentage(
+				rollup.activeSites + " / " + rollup.totalSites,
+				percent(rollup.activeSites, rollup.totalSites));
+	}
+
+	private WidgetMetricValue presenceLowActivityValue(PresenceRollup rollup) {
+		if (rollup.failed) {
+			return unavailable();
+		}
+		return WidgetMetricValue.withPercentage(
+				String.valueOf(rollup.lowActivitySites),
+				percent(rollup.lowActivitySites, rollup.totalSites));
+	}
+
+	private WidgetMetricValue presenceNeverVisitedValue(PresenceRollup rollup) {
+		if (rollup.failed) {
+			return unavailable();
+		}
+		return WidgetMetricValue.withPercentage(
+				String.valueOf(rollup.neverVisitedSites),
+				percent(rollup.neverVisitedSites, rollup.totalSites));
+	}
+
+	private WidgetMetricValue activityEventsValue(ActivityRollup rollup) {
+		if (rollup.failed) {
+			return unavailable();
+		}
+		return WidgetMetricValue.of(metricSupport.formatNumber(rollup.totalEvents));
+	}
+
+	private WidgetMetricValue activitySitesValue(ActivityRollup rollup) {
+		if (rollup.failed) {
+			return unavailable();
+		}
+		return WidgetMetricValue.withPercentage(
+				rollup.activeSites + " / " + rollup.scopedSites,
+				percent(rollup.activeSites, rollup.scopedSites));
+	}
+
+	private PresenceRollup presenceRollup(SiteStatsReportRequest request, boolean includeTopSites) {
 		SiteStatsInstitutionalScope.ResolvedScope scope = institutionalScope.resolve(request);
 		Date from = filterCatalog.periodFrom(request);
 		Date to = filterCatalog.periodTo(request);
-		Map<String, Long> visitsBySite = loadVisitsBySite(from, to);
+		QueryResult<Map<String, Long>> visitsResult = loadVisitsBySite(scope.getSiteIds(), from, to);
 
 		PresenceRollup rollup = new PresenceRollup();
 		rollup.totalSites = scope.size();
+		if (visitsResult.failed) {
+			rollup.failed = true;
+			return rollup;
+		}
+		Map<String, Long> visitsBySite = visitsResult.value;
 		List<Map.Entry<String, Long>> ranked = new ArrayList<Map.Entry<String, Long>>();
 		for (String id : scope.getSiteIds()) {
 			long visits = visitsBySite.getOrDefault(id, Long.valueOf(0L)).longValue();
 			if (visits > 0L) {
 				rollup.activeSites++;
-				ranked.add(Map.entry(id, Long.valueOf(visits)));
+				if (includeTopSites) {
+					ranked.add(Map.entry(id, Long.valueOf(visits)));
+				}
 			} else {
 				rollup.neverVisitedSites++;
 			}
@@ -202,13 +290,15 @@ public class SiteStatsInstitutionalAnalytics {
 				rollup.lowActivitySites++;
 			}
 		}
-		ranked.sort(Comparator.<Map.Entry<String, Long>>comparingLong(e -> e.getValue().longValue()).reversed()
-				.thenComparing(Map.Entry::getKey));
-		int limit = Math.min(TOP_SITES, ranked.size());
-		for (int i = 0; i < limit; i++) {
-			Map.Entry<String, Long> entry = ranked.get(i);
-			String id = entry.getKey();
-			rollup.rows.add(new SiteVisitRow(id, siteTitle(id), entry.getValue().longValue()));
+		if (includeTopSites) {
+			ranked.sort(Comparator.<Map.Entry<String, Long>>comparingLong(e -> e.getValue().longValue()).reversed()
+					.thenComparing(Map.Entry::getKey));
+			int limit = Math.min(TOP_SITES, ranked.size());
+			for (int i = 0; i < limit; i++) {
+				Map.Entry<String, Long> entry = ranked.get(i);
+				String id = entry.getKey();
+				rollup.rows.add(new SiteVisitRow(id, siteTitle(id), entry.getValue().longValue()));
+			}
 		}
 		return rollup;
 	}
@@ -222,10 +312,14 @@ public class SiteStatsInstitutionalAnalytics {
 		if (events.isEmpty() || scope.size() == 0) {
 			return rollup;
 		}
+		QueryResult<List<Object[]>> rowsResult = loadSiteActivityRows(events, scope.getSiteIds(), from, to);
+		if (rowsResult.failed) {
+			rollup.failed = true;
+			return rollup;
+		}
 		Map<String, Long> byEvent = new HashMap<String, Long>();
 		Set<String> activeSites = new java.util.HashSet<String>();
-		List<Object[]> rows = loadSiteActivityRows(events, from, to);
-		for (Object[] row : rows) {
+		for (Object[] row : rowsResult.value) {
 			String siteId = (String) row[0];
 			String eventId = (String) row[1];
 			long count = ((Number) row[2]).longValue();
@@ -244,12 +338,16 @@ public class SiteStatsInstitutionalAnalytics {
 		return rollup;
 	}
 
-	private Map<String, Long> loadVisitsBySite(Date from, Date to) {
+	private QueryResult<Map<String, Long>> loadVisitsBySite(Collection<String> siteIds, Date from, Date to) {
 		Map<String, Long> visits = new HashMap<String, Long>();
+		if (siteIds == null || siteIds.isEmpty()) {
+			return QueryResult.ok(visits);
+		}
 		String table = sstTable("SST_SITEVISITS");
 		StringBuilder sql = new StringBuilder(
 				"select SITE_ID, sum(TOTAL_VISITS) from ").append(table).append(" where 1=1");
 		List<Object> params = new ArrayList<Object>();
+		boolean scopedInSql = appendSiteIdInClause(sql, params, siteIds);
 		appendDateBounds(sql, params, "VISITS_DATE", from, to);
 		sql.append(" group by SITE_ID");
 		try {
@@ -268,24 +366,33 @@ public class SiteStatsInstitutionalAnalytics {
 				for (Object row : rows) {
 					if (row instanceof Object[]) {
 						Object[] values = (Object[]) row;
-						visits.put(String.valueOf(values[0]), (Long) values[1]);
+						String siteId = String.valueOf(values[0]);
+						if (scopedInSql || siteIds.contains(siteId)) {
+							visits.put(siteId, (Long) values[1]);
+						}
 					}
 				}
 			}
+			return QueryResult.ok(visits);
 		} catch (RuntimeException e) {
 			log.warn("Institutional presence visit query failed: {}", e.toString());
+			return QueryResult.failed();
 		}
-		return visits;
 	}
 
-	private List<Object[]> loadSiteActivityRows(List<String> events, Date from, Date to) {
+	private QueryResult<List<Object[]>> loadSiteActivityRows(List<String> events, Collection<String> siteIds,
+			Date from, Date to) {
 		List<Object[]> out = new ArrayList<Object[]>();
+		if (siteIds == null || siteIds.isEmpty()) {
+			return QueryResult.ok(out);
+		}
 		String table = sstTable("SST_SITEACTIVITY");
 		StringBuilder sql = new StringBuilder(
 				"select SITE_ID, EVENT_ID, sum(ACTIVITY_COUNT) from ").append(table)
 				.append(" where EVENT_ID in (").append(placeholders(events.size())).append(")");
 		List<Object> params = new ArrayList<Object>();
 		params.addAll(events);
+		boolean scopedInSql = appendSiteIdInClause(sql, params, siteIds);
 		appendDateBounds(sql, params, "ACTIVITY_DATE", from, to);
 		sql.append(" group by SITE_ID, EVENT_ID");
 		try {
@@ -306,14 +413,34 @@ public class SiteStatsInstitutionalAnalytics {
 			if (rows != null) {
 				for (Object row : rows) {
 					if (row instanceof Object[]) {
-						out.add((Object[]) row);
+						Object[] values = (Object[]) row;
+						String siteId = (String) values[0];
+						if (scopedInSql || siteIds.contains(siteId)) {
+							out.add(values);
+						}
 					}
 				}
 			}
+			return QueryResult.ok(out);
 		} catch (RuntimeException e) {
 			log.warn("Institutional activity query failed: {}", e.toString());
+			return QueryResult.failed();
 		}
-		return out;
+	}
+
+	/**
+	 * When the scoped site set is small enough, restrict the aggregate in SQL.
+	 * Larger sets stay filtered in memory to avoid oversized IN lists.
+	 *
+	 * @return true when SITE_ID IN (...) was appended
+	 */
+	private boolean appendSiteIdInClause(StringBuilder sql, List<Object> params, Collection<String> siteIds) {
+		if (siteIds == null || siteIds.isEmpty() || siteIds.size() > MAX_SITE_IN_CLAUSE) {
+			return false;
+		}
+		sql.append(" and SITE_ID in (").append(placeholders(siteIds.size())).append(")");
+		params.addAll(siteIds);
+		return true;
 	}
 
 	private void appendDateBounds(StringBuilder sql, List<Object> params, String column, Date from, Date to) {
@@ -343,6 +470,9 @@ public class SiteStatsInstitutionalAnalytics {
 	}
 
 	private WidgetMetricValue topEventMetric(ActivityRollup rollup) {
+		if (rollup.failed) {
+			return unavailable();
+		}
 		if (rollup.topEvents.isEmpty()) {
 			return WidgetMetricValue.of("-");
 		}
@@ -355,6 +485,10 @@ public class SiteStatsInstitutionalAnalytics {
 			List<String> events, String titleKey) {
 		ActivityRollup rollup = activityRollup(request, events);
 		SiteStatsReportView view = reportShell(siteId, titleKey);
+		if (rollup.failed) {
+			markUnavailable(view);
+			return view;
+		}
 		if (request.isIncludeTable()) {
 			SiteStatsTable table = new SiteStatsTable();
 			table.setCaption(view.getTitle());
@@ -493,6 +627,13 @@ public class SiteStatsInstitutionalAnalytics {
 		return view;
 	}
 
+	private void markUnavailable(SiteStatsReportView view) {
+		SiteStatsReportInfoItem item = new SiteStatsReportInfoItem();
+		item.setLabel(message("overview_metric_unavailable"));
+		item.setValue(message("overview_metric_unavailable"));
+		view.getSummary().add(item);
+	}
+
 	private String siteTitle(String siteId) {
 		try {
 			Site site = siteService.getSite(siteId);
@@ -504,6 +645,10 @@ public class SiteStatsInstitutionalAnalytics {
 
 	private int percent(long part, long whole) {
 		return whole <= 0L ? 0 : (int) Math.round(100.0d * part / whole);
+	}
+
+	private WidgetMetricValue unavailable() {
+		return WidgetMetricValue.unavailable(message("overview_metric_unavailable"));
 	}
 
 	private SiteStatsTableColumn column(String key, String labelKey, String type) {
@@ -535,6 +680,7 @@ public class SiteStatsInstitutionalAnalytics {
 	}
 
 	private static final class PresenceRollup {
+		boolean failed;
 		int totalSites;
 		int activeSites;
 		int lowActivitySites;
@@ -555,9 +701,28 @@ public class SiteStatsInstitutionalAnalytics {
 	}
 
 	private static final class ActivityRollup {
+		boolean failed;
 		int scopedSites;
 		int activeSites;
 		long totalEvents;
 		Map<String, Long> topEvents = new LinkedHashMap<String, Long>();
+	}
+
+	private static final class QueryResult<T> {
+		final boolean failed;
+		final T value;
+
+		private QueryResult(boolean failed, T value) {
+			this.failed = failed;
+			this.value = value;
+		}
+
+		static <T> QueryResult<T> ok(T value) {
+			return new QueryResult<T>(false, value);
+		}
+
+		static <T> QueryResult<T> failed() {
+			return new QueryResult<T>(true, null);
+		}
 	}
 }

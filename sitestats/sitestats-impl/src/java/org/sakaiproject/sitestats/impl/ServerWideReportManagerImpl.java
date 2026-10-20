@@ -326,6 +326,35 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.ServerWideReportManager#getUniqueLoginsInLastDays(int)
+	 */
+	public long getUniqueLoginsInLastDays(int days) {
+		if (days <= 0) {
+			return 0L;
+		}
+		String mysql = "select count(distinct user_id) from " + getExternalDbNameAsPrefix() + "SST_USERSTATS"
+				+ " where LOGIN_DATE > DATE_SUB(CURDATE(), INTERVAL ? DAY)";
+		String oracle = "select count(distinct user_id) from " + getExternalDbNameAsPrefix() + "SST_USERSTATS"
+				+ " where LOGIN_DATE > (SYSDATE - ?)";
+		List result = sqlService.dbRead(getSqlForVendor(mysql, oracle), new Object[] { Integer.valueOf(days) },
+				new SqlReader() {
+					public Object readSqlResultRecord(ResultSet result) {
+						try {
+							return Long.valueOf(result.getLong(1));
+						} catch (SQLException e) {
+							log.error("getUniqueLoginsInLastDays() exception: " + e.getClass() + ": " + e.getMessage());
+							return Long.valueOf(0L);
+						}
+					}
+				});
+		if (result == null || result.isEmpty() || !(result.get(0) instanceof Number)) {
+			return 0L;
+		}
+		return ((Number) result.get(0)).longValue();
+	}
+
 	public List<ServerWideStatsRecord> getSiteCreatedDeletedStats(String period) {
 		String mysqlPeriod = "";
 		if (period.equals ("daily")) {

@@ -18,7 +18,11 @@ package org.sakaiproject.sitestats.impl.view;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ADMIN;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_ALL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.AUDIENCE_OWN;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_CLIENT_ENVIRONMENT;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_COMMUNICATION;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_INSTITUTIONAL_AUTHORING_ACTIVITY;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_INSTITUTIONAL_LEARNER_ACTIVITY;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_INSTITUTIONAL_PRESENCE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_COMMUNICATION;
 
 import java.util.ArrayList;
@@ -246,7 +250,7 @@ public class SiteStatsWidgetCatalog {
 	private List<SiteStatsWidgetMetric> toMetrics(String siteId, WidgetSpec spec, String userId, boolean includeValues,
 			SiteStatsReportRequest request) {
 		List<SiteStatsWidgetMetric> metrics = new ArrayList<SiteStatsWidgetMetric>();
-		Map<String, WidgetMetricValue> values = communicationMetricValues(siteId, spec, userId, includeValues, request);
+		Map<String, WidgetMetricValue> values = batchedMetricValues(siteId, spec, userId, includeValues, request);
 		for (WidgetMetricSpec metric : spec.getMetrics()) {
 			if (metric.isAvailable()) {
 				metrics.add(toMetric(siteId, spec, metric, userId, includeValues, request, values));
@@ -255,15 +259,55 @@ public class SiteStatsWidgetCatalog {
 		return metrics;
 	}
 
-	private Map<String, WidgetMetricValue> communicationMetricValues(String siteId, WidgetSpec spec, String userId,
+	private Map<String, WidgetMetricValue> batchedMetricValues(String siteId, WidgetSpec spec, String userId,
 			boolean includeValues, SiteStatsReportRequest request) {
-		if (!includeValues || support.getCommunicationAnalytics() == null) {
+		if (!includeValues) {
+			return Collections.emptyMap();
+		}
+		Map<String, WidgetMetricValue> communication = communicationMetricValues(siteId, spec, userId, request);
+		if (!communication.isEmpty()) {
+			return communication;
+		}
+		Map<String, WidgetMetricValue> institutional = institutionalMetricValues(spec, request);
+		if (!institutional.isEmpty()) {
+			return institutional;
+		}
+		return clientEnvironmentMetricValues(spec, request);
+	}
+
+	private Map<String, WidgetMetricValue> communicationMetricValues(String siteId, WidgetSpec spec, String userId,
+			SiteStatsReportRequest request) {
+		if (support.getCommunicationAnalytics() == null) {
 			return Collections.emptyMap();
 		}
 		if (!WIDGET_COMMUNICATION.equals(spec.getId()) && !WIDGET_STUDENT_COMMUNICATION.equals(spec.getId())) {
 			return Collections.emptyMap();
 		}
 		return support.getCommunicationAnalytics().metricValues(siteId, userId, request);
+	}
+
+	private Map<String, WidgetMetricValue> institutionalMetricValues(WidgetSpec spec, SiteStatsReportRequest request) {
+		if (support.getInstitutionalAnalytics() == null) {
+			return Collections.emptyMap();
+		}
+		SiteStatsReportRequest safe = SiteStatsReportRequest.normalized(request);
+		if (WIDGET_INSTITUTIONAL_PRESENCE.equals(spec.getId())) {
+			return support.getInstitutionalAnalytics().presenceMetricValues(safe);
+		}
+		if (WIDGET_INSTITUTIONAL_LEARNER_ACTIVITY.equals(spec.getId())) {
+			return support.getInstitutionalAnalytics().learnerMetricValues(safe);
+		}
+		if (WIDGET_INSTITUTIONAL_AUTHORING_ACTIVITY.equals(spec.getId())) {
+			return support.getInstitutionalAnalytics().authoringMetricValues(safe);
+		}
+		return Collections.emptyMap();
+	}
+
+	private Map<String, WidgetMetricValue> clientEnvironmentMetricValues(WidgetSpec spec, SiteStatsReportRequest request) {
+		if (support.getClientEnvironmentAnalytics() == null || !WIDGET_CLIENT_ENVIRONMENT.equals(spec.getId())) {
+			return Collections.emptyMap();
+		}
+		return support.getClientEnvironmentAnalytics().metricValues(SiteStatsReportRequest.normalized(request));
 	}
 
 	private List<SiteStatsChart> toHighlights(String siteId, WidgetSpec spec, String userId, SiteStatsReportRequest request) {

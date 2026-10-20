@@ -16,6 +16,11 @@
 package org.sakaiproject.sitestats.impl.view;
 
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.CHART_COLOR_INFO;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_CLIENT_DESKTOP;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_CLIENT_MOBILE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_CLIENT_TABLET;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_CLIENT_TOP_BROWSER;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.METRIC_CLIENT_TOP_OS;
 import static org.sakaiproject.sitestats.impl.view.SiteStatsUserAgentClassifier.DEVICE_DESKTOP;
 import static org.sakaiproject.sitestats.impl.view.SiteStatsUserAgentClassifier.DEVICE_MOBILE;
 import static org.sakaiproject.sitestats.impl.view.SiteStatsUserAgentClassifier.DEVICE_TABLET;
@@ -30,7 +35,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +47,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsChartDataset;
 import org.sakaiproject.sitestats.api.view.SiteStatsChartPoint;
+import org.sakaiproject.sitestats.api.view.SiteStatsReportInfoItem;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportRequest;
 import org.sakaiproject.sitestats.api.view.SiteStatsReportView;
 import org.sakaiproject.sitestats.api.view.SiteStatsTable;
@@ -56,7 +61,6 @@ public class SiteStatsClientEnvironmentAnalytics {
 	public static final String PROP_ENABLED = "sitestats.institutional.clientEnv.enabled";
 
 	private static final int MAX_SESSION_ROWS = 50000;
-	private static final int MAX_ROLLUP_CACHE = 32;
 
 	@Setter private SqlService sqlService;
 	@Setter private ServerConfigurationService serverConfigurationService;
@@ -64,51 +68,45 @@ public class SiteStatsClientEnvironmentAnalytics {
 	@Setter private WidgetFilterCatalog filterCatalog;
 	@Setter private WidgetMetricSupport metricSupport;
 
-	private final ConcurrentHashMap<String, ClientRollup> rollupByPeriod = new ConcurrentHashMap<String, ClientRollup>();
-
 	boolean isEnabled() {
 		return serverConfigurationService == null
 				|| serverConfigurationService.getBoolean(PROP_ENABLED, true);
 	}
 
-	WidgetMetricValue desktopValue(String siteId, String userId, SiteStatsReportRequest request) {
+	Map<String, WidgetMetricValue> metricValues(SiteStatsReportRequest request) {
 		ClientRollup rollup = rollup(request);
-		return shareMetric(rollup.devices.getOrDefault(DEVICE_DESKTOP, 0L), rollup.total);
+		Map<String, WidgetMetricValue> values = new LinkedHashMap<String, WidgetMetricValue>();
+		values.put(METRIC_CLIENT_DESKTOP, shareMetric(rollup, DEVICE_DESKTOP));
+		values.put(METRIC_CLIENT_MOBILE, shareMetric(rollup, DEVICE_MOBILE));
+		values.put(METRIC_CLIENT_TABLET, shareMetric(rollup, DEVICE_TABLET));
+		values.put(METRIC_CLIENT_TOP_BROWSER, topBrowserValue(rollup));
+		values.put(METRIC_CLIENT_TOP_OS, topOsValue(rollup));
+		return values;
+	}
+
+	WidgetMetricValue desktopValue(String siteId, String userId, SiteStatsReportRequest request) {
+		return shareMetric(rollup(request), DEVICE_DESKTOP);
 	}
 
 	WidgetMetricValue mobileValue(String siteId, String userId, SiteStatsReportRequest request) {
-		ClientRollup rollup = rollup(request);
-		return shareMetric(rollup.devices.getOrDefault(DEVICE_MOBILE, 0L), rollup.total);
+		return shareMetric(rollup(request), DEVICE_MOBILE);
 	}
 
 	WidgetMetricValue tabletValue(String siteId, String userId, SiteStatsReportRequest request) {
-		ClientRollup rollup = rollup(request);
-		return shareMetric(rollup.devices.getOrDefault(DEVICE_TABLET, 0L), rollup.total);
+		return shareMetric(rollup(request), DEVICE_TABLET);
 	}
 
 	WidgetMetricValue topBrowserValue(String siteId, String userId, SiteStatsReportRequest request) {
-		ClientRollup rollup = rollup(request);
-		Map.Entry<String, Long> top = topEntry(rollup.browsers);
-		if (top == null) {
-			return WidgetMetricValue.of("-");
-		}
-		return WidgetMetricValue.withDetail(top.getKey(),
-				metricSupport.formatNumber(top.getValue().longValue()));
+		return topBrowserValue(rollup(request));
 	}
 
 	WidgetMetricValue topOsValue(String siteId, String userId, SiteStatsReportRequest request) {
-		ClientRollup rollup = rollup(request);
-		Map.Entry<String, Long> top = topEntry(rollup.oses);
-		if (top == null) {
-			return WidgetMetricValue.of("-");
-		}
-		return WidgetMetricValue.withDetail(top.getKey(),
-				metricSupport.formatNumber(top.getValue().longValue()));
+		return topOsValue(rollup(request));
 	}
 
 	SiteStatsChart deviceShareHighlight(String siteId, String userId, SiteStatsReportRequest request) {
 		ClientRollup rollup = rollup(request);
-		if (rollup.total <= 0L) {
+		if (rollup.failed || rollup.total <= 0L) {
 			return null;
 		}
 		String browserCategory = message("overview_label_client_browser");
@@ -135,19 +133,27 @@ public class SiteStatsClientEnvironmentAnalytics {
 	}
 
 	SiteStatsReportView byDeviceReport(String siteId, SiteStatsReportRequest request, String userId) {
-		return bucketReport(siteId, request, rollup(request).devices, "overview_title_client_by_device", "device");
+		return bucketReport(siteId, request, rollup(request), "overview_title_client_by_device", "device", true);
 	}
 
 	SiteStatsReportView byBrowserReport(String siteId, SiteStatsReportRequest request, String userId) {
-		return bucketReport(siteId, request, rollup(request).browsers, "overview_title_client_by_browser", "browser");
+		return bucketReport(siteId, request, rollup(request), "overview_title_client_by_browser", "browser", false);
 	}
 
-	private SiteStatsReportView bucketReport(String siteId, SiteStatsReportRequest request, Map<String, Long> buckets,
-			String titleKey, String key) {
+	private SiteStatsReportView bucketReport(String siteId, SiteStatsReportRequest request, ClientRollup rollup,
+			String titleKey, String key, boolean devices) {
 		SiteStatsReportView view = new SiteStatsReportView();
 		view.setSiteId(siteId);
 		view.setTitle(message(titleKey));
 		view.setGeneratedOn(Instant.now().toString());
+		if (rollup.failed) {
+			SiteStatsReportInfoItem item = new SiteStatsReportInfoItem();
+			item.setLabel(message("overview_metric_unavailable"));
+			item.setValue(message("overview_metric_unavailable"));
+			view.getSummary().add(item);
+			return view;
+		}
+		Map<String, Long> buckets = devices ? rollup.devices : rollup.browsers;
 		if (request.isIncludeTable()) {
 			SiteStatsTable table = new SiteStatsTable();
 			table.setCaption(view.getTitle());
@@ -208,22 +214,7 @@ public class SiteStatsClientEnvironmentAnalytics {
 		}
 		Date from = filterCatalog == null ? null : filterCatalog.periodFrom(request);
 		Date to = filterCatalog == null ? null : filterCatalog.periodTo(request);
-		String cacheKey = periodCacheKey(from, to);
-		ClientRollup cached = rollupByPeriod.get(cacheKey);
-		if (cached != null) {
-			return cached;
-		}
-		ClientRollup loaded = loadRollup(from, to);
-		if (rollupByPeriod.size() >= MAX_ROLLUP_CACHE) {
-			rollupByPeriod.clear();
-		}
-		rollupByPeriod.put(cacheKey, loaded);
-		return loaded;
-	}
-
-	private static String periodCacheKey(Date from, Date to) {
-		return (from == null ? "" : Long.toString(from.getTime())) + "|"
-				+ (to == null ? "" : Long.toString(to.getTime()));
+		return loadRollup(from, to);
 	}
 
 	private ClientRollup loadRollup(Date from, Date to) {
@@ -274,6 +265,7 @@ public class SiteStatsClientEnvironmentAnalytics {
 			}
 		} catch (RuntimeException e) {
 			log.warn("Unable to aggregate client environment sessions", e);
+			rollup.failed = true;
 		}
 		return rollup;
 	}
@@ -292,9 +284,40 @@ public class SiteStatsClientEnvironmentAnalytics {
 		map.merge(key, 1L, Long::sum);
 	}
 
+	private WidgetMetricValue shareMetric(ClientRollup rollup, String device) {
+		if (rollup.failed) {
+			return WidgetMetricValue.unavailable(message("overview_metric_unavailable"));
+		}
+		return shareMetric(rollup.devices.getOrDefault(device, 0L), rollup.total);
+	}
+
 	private WidgetMetricValue shareMetric(long part, long whole) {
 		int pct = whole <= 0L ? 0 : (int) Math.round(100.0d * part / whole);
 		return WidgetMetricValue.withPercentage(metricSupport.formatNumber(part), pct);
+	}
+
+	private WidgetMetricValue topBrowserValue(ClientRollup rollup) {
+		if (rollup.failed) {
+			return WidgetMetricValue.unavailable(message("overview_metric_unavailable"));
+		}
+		Map.Entry<String, Long> top = topEntry(rollup.browsers);
+		if (top == null) {
+			return WidgetMetricValue.of("-");
+		}
+		return WidgetMetricValue.withDetail(top.getKey(),
+				metricSupport.formatNumber(top.getValue().longValue()));
+	}
+
+	private WidgetMetricValue topOsValue(ClientRollup rollup) {
+		if (rollup.failed) {
+			return WidgetMetricValue.unavailable(message("overview_metric_unavailable"));
+		}
+		Map.Entry<String, Long> top = topEntry(rollup.oses);
+		if (top == null) {
+			return WidgetMetricValue.of("-");
+		}
+		return WidgetMetricValue.withDetail(top.getKey(),
+				metricSupport.formatNumber(top.getValue().longValue()));
 	}
 
 	private Map.Entry<String, Long> topEntry(Map<String, Long> map) {
@@ -337,6 +360,7 @@ public class SiteStatsClientEnvironmentAnalytics {
 	}
 
 	private static final class ClientRollup {
+		boolean failed;
 		long total;
 		Map<String, Long> devices = new HashMap<String, Long>();
 		Map<String, Long> oses = new HashMap<String, Long>();

@@ -54,7 +54,7 @@ public class SiteStatsPlatformHealthAnalytics {
 	}
 
 	WidgetMetricValue uniqueLoginsValue(String siteId, String userId, SiteStatsReportRequest request) {
-		long total = sumLastDays(serverWideReportManager.getDailyUniqueLogins(), LAST_DAYS, 1);
+		long total = serverWideReportManager.getUniqueLoginsInLastDays(LAST_DAYS);
 		return WidgetMetricValue.of(metricSupport.formatNumber(total));
 	}
 
