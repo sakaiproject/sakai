@@ -2823,19 +2823,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       try {
           RubricsService rubricsService = ComponentManager.get(RubricsService.class);
           String siteId = AgentFacade.getCurrentSiteId();
-          Set<Long> itemIds = data.getItemGradingSet().stream()
-                  .map(ItemGradingData::getPublishedItemId)
+          Set<String> evaluatedItemIds = data.getItemGradingSet().stream()
+                  .map(item -> data.getAssessmentGradingId() + "." + item.getPublishedItemId())
                   .collect(Collectors.toSet());
-          for (Long itemId : itemIds) {
-              String associationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX
-                      + data.getPublishedAssessmentId() + "." + itemId;
-              if (rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId).isPresent()) {
-                  // Other attempts share the association, but have their own evaluation ids.
-                  String evaluatedItemId = data.getAssessmentGradingId() + "." + itemId;
-                  rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(
-                          RubricsConstants.RBCS_TOOL_SAMIGO, associationId, evaluatedItemId, siteId);
-              }
-          }
+          rubricsService.deleteEvaluationsForToolAndEvaluatedItems(RubricsConstants.RBCS_TOOL_SAMIGO, evaluatedItemIds, siteId);
           // Keep the submission available for retry if rubric cleanup fails.
           PersistenceService.getInstance().getAssessmentGradingFacadeQueries().removeAssessmentGradingData(data);
       } catch (RuntimeException e) {

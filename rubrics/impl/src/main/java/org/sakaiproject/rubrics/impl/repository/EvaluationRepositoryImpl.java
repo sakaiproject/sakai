@@ -24,6 +24,7 @@ package org.sakaiproject.rubrics.impl.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.sakaiproject.rubrics.api.model.Evaluation;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
@@ -115,6 +116,22 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         Root<Evaluation> eval = query.from(Evaluation.class);
         query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
                             cb.equal(eval.get("evaluatedItemId"), evaluatedItemId)));
+        return session.createQuery(query).list();
+    }
+
+    @Override
+    public List<Evaluation> findByToolAndEvaluatedItemIdsAndOwnerId(String toolId, Set<String> evaluatedItemIds, String ownerId) {
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> evaluation = query.from(Evaluation.class);
+        Root<ToolItemRubricAssociation> association = query.from(ToolItemRubricAssociation.class);
+        query.select(evaluation).where(
+                cb.equal(evaluation.get("associationId"), association.get("id")),
+                cb.equal(association.get("toolId"), toolId),
+                cb.equal(evaluation.get("ownerId"), ownerId),
+                evaluation.get("evaluatedItemId").in(evaluatedItemIds));
         return session.createQuery(query).list();
     }
 

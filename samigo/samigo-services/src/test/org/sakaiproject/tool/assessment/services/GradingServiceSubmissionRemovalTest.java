@@ -20,7 +20,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -28,7 +27,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -40,7 +39,6 @@ import org.junit.runner.RunWith;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
-import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -88,8 +86,6 @@ public class GradingServiceSubmissionRemovalTest {
         User user = mock(User.class);
         when(user.getId()).thenReturn("instructor");
         when(userDirectoryService.getCurrentUser()).thenReturn(user);
-        when(rubricsService.getRubricAssociation(anyString(), anyString()))
-                .thenReturn(Optional.of(new ToolItemRubricAssociation()));
     }
 
     @After
@@ -105,9 +101,9 @@ public class GradingServiceSubmissionRemovalTest {
         AssessmentGradingData submission = createSubmission();
         String evaluatedItemId = submission.getAssessmentGradingId() + ".200";
         IllegalStateException failure = new IllegalStateException("Rubric cleanup unavailable");
-        when(rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(
-                RubricsConstants.RBCS_TOOL_SAMIGO, "pub.100.200", evaluatedItemId, siteId))
-                .thenThrow(failure).thenReturn(true);
+        when(rubricsService.deleteEvaluationsForToolAndEvaluatedItems(
+                RubricsConstants.RBCS_TOOL_SAMIGO, Set.of(evaluatedItemId), siteId))
+                .thenThrow(failure).thenReturn(1);
 
         assertSame(failure, assertThrows(IllegalStateException.class,
                 () -> gradingService.removeAssessmentGradingData(submission)));
@@ -126,8 +122,8 @@ public class GradingServiceSubmissionRemovalTest {
         AssessmentGradingData submission = createSubmission();
         AssessmentGradingData remaining = createSubmission();
         gradingService.removeAssessmentGradingData(submission);
-        verify(rubricsService).deleteEvaluationForToolAndItemAndEvaluatedItemId(
-                RubricsConstants.RBCS_TOOL_SAMIGO, "pub.100.200", submission.getAssessmentGradingId() + ".200", siteId);
+        verify(rubricsService).deleteEvaluationsForToolAndEvaluatedItems(
+                RubricsConstants.RBCS_TOOL_SAMIGO, Set.of(submission.getAssessmentGradingId() + ".200"), siteId);
         AssessmentGradingData removed = gradingService.load(submission.getAssessmentGradingId().toString());
         assertEquals(Integer.valueOf(AssessmentGradingData.REMOVED), removed.getStatus());
         assertFalse(removed.getForGrade());
