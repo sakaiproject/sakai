@@ -248,7 +248,7 @@ public class GroupController {
         // Variable definition
         Locale userLocale = sakaiService.getLocaleForCurrentSiteAndUser();
         String groupId = groupForm.getGroupId();
-        String groupTitle = groupForm.getGroupTitle();
+        String groupTitle = sakaiService.cleanGroupTitle(groupForm.getGroupTitle());
         String groupDescription = groupForm.getGroupDescription();
         String filterByGroupId = groupForm.getFilterByGroupId();
         String joinableSetName = groupForm.getJoinableSetName();
@@ -275,13 +275,6 @@ public class GroupController {
         if (groupTitle.length() > 99) {
             model.addAttribute("errorMessage", messageSource.getMessage("groups.error.titlelength", null, userLocale));
             return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription, joinableShowAllUsers);
-        }
-
-        String sanitizedTitle = formattedText.stripHtmlFromText(groupTitle, true, true);
-        if (!groupTitle.equals(sanitizedTitle)) {
-            // if they're not equal, then the title contains HTML
-            model.addAttribute("errorMessage", messageSource.getMessage("groups.error.invalidTitle", null, userLocale));
-            return showGroup(model, groupId, filterByGroupId, sanitizedTitle, groupDescription, joinableShowAllUsers);
         }
 
         // If a joinable set is selected, validate the maximum number of members.

@@ -130,7 +130,7 @@ public class JoinableSetController {
         // Variable definition
         Locale userLocale = sakaiService.getLocaleForCurrentSiteAndUser();
         String joinableSetId = joinableSetForm.getJoinableSetId();
-        String joinableSetTitle = joinableSetForm.getGroupTitle();
+        String joinableSetTitle = sakaiService.cleanGroupTitle(joinableSetForm.getGroupTitle());
         boolean editingJoinableSet = StringUtils.isNotBlank(joinableSetId);
         int joinableSetGroupNumber = joinableSetForm.getGroupNumber();
         int joinableSetMaxMembers = joinableSetForm.getGroupMaxMembers();
@@ -149,6 +149,16 @@ public class JoinableSetController {
         if (StringUtils.isBlank(joinableSetTitle)) {
             model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.providetitle", null, userLocale));
             return showJoinableSet(model, null);
+        }
+
+        if (joinableSetTitle.length() > 99) {
+            model.addAttribute("errorMessage", messageSource.getMessage("groups.error.titlelength", null, userLocale));
+            return showJoinableSet(model, joinableSetId);
+        }
+
+        if (sakaiService.hasJoinableSetTitleConflict(joinableSetTitle, joinableSetId, siteGroups)) {
+            model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.duplicatedtitle", null, userLocale));
+            return showJoinableSet(model, joinableSetId);
         }
 
         //Ensure the set max members is inside the limits
@@ -196,19 +206,21 @@ public class JoinableSetController {
                 model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.numbergroups", null, userLocale));
                 return showJoinableSet(model, null);
             }
-
-            //Ensure the joinable set title is not duplicated
-            if (siteGroups.stream().anyMatch(g -> joinableSetTitle.equalsIgnoreCase(g.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET))) ) {
-                model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.duplicatedtitle", null, userLocale));
-                return showJoinableSet(model, null);
-            }
         } else {
             //Ensure the set number is inside the limits
             if (joinableSetGroupNumber < 0 || joinableSetGroupNumber > 999) {
                 model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.numbergroups", null, userLocale));
                 return showJoinableSet(model, null);
             }
+        }
 
+        Optional<List<String>> newGroupTitles = sakaiService.buildJoinableGroupTitles(joinableSetTitle, joinableSetGroupNumber, groupTitles);
+        if (newGroupTitles.isEmpty()) {
+            model.addAttribute("errorMessage", messageSource.getMessage("groups.error.titlelength", null, userLocale));
+            return showJoinableSet(model, joinableSetId);
+        }
+
+        if (editingJoinableSet) {
             // Get the groups that belong to the joinable set
             List<Group> joinableSetGroups = siteGroups.stream().filter(g -> joinableSetId.equalsIgnoreCase(g.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET))).collect(Collectors.toList());
             // For each group, update the joinableSet title and the properties.
@@ -228,16 +240,7 @@ public class JoinableSetController {
             }
         }
 
-        int joinableSetNewGroupNumber = 1;
-        for (int i = 1; i <= joinableSetGroupNumber; i++) {
-            String groupTitle = String.format("%s %d", joinableSetTitle, joinableSetNewGroupNumber);
-
-            // Always look for a new Id if the name is already in use by a group
-            while (groupTitles.contains(groupTitle)) {
-                joinableSetNewGroupNumber++;
-                groupTitle = String.format("%s %d", joinableSetTitle, joinableSetNewGroupNumber);
-            }
-
+        for (String groupTitle : newGroupTitles.get()) {
             Group newGroup = site.addGroup();
             newGroup.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
             newGroup.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET, joinableSetTitle);
@@ -252,7 +255,6 @@ public class JoinableSetController {
                 newGroup.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE, joinableCloseDate);
             }
             newGroup.setTitle(groupTitle);
-            joinableSetNewGroupNumber++;
         }
 
         if (sendMail) {

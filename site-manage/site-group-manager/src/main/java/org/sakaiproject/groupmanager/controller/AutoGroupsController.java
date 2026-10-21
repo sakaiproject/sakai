@@ -37,12 +37,14 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.groupmanager.constants.GroupManagerConstants;
@@ -199,6 +201,9 @@ public class AutoGroupsController {
         // Avoid duplicates
         autoGroupsForm.setSelectedRoleList(autoGroupsForm.getSelectedRoleList().stream().distinct().collect(Collectors.toList()));
         autoGroupsForm.setSelectedSectionList(autoGroupsForm.getSelectedSectionList().stream().distinct().collect(Collectors.toList()));
+
+        autoGroupsForm.setGroupTitleByGroup(sakaiService.cleanGroupTitle(autoGroupsForm.getGroupTitleByGroup()));
+        autoGroupsForm.setGroupTitleByUser(sakaiService.cleanGroupTitle(autoGroupsForm.getGroupTitleByUser()));
 
         // Check the options and perform the validations considering the options
         if (GroupManagerConstants.STRUCTURE_CONFIGURATION_MIXTURE == autoGroupsForm.getStructureConfigurationOption()) {
@@ -381,6 +386,14 @@ public class AutoGroupsController {
             }
         }
 
+        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(autoGroupsMap,
+                site.getGroups().stream().map(Group::getTitle).collect(Collectors.toList()));
+        if (cleanedGroups.isEmpty()) {
+            model.addAttribute("splitOptionsError", messageSource.getMessage("groups.error.cleanedTitles", null, sakaiService.getLocaleForCurrentSiteAndUser()));
+            return showStep3(model, autoGroupsForm);
+        }
+        autoGroupsMap = cleanedGroups.get();
+
         // Fill the model attributes.
         model.addAttribute("autoGroupsForm", autoGroupsForm);
         model.addAttribute("autoGroupsMap", autoGroupsMap);
@@ -439,6 +452,14 @@ public class AutoGroupsController {
             log.error("Fatal error deserializing the auto groups map, aborting the process", e);
             return GroupManagerConstants.REDIRECT_MAIN_TEMPLATE;
         }
+
+        Optional<Map<String, List<String>>> cleanedGroups = sakaiService.cleanGroupTitles(autoGroupsMap,
+                site.getGroups().stream().map(Group::getTitle).collect(Collectors.toList()));
+        if (cleanedGroups.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    messageSource.getMessage("groups.error.cleanedTitles", null, sakaiService.getLocaleForCurrentSiteAndUser()));
+        }
+        autoGroupsMap = cleanedGroups.get();
 
         for (Entry<String, List<String>> autoGroup : autoGroupsMap.entrySet()) {
             Group newGroup = site.addGroup();
