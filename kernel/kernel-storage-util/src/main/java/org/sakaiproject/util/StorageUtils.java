@@ -56,8 +56,17 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 @Slf4j
 public class StorageUtils {
-	private static SAXParserFactory parserFactory;
-	private static DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	private static DocumentBuilderFactory dbFactory = secureDocumentBuilderFactory();
+
+    private static DocumentBuilderFactory secureDocumentBuilderFactory() {
+        try {
+            DocumentBuilderFactory factory = Xml.createSecureDocumentBuilderFactory();
+            factory.setCoalescing(false);
+            return factory;
+        } catch (ParserConfigurationException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
 	/**
 	 * Create a new DOM Document.
@@ -193,22 +202,12 @@ public class StorageUtils {
 	{
 		InputSource ss = new InputSource(in);
 
-		SAXParser p = null;
-		if (parserFactory == null)
-		{
-			parserFactory = SAXParserFactory.newInstance();
-			parserFactory.setNamespaceAware(false);
-			parserFactory.setValidating(false);
-		}
-		try
-		{
-			p = parserFactory.newSAXParser();
-
-		}
-		catch (ParserConfigurationException e)
-		{
-			throw new SAXException("Failed to get a parser ", e);
-		}
+        SAXParser p;
+        try {
+            p = Xml.createSecureSAXParser(false);
+        } catch (ParserConfigurationException e) {
+            throw new SAXException("Failed to create secure XML parser", e);
+        }
 		p.parse(ss, dh);
 	}
 
@@ -266,7 +265,6 @@ public class StorageUtils {
 	{
 		try
 		{
-			
 			StringWriter sw = new StringWriter();
 			
 			  DocumentBuilder builder = dbFactory.newDocumentBuilder();

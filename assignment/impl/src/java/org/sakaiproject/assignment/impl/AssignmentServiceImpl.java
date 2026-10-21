@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.assignment.impl;
 
+import org.sakaiproject.util.Xml;
+
 import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 import static org.sakaiproject.assignment.api.model.Assignment.Access.*;
@@ -59,11 +61,9 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -319,7 +319,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             try {
                 InputSource in = new InputSource(new StringReader(xml));
-                Document assignmentDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
+                Document assignmentDocument = Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder().parse(in);
                 Element assignmentElement = assignmentDocument.getDocumentElement();
                 Node assignmentNode = doc.importNode(assignmentElement, true);
                 element.appendChild(assignmentNode);

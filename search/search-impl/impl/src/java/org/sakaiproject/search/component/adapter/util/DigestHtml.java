@@ -21,11 +21,12 @@
 
 package org.sakaiproject.search.component.adapter.util;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.StringReader;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * Digests XHTML into a string representation
@@ -40,8 +41,7 @@ public class DigestHtml
 		SimpleDigester d = new SimpleDigester();
 		try
 		{
-			XMLReader reader = XMLReaderFactory
-					.createXMLReader("org.apache.xerces.parsers.SAXParser");
+			XMLReader reader = Xml.createSecureXMLReader(false);
 			reader.setContentHandler(d);
 			reader.parse(new InputSource(new StringReader("<content>"
 					+ todigest + "</content>")));

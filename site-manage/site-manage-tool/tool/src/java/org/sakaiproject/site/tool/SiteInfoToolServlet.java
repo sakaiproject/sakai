@@ -21,6 +21,8 @@
 
 package org.sakaiproject.site.tool;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -118,7 +120,7 @@ public class SiteInfoToolServlet extends HttpServlet
             basicAuth = new BasicAuth();
             basicAuth.init();
             
-            transformerFactory = TransformerFactory.newInstance();
+            transformerFactory = Xml.createSecureTransformerFactory();
     		try
     		{
     			docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -411,7 +413,7 @@ public class SiteInfoToolServlet extends HttpServlet
 			}
 			Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, streamOut);
 			InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
-			Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
+			Transformer transformer = transformerFactory.newTransformer(Xml.createSecureSource(in));
 			transformer.setParameter("titleName", rb.getString("sitegen.siteinfolist.title.name"));
 			transformer.setParameter("titleId", rb.getString("sitegen.siteinfolist.title.id"));
 			transformer.setParameter("titleSection", rb.getString("sitegen.siteinfolist.title.section"));

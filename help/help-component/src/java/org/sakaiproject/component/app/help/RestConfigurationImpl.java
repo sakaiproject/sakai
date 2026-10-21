@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.help;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -241,7 +243,7 @@ public class RestConfigurationImpl implements RestConfiguration
   {
     try
     {
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactory(false);
       dbf.setNamespaceAware(true);
       DocumentBuilder builder = dbf.newDocumentBuilder();
       StringReader sReader = new StringReader(xml);

@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.lessonbuildertool.cc;
 
+import org.sakaiproject.util.Xml;
+
 /***********
  * This code is based on a reference implementation done for the IMS Consortium.
  * The copyright notice for that implementation is included below. 
@@ -893,10 +895,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       InputStream inputStream = new FileInputStream(qtitemp);
 
                       try {
-                          DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+                          DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
                           builderFactory.setNamespaceAware(true);
-                          builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-                          builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
                           DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
                           org.w3c.dom.Document document = documentBuilder.parse(inputStream);
 

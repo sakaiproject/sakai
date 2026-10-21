@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import org.sakaiproject.util.Xml;
 
 import com.sun.org.apache.xml.internal.serializer.ToStream;
 import com.sun.org.apache.xml.internal.serializer.ToXMLStream;
@@ -62,11 +62,9 @@ import org.xml.sax.helpers.AttributesImpl;
 public class XHTMLFilter implements Filter, CacheFilter
 {
 
-	private static SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 	private static final Map blockElements = new HashMap();
 	static
 	{
-		saxParserFactory.setNamespaceAware(true);
 		List l = new ArrayList();
 		l.add("p");
 		blockElements.put("hr", l); // hr cant be nested inside p
@@ -138,7 +136,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 			dbf.setContentHandler(epf);
 			epf.setContentHander(xser.asContentHandler());
 			
-			SAXParser parser = saxParserFactory.newSAXParser();
+			SAXParser parser = Xml.createSecureSAXParser(true);
 		
 			XMLReader xmlr = parser.getXMLReader();
 			

@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.assignment.api;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -119,7 +121,7 @@ public class AssignmentEntity implements Entity {
         String xml = assignmentService.getXmlAssignment(assignment);
         Document document = null;
         try (ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes("UTF-8"))) {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilder builder = Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder();
             document = builder.parse(in);
         } catch (UnsupportedEncodingException e) {
             log.error("Could not read assignment XML input stream", e);

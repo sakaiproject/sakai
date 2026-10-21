@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.site.util;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -551,10 +553,7 @@ public class SiteSetupQuestionFileParser
 	  {
 	    try
 	    {
-	      DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-	      builderFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
-	      builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-	      builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+	      DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
 	      DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 
 	      if (documentBuilder != null)
@@ -579,7 +578,7 @@ public class SiteSetupQuestionFileParser
 	  {
 	    try
 	    {
-	      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	      DocumentBuilderFactory factory = Xml.createSecureDocumentBuilderFactory(false);
 	      factory.setNamespaceAware(false);
 
 	      return factory.newDocumentBuilder();

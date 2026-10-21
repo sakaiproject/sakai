@@ -21,6 +21,8 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -38,7 +40,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.TransformerHandler;
@@ -156,7 +157,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	@Getter @Setter
 	private EntityManager entityManager;
 
-	private SAXParserFactory saxParserFactory;
 
 	private String breadCrumbParameter = "breadcrumb";
 
@@ -643,7 +643,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		XMLReader xmlReader;
 		try
 		{
-			SAXParser saxParser = saxParserFactory.newSAXParser();
+			SAXParser saxParser = Xml.createSecureSAXParser(true);
 
 			xmlReader = saxParser.getXMLReader();
 		}
@@ -812,8 +812,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	public void init()
 	{
 		if (!isAvailable()) return;
-		saxParserFactory = SAXParserFactory.newInstance();
-		saxParserFactory.setNamespaceAware(true);
 		try
 		{
 			XSLTTransform xsltTransform = new XSLTTransform();

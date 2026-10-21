@@ -21,6 +21,8 @@
 
 package org.sakaiproject.component.app.help;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -832,8 +834,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			}
 
 			bis = new BufferedInputStream(ism);
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			dbf.setNamespaceAware(true);
+			DocumentBuilderFactory dbf = Xml.createSecureDocumentBuilderFactoryWithDoctype(true);
 			DocumentBuilder builder = dbf.newDocumentBuilder();
 
 			InputSource is = new org.xml.sax.InputSource(bis);
@@ -847,8 +848,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
 				// get corpus document
 				String corpusXml = getRestConfiguration().getCorpusDocument();
-				DocumentBuilderFactory dbfCorpus = DocumentBuilderFactory.newInstance();
-				dbfCorpus.setNamespaceAware(true);
+				DocumentBuilderFactory dbfCorpus = Xml.createSecureDocumentBuilderFactoryWithDoctype(true);
 				DocumentBuilder builderCorpus = dbfCorpus.newDocumentBuilder();
 				StringReader sReader = new StringReader(corpusXml);
 				InputSource isCorpus = new org.xml.sax.InputSource(sReader);

@@ -15,6 +15,11 @@
  */
 package org.sakaiproject.assignment.impl.conversion;
 
+import org.sakaiproject.util.Xml;
+import javax.xml.stream.XMLInputFactory;
+import com.ctc.wstx.api.WstxInputProperties;
+import com.ctc.wstx.api.ReaderConfig;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,13 +46,10 @@ import java.util.stream.Collectors;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
-import com.ctc.wstx.api.ReaderConfig;
-import com.ctc.wstx.api.WstxInputProperties;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -148,7 +150,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
 
         log.info("<===== Assignments conversion xml parser limits: number of attributes={}, attribute size={} =====>", numberOfAttributes, lengthOfAttribute);
 
-        XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+        XMLInputFactory xmlInputFactory = Xml.createSecureXMLInputFactory();
         xmlInputFactory.setProperty(WstxInputProperties.P_MAX_ATTRIBUTES_PER_ELEMENT, numberOfAttributes);
         xmlInputFactory.setProperty(WstxInputProperties.P_MAX_ATTRIBUTE_SIZE, lengthOfAttribute);
         xmlMapper = new XmlMapper(xmlInputFactory);
@@ -208,7 +210,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         try (InputStream in = new ByteArrayInputStream(xml.getBytes());
              OutputStream out = new ByteArrayOutputStream()) {
 
-            XMLEventReader reader = XMLInputFactory.newInstance().createXMLEventReader(in);
+            XMLEventReader reader = Xml.createSecureXMLInputFactory().createXMLEventReader(in);
             XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter(out);
             XMLEventFactory eventFactory = XMLEventFactory.newInstance();
             List<XMLEvent> groupEvents = new ArrayList<>();

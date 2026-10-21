@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.calendar.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -171,7 +173,7 @@ public class PDFExportService {
         this.timeService = timeService;
         this.rb = rb;
 
-        transformerFactory = TransformerFactory.newInstance();
+        transformerFactory = Xml.createSecureTransformerFactory();
         transformerFactory.setURIResolver( new MyURIResolver(getClass().getClassLoader()) );
         try {
 
@@ -199,7 +201,7 @@ public class PDFExportService {
 
         try {
             InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
-            StreamSource source = new StreamSource(in);
+            Source source = Xml.createSecureSource(in);
             Transformer transformer = transformerFactory.newTransformer(source);
             Source src = new DOMSource(doc);
 
@@ -1325,7 +1327,7 @@ public class PDFExportService {
          **/
         public Source resolve( String href, String base ) throws TransformerException {
             InputStream in = classLoader.getResourceAsStream(href);
-            return (Source)(new StreamSource(in));
+            return (Source)(Xml.createSecureSource(in));
         }
 
     }

@@ -21,6 +21,8 @@
 
 package org.sakaiproject.importer.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -39,7 +41,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.activation.MimetypesFileTypeMap;
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -182,11 +183,9 @@ public abstract class ZipFileParser implements ImportFileParser {
 		if (pathAndFilename.charAt(0) == '/') {
 			pathAndFilename = pathAndFilename.substring(1);
 		}
-		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 		try {
-			docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-			docBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			docBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			DocumentBuilderFactory docBuilderFactory = Xml.createSecureDocumentBuilderFactory(false);
+
 			docBuilderFactory.setNamespaceAware(true);
 			DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
 			entry = (ZipEntry) zipStream.getNextEntry();
