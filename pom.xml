@@ -355,6 +355,13 @@
                 <module>webcomponents/bundle</module>
             </modules>
         </profile>
+        <profile>
+            <id>e2e</id>
+            <modules>
+                <module>master</module>
+                <module>e2e-tests</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
 
