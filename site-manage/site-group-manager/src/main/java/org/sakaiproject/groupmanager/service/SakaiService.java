@@ -79,16 +79,37 @@ public class SakaiService  {
 
     private final String STATE_SITE_ID = "site.instance.id";
 
-    public Optional<Site> getCurrentSite() {
-        String siteId;
-
-        // Try to get site ID from session context first
+    private String getCurrentSiteIdFromContext() {
+        // Try to get site ID from session context first.
         try {
-            siteId = sessionManager.getCurrentToolSession().getAttribute(STATE_SITE_ID).toString();
+            Object siteId = sessionManager.getCurrentToolSession().getAttribute(STATE_SITE_ID);
+            if (siteId != null) {
+                return siteId.toString();
+            }
         } catch (NullPointerException ex) {
-            // Site ID wasn't set in the helper call, get the current site ID
+            // Ignore and fall back to placement context.
+        }
+
+        // Site ID wasn't set in the helper call, get the current site ID from placement.
+        try {
             log.debug("Site ID not found in session data");
-            siteId = toolManager.getCurrentPlacement().getContext();
+            return toolManager.getCurrentPlacement().getContext();
+        } catch (Exception ex) {
+            log.error("Unable to determine current site id from placement.");
+            return null;
+        }
+    }
+
+    public boolean canManageCurrentSiteGroups() {
+        String siteId = getCurrentSiteIdFromContext();
+        return StringUtils.isNotBlank(siteId)
+                && (siteService.allowUpdateSite(siteId) || siteService.allowUpdateGroupMembership(siteId));
+    }
+
+    public Optional<Site> getCurrentSite() {
+        String siteId = getCurrentSiteIdFromContext();
+        if (StringUtils.isBlank(siteId)) {
+            return Optional.empty();
         }
 
         try {
