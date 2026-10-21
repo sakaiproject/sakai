@@ -127,6 +127,51 @@ public class RubricsRestControllerTests {
     }
 
     @Test
+    public void rubricWeightPatchAcceptsMatchingCriterionIds() throws Exception {
+        for (Long criterionId : List.of(42L, 2147483648L)) {
+            RubricTransferBean rubric = new RubricTransferBean();
+            rubric.setVersion(1L);
+            CriterionTransferBean criterion = new CriterionTransferBean();
+            criterion.setId(criterionId);
+            criterion.setWeight(0F);
+            rubric.setCriteria(List.of(criterion));
+            when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+            when(rubricsService.saveRubric(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+            mockMvc.perform(patch("/sites/site1/rubrics/1")
+                    .header("If-Match", "\"1\"")
+                    .contentType("application/json-patch+json")
+                    .content("[{\"op\":\"replace\",\"path\":\"/weighted\",\"value\":true},"
+                            + "{\"op\":\"test\",\"path\":\"/criteria/0/id\",\"value\":" + criterionId + "},"
+                            + "{\"op\":\"replace\",\"path\":\"/criteria/0/weight\",\"value\":100}]"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.weighted").value(true))
+                    .andExpect(jsonPath("$.criteria[0].id").value(criterionId))
+                    .andExpect(jsonPath("$.criteria[0].weight").value(100.0));
+        }
+    }
+
+    @Test
+    public void rubricWeightPatchDoesNotSaveWhenCriterionIdsDiffer() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setVersion(1L);
+        CriterionTransferBean criterion = new CriterionTransferBean();
+        criterion.setId(42L);
+        criterion.setWeight(0F);
+        rubric.setCriteria(List.of(criterion));
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+
+        mockMvc.perform(patch("/sites/site1/rubrics/1")
+                .header("If-Match", "\"1\"")
+                .contentType("application/json-patch+json")
+                .content("[{\"op\":\"test\",\"path\":\"/criteria/0/id\",\"value\":43},"
+                        + "{\"op\":\"replace\",\"path\":\"/criteria/0/weight\",\"value\":100}]"))
+                .andExpect(status().isConflict());
+
+        verify(rubricsService, never()).saveRubric(any());
+    }
+
+    @Test
     public void currentRubricPatchSavesWithTheHeaderRevisionAndReturnsJson() throws Exception {
         RubricTransferBean rubric = new RubricTransferBean();
         rubric.setVersion(1L);

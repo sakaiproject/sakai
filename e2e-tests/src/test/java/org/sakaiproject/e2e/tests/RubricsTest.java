@@ -164,4 +164,34 @@ class RubricsTest extends SakaiUiTestBase {
         assertThat(pdfExport).isVisible();
         assertThat(pdfExport).hasAttribute("download", "");
     }
+
+    @Test
+    @Order(8)
+    void canSetWeightedModeAndPublishRubric() {
+        sakai.createRubric("instructor1", sakaiUrl);
+        Locator titleInput = page.locator("input[title=\"Rubric Title\"]:visible").first();
+        titleInput.fill(RUBRIC_TITLE + " weighted");
+        Locator modal = page.locator("sakai-rubric-edit .modal.show");
+        Response titleResponse = page.waitForResponse(response -> response.url().contains("/rubrics/")
+                && response.request().method().equals("PATCH"),
+                () -> modal.locator("button.btn-primary").click());
+        assertEquals(200, titleResponse.status());
+
+        Locator rubric = page.locator("sakai-rubric").filter(new Locator.FilterOptions()
+                .setHasText(RUBRIC_TITLE + " weighted")).first();
+        Response weightedResponse = page.waitForResponse(response -> response.url().contains("/rubrics/")
+                && response.request().method().equals("PATCH"),
+                () -> rubric.locator("button.weighted").click());
+        assertEquals(200, weightedResponse.status());
+        assertThat(rubric.locator("button.weighted .fa-percent")).isVisible();
+
+        Response publishResponse = page.waitForResponse(response -> response.url().contains("/rubrics/")
+                && response.request().method().equals("PATCH"),
+                () -> rubric.locator("button.draft").click());
+        assertEquals(200, publishResponse.status());
+
+        page.reload();
+        assertThat(rubric.locator("button.weighted .fa-percent")).isVisible();
+        assertThat(rubric.locator("button.draft .fa-eye")).isVisible();
+    }
 }
