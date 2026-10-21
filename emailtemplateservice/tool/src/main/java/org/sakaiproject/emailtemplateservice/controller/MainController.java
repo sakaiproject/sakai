@@ -19,17 +19,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -44,12 +46,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.support.RequestContextUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.sakaiproject.emailtemplateservice.constants.EmailTemplateConstants;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.api.model.EmailTemplate;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 @Controller
@@ -61,21 +64,18 @@ public class MainController {
     @Autowired
     private SessionManager sessionManager;
 
-    @Autowired
-    private PreferencesService preferencesService;
 
     @Autowired
     private MessageSource messageSource;
 
     private Locale localeResolver(HttpServletRequest request, HttpServletResponse response) {
-        String userId = sessionManager.getCurrentSessionUserId();
-        final Locale loc = StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
+        final Locale loc = new ResourceLoader().getLocale();
         LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
         localeResolver.setLocale(request, response, loc);
         return loc;
     }
 
-    @RequestMapping(value = {"/", "/index","/index/{success}/{templateKey}/{templateLocale}"})
+    @RequestMapping(value = {"/", "/index","/index/{success}/{templateKey}/{templateLocale}"}, method = RequestMethod.GET)
     public String showIndex(Model model, HttpServletRequest request, HttpServletResponse response,
             @PathVariable(value = "success", required = false) boolean success,
             @PathVariable(value = "templateKey", required = false) String templateKey,
@@ -91,15 +91,18 @@ public class MainController {
         return EmailTemplateConstants.INDEX_TEMPLATE;
     }
 
-    @RequestMapping(value = "/edit/{id}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
     public String showEdit(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable(value = "id", required = true) Long id) throws IOException {
         localeResolver(request, response);
         EmailTemplate emailTemplate = emailTemplateService.getEmailTemplateById(id);
+        if (emailTemplate == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         model.addAttribute("emailTemplate", emailTemplate);
         return EmailTemplateConstants.EDIT_TEMPLATE;
     }
 
-    @RequestMapping(value = "/new")
+    @RequestMapping(value = "/new", method = RequestMethod.GET)
     public String showNew(Model model, HttpServletRequest request, HttpServletResponse response) {
         localeResolver(request, response);
         EmailTemplate emailTemplate = new EmailTemplate();
@@ -107,7 +110,7 @@ public class MainController {
         return EmailTemplateConstants.EDIT_TEMPLATE;
     }
 
-    @RequestMapping(value = {"/new/formsubmit", "/edit/{id}/formsubmit"}, method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value = {"/new/formsubmit", "/edit/{id}/formsubmit"}, method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public @ResponseBody
     ResponseEntity<String> emailTemplateSubmit(HttpServletRequest req, Model model, @PathVariable(value = "id", required = false) Long id, @RequestBody String requestString, HttpServletResponse response) {
         ResponseEntity<String> responseBody;
@@ -118,10 +121,15 @@ public class MainController {
         try {
             String jsonParam = requestString;
             if (StringUtils.isBlank(jsonParam)) {
-                jsonParam = "[]";
+                jsonParam = "{}";
             }
 
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = new ObjectMapper()
+                    .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+            JsonNode input = objectMapper.readTree(jsonParam);
+            if (input == null || !input.isObject()) {
+                throw MismatchedInputException.from(null, EmailTemplateForm.class, "Expected a JSON object");
+            }
             EmailTemplate emailTemplate;
             if (id != null) {
                 emailTemplate = emailTemplateService.getEmailTemplateById(id);
@@ -129,19 +137,9 @@ public class MainController {
                 emailTemplate = new EmailTemplate();
                 emailTemplate.setOwner(userId);
             }
-            String jsonString = objectMapper.writeValueAsString(emailTemplate);
-            JSONParser parser = new JSONParser();
-            JSONObject json = (JSONObject) parser.parse(jsonString);
 
-            JSONObject modifiedJson = (JSONObject) parser.parse(jsonParam);
-
-            Set<Object> modifiedJsonKeys = modifiedJson.keySet();
-            modifiedJsonKeys.forEach(dynamicKey -> {
-                Object line = modifiedJson.get(dynamicKey);
-                json.put(dynamicKey, line);
-            });
-
-            emailTemplate = objectMapper.readValue(json.toJSONString(), EmailTemplate.class);
+            EmailTemplateForm form = objectMapper.readerForUpdating(new EmailTemplateForm(emailTemplate)).readValue(input);
+            emailTemplate = form.toTemplate(emailTemplate);
 
             List<String> errors = getErrors(emailTemplate, req, response);
             if (errors.isEmpty()) {
@@ -162,6 +160,11 @@ public class MainController {
             }
 
         } catch (Exception e) {
+            if (e instanceof JsonProcessingException) {
+                log.debug("Rejected invalid email template input for template {}", id);
+            } else {
+                log.warn("Unable to save email template {}", id, e);
+            }
             JSONArray errorsArray = new JSONArray();
             errorsArray.add(messageSource.getMessage("GeneralActionError", null, loc));
             jsonResponse.put("status", "ERROR");
