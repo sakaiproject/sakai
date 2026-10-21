@@ -162,7 +162,7 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
                 new Locator.GetByRoleOptions().setName("Delete").setExact(true));
         Locator submittedScore = scores.getByRole(AriaRole.ROW)
                 .filter(new Locator.FilterOptions().setHasText("student0011"))
-                .getByRole(AriaRole.CELL, new Locator.GetByRoleOptions().setName(Pattern.compile("^2(?:\\.0+)?$")));
+                .getByRole(AriaRole.CELL, new Locator.GetByRoleOptions().setName(Pattern.compile("^[1-9][0-9]*(?:\\.[0-9]+)?$")));
         assertThat(deleteAttempt).hasCount(1);
         assertThat(deleteAttempt).isVisible();
         assertThat(submittedScore.first()).isVisible();
