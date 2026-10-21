@@ -19,8 +19,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -57,8 +62,13 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.sitestats.api.SiteStatsDemoSeedService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -66,6 +76,7 @@ import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.github.javafaker.Faker;
 
@@ -110,6 +121,14 @@ public class SeedSitesAndUsersJob implements Job {
 	private GradingService gradingService;
 	@Setter
 	private ConversationsService conversationsService;
+	@Setter
+	private AssignmentService assignmentService;
+	@Setter
+	private SimplePageToolDao simplePageToolDao;
+	@Setter
+	private SiteStatsDemoSeedService siteStatsDemoSeedService;
+	@Setter
+	private TransactionTemplate transactionTemplate;
 
 	private int numberOfSites;
 	private int numberOfStudents;
@@ -118,6 +137,8 @@ public class SeedSitesAndUsersJob implements Job {
 	private int numberOfGradebookItems;
 	private int numberOfConversationsQuestions;
 	private int numberOfConversationsPosts;
+	private int numberOfAssignments;
+	private int numberOfLessonPages;
 	private String emailDomain;
 	private boolean useEidAsPassword;
 	private long repositorySize;
@@ -138,6 +159,8 @@ public class SeedSitesAndUsersJob implements Job {
 		numberOfGradebookItems = serverConfigurationService.getInt("site.seed.create.gradebookitems", 10);
 		numberOfConversationsQuestions = serverConfigurationService.getInt("site.seed.create.conversations.questions", 10);
 		numberOfConversationsPosts = serverConfigurationService.getInt("site.seed.create.conversations.posts", 5);
+		numberOfAssignments = serverConfigurationService.getInt("site.seed.assignments", 3);
+		numberOfLessonPages = serverConfigurationService.getInt("site.seed.lesson.pages", 3);
 		emailDomain = serverConfigurationService.getString("site.seed.email.domain", "mailinator.com");
 		useEidAsPassword = serverConfigurationService.getBoolean("site.seed.eid.password", false);
 
@@ -200,18 +223,44 @@ public class SeedSitesAndUsersJob implements Job {
 
 	private void addGradebookItems() {
 
+		Instant now = Instant.now();
 		for (Site site : sites.values()) {
 
 			String siteId = site.getId();
-			for (int i = 0;i < numberOfGradebookItems;i++) {
+			for (int i = 0; i < numberOfGradebookItems; i++) {
 				Assignment ass = new Assignment();
 				String name = "Item " + i;
 				try {
 					ass.setName(name);
 					ass.setPoints(100D);
+					ass.setCounted(Boolean.TRUE);
+					ass.setReleased(Boolean.TRUE);
+					ass.setUngraded(Boolean.FALSE);
+					ass.setExtraCredit(Boolean.FALSE);
+					ass.setDueDate(Date.from(now.minus(numberOfGradebookItems - i, ChronoUnit.DAYS)));
 					Long aid = gradingService.addAssignment(siteId, siteId, ass);
+					int memberIndex = 0;
 					for (Member m : site.getMembers()) {
-						gradingService.saveGradeAndCommentForStudent(siteId, siteId, aid, m.getUserId(), Integer.toString(randomGenerator.nextInt(101)), faker.lorem().sentence(10));
+						if (!"Student".equals(m.getRole().getId())) {
+							continue;
+						}
+						memberIndex++;
+						// Leave ~1/5 ungraded so grades metrics are not flat 100%
+						if (memberIndex % 5 == 0) {
+							continue;
+						}
+						// Mix high / mid / below-threshold (~70%) scores
+						int score;
+						int bucket = memberIndex % 4;
+						if (bucket == 0) {
+							score = 45 + randomGenerator.nextInt(20); // below threshold
+						} else if (bucket == 1) {
+							score = 70 + randomGenerator.nextInt(15);
+						} else {
+							score = 85 + randomGenerator.nextInt(16);
+						}
+						gradingService.saveGradeAndCommentForStudent(siteId, siteId, aid, m.getUserId(),
+								Integer.toString(score), faker.lorem().sentence(10));
 					}
 					if (i % 10 == 0) {
 						log.info("Created {} gradebook items", i);
@@ -302,6 +351,7 @@ public class SeedSitesAndUsersJob implements Job {
 	
 	private void createSite(String title, String type) throws IdInvalidException, IdUsedException, PermissionException, IdUnusedException {
 		Site site = siteService.addSite(title, type);
+		site.getPropertiesEdit().addProperty(SiteStatsDemoSeedService.DEMO_SITE_PROPERTY, "true");
 		site.setPublished(true);
 		site.setTitle(title);
 		site.addPage().addTool("sakai.search");
@@ -309,9 +359,164 @@ public class SeedSitesAndUsersJob implements Job {
 		site.addPage().addTool("sakai.siteinfo");
 		site.addPage().addTool("sakai.gradebookng");
 		site.addPage().addTool("sakai.conversations");
+		site.addPage().addTool("sakai.sitestats");
+		site.addPage().addTool("sakai.assignment.grades");
+		site.addPage().addTool("sakai.lessonbuildertool");
 		siteService.save(site);
 		sites.put(site.getId(), site);
 		log.info("created site: {}", site.getId());
+	}
+
+	private void addAssignments() {
+		if (assignmentService == null || numberOfAssignments <= 0) {
+			return;
+		}
+		Instant now = Instant.now();
+		for (Site site : sites.values()) {
+			String siteId = site.getId();
+			List<User> enrolledStudents = new ArrayList<>();
+			for (Member member : site.getMembers()) {
+				if ("Student".equals(member.getRole().getId())) {
+					User student = students.values().stream()
+							.filter(u -> u.getId().equals(member.getUserId()))
+							.findFirst()
+							.orElse(null);
+					if (student != null) {
+						enrolledStudents.add(student);
+					}
+				}
+			}
+			for (int i = 0; i < numberOfAssignments; i++) {
+				try {
+					org.sakaiproject.assignment.api.model.Assignment assignment = assignmentService.addAssignment(siteId);
+					assignment.setTitle("Demo Assignment " + (i + 1));
+					assignment.setInstructions(faker.lorem().paragraph());
+					assignment.setDraft(false);
+					assignment.setTypeOfSubmission(
+							org.sakaiproject.assignment.api.model.Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION);
+					assignment.setTypeOfGrade(
+							org.sakaiproject.assignment.api.model.Assignment.GradeType.SCORE_GRADE_TYPE);
+					// SCORE_GRADE_TYPE stores scaled points (100.0 with scaleFactor 10 → 1000)
+					assignment.setScaleFactor(10);
+					assignment.setMaxGradePoint(1000);
+					// Mix due dates: past (late possible), recent, and upcoming
+					Instant due;
+					if (i % 3 == 0) {
+						due = now.minus(7, ChronoUnit.DAYS);
+					} else if (i % 3 == 1) {
+						due = now.minus(1, ChronoUnit.DAYS);
+					} else {
+						due = now.plus(7, ChronoUnit.DAYS);
+					}
+					assignment.setOpenDate(due.minus(14, ChronoUnit.DAYS));
+					assignment.setDueDate(due);
+					assignment.setCloseDate(due.plus(7, ChronoUnit.DAYS));
+					assignmentService.updateAssignment(assignment);
+
+					int studentIndex = 0;
+					String instructorId = instructors.isEmpty() ? "admin"
+							: instructors.values().iterator().next().getId();
+					for (User student : enrolledStudents) {
+						int bucket = studentIndex % 3;
+						studentIndex++;
+						if (bucket == 2 || (bucket == 1 && !due.isBefore(now))) {
+							// Missing work, including work that cannot be late yet.
+							continue;
+						}
+						try {
+							AssignmentSubmission submission = assignmentService.addSubmission(assignment.getId(), student.getId());
+							if (submission == null) {
+								continue;
+							}
+							submission.setSubmitted(true);
+							submission.setUserSubmission(true);
+							submission.setSubmittedText(faker.lorem().paragraph());
+							Instant submittedAt = bucket == 0 ? due.minus(1, ChronoUnit.DAYS) : due.plus(2, ChronoUnit.DAYS);
+							submission.setDateSubmitted(submittedAt.isAfter(now) ? now : submittedAt);
+							// Grade most past-due work; leave some awaiting grading
+							boolean pastDue = due.isBefore(now);
+							if (pastDue && studentIndex % 4 != 0) {
+								int points = (studentIndex % 5 == 1)
+										? 40 + randomGenerator.nextInt(25)  // weak
+										: 75 + randomGenerator.nextInt(26); // solid
+								// SCORE_GRADE_TYPE stores scaled points (scaleFactor 10)
+								submission.setGrade(Integer.toString(points * 10));
+								submission.setGraded(true);
+								submission.setGradeReleased(true);
+								submission.setGradedBy(instructorId);
+								submission.setReturned(true);
+								Instant returnedAt = due.plus(3, ChronoUnit.DAYS);
+								submission.setDateReturned(returnedAt.isAfter(now) ? now : returnedAt);
+							}
+							assignmentService.updateSubmission(submission);
+						} catch (PermissionException pe) {
+							log.warn("Could not create submission for user {} on assignment {}: {}",
+									student.getId(), assignment.getId(), pe.toString());
+						}
+					}
+				} catch (PermissionException pe) {
+					log.warn("Could not create assignment in site {}: {}", siteId, pe.toString());
+				} catch (Exception e) {
+					log.warn("Failed creating assignment/submissions in site {}: {}", siteId, e.toString());
+				}
+			}
+			log.info("Created {} assignments with mixed submissions in site {}", numberOfAssignments, siteId);
+		}
+	}
+
+	private void addLessonPages() {
+		if (simplePageToolDao == null || numberOfLessonPages <= 0) {
+			return;
+		}
+		for (Site site : sites.values()) {
+			String siteId = site.getId();
+			ToolConfiguration lessonsTool = site.getToolForCommonId("sakai.lessonbuildertool");
+			if (lessonsTool == null) {
+				log.warn("No Lessons tool in site {}; skipping lesson pages", siteId);
+				continue;
+			}
+			String toolPageId = lessonsTool.getPageId();
+			try {
+				transactionTemplate.executeWithoutResult(status -> {
+					SimplePage rootPage = null;
+					for (int i = 0; i < numberOfLessonPages; i++) {
+						String title = "Demo Lesson " + (i + 1);
+						Long parentId = rootPage == null ? null : rootPage.getPageId();
+						SimplePage page = simplePageToolDao.makePage(toolPageId, siteId, title, parentId, parentId);
+						if (!simplePageToolDao.saveItem(page, new ArrayList<>(), "ignored", false)) {
+							throw new IllegalStateException("Failed to save lesson page " + title);
+						}
+						SimplePageItem item = simplePageToolDao.makeItem(parentId == null ? 0 : parentId, i,
+								SimplePageItem.PAGE, Long.toString(page.getPageId()), page.getTitle());
+						if (!simplePageToolDao.saveItem(item, new ArrayList<>(), "ignored", false)) {
+							throw new IllegalStateException("Failed to save navigation item for lesson page " + page.getPageId());
+						}
+						if (rootPage == null) {
+							rootPage = page;
+						}
+					}
+				});
+				log.info("Created {} lesson pages in site {}", numberOfLessonPages, siteId);
+			} catch (RuntimeException e) {
+				log.warn("Failed creating lesson pages in site {}", siteId, e);
+			}
+		}
+	}
+
+	private void seedSiteStatsDemoData() {
+		if (!serverConfigurationService.getBoolean("sitestats.sakai.demo", false)) {
+			log.info("sitestats.sakai.demo is false; skipping sitestats tool demo seed");
+			return;
+		}
+		if (siteStatsDemoSeedService == null) {
+			log.warn("SiteStatsDemoSeedService not available; skipping sitestats tool demo seed");
+			return;
+		}
+		try {
+			siteStatsDemoSeedService.seed(sites.values(), students.values(), instructors.values());
+		} catch (Exception e) {
+			log.error("sitestats tool demo seed failed: ", e);
+		}
 	}
 
 	private void createStudents() {
@@ -412,9 +617,15 @@ public class SeedSitesAndUsersJob implements Job {
 
 			addGradebookItems();
 
-            addConversationsPosts();
+			addConversationsPosts();
+
+			addAssignments();
+
+			addLessonPages();
 
 			seedData();
+
+			seedSiteStatsDemoData();
 		} catch (Exception e) {
 			log.error("executing job: ", e);
 		} finally {

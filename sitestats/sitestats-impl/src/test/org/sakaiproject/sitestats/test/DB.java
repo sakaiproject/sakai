@@ -28,6 +28,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.sakaiproject.sitestats.impl.DetailedEventImpl;
+import org.sakaiproject.sitestats.impl.DemoSeed;
 import org.sakaiproject.sitestats.impl.EventStatImpl;
 import org.sakaiproject.sitestats.impl.LessonBuilderStatImpl;
 import org.sakaiproject.sitestats.impl.ResourceStatImpl;
@@ -103,6 +104,7 @@ public class DB {
             deleteAllOfClass(session, LessonBuilderStatImpl.class);
             deleteAllOfClass(session, UserStatImpl.class);
             deleteAllOfClass(session, ServerStatImpl.class);
+            deleteAllOfClass(session, DemoSeed.class);
             session.flush();
         } catch(DataAccessException | HibernateException dae){
             log.error("Error while performing deletion: {}", dae.getMessage(), dae);
