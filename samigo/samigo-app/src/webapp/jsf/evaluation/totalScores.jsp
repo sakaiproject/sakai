@@ -273,7 +273,7 @@ function showLoadingMessage() {
   <h:dataTable id="totalScoreTable" value="#{totalScores.agents}" var="description" styleClass="table table-striped table-bordered" columnClasses="textTable">
 
 	<!-- Add Submission Attempt Deleter-->
-	<h:column rendered="#{person.isAdmin || !totalScores.restrictedDelete}">
+	<h:column>
      <f:facet name="header">
        <h:outputText value="#{commonMessages.delete}" rendered="true" />
      </f:facet>

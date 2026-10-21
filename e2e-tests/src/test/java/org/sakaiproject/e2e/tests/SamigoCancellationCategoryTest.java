@@ -152,6 +152,25 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         assertStudentAssignmentScore(FIRST_QUIZ, "2");
     }
 
+    @Test
+    @Order(6)
+    void instructorCanRemoveSubmissionFromScores() {
+        openAssessments(siteUrl);
+        publishedRow(THIRD_QUIZ).locator("td.submitted a").first().click();
+        Locator scores = page.locator("table[id$='totalScoreTable']");
+        Locator deleteAttempt = scores.getByRole(AriaRole.LINK,
+                new Locator.GetByRoleOptions().setName("Delete").setExact(true));
+        assertThat(deleteAttempt).hasCount(1);
+        assertThat(deleteAttempt).isVisible();
+        page.onceDialog(dialog -> dialog.accept());
+        deleteAttempt.click();
+        assertThat(scores).isVisible();
+        assertThat(deleteAttempt).hasCount(0);
+        page.reload();
+        assertThat(scores).isVisible();
+        assertThat(deleteAttempt).hasCount(0);
+    }
+
     private void createFixtures() {
         siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.samigo", "sakai\\.gradebookng"));
         System.out.println("SAK-52130 cancellation course: " + siteUrl);

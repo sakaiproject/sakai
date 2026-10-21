@@ -45,9 +45,7 @@ import lombok.Getter;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.jsf2.model.PhaseAware;
 import org.sakaiproject.jsf2.renderer.PagerRenderer;
@@ -125,13 +123,7 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
 
   private static final SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
   private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
-  private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 
-  private static final String SAK_PROP_DELETE_RESTRICTED = "samigo.removeSubmission.restricted";
-  private static final boolean SAK_PROP_DELETE_RESTRICTED_DEFAULT = false;
-  
-  private boolean deleteRestrictedForCurrentSite = false;
- 
     /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
   private String assessmentName;
@@ -211,26 +203,6 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
 
 	protected void init() {
         defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
-
-		try {
-			Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-			boolean sitePropertyExists = false;
-			if (site != null) {
-				ResourceProperties siteProperties = site.getProperties();
-				if (siteProperties != null) {
-					String prop = StringUtils.trimToEmpty(siteProperties.getProperty(SAK_PROP_DELETE_RESTRICTED));
-					sitePropertyExists = !prop.isEmpty();
-					deleteRestrictedForCurrentSite = StringUtils.equalsIgnoreCase(prop, "true");
-				}
-			}
-
-			if (!sitePropertyExists) {
-				deleteRestrictedForCurrentSite = serverConfigurationService.getBoolean(SAK_PROP_DELETE_RESTRICTED, SAK_PROP_DELETE_RESTRICTED_DEFAULT);
-			}
-
-		} catch (Exception ex) {
-			log.warn(ex.getMessage(), ex);
-		}
 
 		if (searchString == null) {
 			searchString = defaultSearchString;
@@ -1412,10 +1384,6 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
 	public void setIsAnyAssessmentGradingAttachmentListModified(boolean isAnyAssessmentGradingAttachmentListModified)
 	{
 		this.isAnyAssessmentGradingAttachmentListModified = isAnyAssessmentGradingAttachmentListModified;
-	}
-
-	public boolean getRestrictedDelete() {
-		return deleteRestrictedForCurrentSite;
 	}
 
 	public String getCDNQuery() {

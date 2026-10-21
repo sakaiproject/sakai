@@ -61,10 +61,7 @@ import org.apache.commons.math3.util.Precision;
 import org.jsoup.Jsoup;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -2861,19 +2858,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
                           .loadPublishedAssessment(submission.getPublishedAssessmentId()).getCreatedBy()));
       if (!canGrade) {
           throw new SecurityException("You must be authorized to grade the assessment");
-      }
-      try {
-          String restrictionKey = "samigo.removeSubmission.restricted";
-          ResourceProperties properties = siteService.getSite(siteId).getProperties();
-          String siteRestriction = properties == null ? "" : StringUtils.trimToEmpty(properties.getProperty(restrictionKey));
-          boolean restricted = siteRestriction.isEmpty()
-                  ? ComponentManager.get(ServerConfigurationService.class).getBoolean(restrictionKey, false)
-                  : Boolean.parseBoolean(siteRestriction);
-          if (restricted && !securityService.unlock("site.upd", siteService.siteReference("!admin"))) {
-              throw new SecurityException("Assessment submission removal is restricted to administrators");
-          }
-      } catch (IdUnusedException e) {
-          throw new IllegalArgumentException("No site for assessment submission " + submission.getAssessmentGradingId(), e);
       }
   }
 
