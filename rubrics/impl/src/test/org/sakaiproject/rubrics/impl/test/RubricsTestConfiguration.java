@@ -33,8 +33,6 @@ import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMapping
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -128,21 +126,7 @@ public class RubricsTestConfiguration extends SakaiTestConfiguration {
     }
 
     @Bean(name = "PersistenceService")
-    public PersistenceService assessmentPersistenceService(AssessmentGradingFacadeQueriesAPI assessmentGradingQueries,
-            PublishedAssessmentFacadeQueriesAPI publishedAssessmentQueries) {
-        PersistenceService persistenceService = mock(PersistenceService.class);
-        when(persistenceService.getAssessmentGradingFacadeQueries()).thenReturn(assessmentGradingQueries);
-        when(persistenceService.getPublishedAssessmentFacadeQueries()).thenReturn(publishedAssessmentQueries);
-        return persistenceService;
-    }
-
-    @Bean
-    public AssessmentGradingFacadeQueriesAPI assessmentGradingQueries() {
-        return mock(AssessmentGradingFacadeQueriesAPI.class);
-    }
-
-    @Bean
-    public PublishedAssessmentFacadeQueriesAPI publishedAssessmentQueries() {
-        return mock(PublishedAssessmentFacadeQueriesAPI.class);
+    public PersistenceService assessmentPersistenceService() {
+        return mock(PersistenceService.class);
     }
 }

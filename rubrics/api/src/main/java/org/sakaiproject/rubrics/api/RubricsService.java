@@ -118,21 +118,12 @@ public interface RubricsService extends EntityProducer {
     /**
      * Delete evaluations and saved feedback for the exact evaluated items in a tool and site.
      * Rubric associations are retained. Missing evaluations are ignored.
-     * Requires rubric evaluator permission in the site.
+     * Internal tool-service operation: the calling service must authorize removal of
+     * the evaluated items. Do not expose this operation directly to client requests.
      *
      * @return the number of evaluations removed
      */
     int deleteEvaluationsForToolAndEvaluatedItems(String toolId, Set<String> evaluatedItemIds, String siteId);
-
-    /**
-     * Delete evaluations and saved feedback for a Samigo submission before its removal.
-     * Requires Samigo grading permission for the submission's assessment and respects
-     * submission-removal restrictions. Does not require rubric evaluator permission.
-     * Rubric associations and evaluations for other submissions are retained.
-     *
-     * @return the number of evaluations removed
-     */
-    int deleteEvaluationsForSamigoSubmission(Long submissionId, String siteId);
 
     List<EvaluationTransferBean> getEvaluationsForToolAndItem(String toolId, String itemId, String siteId);
 
