@@ -99,6 +99,7 @@ public interface DateManagerService {
 	public void updateLessons(DateManagerValidation lessonsValidation) throws Exception;
 
 	public DateManagerValidation validateTool(String toolId, int idx, String[][] columnsNames, String[] toolColumnsAux);
+	public DateManagerValidation validateTool(String toolId, int idx, String[] toolColumnsAux);
 	public void updateTool(String toolId, DateManagerValidation dateManagerValidation);
 
 	public boolean isChanged(String toolId, String[] columns);
