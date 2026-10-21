@@ -182,9 +182,57 @@ public class RubricsRestControllerTests {
                 .contentType("application/json-patch+json")
                 .content("[{\"op\":\"test\",\"path\":\"/criteria/0/id\",\"value\":13},"
                         + "{\"op\":\"replace\",\"path\":\"/criteria/0/weight\",\"value\":100}]"))
+                .andExpect(status().isConflict());
+
+        verify(rubricsService, never()).saveRubric(any());
+    }
+
+    @Test
+    public void testOfRemovedCriterionReturnsConflict() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setVersion(1L);
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+
+        mockMvc.perform(patch("/sites/site1/rubrics/1")
+                .header("If-Match", "\"1\"")
+                .contentType("application/json-patch+json")
+                .content("[{\"op\":\"test\",\"path\":\"/criteria/0/id\",\"value\":13}]"))
+                .andExpect(status().isConflict());
+
+        verify(rubricsService, never()).saveRubric(any());
+    }
+
+    @Test
+    public void failedReplaceAfterSuccessfulTestStillReturnsServerError() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setVersion(1L);
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+
+        mockMvc.perform(patch("/sites/site1/rubrics/1")
+                .header("If-Match", "\"1\"")
+                .contentType("application/json-patch+json")
+                .content("[{\"op\":\"test\",\"path\":\"/version\",\"value\":1},"
+                        + "{\"op\":\"replace\",\"path\":\"/criteria/0/weight\",\"value\":100}]"))
                 .andExpect(status().isInternalServerError());
 
         verify(rubricsService, never()).saveRubric(any());
+    }
+
+    @Test
+    public void patchTestsSeePrecedingChanges() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setVersion(1L);
+        rubric.setTitle("Original");
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+        when(rubricsService.saveRubric(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        mockMvc.perform(patch("/sites/site1/rubrics/1")
+                .header("If-Match", "\"1\"")
+                .contentType("application/json-patch+json")
+                .content("[{\"op\":\"replace\",\"path\":\"/title\",\"value\":\"Updated\"},"
+                        + "{\"op\":\"test\",\"path\":\"/title\",\"value\":\"Updated\"}]"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Updated"));
     }
 
     @Test
