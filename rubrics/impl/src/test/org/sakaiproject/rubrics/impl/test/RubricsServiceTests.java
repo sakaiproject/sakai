@@ -478,6 +478,59 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void newAssociationPreventsAnOverlappingDraftSave() {
+        switchToInstructor();
+        String itemId = "new-association-first";
+        TransactionTemplate transactions = rubricRaceTransactions();
+        RubricTransferBean original = transactions.execute(status -> rubricsService.createDefaultRubric(siteId));
+        try {
+            assertThrows(OptimisticLockException.class, () -> transactions.executeWithoutResult(status -> {
+                RubricTransferBean stale = rubricsService.getRubric(original.getId()).get();
+                assertFalse(stale.getAssociated());
+                transactions.executeWithoutResult(concurrent -> rubricsService.saveRubricAssociation(
+                        AssignmentConstants.TOOL_ID, itemId, Map.of(RubricsConstants.RBCS_ASSOCIATE, "1",
+                                RubricsConstants.RBCS_LIST, original.getId().toString())));
+                stale.setDraft(true);
+                rubricsService.saveRubric(stale);
+            }));
+            RubricTransferBean current = rubricsService.getRubric(original.getId()).get();
+            assertTrue(current.getVersion() > original.getVersion());
+            assertTrue(current.getAssociated());
+            assertFalse(current.getDraft());
+        } finally {
+            transactions.executeWithoutResult(status -> deleteDraftRaceRubric(original.getId(), itemId));
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void draftSavePreventsAnOverlappingNewAssociation() {
+        switchToInstructor();
+        String itemId = "draft-before-new-association";
+        TransactionTemplate transactions = rubricRaceTransactions();
+        RubricTransferBean original = transactions.execute(status -> rubricsService.createDefaultRubric(siteId));
+        try {
+            assertThrows(OptimisticLockingFailureException.class, () -> transactions.executeWithoutResult(status -> {
+                rubricsService.getRubric(original.getId());
+                transactions.executeWithoutResult(concurrent -> {
+                    RubricTransferBean current = rubricsService.getRubric(original.getId()).get();
+                    current.setDraft(true);
+                    rubricsService.saveRubric(current);
+                });
+                rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, itemId, Map.of(
+                        RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, original.getId().toString()));
+            }));
+            RubricTransferBean current = rubricsService.getRubric(original.getId()).get();
+            assertTrue(current.getDraft());
+            assertFalse(current.getAssociated());
+            assertFalse(rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, itemId).isPresent());
+        } finally {
+            transactions.executeWithoutResult(status -> deleteDraftRaceRubric(original.getId(), itemId));
+        }
+    }
+
+    @Test
     public void saveRubricSanitizesRichTextFields() {
 
         switchToInstructor();

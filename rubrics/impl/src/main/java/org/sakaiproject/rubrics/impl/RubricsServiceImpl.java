@@ -1305,16 +1305,21 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         if (Boolean.TRUE.equals(rubric.getDraft())) {
             throw new RubricsConflictException("Rubric " + rubric.getId() + " must be published before it can be linked again");
         }
-        // Reactivation changes the child only, so explicitly participate in the rubric's version check.
-        sessionFactory.getCurrentSession().lock(rubric, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+        lockRubricVersion(rubric);
         association.setActive(true);
         return associationRepository.save(association);
+    }
+
+    private void lockRubricVersion(Rubric rubric) {
+        // Association writes change the child only, so participate in the rubric's version check.
+        sessionFactory.getCurrentSession().lock(rubric, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
     }
 
     private Optional<ToolItemRubricAssociation> createToolItemRubricAssociation(String toolId, String toolItemId, Map<String, String> params, Long requestedRubricId) {
         log.debug("Creating new association for rubric [{}], tool [{}], item[{}]", requestedRubricId, toolId, toolItemId);
         Optional<Rubric> rubric = rubricRepository.findById(requestedRubricId);
         if (rubric.isPresent()) {
+            lockRubricVersion(rubric.get());
             ToolItemRubricAssociation newAssociation = new ToolItemRubricAssociation();
             newAssociation.setRubric(rubric.get());
             newAssociation.setToolId(toolId);
