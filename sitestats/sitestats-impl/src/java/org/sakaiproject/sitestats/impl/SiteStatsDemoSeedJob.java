@@ -28,7 +28,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -50,15 +49,9 @@ public class SiteStatsDemoSeedJob implements Job {
 	@Setter private UserDirectoryService userDirectoryService;
 	@Setter private SessionManager sessionManager;
 	@Setter private SecurityService securityService;
-	@Setter private ServerConfigurationService serverConfigurationService;
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
-		if (!serverConfigurationService.getBoolean("sitestats.sakai.demo", false)) {
-			log.info("sitestats.sakai.demo is false; skipping SiteStatsDemoSeedJob");
-			return;
-		}
-
 		log.info("SiteStatsDemoSeedJob started");
 
 		Session session = sessionManager.getCurrentSession();

@@ -100,10 +100,6 @@ public class SiteStatsDemoSeedServiceImpl implements SiteStatsDemoSeedService {
 
 	@Override
 	public void seed(Collection<Site> sites, Collection<User> students, Collection<User> instructors) {
-		if (!serverConfigurationService.getBoolean("sitestats.sakai.demo", false)) {
-			log.info("sitestats.sakai.demo is false; skipping SiteStats demo seed");
-			return;
-		}
 		if (sites == null || sites.isEmpty()) {
 			log.info("SiteStats demo seed skipped: no sites");
 			return;

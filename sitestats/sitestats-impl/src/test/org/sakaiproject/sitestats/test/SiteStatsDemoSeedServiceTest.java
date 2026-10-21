@@ -85,7 +85,6 @@ public class SiteStatsDemoSeedServiceTest extends AbstractTransactionalJUnit4Spr
 
 		when(simplePageToolDao.getSitePages(anyString())).thenReturn(Collections.emptyList());
 
-		when(serverConfigurationService.getBoolean("sitestats.sakai.demo", false)).thenReturn(true);
 		when(serverConfigurationService.getInt("sitestats.demo.seed.days", 30)).thenReturn(7);
 		when(serverConfigurationService.getInt("sitestats.demo.seed.visits.per.user", 8)).thenReturn(3);
 		when(serverConfigurationService.getInt("sitestats.demo.seed.sessions", 24)).thenReturn(0);

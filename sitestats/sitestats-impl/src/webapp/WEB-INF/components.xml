@@ -536,7 +536,7 @@
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
 
-	<!-- sitestats tool demo seed (invoked from SeedSitesAndUsersJob when sitestats.sakai.demo=true; optional Job Scheduler re-run) -->
+	<!-- sitestats tool demo seed (SeedSites when sitestats.sakai.demo=true; Job Scheduler may re-run anytime) -->
 	<bean id="org.sakaiproject.sitestats.impl.DemoStatsUpdateManager"
 		  parent="org.sakaiproject.sitestats.api.StatsUpdateManager.target" scope="prototype" autowire-candidate="false">
 		<property name="collectThreadEnabled" value="false"/>
@@ -566,7 +566,6 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 	<bean id="org.sakaiproject.sitestats.api.SiteStatsDemoSeedJobBeanWrapper"
 		  class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
