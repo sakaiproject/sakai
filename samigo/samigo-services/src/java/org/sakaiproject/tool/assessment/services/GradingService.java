@@ -62,6 +62,8 @@ import org.jsoup.Jsoup;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
@@ -2820,8 +2822,23 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   public void removeAssessmentGradingData(AssessmentGradingData data) {
 	  try {
 		  PersistenceService.getInstance().getAssessmentGradingFacadeQueries().removeAssessmentGradingData(data);
+          RubricsService rubricsService = ComponentManager.get(RubricsService.class);
+          String siteId = AgentFacade.getCurrentSiteId();
+          Set<Long> itemIds = data.getItemGradingSet().stream()
+                  .map(ItemGradingData::getPublishedItemId)
+                  .collect(Collectors.toSet());
+          for (Long itemId : itemIds) {
+              String associationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX
+                      + data.getPublishedAssessmentId() + "." + itemId;
+              if (rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId).isPresent()) {
+                  // Other attempts share the association, but have their own evaluation ids.
+                  String evaluatedItemId = data.getAssessmentGradingId() + "." + itemId;
+                  rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(
+                          RubricsConstants.RBCS_TOOL_SAMIGO, associationId, evaluatedItemId, siteId);
+              }
+          }
 	  } catch (Exception e) {
-		  log.error("Exception thrown from removeAssessmentGradingData", e);
+		  log.error("Failed to remove assessment submission {} and its rubric evaluations", data.getAssessmentGradingId(), e);
 	  }
   }
 

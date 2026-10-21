@@ -712,6 +712,36 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void deletingEvaluationPreservesLocksFromOtherSubmissions() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = RubricsConstants.RBCS_TOOL_SAMIGO;
+        String toolItemId = "pub.100.200";
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, toolItemId,
+                Map.of(RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString())).orElseThrow();
+        EvaluationTransferBean first = buildEvaluation(association.getId(), rubric, "10.200");
+        first.setStatus(EvaluationStatus.RETURNED);
+        first = rubricsService.saveEvaluation(first, siteId);
+        EvaluationTransferBean second = buildEvaluation(association.getId(), rubric, "11.200");
+        second.setStatus(EvaluationStatus.RETURNED);
+        second = rubricsService.saveEvaluation(second, siteId);
+
+        assertTrue(rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(toolId, toolItemId, "11.200", siteId));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertTrue(rubricsService.getRubric(rubric.getId()).orElseThrow().getLocked());
+        assertTrue(rubricsService.getEvaluation(first.getId(), siteId).isPresent());
+        assertFalse(rubricsService.getEvaluation(second.getId(), siteId).isPresent());
+        assertFalse(returnedEvaluationRepository.findByOriginalEvaluationId(second.getId()).isPresent());
+
+        assertTrue(rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(toolId, toolItemId, "10.200", siteId));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertFalse(rubricsService.getRubric(rubric.getId()).orElseThrow().getLocked());
+        assertTrue(rubricsService.getRubricAssociation(toolId, toolItemId).isPresent());
+    }
+
+    @Test
     public void anonymousUserCannotSavePeerEvaluation() {
 
         switchToUser1();
