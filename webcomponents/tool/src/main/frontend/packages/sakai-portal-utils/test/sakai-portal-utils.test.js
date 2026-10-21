@@ -1,5 +1,5 @@
 import { getOffsetFromServerMillis, getUserId, getUserLocale, getTimezone } from '../index.js';
-import { expect } from '@open-wc/testing';
+import { expect, oneEvent } from '@open-wc/testing';
 
 describe("sakai-portal-utils tests", () => {
 
@@ -58,5 +58,81 @@ describe("sakai-portal-utils tests", () => {
     }
 
     expect(getTimezone()).to.equal(timezone);
+  });
+
+  async function loadTimezoneFrame(parent = document.body) {
+    const frame = document.createElement("iframe");
+    frame.src = new URL("./fixtures/timezone.html", import.meta.url).href;
+    const loaded = oneEvent(frame, "load");
+    parent.append(frame);
+    await loaded;
+    return frame;
+  }
+
+  it ("returns an empty timezone when there is no portal context", () => {
+    const original = globalThis.portal;
+    try {
+      delete globalThis.portal;
+      expect(getTimezone()).to.equal("");
+    } finally {
+      globalThis.portal = original;
+    }
+  });
+
+  it ("gets the portal timezone from the containing window", async () => {
+    globalThis.portal = { user: { timezone: "Europe/London" } };
+    const frame = await loadTimezoneFrame();
+    try {
+      expect(frame.contentWindow.getTimezone()).to.equal("Europe/London");
+    } finally {
+      frame.remove();
+    }
+  });
+
+  it ("prefers the current window's configured timezone", async () => {
+    globalThis.portal = { user: { timezone: "Europe/London" } };
+    const frame = await loadTimezoneFrame();
+    try {
+      frame.contentWindow.portal = { user: { timezone: "America/New_York" } };
+      expect(frame.contentWindow.getTimezone()).to.equal("America/New_York");
+    } finally {
+      frame.remove();
+    }
+  });
+
+  it ("finds the portal timezone through nested tool frames", async () => {
+    globalThis.portal = { user: { timezone: "Europe/London" } };
+    const frame = await loadTimezoneFrame();
+    try {
+      const nested = await loadTimezoneFrame(frame.contentDocument.body);
+      nested.contentWindow.portal = {};
+      expect(nested.contentWindow.getTimezone()).to.equal("Europe/London");
+    } finally {
+      frame.remove();
+    }
+  });
+
+  it ("stops at a containing window from another origin", async () => {
+    globalThis.portal = { user: { timezone: "Europe/London" } };
+    const frame = document.createElement("iframe");
+    const url = new URL("./fixtures/timezone.html", import.meta.url);
+    url.hostname = url.hostname === "localhost" ? "127.0.0.1" : "localhost";
+    frame.src = url.href;
+    let receive;
+    const result = new Promise(resolve => {
+      receive = event => {
+        if (event.source === frame.contentWindow && event.data.type === "timezone-result") {
+          resolve(event.data.timezone);
+        }
+      };
+      window.addEventListener("message", receive);
+    });
+    document.body.append(frame);
+    try {
+      expect(await result).to.equal("");
+    } finally {
+      window.removeEventListener("message", receive);
+      frame.remove();
+    }
   });
 });
