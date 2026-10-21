@@ -35,6 +35,7 @@ import org.sakaiproject.user.api.IdPwEvidence;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.WebDavEvidence;
 
 /**
  * <p>
@@ -96,20 +97,26 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 				throw new AuthenticationException("Invalid Login: Either identifier or password empty.");
 			}
 			
-			// Check the cache. If repeat authentication failures are being throttled,
-			// an immediate AuthenticationException might be thrown here.
-			Authentication rv = authenticationCache().getAuthentication(evidence.getIdentifier(), evidence.getPassword());
-			if (rv != null) {
-				return rv;
-			}
-
-			// the evidence id must match a defined User
-			User user = userDirectoryService().authenticate(evidence.getIdentifier(), evidence.getPassword());
-			if (user == null)
-			{
-				authenticationCache().putAuthenticationFailure(evidence.getIdentifier(), evidence.getPassword());
-				throw new AuthenticationException("Invalid Login: Either user not found or password incorrect.");
-			}
+            boolean webDav = evidence instanceof WebDavEvidence;
+            Authentication cached = webDav
+                    ? authenticationCache().getAuthentication(evidence.getIdentifier(), evidence.getPassword()) : null;
+            User user;
+            if (cached == null) {
+                user = userDirectoryService().authenticate(evidence.getIdentifier(), evidence.getPassword());
+                if (user == null) {
+                    if (webDav) {
+                        authenticationCache().putAuthenticationFailure(evidence.getIdentifier(), evidence.getPassword());
+                    }
+                    throw new AuthenticationException("Invalid Login: Either user not found or password incorrect.");
+                }
+            } else {
+                try {
+                    user = userDirectoryService().getUser(cached.getUid());
+                } catch (UserNotDefinedException ex) {
+                    authenticationCache().removeAuthentification(evidence.getIdentifier());
+                    throw new AuthenticationException("Invalid Login: User no longer exists.", ex);
+                }
+            }
 
 			// Check to see if the user account is disabled
 			String disabled = user.getProperties().getProperty("disabled");
@@ -124,10 +131,11 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 				throw new AuthenticationException("Authentication refused: The user may only authenticate from whitelisted addresses");
 			}
 
-			rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
+			Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
 			
-			// Cache the authentication.
-			authenticationCache().putAuthentication(evidence.getIdentifier(), evidence.getPassword(), rv);
+			if (webDav) {
+				authenticationCache().putAuthentication(evidence.getIdentifier(), evidence.getPassword(), rv);
+			}
 			
 			return rv;
 		}

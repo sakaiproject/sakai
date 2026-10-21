@@ -165,7 +165,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.AuthenticationManager;
-import org.sakaiproject.util.IdPwEvidence;
+import org.sakaiproject.util.WebDavEvidence;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -1048,7 +1048,7 @@ public class DavServlet extends HttpServlet
 		{
 			String eid = prin.getName();
 			String pw = ((DavPrincipal) prin).getPassword();
-			Evidence e = new IdPwEvidence(eid, pw, req.getRemoteAddr());
+			Evidence e = new WebDavEvidence(eid, pw, req.getRemoteAddr());
 
 			// in older versions of this code, we didn't authenticate
 			// if there was a session for this user. Unfortunately the
