@@ -37,8 +37,8 @@
           th:attr="endpoint=${metricEndpoints.get(widget.id)}">
       </sakai-sitestats-widget-metrics>
       <sakai-sitestats-highlights class="sitestats-highlights"
-                                  th:if="${widget.highlightsConfigured and !#lists.isEmpty(widget.highlights)}"
-                                  th:attr="charts=${widgetHighlightsJson.get(widget.id)}">
+                                  th:if="${widget.highlightsConfigured}"
+                                  th:attr="endpoint=${highlightEndpoints.get(widget.id)}">
       </sakai-sitestats-highlights>
       <sakai-sitestats-widget-tab class="sitestats-widget-tab"
                                   th:each="tab : ${widget.tabs}"
@@ -65,6 +65,12 @@
           <input class="form-control form-control-sm"
                  th:if="${filter.type == 'date'}"
                  type="date"
+                 th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                 th:value="${filter.value}"
+                 th:attr="data-report-filter=${filter.id}">
+          <input class="form-control form-control-sm"
+                 th:if="${filter.type == 'text'}"
+                 type="text"
                  th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
                  th:value="${filter.value}"
                  th:attr="data-report-filter=${filter.id}">

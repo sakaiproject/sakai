@@ -16,9 +16,14 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.options.FilePayload;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -123,6 +128,61 @@ class DateManagerTest extends SakaiUiTestBase {
         // or the empty-state message, depending on whether the site has any dated items.
         assertThat(page.locator("#modal-calendar-preview")).isVisible();
         assertThat(page.locator("#datemanager-preview-title")).isVisible();
+    }
+
+    @Test
+    void csvImportClearsAnnouncementStartDateWithoutChangingEndDate() throws Exception {
+        sakai.login("instructor1");
+        String site = sakai.createCourse("instructor1", List.of("sakai\\.announcements"));
+        page.navigate(site);
+        sakai.toolClick("Announcements");
+        page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Add")).first().click();
+        String title = "CSV date clearing regression";
+        page.locator("#subject").fill(title);
+        if (!sakai.typeCkEditorIfPresent("body", "<p>CSV date clearing regression.</p>")) {
+            page.locator("textarea#body").fill("CSV date clearing regression.");
+        }
+        page.locator("#hidden_specify").check();
+        page.locator("#use_start_date").check();
+        sakai.selectDate("#opendate", "06/01/2035 08:30 am");
+        page.locator("#use_end_date").check();
+        sakai.selectDate("#closedate", "06/03/2035 08:30 am");
+        page.locator("#saveChanges").click();
+        assertThat(page.locator("table tr").filter(new Locator.FilterOptions().setHasText(title))).hasCount(1);
+        openDateManager();
+
+        Locator row = page.locator("#collapse-announcements tbody tr")
+            .filter(new Locator.FilterOptions().setHasText(title));
+        assertThat(row).hasCount(1);
+        String endDate = row.locator("input[data-field='due_date']").inputValue();
+        assertFalse(row.locator("input[data-field='open_date']").inputValue().isBlank());
+        assertFalse(endDate.isBlank());
+
+        Download download = page.waitForDownload(() -> page.locator("#exportDates").click());
+        List<String> lines = Files.readAllLines(download.path(), StandardCharsets.UTF_8);
+        int changedRows = 0;
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).contains("\"" + title + "\"")) {
+                String[] columns = lines.get(i).split(",", -1);
+                assertEquals(4, columns.length);
+                columns[2] = "\"\"";
+                lines.set(i, String.join(",", columns));
+                changedRows++;
+            }
+        }
+        assertEquals(1, changedRows);
+        String csv = String.join("\n", lines) + "\n";
+        page.locator("#importDates").click();
+        page.locator("#file").setInputFiles(new FilePayload("dates.csv", "text/csv", csv.getBytes(StandardCharsets.UTF_8)));
+        page.locator("#submit-form-button").click();
+        assertThat(page.locator(".table-datemanager td").filter(new Locator.FilterOptions().setHasText(title))).hasCount(1);
+        page.locator("#submit-form-button").click();
+        assertThat(page.locator("#exportDates")).isVisible();
+        assertThat(row.locator("input[data-field='open_date']")).hasValue("");
+        assertThat(row.locator("input[data-field='due_date']")).hasValue(endDate);
+        page.reload();
+        assertThat(row.locator("input[data-field='open_date']")).hasValue("");
+        assertThat(row.locator("input[data-field='due_date']")).hasValue(endDate);
     }
 
     private void openDateManager() {

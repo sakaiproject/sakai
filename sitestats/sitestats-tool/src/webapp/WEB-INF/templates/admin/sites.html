@@ -49,7 +49,7 @@
       <tbody>
         <tr th:each="site : ${sites}">
           <td>
-            <a th:href="@{/serverwide(siteId=${site.id})}" th:text="${site.title}"></a>
+            <a th:href="@{/home(siteId=${site.id})}" th:text="${site.title}"></a>
           </td>
           <td th:text="${site.type}"></td>
           <td th:text="${site.published} ? #{site_published} : #{site_unpublished}"></td>

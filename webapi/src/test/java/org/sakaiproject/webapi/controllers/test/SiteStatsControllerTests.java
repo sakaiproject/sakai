@@ -7,6 +7,7 @@ package org.sakaiproject.webapi.controllers.test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -87,6 +88,26 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 	}
 
 	@Test
+	public void getWidgetReportPassesInstitutionalFilters() throws Exception {
+		SiteStatsReportView view = new SiteStatsReportView();
+		view.setSiteId(SITE_ID);
+		view.setWidgetId("institutional-presence");
+		view.setTabId("bysite");
+		when(siteStatsViewService.getWidgetReport(eq(SITE_ID), eq("institutional-presence"), eq("bysite"),
+				argThat(request -> "course".equals(request.getSiteType())
+						&& "MATH".equals(request.getSitePrefix())
+						&& Boolean.TRUE.equals(request.getPublishedOnly())))).thenReturn(view);
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/institutional-presence/tabs/bysite")
+				.param("siteType", "course")
+				.param("sitePrefix", "MATH")
+				.param("publishedOnly", "true"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.widgetId", is("institutional-presence")))
+			.andExpect(jsonPath("$.tabId", is("bysite")));
+	}
+
+	@Test
 	public void getReportsReturnsReportSummaryJson() throws Exception {
 		SiteStatsReportSummary summary = new SiteStatsReportSummary();
 		summary.setId(42L);
@@ -139,6 +160,24 @@ public class SiteStatsControllerTests extends BaseControllerTests {
 		ArgumentCaptor<SiteStatsReportRequest> captor = ArgumentCaptor.forClass(SiteStatsReportRequest.class);
 		verify(siteStatsViewService).getWidgetMetrics(eq(SITE_ID), eq("submissions"), captor.capture());
 		org.junit.Assert.assertEquals("sakai.assignment.grades,sakai.samigo", captor.getValue().getItemType());
+	}
+
+	@Test
+	public void getWidgetMetricsPassesInstitutionalFilters() throws Exception {
+		when(siteStatsViewService.getWidgetMetrics(eq(SITE_ID), eq("institutional-presence"), any(SiteStatsReportRequest.class)))
+			.thenReturn(Collections.emptyList());
+
+		mockMvc.perform(get("/sites/" + SITE_ID + "/sitestats/widgets/institutional-presence/metrics"
+				+ "?date=when-last30days&siteType=course&sitePrefix=2026&publishedOnly=true"))
+			.andExpect(status().isOk());
+
+		ArgumentCaptor<SiteStatsReportRequest> captor = ArgumentCaptor.forClass(SiteStatsReportRequest.class);
+		verify(siteStatsViewService).getWidgetMetrics(eq(SITE_ID), eq("institutional-presence"), captor.capture());
+		SiteStatsReportRequest request = captor.getValue();
+		org.junit.Assert.assertEquals("when-last30days", request.getDate());
+		org.junit.Assert.assertEquals("course", request.getSiteType());
+		org.junit.Assert.assertEquals("2026", request.getSitePrefix());
+		org.junit.Assert.assertEquals(Boolean.TRUE, request.getPublishedOnly());
 	}
 
 	@Test

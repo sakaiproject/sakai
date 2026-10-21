@@ -21,6 +21,7 @@ public class SiteStatsFilter implements Serializable {
 	public static final String TYPE_SELECT = "select";
 	public static final String TYPE_NUMBER = "number";
 	public static final String TYPE_DATE = "date";
+	public static final String TYPE_TEXT = "text";
 
 	private String id;
 	private String label;

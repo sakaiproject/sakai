@@ -480,6 +480,10 @@ public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Obs
 		if (e == null) {
 			return;
 		}
+		Date eventDate = e instanceof CustomEventImpl ? ((CustomEventImpl) e).getDate() : getToday();
+		if (eventDate == null) {
+			eventDate = getToday();
+		}
 		if(isRegisteredEvent(e.getEvent()) && isValidEvent(e)){
 
 			// site check
@@ -510,19 +514,13 @@ public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Obs
 			}
 			
 			// consolidate event
-			Date date = null;
-			if(e instanceof CustomEventImpl){
-				date = ((CustomEventImpl) e).getDate();
-			}else{
-				date = getToday();
-			}
 			String eventId = e.getEvent();
 			String resourceRef = e.getResource();
 			String sessionId = e.getSessionId();
 			if(userId == null || eventId == null || resourceRef == null || sessionId == null) {
 				return;
 			}
-			consolidateEvent(date, eventId, resourceRef, userId, siteId, sessionId);
+			consolidateEvent(eventDate, eventId, resourceRef, userId, siteId, sessionId);
 		} else if(getServerEvents().contains(e.getEvent()) && !isMyWorkspaceEvent(e)){
 			
 			//it's a server event
@@ -535,9 +533,7 @@ public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Obs
 			if(eventId == null) {
 				return;
 			}
-			Date date = new Date();
-			
-			consolidateServerEvent(date, eventId);
+			consolidateServerEvent(eventDate, eventId);
 		} 
 		
 		//we do this separately as we want individual login stats as well as totals from the server stats section
@@ -560,8 +556,7 @@ public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Obs
 				return;
 			}
 			
-			Date date = new Date();
-			consolidateUserEvent(date, userId);
+			consolidateUserEvent(eventDate, userId);
 		}
 		
 		

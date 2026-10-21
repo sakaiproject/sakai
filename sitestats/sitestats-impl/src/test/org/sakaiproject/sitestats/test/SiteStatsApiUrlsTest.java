@@ -93,7 +93,22 @@ public class SiteStatsApiUrlsTest {
 
 		String url = SiteStatsApiUrls.widgetMetrics("site1", "submissions", request);
 
-		assertEquals("/api/sites/site1/sitestats/widgets/submissions/metrics?itemType=sakai.assignment.grades%2Csakai.samigo", url);
+		assertEquals("/api/sites/site1/sitestats/widgets/submissions/metrics"
+				+ "?date=when-last7days&role=who-all&tool=all&itemType=sakai.assignment.grades%2Csakai.samigo", url);
+	}
+
+	@Test
+	public void widgetMetricsBuildsStableApiUrlWithInstitutionalFilters() {
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		request.setDate(ReportManager.WHEN_LAST30DAYS);
+		request.setSiteType("course");
+		request.setSitePrefix("2026");
+		request.setPublishedOnly(Boolean.TRUE);
+
+		String url = SiteStatsApiUrls.widgetMetrics("site1", "institutional-presence", request);
+
+		assertEquals("/api/sites/site1/sitestats/widgets/institutional-presence/metrics"
+				+ "?date=when-last30days&role=who-all&tool=all&siteType=course&sitePrefix=2026&publishedOnly=true", url);
 	}
 
 	@Test

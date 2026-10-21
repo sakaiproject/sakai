@@ -708,6 +708,26 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void submissionWorkIncludesSavedGradesAndFeedbackButNotEmptyGradingPlaceholders() throws Exception {
+        AssignmentSubmission submission = createNewGroupSubmission(UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(), Set.of("student"));
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(Instant.now());
+        submission.setUserSubmission(false);
+        submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "2");
+        submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, "123456");
+        Assert.assertFalse("Empty grading placeholders remain removable", assignmentService.hasSubmissionWork(submission));
+        submission.setGrade("0");
+        Assert.assertTrue("Zero is saved grading work", assignmentService.hasSubmissionWork(submission));
+        submission.setGrade(null);
+        submission.setFeedbackComment("Feedback without a grade or student submission");
+        Assert.assertTrue("Feedback alone is saved work", assignmentService.hasSubmissionWork(submission));
+        submission.setFeedbackComment(null);
+        submission.setUserSubmission(true);
+        Assert.assertTrue("Student submissions are work", assignmentService.hasSubmissionWork(submission));
+    }
+
+    @Test
     public void softDeleteAssignment() {
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);

@@ -156,7 +156,8 @@ export class SakaiRubric extends RubricsElement {
           ${!this.rubric.locked ? html`
             <div class="action-container">
               <button type="button"
-                  class="btn btn-sm ${(this.rubric.draft && this.rubric.weighted && !this._validWeight) ? "disabled" : ""} draft"
+                  class="btn btn-sm ${(this.rubric.draft && this.rubric.weighted && !this._validWeight) ? "disabled" : ""} ${!this.rubric.draft && this.rubric.associated ? "text-muted" : ""} draft"
+                  aria-disabled="${!this.rubric.draft && this.rubric.associated ? "true" : "false"}"
                   title="${this.draftLabel}"
                   aria-label="${this.draftLabel}"
                   @click=${this.draftChange}>
@@ -348,10 +349,12 @@ export class SakaiRubric extends RubricsElement {
 
     // Draft mode can't be turned off if the total weight doesn't match 100%,
     // this way (+css) also prevents the rubric to be toggled when pressing the disabled button.
-    if (this.rubric.draft && this.rubric.weighted && !this._validWeight) {
+    if ((!this.rubric.draft && this.rubric.associated)
+        || (this.rubric.draft && this.rubric.weighted && !this._validWeight)) {
       return;
     }
-    this.rubric.draft = !this.rubric.draft;
+    const previousDraft = this.rubric.draft;
+    this.rubric.draft = !previousDraft;
 
     this.patchRubric([
       { op: "replace", path: "/draft", value: this.rubric.draft },
@@ -359,7 +362,12 @@ export class SakaiRubric extends RubricsElement {
     ]).then(() => {
       this.handleDraftBtn();
       this.requestUpdate();
-    }).catch(error => this.reportSaveError(error));
+    }).catch(error => {
+      this.rubric.draft = previousDraft;
+      this.handleDraftBtn();
+      this.reportSaveError(error);
+      this.requestUpdate();
+    });
   }
 
   weightedChange() {
@@ -415,7 +423,9 @@ export class SakaiRubric extends RubricsElement {
       }
     } else {
       this.draftIcon = "fa-eye";
-      if (this.rubric.weighted) {
+      if (this.rubric.associated) {
+        this.draftLabel = this.tr("draft_in_use");
+      } else if (this.rubric.weighted) {
         this.draftLabel = this.tr("draft_turn_on") + this.tr("draft_save_weights");
       } else {
         this.draftLabel = this.tr("draft_turn_on");

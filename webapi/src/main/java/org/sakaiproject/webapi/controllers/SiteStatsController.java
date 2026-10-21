@@ -105,21 +105,15 @@ public class SiteStatsController extends AbstractSakaiApiController {
 			@RequestParam(value = "itemType", required = false) String itemType,
 			@RequestParam(value = "group", required = false) String group,
 			@RequestParam(value = "item", required = false) String item,
-			@RequestParam(value = "threshold", required = false) Double threshold) {
+			@RequestParam(value = "threshold", required = false) Double threshold,
+			@RequestParam(value = "siteType", required = false) String siteType,
+			@RequestParam(value = "sitePrefix", required = false) String sitePrefix,
+			@RequestParam(value = "publishedOnly", required = false) String publishedOnly) {
 		checkSakaiSession();
 		checkSite(siteId);
 		SiteStatsReportRequest request = request(include, page, pageSize);
-		request.setDate(date);
-		request.setWhenFrom(whenFrom);
-		request.setWhenTo(whenTo);
-		request.setRole(role);
-		request.setTool(tool);
-		request.setResourceAction(resourceAction);
-		request.setLessonAction(lessonAction);
-		request.setItemType(itemType);
-		request.setGroup(group);
-		request.setItem(item);
-		request.setThreshold(threshold);
+		applyWidgetFilters(request, date, whenFrom, whenTo, role, tool, resourceAction, lessonAction, itemType, group,
+				item, threshold, siteType, sitePrefix, publishedOnly);
 		try {
 			return siteStatsViewService.getWidgetReport(siteId, widgetId, tabId, request);
 		} catch (SecurityException e) {
@@ -131,13 +125,26 @@ public class SiteStatsController extends AbstractSakaiApiController {
 
 	@GetMapping(value = SiteStatsApiUrls.WIDGET_METRICS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<SiteStatsWidgetMetric> getWidgetMetrics(@PathVariable("siteId") String siteId, @PathVariable("widgetId") String widgetId,
-			@RequestParam(value = "itemType", required = false) String itemType) {
+			@RequestParam(value = "date", required = false) String date,
+			@RequestParam(value = "whenFrom", required = false) String whenFrom,
+			@RequestParam(value = "whenTo", required = false) String whenTo,
+			@RequestParam(value = "role", required = false) String role,
+			@RequestParam(value = "tool", required = false) String tool,
+			@RequestParam(value = "resourceAction", required = false) String resourceAction,
+			@RequestParam(value = "lessonAction", required = false) String lessonAction,
+			@RequestParam(value = "itemType", required = false) String itemType,
+			@RequestParam(value = "group", required = false) String group,
+			@RequestParam(value = "item", required = false) String item,
+			@RequestParam(value = "threshold", required = false) Double threshold,
+			@RequestParam(value = "siteType", required = false) String siteType,
+			@RequestParam(value = "sitePrefix", required = false) String sitePrefix,
+			@RequestParam(value = "publishedOnly", required = false) String publishedOnly) {
 		checkSakaiSession();
 		checkSite(siteId);
-		SiteStatsReportRequest request = new SiteStatsReportRequest();
-		request.setItemType(itemType);
 		try {
-			return siteStatsViewService.getWidgetMetrics(siteId, widgetId, request);
+			return siteStatsViewService.getWidgetMetrics(siteId, widgetId,
+					widgetFilters(date, whenFrom, whenTo, role, tool, resourceAction, lessonAction, itemType, group, item,
+							threshold, siteType, sitePrefix, publishedOnly));
 		} catch (SecurityException e) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
@@ -147,13 +154,26 @@ public class SiteStatsController extends AbstractSakaiApiController {
 
 	@GetMapping(value = SiteStatsApiUrls.WIDGET_HIGHLIGHTS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<SiteStatsChart> getWidgetHighlights(@PathVariable("siteId") String siteId, @PathVariable("widgetId") String widgetId,
-			@RequestParam(value = "itemType", required = false) String itemType) {
+			@RequestParam(value = "date", required = false) String date,
+			@RequestParam(value = "whenFrom", required = false) String whenFrom,
+			@RequestParam(value = "whenTo", required = false) String whenTo,
+			@RequestParam(value = "role", required = false) String role,
+			@RequestParam(value = "tool", required = false) String tool,
+			@RequestParam(value = "resourceAction", required = false) String resourceAction,
+			@RequestParam(value = "lessonAction", required = false) String lessonAction,
+			@RequestParam(value = "itemType", required = false) String itemType,
+			@RequestParam(value = "group", required = false) String group,
+			@RequestParam(value = "item", required = false) String item,
+			@RequestParam(value = "threshold", required = false) Double threshold,
+			@RequestParam(value = "siteType", required = false) String siteType,
+			@RequestParam(value = "sitePrefix", required = false) String sitePrefix,
+			@RequestParam(value = "publishedOnly", required = false) String publishedOnly) {
 		checkSakaiSession();
 		checkSite(siteId);
-		SiteStatsReportRequest request = new SiteStatsReportRequest();
-		request.setItemType(itemType);
 		try {
-			return siteStatsViewService.getWidgetHighlights(siteId, widgetId, request);
+			return siteStatsViewService.getWidgetHighlights(siteId, widgetId,
+					widgetFilters(date, whenFrom, whenTo, role, tool, resourceAction, lessonAction, itemType, group, item,
+							threshold, siteType, sitePrefix, publishedOnly));
 		} catch (SecurityException e) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
@@ -202,5 +222,35 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		}
 
 		return request;
+	}
+
+	private SiteStatsReportRequest widgetFilters(String date, String whenFrom, String whenTo, String role, String tool,
+			String resourceAction, String lessonAction, String itemType, String group, String item, Double threshold,
+			String siteType, String sitePrefix, String publishedOnly) {
+		SiteStatsReportRequest request = new SiteStatsReportRequest();
+		applyWidgetFilters(request, date, whenFrom, whenTo, role, tool, resourceAction, lessonAction, itemType, group,
+				item, threshold, siteType, sitePrefix, publishedOnly);
+		return request;
+	}
+
+	private void applyWidgetFilters(SiteStatsReportRequest request, String date, String whenFrom, String whenTo,
+			String role, String tool, String resourceAction, String lessonAction, String itemType, String group,
+			String item, Double threshold, String siteType, String sitePrefix, String publishedOnly) {
+		request.setDate(date);
+		request.setWhenFrom(whenFrom);
+		request.setWhenTo(whenTo);
+		request.setRole(role);
+		request.setTool(tool);
+		request.setResourceAction(resourceAction);
+		request.setLessonAction(lessonAction);
+		request.setItemType(itemType);
+		request.setGroup(group);
+		request.setItem(item);
+		request.setThreshold(threshold);
+		request.setSiteType(siteType);
+		request.setSitePrefix(sitePrefix);
+		if (StringUtils.isNotBlank(publishedOnly)) {
+			request.setPublishedOnly(Boolean.valueOf(publishedOnly));
+		}
 	}
 }

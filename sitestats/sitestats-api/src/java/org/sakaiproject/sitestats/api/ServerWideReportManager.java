@@ -75,6 +75,15 @@ public interface ServerWideReportManager
     public List<ServerWideStatsRecord> getDailyUniqueLogins();
 
     /**
+     * Count distinct users with at least one login in the last {@code days} calendar days
+     * (including today). This is not the sum of daily unique-login counts.
+     *
+     * @param days number of calendar days in the window; values &lt;= 0 return 0
+     * @return distinct user count for the period
+     */
+    public long getUniqueLoginsInLastDays(int days);
+
+    /**
      * Get site site created or deleted per time period.
      * 
      * @param period	string: daily, weekly, monthly

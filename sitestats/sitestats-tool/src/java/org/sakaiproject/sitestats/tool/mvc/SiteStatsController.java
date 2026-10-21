@@ -61,7 +61,19 @@ public class SiteStatsController {
 
     @GetMapping({"/", "/index.html"})
     public String index(RedirectAttributes redirectAttributes) {
-        return toolService.isAdminTool() ? "redirect:/admin" : "redirect:/home";
+        return toolService.isAdminTool() ? "redirect:/summary" : "redirect:/home";
+    }
+
+    @GetMapping("/summary")
+    public String summary(Model model) {
+        OverviewResult result = toolService.institutionalOverviewWithEndpoints(toolService.currentSiteId());
+        commonModel(model, result.getOverview().getSiteId(), "summary");
+        model.addAttribute("overview", result.getOverview());
+        model.addAttribute("widgetEndpoints", result.getWidgetEndpoints());
+        model.addAttribute("metricEndpoints", result.getMetricEndpoints());
+        model.addAttribute("highlightEndpoints", result.getHighlightEndpoints());
+        model.addAttribute("widgetHighlightsJson", result.getWidgetHighlightsJson());
+        return "admin/summary";
     }
 
     @GetMapping("/home")

@@ -5,20 +5,19 @@
  */
 package org.sakaiproject.sitestats.api.view;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SiteStatsWidgetIds {
+
+	private SiteStatsWidgetIds() {
+	}
 
 	public static final String AUDIENCE_ALL = "all";
 	public static final String AUDIENCE_OWN = "own";
+	public static final String AUDIENCE_ADMIN = "admin";
 
 	public static final String WIDGET_VISITS = "visits";
-	public static final String WIDGET_STUDENT_VISITS = "student-visits";
 	public static final String WIDGET_PRESENCE_ACCESS = "presence-access";
+	public static final String WIDGET_STUDENT_VISITS = "student-visits";
 	public static final String WIDGET_STUDENT_PRESENCE_ACCESS = "student-presence-access";
-	public static final String WIDGET_MEMBER_ADOPTION = "member-adoption";
 	public static final String WIDGET_SUBMISSIONS = "submissions";
 	public static final String WIDGET_STUDENT_SUBMISSIONS = "student-submissions";
 	public static final String WIDGET_GRADES = "grades";
@@ -28,6 +27,11 @@ public final class SiteStatsWidgetIds {
 	public static final String WIDGET_ACTIVITY = "activity";
 	public static final String WIDGET_RESOURCES = "resources";
 	public static final String WIDGET_LESSONS = "lessons";
+	public static final String WIDGET_PLATFORM_HEALTH = "platform-health";
+	public static final String WIDGET_INSTITUTIONAL_PRESENCE = "institutional-presence";
+	public static final String WIDGET_INSTITUTIONAL_LEARNER_ACTIVITY = "institutional-learner-activity";
+	public static final String WIDGET_INSTITUTIONAL_AUTHORING_ACTIVITY = "institutional-authoring-activity";
+	public static final String WIDGET_CLIENT_ENVIRONMENT = "client-environment";
 
 	public static final String TAB_BY_DATE = "bydate";
 	public static final String TAB_BY_USER = "byuser";
@@ -36,6 +40,10 @@ public final class SiteStatsWidgetIds {
 	public static final String TAB_BY_TOOL = "bytool";
 	public static final String TAB_BY_RESOURCE = "byresource";
 	public static final String TAB_BY_PAGE = "bypage";
+	public static final String TAB_BY_SITE = "bysite";
+	public static final String TAB_BY_DEVICE = "bydevice";
+	public static final String TAB_BY_BROWSER = "bybrowser";
+	public static final String TAB_BY_EVENT = "byevent";
 
 	public static final String FILTER_DATE = "date";
 	public static final String FILTER_WHEN_FROM = "whenFrom";
@@ -48,6 +56,9 @@ public final class SiteStatsWidgetIds {
 	public static final String FILTER_ITEM_TYPE = "itemType";
 	public static final String FILTER_GROUP = "group";
 	public static final String FILTER_ITEM = "item";
+	public static final String FILTER_SITE_TYPE = "siteType";
+	public static final String FILTER_SITE_PREFIX = "sitePrefix";
+	public static final String FILTER_PUBLISHED_ONLY = "publishedOnly";
 
 	public static final String ITEM_TYPE_ALL = "all";
 	public static final String GROUP_ALL = "all";
@@ -113,12 +124,38 @@ public final class SiteStatsWidgetIds {
 	public static final String METRIC_LESSONS_READ_PAGES = "lessons-read-pages";
 	public static final String METRIC_LESSONS_MOST_READ_PAGE = "lessons-most-read-page";
 	public static final String METRIC_LESSONS_USER_READ_MORE_PAGES = "lessons-user-read-more-pages";
+	public static final String METRIC_PLATFORM_LOGINS = "platform-logins";
+	public static final String METRIC_PLATFORM_UNIQUE_LOGINS = "platform-unique-logins";
+	public static final String METRIC_PLATFORM_SITES_CREATED = "platform-sites-created";
+	public static final String METRIC_PLATFORM_SITES_DELETED = "platform-sites-deleted";
+	public static final String METRIC_PLATFORM_NEW_USERS = "platform-new-users";
+	public static final String METRIC_PLATFORM_TOP_TOOL = "platform-top-tool";
+	public static final String METRIC_INST_PRESENCE_ACTIVE_SITES = "inst-presence-active-sites";
+	public static final String METRIC_INST_PRESENCE_ACTIVE_30D = "inst-presence-active-30d";
+	public static final String METRIC_INST_PRESENCE_LOW_ACTIVITY = "inst-presence-low-activity";
+	public static final String METRIC_INST_PRESENCE_NEVER_VISITED = "inst-presence-never-visited";
+	public static final String METRIC_INST_LEARNER_EVENTS = "inst-learner-events";
+	public static final String METRIC_INST_LEARNER_SITES = "inst-learner-sites";
+	public static final String METRIC_INST_LEARNER_TOP_EVENT = "inst-learner-top-event";
+	public static final String METRIC_INST_AUTHORING_EVENTS = "inst-authoring-events";
+	public static final String METRIC_INST_AUTHORING_SITES = "inst-authoring-sites";
+	public static final String METRIC_INST_AUTHORING_TOP_EVENT = "inst-authoring-top-event";
+	public static final String METRIC_CLIENT_DESKTOP = "client-desktop";
+	public static final String METRIC_CLIENT_MOBILE = "client-mobile";
+	public static final String METRIC_CLIENT_TABLET = "client-tablet";
+	public static final String METRIC_CLIENT_TOP_BROWSER = "client-top-browser";
+	public static final String METRIC_CLIENT_TOP_OS = "client-top-os";
 
 	public static final String HIGHLIGHT_VISITS_LAST_30_DAYS = "visits-last-30-days";
 	public static final String HIGHLIGHT_PRESENCE_LAST_30_DAYS = "presence-last-30-days";
 	public static final String HIGHLIGHT_SUBMISSIONS_STATUS_SHARE = "submissions-status-share";
 	public static final String HIGHLIGHT_GRADES_FUNNEL = "grades-funnel";
 	public static final String HIGHLIGHT_COMMUNICATION_SHARE = "communication-share";
+	public static final String HIGHLIGHT_PLATFORM_LOGIN_TREND = "platform-login-trend";
+	public static final String HIGHLIGHT_CLIENT_DEVICE_SHARE = "client-device-share";
+	public static final String HIGHLIGHT_INST_PRESENCE_SHARE = "inst-presence-share";
+	public static final String HIGHLIGHT_INST_LEARNER_EVENT_SHARE = "inst-learner-event-share";
+	public static final String HIGHLIGHT_INST_AUTHORING_EVENT_SHARE = "inst-authoring-event-share";
 
 	public static final String CHART_COLOR_INFO = "info";
 	public static final String CHART_COLOR_SUCCESS = "success";

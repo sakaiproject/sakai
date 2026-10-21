@@ -3183,22 +3183,22 @@ public class AssignmentAction extends PagedResourceActionII {
                 rangeAndGroups.buildInstructorNewEditAssignmentContextGroupCheck(context, a);
 
                 // controls to disable which groups can be changed
-                Collection<Group> groupsWithUserSubmission = new ArrayList<>();
+                Collection<Group> groupsWithSubmissionWork = new ArrayList<>();
                 if (a.getIsGroup()) {
                     try {
                         Site site = siteService.getSite(a.getContext());
                         Collection<Group> siteGroups = site.getGroups();
 
                         a.getSubmissions().stream()
-                                .filter(AssignmentSubmission::getUserSubmission)
+                                .filter(assignmentService::hasSubmissionWork)
                                 .forEach(s -> siteGroups.stream()
                                         .filter(g -> g.getId().equals(s.getGroupId()))
-                                        .findAny().ifPresent(groupsWithUserSubmission::add));
+                                        .findAny().ifPresent(groupsWithSubmissionWork::add));
                     } catch (IdUnusedException e) {
                         log.warn("Site not found for context {}, {}", a.getContext(), e.getMessage());
                     }
                 }
-                context.put("groupsWithUserSubmission", groupsWithUserSubmission);
+                context.put("groupsWithSubmissionWork", groupsWithSubmissionWork);
             }
         } else {
             boolean instructorGroupsProp = serverConfigurationService.getBoolean("assignments.assign.to.instructor.groups", false);
@@ -9963,7 +9963,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     }).filter(Objects::nonNull).collect(Collectors.toList());
 
                     submissionsToRemove.stream()
-                            .filter(s -> !s.getUserSubmission())
+                            .filter(s -> a.getIsGroup() ? !assignmentService.hasSubmissionWork(s) : !s.getUserSubmission())
                             .forEach(s -> {
                                 try {
                                     assignmentService.removeSubmission(s);

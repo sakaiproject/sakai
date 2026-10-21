@@ -1,7 +1,17 @@
-/**
- * Copyright (c) 2026 The Apereo Foundation
+/*
+ * Copyright (c) 2003-2026 The Apereo Foundation
  *
- * Licensed under the Educational Community License, Version 2.0.
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.sakaiproject.sitestats.impl.view;
 
@@ -22,6 +32,10 @@ public class SiteStatsWidgetDefinitionSupport {
 	@Setter private SiteStatsSubmissionsAnalytics submissionsAnalytics;
 	@Setter private SiteStatsGradesAnalytics gradesAnalytics;
 	@Setter private SiteStatsCommunicationAnalytics communicationAnalytics;
+	@Setter private SiteStatsPlatformHealthAnalytics platformHealthAnalytics;
+	@Setter private SiteStatsInstitutionalAnalytics institutionalAnalytics;
+	@Setter private SiteStatsClientEnvironmentAnalytics clientEnvironmentAnalytics;
+	@Setter private SiteStatsInstitutionalScope institutionalScope;
 
 	public StatsManager getStatsManager() {
 		return context.getStatsManager();
@@ -69,6 +83,22 @@ public class SiteStatsWidgetDefinitionSupport {
 
 	public SiteStatsCommunicationAnalytics getCommunicationAnalytics() {
 		return communicationAnalytics;
+	}
+
+	public SiteStatsPlatformHealthAnalytics getPlatformHealthAnalytics() {
+		return platformHealthAnalytics;
+	}
+
+	public SiteStatsInstitutionalAnalytics getInstitutionalAnalytics() {
+		return institutionalAnalytics;
+	}
+
+	public SiteStatsClientEnvironmentAnalytics getClientEnvironmentAnalytics() {
+		return clientEnvironmentAnalytics;
+	}
+
+	public SiteStatsInstitutionalScope getInstitutionalScope() {
+		return institutionalScope;
 	}
 
 	public String message(String key) {

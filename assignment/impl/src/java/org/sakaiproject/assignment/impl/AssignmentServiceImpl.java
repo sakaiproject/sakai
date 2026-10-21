@@ -1421,7 +1421,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
-    private boolean hasSubmissionWork(AssignmentSubmission submission) {
+    @Override
+    public boolean hasSubmissionWork(AssignmentSubmission submission) {
         // Grading placeholders can be marked submitted and even have a submitted date.
         return Boolean.TRUE.equals(submission.getUserSubmission())
                 || Boolean.TRUE.equals(submission.getGraded())
