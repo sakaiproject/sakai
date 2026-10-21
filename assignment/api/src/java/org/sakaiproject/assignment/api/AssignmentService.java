@@ -346,23 +346,10 @@ public interface AssignmentService extends EntityProducer {
     boolean canReleaseGroupLocks(Assignment assignment);
 
     /**
-     * Returns the IDs (not references) of currently assigned groups with saved submission or
-     * grading work, including actual rubric evaluations. Empty grading placeholders are removable.
-     * A failed rubric lookup protects every assigned group with a submission record.
-     * Non-group assignments return an empty set.
+     * Whether a submission contains student work or saved grading data, including a zero score.
+     * Empty grading placeholders and inherited resubmission defaults do not count as work.
      */
-    Set<String> getGroupIdsWithSubmissionWork(Assignment assignment);
-
-    /**
-     * Saves an edited group assignment and its requested site group references, retaining
-     * groups with saved work and removing only empty submissions for unassigned groups.
-     * The caller must not change the assignment's group collection before this operation.
-     *
-     * @throws PermissionException if assignment update or submission removal is not permitted
-     * @throws IdUnusedException if the assignment site no longer exists
-     * @throws IllegalArgumentException if the assignment or requested group references are invalid
-     */
-    void updateAssignmentGroups(Assignment assignment, Set<String> requestedGroupReferences) throws PermissionException, IdUnusedException;
+    boolean hasSubmissionWork(AssignmentSubmission submission);
 
     /**
      * Restore an assignment from Trash. Empty group assignments return as drafts so that
