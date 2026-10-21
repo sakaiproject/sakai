@@ -21,6 +21,7 @@ package org.sakaiproject.assignment.api.model;
 import org.sakaiproject.assignment.api.AssignmentService;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * This is the interface for accessing assignment supplement item
@@ -28,6 +29,20 @@ import java.util.List;
  * @author zqian
  */
 public interface AssignmentSupplementItemService {
+
+    void updateModelAnswer(String assignmentId, String text, int showTo, Set<String> attachmentIds);
+
+    void deleteModelAnswer(String assignmentId);
+
+    void updateNote(String assignmentId, String creatorId, String text, int shareWith);
+
+    void deleteNote(String assignmentId);
+
+    /** Returns false when access could not be validated; no All Purpose item changes are saved. */
+    boolean updateAllPurposeItem(String assignmentId, String siteId, AssignmentAllPurposeItem values,
+                                 Set<String> attachmentIds, Set<String> selectedAccess);
+
+    void deleteAllPurposeItem(String assignmentId);
 
     /*************** attachment ********************/
     /**
@@ -145,6 +160,14 @@ public interface AssignmentSupplementItemService {
      * @return
      */
     public boolean saveAllPurposeItem(AssignmentAllPurposeItem aItem);
+
+    /**
+     * Save the all purpose item and reconcile its role and user access entries.
+     *
+     * @param item the all purpose item
+     * @param accessValues the roles and users that should retain access
+     */
+    public void saveAllPurposeItemWithAccess(AssignmentAllPurposeItem item, Set<String> accessValues);
 
     /**
      * Remove the AssignmentAllPurposeItem object
