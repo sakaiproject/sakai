@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -145,8 +146,8 @@ class RangeAndGroupsDelegate
 		state.setAttribute(NEW_ASSIGNMENT_RANGE, range);
 		if (Assignment.Access.GROUP.toString().equals(range))
 		{
-			List<String> groupChoice
-				= new ArrayList<>(Arrays.asList(ArrayUtils.nullToEmpty(
+			LinkedHashSet<String> groupChoice
+				= new LinkedHashSet<>(Arrays.asList(ArrayUtils.nullToEmpty(
 					data.getParameters().getStrings("selectedGroups"))));
 			String assignmentId
 				= AssignmentReferenceReckoner.reckoner().reference(
@@ -155,11 +156,7 @@ class RangeAndGroupsDelegate
 				Assignment assignment = assignmentService.getAssignment(assignmentId);
 				if (assignment.getIsGroup()) {
 					// Disabled options are omitted by HTML forms, including preview and validation posts.
-					for (String groupId : assignmentService.getGroupIdsWithSubmissionWork(assignment)) {
-						if (!groupChoice.contains(groupId)) {
-							groupChoice.add(groupId);
-						}
-					}
+					groupChoice.addAll(assignmentService.getGroupIdsWithSubmissionWork(assignment));
 				}
 			} catch (Exception e) {
 				log.warn("Failed to retrieve assignment with id {}, {}", assignmentId, e.getMessage());

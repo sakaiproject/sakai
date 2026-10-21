@@ -1042,65 +1042,36 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     private void assertInvalidGroupEditDoesNotPersistChanges(boolean missingSite) throws Exception {
-        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
-        Assignment assignment = transaction.execute(status -> {
-            try {
-                Assignment created = createThreeGroupAssignment();
-                AssignmentSubmission graded = assignmentService.getSubmissions(created).iterator().next();
-                graded.setGrade("0");
-                assignmentService.updateSubmission(graded);
-                initializeAssignmentCollections(created);
-                return created;
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
-            }
-        });
+        Assignment assignment = createCommittedGroupAssignment();
         Site site = siteService.getSite(assignment.getContext());
         Set<String> groups = new HashSet<>(assignment.getGroups());
         Set<String> submissionIds = assignment.getSubmissions().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet());
         String title = assignment.getTitle();
-        String gradedGroupId = assignment.getSubmissions().stream().filter(submission -> "0".equals(submission.getGrade()))
-                .map(AssignmentSubmission::getGroupId).findFirst().orElseThrow();
-        if (missingSite) {
-            when(siteService.getSite(assignment.getContext())).thenThrow(new IdUnusedException(assignment.getContext()));
-            Mockito.clearInvocations(siteService);
-            Assert.assertEquals(Set.of(gradedGroupId), assignmentService.getGroupIdsWithSubmissionWork(assignment));
-            verify(siteService, Mockito.never()).getSite(assignment.getContext());
-        }
-        assignment.setTitle("Must not save");
         try {
-            if (missingSite) {
-                Assert.assertThrows(IdUnusedException.class,
-                        () -> assignmentService.updateAssignmentGroups(assignment, Collections.emptySet()));
-            } else {
-                Assert.assertThrows(IllegalArgumentException.class,
-                        () -> assignmentService.updateAssignmentGroups(assignment, Set.of("/site/another-site/group/invalid")));
+            AssignmentSubmission graded = assignment.getSubmissions().iterator().next();
+            graded.setGrade("0");
+            assignmentService.updateSubmission(graded);
+            try {
+                if (missingSite) {
+                    when(siteService.getSite(assignment.getContext())).thenThrow(new IdUnusedException(assignment.getContext()));
+                    Mockito.clearInvocations(siteService);
+                    Assert.assertEquals(Set.of(graded.getGroupId()), assignmentService.getGroupIdsWithSubmissionWork(assignment));
+                    verify(siteService, Mockito.never()).getSite(assignment.getContext());
+                }
+                assignment.setTitle("Must not save");
+                if (missingSite) {
+                    Assert.assertThrows(IdUnusedException.class,
+                            () -> assignmentService.updateAssignmentGroups(assignment, Collections.emptySet()));
+                } else {
+                    Assert.assertThrows(IllegalArgumentException.class,
+                            () -> assignmentService.updateAssignmentGroups(assignment, Set.of("/site/another-site/group/invalid")));
+                }
+            } finally {
+                Mockito.doReturn(site).when(siteService).getSite(assignment.getContext());
             }
+            assertPersistedGroupAssignmentUnchanged(assignment.getId(), title, groups, submissionIds);
         } finally {
-            Mockito.doReturn(site).when(siteService).getSite(assignment.getContext());
-        }
-        try {
-            transaction.executeWithoutResult(status -> {
-                try {
-                    Assignment saved = assignmentService.getAssignment(assignment.getId());
-                    Assert.assertEquals(title, saved.getTitle());
-                    Assert.assertEquals(groups, saved.getGroups());
-                    Assert.assertEquals(submissionIds, assignmentService.getSubmissions(saved).stream()
-                            .map(AssignmentSubmission::getId).collect(Collectors.toSet()));
-                } catch (Exception e) {
-                    throw new IllegalStateException(e);
-                }
-            });
-        } finally {
-            String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
-            transaction.executeWithoutResult(status -> {
-                try {
-                    assignmentService.deleteAssignment(assignmentService.getAssignment(assignment.getId()));
-                } catch (Exception e) {
-                    throw new IllegalStateException(e);
-                }
-            });
+            deleteCommittedGroupAssignment(assignment);
         }
     }
 
@@ -1259,8 +1230,30 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     private void assertGroupEditPermissionFailure(boolean removalDenied) throws Exception {
-        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
-        Assignment assignment = transaction.execute(status -> {
+        Assignment assignment = createCommittedGroupAssignment();
+        Set<String> previousReferences = new HashSet<>(assignment.getGroups());
+        String previousTitle = assignment.getTitle();
+        Set<String> submissionIds = assignment.getSubmissions().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet());
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).reckon().getReference();
+        try {
+            if (removalDenied) {
+                when(securityService.unlock(eq(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT_SUBMISSION), anyString())).thenReturn(false);
+            } else {
+                when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, reference)).thenReturn(false);
+                when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(false);
+            }
+            assignment.setTitle("Must roll back");
+            Assert.assertThrows(PermissionException.class,
+                    () -> assignmentService.updateAssignmentGroups(assignment, Collections.emptySet()));
+            assertPersistedGroupAssignmentUnchanged(assignment.getId(), previousTitle, previousReferences, submissionIds);
+        } finally {
+            deleteCommittedGroupAssignment(assignment);
+        }
+    }
+
+    private Assignment createCommittedGroupAssignment() {
+        return new TransactionTemplate(transactionManager).execute(status -> {
             try {
                 Assignment created = createThreeGroupAssignment();
                 initializeAssignmentCollections(created);
@@ -1269,42 +1262,32 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                 throw new IllegalStateException(e);
             }
         });
-        Set<String> previousReferences = new HashSet<>(assignment.getGroups());
-        String previousTitle = assignment.getTitle();
-        Set<String> submissionIds = assignment.getSubmissions().stream().map(AssignmentSubmission::getId).collect(Collectors.toSet());
+    }
+
+    private void assertPersistedGroupAssignmentUnchanged(String assignmentId, String title, Set<String> groups, Set<String> submissionIds) {
+        new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+            try {
+                Assignment saved = assignmentService.getAssignment(assignmentId);
+                Assert.assertEquals(title, saved.getTitle());
+                Assert.assertEquals(groups, saved.getGroups());
+                Assert.assertEquals(submissionIds, assignmentService.getSubmissions(saved).stream()
+                        .map(AssignmentSubmission::getId).collect(Collectors.toSet()));
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+    }
+
+    private void deleteCommittedGroupAssignment(Assignment assignment) {
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-        String contextReference = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).reckon().getReference();
-        if (removalDenied) {
-            when(securityService.unlock(eq(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT_SUBMISSION), anyString())).thenReturn(false);
-        } else {
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, reference)).thenReturn(false);
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, contextReference)).thenReturn(false);
-        }
-        assignment.setTitle("Must roll back");
-        try {
-            Assert.assertThrows(PermissionException.class,
-                    () -> assignmentService.updateAssignmentGroups(assignment, Collections.emptySet()));
-            transaction.executeWithoutResult(status -> {
-                try {
-                    Assignment saved = assignmentService.getAssignment(assignment.getId());
-                    Assert.assertEquals(previousTitle, saved.getTitle());
-                    Assert.assertEquals(previousReferences, saved.getGroups());
-                    Assert.assertEquals(submissionIds, assignmentService.getSubmissions(saved).stream()
-                            .map(AssignmentSubmission::getId).collect(Collectors.toSet()));
-                } catch (Exception e) {
-                    throw new IllegalStateException(e);
-                }
-            });
-        } finally {
-            transaction.executeWithoutResult(status -> {
-                try {
-                    when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
-                    assignmentService.deleteAssignment(assignmentService.getAssignment(assignment.getId()));
-                } catch (Exception e) {
-                    throw new IllegalStateException(e);
-                }
-            });
-        }
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+        new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+            try {
+                assignmentService.deleteAssignment(assignmentService.getAssignment(assignment.getId()));
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
     }
 
     private Assignment createThreeGroupAssignment() throws Exception {

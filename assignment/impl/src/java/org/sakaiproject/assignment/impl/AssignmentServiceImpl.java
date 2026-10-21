@@ -1409,21 +1409,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (submissions.stream().anyMatch(this::hasSubmissionWork)) {
             return false;
         }
-        return !hasRubricSubmissionWork(assignment);
-    }
-
-    private boolean hasRubricSubmissionWork(Assignment assignment) {
-        // Isolate lookup failures so assignment changes can continue while retaining work.
+        // Isolate lookup failures so deletion/restore can continue while retaining the locks.
         TransactionTemplate rubricRead = new TransactionTemplate(transactionTemplate.getTransactionManager());
         rubricRead.setReadOnly(true);
         rubricRead.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         try {
             // Rubric evaluations are saved separately. Preserve their submission identities.
-            return !Boolean.TRUE.equals(rubricRead.execute(status ->
+            return Boolean.TRUE.equals(rubricRead.execute(status ->
                     rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId()).isEmpty()));
         } catch (RuntimeException e) {
             log.warn("Unable to check rubric association for assignment {}; retaining group locks", assignment.getId(), e);
-            return true;
+            return false;
         }
     }
 
@@ -1818,10 +1814,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         for (AssignmentSubmission submission : removedSubmissions) {
             removeSubmission(submission);
         }
-        submissions.removeAll(removedSubmissions);
         // Detached editor models may contain stale grades or deleted placeholders. Merge only fresh records.
         if (persistedAssignment != assignment) {
-            assignment.setSubmissions(new HashSet<>(submissions));
+            assignment.setSubmissions(new HashSet<>(persistedAssignment.getSubmissions()));
         }
         assignment.setGroups(effectiveReferences);
         updateAssignment(assignment, previousReferences);
