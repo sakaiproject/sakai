@@ -2,72 +2,11 @@ commons.utils = {
 
     POST_WITHOUT_COMMENTS_STYLE: 'commons-post-without-comments',
     POST_WITH_COMMENTS_STYLE: 'commons-post-with-comments',
-    OGP_IMAGE_REGEX: /og:image" content=["']([^"]*)["']\s*\//,
-    TWITTER_IMAGE_REGEX: /twitter:image" content="([^"]*)"/,
-    OGP_TITLE_REGEX: /og:title" content="([^"]*)"/,
-    OGP_DESCRIPTION_REGEX: /og:description" content="([^"&#]*)"/,
-    OGP_SITE_NAME_REGEX: /og:site_name" content="([^"]*)"/,
-    AUTHOR_REGEX: /author" content="([^"]*)"/,
-
     fromHtml: function (html) {
         return html.replace(/<br>/g, '\n');
     },
     toHtml: function (text) {
         return text.replace(/\r\n|\n|\r/g, '<br>');
-    },
-    getOGPMarkup: function (url, callback) {
-
-        const self = this;
-
-        $.get(`/direct/commons/getUrlMarkup?url=${url}`, function (markup) {
-
-            const div = document.createElement('div');
-
-            let title = '';
-            let matches = markup.match(self.OGP_TITLE_REGEX);
-            if (matches && matches.length == 2) {
-                title = matches[1];
-                div.innerHTML = title;
-                title = $(div).html();
-            }
-
-            let image = '';
-            matches = markup.match(self.TWITTER_IMAGE_REGEX);
-            if (matches && matches.length == 2) {
-                image = matches[1];
-            } else {
-                matches = markup.match(self.OGP_IMAGE_REGEX);
-                if (matches && matches.length == 2) {
-                    image = matches[1];
-                }
-            }
-
-            let description = '';
-            matches = markup.match(self.OGP_DESCRIPTION_REGEX);
-            if (matches && matches.length == 2) {
-                description = matches[1];
-                div.innerHTML = description;
-                description = $(div).html();
-            }
-
-            const a = document.createElement('a');
-            a.href = url;
-            let siteName = a.hostname.toUpperCase();
-            matches = markup.match(self.AUTHOR_REGEX);
-            if (matches && matches.length == 2) {
-                 siteName += ` | ${commons.i18n.by} ${matches[1].toUpperCase()}`;
-            }
-
-            if (!title && !image) {
-                callback(null);
-            } else {
-                callback(Handlebars.templates['og_fragment']({title: title,
-                                                                image: image,
-                                                                url: url,
-                                                                description: description,
-                                                                siteName: siteName}, {helpers: commonsHelpers}));
-            }
-        });
     },
     addHandlersToComment: function (comment) {
         $(`#commons-comment-edit-link-${comment.id}`).click(commons.utils.editCommentHandler);
