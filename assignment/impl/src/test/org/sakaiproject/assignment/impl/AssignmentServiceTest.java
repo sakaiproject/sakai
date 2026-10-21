@@ -966,7 +966,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String groupId = evaluated.getGroupId();
         String groupReference = siteService.siteGroupReference(assignment.getContext(), groupId);
         EvaluationTransferBean evaluation = new EvaluationTransferBean();
-        evaluation.setEvaluatedItemId(groupOwner ? "reviewer-group" : evaluatedId);
+        // A GROUP owner is authoritative even when the evaluated item identifies another submission.
+        evaluation.setEvaluatedItemId(groupOwner ? submissions.get(1).getId() : evaluatedId);
         evaluation.setEvaluatedItemOwnerType(groupOwner ? EvaluatedItemOwnerType.GROUP : EvaluatedItemOwnerType.USER);
         evaluation.setEvaluatedItemOwnerId(groupOwner ? groupId : "student");
         evaluation.setPeerOrSelf(peerOrSelf);

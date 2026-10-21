@@ -1464,14 +1464,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
                 return rubricsService.getEvaluationsForToolAndItem(AssignmentConstants.TOOL_ID, assignment.getId(), assignment.getContext());
             });
-            Set<String> evaluatedSubmissionIds = evaluations.stream().map(EvaluationTransferBean::getEvaluatedItemId)
-                    .collect(Collectors.toSet());
-            Set<String> evaluatedGroupIds = evaluations.stream()
-                    .filter(evaluation -> evaluation.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.GROUP)
-                    .map(EvaluationTransferBean::getEvaluatedItemOwnerId).collect(Collectors.toSet());
-            return submissions.stream().filter(submission -> evaluatedSubmissionIds.contains(submission.getId())
-                            || evaluatedGroupIds.contains(submission.getGroupId()))
-                    .map(AssignmentSubmission::getGroupId).collect(Collectors.toSet());
+            Map<String, String> submissionGroupIds = new HashMap<>();
+            submissions.forEach(submission -> submissionGroupIds.put(submission.getId(), submission.getGroupId()));
+            return evaluations.stream().map(evaluation -> evaluation.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.GROUP
+                            ? evaluation.getEvaluatedItemOwnerId() : submissionGroupIds.get(evaluation.getEvaluatedItemId()))
+                    .filter(StringUtils::isNotBlank).collect(Collectors.toSet());
         } catch (RuntimeException e) {
             log.warn("Unable to check rubric evaluations for assignment {}; retaining recorded groups", assignment.getId(), e);
             return submissions.stream().map(AssignmentSubmission::getGroupId).collect(Collectors.toSet());
