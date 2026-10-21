@@ -658,6 +658,10 @@ public class DateManagerServiceTest {
             Assert.assertEquals(1, validation.getUpdates().size());
             Assert.assertNull(validation.getUpdates().get(0).getFeedbackEndDate());
             dateManagerService.updateAssessments(validation);
+            if (published) {
+                PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) validation.getUpdates().get(0).getObject();
+                Mockito.verify(persistenceService.getPublishedAssessmentFacadeQueries()).saveOrUpdate(assessment);
+            }
             Assert.assertNull(control.getFeedbackEndDate());
             Assert.assertEquals(Date.from(Instant.parse("2030-06-04T00:00:00Z")), control.getFeedbackDate());
         }

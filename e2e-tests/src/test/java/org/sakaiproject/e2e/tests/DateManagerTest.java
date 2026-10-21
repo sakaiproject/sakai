@@ -18,7 +18,6 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
@@ -179,10 +178,10 @@ class DateManagerTest extends SakaiUiTestBase {
         assertThat(page.locator(".table-datemanager td").filter(new Locator.FilterOptions().setHasText(title))).hasCount(1);
         page.locator("#submit-form-button").click();
         assertThat(page.locator("#exportDates")).isVisible();
-        assertTrue(row.locator("input[data-field='open_date']").inputValue().isBlank());
+        assertThat(row.locator("input[data-field='open_date']")).hasValue("");
         assertThat(row.locator("input[data-field='due_date']")).hasValue(endDate);
         page.reload();
-        assertTrue(row.locator("input[data-field='open_date']").inputValue().isBlank());
+        assertThat(row.locator("input[data-field='open_date']")).hasValue("");
         assertThat(row.locator("input[data-field='due_date']")).hasValue(endDate);
     }
 
