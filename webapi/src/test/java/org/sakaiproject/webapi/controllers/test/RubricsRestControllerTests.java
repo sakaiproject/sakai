@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -141,6 +142,49 @@ public class RubricsRestControllerTests {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.title").value("Updated"))
                 .andExpect(jsonPath("$.version").value(1));
+    }
+
+    @Test
+    public void draftPatchAcceptsMatchingCriterionIds() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setVersion(1L);
+        rubric.setDraft(false);
+        CriterionTransferBean criterion = new CriterionTransferBean();
+        criterion.setId(13L);
+        criterion.setWeight(0F);
+        rubric.setCriteria(List.of(criterion));
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+        when(rubricsService.saveRubric(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        mockMvc.perform(patch("/sites/site1/rubrics/1")
+                .header("If-Match", "\"1\"")
+                .contentType("application/json-patch+json")
+                .content("[{\"op\":\"replace\",\"path\":\"/draft\",\"value\":true},"
+                        + "{\"op\":\"test\",\"path\":\"/criteria/0/id\",\"value\":13},"
+                        + "{\"op\":\"replace\",\"path\":\"/criteria/0/weight\",\"value\":100}]"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.draft").value(true))
+                .andExpect(jsonPath("$.criteria[0].id").value(13))
+                .andExpect(jsonPath("$.criteria[0].weight").value(100));
+    }
+
+    @Test
+    public void draftPatchRejectsMismatchedCriterionIds() throws Exception {
+        RubricTransferBean rubric = new RubricTransferBean();
+        rubric.setVersion(1L);
+        CriterionTransferBean criterion = new CriterionTransferBean();
+        criterion.setId(14L);
+        rubric.setCriteria(List.of(criterion));
+        when(rubricsService.getRubric(1L)).thenReturn(Optional.of(rubric));
+
+        mockMvc.perform(patch("/sites/site1/rubrics/1")
+                .header("If-Match", "\"1\"")
+                .contentType("application/json-patch+json")
+                .content("[{\"op\":\"test\",\"path\":\"/criteria/0/id\",\"value\":13},"
+                        + "{\"op\":\"replace\",\"path\":\"/criteria/0/weight\",\"value\":100}]"))
+                .andExpect(status().isInternalServerError());
+
+        verify(rubricsService, never()).saveRubric(any());
     }
 
     @Test

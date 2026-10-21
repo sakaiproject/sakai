@@ -319,7 +319,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
             try {
                 Long expectedRevision = checkRevision(revision, rubric.getVersion());
-                JsonNode patched = patch.apply(jsonMapper.convertValue(rubric, JsonNode.class));
+                // Parse the wire representation so JSON Patch tests compare matching integer node types.
+                JsonNode original = jsonMapper.readTree(jsonMapper.writeValueAsString(rubric));
+                JsonNode patched = patch.apply(original);
                 RubricTransferBean patchedBean = jsonMapper.treeToValue(patched, RubricTransferBean.class);
                 patchedBean.setVersion(expectedRevision);
                 return ResponseEntity.ok(rubricsService.saveRubric(patchedBean));
