@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- Test-owned node only: fixed loopback discovery, no multicast/default discovery or persistent storage. -->
+    <bean class="org.apache.ignite.configuration.IgniteConfiguration">
+        <property name="igniteInstanceName" value="@NODE@"/>
+        <property name="consistentId" value="@NODE@"/>
+        <property name="workDirectory" value="@WORK@"/>
+        <property name="localHost" value="127.0.0.1"/>
+        <property name="peerClassLoadingEnabled" value="false"/>
+        <property name="metricsLogFrequency" value="0"/>
+        <property name="publicThreadPoolSize" value="2"/>
+        <property name="systemThreadPoolSize" value="2"/>
+        <property name="stripedPoolSize" value="2"/>
+        <property name="serviceThreadPoolSize" value="2"/>
+        <property name="dataStreamerThreadPoolSize" value="2"/>
+        <property name="queryThreadPoolSize" value="2"/>
+        <property name="rebalanceThreadPoolSize" value="1"/>
+        <property name="asyncCallbackPoolSize" value="2"/>
+        <property name="connectorConfiguration"><null/></property>
+        <property name="clientConnectorConfiguration"><null/></property>
+        <property name="communicationSpi">
+            <bean class="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi">
+                <property name="localAddress" value="127.0.0.1"/>
+                <property name="localPort" value="@COMMUNICATION_PORT@"/>
+                <property name="localPortRange" value="0"/>
+                <property name="selectorsCount" value="1"/>
+            </bean>
+        </property>
+        <property name="discoverySpi">
+            <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
+                <property name="localAddress" value="127.0.0.1"/>
+                <property name="localPort" value="@DISCOVERY_PORT@"/>
+                <property name="localPortRange" value="0"/>
+                <property name="joinTimeout" value="10000"/>
+                <property name="ipFinder">
+                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">
+                        <constructor-arg value="false"/>
+                        <property name="addresses"><list><value>127.0.0.1:@DISCOVERY_PORT@</value></list></property>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+        <property name="dataStorageConfiguration">
+            <bean class="org.apache.ignite.configuration.DataStorageConfiguration">
+                <property name="defaultDataRegionConfiguration">
+                    <bean class="org.apache.ignite.configuration.DataRegionConfiguration">
+                        <property name="initialSize" value="16777216"/>
+                        <property name="maxSize" value="67108864"/>
+                        <property name="persistenceEnabled" value="false"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+        <property name="cacheConfiguration">
+            <list>
+                <bean parent="region"><property name="name" value="org.sakaiproject.content.api.persistence.FileConversionQueueItem"/></bean>
+                <bean parent="region"><property name="name" value="default-query-results-region"/></bean>
+                <bean parent="region"><property name="name" value="default-update-timestamps-region"/></bean>
+                <bean parent="region"><property name="name" value="lifecycle-spring"/></bean>
+            </list>
+        </property>
+    </bean>
+    <bean id="region" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
+        <property name="atomicityMode" value="ATOMIC"/>
+        <property name="cacheMode" value="REPLICATED"/>
+        <property name="writeSynchronizationMode" value="FULL_SYNC"/>
+        <property name="statisticsEnabled" value="true"/>
+    </bean>
+</beans>

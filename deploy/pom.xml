@@ -901,8 +901,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-hibernate-ext</artifactId>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-jcache</artifactId>
             <scope>compile</scope>
         </dependency>
 

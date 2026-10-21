@@ -27,11 +27,7 @@
         <property name="igniteConfiguration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
     </bean>
 
-    <bean id="org.sakaiproject.ignite.SakaiIgnite"
-          class="org.sakaiproject.ignite.EagerIgniteSpringBean"
-          destroy-method="destroy">
-        <property name="configuration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
-    </bean>
+    <import resource="classpath:org/sakaiproject/ignite/jcache-components.xml"/>
 
     <bean id="org.sakaiproject.ignite.api.CacheAdminService"
           class="org.sakaiproject.ignite.CacheAdminServiceImpl">
@@ -102,6 +98,14 @@
                 <property name="dataRegionConfigurations">
                     <list>
                         <ref bean="org.sakaiproject.ignite.DataRegionConfiguration.HibernateL2Region"/>
+                        <bean class="org.apache.ignite.configuration.DataRegionConfiguration">
+                            <!-- Query invalidation timestamps must never be evicted. -->
+                            <property name="name" value="hibernate_timestamps_region"/>
+                            <property name="initialSize" value="#{16L * 1024 * 1024}"/>
+                            <property name="maxSize" value="#{64L * 1024 * 1024}"/>
+                            <property name="pageEvictionMode" value="DISABLED"/>
+                            <property name="persistenceEnabled" value="false"/>
+                        </bean>
                     </list>
                 </property>
             </bean>
@@ -118,6 +122,10 @@
             <list>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="default-update-timestamps-region"/>
+                    <property name="dataRegionName" value="hibernate_timestamps_region"/>
+                    <property name="expiryPolicyFactory" ref="org.sakaiproject.ignite.cache.eternalExpiryPolicy"/>
+                    <property name="writeSynchronizationMode" value="FULL_SYNC"/>
+                    <property name="readFromBackup" value="false"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="default-query-results-region"/>

@@ -154,9 +154,8 @@
 
 	<!--  The "Global" JPA Entity Manager Factory -->
 	<bean id="entityManagerFactory"
-		  class="org.sakaiproject.ignite.IgniteEntityManagerFactoryBean"
+		  class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
 		  depends-on="org.sakaiproject.ignite.SakaiIgnite">
-		<property name="igniteConfiguration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
 		<property name="entityManagerFactoryInterface" value="jakarta.persistence.EntityManagerFactory"/>
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
@@ -166,23 +165,24 @@
 		</property>
 		<property name="persistenceUnitManager" ref="org.sakaiproject.springframework.orm.hibernate.SakaiPersistenceUnitManager" />
 
-		<property name="jpaProperties">
-			<props>
-				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
-				<prop key="hibernate.cache.use_query_cache">true</prop>
-				<prop key="hibernate.use_second_level_cache">true</prop>
-				<prop key="hibernate.cache.region.factory_class">org.apache.ignite.cache.hibernate.HibernateRegionFactory</prop>
-				<prop key="hibernate.generate_statistics">${hibernate.generate_statistics}</prop>
-				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
-				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate5.SpringSessionContext</prop>
-				<prop key="org.apache.ignite.hibernate.default_access_type">READ_ONLY</prop>
+		<property name="jpaPropertyMap">
+			<map>
+				<entry key="hibernate.javax.cache.cache_manager" value-ref="org.sakaiproject.ignite.HibernateCacheManager"/>
+				<entry key="hibernate.javax.cache.missing_cache_strategy" value="fail"/>
+				<entry key="hibernate.show_sql" value="${hibernate.show_sql}"/>
+				<entry key="hibernate.cache.use_query_cache" value="true"/>
+				<entry key="hibernate.cache.use_second_level_cache" value="true"/>
+				<entry key="hibernate.cache.region.factory_class" value="jcache"/>
+				<entry key="hibernate.generate_statistics" value="${hibernate.generate_statistics}"/>
+				<entry key="hibernate.enable_lazy_load_no_trans" value="true"/>
+				<entry key="hibernate.current_session_context_class" value="org.springframework.orm.hibernate5.SpringSessionContext"/>
 				<!-- Hibernate 6 normalizes Instant and ZonedDateTime to UTC; Hibernate 5 stored them in the JVM
 				     time zone. These two settings keep the Hibernate 5 behaviour so existing DATETIME values
 				     are read correctly. -->
-				<prop key="hibernate.type.preferred_instant_jdbc_type">TIMESTAMP</prop>
-				<prop key="hibernate.timezone.default_storage">NORMALIZE</prop>
-				<prop key="jakarta.persistence.query.timeout">30000</prop>
-			</props>
+				<entry key="hibernate.type.preferred_instant_jdbc_type" value="TIMESTAMP"/>
+				<entry key="hibernate.timezone.default_storage" value="NORMALIZE"/>
+				<entry key="jakarta.persistence.query.timeout" value="30000"/>
+			</map>
 		</property>
 	</bean>
 

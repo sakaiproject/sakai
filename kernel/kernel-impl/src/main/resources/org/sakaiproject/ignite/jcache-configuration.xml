@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- The owning manager depends on this already initialized kernel configuration. -->
+    <bean id="sakaiIgniteConfiguration" class="org.sakaiproject.component.cover.ComponentManager"
+          factory-method="get" destroy-method="">
+        <constructor-arg type="java.lang.String" value="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
+    </bean>
+</beans>

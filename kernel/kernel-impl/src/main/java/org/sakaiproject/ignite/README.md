@@ -6,6 +6,60 @@ to as a cluster.
 
 ## Hibernate Second Level Caching
 
+Sakai uses Hibernate's `hibernate-jcache` module at exactly the same version as
+`hibernate-core`. The global JPA factory selects Hibernate's stock `jcache`
+region factory. There is no Ignite-specific Hibernate adapter.
+
+The kernel owns one stock Ignite JCache manager. Its configuration URI retrieves
+the already assembled `IgniteConfigurationAdapter` bean through ComponentManager;
+it retains Sakai's discovery, classloader, cache and data-region settings. The
+Spring cache manager and other Ignite consumers use that manager's unwrapped
+node. `SharedJCacheManager` gives Hibernate a borrowed view: closing a factory or
+a region does not close the owning manager, shared cache handles or node. Spring
+closes the owner after dependent consumers. This facade uses only public JCache
+interfaces and does not subclass Hibernate's internal implementation classes.
+
+Hibernate's missing-cache strategy is `fail`. Declare entity, collection and
+custom query regions in `ignite-components.xml`, including regions used by
+optional tools. Do not silently create provider-default caches: they would lose
+Sakai's configured replication, expiry and data region.
+
+### Upgrading from ignite-hibernate-ext
+
+Stop every Sakai/Ignite node in the cluster before switching providers. Remove
+the old adapter JAR from Tomcat's shared libraries and deploy the matching
+`hibernate-jcache` JAR. Start the cluster with empty nonpersistent caches. Old and
+new providers must not share populated cache regions during a rolling upgrade;
+their cache keys and values are not a compatible wire format.
+
+The normal entity/query regions retain their existing settings. Invalidation
+timestamps use an eternal, replicated, synchronous cache in a separate data
+region with page eviction disabled. Expiring or evicting those timestamps can
+make cached query results stale; do not apply entity-cache TTL/eviction to them.
+
+### Validation
+
+Run the kernel configuration and lifecycle checks with Java 21 and loopback
+sockets available:
+
+```sh
+mvn -pl kernel/kernel-impl -am -Dtest=HibernateCacheConfigurationTest,HibernateCacheLegacyConfigurationTest,HibernateCacheOwnershipTest -Dsurefire.failIfNoSpecifiedTests=false test
+```
+
+The configuration tests exercise real MODI and traditional component lookup,
+including a provider URI loaded from a JAR. Ownership tests load the production
+JCache owner wiring and global JPA factory definition with an isolated node and
+HSQLDB. They cover shared node identity, two factories, entity/query cache hits,
+factory-close and failed-bootstrap isolation, Spring shutdown, transactions,
+and borrowed public JCache handles. Their local fixture uses eternal/FULL_SYNC
+caches to isolate lifecycle behavior.
+
+Before removing draft status, qualify the published dependency, full deployed
+kernel startup/shutdown, all effective region mappings, and cross-process
+invalidation under production entity/query expiry and FULL_ASYNC policies.
+The local fixture does not establish distributed correctness or database-vendor
+compatibility.
+
 Caching in Hibernate is important as it improves the performance of Sakai.
 Any time you can forgo a query being sent to the database will improve the speed
 at which a response can be constructed and sent back to the client.
@@ -80,11 +134,12 @@ properties that can be used to configure ignite.
   _512_ or (half of ignite.tcpMessageQueueLimit)
 
 ## Cache Data Regions
-Sakai configures 2 data regions one for use with spring and the other as a hibernate
-second level cache.
+Sakai configures three data regions for Spring, Hibernate second-level data and
+query-invalidation timestamps.
 
 * Spring Region - this is the default region and caches will be added to this region.
 * Hibernate L2 Region - this is hibernates second level cache
+* Hibernate Timestamps Region - eternal query-invalidation metadata without page eviction
 
 ```xml
 <bean class="org.apache.ignite.configuration.DataRegionConfiguration">
@@ -147,4 +202,6 @@ Data region metrics:
       <property name="onheapCacheEnabled" value="false"/>
   </bean>
   ```
-  All hibernate caches should likely use the transactional configuration as the parent.
+  Sakai's declared NONSTRICT_READ_WRITE mappings use the atomic cache parent.
+  Hibernate implements the access strategy through JCache; do not infer a JTA
+  cache transaction merely from Ignite's TRANSACTIONAL cache mode.

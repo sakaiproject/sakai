@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- The stock JCache manager owns Sakai's one shared node. Hibernate and
+         Spring cache consumers borrow it; only this owner closes the node. -->
+    <bean id="org.sakaiproject.ignite.JCacheProvider" class="org.apache.ignite.cache.CachingProvider"
+          destroy-method="close"/>
+    <bean id="org.sakaiproject.ignite.JCacheClassLoader"
+          factory-bean="org.sakaiproject.ignite.SakaiIgniteConfiguration" factory-method="getClassLoader"/>
+    <bean id="org.sakaiproject.ignite.JCacheConfigurationResource" class="org.springframework.core.io.ClassPathResource">
+        <constructor-arg value="org/sakaiproject/ignite/jcache-configuration.xml"/>
+        <constructor-arg ref="org.sakaiproject.ignite.JCacheClassLoader"/>
+    </bean>
+    <bean id="org.sakaiproject.ignite.JCacheConfigurationUri"
+          factory-bean="org.sakaiproject.ignite.JCacheConfigurationResource" factory-method="getURI"/>
+    <bean id="org.sakaiproject.ignite.JCacheManager"
+          factory-bean="org.sakaiproject.ignite.JCacheProvider" factory-method="getCacheManager"
+          depends-on="org.sakaiproject.ignite.SakaiIgniteConfiguration" destroy-method="close">
+        <constructor-arg ref="org.sakaiproject.ignite.JCacheConfigurationUri"/>
+        <constructor-arg ref="org.sakaiproject.ignite.JCacheClassLoader"/>
+    </bean>
+    <bean id="org.sakaiproject.ignite.SakaiIgnite"
+          factory-bean="org.sakaiproject.ignite.JCacheManager" factory-method="unwrap" destroy-method="">
+        <constructor-arg type="java.lang.Class" value="org.apache.ignite.Ignite"/>
+    </bean>
+    <bean id="org.sakaiproject.ignite.HibernateCacheManager"
+          class="org.sakaiproject.ignite.SharedJCacheManager" destroy-method="">
+        <constructor-arg ref="org.sakaiproject.ignite.JCacheManager"/>
+    </bean>
+</beans>

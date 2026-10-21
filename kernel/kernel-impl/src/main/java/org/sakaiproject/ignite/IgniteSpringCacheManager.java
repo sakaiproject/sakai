@@ -33,7 +33,7 @@ public class IgniteSpringCacheManager extends SpringCacheManager {
 
     public void init() {
         // this configuration is required so that SpringCacheManager looks up the existing
-        // ignite instance that was started by Hibernate
+        // ignite instance owned by the kernel JCache manager
         setConfiguration(null);
         setConfigurationPath(null);
         setIgniteInstanceName(igniteConfiguration.getIgniteInstanceName());
@@ -41,7 +41,7 @@ public class IgniteSpringCacheManager extends SpringCacheManager {
         // SpringCacheManager normally only attaches to the ignite instance when it
         // receives a ContextRefreshedEvent, which Spring fires after every singleton
         // bean (including other beans' own init-methods) has already been created.
-        // sakaiIgnite is a required dependency of this bean, so EagerIgniteSpringBean
+        // sakaiIgnite is a required dependency of this bean, so the JCache manager
         // has already started the real ignite instance by the time we get here -
         // attach to it now instead of waiting, so getCache() is safe to call from
         // other beans' eager init-methods.

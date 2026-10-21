@@ -34,7 +34,6 @@
     <sakai.httpcore5.version>5.4.3</sakai.httpcore5.version>
     <sakai.ignite.version>2.18.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>2.0.0</sakai.ignite.spring.ext.version>
-    <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
     <sakai.jackson.version>2.21.7</sakai.jackson.version>
     <sakai.jackson.annotations.version>2.21</sakai.jackson.annotations.version>
     <sakai.jsoup.version>1.23.2</sakai.jsoup.version>
@@ -427,26 +426,6 @@
         <artifactId>ignite-slf4j</artifactId>
         <version>${sakai.ignite.version}</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.ignite</groupId>
-        <artifactId>ignite-hibernate-ext</artifactId>
-        <version>${sakai.ignite.hibernate.version}</version>
-        <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>*</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
@@ -889,6 +868,12 @@
       <dependency>
         <groupId>org.hibernate.orm</groupId>
         <artifactId>hibernate-core</artifactId>
+        <version>${sakai.hibernate.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-jcache</artifactId>
         <version>${sakai.hibernate.version}</version>
         <scope>provided</scope>
       </dependency>
