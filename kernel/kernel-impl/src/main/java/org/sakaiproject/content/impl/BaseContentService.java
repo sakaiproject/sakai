@@ -13613,17 +13613,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
             // Get a context
             ContentResourceEdit resource = editResource(resourceId);
-            // Set the updated length for quota checking
-            resource.setContentLength(totalSize);
-            log.debug("Resource is: [{}] Size is [{}]", resourceId, totalSize);
-            // check for over quota.
-            if (overQuota(resource)) {
-                log.error("Zip file for resource ("+resourceId+") would be too large after unzip so it cannot be expanded, totalSize("+totalSize+") exceeds the resource quota");
-                throw new OverQuotaException(resource.getReference());
+            try {
+                // Set the updated length for quota checking
+                resource.setContentLength(totalSize);
+                log.debug("Resource is: [{}] Size is [{}]", resourceId, totalSize);
+                // check for over quota.
+                if (overQuota(resource)) {
+                    log.error("Zip file for resource ("+resourceId+") would be too large after unzip so it cannot be expanded, totalSize("+totalSize+") exceeds the resource quota");
+                    throw new OverQuotaException(resource.getReference());
+                }
+                // zip files are not too large to extract so do the extract
+                extractZipArchive.extractArchive(resourceId);
+            } finally {
+                cancelResource(resource);
             }
-            // zip files are not too large to extract so do the extract
-            extractZipArchive.extractArchive(resourceId);
-            cancelResource(resource); //commitResource(resource); // KNL-1220
         }
     }
     

@@ -35,6 +35,9 @@ public class AbstractResourceServiceTest
 		assertTrue(service.shouldSkip(new ZipEntry("folder/desktop.ini")));
 		assertTrue(service.shouldSkip(new ZipEntry("folder/._index.html")));
 		assertTrue(service.shouldSkip(new ZipEntry("../imsmanifest.xml")));
+		assertTrue(service.shouldSkip(new ZipEntry("/imsmanifest.xml")));
+		assertTrue(service.shouldSkip(new ZipEntry("C:/imsmanifest.xml")));
+		assertTrue(service.shouldSkip(new ZipEntry("..\\imsmanifest.xml")));
 		assertTrue(service.shouldSkip(new ZipEntry("content/../../index.html")));
 	}
 

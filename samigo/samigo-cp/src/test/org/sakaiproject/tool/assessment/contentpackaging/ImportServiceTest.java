@@ -73,6 +73,114 @@ public class ImportServiceTest {
     }
 
     @Test
+    public void extractsPackageWithWindowsSeparators() throws IOException {
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("imsmanifest.xml", manifest("assessment/exportAssessment.xml"));
+        entries.put("assessment\\", "");
+        entries.put("assessment\\exportAssessment.xml", "<questestinterop/>");
+        Path root = Path.of(service.unzipImportFile(archive(entries).toString()));
+        assertEquals("<questestinterop/>", Files.readString(root.resolve("assessment/exportAssessment.xml")));
+        assertEquals(Path.of("assessment", "exportAssessment.xml"), Path.of(service.getQtiFilename()));
+    }
+
+    @Test
+    public void manifestSelectionSurvivesEntryNormalizationAndArchiveOrdering() throws IOException {
+        for (String href : new String[] {"./actual.xml", "pages/../actual.xml", ".\\actual.xml"}) {
+            for (boolean manifestFirst : new boolean[] {true, false}) {
+                Map<String, String> entries = new LinkedHashMap<>();
+                if (manifestFirst) {
+                    entries.put("imsmanifest.xml", manifest(href));
+                }
+                entries.put("exportAssessment.xml", "<wrong-assessment/>");
+                if (!manifestFirst) {
+                    entries.put("imsmanifest.xml", manifest(href));
+                }
+                entries.put("./actual.xml", "<selected-assessment/>");
+                Path root = Path.of(service.unzipImportFile(archive(entries).toString()));
+                assertEquals("actual.xml", service.getQtiFilename());
+                assertEquals("<selected-assessment/>", Files.readString(root.resolve(service.getQtiFilename())));
+            }
+        }
+    }
+
+    @Test
+    public void resolvesInheritedManifestBasesBeforePreservingSelection() throws IOException {
+        String[] manifests = {
+            "<manifest><resources><resource href=\"actual.xml\" xml:base=\"assessment/\"/></resources></manifest>",
+            "<manifest xml:base=\"package/\"><resources xml:base=\"assessment/\">"
+                + "<resource href=\"actual.xml\"/></resources></manifest>",
+            "<manifest xml:base=\"package/\"><resources xml:base=\"assessment/\">"
+                + "<resource xml:base=\"../selected/\" href=\"actual.xml\"/></resources></manifest>",
+            "<manifest xml:base=\"package/assessment/\"><resources>"
+                + "<resource xml:base=\"\" href=\"actual.xml\"/></resources></manifest>",
+            "<cp:manifest xmlns:cp=\"http://www.imsglobal.org/xsd/imscp_v1p1\" xml:base=\"package/\">"
+                + "<cp:resources><cp:resource xml:base=\"assessment/\" href=\"actual.xml\"/></cp:resources></cp:manifest>"
+        };
+        String[] targets = {"assessment/actual.xml", "package/assessment/actual.xml",
+            "package/selected/actual.xml", "package/assessment/actual.xml", "package/assessment/actual.xml"};
+        for (int i = 0; i < manifests.length; i++) {
+            for (boolean manifestFirst : new boolean[] {true, false}) {
+                Map<String, String> entries = new LinkedHashMap<>();
+                if (manifestFirst) {
+                    entries.put("imsmanifest.xml", manifests[i]);
+                }
+                entries.put("exportAssessment.xml", "<wrong-assessment/>");
+                if (!manifestFirst) {
+                    entries.put("imsmanifest.xml", manifests[i]);
+                }
+                entries.put(targets[i], "<selected-assessment/>");
+                Path root = Path.of(service.unzipImportFile(archive(entries).toString()));
+                assertEquals(Path.of(targets[i]), Path.of(service.getQtiFilename()));
+                assertEquals("<selected-assessment/>", Files.readString(root.resolve(service.getQtiFilename())));
+            }
+        }
+    }
+
+    @Test
+    public void selectsQtiResourceBeforeApplyingInheritedBase() throws IOException {
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("imsmanifest.xml", "<manifest xml:base=\"assessment/\"><resources>"
+            + "<resource type=\"webcontent\" href=\"image.png\"/>"
+            + "<resource type=\"imsqti_xmlv1p2\" href=\"actual.xml\"/></resources></manifest>");
+        entries.put("assessment/image.png", "attachment");
+        entries.put("exportAssessment.xml", "<wrong-assessment/>");
+        entries.put("assessment/actual.xml", "<selected-assessment/>");
+        Path root = Path.of(service.unzipImportFile(archive(entries).toString()));
+        assertEquals(Path.of("assessment/actual.xml"), Path.of(service.getQtiFilename()));
+        assertEquals("<selected-assessment/>", Files.readString(root.resolve(service.getQtiFilename())));
+    }
+
+    @Test
+    public void decodesManifestReferenceBeforeCheckingContainment() throws IOException {
+        for (String href : new String[] {"actual%20file.xml", "actual file.xml"}) {
+            Map<String, String> entries = new LinkedHashMap<>();
+            entries.put("imsmanifest.xml", manifest(href));
+            entries.put("actual file.xml", "<selected-assessment/>");
+            Path root = Path.of(service.unzipImportFile(archive(entries).toString()));
+            assertEquals("actual file.xml", service.getQtiFilename());
+            assertTrue(Files.isRegularFile(root.resolve(service.getQtiFilename())));
+        }
+        for (String href : new String[] {"", "%2e%2e/outside.xml", "../outside.xml",
+                "file:/tmp/outside.xml", "/tmp/outside.xml", "https://example.invalid/actual.xml"}) {
+            assertThrows(href, IOException.class, () -> service.unzipImportFile(
+                archive(Map.of("imsmanifest.xml", manifest(href))).toString()));
+        }
+    }
+
+    @Test
+    public void rejectsEscapingAndNonLocalManifestBasesBeforeFallback() throws IOException {
+        for (String base : new String[] {"../", "%2e%2e/", "file:/tmp/", "https://example.invalid/", "//example.invalid/"}) {
+            Map<String, String> entries = new LinkedHashMap<>();
+            entries.put("exportAssessment.xml", "<wrong-assessment/>");
+            entries.put("imsmanifest.xml", "<manifest xml:base=\"" + base + "\"><resources>"
+                + "<resource href=\"actual.xml\"/></resources></manifest>");
+            entries.put("actual.xml", "<selected-assessment/>");
+            assertThrows(base, IOException.class, () -> service.unzipImportFile(archive(entries).toString()));
+            assertNoExtractedFiles();
+        }
+    }
+
+    @Test
     public void rejectsTraversalAndRemovesPartialExtraction() throws IOException {
         Map<String, String> entries = new LinkedHashMap<>();
         entries.put("exportAssessment.xml", "<questestinterop/>");

@@ -29,6 +29,7 @@ import org.sakaiproject.scorm.exceptions.InvalidArchiveException;
 import org.sakaiproject.scorm.exceptions.ResourceStorageException;
 import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
+import org.sakaiproject.util.Zip;
 
 @Slf4j
 public abstract class AbstractResourceService implements ScormResourceService
@@ -141,26 +142,17 @@ public abstract class AbstractResourceService implements ScormResourceService
 			return true;
 		}
 
-		String normalizedName = entry.getName().replace('\\', '/');
-		while (normalizedName.startsWith("/"))
-		{
-			normalizedName = normalizedName.substring(1);
-		}
-
-		if (normalizedName.isBlank())
-		{
+		String normalizedName;
+		try {
+			normalizedName = Zip.validateEntryName(entry.getName());
+		} catch (IOException e) {
+			log.warn("Skipping unsafe SCORM archive entry {}", entry.getName());
 			return true;
 		}
 
 		String[] parts = normalizedName.split("/");
 		for (String part : parts)
 		{
-			if ("..".equals(part))
-			{
-				log.warn("Skipping SCORM archive entry with parent traversal segment {}", entry.getName());
-				return true;
-			}
-
 			if ("__MACOSX".equals(part))
 			{
 				log.debug("Skipping SCORM archive metadata entry {}", entry.getName());
