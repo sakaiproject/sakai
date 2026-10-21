@@ -79,7 +79,6 @@ import java.util.UUID;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1850,8 +1849,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_ASSIGNMENT_INPUT_ADD_TIME_SPENT", ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
         context.put("value_ASSIGNMENT_INPUT_ADD_TIME_SPENT", state.getAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT));
 
-        // SAK-21525 - Groups were not being queried for authz
-        boolean allowSubmit = assignmentService.allowAddSubmissionCheckGroups(assignment);
+        boolean allowSubmit = assignmentService.canSubmit(assignment);
         if (!allowSubmit) {
             addAlert(state, rb.getString("not_allowed_to_submit"));
         }
@@ -5452,13 +5450,6 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(RESET_TABLE_STATE, false);
 
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-        Site site;
-        try {
-            site = siteService.getSite(contextString);
-        } catch (IdUnusedException e) {
-            throw new IllegalStateException("Can not build context for invalid site with id [" + contextString + "]");
-        }
-
         initViewSubmissionListOption(state);
         String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
         Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
@@ -5482,36 +5473,19 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         context.put("hasAtLeastOneAnonAssignment", hasAtLeastOneAnonAssigment);
 
-        List<String> nonSubmitterPermissions = serverConfigurationService.getStringList(AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS,
-                AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT);
-
-        Predicate<String> isNonSubmitter = (userId) -> nonSubmitterPermissions.stream()
-                .filter(permission -> securityService.unlock(userId, permission, site.getReference()))
-                .findAny()
-                .isEmpty();
-
-        AuthzGroup groupSelection = StringUtils.isBlank(allOrOneGroup) || AssignmentConstants.ALL.equals(allOrOneGroup)
-                ? site
-                : site.getGroup(allOrOneGroup);
-
-        Map<String, User> studentMembers = groupSelection.getUsers().stream()
-                    .filter(isNonSubmitter)
-                    .map(userDirectoryService::getOptionalUser)
-                    .flatMap(Optional::stream)
-                    .collect(Collectors.toMap(User::getId, Function.identity()));
-
-        Comparator<Assignment> assignmentComparator = new AssignmentComparator(state, SORTED_BY_DEFAULT, Boolean.TRUE.toString());
+        Map<User, List<Assignment>> assignmentsByStudent = assignmentService.getAssignmentsByStudent(contextString, allOrOneGroup);
+        Map<String, User> studentMembers = assignmentsByStudent.keySet().stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
 
         Map<User, Iterator<Assignment>> showStudentAssignments = new HashMap<>();
         Set<String> expandedStudents = (Set<String>) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
         if (expandedStudents != null) {
             context.put("studentListShowSet", expandedStudents);
             for (String userId : expandedStudents) {
-                Set<Assignment> userSubmittableAssignments = assignments.stream()
-                        .filter(Predicate.not(assignmentService::assignmentUsesAnonymousGrading))
-                        .collect(Collectors.toSet());
-
-                showStudentAssignments.put(studentMembers.get(userId), userSubmittableAssignments.iterator());
+                User student = studentMembers.get(userId);
+                if (student != null) {
+                    showStudentAssignments.put(student, assignmentsByStudent.get(student).iterator());
+                }
             }
         }
 
@@ -5521,7 +5495,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
         context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
         context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null ? (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY) : Boolean.FALSE);
-        Collection groups = getAllGroupsInSite(contextString);
+        Collection<Group> groups = getCurrentUserGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
 
@@ -13122,6 +13096,17 @@ public class AssignmentAction extends PagedResourceActionII {
             log.warn("Problem getting groups for site: {}, {}", contextString, e.getMessage());
         }
         return groups;
+    }
+
+    private Collection<Group> getCurrentUserGroupsInSite(String contextString) {
+        try {
+            Site site = siteService.getSite(contextString);
+            return assignmentService.allowAllGroups(contextString)
+                    ? site.getGroups() : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+        } catch (IdUnusedException e) {
+            log.warn("Cannot get groups for site {}", contextString, e);
+            return Collections.emptyList();
+        }
     }
 
     /**
