@@ -292,9 +292,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Check the message signature using OAuth
 		String oauth_secret = normalProps.getProperty(LTIService.LTI_SECRET);
-		log.debug("oauth_secret: {}", oauth_secret);
 		oauth_secret = SakaiLTIUtil.decryptSecret(oauth_secret);
-		log.debug("oauth_secret (decrypted): {}", oauth_secret);
 
 		String URL = SakaiLTIUtil.getOurServletPath(request);
 		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
@@ -644,9 +642,7 @@ public class ServiceServlet extends HttpServlet {
 		// Check the message signature using OAuth
 		String oauth_consumer_key = pox.getOAuthConsumerKey();
 		String oauth_secret = normalProps.getProperty(LTIService.LTI_SECRET);
-		log.debug("oauth_secret: {}", oauth_secret);
 		oauth_secret = SakaiLTIUtil.decryptSecret(oauth_secret);
-		log.debug("oauth_secret (decrypted): {}", oauth_secret);
 
 		String URL = SakaiLTIUtil.getOurServletPath(request);
 		pox.validateRequest(oauth_consumer_key, oauth_secret, request, URL);
