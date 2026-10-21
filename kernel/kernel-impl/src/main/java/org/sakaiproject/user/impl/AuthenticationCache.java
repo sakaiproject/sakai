@@ -23,9 +23,7 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.security.SecureRandom;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -58,9 +56,8 @@ public class AuthenticationCache {
     /**
      * List of algorithms to attempt to use, best ones should come first.
      */
-    private final List<String> algorithms = Arrays.asList("SHA2","SHA1");
-    private final Random saltGenerator = new Random();
-    private final int saltLength = 8;
+    private static final int SALT_LENGTH = 16;
+    private final SecureRandom saltGenerator = new SecureRandom();
 
     public void init() {
         log.info("INIT");
@@ -84,7 +81,7 @@ public class AuthenticationCache {
 		Authentication auth = null;
 		AuthenticationRecord record = authCache.get(authenticationId);
 		if (record != null) {
-			byte[] salt = new byte[saltLength];
+			byte[] salt = new byte[SALT_LENGTH];
 			System.arraycopy(record.encodedPassword, 0, salt, 0, salt.length);
 			byte[] encodedPassword = getEncrypted(password, salt);
 			if (MessageDigest.isEqual(record.encodedPassword, encodedPassword)) {
@@ -124,7 +121,7 @@ public class AuthenticationCache {
 			// Don't indefinitely renew the cached record -- we want to force
 			// real authentication after the timeout.
 		} else {
-			byte[] salt = new byte[saltLength];
+			byte[] salt = new byte[SALT_LENGTH];
 			saltGenerator.nextBytes(salt);
 			byte[] encrypted = getEncrypted(password, salt);
 			authCache.put(authenticationId,
@@ -133,22 +130,17 @@ public class AuthenticationCache {
 	}
 
 	private byte[] getEncrypted(String plaintext, byte[] salt) {
-		Exception lastException = null;
-		for (String algorithm : algorithms) {
-			try {
-				MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
-				messageDigest.update(salt);
-				messageDigest.update(plaintext.getBytes(StandardCharsets.UTF_8));
-				byte[] encrypted = messageDigest.digest();
-				byte[] saltEncrypted = new byte[salt.length+ encrypted.length];
-				System.arraycopy(salt, 0, saltEncrypted, 0, salt.length);
-				System.arraycopy(encrypted, 0, saltEncrypted, salt.length, encrypted.length);
-				return saltEncrypted;
-			} catch (NoSuchAlgorithmException e) {
-				lastException = e;
-			}
-        }
-		throw new RuntimeException(lastException);
+		try {
+			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+			messageDigest.update(salt);
+			byte[] encrypted = messageDigest.digest(plaintext.getBytes(StandardCharsets.UTF_8));
+			byte[] saltEncrypted = new byte[salt.length + encrypted.length];
+			System.arraycopy(salt, 0, saltEncrypted, 0, salt.length);
+			System.arraycopy(encrypted, 0, saltEncrypted, salt.length, encrypted.length);
+			return saltEncrypted;
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("SHA-256 is required for authentication caching", e);
+		}
 	}
 
 	static class AuthenticationRecord implements Serializable {
