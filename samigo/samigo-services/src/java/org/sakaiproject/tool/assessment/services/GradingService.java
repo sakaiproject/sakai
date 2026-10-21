@@ -103,6 +103,8 @@ import org.sakaiproject.tool.assessment.util.ImageMapCoordinates;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.util.comparator.ImageMapGradingItemComparator;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -2820,26 +2822,31 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   public void removeAssessmentGradingData(AssessmentGradingData data) {
-	  try {
-		  PersistenceService.getInstance().getAssessmentGradingFacadeQueries().removeAssessmentGradingData(data);
-          RubricsService rubricsService = ComponentManager.get(RubricsService.class);
-          String siteId = AgentFacade.getCurrentSiteId();
-          Set<Long> itemIds = data.getItemGradingSet().stream()
-                  .map(ItemGradingData::getPublishedItemId)
-                  .collect(Collectors.toSet());
-          for (Long itemId : itemIds) {
-              String associationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX
-                      + data.getPublishedAssessmentId() + "." + itemId;
-              if (rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId).isPresent()) {
-                  // Other attempts share the association, but have their own evaluation ids.
-                  String evaluatedItemId = data.getAssessmentGradingId() + "." + itemId;
-                  rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(
-                          RubricsConstants.RBCS_TOOL_SAMIGO, associationId, evaluatedItemId, siteId);
+      try {
+          PlatformTransactionManager transactionManager = (PlatformTransactionManager) ComponentManager.get(
+                  "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager");
+          new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+              PersistenceService.getInstance().getAssessmentGradingFacadeQueries().removeAssessmentGradingData(data);
+              RubricsService rubricsService = ComponentManager.get(RubricsService.class);
+              String siteId = AgentFacade.getCurrentSiteId();
+              Set<Long> itemIds = data.getItemGradingSet().stream()
+                      .map(ItemGradingData::getPublishedItemId)
+                      .collect(Collectors.toSet());
+              for (Long itemId : itemIds) {
+                  String associationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX
+                          + data.getPublishedAssessmentId() + "." + itemId;
+                  if (rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId).isPresent()) {
+                      // Other attempts share the association, but have their own evaluation ids.
+                      String evaluatedItemId = data.getAssessmentGradingId() + "." + itemId;
+                      rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(
+                              RubricsConstants.RBCS_TOOL_SAMIGO, associationId, evaluatedItemId, siteId);
+                  }
               }
-          }
-	  } catch (Exception e) {
-		  log.error("Failed to remove assessment submission {} and its rubric evaluations", data.getAssessmentGradingId(), e);
-	  }
+          });
+      } catch (RuntimeException e) {
+          log.error("Failed to remove assessment submission {} and its rubric evaluations", data.getAssessmentGradingId(), e);
+          throw e;
+      }
   }
 
   public boolean getHasGradingData(Long publishedAssessmentId) {

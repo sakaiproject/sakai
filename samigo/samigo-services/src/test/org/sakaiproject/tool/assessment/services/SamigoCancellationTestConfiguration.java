@@ -71,6 +71,16 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
         return properties;
     }
 
+    @Bean
+    public org.sakaiproject.tool.assessment.services.GradingService samigoGradingService() {
+        return new org.sakaiproject.tool.assessment.services.GradingService();
+    }
+
+    @Bean(name = "org.sakaiproject.rubrics.api.RubricsService")
+    public org.sakaiproject.rubrics.api.RubricsService rubricsService() {
+        return mock(org.sakaiproject.rubrics.api.RubricsService.class);
+    }
+
     @Bean(name = "org.sakaiproject.grading.api.GradingService")
     public GradingService gradebookService() {
         return mock(GradingService.class);
@@ -104,7 +114,10 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
 
     @Bean
     public PersistenceHelper persistenceHelper() {
-        return new PersistenceHelper();
+        PersistenceHelper helper = new PersistenceHelper();
+        helper.setRetryCount(1);
+        helper.setDeadlockInterval(0);
+        return helper;
     }
 
     @Bean
