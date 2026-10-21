@@ -303,6 +303,10 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(newTitle, rubricsService.getRubric(stale.getId()).get().getTitle());
         assertThrows(RubricsConflictException.class, () -> rubricsService.deleteRubric(stale.getId(), stale.getVersion()));
         assertThrows(RubricsConflictException.class, () -> rubricsService.sortRubricCriteria(stale.getId(), List.of(), stale.getVersion()));
+
+        RubricTransferBean blankTitle = rubricsService.getRubric(rubricBean.getId()).orElseThrow();
+        blankTitle.setTitle("  ");
+        assertThrows(IllegalArgumentException.class, () -> rubricsService.saveRubric(blankTitle));
     }
 
     @Test
@@ -608,6 +612,17 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         rubricsService.copyCriterion(rubricBean.getId(), rubricBean.getCriteria().get(1).getId(), rubricBean.getVersion());
         rubricBean2 = rubricsService.getRubricsForSite(siteId).get(2);
         assertEquals(42D, rubricBean2.getMaxPoints(), 0);
+
+        RubricTransferBean weighted = rubricsService.createDefaultRubric(siteId);
+        weighted.setWeighted(true);
+        weighted.getCriteria().get(0).setWeight(100F);
+        weighted = rubricsService.saveRubric(weighted);
+        for (CriterionTransferBean criterion : weighted.getCriteria()) {
+            criterion.setWeight(50F);
+            criterion.setRubricVersion(weighted.getVersion());
+            weighted.setVersion(rubricsService.updateCriterion(criterion, siteId).getRubricVersion());
+        }
+        assertEquals(11D, rubricsService.getRubric(weighted.getId()).orElseThrow().getMaxPoints(), 0);
     }
 
     @Test
@@ -728,6 +743,17 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals("group-owner", byId.get(groupEvaluationId).getSortName());
         assertEquals("missing-user", byId.get(missingUserEvaluationId).getSortName());
         assertEquals(user2SortName, byId.get(userEvaluationId).getSortName());
+    }
+
+    @Test
+    public void anonymousUserCannotSavePeerEvaluation() {
+
+        switchToUser1();
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(null);
+        EvaluationTransferBean evaluation = new EvaluationTransferBean();
+        evaluation.setPeerOrSelf(true);
+        evaluation.setEvaluatedItemOwnerType(EvaluatedItemOwnerType.USER);
+        assertThrows(SecurityException.class, () -> rubricsService.saveEvaluation(evaluation, siteId));
     }
 
     @Test
@@ -853,6 +879,12 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         pdfText = extractPdfText(rubricsService.createPdf(siteId, rubric.getId(), AssignmentConstants.TOOL_ID,
                 toolItemId, evaluation.getEvaluatedItemId()));
         assertTrue(pdfText.contains("export_adjusted: 1.5"));
+
+        when(resourceLoader.getLocale()).thenReturn(Locale.forLanguageTag("es"));
+        pdfText = extractPdfText(rubricsService.createPdf(siteId, rubric.getId(), AssignmentConstants.TOOL_ID,
+                toolItemId, evaluation.getEvaluatedItemId()));
+        assertTrue(pdfText.contains("export_adjusted: 1,5"));
+        when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
 
         rubric.setWeighted(true);
         rubric.getCriteria().get(0).setWeight(33.333F);
