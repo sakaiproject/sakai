@@ -2199,7 +2199,6 @@ public class SakaiBLTIUtil {
 			String jws = Jwts.builder().setHeaderParam("kid", kid).
 					setPayload(ljs).signWith(privateKey).compact();
 
-			log.debug("jws = {}", jws);
 
 			String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
 			boolean dodebug = BASICLTI_PORTLET_ON.equals(debugProperty) || "1".equals(debugProperty);
@@ -2507,9 +2506,7 @@ public class SakaiBLTIUtil {
 
 		// Check the message signature using OAuth
 		String oauth_secret = normalProps.getProperty(LTIService.LTI_SECRET);
-		log.debug("oauth_secret: {}", oauth_secret);
 		oauth_secret = decryptSecret(oauth_secret);
-		log.debug("oauth_secret (decrypted): {}", oauth_secret);
 
 		String oauth_consumer_key = normalProps.getProperty(LTIService.LTI_CONSUMERKEY);
 		log.debug("oauth_consumer_key: {}", oauth_consumer_key);

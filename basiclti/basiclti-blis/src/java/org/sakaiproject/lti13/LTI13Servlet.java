@@ -277,11 +277,6 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// /imsblis/lti13/proxy
-		if (parts.length == 4 && "proxy".equals(parts[3])) {
-			handleProxy(request, response);
-			return;
-		}
 
 		// /imsblis/lti13/postverify/{signed-placement}
 		if (SakaiBLTIUtil.checkSendPostVerify() && parts.length == 5 && "postverify".equals(parts[3])) {
@@ -409,62 +404,6 @@ public class LTI13Servlet extends HttpServlet {
 		log.error("Unrecognized POST request parts={} request={}", parts.length, uri);
 		LTI13Util.return400(response, "Unrecognized POST request parts="+parts.length+" request="+uri);
 
-	}
-
-	// A very locked down proxy - JSON Only
-	protected void handleProxy(HttpServletRequest request, HttpServletResponse response) {
-		String proxyUrl = request.getParameter("proxyUrl");
-		if ( proxyUrl == null ) {
-			LTI13Util.return400(response, "Missing proxyUrl");
-			return;
-		}
-
-		Session sess = SessionManager.getCurrentSession();
-		if ( sess == null || sess.getUserId() == null ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			return;
-		}
-
-		// https://stackoverflow.com/a/43708457/1994792
-		try {
-			java.net.URL url = new java.net.URL(proxyUrl);
-			java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
-			con.setRequestMethod("GET");
-			con.setConnectTimeout(3000);
-			con.setReadTimeout(3000);
-			con.setInstanceFollowRedirects(true);
-
-			try ( java.io.BufferedReader in = new java.io.BufferedReader(
-				new java.io.InputStreamReader(con.getInputStream())) )
-			{
-				String inputLine;
-				StringBuffer content = new StringBuffer();
-				while ((inputLine = in.readLine()) != null) {
-					content.append(inputLine);
-				}
-				if ( content.length() > 10000 ) {
-					LTI13Util.return400(response, "Content too long");
-					return;
-				}
-
-				String jsonString = content.toString();
-
-				Object js = JSONValue.parse(jsonString);
-				if (js == null || !(js instanceof JSONObject)) {
-					LTI13Util.return400(response, "Badly formatted JSON");
-					return;
-				}
-
-				response.setContentType(APPLICATION_JSON);
-				PrintWriter out = response.getWriter();
-
-				out.println(((JSONObject) js).toJSONString());
-			} catch (Exception e) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			}
-		} catch (Exception e) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		}
 	}
 
 	// LTI PostVerify
@@ -832,14 +771,16 @@ public class LTI13Servlet extends HttpServlet {
 		String body = LTI13JwtUtil.rawJwtBody(client_assertion);
 		if (body == null) {
 			LTI13Util.return400(response, "Could not find Jwt Body in client_assertion");
-			log.error("Could not find Jwt Body in client_assertion\n{}", client_assertion);
+			log.error("Could not find Jwt Body in client_assertion");
+
 			return;
 		}
 
 		JSONObject jsonHeader = LTI13JwtUtil.jsonJwtHeader(client_assertion);
 		if (jsonHeader == null) {
 			LTI13Util.return400(response, "Could not parse Jwt Header in client_assertion");
-			log.error("Could not parse Jwt Header in client_assertion\n{}", client_assertion);
+			log.error("Could not parse Jwt Header in client_assertion");
+
 			return;
 		}
 
@@ -1209,7 +1150,8 @@ public class LTI13Servlet extends HttpServlet {
 		// Check the one time use token expiration
 		int delta = 60*60; // An hour
 		if ( ! LTI13Util.timeStampCheck(registration_token, delta) ) {
-			log.error("Expired registration_token \n"+registration_token+":\n tool_token=\n"+tool_token+":");
+			log.error("Expired registration_token");
+
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
