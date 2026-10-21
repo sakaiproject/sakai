@@ -116,6 +116,12 @@ public class SakaiService  {
         }
     }
 
+    public boolean canManageCurrentSiteGroups() {
+        String siteId = getCurrentSiteIdFromContext();
+        return StringUtils.isNotBlank(siteId)
+                && (siteService.allowUpdateSite(siteId) || siteService.allowUpdateGroupMembership(siteId));
+    }
+
     public Optional<Site> getCurrentSite() {
         String siteId = getCurrentSiteIdFromContext();
         if (StringUtils.isBlank(siteId)) {
