@@ -1,0 +1,366 @@
+# This workflow deploys Sakai to Tomcat and runs browser E2E tests.
+
+name: Playwright E2E Browser Tests
+
+on:
+  pull_request:
+  push:
+    branches: [25.x, codex-25.x-security]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: playwright-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sakai-deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      NIGHTLY_CONFIG_REF: 8f13ad428a22e1af3a2ecefc40d65e7954bd9749
+      MAVEN_VERSION: 3.9.16
+      MAVEN_ARGS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
+      JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
+      PLAYWRIGHT_BROWSER: "chromium"
+      TOMCAT_VERSION: "9.0.123"
+      SAKAI_FATAL_ERRORS: 'BeanCreationException|NoClassDefFoundError|NoSuchMethodError|ServiceConfigurationError|ExceptionInInitializerError|listeners failed to start|Context \[.*\] startup failed|Error deploying web application|Exception sending context initialized event'
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: JDK 17
+        uses: actions/setup-java@v6.0.1
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v5.1
+        with:
+          maven-version: ${{ env.MAVEN_VERSION }}
+
+      - name: Restore 25.x Maven repository cache
+        id: cache-maven-restore
+        uses: actions/cache@v6.1.0
+        with:
+          # Relative paths and cross-OS archives let all runners share this repository.
+          path: .m2/repository
+          enableCrossOsArchive: true
+          key: sakai-m2-25x-maven-${{ env.MAVEN_VERSION }}
+          restore-keys: sakai-m2-25x-maven-${{ env.MAVEN_VERSION }}-
+
+      - name: Maven cache status
+        run: echo "Maven cache hit = ${{ steps.cache-maven-restore.outputs.cache-hit }}"
+
+      - name: Node 22
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 22.14.0
+
+      - name: Resolve Playwright Java version
+        id: playwright-version
+        run: |
+          PLAYWRIGHT_VERSION=$(mvn -B -ntp -q -Pe2e -pl e2e-tests help:evaluate -Dexpression=playwright.version -DforceStdout | tail -n1)
+          echo "value=$PLAYWRIGHT_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Tomcat distribution
+        id: cache-tomcat
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: .cache/tomcat
+          key: ${{ runner.os }}-tomcat-${{ env.TOMCAT_VERSION }}
+
+      - name: Download Tomcat distribution
+        if: steps.cache-tomcat.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .cache/tomcat
+          curl -fSL --retry 3 -o ".cache/tomcat/apache-tomcat-$TOMCAT_VERSION.tar.gz" \
+            "https://archive.apache.org/dist/tomcat/tomcat-9/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz"
+
+      - name: Save Tomcat distribution cache
+        if: steps.cache-tomcat.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .cache/tomcat
+          key: ${{ steps.cache-tomcat.outputs.cache-primary-key }}
+
+      - name: Build with Maven
+        env:
+          MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
+        run: |
+          sudo systemctl start mysql.service
+          echo "127.0.0.1 repository.dev.java.net" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 maven-repository.dev.java.net" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 maven2-repository.dev.java.net" | sudo tee -a /etc/hosts
+          export TOMCAT_DIR=$PWD/tomcat
+          mkdir $TOMCAT_DIR
+          cd $TOMCAT_DIR
+          tar --strip-components=1 -xzf "../.cache/tomcat/apache-tomcat-$TOMCAT_VERSION.tar.gz"
+          mkdir -p sakai
+          NIGHTLY_CONFIG_URL=https://raw.githubusercontent.com/sakaiproject/nightly-config/$NIGHTLY_CONFIG_REF
+          curl --fail --silent --show-error --location --retry 3 --parallel \
+            --output bin/setenv.sh "$NIGHTLY_CONFIG_URL/setenv.sh" \
+            --output conf/context.xml "$NIGHTLY_CONFIG_URL/context.xml" \
+            --output conf/catalina.properties "$NIGHTLY_CONFIG_URL/catalina.properties"
+          cp ../e2e-tests/ci/sakai.properties sakai/sakai.properties
+          sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
+          mysql -u root -proot -e "create database sakai";
+          cd ..
+          mvn -B -ntp -V -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
+
+      - name: Start Tomcat
+        id: start-tomcat
+        run: tomcat/bin/catalina.sh start
+
+      - name: Wait for Sakai
+        id: wait-for-sakai
+        run: |
+          for i in {1..180}; do
+            if grep -nE "$SAKAI_FATAL_ERRORS" tomcat/logs/*; then
+              echo "::error::Fatal Sakai startup error; see Tomcat logs."
+              exit 1
+            fi
+            if ! kill -0 "$(cat tomcat/sakai.pid)" 2>/dev/null; then
+              echo "::error::Tomcat exited before Sakai became ready."
+              exit 1
+            fi
+            if grep -q "Server startup in" tomcat/logs/catalina.out \
+              && curl -fsS --connect-timeout 3 --max-time 5 http://localhost:8080/portal/ > /dev/null; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Sakai did not become ready in time."
+          tail -n 80 tomcat/logs/catalina.out
+          exit 1
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-java-${{ steps.playwright-version.outputs.value }}-chromium-shell
+
+      - name: Install Playwright CLI package
+        run: |
+          mkdir -p .playwright-cli
+          cat > .playwright-cli/package.json <<'EOF'
+          {
+            "name": "playwright-cli-bootstrap",
+            "private": true
+          }
+          EOF
+          npm --prefix .playwright-cli install --no-audit --no-fund --save-exact playwright@${{ steps.playwright-version.outputs.value }}
+
+      - name: Install Playwright system dependencies
+        run: ./.playwright-cli/node_modules/.bin/playwright install-deps chromium
+
+      - name: Install Playwright browser
+        run: ./.playwright-cli/node_modules/.bin/playwright install chromium --only-shell
+
+      - name: Run Playwright Java tests
+        id: playwright-tests
+        env:
+          # Browser setup above installs the Chromium headless shell required by CI.
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          # Match Sakai's serverUrl so redirects preserve the browser's session cookie.
+          PLAYWRIGHT_BASE_URL: http://localhost:8080
+        run: |
+          set -o pipefail
+          mkdir -p e2e-tests/target
+          mvn -B -ntp -V -Pe2e -pl e2e-tests -DfailIfNoTests=true test 2>&1 | tee e2e-tests/target/playwright-java-run.log
+
+      - name: Check Sakai server after tests
+        id: server-check
+        if: always() && (steps.start-tomcat.outcome == 'success' || steps.start-tomcat.outcome == 'failure')
+        run: |
+          if grep -nE "$SAKAI_FATAL_ERRORS" tomcat/logs/*; then
+            echo "::error::Fatal Sakai server error; see Tomcat logs."
+            exit 1
+          fi
+          if ! kill -0 "$(cat tomcat/sakai.pid)" 2>/dev/null; then
+            echo "::error::Tomcat is no longer running."
+            exit 1
+          fi
+
+      - name: Check number of MySQL statements
+        if: always()
+        run: |
+          export QUERIES=$(grep StandardClient.debug tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
+          echo "::notice title={MySQL Queries}::$QUERIES"
+
+      - name: Upload Tomcat log for review
+        id: upload-tomcat-log
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: tomcat-log
+          path: tomcat/logs/
+          retention-days: 5
+
+      - name: Collect Playwright Java artifacts
+        if: always()
+        run: |
+          mkdir -p playwright-java-artifacts
+          FAILED_KEYS_FILE=playwright-java-artifacts/failed-keys.txt
+          FAILED_MAP_FILE=playwright-java-artifacts/failed-test-artifacts.txt
+          : > "$FAILED_KEYS_FILE"
+          : > "$FAILED_MAP_FILE"
+          if [ -d e2e-tests/target/playwright-artifacts ]; then
+            mkdir -p playwright-java-artifacts/playwright-artifacts
+            rsync -a --prune-empty-dirs \
+              e2e-tests/target/playwright-artifacts/ \
+              playwright-java-artifacts/playwright-artifacts/
+          fi
+          if [ -d e2e-tests/target/surefire-reports ]; then
+            cp -R e2e-tests/target/surefire-reports playwright-java-artifacts/
+          fi
+          if [ -f e2e-tests/target/playwright-java-run.log ]; then
+            cp e2e-tests/target/playwright-java-run.log playwright-java-artifacts/
+          fi
+
+          if [ -d e2e-tests/target/surefire-reports ]; then
+            awk '
+              /<testcase / {
+                current = "";
+                className = "";
+                methodName = "";
+                if (match($0, /classname="[^"]+"/)) {
+                  className = substr($0, RSTART + 11, RLENGTH - 12);
+                }
+                if (match($0, /name="[^"]+"/)) {
+                  methodName = substr($0, RSTART + 6, RLENGTH - 7);
+                }
+                if (className != "" && methodName != "") {
+                  split(className, parts, "\\.");
+                  current = parts[length(parts)] "-" methodName;
+                }
+              }
+              /<failure / || /<error / {
+                if (current != "") {
+                  print current;
+                }
+              }
+            ' e2e-tests/target/surefire-reports/TEST-*.xml | sort -u > "$FAILED_KEYS_FILE"
+          fi
+
+          if [ -s "$FAILED_KEYS_FILE" ] && [ -d e2e-tests/target/playwright-artifacts ]; then
+            mkdir -p playwright-java-artifacts/failure-media
+            while IFS= read -r key; do
+              [ -z "$key" ] && continue
+              while IFS= read -r test_dir; do
+                [ -z "$test_dir" ] && continue
+                rel_dir=${test_dir#e2e-tests/target/playwright-artifacts/}
+                printf '%s|%s\n' "$key" "$rel_dir" >> "$FAILED_MAP_FILE"
+
+                mkdir -p "playwright-java-artifacts/failure-media/$rel_dir"
+                if [ -f "$test_dir/final.png" ]; then
+                  cp "$test_dir/final.png" "playwright-java-artifacts/failure-media/$rel_dir/"
+                fi
+                if [ -f "$test_dir/trace.zip" ]; then
+                  cp "$test_dir/trace.zip" "playwright-java-artifacts/failure-media/$rel_dir/"
+                fi
+              done < <(find e2e-tests/target/playwright-artifacts -mindepth 1 -maxdepth 1 -type d -name "${key}-*" 2>/dev/null | sort)
+            done < "$FAILED_KEYS_FILE"
+          fi
+
+          if [ -s "$FAILED_MAP_FILE" ]; then
+            sort -u "$FAILED_MAP_FILE" -o "$FAILED_MAP_FILE"
+          else
+            rm -f "$FAILED_MAP_FILE"
+          fi
+
+          if [ -d playwright-java-artifacts/failure-media ] \
+            && [ -z "$(find playwright-java-artifacts/failure-media -mindepth 1 -print -quit)" ]; then
+            rmdir playwright-java-artifacts/failure-media
+          fi
+
+          if [ ! -s "$FAILED_KEYS_FILE" ]; then
+            rm -f "$FAILED_KEYS_FILE"
+          fi
+
+          if [ ! -e playwright-java-artifacts/playwright-artifacts ] \
+            && [ ! -e playwright-java-artifacts/surefire-reports ] \
+            && [ ! -f playwright-java-artifacts/playwright-java-run.log ]; then
+            echo "No Playwright Java artifacts were produced in this run." > playwright-java-artifacts/README.txt
+          fi
+
+      - name: Upload Playwright Java artifacts
+        id: upload-playwright-java-artifacts
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: playwright-java-artifacts
+          path: playwright-java-artifacts
+          retention-days: 5
+
+      - name: Upload Playwright Java failure media
+        id: upload-playwright-java-failure-media
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: playwright-java-failure-media
+          path: playwright-java-artifacts/failure-media
+          if-no-files-found: ignore
+          retention-days: 5
+
+      - name: Summarize Playwright Java failures
+        if: always()
+        run: |
+          {
+            echo "## Sakai server and test status"
+            echo ""
+            echo "- Readiness: ${{ steps.wait-for-sakai.outcome }}"
+            echo "- Final server check: ${{ steps.server-check.outcome }}"
+            echo "- Samigo group-access fixture: not provisioned; its two conditional tests are skipped"
+            case '${{ steps.playwright-tests.outcome }}' in
+              success) echo "- Browser tests: passed" ;;
+              failure) echo "- Browser tests: failed" ;;
+              cancelled) echo "- Browser tests: cancelled" ;;
+              *) echo "- Browser tests: never ran" ;;
+            esac
+            if [ -n "${{ steps.upload-tomcat-log.outputs.artifact-url }}" ]; then
+              echo "- [Tomcat logs and server diagnostics](${{ steps.upload-tomcat-log.outputs.artifact-url }})"
+            fi
+            echo ""
+            echo "### Server error excerpts"
+            echo '```text'
+            grep -n -m 1 -B 3 -A 120 -E "$SAKAI_FATAL_ERRORS" tomcat/logs/* 2>/dev/null | head -n 160 || true
+            echo '```'
+            echo ""
+            echo "## Playwright Java E2E Artifacts"
+            echo ""
+            if [ -n "${{ steps.upload-playwright-java-artifacts.outputs.artifact-url }}" ]; then
+              echo "- Full artifact bundle: [playwright-java-artifacts](${{ steps.upload-playwright-java-artifacts.outputs.artifact-url }})"
+            else
+              echo "- Full artifact bundle: \`playwright-java-artifacts\`"
+            fi
+
+            if [ -n "${{ steps.upload-playwright-java-failure-media.outputs.artifact-url }}" ]; then
+              echo "- Failure-only media: [playwright-java-failure-media](${{ steps.upload-playwright-java-failure-media.outputs.artifact-url }})"
+            fi
+
+            if [ -f playwright-java-artifacts/failed-test-artifacts.txt ]; then
+              echo ""
+              echo "### Failing Tests"
+              echo "| Test | Artifact Directory | Screenshot | Trace |"
+              echo "| --- | --- | --- | --- |"
+              while IFS='|' read -r key rel_dir; do
+                [ -z "$key" ] && continue
+                [ -z "$rel_dir" ] && continue
+                screenshot="no"
+                trace="no"
+                if [ -f "playwright-java-artifacts/failure-media/$rel_dir/final.png" ]; then
+                  screenshot="yes"
+                fi
+                if [ -f "playwright-java-artifacts/failure-media/$rel_dir/trace.zip" ]; then
+                  trace="yes"
+                fi
+                echo "| \`$key\` | \`$rel_dir\` | $screenshot | $trace |"
+              done < playwright-java-artifacts/failed-test-artifacts.txt
+              echo ""
+              echo "Open a trace locally with \`npx playwright show-trace trace.zip\`."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

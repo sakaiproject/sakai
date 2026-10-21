@@ -16,8 +16,11 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.Cookie;
@@ -68,7 +71,7 @@ class LoginTest extends SakaiUiTestBase {
         page.locator("input[name=\"pw\"]").fill(sakai.passwordFor(username));
         page.locator("input[name=\"pw\"]").press("Enter");
 
-        assertThat(page).hasURL(Pattern.compile("/portal"));
+        assertAuthenticatedUser(username);
         List<Cookie> cookies = page.context().cookies();
         boolean hasSakaiCookie = cookies.stream().anyMatch(cookie -> "SAKAIID".equals(cookie.name));
         assertTrue(hasSakaiCookie);
@@ -78,16 +81,23 @@ class LoginTest extends SakaiUiTestBase {
     @Order(4)
     void canBypassUiAndStillLoginByRequest() {
         String username = effectiveUsername();
-        APIResponse response = page.request().post("/portal/",
+        APIResponse rejected = page.request().post("/direct/session/new",
             RequestOptions.create().setForm(FormData.create()
-                .set("username", username)
-                .set("password", sakai.passwordFor(username))));
+                .set("_username", username)
+                .set("_password", "incorrect-playwright-password")));
+        assertTrue(rejected.status() == 401 || rejected.status() == 403, rejected.text());
+        APIResponse anonymous = page.request().get("/direct/session/current.json");
+        assertTrue(anonymous.ok(), anonymous.text());
+        JsonObject anonymousSession = JsonParser.parseString(anonymous.text()).getAsJsonObject();
+        assertTrue(!anonymousSession.has("userEid") || anonymousSession.get("userEid").isJsonNull()
+            || anonymousSession.get("userEid").getAsString().isBlank());
 
-        int status = response.status();
-        assertTrue(status == 200 || status == 302 || status == 303);
-        List<Cookie> cookies = page.context().cookies();
-        boolean hasSakaiCookie = cookies.stream().anyMatch(cookie -> "SAKAIID".equals(cookie.name));
-        assertTrue(hasSakaiCookie);
+        APIResponse response = page.request().post("/direct/session/new",
+            RequestOptions.create().setForm(FormData.create()
+                .set("_username", username)
+                .set("_password", sakai.passwordFor(username))));
+        assertTrue(response.ok(), response.text());
+        assertAuthenticatedUser(username);
     }
 
     @Test
@@ -99,6 +109,17 @@ class LoginTest extends SakaiUiTestBase {
         page.navigate("/portal/");
         assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Home$", Pattern.CASE_INSENSITIVE))).first()).isVisible();
+
+        page.navigate("/portal/site/~" + username);
+        assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
+            new Page.GetByRoleOptions().setName(Pattern.compile("^Preferences$", Pattern.CASE_INSENSITIVE))).first()).isVisible();
+    }
+
+    private void assertAuthenticatedUser(String username) {
+        APIResponse session = page.request().get("/direct/session/current.json");
+        assertTrue(session.ok(), session.text());
+        JsonObject currentSession = JsonParser.parseString(session.text()).getAsJsonObject();
+        assertEquals(username, currentSession.get("userEid").getAsString());
 
         page.navigate("/portal/site/~" + username);
         assertThat(page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
