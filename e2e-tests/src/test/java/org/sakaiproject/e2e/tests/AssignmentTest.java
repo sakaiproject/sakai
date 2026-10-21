@@ -126,6 +126,8 @@ class AssignmentTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Save", Pattern.CASE_INSENSITIVE)))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator("sakai-rubric .rubric-name")
+                .filter(new Locator.FilterOptions().setHasText(rubricTitle))).hasText(rubricTitle);
 
         page.navigate(courseUrl);
         sakai.toolClick("Assignments");
@@ -192,7 +194,7 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(draftButton).hasAttribute("aria-disabled", "false");
         Response draftSave = page.waitForResponse(response -> response.url().endsWith("/rubrics/" + rubricId)
                 && response.request().method().equals("PATCH"), () -> draftButton.click());
-        assertTrue(draftSave.ok());
+        assertTrue(draftSave.ok(), () -> "Rubric draft save failed: HTTP " + draftSave.status());
         assertThat(draftButton).hasAttribute("title", "Publish Rubric");
         page.reload();
         assertThat(draftButton).hasAttribute("title", "Publish Rubric");
