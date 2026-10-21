@@ -160,15 +160,21 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         Locator scores = page.locator("table[id$='totalScoreTable']");
         Locator deleteAttempt = scores.getByRole(AriaRole.LINK,
                 new Locator.GetByRoleOptions().setName("Delete").setExact(true));
+        Locator submittedScore = scores.getByRole(AriaRole.ROW)
+                .filter(new Locator.FilterOptions().setHasText("student0011"))
+                .getByRole(AriaRole.CELL, new Locator.GetByRoleOptions().setName(Pattern.compile("^2(?:\\.0+)?$")));
         assertThat(deleteAttempt).hasCount(1);
         assertThat(deleteAttempt).isVisible();
+        assertThat(submittedScore.first()).isVisible();
         page.onceDialog(dialog -> dialog.accept());
         deleteAttempt.click();
         assertThat(scores).isVisible();
         assertThat(deleteAttempt).hasCount(0);
+        assertThat(submittedScore).hasCount(0);
         page.navigate(page.url());
         assertThat(scores).isVisible();
         assertThat(deleteAttempt).hasCount(0);
+        assertThat(submittedScore).hasCount(0);
     }
 
     private void createFixtures() {
