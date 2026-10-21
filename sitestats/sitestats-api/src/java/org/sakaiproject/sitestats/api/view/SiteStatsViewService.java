@@ -11,6 +11,8 @@ public interface SiteStatsViewService {
 
 	public SiteStatsOverview getOverview(String siteId);
 
+	public SiteStatsOverview getInstitutionalOverview(String siteId);
+
 	public SiteStatsWidgetTab getWidgetTab(String siteId, String widgetId, String tabId);
 
 	public List<SiteStatsWidgetMetric> getWidgetMetrics(String siteId, String widgetId);

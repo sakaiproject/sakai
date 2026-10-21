@@ -1,7 +1,17 @@
-/**
- * Copyright (c) 2026 The Apereo Foundation
+/*
+ * Copyright (c) 2003-2026 The Apereo Foundation
  *
- * Licensed under the Educational Community License, Version 2.0.
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.sakaiproject.sitestats.test;
 
@@ -47,6 +57,9 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_GRAD
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_GRADES;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_SUBMISSIONS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_STUDENT_VISITS;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_CLIENT_ENVIRONMENT;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_INSTITUTIONAL_PRESENCE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_PLATFORM_HEALTH;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_SUBMISSIONS;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.WIDGET_VISITS;
 import static org.sakaiproject.sitestats.test.SiteStatsTestFixtures.eventStat;
@@ -78,6 +91,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.view.SiteStatsChart;
 import org.sakaiproject.sitestats.api.view.SiteStatsChartPoint;
 import org.sakaiproject.sitestats.api.view.SiteStatsFilter;
 import org.sakaiproject.sitestats.api.view.SiteStatsOverview;
@@ -196,6 +210,24 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertFalse(hasWidget(overview, WIDGET_STUDENT_PRESENCE_ACCESS));
 		assertFalse(hasWidget(overview, WIDGET_STUDENT_SUBMISSIONS));
 		assertFalse(hasWidget(overview, WIDGET_STUDENT_GRADES));
+		assertFalse(hasWidget(overview, WIDGET_PLATFORM_HEALTH));
+		assertFalse(hasWidget(overview, WIDGET_INSTITUTIONAL_PRESENCE));
+		assertFalse(hasWidget(overview, WIDGET_CLIENT_ENVIRONMENT));
+	}
+
+	@Test
+	public void getInstitutionalOverviewReturnsAdminWidgetsOnly() {
+		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ADMIN_VIEW, SITE_REF)).thenReturn(true);
+
+		SiteStatsOverview overview = service.getInstitutionalOverview(SITE_ID);
+
+		assertTrue(overview.isAdminAllowed());
+		assertTrue(hasWidget(overview, WIDGET_PLATFORM_HEALTH));
+		assertTrue(hasWidget(overview, WIDGET_INSTITUTIONAL_PRESENCE));
+		assertTrue(hasWidget(overview, WIDGET_CLIENT_ENVIRONMENT));
+		assertFalse(hasWidget(overview, WIDGET_VISITS));
+		assertFalse(hasWidget(overview, WIDGET_SUBMISSIONS));
+		assertFalse(hasWidget(overview, WIDGET_STUDENT_VISITS));
 	}
 
 	@Test
@@ -365,10 +397,13 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		db.insertObject(presenceStat(SITE_ID, OTHER_USER_ID, today, 90000L));
 
 		SiteStatsOverview overview = service.getOverview(SITE_ID);
+		assertTrue(widget(overview, WIDGET_PRESENCE_ACCESS).getHighlights().isEmpty());
+		assertTrue(widget(overview, WIDGET_PRESENCE_ACCESS).isHighlightsConfigured());
 
-		assertEquals(1, widget(overview, WIDGET_PRESENCE_ACCESS).getHighlights().size());
-		List<SiteStatsChartPoint> points = widget(overview, WIDGET_PRESENCE_ACCESS)
-				.getHighlights().get(0).getDatasets().get(0).getPoints();
+		List<SiteStatsChart> highlights = service.getWidgetHighlights(SITE_ID, WIDGET_PRESENCE_ACCESS,
+				new SiteStatsReportRequest());
+		assertEquals(1, highlights.size());
+		List<SiteStatsChartPoint> points = highlights.get(0).getDatasets().get(0).getPoints();
 		assertEquals(30, points.size());
 		long totalMinutes = 0L;
 		for (SiteStatsChartPoint point : points) {
@@ -392,14 +427,19 @@ public class SiteStatsViewServiceTest extends AbstractTransactionalJUnit4SpringC
 		assertEquals(Integer.valueOf(50),
 				snapshot(WIDGET_VISITS, METRIC_VISITS_USERS_WITH_VISITS).getPercentage());
 		assertTrue(widget(overview, WIDGET_VISITS).getHighlights().isEmpty());
+		assertTrue(service.getWidgetHighlights(SITE_ID, WIDGET_VISITS, new SiteStatsReportRequest()).isEmpty());
 
 		// Keep the visit inside the reporting window when server and user dates differ.
 		LocalDate yesterday = LocalDate.now(userTimeService.getLocalTimeZone().toZoneId()).minusDays(1);
 		db.insertObject(visitStat(SITE_ID, Date.valueOf(yesterday), 2, 1));
 		overview = service.getOverview(SITE_ID);
-		assertEquals(1, widget(overview, WIDGET_VISITS).getHighlights().size());
-		assertEquals(30, widget(overview, WIDGET_VISITS).getHighlights().get(0).getDatasets().get(0).getPoints().size());
-		assertTrue(widget(overview, WIDGET_VISITS).getHighlights().get(0).isCompact());
+		assertTrue(widget(overview, WIDGET_VISITS).getHighlights().isEmpty());
+		assertTrue(widget(overview, WIDGET_VISITS).isHighlightsConfigured());
+		List<SiteStatsChart> visitHighlights = service.getWidgetHighlights(SITE_ID, WIDGET_VISITS,
+				new SiteStatsReportRequest());
+		assertEquals(1, visitHighlights.size());
+		assertEquals(30, visitHighlights.get(0).getDatasets().get(0).getPoints().size());
+		assertTrue(visitHighlights.get(0).isCompact());
 
 		SiteStatsReportRequest request = new SiteStatsReportRequest();
 		request.setDate(ReportManager.WHEN_ALL);

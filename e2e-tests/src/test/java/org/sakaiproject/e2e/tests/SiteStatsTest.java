@@ -449,16 +449,23 @@ class SiteStatsTest extends SakaiUiTestBase {
 
     @Test
     @Order(8)
-    void adminRegistrationRendersServerWideReports() {
+    void adminRegistrationRendersSummaryAndServerWideReports() {
         sakai.login("admin");
         sakai.gotoPath("/portal/site/!admin/tool/!admin-1225");
 
         assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName(Pattern.compile("Summary", Pattern.CASE_INSENSITIVE)))).isVisible();
+        assertThat(page.locator(".sitestats-widget[data-widget-id='platform-health']")).isVisible();
+        assertThat(page.locator(".sitestats-widget[data-widget-id='institutional-presence']")).isVisible();
+        assertThat(page.locator(".sitestats-widget[data-widget-id='client-environment']")).isVisible();
+
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(Pattern.compile("All sites", Pattern.CASE_INSENSITIVE))).click();
+        assertThat(page.getByRole(AriaRole.HEADING,
             new Page.GetByRoleOptions().setName(Pattern.compile("All sites", Pattern.CASE_INSENSITIVE)))).isVisible();
-        Locator siteLinks = page.locator("table tbody a[href*='serverwide']");
+        Locator siteLinks = page.locator("table tbody a[href*='home']");
         assertTrue(siteLinks.count() > 0);
-        siteLinks.first().click();
-        assertThat(page.locator("nav.mb-3 a[aria-current='page']")).hasCount(1);
+
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(Pattern.compile("Server-wide", Pattern.CASE_INSENSITIVE))).click();
         assertThat(page.locator("sakai-sitestats-report-panel")).isVisible();
         assertThat(page.locator("sakai-sitestats-report-panel sakai-sitestats-table table")).isVisible();
         assertNoLegacyReportChartImages();

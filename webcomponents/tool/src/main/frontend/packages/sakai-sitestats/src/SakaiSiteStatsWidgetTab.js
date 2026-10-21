@@ -1,11 +1,17 @@
 import { css, html, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { withQueryParam } from "./site-stats-url.js";
 import "../sakai-sitestats-report-panel.js";
 
 const DATE_FILTER = "date";
 const WHEN_CUSTOM = "when-custom";
 const WHEN_FROM = "whenFrom";
 const WHEN_TO = "whenTo";
+
+const SHARED_FILTERS = [
+  "date", "whenFrom", "whenTo", "role", "tool", "resourceAction", "lessonAction",
+  "itemType", "group", "item", "threshold", "siteType", "sitePrefix", "publishedOnly",
+];
 
 export class SakaiSiteStatsWidgetTab extends SakaiShadowElement {
 
@@ -153,6 +159,17 @@ export class SakaiSiteStatsWidgetTab extends SakaiShadowElement {
       `;
     }
 
+    if (filter.type === "text") {
+      return html`
+        <input
+            class="form-control form-control-sm"
+            id=${id}
+            type="text"
+            data-report-filter=${filter.id}
+            .value=${value}>
+      `;
+    }
+
     return html`
       <select
           class="form-select form-select-sm"
@@ -254,6 +271,43 @@ export class SakaiSiteStatsWidgetTab extends SakaiShadowElement {
     if (next !== this.endpoint) {
       this.endpoint = next;
     }
+    this._propagateSharedFilters(endpoint);
+  }
+
+  _propagateSharedFilters(tabEndpoint) {
+
+    const widget = this.closest(".sitestats-widget");
+    if (!widget) {
+      return;
+    }
+
+    const applyShared = base => {
+      let next = base;
+      for (const name of SHARED_FILTERS) {
+        next = withQueryParam(next, name, tabEndpoint.searchParams.get(name) || "");
+      }
+      return next;
+    };
+
+    const metrics = widget.querySelector("sakai-sitestats-widget-metrics");
+    if (metrics && (metrics.endpoint || widget.dataset.metricsEndpoint)) {
+      metrics.endpoint = applyShared(metrics.endpoint || widget.dataset.metricsEndpoint);
+    }
+
+    const highlights = widget.querySelector("sakai-sitestats-highlights");
+    if (highlights && (highlights.endpoint || widget.dataset.highlightsEndpoint)) {
+      highlights.endpoint = applyShared(highlights.endpoint || widget.dataset.highlightsEndpoint);
+    }
+
+    widget.querySelectorAll("sakai-sitestats-widget-tab").forEach(tab => {
+      if (tab === this || !tab.endpoint) {
+        return;
+      }
+      const next = applyShared(tab.endpoint);
+      if (next !== tab.endpoint) {
+        tab.endpoint = next;
+      }
+    });
   }
 
   _writeParam(endpoint, id, value) {

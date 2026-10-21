@@ -175,8 +175,22 @@ public class SiteStatsToolService {
         return overview;
     }
 
+    private SiteStatsOverview institutionalOverview(String requestedSiteId) {
+        String siteId = adminSite(requestedSiteId);
+        SiteStatsOverview overview = siteStatsViewService.getInstitutionalOverview(siteId);
+        statsManager.logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
+        return overview;
+    }
+
     public OverviewResult overviewWithEndpoints(String requestedSiteId) {
-        SiteStatsOverview overview = overview(requestedSiteId);
+        return overviewResult(overview(requestedSiteId));
+    }
+
+    public OverviewResult institutionalOverviewWithEndpoints(String requestedSiteId) {
+        return overviewResult(institutionalOverview(requestedSiteId));
+    }
+
+    private OverviewResult overviewResult(SiteStatsOverview overview) {
         Map<String, String> widgetEndpoints = new LinkedHashMap<String, String>();
         Map<String, String> metricEndpoints = new LinkedHashMap<String, String>();
         Map<String, String> highlightEndpoints = new LinkedHashMap<String, String>();

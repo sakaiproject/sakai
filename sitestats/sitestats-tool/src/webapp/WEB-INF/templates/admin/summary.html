@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${locale}">
+<head th:replace="~{fragments/common :: head(#{menu_summary})}"></head>
+<body>
+<main class="portletBody container-fluid">
+  <div th:replace="~{fragments/common :: menu('summary')}"></div>
+  <h1 class="h3 mt-3" th:text="#{menu_summary}">Summary</h1>
+  <p class="text-body-secondary" th:text="#{sitestats_summary_intro}">
+    Institutional overview of platform health, course engagement, and teaching activity.
+  </p>
+  <div class="sak-banner-info" role="status"
+       th:if="${#lists.isEmpty(overview.widgets)}"
+       th:text="#{sitestats_no_statistics}">
+    No statistics are available for this site.
+  </div>
+  <div class="sitestats-widgets" th:if="${!#lists.isEmpty(overview.widgets)}">
+    <section class="sitestats-widget" th:each="widget : ${overview.widgets}" th:if="${widget.visible}"
+             th:attr="data-metrics-endpoint=${metricEndpoints.get(widget.id)},
+                      data-highlights-endpoint=${highlightEndpoints.get(widget.id)},
+                      data-widget-id=${widget.id}">
+      <h2 class="sitestats-widget-title" th:text="${widget.title}">Report</h2>
+      <sakai-sitestats-widget-metrics
+          th:if="${!#lists.isEmpty(widget.metrics)}"
+          th:attr="endpoint=${metricEndpoints.get(widget.id)}">
+      </sakai-sitestats-widget-metrics>
+      <sakai-sitestats-highlights class="sitestats-highlights"
+                                  th:if="${widget.highlightsConfigured}"
+                                  th:attr="endpoint=${highlightEndpoints.get(widget.id)}">
+      </sakai-sitestats-highlights>
+      <sakai-sitestats-widget-tab class="sitestats-widget-tab"
+                                  th:each="tab : ${widget.tabs}"
+                                  th:attr="endpoint=${widgetEndpoints.get(widget.id + ':' + tab.id)}">
+        <span slot="title" th:text="${tab.title}">Report</span>
+        <div slot="filter" class="sitestats-widget-filter" th:each="filter : ${tab.filters}"
+             th:hidden="${filter.id == 'whenFrom' or filter.id == 'whenTo'}">
+          <label class="form-label"
+                 th:for="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                 th:text="${filter.label}"></label>
+          <select class="form-select form-select-sm"
+                  th:if="${filter.type == null or filter.type == 'select'}"
+                  th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                  th:attr="data-report-filter=${filter.id}">
+            <option th:each="option : ${filter.options}"
+                    th:value="${option.value}" th:text="${option.label}"></option>
+          </select>
+          <input class="form-control form-control-sm"
+                 th:if="${filter.type == 'number'}"
+                 type="number"
+                 th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                 th:value="${filter.value}"
+                 th:attr="data-report-filter=${filter.id}">
+          <input class="form-control form-control-sm"
+                 th:if="${filter.type == 'date'}"
+                 type="date"
+                 th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                 th:value="${filter.value}"
+                 th:attr="data-report-filter=${filter.id}">
+          <input class="form-control form-control-sm"
+                 th:if="${filter.type == 'text'}"
+                 type="text"
+                 th:id="${'filter-' + widget.id + '-' + tab.id + '-' + filter.id}"
+                 th:value="${filter.value}"
+                 th:attr="data-report-filter=${filter.id}">
+        </div>
+      </sakai-sitestats-widget-tab>
+    </section>
+  </div>
+</main>
+</body>
+</html>

@@ -218,9 +218,13 @@ public class SiteStatsSubmissionsViewServiceTest extends AbstractTransactionalJU
 		stubOnTimeAndMissedAssignment();
 
 		SiteStatsOverview overview = service.getOverview(SITE_ID);
-		SiteStatsChart chart = widget(overview, WIDGET_SUBMISSIONS).getHighlights().get(0);
+		assertTrue(widget(overview, WIDGET_SUBMISSIONS).getHighlights().isEmpty());
+		assertTrue(widget(overview, WIDGET_SUBMISSIONS).isHighlightsConfigured());
+		List<SiteStatsChart> highlights = service.getWidgetHighlights(SITE_ID, WIDGET_SUBMISSIONS,
+				new SiteStatsReportRequest());
+		SiteStatsChart chart = highlights.get(0);
 
-		assertEquals(1, widget(overview, WIDGET_SUBMISSIONS).getHighlights().size());
+		assertEquals(1, highlights.size());
 		assertTrue(chart.isCompact());
 		assertTrue(chart.isStacked());
 		assertTrue(chart.isHorizontal());
@@ -238,8 +242,8 @@ public class SiteStatsSubmissionsViewServiceTest extends AbstractTransactionalJU
 		stubOnTimeAndMissedAssignment();
 		when(securityService.unlock(StatsAuthz.PERMISSION_SITESTATS_ALL, SITE_REF)).thenReturn(false);
 
-		SiteStatsOverview overview = service.getOverview(SITE_ID);
-		SiteStatsChart chart = widget(overview, WIDGET_STUDENT_SUBMISSIONS).getHighlights().get(0);
+		SiteStatsChart chart = service.getWidgetHighlights(SITE_ID, WIDGET_STUDENT_SUBMISSIONS,
+				new SiteStatsReportRequest()).get(0);
 
 		assertEquals(Integer.valueOf(1), chart.getDatasets().get(0).getPoints().get(0).getY());
 		assertEquals(Integer.valueOf(0), chart.getDatasets().get(1).getPoints().get(0).getY());

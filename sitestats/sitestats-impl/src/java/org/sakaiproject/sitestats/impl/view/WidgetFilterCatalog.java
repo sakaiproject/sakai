@@ -1,7 +1,17 @@
-/**
- * Copyright (c) 2026 The Apereo Foundation
+/*
+ * Copyright (c) 2003-2026 The Apereo Foundation
  *
- * Licensed under the Educational Community License, Version 2.0.
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.sakaiproject.sitestats.impl.view;
 
@@ -10,8 +20,11 @@ import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_GROU
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_ITEM;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_ITEM_TYPE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_LESSON_ACTION;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_PUBLISHED_ONLY;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_RESOURCE_ACTION;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_ROLE;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_SITE_PREFIX;
+import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_SITE_TYPE;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_THRESHOLD;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_TOOL;
 import static org.sakaiproject.sitestats.api.view.SiteStatsWidgetIds.FILTER_WHEN_FROM;
@@ -303,6 +316,12 @@ public class WidgetFilterCatalog {
 		if (FILTER_THRESHOLD.equals(id)) {
 			return formatThreshold(context.getStatsManager().getGradesThreshold(siteId));
 		}
+		if (FILTER_SITE_TYPE.equals(id)) {
+			return "all";
+		}
+		if (FILTER_PUBLISHED_ONLY.equals(id)) {
+			return "true";
+		}
 		return null;
 	}
 
@@ -333,6 +352,9 @@ public class WidgetFilterCatalog {
 		}
 		if (FILTER_WHEN_FROM.equals(id) || FILTER_WHEN_TO.equals(id)) {
 			return SiteStatsFilter.TYPE_DATE;
+		}
+		if (FILTER_SITE_PREFIX.equals(id)) {
+			return SiteStatsFilter.TYPE_TEXT;
 		}
 		return SiteStatsFilter.TYPE_SELECT;
 	}
@@ -371,6 +393,15 @@ public class WidgetFilterCatalog {
 		if (FILTER_ITEM.equals(id)) {
 			return context.message("overview_filter_item");
 		}
+		if (FILTER_SITE_TYPE.equals(id)) {
+			return context.message("site_type");
+		}
+		if (FILTER_SITE_PREFIX.equals(id)) {
+			return context.message("overview_filter_site_prefix");
+		}
+		if (FILTER_PUBLISHED_ONLY.equals(id)) {
+			return context.message("overview_filter_published_only");
+		}
 		return id;
 	}
 
@@ -399,7 +430,29 @@ public class WidgetFilterCatalog {
 		if (FILTER_ITEM.equals(id)) {
 			return itemFilterOptions(siteId, widgetId);
 		}
+		if (FILTER_SITE_TYPE.equals(id)) {
+			return siteTypeFilterOptions();
+		}
+		if (FILTER_PUBLISHED_ONLY.equals(id)) {
+			return publishedOnlyFilterOptions();
+		}
 		return Collections.emptyList();
+	}
+
+	private List<SiteStatsFilterOption> siteTypeFilterOptions() {
+		List<SiteStatsFilterOption> options = new ArrayList<SiteStatsFilterOption>();
+		options.add(option("all", context.message("all")));
+		for (String siteType : context.getSiteService().getSiteTypes()) {
+			options.add(option(siteType, siteType));
+		}
+		return options;
+	}
+
+	private List<SiteStatsFilterOption> publishedOnlyFilterOptions() {
+		List<SiteStatsFilterOption> options = new ArrayList<SiteStatsFilterOption>();
+		options.add(option("true", context.message("overview_filter_published_yes")));
+		options.add(option("false", context.message("overview_filter_published_no")));
+		return options;
 	}
 
 	private List<SiteStatsFilterOption> dateFilterOptions() {
