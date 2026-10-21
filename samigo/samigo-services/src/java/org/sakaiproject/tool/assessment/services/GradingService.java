@@ -2823,10 +2823,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       try {
           RubricsService rubricsService = ComponentManager.get(RubricsService.class);
           String siteId = AgentFacade.getCurrentSiteId();
-          Set<String> evaluatedItemIds = data.getItemGradingSet().stream()
-                  .map(item -> data.getAssessmentGradingId() + "." + item.getPublishedItemId())
-                  .collect(Collectors.toSet());
-          rubricsService.deleteEvaluationsForToolAndEvaluatedItems(RubricsConstants.RBCS_TOOL_SAMIGO, evaluatedItemIds, siteId);
+          rubricsService.deleteEvaluationsForSamigoSubmission(data.getAssessmentGradingId(), siteId);
           // Keep the submission available for retry if rubric cleanup fails.
           PersistenceService.getInstance().getAssessmentGradingFacadeQueries().removeAssessmentGradingData(data);
       } catch (RuntimeException e) {

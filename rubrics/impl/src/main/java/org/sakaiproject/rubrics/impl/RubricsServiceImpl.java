@@ -95,6 +95,8 @@ import org.sakaiproject.rubrics.api.repository.RatingRepository;
 import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.api.SessionManager;
@@ -952,6 +954,48 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId()) || !isEvaluator(siteId)) {
             throw new SecurityException("You must be a rubrics evaluator to delete evaluations");
         }
+        return deleteEvaluationsForEvaluatedItems(toolId, evaluatedItemIds, siteId);
+    }
+
+    @Override
+    public int deleteEvaluationsForSamigoSubmission(Long submissionId, String siteId) {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (StringUtils.isBlank(userId) || StringUtils.isBlank(siteId)) {
+            throw new SecurityException("You must be authorized to remove the assessment submission");
+        }
+        AssessmentGradingData submission = assessmentPersistenceService.getAssessmentGradingFacadeQueries().load(submissionId, false);
+        if (submission == null || !siteId.equals(publishedAssessmentFacadeQueriesAPI
+                .getPublishedAssessmentOwner(submission.getPublishedAssessmentId().toString()))) {
+            throw new SecurityException("The assessment submission does not belong to the site");
+        }
+        String siteRef = siteService.siteReference(siteId);
+        boolean canGrade = securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, siteRef)
+                || (securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_OWN, siteRef)
+                    && userId.equals(publishedAssessmentFacadeQueriesAPI
+                        .getPublishedAssessment(submission.getPublishedAssessmentId()).getCreatedBy()));
+        if (!canGrade) {
+            throw new SecurityException("You must be authorized to grade the assessment");
+        }
+        try {
+            String restrictionKey = "samigo.removeSubmission.restricted";
+            String siteRestriction = StringUtils.trimToEmpty(siteService.getSite(siteId).getProperties().getProperty(restrictionKey));
+            boolean restricted = siteRestriction.isEmpty() ? serverConfigurationService.getBoolean(restrictionKey, false)
+                    : Boolean.parseBoolean(siteRestriction);
+            if (restricted && !securityService.unlock("site.upd", siteService.siteReference("!admin"))) {
+                throw new SecurityException("Assessment submission removal is restricted to administrators");
+            }
+        } catch (IdUnusedException e) {
+            throw new IllegalArgumentException("No site for assessment submission " + submissionId, e);
+        }
+        Set<String> evaluatedItemIds = submission.getItemGradingSet().stream()
+                .map(item -> submissionId + "." + item.getPublishedItemId())
+                .collect(Collectors.toSet());
+        return deleteEvaluationsForEvaluatedItems(RubricsConstants.RBCS_TOOL_SAMIGO, evaluatedItemIds, siteId);
+    }
+
+    private int deleteEvaluationsForEvaluatedItems(String toolId, Set<String> evaluatedItemIds, String siteId) {
+
         if (evaluatedItemIds.isEmpty()) {
             return 0;
         }

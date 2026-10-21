@@ -128,6 +128,16 @@
             <artifactId>samigo-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-hibernate</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>OKI</groupId>
+            <artifactId>OkiOSID</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.edu-services.sections</groupId>
             <artifactId>sections-api</artifactId>
         </dependency>

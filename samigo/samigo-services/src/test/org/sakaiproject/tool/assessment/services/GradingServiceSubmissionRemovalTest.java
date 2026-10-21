@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -37,7 +36,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
@@ -99,10 +97,8 @@ public class GradingServiceSubmissionRemovalTest {
     @Test
     public void cleanupFailureLeavesSubmissionAvailableForRetry() {
         AssessmentGradingData submission = createSubmission();
-        String evaluatedItemId = submission.getAssessmentGradingId() + ".200";
         IllegalStateException failure = new IllegalStateException("Rubric cleanup unavailable");
-        when(rubricsService.deleteEvaluationsForToolAndEvaluatedItems(
-                RubricsConstants.RBCS_TOOL_SAMIGO, Set.of(evaluatedItemId), siteId))
+        when(rubricsService.deleteEvaluationsForSamigoSubmission(submission.getAssessmentGradingId(), siteId))
                 .thenThrow(failure).thenReturn(1);
 
         assertSame(failure, assertThrows(IllegalStateException.class,
@@ -122,8 +118,7 @@ public class GradingServiceSubmissionRemovalTest {
         AssessmentGradingData submission = createSubmission();
         AssessmentGradingData remaining = createSubmission();
         gradingService.removeAssessmentGradingData(submission);
-        verify(rubricsService).deleteEvaluationsForToolAndEvaluatedItems(
-                RubricsConstants.RBCS_TOOL_SAMIGO, Set.of(submission.getAssessmentGradingId() + ".200"), siteId);
+        verify(rubricsService).deleteEvaluationsForSamigoSubmission(submission.getAssessmentGradingId(), siteId);
         AssessmentGradingData removed = gradingService.load(submission.getAssessmentGradingId().toString());
         assertEquals(Integer.valueOf(AssessmentGradingData.REMOVED), removed.getStatus());
         assertFalse(removed.getForGrade());
