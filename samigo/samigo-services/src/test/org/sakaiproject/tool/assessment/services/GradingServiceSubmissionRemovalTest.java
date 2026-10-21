@@ -73,6 +73,7 @@ public class GradingServiceSubmissionRemovalTest {
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private GradingService gradingService;
     @Autowired private PersistenceService persistenceService;
+    @Autowired private PersistenceHelper persistenceHelper;
     @Autowired private RubricsService rubricsService;
     @Autowired private SessionFactory sessionFactory;
     @Autowired private PlatformTransactionManager transactionManager;
@@ -164,6 +165,30 @@ public class GradingServiceSubmissionRemovalTest {
         AssessmentGradingData removed = gradingService.load(submission.getAssessmentGradingId().toString());
         assertEquals(Integer.valueOf(AssessmentGradingData.REMOVED), removed.getStatus());
         assertFalse(removed.getForGrade());
+    }
+
+    @Test
+    public void failedSubmissionPersistenceIsReportedAndLeavesAttemptAvailableForRetry() {
+        AssessmentGradingData submission = createSubmission();
+        int retryCount = persistenceHelper.getRetryCount();
+        // Exercise the real DAO's false-save path with an exhausted retry budget.
+        persistenceHelper.setRetryCount(0);
+        try {
+            IllegalStateException failure = assertThrows(IllegalStateException.class,
+                    () -> gradingService.removeAssessmentGradingData(submission));
+            assertTrue(failure.getMessage().contains(submission.getAssessmentGradingId().toString()));
+        } finally {
+            persistenceHelper.setRetryCount(retryCount);
+        }
+        verify(rubricsService).deleteEvaluationsForToolAndEvaluatedItems(
+                RubricsConstants.RBCS_TOOL_SAMIGO, Set.of(submission.getAssessmentGradingId() + ".200"), siteId);
+        AssessmentGradingData retry = gradingService.load(submission.getAssessmentGradingId().toString());
+        assertEquals(Integer.valueOf(1), retry.getStatus());
+        assertTrue(retry.getForGrade());
+
+        gradingService.removeAssessmentGradingData(retry);
+        assertEquals(Integer.valueOf(AssessmentGradingData.REMOVED),
+                gradingService.load(submission.getAssessmentGradingId().toString()).getStatus());
     }
 
     @Test
