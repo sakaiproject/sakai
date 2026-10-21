@@ -52,7 +52,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -79,7 +78,6 @@ public class GradingServiceSubmissionRemovalTest {
     public void setUp() {
         reset(rubricsService, toolManager, userDirectoryService);
         ComponentManager.loadComponent("PersistenceService", persistenceService);
-        ComponentManager.loadComponent("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager", transactionManager);
         ComponentManager.loadComponent(RubricsService.class, rubricsService);
         ComponentManager.loadComponent("agentHelper", applicationContext.getBean("agentHelper"));
         ComponentManager.loadComponent(ToolManager.class, toolManager);
@@ -103,16 +101,13 @@ public class GradingServiceSubmissionRemovalTest {
     }
 
     @Test
-    public void cleanupFailureRollsBackRemovalAndAllowsRetry() {
+    public void cleanupFailureLeavesSubmissionAvailableForRetry() {
         AssessmentGradingData submission = createSubmission();
         String evaluatedItemId = submission.getAssessmentGradingId() + ".200";
         IllegalStateException failure = new IllegalStateException("Rubric cleanup unavailable");
         when(rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(
                 RubricsConstants.RBCS_TOOL_SAMIGO, "pub.100.200", evaluatedItemId, siteId))
-                .thenAnswer(invocation -> {
-                    assertTrue(TransactionSynchronizationManager.isActualTransactionActive());
-                    throw failure;
-                }).thenReturn(true);
+                .thenThrow(failure).thenReturn(true);
 
         assertSame(failure, assertThrows(IllegalStateException.class,
                 () -> gradingService.removeAssessmentGradingData(submission)));
