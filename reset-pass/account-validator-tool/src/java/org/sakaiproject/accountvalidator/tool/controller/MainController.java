@@ -922,7 +922,6 @@ public class MainController {
             return jsonResponse;
         }
 
-        log.debug(vc.getUserEid() + ": " + vc.getPassword1());
         User u = userDirectoryService.authenticate(vc.getUserEid(), vc.getPassword1());
 
         if (u == null) {
@@ -934,7 +933,7 @@ public class MainController {
         ValidationAccount va = validationLogic.getVaLidationAcountBytoken(vc.getValidationToken());
 
         if (va == null) {
-            log.warn("Couldn't obtain a ValidationAccount object for token: " + vc.getValidationToken());
+            log.warn("Could not obtain an account validation record");
             jsonResponse.put("error", loginFailed);
             return jsonResponse;
         }
