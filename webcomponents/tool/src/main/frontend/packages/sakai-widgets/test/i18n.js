@@ -35,6 +35,10 @@ announcements=Announcements
 forums=Discussions
 sitestats-visits=Visits
 sitestats-platform-health=Platform health
+sitestats-institutional-presence=Institutional presence and access
+sitestats-institutional-learner-activity=Learner activity
+sitestats-institutional-authoring-activity=Authoring activity
+sitestats-client-environment=Client environment
 `;
 
 export const widgetpickerI18nUrl = /getI18nProperties.*widget-picker/;

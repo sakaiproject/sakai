@@ -134,10 +134,10 @@ export class SakaiNotifications extends SakaiElement {
 
       this._pushEnabled = false;
 
-      if (error === NOT_PUSH_CAPABLE) {
-        this._state = PUSH_SETUP_INFO;
-      } else if (error === PUSH_PERMISSION_STATES.PWA_REQUIRED) {
+      if (error === PUSH_PERMISSION_STATES.PWA_REQUIRED) {
         this._state = PWA_INSTALL_INFO;
+      } else if (error === NOT_PUSH_CAPABLE && this._state !== NOTIFICATIONS) {
+        this._state = PUSH_SETUP_INFO;
       }
     });
   }

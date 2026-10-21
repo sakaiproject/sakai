@@ -76,6 +76,10 @@ export class SakaiCourseList extends SakaiElement {
 
   disconnectedCallback() {
 
+    if (this._layoutRaf) {
+      cancelAnimationFrame(this._layoutRaf);
+      this._layoutRaf = undefined;
+    }
     this._resizeObserver?.disconnect();
     this._resizeObserver = undefined;
     super.disconnectedCallback();
@@ -104,9 +108,15 @@ export class SakaiCourseList extends SakaiElement {
       if (Math.abs(width - this._layoutWidth) < 2 && Math.abs(height - this._layoutHeight) < 2) {
         return;
       }
-      this._layoutWidth = width;
-      this._layoutHeight = height;
-      this._refreshLayout();
+      if (this._layoutRaf) {
+        cancelAnimationFrame(this._layoutRaf);
+      }
+      this._layoutRaf = requestAnimationFrame(() => {
+        this._layoutRaf = undefined;
+        this._layoutWidth = width;
+        this._layoutHeight = height;
+        this._refreshLayout();
+      });
     });
     this._resizeObserver.observe(el);
   }

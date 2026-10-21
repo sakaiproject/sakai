@@ -38,7 +38,12 @@ describe("sakai-pageable-element tests", () => {
 
     expect(el.count).to.equal(1);
     expect(el.shadowRoot.getElementById("wrapper")).to.exist;
-    expect(el.shadowRoot.getElementById("pager")).to.exist;
+    expect(el.shadowRoot.getElementById("pager")).to.not.exist;
     expect(el.shadowRoot.querySelector("div#chips")).to.exist;
+
+    el.pageSize = 2;
+    await elementUpdated(el);
+    expect(el.count).to.equal(3);
+    expect(el.shadowRoot.getElementById("pager")).to.exist;
   });
 });

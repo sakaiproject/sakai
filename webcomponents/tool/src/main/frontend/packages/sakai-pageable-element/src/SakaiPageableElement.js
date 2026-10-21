@@ -54,6 +54,9 @@ export class SakaiPageableElement extends SakaiShadowElement {
     if (this.allDataAtOnce) {
       this.loadAllData().then(() => {
 
+        if (!Array.isArray(this.data)) {
+          this.data = [];
+        }
         this.count = Math.ceil(this.data.length / this.pageSize);
         this._loadDataPage(1);
       });

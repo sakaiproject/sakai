@@ -14,6 +14,7 @@ describe("sakai-home-dashboard tests", () => {
       .get(data.courseListUrl, data.courseList)
       .get(data.dashboardUrl, data.dashboardData)
       .get(data.widgetPanelI18nUrl, data.widgetPanelI18n)
+      .get(data.toolnamesI18nUrl, data.toolnamesI18n)
       .get(data.courseCardI18nUrl, data.courseCardI18n);
   });
 

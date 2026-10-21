@@ -19,6 +19,7 @@ import "../sakai-grades-widget.js";
 import "../sakai-announcements-widget.js";
 import "../sakai-forums-widget.js";
 import "../sakai-sitestats-widget.js";
+import "../sakai-status-widget.js";
 
 export class SakaiWidgetPanel extends SakaiShadowElement {
 
@@ -53,38 +54,17 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
 
   disconnectedCallback() {
 
-    this._resizeObserver?.disconnect();
-    this._resizeObserver = undefined;
+    if (this._onHostResize) {
+      window.removeEventListener("resize", this._onHostResize);
+      this._onHostResize = undefined;
+    }
     super.disconnectedCallback();
   }
 
   firstUpdated() {
-    this._observeGridWidth();
-  }
-
-  updated() {
-    this._observeGridWidth();
-  }
-
-  _observeGridWidth() {
-
-    const grid = this.renderRoot?.querySelector("#grid");
-    if (!grid) {
-      return;
-    }
-    if (this._resizeObserver && this._observedGrid === grid) {
-      return;
-    }
-    this._resizeObserver?.disconnect();
-    this._observedGrid = grid;
-    this._resizeObserver = new ResizeObserver(entries => {
-      const entry = entries[0];
-      if (entry) {
-        this._updateNarrowColumns(entry.contentRect.width);
-      }
-    });
-    this._resizeObserver.observe(grid);
-    this._updateNarrowColumns(grid.clientWidth);
+    this._updateNarrowColumns(this.clientWidth);
+    this._onHostResize = () => this._updateNarrowColumns(this.clientWidth);
+    window.addEventListener("resize", this._onHostResize);
   }
 
   _updateNarrowColumns(width) {
@@ -459,6 +439,23 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
             ?disable-right-and-down=${bindings.disableRightAndDown}
             ?editing=${this.editing}>
           </sakai-forums-widget>
+        `);
+      case "status":
+        return this._wrapTile(tile, index, html`
+          <sakai-status-widget
+            id="${r}"
+            class="widget"
+            state="${w?.state}"
+            tile-w="${bindings.tileW}"
+            display-w="${bindings.displayW}"
+            tile-h="${bindings.tileH}"
+            @remove=${this.removeWidget}
+            @move=${this.moveWidget}
+            @size-change=${this.resizeWidget}
+            ?disable-left-and-up=${bindings.disableLeftAndUp}
+            ?disable-right-and-down=${bindings.disableRightAndDown}
+            ?editing=${this.editing}>
+          </sakai-status-widget>
         `);
       case PICKER_TILE_ID:
         return nothing;
