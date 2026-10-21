@@ -1,0 +1,87 @@
+# Sakai local development stack (compose-first).
+#
+# From the repository root:
+#
+#   podman compose up db -d
+#   podman compose build app && podman compose up -d     # prefer build then up -d
+#   podman compose --profile dev up -d                   # volume-mounted Tomcat
+#   ./docker/bin/deploy.sh
+#   ./docker/bin/tomcat.sh restart
+#
+# Do not run the default app image and --profile dev together (both use port 8080).
+
+name: sakai
+
+services:
+  db:
+    image: mariadb:10
+    # No fixed container_name — avoids clashes when the Compose project name changes.
+    command: ["--lower-case-table-names=1", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    environment:
+      MARIADB_ROOT_PASSWORD: sakairoot
+    ports:
+      - "127.0.0.1:53306:3306"
+    volumes:
+      - ./docker/mysql/scripts:/docker-entrypoint-initdb.d:ro
+      - sakai-db-data:/var/lib/mysql
+    healthcheck:
+      # Simple ping — more reliable under Podman than healthcheck.sh + innodb_initialized.
+      test: ["CMD", "healthcheck.sh", "--connect"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    networks:
+      - sakai
+
+  # Long-lived Tomcat for day-to-day work. Host Maven writes into .docker-deploy;
+  # this service mounts those artifacts — no image rebuild to pick up code changes.
+  tomcat:
+    profiles: ["dev"]
+    image: tomcat:10.1-jdk21-temurin
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+      - "8000:8000"
+    environment:
+      JPDA_ADDRESS: "*:8000"
+      JPDA_TRANSPORT: dt_socket
+    volumes:
+      - ./docker/tomcat/conf/server.xml:/usr/local/tomcat/conf/server.xml:ro
+      - ./docker/tomcat/conf/context.xml:/usr/local/tomcat/conf/context.xml:ro
+      - ./docker/tomcat/conf/catalina.properties:/usr/local/tomcat/conf/catalina.properties:ro
+      - ./docker/tomcat/bin/setenv.sh:/usr/local/tomcat/bin/setenv.sh:ro
+      - ./docker/tomcat/sakai:/usr/local/tomcat/sakai:ro
+      - ./.docker-deploy/webapps:/usr/local/tomcat/webapps
+      - ./.docker-deploy/components:/usr/local/tomcat/components
+      - ./.docker-deploy/lib:/usr/local/tomcat/lib
+      - sakai-tomcat-logs:/usr/local/tomcat/logs
+    command: ["catalina.sh", "jpda", "run"]
+    networks:
+      - sakai
+
+  # Default full stack: build Sakai from this checkout and run on Tomcat 10.1.
+  # Explicit image tag avoids Compose default "sakai-sakai".
+  # Maven heap/thread defaults live in docker/Dockerfile only.
+  app:
+    image: sakai:local
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sakai
+
+volumes:
+  sakai-db-data:
+  sakai-tomcat-logs:
+
+networks:
+  # Project-scoped; do not pin a global name.
+  sakai:
