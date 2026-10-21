@@ -248,6 +248,11 @@
                 <bean parent="org.sakaiproject.ignite.cache.eternal">
                     <property name="name" value="org.sakaiproject.lti13.LTI13Servlet_cache"/>
                 </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.lti13.ClientAssertionReplay_cache"/>
+                    <property name="writeSynchronizationMode" value="FULL_SYNC"/>
+                    <property name="readFromBackup" value="false"/>
+                </bean>
                 <bean parent="org.sakaiproject.ignite.cache.eternal">
                     <property name="name" value="org.sakaiproject.basiclti.util.SakaiKeySetUtil_cache"/>
                 </bean>
