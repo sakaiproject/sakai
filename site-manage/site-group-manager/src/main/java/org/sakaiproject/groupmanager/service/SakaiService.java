@@ -16,6 +16,10 @@
 package org.sakaiproject.groupmanager.service;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
+import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +50,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.FormattedText;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -77,6 +82,9 @@ public class SakaiService  {
     @Inject
     private UserDirectoryService userDirectoryService;
 
+    @Inject
+    private FormattedText formattedText;
+
     private final String STATE_SITE_ID = "site.instance.id";
 
     private String getCurrentSiteIdFromContext() {
@@ -98,6 +106,57 @@ public class SakaiService  {
             log.error("Unable to determine current site id from placement.");
             return null;
         }
+    }
+
+    public String cleanGroupTitle(String title) {
+        return StringUtils.trimToEmpty(formattedText.stripHtmlFromText(title, true, true));
+    }
+
+    public Optional<Map<String, List<String>>> cleanGroupTitles(Map<String, List<String>> groups) {
+        return cleanGroupTitles(groups, List.of());
+    }
+
+    public Optional<Map<String, List<String>>> cleanGroupTitles(Map<String, List<String>> groups, Collection<String> existingTitles) {
+        if (groups == null) {
+            return Optional.empty();
+        }
+        Map<String, List<String>> cleanedGroups = new LinkedHashMap<>();
+        Set<String> titles = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        titles.addAll(existingTitles);
+        for (Map.Entry<String, List<String>> group : groups.entrySet()) {
+            String title = cleanGroupTitle(group.getKey());
+            if (StringUtils.isBlank(title) || title.length() > 99 || !titles.add(title)) {
+                return Optional.empty();
+            }
+            cleanedGroups.put(title, group.getValue());
+        }
+        return Optional.of(cleanedGroups);
+    }
+
+    public boolean hasJoinableSetTitleConflict(String title, String currentSet, Collection<Group> groups) {
+        return groups.stream()
+                .map(group -> group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET))
+                .filter(set -> StringUtils.isNotBlank(set) && !StringUtils.equalsIgnoreCase(currentSet, set))
+                .anyMatch(set -> title.equalsIgnoreCase(cleanGroupTitle(set)));
+    }
+
+    public Optional<List<String>> buildJoinableGroupTitles(String title, int count, List<String> existingTitles) {
+        Set<String> usedTitles = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        usedTitles.addAll(existingTitles);
+        List<String> titles = new ArrayList<>();
+        int number = 1;
+        for (int i = 0; i < count; i++) {
+            String groupTitle;
+            do {
+                groupTitle = String.format("%s %d", title, number++);
+            } while (usedTitles.contains(groupTitle));
+            if (groupTitle.length() > 99) {
+                return Optional.empty();
+            }
+            usedTitles.add(groupTitle);
+            titles.add(groupTitle);
+        }
+        return Optional.of(titles);
     }
 
     public boolean canManageCurrentSiteGroups() {
