@@ -54,7 +54,7 @@ public class SakaiLogoutSamlFilter extends SecurityContextLogoutHandler {
             Session session = sessionManager.getCurrentSession();
 
             if (session != null) {
-                log.debug("SAML logout invalidating sakai session: {}", session.getId());
+                log.debug("SAML logout invalidating Sakai session");
                 usageSessionService.logout();
             }
         }

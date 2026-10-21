@@ -241,7 +241,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 		}
 
 		Session session = SessionManager.getCurrentSession();
-		log.debug("Session = {}", session);
+		log.debug("Setting current session");
 		if (session == null)
 		{
 			if (doLog) log.info("No Session found placementId=" + placementId);
@@ -269,8 +269,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 		if (siteTool == null)
 		{
 			if (doLog)
-				log.info("No ToolConfiguration found, placementId=" + placementId
-						+ " session=" + session);
+				log.info("No ToolConfiguration found, placementId={}", placementId);
 			return;
 		}
 

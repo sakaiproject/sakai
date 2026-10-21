@@ -114,7 +114,7 @@ public class SessionUtil {
 
         if (interval > session.getMaxInactiveInterval()){
           if (log.isDebugEnabled()){
-            log.debug("begin_assessment: Setting session " + session.getId() + " inactive interval= " + interval + " seconds");
+            log.debug("Setting assessment session inactive interval={} seconds", interval);
           }
           /** store current interval value */
           session.setAttribute(EXTERNAL_APP_INTERVAL, Integer.valueOf(session.getMaxInactiveInterval()));
@@ -129,7 +129,7 @@ public class SessionUtil {
         else{
           session.removeAttribute(EXTERNAL_APP_INTERVAL);
           if (log.isDebugEnabled()){
-            log.debug("end_assessment: Setting session " + session.getId() + " inactive interval= " + returnVal + " seconds");
+            log.debug("Restoring assessment session inactive interval={} seconds", returnVal);
           }
           /** set to value of interval before taking */
           session.setMaxInactiveInterval(returnVal.intValue());

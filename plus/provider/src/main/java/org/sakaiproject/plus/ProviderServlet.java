@@ -496,10 +496,10 @@ public class ProviderServlet extends HttpServlet {
 			String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 			String iss = launch.tenant.getIssuer();
 			if ( StringUtils.equals(iss, serverUrl) ) {
-				log.debug("Running loopback id={} serverUrl={} iss={}", sess.getId(), serverUrl,iss);
+				log.debug("Running loopback serverUrl={} iss={}", serverUrl, iss);
 			} else {
 				sess.clear();
-				log.debug("Session cleared id={} serverUrl={} iss={}", sess.getId(), serverUrl,iss);
+				log.debug("Session cleared serverUrl={} iss={}", serverUrl, iss);
 			}
 
 			loginUser(ipAddress, user);
@@ -1710,4 +1710,3 @@ public class ProviderServlet extends HttpServlet {
 	}
 
 }
-
