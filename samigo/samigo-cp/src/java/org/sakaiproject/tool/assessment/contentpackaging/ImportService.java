@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -44,6 +46,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.Zip;
 
 /** Operation-scoped QTI content-package extraction. */
 @Slf4j
@@ -70,6 +73,7 @@ public class ImportService {
         try (ZipInputStream zipStream = new ZipInputStream(new FileInputStream(filename))) {
             String tmpName = new File(filename).getName();
             List<String> xmlFilenames = new ArrayList<>();
+            boolean manifestQtiSelected = false;
             long entryCount = 0;
             long expandedBytes = 0;
             byte[] buffer = new byte[8192];
@@ -78,14 +82,15 @@ public class ImportService {
                 if (++entryCount > maxEntries) {
                     throw new IOException("QTI content package exceeds the entry limit");
                 }
-                String entryName = entry.getName();
-                Path destination = resolveImportPath(root, entryName);
-                if (entry.isDirectory()) {
+                String entryName = Zip.validateEntryName(entry.getName());
+                Path destination = Zip.resolveEntryPath(root, entryName);
+                boolean directory = entryName.endsWith("/");
+                if (directory) {
                     Files.createDirectories(destination);
                 } else {
                     Files.createDirectories(destination.getParent());
                 }
-                try (OutputStream output = entry.isDirectory() ? OutputStream.nullOutputStream() : Files.newOutputStream(destination)) {
+                try (OutputStream output = directory ? OutputStream.nullOutputStream() : Files.newOutputStream(destination)) {
                     int bytesRead;
                     while ((bytesRead = zipStream.read(buffer)) != -1) {
                         if (bytesRead > maxExpandedBytes - expandedBytes) {
@@ -97,20 +102,27 @@ public class ImportService {
                 }
 
                 if ("imsmanifest.xml".equals(entryName)) {
+                    String manifestHref = null;
+                    String manifestBaseUri = null;
                     try {
                         DocumentBuilder db = Xml.createSecureDocumentBuilderFactory().newDocumentBuilder();
                         Document doc = db.parse(destination.toFile());
-                        NodeList nodeLst = doc.getElementsByTagName("resource");
-                        Node fstNode = nodeLst.item(0);
+                        Node fstNode = selectManifestResource(doc);
                         NamedNodeMap namedNodeMap = fstNode.getAttributes();
-                        qtiFilename = namedNodeMap.getNamedItem("href").getNodeValue();
+                        manifestHref = namedNodeMap.getNamedItem("href").getNodeValue();
+                        manifestBaseUri = fstNode.getBaseURI();
                     } catch (Exception e) {
                         log.warn("Could not parse imsmanifest.xml: {}", e.toString());
+                    }
+                    if (manifestHref != null) {
+                        Path manifestQtiPath = resolveManifestPath(root, manifestBaseUri, manifestHref);
+                        qtiFilename = root.relativize(manifestQtiPath).toString().replace('\\', '/');
+                        manifestQtiSelected = true;
                     }
                 } else if (entryName.trim().endsWith(".xml")) {
                     String entryNameTrimmed = entryName.trim();
                     xmlFilenames.add(entryNameTrimmed);
-                    if (!xmlFilenames.contains(qtiFilename.trim())) {
+                    if (!manifestQtiSelected && !xmlFilenames.contains(qtiFilename.trim())) {
                         if (xmlFilenames.contains("exportAssessment.xml")) {
                             qtiFilename = "exportAssessment.xml";
                         } else if (tmpName.contains("_")
@@ -122,10 +134,10 @@ public class ImportService {
                     }
                 }
                 // Reject a manifest href immediately, before a later XML entry can replace it.
-                resolveImportPath(root, qtiFilename);
+                Zip.resolveContainedPath(root, qtiFilename);
                 zipStream.closeEntry();
             }
-            qtiFilename = root.relativize(resolveImportPath(root, qtiFilename)).toString();
+            qtiFilename = root.relativize(Zip.resolveContainedPath(root, qtiFilename)).toString();
         } catch (IOException | RuntimeException e) {
             try (Stream<Path> paths = Files.walk(root)) {
                 for (Path path : paths.sorted(Comparator.reverseOrder()).collect(java.util.stream.Collectors.toList())) {
@@ -139,16 +151,44 @@ public class ImportService {
         return root.toString();
     }
 
-    private Path resolveImportPath(Path root, String name) throws IOException {
-        String portableName = name.replace('\\', '/');
-        if (portableName.startsWith("/") || (portableName.length() > 1 && portableName.charAt(1) == ':')) {
-            throw new IOException("Absolute path in QTI content package");
+    private Node selectManifestResource(Document document) {
+        NodeList resources = document.getElementsByTagNameNS("*", "resource");
+        for (int i = 0; i < resources.getLength(); i++) {
+            Node resource = resources.item(i);
+            Node type = resource.getAttributes().getNamedItem("type");
+            if (type != null && type.getNodeValue().startsWith("imsqti")) {
+                return resource;
+            }
         }
-        Path destination = root.resolve(portableName).toFile().getCanonicalFile().toPath();
-        if (!destination.startsWith(root) || destination.equals(root)) {
-            throw new IOException("Path escapes QTI content package directory");
+        // Retain the established first-resource behavior for manifests without a QTI type.
+        return resources.item(0);
+    }
+
+    private Path resolveManifestPath(Path root, String baseUri, String href) throws IOException {
+        if (baseUri == null) {
+            throw new IOException("Invalid base URI in QTI manifest");
         }
-        return destination;
+        if (href.isBlank()) {
+            throw new IOException("Empty reference in QTI manifest");
+        }
+        try {
+            // DOM resolves inherited xml:base values against the manifest's document URI.
+            URI base = new URI(baseUri);
+            URI reference = new URI(href.replace('\\', '/').replace(" ", "%20"));
+            if (reference.isAbsolute() || reference.getRawAuthority() != null || reference.getPath().startsWith("/")) {
+                throw new IOException("Absolute reference in QTI manifest");
+            }
+            URI resolved = base.resolve(reference);
+            if (!"file".equalsIgnoreCase(resolved.getScheme()) || resolved.getRawAuthority() != null
+                    || resolved.getRawQuery() != null || resolved.getRawFragment() != null) {
+                throw new IOException("Non-local reference in QTI manifest");
+            }
+            // Path.of decodes URI escapes before the shared canonical containment check.
+            Path target = Path.of(resolved);
+            return Zip.resolveContainedPath(root, root.relativize(target).toString());
+        } catch (URISyntaxException | IllegalArgumentException e) {
+            throw new IOException("Invalid reference in QTI manifest", e);
+        }
     }
 
 }

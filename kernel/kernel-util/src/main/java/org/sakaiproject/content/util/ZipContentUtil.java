@@ -64,6 +64,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Zip;
 
 @Slf4j
 public class ZipContentUtil {
@@ -255,12 +256,8 @@ public class ZipContentUtil {
 		ContentResource resource = contentHostingService.getResource(referenceId);
 		String rootCollectionId = extractZipCollectionPrefix(resource);
 
-		// Prepare Collection
-		ContentCollectionEdit rootCollection = contentHostingService.addCollection(rootCollectionId);
-		ResourcePropertiesEdit prop = rootCollection.getPropertiesEdit();
-		prop.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, extractZipCollectionName(resource));
-		contentHostingService.commitCollection(rootCollection);
-		
+		boolean collectionCreated = false;
+
 		// Extract Zip File	
 		File temp = null;		
 		try {
@@ -275,11 +272,23 @@ public class ZipContentUtil {
 					continue;
 				}
                 try (ZipFile zipFile = new ZipFile(temp, charset)) {
+                    // Validate the whole archive before creating any content in this collection.
+                    Enumeration<? extends ZipEntry> validationEntries = zipFile.entries();
+                    while (validationEntries.hasMoreElements()) {
+                        Zip.validateEntryName(validationEntries.nextElement().getName());
+                    }
+                    if (!collectionCreated) {
+                        ContentCollectionEdit rootCollection = contentHostingService.addCollection(rootCollectionId);
+                        ResourcePropertiesEdit prop = rootCollection.getPropertiesEdit();
+                        prop.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, extractZipCollectionName(resource));
+                        contentHostingService.commitCollection(rootCollection);
+                        collectionCreated = true;
+                    }
                     Enumeration<? extends ZipEntry> entries = zipFile.entries();
                     while (entries.hasMoreElements()) {
                         ZipEntry nextElement = entries.nextElement();
                         if (!nextElement.getName().contains("__MACOSX")) {
-                            if (nextElement.isDirectory()) {
+                            if (Zip.validateEntryName(nextElement.getName()).endsWith("/")) {
                                 createContentCollection(rootCollectionId, nextElement);
                             } else {
                                 if (!nextElement.getName().contains(".DS_Store")) {
@@ -290,6 +299,8 @@ public class ZipContentUtil {
                     }
                     extracted = true;
                     break;
+                } catch (Zip.InvalidEntryException e) {
+                    throw e;
                 } catch (Exception e) {
                     log.warn("Cannot extract archive {} with charset {}", referenceId, charset, e);
                 }
@@ -297,6 +308,8 @@ public class ZipContentUtil {
 			if (!extracted) {
 				log.warn("Cannot extract archives {} with any charset {}", referenceId, getZipCharsets());
 			}
+		} catch (Zip.InvalidEntryException e) {
+            throw e;
 		} catch (Exception e) {
 			log.warn("failure extracting archive for reference {}", referenceId, e);
 		} finally {
@@ -394,8 +407,9 @@ public class ZipContentUtil {
 	 */
 	private void createContentResource(String rootCollectionId,
 			ZipEntry nextElement, ZipFile zipFile) throws Exception {
-		String resourceId = rootCollectionId + nextElement.getName();
-		String resourceName = extractName(nextElement.getName());
+		String entryName = Zip.validateEntryName(nextElement.getName());
+		String resourceId = rootCollectionId + entryName;
+		String resourceName = extractName(entryName);
 		ContentResourceEdit resourceEdit;
 		try {
 			resourceEdit = contentHostingService.addResource(resourceId);
@@ -420,8 +434,9 @@ public class ZipContentUtil {
 	 */
 	private void createContentCollection(String rootCollectionId,
 			ZipEntry element) throws Exception {
-		String resourceId = rootCollectionId + element.getName();
-		String resourceName = extractName(element.getName());
+		String entryName = Zip.validateEntryName(element.getName());
+		String resourceId = rootCollectionId + entryName;
+		String resourceName = extractName(entryName);
 		ContentCollectionEdit collection;
 		try {
 			collection = contentHostingService.addCollection(resourceId);
