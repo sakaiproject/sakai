@@ -121,6 +121,13 @@ public class LoginServlet
     }
 
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+    boolean anonymousAllowed = StringUtils.contains(publishedAssessment.getAssessmentAccessControl().getReleaseTo(), "Anonymous Users");
+    if (!anonymousAllowed && (!PersistenceService.getInstance().getAuthzQueriesFacade()
+            .hasPrivilege(SamigoConstants.AUTHZ_TAKE_ASSESSMENT, siteId) || !checkMembership(publishedAssessment, req, res))) {
+      req.getRequestDispatcher("/jsf/delivery/accessDenied.faces").forward(req, res);
+      return;
+    }
+    delivery.setPublishedAssessment(publishedAssessment);
     delivery.setSiteId(siteId);
 
     delivery.setAccessByUrlAndAuthorized(true);
@@ -155,6 +162,7 @@ public class LoginServlet
     // button to display - daisyf
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet(
        "delivery", req, res);
+    delivery.setAccessByUrlAndAuthorized(false);
     // For SAK-7132. 
     // As this class is only used for taking assessment via URL, 
     // there should not be any assessment grading data at this point
@@ -208,7 +216,7 @@ public class LoginServlet
     listener.populateBeanFromPub(delivery, pub);
 
     if (!isInstructor) {
-        listener.processAction(null);
+        listener.processAction(null, false);
     }
 
     RequestDispatcher dispatcher = null;
@@ -312,29 +320,6 @@ public class LoginServlet
     		  }
     	  }
       }
-      if ("true".equals(req.getParameter("fromDirect"))) {
-        String deliveryValidate = delivery.validate();
-
-        // send the user directly into taking the assessment... they already clicked start from the direct servlet
-        if (delivery.getNavigation().trim() != null && "1".equals(delivery.getNavigation().trim())) {
-          LinearAccessDeliveryActionListener linearDeliveryListener = new LinearAccessDeliveryActionListener();
-          linearDeliveryListener.processAction(null);
-        }
-        else {
-          DeliveryActionListener deliveryListener = new DeliveryActionListener();
-          //This has to be setup if it's coming from direct otherwise it doesn't start right
-          UIComponent uic = new UICommand();
-          uic.setId("beginAssessment");
-          ActionEvent ae = new ActionEvent(uic);
-          deliveryListener.processAction(ae);
-        }
-        
-        //TODO: Should be something a bit more robust as validate() can retun a lot of things...
-        if ("takeAssessment".equals(deliveryValidate)) {
-          path = "/jsf/delivery/deliverAssessment.faces";
-        }
-        
-      }
     log.debug("***path"+path);
     if (relativePath){
       dispatcher = req.getRequestDispatcher(path);
@@ -352,6 +337,9 @@ public class LoginServlet
 
   private boolean checkMembership(PublishedAssessmentFacade pub,
        HttpServletRequest req, HttpServletResponse res){
+    if (StringUtils.contains(pub.getAssessmentAccessControl().getReleaseTo(), AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+      return checkMembershipForGroupRelease(pub, req, res);
+    }
     boolean isMember=false;
     // get list of site that this published assessment has been released to
     List l =PersistenceService.getInstance().getAuthzQueriesFacade().

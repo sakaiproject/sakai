@@ -93,14 +93,19 @@ public class BeginDeliveryActionListener implements ActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
+    processAction(ae, true);
+  }
+
+  public void processAction(ActionEvent ae, boolean useRequestParameters) throws AbortProcessingException
+  {
     log.debug("BeginDeliveryActionListener.processAction() ");
 
     // get managed bean and set its action accordingly
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     log.debug("****DeliveryBean= "+delivery);
-    String actionString = ContextUtil.lookupParam("actionString");
-    String publishedId = ContextUtil.lookupParam("publishedId");
-    String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
+    String actionString = useRequestParameters ? ContextUtil.lookupParam("actionString") : null;
+    String publishedId = useRequestParameters ? ContextUtil.lookupParam("publishedId") : null;
+    String assessmentId = useRequestParameters ? ContextUtil.lookupParam("assessmentId") : null;
 
     if (StringUtils.isNotBlank(actionString)) {
       // if actionString is null, likely that action & actionString has been set already, 
@@ -128,7 +133,9 @@ public class BeginDeliveryActionListener implements ActionListener
 
     AssessmentAccessControlIfc control = pub.getAssessmentAccessControl();
     boolean releaseToAnonymous = control.getReleaseTo() != null && control.getReleaseTo().indexOf("Anonymous Users")> -1;
-    boolean canReview = delivery.isAccessByUrlAndAuthorized();
+    boolean canReview = delivery.isAccessByUrlAndAuthorized()
+        && delivery.getPublishedAssessment() != null
+        && pub.getPublishedAssessmentId().equals(delivery.getPublishedAssessment().getPublishedAssessmentId());
     PublishedAssessmentService service = new PublishedAssessmentService();
     String siteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
     
