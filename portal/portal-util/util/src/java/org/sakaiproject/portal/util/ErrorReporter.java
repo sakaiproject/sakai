@@ -26,10 +26,7 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.text.DateFormat;
 import java.time.Instant;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
@@ -67,21 +64,6 @@ public class ErrorReporter
 {
 	private static final String TOMCAT_CLIENT_ABORT_EXCEPTION_CLASS = "org.apache.catalina.connector.ClientAbortException";
 	private static final Class<?> TOMCAT_CLIENT_ABORT_EXCEPTION = loadTomcatClientAbortException();
-
-	private Map<String, String> censoredHeaders = new HashMap<String, String>();
-
-	private Map<String, String> censoredParameters = new HashMap<String, String>();
-
-	private Map<String, String> censoredAttributes = new HashMap<String, String>();
-
-	public ErrorReporter()
-	{
-		censoredParameters.put("pw", "pw");
-		censoredParameters.put("eid", "eid");
-		censoredParameters.put("javax.faces.ViewState", "javax.faces.ViewState");
-		censoredHeaders.put("cookie","cookie");
-		censoredHeaders.put("authorization","authorization");
-	}
 
 	private static Class<?> loadTomcatClientAbortException()
 	{
@@ -631,7 +613,6 @@ public class ErrorReporter
 		return sb.toString();
 	}
 
-	@SuppressWarnings("rawtypes")
 	private String requestDisplay(HttpServletRequest request)
 	{
 		ResourceBundle rb = ResourceBundle.getBundle("portal-util", request.getLocale());
@@ -655,8 +636,6 @@ public class ErrorReporter
 					request.getPathInfo()).append("\n");
 			sb.append(rb.getString("bugreport.request.protocol")).append(
 					request.getProtocol()).append("\n");
-			sb.append(rb.getString("bugreport.request.querystring")).append(
-					request.getQueryString()).append("\n");
 			sb.append(rb.getString("bugreport.request.remoteaddr")).append(
 					request.getRemoteAddr()).append("\n");
 			sb.append(rb.getString("bugreport.request.remotehost")).append(
@@ -669,43 +648,7 @@ public class ErrorReporter
 					request.getScheme()).append("\n");
 			sb.append(rb.getString("bugreport.request.servername")).append(
 					request.getServerName()).append("\n");
-			sb.append(rb.getString("bugreport.request.headers")).append("\n");
-			for (Enumeration e = request.getHeaderNames(); e.hasMoreElements();)
-			{
-				String headerName = (String) e.nextElement();
-				boolean censor =  ( censoredHeaders.get(headerName) != null );
-				for (Enumeration he = request.getHeaders(headerName); he
-						.hasMoreElements();)
-				{
-					String headerValue = (String) he.nextElement();
-					sb.append(rb.getString("bugreport.request.header"))
-							.append(headerName).append(":").append(censor?"---censored---":headerValue).append(
-									"\n");
-				}
-			}
-			sb.append(rb.getString("bugreport.request.parameters")).append("\n");
-			for (Enumeration e = request.getParameterNames(); e.hasMoreElements();)
-			{
-				
-				String parameterName = (String) e.nextElement();
-				boolean censor =  ( censoredParameters.get(parameterName) != null );
-				String[] paramvalues = request.getParameterValues(parameterName);
-				for (int i = 0; i < paramvalues.length; i++)
-				{
-					sb.append(rb.getString("bugreport.request.parameter")).append(
-							parameterName).append(":").append(i).append(":").append(
-							censor?"----censored----":paramvalues[i]).append("\n");
-				}
-			}
-			sb.append(rb.getString("bugreport.request.attributes")).append("\n");
-			for (Enumeration e = request.getAttributeNames(); e.hasMoreElements();)
-			{
-				String attributeName = (String) e.nextElement();
-				Object attribute = request.getAttribute(attributeName);
-				boolean censor =  ( censoredAttributes.get(attributeName) != null );
-				sb.append(rb.getString("bugreport.request.attribute")).append(
-						attributeName).append(":").append(censor?"----censored----":attribute).append("\n");
-			}
+			// Headers, parameters and attributes can contain authentication credentials.
 			HttpSession session = request.getSession(false);
 			if (session != null)
 			{
@@ -721,16 +664,6 @@ public class ErrorReporter
 						serverLocaleDateFormat.format(session.getLastAccessedTime())).append("\n");
 				sb.append(rb.getString("bugreport.session.maxinactive")).append(
 						session.getMaxInactiveInterval()).append("\n");
-				sb.append(rb.getString("bugreport.session.attributes")).append("\n");
-				for (Enumeration e = session.getAttributeNames(); e.hasMoreElements();)
-				{
-					String attributeName = (String) e.nextElement();
-					Object attribute = session.getAttribute(attributeName);
-					boolean censor =  ( censoredAttributes.get(attributeName) != null );
-					sb.append(rb.getString("bugreport.session.attribute")).append(
-							attributeName).append(":").append(censor?"----censored----":attribute).append("\n");
-				}
-
 			}
 		}
 		catch (Exception ex)

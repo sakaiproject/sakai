@@ -244,7 +244,6 @@ public class RSSPodfeedServlet extends HttpServlet {
 		final String header = request.getHeader("Authorization");
 		String[] elements = null;
 
-		log.debug("Authorization: " + header);
 
 		if (header != null)
 			elements = header.split(" ");
@@ -254,12 +253,10 @@ public class RSSPodfeedServlet extends HttpServlet {
 			final String type = elements[0];
 			final String hash = elements[1];
 
-			log.debug("type: " + type + " hash: " + hash);
 
 			final String[] credential = (new String(base64Encoder.decode(hash.getBytes())))
 					.split(":");
 
-			log.debug("credential: " + credential);
 
 			if (credential != null && credential.length >= 2) {
 				final String eid = credential[0];

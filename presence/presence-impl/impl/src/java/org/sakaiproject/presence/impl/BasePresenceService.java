@@ -545,7 +545,7 @@ public abstract class BasePresenceService implements PresenceService
 
 				Presence p = (Presence) ts.getAttribute(location);
 
-				if (log.isDebugEnabled()) log.debug("checking expiry of session " + session.getId() + " in location " + location);
+				if (log.isDebugEnabled()) log.debug("Checking session expiry in location {}", location);
 				
 				if (p != null && p.isExpired())
 				{

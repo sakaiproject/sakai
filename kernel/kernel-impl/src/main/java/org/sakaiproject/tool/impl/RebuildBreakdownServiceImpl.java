@@ -141,11 +141,11 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
         }
         if (!(s instanceof MySession)) {
             // yes, this is kind of dumb but unless we change the class structures it is necessary
-            throw new IllegalArgumentException("session ("+s.getId()+") MUST be a MySession implementation");
+            throw new IllegalArgumentException("Session must be a MySession implementation");
         }
         MySession ms = (MySession) s;
         if (!isSessionValid(ms)) {
-            if (log.isDebugEnabled()) log.debug("Session ("+s.getId()+") not valid for clustering, not a MySession");
+            if (log.isDebugEnabled()) log.debug("Session not valid for clustering");
             return false;
         }
         if (request == null) {
@@ -157,11 +157,11 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
         }
 
         String sessionId = ms.getId();
-        if (log.isDebugEnabled()) log.debug("RebuildBreakdownServiceImpl.storeSession, for sessionId: [" + sessionId + "]");
+        if (log.isDebugEnabled()) log.debug("Storing session");
         Map<String,Serializable> sessionMap = new HashMap<String,Serializable>();
         storeSessionSpecialAttributes(ms, sessionMap);
         storeSessionAttributes(ms, sessionMap);
-        if (log.isDebugEnabled()) log.debug("RebuildBreakdownServiceImpl.storeSession, for sessionId: [" + sessionId + "] completed");
+        if (log.isDebugEnabled()) log.debug("Session storage completed");
         sessionCache.put(sessionId, sessionMap);
         ms.setAttribute(SESSION_LAST_BREAKDOWN_KEY, System.currentTimeMillis());
         return true;
@@ -178,7 +178,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
         }
         if (!(s instanceof MySession)) {
             // yes, this is kind of dumb but unless we change the class structures it is necessary
-            throw new IllegalArgumentException("session ("+s.getId()+") MUST be a MySession implementation");
+            throw new IllegalArgumentException("Session must be a MySession implementation");
         }
         MySession ms = (MySession) s;
         if (!ms.isValid() || ms.isInactive()) {
@@ -190,11 +190,11 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
         Map<String, Serializable> sessionMap = (Map<String, Serializable>) sessionCache.get(sessionId);
         if (sessionMap == null || sessionMap.isEmpty()) {
             // no data available to rebuild this session
-            if (log.isDebugEnabled()) log.debug("rebuildSession, sessionId: [" + sessionId + "] data not found in store, cannot rebuild");
+            if (log.isDebugEnabled()) log.debug("Session data not found in store, cannot rebuild");
             rebuilt = false;
         } else {
             // REBUILD the session
-            if (log.isDebugEnabled()) log.debug("rebuildSession, sessionId: [" + sessionId + "] from map("+sessionMap.size()+")");
+            if (log.isDebugEnabled()) log.debug("Rebuilding session from map with {} entries", sessionMap.size());
             processMySessionMap(ms, sessionMap);
             // now that the session is fully rebuilt we need to make sure we reactivate it and make it current
             ms.setActive();
@@ -208,7 +208,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
                     ToolSession ts = ms.getToolSession(currentToolSessionPlacementId);
                     if (ts != null) {
                         sessionManager.setCurrentToolSession(ts);
-                        if (log.isDebugEnabled()) log.debug("rebuildSession, sessionId: [" + sessionId + "], updated current tool session("+ts.getId()+") for placement: "+currentToolSessionPlacementId);
+                        if (log.isDebugEnabled()) log.debug("Updated current tool session for placement {}", currentToolSessionPlacementId);
                     }
                 }
             }
@@ -219,17 +219,17 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
                 if (us == null) {
                     // likely have to create a new one, warn and then attempt it (maybe should have failed here instead)
                     // TODO UsageSession startSession(String userId, String remoteAddress, String userAgent)
-                    if (log.isDebugEnabled()) log.debug("rebuildSession, sessionId: [" + sessionId + "], made new usage session: "+currentUsageSessionId);
+                    if (log.isDebugEnabled()) log.debug("Made new usage session {}", currentUsageSessionId);
                 }
                 // NOTE that this usageSession will be realigned to the current server (as needed) by code in the RequestFilter
                 ms.setAttribute(UsageSessionService.USAGE_SESSION_KEY, us);
-                if (log.isDebugEnabled()) log.debug("rebuildSession, sessionId: [" + sessionId + "], reloaded usage session: "+currentUsageSessionId);
+                if (log.isDebugEnabled()) log.debug("Reloaded usage session {}", currentUsageSessionId);
             }
 
             ms.setAttribute(SESSION_LAST_REBUILD_KEY, System.currentTimeMillis());
             rebuilt = true;
         }
-        log.info("RBS rebuildSession, sessionId: [" + sessionId + "] complete, rebuilt: "+rebuilt);
+        log.info("Session rebuild complete, rebuilt={}", rebuilt);
         return rebuilt;
     }
 
@@ -313,7 +313,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
             sb = new StoreableBreakdown(className, size, data);
         } catch (Exception e) {
             sb = null;
-            log.warn("Failure attempting to breakdown object (to size="+size+"): "+breakdownable+" :: "+e, e);
+            log.warn("Failed to break down session attribute class={} size={}", className, size, e);
         }
         return sb;
     }
@@ -349,7 +349,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
                 rebuilt = handler.doRebuild(data, size);
             }
         } catch (Exception e) {
-            log.warn("Failure ("+e.getMessage()+") attempting to rebuild object: class="+className+", size:"+size+", data: "+data+" :: "+e, e);
+            log.warn("Failed to rebuild session attribute class={} size={}", className, size, e);
         } finally {
             // reset back to the current CL
             Thread.currentThread().setContextClassLoader(currentCL);
@@ -473,13 +473,13 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
                 // skip processing on this key
                 continue;
             }
-            if (log.isDebugEnabled()) log.debug("attempting to store session attribute key [" + key + "] in cache");
+            if (log.isDebugEnabled()) log.debug("Attempting to store session attribute in cache");
             Object object = s.getAttribute(key);
             Serializable toStore = serializeSessionAttribute(object);
             // now store it if we were successful
             if (toStore != null) {
                 sessionMap.put(key, toStore);
-                if (log.isDebugEnabled()) log.debug("RebuildBreakdownServiceImpl.storeSession, putting key [" + key + "], class: [" + object.getClass().getName() + "], value: [" + object + "]");
+                if (log.isDebugEnabled()) log.debug("Stored session attribute of type {}", object.getClass().getName());
             }
         }
     }
@@ -642,7 +642,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
         if (s != null && key != null) {
             String className = object.getClass().getName();
             if (object instanceof StoreableBreakdown) {
-                if (log.isDebugEnabled()) log.debug("rebuilding StoreableBreakdown, key: [" + key + "], className: [" + className + "]");
+                if (log.isDebugEnabled()) log.debug("Rebuilding session attribute of type {}", className);
                 StoreableBreakdown storedBreakdown = (StoreableBreakdown) object;
                 Breakdownable<?> handler = breakdownableHandlers.get(storedBreakdown.getClassName());
                 if (handler != null && handler instanceof BreakdownRebuildCallback) {
@@ -658,8 +658,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
                 }
             } else {
                 if (log.isDebugEnabled()) {
-                    log.debug("rebuilding Serializable, key: [" + key
-                                      + "], className: [" + className + "], value: [" + object + "]");
+                    log.debug("Rebuilding session attribute of type {}", className);
                 }
                 s.setAttribute(key, object);
             }
@@ -765,7 +764,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
                         || StringUtils.startsWith(contextPath, "/xlogin")
                         || StringUtils.startsWith(contextPath, "/access")
                     ) {
-                if (log.isDebugEnabled()) log.debug("isSessionBreakdownAllowed("+ms.getId()+"): found direct or access: "+contextPath);
+                if (log.isDebugEnabled()) log.debug("Session breakdown allowed for context {}", contextPath);
                 allowed = false;
                 done = true;
             }
@@ -774,7 +773,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
                 // we will assume that POSTs changed something and therefore should be allowed to always update the session
                 String method = req.getMethod().toUpperCase();
                 if ("POST".equals(method)) {
-                    if (log.isDebugEnabled()) log.debug("isSessionBreakdownAllowed("+ms.getId()+"): found POST: "+req.getRequestURI());
+                    if (log.isDebugEnabled()) log.debug("Session breakdown allowed for POST to {}", req.getRequestURI());
                     minSecondsBetweenStores = smallestMinSecondsBetweenStores; // reset to the shortest reasonable minimum
                     allowed = true;
                 }
@@ -796,7 +795,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
                 long minMSAfterRebuild = minSecondsAfterRebuild * 1000l;
                 long msSinceLastRebuild = (now - lastRebuild);
                 if (msSinceLastRebuild > minMSAfterRebuild) {
-                    if (log.isDebugEnabled()) log.debug("isSessionBreakdownAllowed("+ms.getId()+"): rebuild min ("+minSecondsAfterRebuild+" s) passed: "+msSinceLastRebuild+" > "+minMSAfterRebuild);
+                    if (log.isDebugEnabled()) log.debug("Session rebuild minimum ({} s) passed: {} > {}", minSecondsAfterRebuild, msSinceLastRebuild, minMSAfterRebuild);
                     allowed = true;
                 }
             }
@@ -818,12 +817,12 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
                 long minMSBetweenStores = minSecondsBetweenStores * 1000l;
                 long msSinceLastBreakdown = (now - lastBreakdown);
                 if (msSinceLastBreakdown > minMSBetweenStores) {
-                    if (log.isDebugEnabled()) log.debug("isSessionBreakdownAllowed("+ms.getId()+"): store min ("+minSecondsBetweenStores+" s) passed: "+msSinceLastBreakdown+" > "+minMSBetweenStores);
+                    if (log.isDebugEnabled()) log.debug("Session storage minimum ({} s) passed: {} > {}", minSecondsBetweenStores, msSinceLastBreakdown, minMSBetweenStores);
                     allowed = true;
                 }
             } else {
                 // not stored before so store it
-                if (log.isDebugEnabled()) log.debug("isSessionBreakdownAllowed("+ms.getId()+"): not stored before");
+                if (log.isDebugEnabled()) log.debug("Session not previously stored");
                 allowed = true;
             }
         }

@@ -61,7 +61,6 @@ public class RubricsController {
         boolean enablePdfExport = serverConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true);
         model.addAttribute("enablePdfExport", enablePdfExport);
         model.addAttribute("siteId", siteId);
-        model.addAttribute("sakaiSessionId", sessionManager.getCurrentSession().getId());
         model.addAttribute("cdnQuery", PortalUtils.getCDNQuery());
         model.addAttribute("isSuperUser", securityService.isSuperUser());
 

@@ -147,7 +147,7 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
 
         // Check if assessment is set; No? -> ERROR -> return SUCCESS
         if (assessment == null) {
-            log.error("Assessment is null, returning SUCCESS. Session: [{}]", request != null ? request.getSession().getId() : null);
+            log.error("Assessment is null, returning SUCCESS");
             return PhaseStatus.SUCCESS;
         }
 
@@ -221,7 +221,7 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
             PhaseStatus status, Locale locale) {
 
         if (assessment == null) {
-            log.error("Assessment is null, returning empty. Session: [{}]", request != null ? request.getSession().getId() : null);
+            log.error("Assessment is null, returning empty");
             return "";
         }
 

@@ -23,6 +23,8 @@ package org.sakaiproject.login.tool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -82,14 +84,7 @@ public class AuthnPortal extends HttpServlet
 
 	protected void doError(HttpServletRequest req, HttpServletResponse res, Session session, int mode) throws IOException
 	{
-		// start the response
-		PrintWriter out = startResponse(res, "Sakai Authn Portal", null);
-
-		out.println("<H2>Unknown Request</H2>");
-		Web.snoop(out, true, getServletConfig(), req);
-
-		// end the response
-		endResponse(out);
+		res.sendError(HttpServletResponse.SC_NOT_FOUND);
 	}
 
 	/**
@@ -126,7 +121,7 @@ public class AuthnPortal extends HttpServlet
 		}
 
 		// recognize and dispatch the 'logout' option
-		if ((parts.length == 2) && (parts[1].equals("logout")))
+		else if ((parts.length == 2) && (parts[1].equals("logout")))
 		{
 			doLogout(req, res, session, null);
 		}
@@ -139,18 +134,15 @@ public class AuthnPortal extends HttpServlet
 	}
 
 	protected void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath)
-			throws ToolException
+			throws ToolException, IOException
 	{
-		// setup for the helper if needed (Note: in session, not tool session, special for Login helper)
-		// go to the parameter'ed place, if set, after
-		String url = req.getParameter("url");
-		if (url != null)
+		if (!setReturnUrl(req, res, session))
 		{
-			session.setAttribute(Tool.HELPER_DONE_URL, url);
+			return;
 		}
 
-		// otherwise go to the configured place, after, unless already set
-		else if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
+		// Preserve destinations supplied by the portal or trusted server configuration.
+		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
 		{
 			session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService.getPortalUrl());
 		}
@@ -161,18 +153,15 @@ public class AuthnPortal extends HttpServlet
 	}
 
 	protected void doLogout(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath)
-			throws ToolException
+			throws ToolException, IOException
 	{
-		// setup for the helper if needed (Note: in session, not tool session, special for Login helper)
-		// go to the parameter'ed place, if set, after
-		String url = req.getParameter("url");
-		if (url != null)
+		if (!setReturnUrl(req, res, session))
 		{
-			session.setAttribute(Tool.HELPER_DONE_URL, url);
+			return;
 		}
 		
-		// otherwise go to the configured place, after, unless already set
-		else if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
+		// Preserve destinations supplied by the portal or trusted server configuration.
+		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
 		{
 			session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService.getLoggedOutUrl());
 		}
@@ -180,6 +169,66 @@ public class AuthnPortal extends HttpServlet
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/logout";
 		tool.help(req, res, context, "/logout");
+	}
+
+	private boolean setReturnUrl(HttpServletRequest req, HttpServletResponse res, Session session) throws IOException
+	{
+		String[] urls = req.getParameterValues("url");
+		if (urls == null)
+		{
+			return true;
+		}
+
+		String returnUrl = urls.length == 1 ? validateReturnUrl(urls[0]) : null;
+		if (returnUrl == null)
+		{
+			res.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return false;
+		}
+
+		session.setAttribute(Tool.HELPER_DONE_URL, returnUrl);
+		return true;
+	}
+
+	private String validateReturnUrl(String url)
+	{
+		if (url == null || url.isEmpty() || url.chars().anyMatch(c -> c <= 0x20 || c == 0x7f || c == '\\'))
+		{
+			return null;
+		}
+
+		try
+		{
+			// Use the configured public origin rather than an untrusted request Host header.
+			URI server = new URI(ServerConfigurationService.getString("serverUrl", ServerConfigurationService.getServerUrl()));
+			URI destination = new URI(url);
+			if (server.getHost() == null || !("http".equalsIgnoreCase(server.getScheme()) || "https".equalsIgnoreCase(server.getScheme()))
+					|| destination.getRawUserInfo() != null)
+			{
+				return null;
+			}
+
+			if (!destination.isAbsolute())
+			{
+				// Canonicalize root-relative paths so container login can also parse the return URL.
+				return url.startsWith("/") && !url.startsWith("//") && destination.getRawAuthority() == null
+						? server.resolve(destination).toString() : null;
+			}
+
+			return server.getScheme().equalsIgnoreCase(destination.getScheme())
+					&& server.getHost().equalsIgnoreCase(destination.getHost())
+					&& effectivePort(server) == effectivePort(destination) ? url : null;
+		}
+		catch (URISyntaxException e)
+		{
+			// Malformed user input is rejected with HTTP 400 by the caller.
+			return null;
+		}
+	}
+
+	private int effectivePort(URI uri)
+	{
+		return uri.getPort() == -1 ? ("https".equalsIgnoreCase(uri.getScheme()) ? 443 : 80) : uri.getPort();
 	}
 
 	/**
