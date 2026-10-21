@@ -18,6 +18,8 @@
  */
 package org.sakaiproject.sitestats.impl.report;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +48,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamSource;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -99,7 +100,6 @@ import org.sakaiproject.sitestats.api.report.ReportFormattedParams;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
-import org.sakaiproject.sitestats.impl.report.fop.LibraryURIResolver;
 import org.sakaiproject.sitestats.impl.report.fop.ReportInputSource;
 import org.sakaiproject.sitestats.impl.report.fop.ReportXMLReader;
 import org.sakaiproject.time.api.UserTimeService;
@@ -1090,8 +1090,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
             if(cachedXmlFoXSLT == null) {            	
             	ClassPathResource xsltCPR = new ClassPathResource("org/sakaiproject/sitestats/config/fop/"+XML_FO_XSL_FILE);
             	InputStream xslt = xsltCPR.getInputStream();
-            	TransformerFactory factory = TransformerFactory.newInstance();
-	            cachedXmlFoXSLT = factory.newTemplates(new StreamSource(xslt));
+                TransformerFactory factory = Xml.createSecureTransformerFactory();
+	            cachedXmlFoXSLT = factory.newTemplates(Xml.createSecureSource(xslt));
             }
             Transformer transformer = cachedXmlFoXSLT.newTransformer();
         

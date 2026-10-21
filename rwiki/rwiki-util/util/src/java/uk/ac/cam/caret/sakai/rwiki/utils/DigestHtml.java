@@ -21,10 +21,11 @@
 
 package uk.ac.cam.caret.sakai.rwiki.utils;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.StringReader;
 
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -37,17 +38,13 @@ import org.xml.sax.XMLReader;
  */
 public class DigestHtml
 {
-	private static SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-	static {
-		saxParserFactory.setNamespaceAware(true);
-	}
 
 	public static String digest(String todigest)
 	{
 		Digester d = new Digester();
 		try
 		{
-			SAXParser parser = saxParserFactory.newSAXParser();
+			SAXParser parser = Xml.createSecureSAXParser(true);
 			XMLReader reader = parser.getXMLReader();
 			reader.setContentHandler(d);
 			reader.parse(new InputSource(new StringReader("<content>" //$NON-NLS-1$

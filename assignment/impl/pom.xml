@@ -167,10 +167,6 @@
         	<artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.woodstox</groupId>
-            <artifactId>woodstox-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.scheduler</groupId>
             <artifactId>scheduler-api</artifactId>
         </dependency>

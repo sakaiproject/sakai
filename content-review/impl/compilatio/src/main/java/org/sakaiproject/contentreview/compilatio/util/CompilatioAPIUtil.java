@@ -16,6 +16,8 @@
  **********************************************************************************/
 package org.sakaiproject.contentreview.compilatio.util;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -103,7 +105,7 @@ public class CompilatioAPIUtil {
 			// loading the XML document
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			soapResponse.writeTo(out);
-			DocumentBuilderFactory builderfactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory builderfactory = Xml.createSecureDocumentBuilderFactory(false);
 			builderfactory.setNamespaceAware(true);
 
 			DocumentBuilder builder = builderfactory.newDocumentBuilder();

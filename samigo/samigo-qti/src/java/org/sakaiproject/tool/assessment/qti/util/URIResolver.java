@@ -21,12 +21,12 @@
 
 package org.sakaiproject.tool.assessment.qti.util;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+
+import org.sakaiproject.util.Xml;
+
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamSource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,23 +48,8 @@ public class URIResolver implements javax.xml.transform.URIResolver
     /* (non-Javadoc)
      * @see javax.xml.transform.URIResolver#resolve(java.lang.String, java.lang.String)
      */
-    public Source resolve(String href, String base) throws TransformerException
-    {
-        Source source = null;
-        String path = null;
-        try
-        {
-            URI uri = new URI(base);
-            path = uri.resolve(href).toString();
-            source = new StreamSource(path);
-        }
-        catch (URISyntaxException e)
-        {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
-
-        return source;
-    }
-
+  public Source resolve(String href, String base) throws TransformerException
+  {
+    return Xml.resolveSecureSource(href, base);
+  }
 }

@@ -66,6 +66,19 @@ public class MapperFactoryTests {
         );
     }
 
+    @Test(expected = javax.xml.stream.XMLStreamException.class)
+    public void testSharedStreamingFactoryRejectsExternalEntity() throws Exception {
+        javax.xml.stream.XMLStreamReader reader = MapperFactory.createSecureXMLInputFactory().createXMLStreamReader(
+                new java.io.StringReader("<!DOCTYPE root [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]><root>&xxe;</root>"));
+        try {
+            while (reader.hasNext()) {
+                reader.next();
+            }
+        } finally {
+            reader.close();
+        }
+    }
+
     @Test
     public void testCreateDefaultJsonMapper() throws IOException {
         // Get the default mapper

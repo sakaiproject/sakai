@@ -33,8 +33,9 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamConstants;
+import org.sakaiproject.serialization.MapperFactory;
 
 @Slf4j
 public class ScormCHH extends FastZipCHH
@@ -48,62 +49,59 @@ public class ScormCHH extends FastZipCHH
 		String realParentId = realParent.getId();
 		VirtualFileSystem fs = new VirtualFileSystem(realParentId);
 
-		try
+		try (InputStream inStream = getManifestAsStream(realParentId))
 		{
-			XmlPullParserFactory factory = XmlPullParserFactory.newInstance(System.getProperty(XmlPullParserFactory.PROPERTY_NAME), null);
-
-			factory.setNamespaceAware(true);
-			XmlPullParser xpp = factory.newPullParser();
-
-			InputStream inStream = getManifestAsStream(realParentId);
-			xpp.setInput(inStream, null);
-
-			int eventType = xpp.getEventType();
-			String tagName = null;
-			String xmlBase = null;
-			while (eventType != XmlPullParser.END_DOCUMENT)
+			XMLStreamReader xpp = MapperFactory.createSecureXMLInputFactory().createXMLStreamReader(inStream);
+			try
 			{
-				if (eventType == XmlPullParser.START_TAG)
+
+				int eventType = xpp.getEventType();
+				String tagName = null;
+				String xmlBase = null;
+				while (eventType != XMLStreamConstants.END_DOCUMENT)
 				{
-					tagName = xpp.getName();
-					if (tagName != null)
+					if (eventType == XMLStreamConstants.START_ELEMENT)
 					{
-						if (tagName.equals("resource"))
+						tagName = xpp.getLocalName();
+						if (tagName != null)
 						{
-							xmlBase = getAttributeValue(xpp, "xml", "base");
-						}
-						else if (tagName.equals("file")) {
-							String href = getAttributeValue(xpp, null, "href");
-
-							StringBuilder pathBuffer = new StringBuilder();
-							if (xmlBase != null)
+							if (tagName.equals("resource"))
 							{
-								pathBuffer.append(xmlBase);
+								xmlBase = getAttributeValue(xpp, "xml", "base");
 							}
+							else if (tagName.equals("file")) {
+								String href = getAttributeValue(xpp, null, "href");
 
-							if (href != null)
-							{
-								pathBuffer.append(href);
-								fs.addPath(pathBuffer.toString());
+								StringBuilder pathBuffer = new StringBuilder();
+								if (xmlBase != null)
+								{
+									pathBuffer.append(xmlBase);
+								}
+
+								if (href != null)
+								{
+									pathBuffer.append(href);
+									fs.addPath(pathBuffer.toString());
+								}
 							}
 						}
 					}
-				}
-				else if (eventType == XmlPullParser.END_TAG)
-				{
-					tagName = xpp.getName();
-					if (tagName != null && tagName.equals("resource"))
+					else if (eventType == XMLStreamConstants.END_ELEMENT)
 					{
-						xmlBase = null;
+						tagName = xpp.getLocalName();
+						if (tagName != null && tagName.equals("resource"))
+						{
+							xmlBase = null;
+						}
 					}
+
+					eventType = xpp.next();
 				}
 
-				eventType = xpp.next();
 			}
-
-			if (inStream != null)
+			finally
 			{
-				inStream.close();
+				xpp.close();
 			}
 		}
 		catch (Exception xppe)
@@ -148,14 +146,14 @@ public class ScormCHH extends FastZipCHH
 		return list;
 	}
 
-	private String getAttributeValue(XmlPullParser xpp, String prefix, String name)
+	private String getAttributeValue(XMLStreamReader xpp, String prefix, String name)
 	{
 		int count = xpp.getAttributeCount();
 		String value = null;
 		for (int i = 0; i < count; i++)
 		{
 			String attrPrefix = xpp.getAttributePrefix(i);
-			String attrName = xpp.getAttributeName(i);
+			String attrName = xpp.getAttributeLocalName(i);
 			if (attrName != null && (prefix == null || (attrPrefix != null && attrPrefix.equals(prefix))))
 			{
 				if (attrName.equals(name))

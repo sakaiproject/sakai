@@ -21,6 +21,8 @@
 
 package org.sakaiproject.importer.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -73,10 +74,7 @@ public class SakaiArchiveFileParser extends ZipFileParser {
         InputStream fis = null;
         try {
             fis = new FileInputStream(absolutepathToManifest);
-            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-            builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
             DocumentBuilder docBuilder = builderFactory.newDocumentBuilder();
             this.importMappings = (Document) docBuilder.parse(fis);
         } catch (FileNotFoundException e) {

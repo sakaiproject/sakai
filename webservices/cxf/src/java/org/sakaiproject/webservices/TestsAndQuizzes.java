@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.webservices;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +33,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -139,10 +140,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 
 			inputStream = new ByteArrayInputStream(bytes);
 
-			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-			builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-			builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
 			builderFactory.setNamespaceAware(true);
 			DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 			document = documentBuilder.parse(inputStream);

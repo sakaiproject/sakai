@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.serialization;
 
+import com.fasterxml.jackson.core.StreamReadConstraints;
+
+import com.ctc.wstx.api.ReaderConfig;
 import com.ctc.wstx.api.WstxInputProperties;
 import com.ctc.wstx.api.WstxOutputProperties;
 import com.ctc.wstx.stax.WstxInputFactory;
@@ -34,6 +37,16 @@ import javax.xml.stream.XMLInputFactory;
  * Uses builder pattern to allow flexible configuration of ObjectMapper properties.
  */
 public final class MapperFactory {
+
+    public static final int DEFAULT_MAX_XML_ATTRIBUTES_PER_ELEMENT = ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT;
+    public static final int DEFAULT_MAX_XML_ATTRIBUTE_LENGTH = ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH;
+
+    // XML callers that do not request Java-time handling need not load its optional module.
+    private static final class JavaTimeSupport {
+        private static com.fasterxml.jackson.databind.Module createModule() {
+            return new JavaTimeModule();
+        }
+    }
 
     private MapperFactory() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -157,7 +170,7 @@ public final class MapperFactory {
          * @return this builder for chaining
          */
         public JsonMapperBuilder registerJavaTimeModule() {
-            mapper.registerModule(new JavaTimeModule());
+            mapper.registerModule(JavaTimeSupport.createModule());
             return this;
         }
 
@@ -222,6 +235,21 @@ public final class MapperFactory {
         }
     }
 
+    /** Creates the shared hardened streaming XML input factory. */
+    public static XMLInputFactory createSecureXMLInputFactory() {
+        return XmlInputSupport.createFactory();
+    }
+
+    // JSON-only users must not load the XML backend when MapperFactory is initialized.
+    private static final class XmlInputSupport {
+        private static XMLInputFactory createFactory() {
+            XMLInputFactory factory = new WstxInputFactory();
+            factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+            factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+            return factory;
+        }
+    }
+
     /**
      * Builder class for creating customized XmlMapper instances.
      */
@@ -232,7 +260,7 @@ public final class MapperFactory {
          * Creates a new builder with a fresh XmlMapper instance using Woodstox.
          */
         public XmlMapperBuilder() {
-            xmlMapper = new XmlMapper(WstxInputFactory.newInstance(), WstxOutputFactory.newInstance());
+            xmlMapper = new XmlMapper(createSecureXMLInputFactory(), WstxOutputFactory.newInstance());
         }
 
         /**
@@ -280,7 +308,7 @@ public final class MapperFactory {
          * @return this builder for chaining
          */
         public XmlMapperBuilder registerJavaTimeModule() {
-            xmlMapper.registerModule(new JavaTimeModule());
+            xmlMapper.registerModule(JavaTimeSupport.createModule());
             return this;
         }
 
@@ -345,6 +373,21 @@ public final class MapperFactory {
         public XmlMapperBuilder setMaxAttributeSize(int maxAttributeSize) {
             xmlMapper.getFactory().getXMLInputFactory().setProperty(WstxInputProperties.P_MAX_ATTRIBUTE_SIZE, maxAttributeSize);
             xmlMapper.getFactory().rebuild().build();
+            return this;
+        }
+
+        /** Configures parser resource limits while retaining the shared entity/DTD policy. */
+        public XmlMapperBuilder setStreamReadLimits(int maxNestingDepth, int maxStringLength) {
+            xmlMapper.getFactory().setStreamReadConstraints(StreamReadConstraints.builder()
+                    .maxNestingDepth(maxNestingDepth)
+                    .maxStringLength(maxStringLength)
+                    .build());
+            return this;
+        }
+
+        /** Sets the maximum number of attributes allowed on an element. */
+        public XmlMapperBuilder setMaxAttributesPerElement(int maxAttributes) {
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(WstxInputProperties.P_MAX_ATTRIBUTES_PER_ELEMENT, maxAttributes);
             return this;
         }
 

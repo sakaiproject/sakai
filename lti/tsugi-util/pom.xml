@@ -23,6 +23,10 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
         <!-- This pom should *never* add any "org.sakaiproject" dependencies - any
             Sakai-specific code needs to be placed in the lti-common folder -->
         <dependency>

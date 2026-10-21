@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.tool.assessment.samlite.impl;
 
+import org.sakaiproject.util.Xml;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -399,7 +401,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		try {
 			inputStream = document.newInputStream(options);	
 
-	      	DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
 	      	builderFactory.setNamespaceAware(true);
 	      	DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 	      	Document doc = documentBuilder.parse(inputStream);

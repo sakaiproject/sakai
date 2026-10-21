@@ -24,19 +24,13 @@
 
 package org.adl.sequencer.impl;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 
-import org.apache.xerces.parsers.DOMParser;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,7 +56,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author ADL Technical Team
  */
 @Slf4j
-public class ADLSeqParser extends DOMParser {
+public class ADLSeqParser {
 
     /**
 	 * This controls display of log messages to the java console
@@ -348,91 +342,13 @@ public class ADLSeqParser extends DOMParser {
 	}
 
 	/**
-	 * Attempts to open the XML source file associated with this test case
-	 * 
-	 * @return An <code>InputSource</code> object if the source file was
-	 *         successfully opened, otherwise <code>null</code>.
-	 */
-	private InputSource openSourceFile() {
-
-        log.debug("  :: ADLSeqParser   --> BEGIN - openSourceFile");
-
-		InputSource input = null;
-
-		if (mFileToParse != null) {
-
-			try {
-				File xmlFile = new File(mFileToParse);
-
-				if (xmlFile.isFile()) {
-					String tmp = xmlFile.getAbsolutePath();
-
-                    log.debug("  ::--> Found XML File: {}", tmp);
-
-					// Create the input source
-					FileReader fr = new FileReader(xmlFile);
-					input = new InputSource(fr);
-				}
-			} catch (NullPointerException npe) {
-                log.debug("  ::--> ERROR: Null pointer", npe);
-			} catch (SecurityException se) {
-                log.debug("  ::--> ERROR: Security exception", se);
-			} catch (FileNotFoundException fnfe) {
-                log.debug("  ::--> ERROR: File not found", fnfe);
-			}
-		} else {
-            log.debug("  ::--> ERROR: No file to parse");
-		}
-        log.debug("  :: ADLSeqParser   --> END   - openSourceFile");
-		return input;
-	}
-
-	/**
 	 * Parses the imsmanifest XML file associated with this course. 
 	 * 
 	 * @return <code>true</code> if the XML file was successfully parsed,
 	 *         otherwise <code>false</code>.
 	 */
 	private boolean parseFile() {
-
-        log.debug("  :: ADLSeqParser   --> BEGIN - parseFile");
-
-		boolean result = false;
-
-		InputSource instanceInputSource = openSourceFile();
-		if (instanceInputSource != null) {
-			// Attempt to parse the XML source file
-			try {
-                log.debug("  ::--> Calling super.parse()");
-				super.parse(instanceInputSource);
-                log.debug("  ::--> Parse complete");
-			} catch (SAXException se) {
-                log.debug("  ::--> ERROR: SAX exception", se);
-			} catch (IOException ioe) {
-                log.debug("  ::--> ERROR: IO exception", ioe);
-			} catch (NullPointerException npe) {
-                log.debug("  ::--> ERROR: Null pointer", npe);
-			}
-
-			// Attempt to get the the root of XML document
-			try {
-				mDocument = getDocument();
-
-				// If the document has no children, we are unsuccessful
-				if (mDocument.hasChildNodes()) {
-					result = true;
-				} else {
-                    log.debug("  ::--> The document has no children.");
-				}
-			} catch (NullPointerException npe) {
-                log.debug("  ::--> ERROR: Null pointer -- No Doc", npe);
-			}
-		}
-
-        log.debug("""
-                    ::-->  {}
-                    :: ADLSeqParser   --> END   - parseFile
-                  """, result);
-		return result;
+		mDocument = mFileToParse == null ? null : Xml.readDocument(mFileToParse);
+		return mDocument != null && mDocument.hasChildNodes();
 	}
 }
