@@ -62,8 +62,9 @@ public class GbModalWindow extends ModalDialog {
 	private int initialHeight = -1;
 	private String widthUnit = "px";
 
+	// Keep Gradebook dialogs below Bootstrap popups opened from their content, such as rubrics.
 	private static final CssHeaderItem CSS = CssHeaderItem.forCSS(
-			".gb-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; "
+			".gb-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; "
 			+ "background: rgba(0, 0, 0, 0.5); display: flex; align-items: flex-start; justify-content: center; }"
 			+ ".gb-modal-overlay-transparent { background: transparent; }"
 			+ ".gb-modal-dialog { position: relative; background: var(--sakai-modal-content-bg, #fff); "
