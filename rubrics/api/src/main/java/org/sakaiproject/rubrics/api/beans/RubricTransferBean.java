@@ -38,6 +38,7 @@ public class RubricTransferBean {
     private String creatorId;
     private List<CriterionTransferBean> criteria = new ArrayList<>();
     private Boolean draft;
+    private Boolean associated;
     private String formattedCreatedDate;
     private String formattedModifiedDate;
     private Boolean locked;
@@ -65,6 +66,7 @@ public class RubricTransferBean {
                 .map(CriterionTransferBean::new)
                 .collect(Collectors.toList());
         draft = rubric.getDraft();
+        associated = rubric.getAssociations().stream().anyMatch(association -> Boolean.TRUE.equals(association.getActive()));
         locked = rubric.getLocked();
         maxPoints = rubric.getMaxPoints();
         modified = rubric.getModified();

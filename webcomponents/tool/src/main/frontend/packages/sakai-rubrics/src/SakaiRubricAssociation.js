@@ -149,7 +149,7 @@ export class SakaiRubricAssociation extends RubricsElement {
 
   _handleRubrics(data) {
 
-    this._rubrics = data.slice().filter(rubric => !rubric.draft);
+    this._rubrics = data.filter(rubric => !rubric.draft || rubric.id == this.association?.rubricId);
 
     if (this._rubrics.length && this.isAssociated != 1 && !this.association?.rubricId) {
       // Not associated yet, select the first rubric in the list.

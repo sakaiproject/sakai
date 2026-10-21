@@ -73,6 +73,38 @@ describe("sakai-rubrics tests", () => {
     expect(fetchMock.callHistory.calls(data.rubric4OwnerUrl)).to.have.length(2);
   });
 
+  it ("explains why a linked rubric cannot be saved as draft and allows it after unlinking", async () => {
+    const rubric = { ...structuredClone(data.rubric1), locked: false, draft: false, associated: true };
+    const el = await fixture(html`<sakai-rubric site-id="${data.siteId}" .rubric=${rubric}></sakai-rubric>`);
+    await waitUntil(() => el.renderRoot.querySelector("button.draft"));
+    const button = el.renderRoot.querySelector("button.draft");
+    expect(button.getAttribute("aria-disabled")).to.equal("true");
+    expect(button.title).to.equal(el._i18n.draft_in_use);
+    button.click();
+    expect(fetchMock.callHistory.calls(data.rubric1OwnerUrl)).to.have.length(0);
+    expect(rubric.draft).to.be.false;
+
+    el.rubric = { ...rubric, associated: false };
+    await elementUpdated(el);
+    expect(button.getAttribute("aria-disabled")).to.equal("false");
+    button.click();
+    await waitUntil(() => fetchMock.callHistory.calls(data.rubric1OwnerUrl).length === 1);
+    await waitUntil(() => el.renderRoot.querySelector("button.draft").title === el._i18n.draft_turn_off);
+    expect(el.rubric.draft).to.be.true;
+  });
+
+  it ("restores the published state when a draft save is rejected", async () => {
+    fetchMock.removeRoutes();
+    fetchMock.get(data.i18nUrl, data.i18n).patch(data.rubric1OwnerUrl, 409);
+    const rubric = { ...structuredClone(data.rubric1), locked: false, draft: false, associated: false };
+    const el = await fixture(html`<sakai-rubric site-id="${data.siteId}" .rubric=${rubric}></sakai-rubric>`);
+    await waitUntil(() => el.renderRoot.querySelector("button.draft"));
+    el.renderRoot.querySelector("button.draft").click();
+    await waitUntil(() => el.renderRoot.querySelector("[role=alert]"));
+    expect(rubric.draft).to.be.false;
+    expect(el.renderRoot.querySelector("button.draft").title).to.equal(el._i18n.draft_turn_on);
+  });
+
   it("refreshes the displayed maximum when switching grading modes", async () => {
     const rubric = structuredClone(data.rubric4);
     rubric.weighted = true;

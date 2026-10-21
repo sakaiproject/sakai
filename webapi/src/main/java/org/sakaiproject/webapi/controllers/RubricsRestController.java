@@ -76,6 +76,8 @@ import java.util.stream.Collectors;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import com.github.fge.jsonpatch.JsonPatchOperation;
+import com.github.fge.jsonpatch.TestOperation;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -311,7 +313,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
     }
 
     @PatchMapping(value = "/sites/{siteId}/rubrics/{rubricId}", consumes = "application/json-patch+json")
-    public ResponseEntity patchRubric(@PathVariable("rubricId") Long rubricId, @RequestBody JsonPatch patch, @RequestHeader("If-Match") String revision) throws Exception {
+    public ResponseEntity patchRubric(@PathVariable("rubricId") Long rubricId, @RequestBody List<JsonPatchOperation> patch, @RequestHeader("If-Match") String revision) throws Exception {
 
         checkSakaiSession();
 
@@ -319,7 +321,18 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
             try {
                 Long expectedRevision = checkRevision(revision, rubric.getVersion());
-                JsonNode patched = patch.apply(jsonMapper.convertValue(rubric, JsonNode.class));
+                // Parse the wire representation so JSON Patch tests compare matching integer node types.
+                JsonNode patched = jsonMapper.readTree(jsonMapper.writeValueAsString(rubric));
+                for (JsonPatchOperation operation : patch) {
+                    try {
+                        patched = operation.apply(patched);
+                    } catch (JsonPatchException e) {
+                        if (operation instanceof TestOperation) {
+                            throw new RubricsConflictException(e);
+                        }
+                        throw e;
+                    }
+                }
                 RubricTransferBean patchedBean = jsonMapper.treeToValue(patched, RubricTransferBean.class);
                 patchedBean.setVersion(expectedRevision);
                 return ResponseEntity.ok(rubricsService.saveRubric(patchedBean));

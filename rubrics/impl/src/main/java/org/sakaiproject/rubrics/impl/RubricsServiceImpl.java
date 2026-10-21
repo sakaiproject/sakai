@@ -27,6 +27,8 @@ import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_MULTIPLE_OPTION
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_PREFIX;
 import static org.sakaiproject.rubrics.api.RubricsConstants.LINE_SEPARATOR;
 
+import jakarta.persistence.LockModeType;
+
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -642,6 +644,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         } else if (bean.getAdhoc()) {
             rubric = rubricRepository.getById(bean.getId());
             checkVersion(bean.getVersion(), rubric.getVersion());
+            checkDraftTransition(bean, rubric);
             checkCriteriaVersions(bean, rubric);
             List<Criterion> oldCriterion = new ArrayList<>();
 
@@ -687,6 +690,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         } else {
             rubric = rubricRepository.getById(bean.getId());
             checkVersion(bean.getVersion(), rubric.getVersion());
+            checkDraftTransition(bean, rubric);
             checkCriteriaVersions(bean, rubric);
             rubric.getCriteria().forEach(c -> bean.getCriteria().stream()
                     .filter(bc -> bc.getId().equals(c.getId()))
@@ -717,6 +721,16 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
         sessionFactory.getCurrentSession().flush();
         return decorateRubricBean(new RubricTransferBean(savedRubric));
+    }
+
+    private void checkDraftTransition(RubricTransferBean bean, Rubric rubric) {
+
+        if (Boolean.TRUE.equals(bean.getDraft()) && !Boolean.TRUE.equals(rubric.getDraft())
+                && (Boolean.TRUE.equals(rubric.getLocked()) || rubric.getAssociations().stream()
+                        .anyMatch(association -> Boolean.TRUE.equals(association.getActive())))) {
+            throw new RubricsConflictException("Rubric " + rubric.getId()
+                    + " cannot be saved as draft while it is linked to an item or has evaluations");
+        }
     }
 
     public CriterionTransferBean updateCriterion(CriterionTransferBean bean, String siteId) {
@@ -1253,7 +1267,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
                         if (optionalExistingAssociation.isPresent()) {
                             // if there's already an association for the requested rubric, reuse it
-                            optionalExistingAssociation.get().setActive(true);
+                            return Optional.of(reactivateRubricAssociation(optionalExistingAssociation.get()));
                         } else {
                             // if there is no association for the requested rubric create a new association
                             Optional<ToolItemRubricAssociation> newAssociation = createToolItemRubricAssociation(toolId, toolItemId, params, requestedRubricId);
@@ -1273,8 +1287,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 // the specific getRubricAssociation impl that we used earlier to load it will ignore deactivated ones.
                 Optional<ToolItemRubricAssociation> optionalExistingAssociation = findAssociationByItemIdAndRubricId(toolItemId, requestedRubricId);    // this will include inactive [soft-deleted] ones
                 if (optionalExistingAssociation.isPresent()) {  // if there's already an old association for the requested rubric that was deactivated previously, reuse it
-                    optionalExistingAssociation.get().setActive(true);
-                    return Optional.of(associationRepository.save(optionalExistingAssociation.get()));
+                    return Optional.of(reactivateRubricAssociation(optionalExistingAssociation.get()));
                 }
                 Optional<ToolItemRubricAssociation> newAssociation = createToolItemRubricAssociation(toolId, toolItemId, params, requestedRubricId);
                 if (newAssociation.isPresent()) {
@@ -1286,10 +1299,27 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         return Optional.empty();
     }
 
+    private ToolItemRubricAssociation reactivateRubricAssociation(ToolItemRubricAssociation association) {
+
+        Rubric rubric = association.getRubric();
+        if (Boolean.TRUE.equals(rubric.getDraft())) {
+            throw new RubricsConflictException("Rubric " + rubric.getId() + " must be published before it can be linked again");
+        }
+        lockRubricVersion(rubric);
+        association.setActive(true);
+        return associationRepository.save(association);
+    }
+
+    private void lockRubricVersion(Rubric rubric) {
+        // Association writes change the child only, so participate in the rubric's version check.
+        sessionFactory.getCurrentSession().lock(rubric, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+    }
+
     private Optional<ToolItemRubricAssociation> createToolItemRubricAssociation(String toolId, String toolItemId, Map<String, String> params, Long requestedRubricId) {
         log.debug("Creating new association for rubric [{}], tool [{}], item[{}]", requestedRubricId, toolId, toolItemId);
         Optional<Rubric> rubric = rubricRepository.findById(requestedRubricId);
         if (rubric.isPresent()) {
+            lockRubricVersion(rubric.get());
             ToolItemRubricAssociation newAssociation = new ToolItemRubricAssociation();
             newAssociation.setRubric(rubric.get());
             newAssociation.setToolId(toolId);
