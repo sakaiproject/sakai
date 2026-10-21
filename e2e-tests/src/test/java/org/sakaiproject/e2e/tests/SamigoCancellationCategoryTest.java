@@ -166,7 +166,7 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         deleteAttempt.click();
         assertThat(scores).isVisible();
         assertThat(deleteAttempt).hasCount(0);
-        page.reload();
+        page.navigate(page.url());
         assertThat(scores).isVisible();
         assertThat(deleteAttempt).hasCount(0);
     }
