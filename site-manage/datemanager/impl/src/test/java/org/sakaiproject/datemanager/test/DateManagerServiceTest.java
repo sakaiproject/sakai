@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.datemanager.test;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +27,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -43,6 +45,7 @@ import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.calendar.api.Calendar;
@@ -76,6 +79,8 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -140,7 +145,15 @@ public class DateManagerServiceTest {
 
         String siteId = UUID.randomUUID().toString();
         toolSession = Mockito.mock(ToolSession.class);
-        when(toolSession.getAttribute(DateManagerService.STATE_SITE_ID)).thenReturn(siteId);
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(DateManagerService.STATE_SITE_ID, siteId);
+        when(toolSession.getAttribute(Mockito.anyString())).thenAnswer(invocation -> attributes.get(invocation.getArgument(0)));
+        Mockito.doAnswer(invocation -> {
+            attributes.put(invocation.getArgument(0), invocation.getArgument(1));
+            return null;
+        }).when(toolSession).setAttribute(Mockito.anyString(), Mockito.any());
+        Mockito.doAnswer(invocation -> attributes.remove(invocation.getArgument(0)))
+                .when(toolSession).removeAttribute(Mockito.anyString());
         when(sessionManager.getCurrentToolSession()).thenReturn(toolSession);
 
         Site site = Mockito.mock(Site.class);
@@ -380,14 +393,22 @@ public class DateManagerServiceTest {
     }
 
     @Test
-    public void testIsChangedForForums() {
+    public void testIsChangedForForums() throws Exception {
         DiscussionForum forum = Mockito.mock(DiscussionForum.class);
         Date openDate = Date.from(LocalDate.parse("2025-05-16").atStartOfDay(ZoneId.systemDefault()).toInstant());
+        when(forum.getAvailabilityRestricted()).thenReturn(true);
         when(forum.getOpenDate()).thenReturn(openDate);
         when(forumManager.getForumByIdWithTopics(123L)).thenReturn(forum);
 
         // No changes
         Assert.assertFalse(dateManagerService.isChanged(DateManagerConstants.COMMON_ID_FORUMS, new String[]{"123", "Title", "2025-05-16", "", "Forum"}));
+
+        Assert.assertTrue(dateManagerService.isChanged(DateManagerConstants.COMMON_ID_FORUMS, new String[]{"123", "Title", "", "", "Forum"}));
+        Assert.assertEquals(1, importCsvRows(DateManagerConstants.COMMON_ID_FORUMS,
+                "id,title,open,close,type", "123,Title,,,Forum Draft").size());
+        when(forum.getAvailabilityRestricted()).thenReturn(false);
+        Assert.assertFalse(dateManagerService.isChanged(DateManagerConstants.COMMON_ID_FORUMS, new String[]{"123", "Title", "", "", "Forum"}));
+        when(forum.getAvailabilityRestricted()).thenReturn(true);
 
         // Change open date
         Assert.assertTrue(dateManagerService.isChanged(DateManagerConstants.COMMON_ID_FORUMS, new String[]{"123", "Title", "2025-05-17", "", "Forum"}));
@@ -409,6 +430,10 @@ public class DateManagerServiceTest {
 
         // No changes
         Assert.assertFalse(dateManagerService.isChanged(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS, new String[]{"annc1", "Title", "2025-05-16", ""}));
+
+        Assert.assertTrue(dateManagerService.isChanged(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS, new String[]{"annc1", "Title", "", ""}));
+        Assert.assertEquals(1, importCsvRows(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS,
+                "id,title,open,due", "annc1,Title,,").size());
 
         // Change release date
         Assert.assertTrue(dateManagerService.isChanged(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS, new String[]{"annc1", "Title", "2025-05-17", ""}));
@@ -432,6 +457,7 @@ public class DateManagerServiceTest {
 
         AssessmentData assessmentData = Mockito.mock(AssessmentData.class);
         when(assessmentData.getAssessmentAccessControl()).thenReturn(control);
+        when(assessmentData.getAssessmentFeedback()).thenReturn(new AssessmentFeedback());
 
         AssessmentFacadeQueriesAPI facadeQueries = persistenceService.getAssessmentFacadeQueries();
         when(facadeQueries.loadAssessment(789L)).thenReturn(assessmentData);
@@ -490,6 +516,8 @@ public class DateManagerServiceTest {
 
         PublishedAssessmentFacade publishedAssessment = Mockito.mock(PublishedAssessmentFacade.class);
         when(publishedAssessment.getAssessmentId()).thenReturn(123L);
+        when(publishedAssessment.getAssessmentAccessControl()).thenReturn(new AssessmentAccessControl());
+        when(publishedAssessment.getAssessmentFeedback()).thenReturn(new AssessmentFeedback());
         when(publishedAssessment.getStartDate()).thenReturn(Date.from(LocalDate.parse("2025-05-16").atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
         PublishedAssessmentFacadeQueriesAPI facadeQueries = persistenceService.getPublishedAssessmentFacadeQueries();
@@ -567,6 +595,176 @@ public class DateManagerServiceTest {
         }
     }
 
+
+    @Test
+    public void csvClearsAssessmentDueAndLateDates() throws Exception {
+        for (boolean published : List.of(false, true)) {
+            AssessmentAccessControl control = setupCsvAssessment(published, AssessmentFeedbackIfc.NO_FEEDBACK);
+            control.setDueDate(Date.from(Instant.parse("2030-06-02T00:00:00Z")));
+            control.setRetractDate(Date.from(Instant.parse("2030-06-03T00:00:00Z")));
+            control.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
+
+            DateManagerValidation validation = importAssessmentRow("900,Assessment,2030-06-01T00:00:00Z,,,,");
+            Assert.assertTrue(validation.getErrors().toString(), validation.getErrors().isEmpty());
+            Assert.assertEquals(1, validation.getUpdates().size());
+            DateManagerUpdate update = validation.getUpdates().get(0);
+            Assert.assertNull(update.getDueDate());
+            Assert.assertNull(update.getAcceptUntilDate());
+            dateManagerService.updateAssessments(validation);
+            Assert.assertNull(control.getDueDate());
+            Assert.assertNull(control.getRetractDate());
+        }
+    }
+
+    @Test
+    public void csvClearsOnlyAssessmentLateDate() throws Exception {
+        for (boolean published : List.of(false, true)) {
+            AssessmentAccessControl control = setupCsvAssessment(published, AssessmentFeedbackIfc.NO_FEEDBACK);
+            control.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
+            control.setDueDate(Date.from(Instant.parse("2030-06-02T00:00:00Z")));
+            control.setRetractDate(Date.from(Instant.parse("2030-06-03T00:00:00Z")));
+            DateManagerValidation validation = importAssessmentRow("900,Assessment,2030-06-01T00:00:00Z,2030-06-02T00:00:00Z,,,");
+            Assert.assertTrue(validation.getErrors().isEmpty());
+            dateManagerService.updateAssessments(validation);
+            Assert.assertEquals(Date.from(Instant.parse("2030-06-02T00:00:00Z")), control.getDueDate());
+            Assert.assertNull(control.getRetractDate());
+        }
+    }
+
+    @Test
+    public void csvSetsAssessmentDueDateWithoutLateDate() throws Exception {
+        for (boolean published : List.of(false, true)) {
+            AssessmentAccessControl control = setupCsvAssessment(published, AssessmentFeedbackIfc.NO_FEEDBACK);
+            DateManagerValidation validation = importAssessmentRow("900,Assessment,2030-06-01T00:00:00Z,2030-06-02T00:00:00Z,,,");
+            Assert.assertTrue(validation.getErrors().toString(), validation.getErrors().isEmpty());
+            Assert.assertEquals(Instant.parse("2030-06-02T00:00:00Z"), validation.getUpdates().get(0).getDueDate());
+            Assert.assertNull(validation.getUpdates().get(0).getAcceptUntilDate());
+            dateManagerService.updateAssessments(validation);
+            Assert.assertEquals(Date.from(Instant.parse("2030-06-02T00:00:00Z")), control.getDueDate());
+            Assert.assertNull(control.getRetractDate());
+        }
+    }
+
+    @Test
+    public void csvClearsOnlyAssessmentFeedbackEnd() throws Exception {
+        for (boolean published : List.of(false, true)) {
+            AssessmentAccessControl control = setupCsvAssessment(published, AssessmentFeedbackIfc.FEEDBACK_BY_DATE);
+            control.setDueDate(Date.from(Instant.parse("2030-06-02T00:00:00Z")));
+            control.setFeedbackDate(Date.from(Instant.parse("2030-06-04T00:00:00Z")));
+            control.setFeedbackEndDate(Date.from(Instant.parse("2030-06-05T00:00:00Z")));
+
+            DateManagerValidation validation = importAssessmentRow("900,Assessment,2030-06-01T00:00:00Z,2030-06-02T00:00:00Z,,2030-06-04T00:00:00Z,");
+            Assert.assertTrue(validation.getErrors().toString(), validation.getErrors().isEmpty());
+            Assert.assertEquals(1, validation.getUpdates().size());
+            Assert.assertNull(validation.getUpdates().get(0).getFeedbackEndDate());
+            dateManagerService.updateAssessments(validation);
+            Assert.assertNull(control.getFeedbackEndDate());
+            Assert.assertEquals(Date.from(Instant.parse("2030-06-04T00:00:00Z")), control.getFeedbackDate());
+        }
+    }
+
+    @Test
+    public void csvDetectsPublishedAssessmentFeedbackStartChange() throws Exception {
+        AssessmentAccessControl control = setupCsvAssessment(true, AssessmentFeedbackIfc.FEEDBACK_BY_DATE);
+        control.setDueDate(Date.from(Instant.parse("2030-06-02T00:00:00Z")));
+        control.setFeedbackDate(Date.from(Instant.parse("2030-06-04T00:00:00Z")));
+        DateManagerValidation validation = importAssessmentRow("900,Assessment,2030-06-01T00:00:00Z,2030-06-02T00:00:00Z,,2030-06-06T00:00:00Z,");
+        Assert.assertTrue(validation.getErrors().toString(), validation.getErrors().isEmpty());
+        Assert.assertEquals(Instant.parse("2030-06-06T00:00:00Z"), validation.getUpdates().get(0).getFeedbackStartDate());
+    }
+
+    @Test
+    public void csvIgnoresUnchangedAssessmentAndInactiveFeedbackDates() throws Exception {
+        for (boolean published : List.of(false, true)) {
+            AssessmentAccessControl control = setupCsvAssessment(published, AssessmentFeedbackIfc.NO_FEEDBACK);
+            control.setFeedbackDate(Date.from(Instant.parse("2030-06-04T00:00:00Z")));
+            control.setFeedbackEndDate(Date.from(Instant.parse("2030-06-05T00:00:00Z")));
+            Assert.assertTrue(importCsvRows(DateManagerConstants.COMMON_ID_ASSESSMENTS,
+                    "id,title,open,due,late,feedbackStart,feedbackEnd", "900,Assessment,2030-06-01T00:00:00Z,,,,").isEmpty());
+        }
+    }
+
+    @Test
+    public void csvStillRejectsLateDateWithoutDueDate() throws Exception {
+        for (boolean published : List.of(false, true)) {
+            setupCsvAssessment(published, AssessmentFeedbackIfc.NO_FEEDBACK);
+            DateManagerValidation validation = importAssessmentRow("900,Assessment,2030-06-01T00:00:00Z,,2030-06-03T00:00:00Z,,");
+            Assert.assertEquals(1, validation.getErrors().size());
+            Assert.assertEquals(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, validation.getErrors().get(0).field);
+            Assert.assertTrue(validation.getUpdates().isEmpty());
+        }
+    }
+
+    @Test
+    public void csvDetectsClearingDiscussionTopicDates() throws Exception {
+        DiscussionTopic topic = Mockito.mock(DiscussionTopic.class);
+        when(topic.getAvailabilityRestricted()).thenReturn(true);
+        when(topic.getOpenDate()).thenReturn(Date.from(Instant.parse("2030-06-01T00:00:00Z")));
+        when(forumManager.getTopicById(false, 901L)).thenReturn(topic);
+        when(forumManager.getTopicById(true, 901L)).thenReturn(topic);
+        Assert.assertEquals(1, importCsvRows(DateManagerConstants.COMMON_ID_FORUMS,
+                "id,title,open,close,type", "901,Topic,,,Topic").size());
+        DateManagerValidation validation = dateManagerService.validateTool(DateManagerConstants.COMMON_ID_FORUMS, 0,
+                new String[]{"901", "Topic", "", "", "Topic"});
+        Assert.assertTrue(validation.getErrors().toString(), validation.getErrors().isEmpty());
+        Assert.assertNull(validation.getUpdates().get(0).getOpenDate());
+        when(topic.getAvailabilityRestricted()).thenReturn(false);
+        Assert.assertTrue(importCsvRows(DateManagerConstants.COMMON_ID_FORUMS,
+                "id,title,open,close,type", "901,Topic,,,Topic").isEmpty());
+    }
+
+    private AssessmentAccessControl setupCsvAssessment(boolean published, Integer feedbackMode) {
+        AssessmentAccessControl control = new AssessmentAccessControl();
+        control.setStartDate(Date.from(Instant.parse("2030-06-01T00:00:00Z")));
+        control.setLateHandling(AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION);
+        AssessmentFeedback feedback = new AssessmentFeedback();
+        feedback.setFeedbackDelivery(feedbackMode);
+        PublishedAssessmentFacadeQueriesAPI publishedQueries = persistenceService.getPublishedAssessmentFacadeQueries();
+        when(publishedQueries.isPublishedAssessmentIdValid(900L)).thenReturn(published);
+        if (published) {
+            PublishedAssessmentFacade assessment = Mockito.mock(PublishedAssessmentFacade.class);
+            when(assessment.getPublishedAssessmentId()).thenReturn(900L);
+            when(assessment.getStartDate()).thenReturn(control.getStartDate());
+            when(assessment.getDueDate()).thenAnswer(invocation -> control.getDueDate());
+            when(assessment.getRetractDate()).thenAnswer(invocation -> control.getRetractDate());
+            when(assessment.getAssessmentAccessControl()).thenReturn(control);
+            when(assessment.getAssessmentFeedback()).thenReturn(feedback);
+            when(publishedQueries.getPublishedAssessment(900L)).thenReturn(assessment);
+        } else {
+            AssessmentData data = new AssessmentData();
+            data.setAssessmentBaseId(900L);
+            data.setAssessmentAccessControl(control);
+            data.setAssessmentFeedback(feedback);
+            AssessmentFacade assessment = new AssessmentFacade();
+            // Initialize the facade's backing data before using its setters.
+            assessment.getAssessmentAccessControl();
+            assessment.setAssessmentBaseId(900L);
+            assessment.setAssessmentAccessControl(control);
+            assessment.setAssessmentFeedback(feedback);
+            when(persistenceService.getAssessmentFacadeQueries().loadAssessment(900L)).thenReturn(data);
+            when(persistenceService.getAssessmentFacadeQueries().getAssessment(900L)).thenReturn(assessment);
+        }
+        for (String value : List.of("2030-06-01T00:00:00Z", "2030-06-02T00:00:00Z", "2030-06-03T00:00:00Z",
+                "2030-06-04T00:00:00Z", "2030-06-06T00:00:00Z")) {
+            when(userTimeService.parseISODateInUserTimezone(value)).thenReturn(Date.from(Instant.parse(value)));
+        }
+        return control;
+    }
+
+    private DateManagerValidation importAssessmentRow(String row) throws Exception {
+        Assert.assertEquals(1, importCsvRows(DateManagerConstants.COMMON_ID_ASSESSMENTS,
+                "id,title,open,due,late,feedbackStart,feedbackEnd", row).size());
+        List<DateManagerService.ToolImportData> selectedRows = dateManagerService.getToolsToImport();
+        Assert.assertEquals(1, selectedRows.size());
+        DateManagerService.ToolImportData selected = selectedRows.get(0);
+        return dateManagerService.validateTool(selected.toolId, selected.index, selected.columns);
+    }
+
+    private List<List<Object>> importCsvRows(String toolId, String header, String row) throws Exception {
+        String csv = "Date Manager\n\n" + toolId + "(Tool)\n" + header + "\n" + row + "\n";
+        return dateManagerService.importCsvData(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)),
+                toolSession.getAttribute(DateManagerService.STATE_SITE_ID).toString());
+    }
 
     private static String readFileAsString(String filePath) {
         Resource resource = new ClassPathResource(filePath);

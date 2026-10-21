@@ -1842,14 +1842,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 			JSONObject assessmentJsonObject = this.createJsonObject(columnsNames[1], columns, idx);
 			assessmentJsonObject.put("due_date_label", columns[3] != null? columns[3].replaceAll("\"", "") : "");
 			assessmentJsonObject.put("accept_until_label", columns[4] != null? columns[4].replaceAll("\"", "") : "");
-			if (StringUtils.isBlank((String)assessmentJsonObject.get("due_date"))) {
-				assessmentJsonObject.remove("due_date");
-				assessmentJsonObject.put("due_date", ZonedDateTime.now().toString());
-			}
-			if (StringUtils.isBlank((String)assessmentJsonObject.get("accept_until"))) {
-				assessmentJsonObject.remove("accept_until");
-				assessmentJsonObject.put("accept_until", ZonedDateTime.now().toString());
-			}
 			if (pubAssessmentServiceQueries.isPublishedAssessmentIdValid(Long.parseLong(id))) {
 				PublishedAssessmentFacade pubAssessment = pubAssessmentServiceQueries.getPublishedAssessment(Long.parseLong(id));
 				assessmentJsonObject.put("is_draft", false);
@@ -2056,7 +2048,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 				boolean startChanged = this.compareDates(pubAssessment.getStartDate(), startCsv);
 				boolean dueChanged = this.compareDates(pubAssessment.getDueDate(), (columns.length > 3? columns[3] : ""));
 				boolean retractChanged = this.compareDates(pubAssessment.getRetractDate(), (columns.length > 4? columns[4] : ""));
-				changed = startChanged || dueChanged || retractChanged;
+				AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
+				boolean feedbackByDate = AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(pubAssessment.getAssessmentFeedback().getFeedbackDelivery());
+				boolean feedbackStartChanged = feedbackByDate && this.compareDates(control.getFeedbackDate(), (columns.length > 5 ? columns[5] : ""));
+				boolean feedbackEndChanged = feedbackByDate && this.compareDates(control.getFeedbackEndDate(), (columns.length > 6 ? columns[6] : ""));
+				changed = startChanged || dueChanged || retractChanged || feedbackStartChanged || feedbackEndChanged;
 				
 				log.debug("Published Assessment '{}' change details: start={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), retract={} (DB: '{}' vs CSV: '{}')", 
 					id, startChanged, this.formatToUserDateFormat(pubAssessment.getStartDate()), startCsv,
@@ -2069,8 +2065,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 				boolean startChanged = this.compareDates(control.getStartDate(), startCsv);
 				boolean dueChanged = this.compareDates(control.getDueDate(), (columns.length > 3? columns[3] : ""));
 				boolean retractChanged = this.compareDates(control.getRetractDate(), (columns.length > 4? columns[4] : ""));
-				boolean feedbackStartChanged = this.compareDates(control.getFeedbackDate(), (columns.length > 5? columns[5] : ""));
-				boolean feedbackEndChanged = this.compareDates(control.getFeedbackEndDate(), (columns.length > 6? columns[6] : ""));
+				boolean feedbackByDate = AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assesmentData.getAssessmentFeedback().getFeedbackDelivery());
+				boolean feedbackStartChanged = feedbackByDate && this.compareDates(control.getFeedbackDate(), (columns.length > 5 ? columns[5] : ""));
+				boolean feedbackEndChanged = feedbackByDate && this.compareDates(control.getFeedbackEndDate(), (columns.length > 6 ? columns[6] : ""));
 				changed = startChanged || dueChanged || retractChanged || feedbackStartChanged || feedbackEndChanged;
 				
 				log.debug("Draft Assessment '{}' change details: start={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), retract={} (DB: '{}' vs CSV: '{}'), feedbackStart={} (DB: '{}' vs CSV: '{}'), feedbackEnd={} (DB: '{}' vs CSV: '{}')", 
@@ -2131,17 +2128,18 @@ public class DateManagerServiceImpl implements DateManagerService {
 				log.error("Cannot identify the tool Content received", ex);
 			}
 		} else if (DateManagerConstants.COMMON_ID_FORUMS.equals(toolId.replaceAll("\"", ""))) {
-			if (columns[4].replaceAll("\"", "").equals(resourceLoader.getString("itemtype.forum"))) {
+			String forumType = StringUtils.defaultString(resourceLoader.getString("itemtype.forum"));
+			if (StringUtils.startsWith(StringUtils.trimToEmpty(columns[4].replaceAll("\"", "")), forumType)) {
 				DiscussionForum forum = (DiscussionForum) forumManager.getForumByIdWithTopics(Long.parseLong(id));
 				
-				changed = this.compareDates(forum.getOpenDate(), columns[2])
-						|| this.compareDates(forum.getCloseDate(), columns[3]);
+				changed = this.compareDates(forum.getAvailabilityRestricted() ? forum.getOpenDate() : null, columns[2])
+						|| this.compareDates(forum.getAvailabilityRestricted() ? forum.getCloseDate() : null, columns[3]);
 			} else {
 				Topic topic = forumManager.getTopicById(false, Long.parseLong(id));
 				topic = (topic!=null)? forumManager.getTopicById(true, Long.parseLong(id)) : topic;
 
-				changed = this.compareDates(topic.getOpenDate(), columns[2])
-						|| this.compareDates(topic.getCloseDate(), columns[3]);
+				changed = this.compareDates(topic.getAvailabilityRestricted() ? topic.getOpenDate() : null, columns[2])
+						|| this.compareDates(topic.getAvailabilityRestricted() ? topic.getCloseDate() : null, columns[3]);
 			}
 		} else if (DateManagerConstants.COMMON_ID_ANNOUNCEMENTS.equals(toolId.replaceAll("\"", ""))) {
 			try {
@@ -2217,9 +2215,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				isDifferent = true;
 			}
 		} else if (date != null) {
-			// CSV has empty/blank date but DB has a date - treat as unchanged
-			// This handles cases where the CSV export intentionally omits certain dates
-			isDifferent = false;
+			isDifferent = true; // Clear an existing date, just as the Date Manager UI does.
 		}
 		return isDifferent;
 	}
