@@ -16,6 +16,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.samlite;
 
 import javax.faces.event.ActionEvent;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,10 @@ public class AssessmentListener implements ActionListener {
 	public AssessmentListener() {}
 	
 	public void processAction(ActionEvent ae) {
+		AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		if (!authorization.isUserAllowedToCreateAssessment()) {
+			throw new SecurityException("Assessment creation requires assessment.createAssessment");
+		}
 		SamLiteBean samLiteBean = (SamLiteBean) ContextUtil.lookupBean("samLiteBean");
 		
 		Document doc = samLiteBean.createDocument();

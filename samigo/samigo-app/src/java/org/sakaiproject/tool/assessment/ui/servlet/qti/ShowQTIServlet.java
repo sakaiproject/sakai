@@ -72,6 +72,20 @@ public class ShowQTIServlet extends HttpServlet
   public void doPost(HttpServletRequest req, HttpServletResponse res) throws
     ServletException, IOException
   {
+    if (org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement() == null) {
+      res.sendError(HttpServletResponse.SC_FORBIDDEN);
+      return;
+    }
+    String siteId = org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getContext();
+    org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean authorization =
+        (org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean)
+        ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
+    authorization.addAllPrivilege(siteId);
+    if (!org.sakaiproject.tool.assessment.ui.security.SamigoJsfViewAccess.isAllowed(
+        "/jsf/qti/xmlDisplay.jsp", permission -> Boolean.TRUE.equals(authorization.getAuthzMap().get(permission + "_" + siteId)))) {
+      res.sendError(HttpServletResponse.SC_FORBIDDEN);
+      return;
+    }
     XMLDisplay xmlDisp = (XMLDisplay)
       ContextUtil.lookupBeanFromExternalServlet("xml", req, res);
     String xml = xmlDisp.getXml();

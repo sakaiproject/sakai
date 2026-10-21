@@ -80,6 +80,13 @@ public class ExportMarkupTextServlet extends HttpServlet {
 
 		//update random question pools (if any) before exporting
 		AssessmentService assessmentService = new AssessmentService();
+        if (StringUtils.isBlank(assessmentId)
+                || !canExport(req, res, getAgentString(req, res),
+                    assessmentService.getAssessmentSiteId(assessmentId),
+                    assessmentService.getAssessmentCreatedBy(assessmentId))) {
+            res.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 		AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
 		int success = assessmentService.updateAllRandomPoolQuestions(assessment);
 		if(success == AssessmentService.UPDATE_SUCCESS){

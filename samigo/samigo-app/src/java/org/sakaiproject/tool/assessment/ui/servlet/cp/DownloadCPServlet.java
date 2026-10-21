@@ -39,6 +39,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.contentpackaging.ManifestGenerator;
@@ -82,6 +83,13 @@ public class DownloadCPServlet extends HttpServlet {
 
 		//update random question pools (if any) before exporting
 		AssessmentService assessmentService = new AssessmentService();
+        if (StringUtils.isBlank(assessmentId)
+                || !canExport(req, res, getAgentString(req, res),
+                    assessmentService.getAssessmentSiteId(assessmentId),
+                    assessmentService.getAssessmentCreatedBy(assessmentId))) {
+            res.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 		int success = assessmentService.updateAllRandomPoolQuestions(assessmentService.getAssessment(assessmentId));
 		if(success == AssessmentService.UPDATE_SUCCESS){
 			String agentIdString = getAgentString(req, res);
