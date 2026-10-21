@@ -464,13 +464,6 @@ import lombok.extern.slf4j.Slf4j;
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
-    @Override
-    public SearchResponse searchResponse(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
-        Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
-        return result.getLeft();
-    }
-
     SearchResponse search(String searchTerms, List<String> siteIds, List<String> toolIds, int start, int end, List<String> references,String indexBuilderName) throws InvalidSearchQueryException {
         return search(searchTerms, indexBuilderName, siteIds, toolIds, start, end, null, null, references).getLeft();
     }

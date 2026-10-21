@@ -479,6 +479,19 @@
         <property name="publishedItemContentProducer"><ref bean="org.sakaiproject.samigo.search.PublishedItemContentProducer"/></property>
     </bean>
 
+    <bean id="org.sakaiproject.samigo.api.search.QuestionSearchService"
+          class="org.sakaiproject.samigo.search.QuestionSearchServiceImpl">
+        <property name="questionIndexBuilder" ref="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="assessmentService">
+            <bean class="org.sakaiproject.tool.assessment.services.assessment.AssessmentService">
+                <constructor-arg ref="org.sakaiproject.grading.api.GradingService"/>
+                <constructor-arg ref="org.sakaiproject.authz.api.SecurityService"/>
+            </bean>
+        </property>
+    </bean>
+
     <bean id="org.sakaiproject.tool.assessment.elfinder.AssessmentToolFsVolumeFactory"
           class="org.sakaiproject.tool.assessment.elfinder.AssessmentToolFsVolumeFactory"
           init-method="init">

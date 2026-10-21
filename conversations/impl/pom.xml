@@ -181,12 +181,6 @@
       <artifactId>archive-api</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.opensearch</groupId>
-      <artifactId>opensearch</artifactId>
-      <version>${sakai.opensearch.version}</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>

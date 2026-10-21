@@ -114,6 +114,19 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     protected boolean useAggregation = true;
     protected static final String AGGREGATION_NAME = "dedup";
     protected static final String AGGREGATION_TOP_HITS = "dedup_docs";
+
+    // Keys of the additionalSearchInformation map understood by addSearchTerms
+    static final String PARAM_SCOPE = "scope";
+    static final String PARAM_SUBTYPE = "subtype";
+    static final String PARAM_GROUP = "group";
+    static final String PARAM_LOGIC = "logic";
+    static final String PARAM_TAG_PREFIX = "tag_";
+    static final String PARAM_HASH = "hash";
+    static final String PARAM_QUESTION_ID = "questionId";
+    static final String SCOPE_OWN = "own";
+    static final String LOGIC_AND = "and";
+    static final String LOGIC_OR = "or";
+    static final String FIELD_HASH = "hash";
     private final Set<String> pendingAssessmentDeletes = Collections.synchronizedSet(new HashSet<>());
 
     /**
@@ -909,7 +922,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
     protected SearchRequest newSearchRequestAndQueryBuilders(String searchTerms, List<String> references, List<String> siteIds) {
-        SearchRequest searchRequest = new SearchRequest();
+        SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.source().query(boolQuery());
         return searchRequest;
     }
@@ -953,7 +966,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
         final BoolQueryBuilder query = (BoolQueryBuilder) searchRequest.source().query();
         if (StringUtils.isNotEmpty(searchTerms)) {
-            if (additionalSearchInformation.containsKey("logic") && additionalSearchInformation.get("logic").equals("and")) {
+            if (additionalSearchInformation.containsKey(PARAM_LOGIC) && additionalSearchInformation.get(PARAM_LOGIC).equals(LOGIC_AND)) {
                 query.must(queryStringQuery(searchTerms).defaultField("contents").defaultOperator(Operator.AND));
             } else {
                 query.must(queryStringQuery(searchTerms).defaultField("contents").defaultOperator(Operator.OR));
@@ -961,10 +974,10 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         }
 
         final BoolQueryBuilder tagsQuery = boolQuery();
-        final boolean logicalOr = "or".equals(additionalSearchInformation.get("logic")) ? true : false;
+        final boolean logicalOr = LOGIC_OR.equals(additionalSearchInformation.get(PARAM_LOGIC)) ? true : false;
 
         // the tags are in the form of tag_1 / tag value, tag_2..., tag_n...
-        additionalSearchInformation.keySet().stream().filter(k -> k.startsWith("tag_")).forEach(k -> {
+        additionalSearchInformation.keySet().stream().filter(k -> k.startsWith(PARAM_TAG_PREFIX)).forEach(k -> {
             String tag = additionalSearchInformation.get(k);
             log.debug("search tag: {}", tag);
             if (logicalOr) {
@@ -982,14 +995,19 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             query.must(tagsQuery);
         }
 
-        if (additionalSearchInformation.containsKey("subtype")) {
-            log.debug("We will search this subtype: {}", additionalSearchInformation.get("subtype"));
-            query.must(matchQuery("subtype", additionalSearchInformation.get("subtype")));
+        if (additionalSearchInformation.containsKey(PARAM_SUBTYPE)) {
+            log.debug("We will search this subtype: {}", additionalSearchInformation.get(PARAM_SUBTYPE));
+            query.must(matchQuery("subtype", additionalSearchInformation.get(PARAM_SUBTYPE)));
         }
 
-        if (additionalSearchInformation.containsKey("hash")) {
-            log.debug("We will search this hash: {}", additionalSearchInformation.get("hash"));
-            query.must(matchQuery("hash", additionalSearchInformation.get("hash")));
+        if (additionalSearchInformation.containsKey(PARAM_HASH)) {
+            log.debug("We will search this hash: {}", additionalSearchInformation.get(PARAM_HASH));
+            query.must(matchQuery("hash", additionalSearchInformation.get(PARAM_HASH)));
+        }
+
+        if (additionalSearchInformation.containsKey(PARAM_QUESTION_ID)) {
+            log.debug("We will search this question: {}", additionalSearchInformation.get(PARAM_QUESTION_ID));
+            query.must(termQuery("questionId", additionalSearchInformation.get(PARAM_QUESTION_ID)));
         }
 
         // the scope of the search in the advancedSearchInformation Map...
@@ -997,11 +1015,11 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         // scope "owns" or no scope = all their sites as instructor and qpools with permissions (That's the default value)
         // scope "custom" = filter all the site_1, site_2, site_3 and qp_1,qp2,qp3....
 
-        if (additionalSearchInformation.containsKey("scope")) {
-            if (additionalSearchInformation.get("scope").equals("all")) {
+        if (additionalSearchInformation.containsKey(PARAM_SCOPE)) {
+            if (additionalSearchInformation.get(PARAM_SCOPE).equals("all")) {
                 // do nothing here
                 log.debug("we won't filter the results by scope");
-            } else if (additionalSearchInformation.get("scope").equals("custom")) {
+            } else if (additionalSearchInformation.get(PARAM_SCOPE).equals("custom")) {
                 log.debug("We have a custom scope request");
                 Set<String> keysForACL = additionalSearchInformation.keySet();
                 Iterator<String> keysForACLIterator = keysForACL.iterator();
@@ -1039,11 +1057,11 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             }
 
             // aggregations will have a key "group" with the field on it.
-            if (additionalSearchInformation.containsKey("group")) {
-                log.debug("We are going to group results by: {}", additionalSearchInformation.get("group"));
+            if (additionalSearchInformation.containsKey(PARAM_GROUP)) {
+                log.debug("We are going to group results by: {}", additionalSearchInformation.get(PARAM_GROUP));
                 // need aggregation, don't need normal results.
                 searchRequest.source().size(0);
-                addSearchAggregation(searchRequest, additionalSearchInformation.get("group"));
+                addSearchAggregation(searchRequest, additionalSearchInformation.get(PARAM_GROUP));
             }
         }
     }

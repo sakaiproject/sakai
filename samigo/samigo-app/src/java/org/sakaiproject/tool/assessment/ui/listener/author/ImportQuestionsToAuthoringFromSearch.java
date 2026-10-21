@@ -263,14 +263,7 @@ public class ImportQuestionsToAuthoringFromSearch extends SpringBeanAutowiringSu
 
           searchQuestionBean.setOutcome("editAssessment");
         }
-        //reset the list of results
-        String[] emptyArr = {};
-        searchQuestionBean.setDestItems(emptyArr);
-        searchQuestionBean.setTextToSearch("");
-        searchQuestionBean.setTagToSearch(null);
-        searchQuestionBean.setTagToSearchLabel("");
-        searchQuestionBean.setResults(null);
-        searchQuestionBean.setResultsSize(0);
+        searchQuestionBean.clearSearch();
 
       } else {
         // nothing is checked

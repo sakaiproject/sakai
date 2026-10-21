@@ -163,6 +163,16 @@
             <artifactId>mockito-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.tags</groupId>
+            <artifactId>tags-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
             <scope>test</scope>
