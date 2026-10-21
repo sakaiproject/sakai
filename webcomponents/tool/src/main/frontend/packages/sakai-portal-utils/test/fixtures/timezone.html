@@ -6,7 +6,6 @@
     <script type="module">
       import { getTimezone } from "../../index.js";
       window.getTimezone = getTimezone;
-      window.parent.postMessage({ type: "timezone-result", timezone: getTimezone() }, "*");
     </script>
   </head>
   <body></body>

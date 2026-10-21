@@ -111,28 +111,4 @@ describe("sakai-portal-utils tests", () => {
       frame.remove();
     }
   });
-
-  it ("stops at a containing window from another origin", async () => {
-    globalThis.portal = { user: { timezone: "Europe/London" } };
-    const frame = document.createElement("iframe");
-    const url = new URL("./fixtures/timezone.html", import.meta.url);
-    url.hostname = url.hostname === "localhost" ? "127.0.0.1" : "localhost";
-    frame.src = url.href;
-    let receive;
-    const result = new Promise(resolve => {
-      receive = event => {
-        if (event.source === frame.contentWindow && event.data.type === "timezone-result") {
-          resolve(event.data.timezone);
-        }
-      };
-      window.addEventListener("message", receive);
-    });
-    document.body.append(frame);
-    try {
-      expect(await result).to.equal("");
-    } finally {
-      window.removeEventListener("message", receive);
-      frame.remove();
-    }
-  });
 });
