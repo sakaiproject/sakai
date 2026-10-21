@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
+import java.security.SecureRandom;
+import java.util.Base64;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -294,11 +295,9 @@ public class MainController {
     }
 
     private String getRandPass() {
-            // set password to a random positive number
-            Random generator = new Random(System.currentTimeMillis());
-            Integer num = generator.nextInt(Integer.MAX_VALUE);
-            if (num < 0) num = num * -1;
-            return num.toString();
+        byte[] passwordBytes = new byte[24];
+        new SecureRandom().nextBytes(passwordBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(passwordBytes);
     }
 
     private String getFormattedMinutes(int totalMinutes) {
