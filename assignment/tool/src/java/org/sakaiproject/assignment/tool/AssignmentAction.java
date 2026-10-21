@@ -6046,7 +6046,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
         context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
         context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null ? (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY) : Boolean.FALSE);
-        Collection groups = getAllGroupsInSite(contextString);
+        Collection<Group> groups = getCurrentUserGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
 
@@ -14176,6 +14176,17 @@ public class AssignmentAction extends PagedResourceActionII {
             log.warn("Problem getting groups for site: {}, {}", contextString, e.getMessage());
         }
         return groups;
+    }
+
+    private Collection<Group> getCurrentUserGroupsInSite(String contextString) {
+        try {
+            Site site = siteService.getSite(contextString);
+            return assignmentService.allowAllGroups(contextString)
+                    ? site.getGroups() : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+        } catch (IdUnusedException e) {
+            log.warn("Cannot get groups for site {}", contextString, e);
+            return Collections.emptyList();
+        }
     }
 
     /**

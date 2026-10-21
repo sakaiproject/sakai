@@ -70,6 +70,10 @@ class AssignmentTeachingAssistantTest extends SakaiUiTestBase {
         assertThat(studentLink(STUDENT)).isVisible();
         assertThat(studentLink(OTHER_STUDENT)).isVisible();
         assertThat(studentLink(TA)).hasCount(0);
+        assertThat(page.locator("select[name=\"viewgroup\"] option")
+            .filter(new Locator.FilterOptions().setHasText(TA_GROUP))).hasCount(1);
+        assertThat(page.locator("select[name=\"viewgroup\"] option")
+            .filter(new Locator.FilterOptions().setHasText(OTHER_GROUP))).hasCount(1);
 
         openStudentList(siteUrl, TA);
         assertThat(studentLink(STUDENT)).isVisible();
