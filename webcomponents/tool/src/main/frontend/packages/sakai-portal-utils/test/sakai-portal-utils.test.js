@@ -1,5 +1,5 @@
 import { getOffsetFromServerMillis, getUserId, getUserLocale, getTimezone } from '../index.js';
-import { expect, oneEvent } from '@open-wc/testing';
+import { expect, oneEvent } from "@open-wc/testing";
 
 describe("sakai-portal-utils tests", () => {
 
