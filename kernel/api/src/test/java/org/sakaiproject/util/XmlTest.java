@@ -32,6 +32,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 public class XmlTest {
 
     private static final String TEST_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -94,6 +96,30 @@ public class XmlTest {
     }
 
     @Test
+    public void testCreateSecureDocumentBuilderFactory() throws Exception {
+        DocumentBuilderFactory factory = Xml.createSecureDocumentBuilderFactory();
+
+        assertNotNull("Secure document builder factory should not be null", factory);
+        assertTrue("Secure document builder factory should be namespace aware", factory.isNamespaceAware());
+        assertFalse("Secure document builder factory should not expand entity references", factory.isExpandEntityReferences());
+        assertFalse("Secure document builder factory should not be validating", factory.isValidating());
+        assertFalse("Secure document builder factory should not support XInclude", factory.isXIncludeAware());
+
+        String xml = "<root xmlns=\"urn:test\"><child>value</child></root>";
+        Document document = factory.newDocumentBuilder().parse(toInputStream(xml));
+
+        assertEquals("Namespace should be preserved", "urn:test", document.getDocumentElement().getNamespaceURI());
+    }
+
+    @Test(expected = SAXException.class)
+    public void testSecureDocumentBuilderFactoryRejectsDoctype() throws Exception {
+        DocumentBuilderFactory factory = Xml.createSecureDocumentBuilderFactory();
+        String xml = "<!DOCTYPE root [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><root>&xxe;</root>";
+
+        factory.newDocumentBuilder().parse(toInputStream(xml));
+    }
+
+    @Test
     public void testWriteDocumentToString() {
         Document doc = Xml.readDocumentFromString(TEST_XML);
         String result = Xml.writeDocumentToString(doc);
@@ -141,5 +167,9 @@ public class XmlTest {
         assertNotNull("Node string representation should not be null", result);
         assertTrue("Should contain node type", result.contains("Node Type: Element"));
         assertTrue("Should contain node name", result.contains("Name: root"));
+    }
+
+    private ByteArrayInputStream toInputStream(String xml) {
+        return new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
     }
 }
