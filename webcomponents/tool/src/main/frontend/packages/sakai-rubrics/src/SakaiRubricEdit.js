@@ -69,7 +69,7 @@ export class SakaiRubricEdit extends RubricsElement {
                     class="form-control"
                     type="text"
                     value="${this.rubricClone?.title}"
-                    maxlength="255" autofocus>
+                    maxlength="255" required autofocus>
               </div>
             </div>
             <div class="modal-footer">
@@ -86,7 +86,10 @@ export class SakaiRubricEdit extends RubricsElement {
   _saveEdit(e) {
 
     e.stopPropagation();
-    const title = this.querySelector("input[type='text']").value;
+    const input = this.renderRoot.querySelector("input[type='text']");
+    const title = input.value.trim();
+    input.value = title;
+    if (!input.reportValidity()) return;
     this.dispatchEvent(new CustomEvent("update-rubric-title", { detail: title }));
   }
 

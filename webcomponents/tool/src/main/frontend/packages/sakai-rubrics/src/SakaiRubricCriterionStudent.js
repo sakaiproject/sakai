@@ -120,8 +120,8 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
                 <div class="rubric-grading-points-value">
                   <strong class="points-display">
                     ${this.isOverridden(c.pointoverride, c.selectedvalue)
-                      ? c.pointoverride.toLocaleString(this.locale)
-                      : (c.selectedvalue ?? 0).toLocaleString(this.locale)}
+                      ? c.pointoverride.toLocaleString(this.locale, { maximumSignificantDigits: 21 })
+                      : (c.selectedvalue ?? 0).toLocaleString(this.locale, { maximumSignificantDigits: 21 })}
                   </strong>
                 </div>
               ` : nothing }
@@ -194,7 +194,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
     this.totalPoints = this.criteria.reduce((a, c) => {
 
-      if (c.pointoverride) {
+      if (c.pointoverride !== "" && c.pointoverride !== null && c.pointoverride !== undefined) {
         return a + parseFloat(c.pointoverride);
       } else if (c.selectedvalue) {
         return a + parseFloat(c.selectedvalue);

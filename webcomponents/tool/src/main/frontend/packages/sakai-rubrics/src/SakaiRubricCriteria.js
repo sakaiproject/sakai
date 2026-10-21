@@ -185,6 +185,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (!criterion.ratings) criterion.ratings = [];
 
     criterion.ratings.splice(parseInt(ratingPos), 0, newRating);
+    this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
 
     this.letShareKnow();
     this.requestUpdate();
@@ -259,6 +260,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     this.criteria.push(nc);
     this.criteriaMap.set(nc.id, nc);
+    this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
 
     // Add the criterion to the rubric
     this.requestUpdate();
@@ -549,7 +551,11 @@ export class SakaiRubricCriteria extends RubricsElement {
               <span class="add fa fa-save" aria-hidden="true"></span>
               ${this._i18n.save_weights}
             </button>
-          ` : nothing }
+          ` : html`
+            <div class="rubric-totals mb-3">
+              <span class="fw-bold">${this.tr("total_grade")}</span> ${this.maxPoints}
+            </div>
+          ` }
           <button class="btn-link add-criterion" @click="${this.createCriterion}">
             <span class="add fa fa-plus" aria-hidden="true"></span>
             ${this._i18n.add_criterion}

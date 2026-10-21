@@ -159,7 +159,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
             log.warn("updateRubricAdhoc called without rubric id (siteId={})", siteId);
             return ResponseEntity.badRequest().build();
         }
-        if (bean.getTitle() == null) {
+        if (bean.getTitle() == null || bean.getTitle().isBlank()) {
             log.warn("updateRubricAdhoc called without rubric title (siteId={}, rubricId={})", siteId, rubricId);
             return ResponseEntity.badRequest().build();
         }
@@ -325,6 +325,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
                 RubricTransferBean patchedBean = jsonMapper.treeToValue(patched, RubricTransferBean.class);
                 patchedBean.setVersion(expectedRevision);
                 return ResponseEntity.ok(rubricsService.saveRubric(patchedBean));
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().build();
             } catch (JsonPatchException | JsonProcessingException e) {
                 log.error("Failed to patch rubric", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

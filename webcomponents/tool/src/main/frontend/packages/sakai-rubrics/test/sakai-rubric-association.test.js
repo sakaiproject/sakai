@@ -90,7 +90,7 @@ describe("sakai-rubric-association tests", () => {
     expect(select.disabled).to.be.false;
 
     expect(document.querySelectorAll("#rubric-preview sakai-rubric-student").length).to.equal(1);;
-    const rubricStudent = document.querySelector("#rubric-preview sakai-rubric-student");
+    let rubricStudent = document.querySelector("#rubric-preview sakai-rubric-student");
     expect(rubricStudent).to.exist;
     expect(rubricStudent.hasAttribute("preview")).to.be.false
 
@@ -103,6 +103,7 @@ describe("sakai-rubric-association tests", () => {
 
     await waitUntil(() => document.querySelector("#rubric-preview.show"), "No lightbox displayed", { timeout: 5000 });
     expect(document.querySelector("#rubric-preview.show")).to.exist;
+    rubricStudent = document.querySelector("#rubric-preview sakai-rubric-student");
     expect(rubricStudent.hasAttribute("preview")).to.be.true;
 
     expect(rubricStudent.hasAttribute("rubric-id")).to.be.true;
