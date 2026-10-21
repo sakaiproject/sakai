@@ -61,7 +61,15 @@ import org.apache.commons.math3.util.Precision;
 import org.jsoup.Jsoup;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
@@ -2818,11 +2826,55 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   public void removeAssessmentGradingData(AssessmentGradingData data) {
-	  try {
-		  PersistenceService.getInstance().getAssessmentGradingFacadeQueries().removeAssessmentGradingData(data);
-	  } catch (Exception e) {
-		  log.error("Exception thrown from removeAssessmentGradingData", e);
-	  }
+      try {
+          PersistenceService persistenceService = PersistenceService.getInstance();
+          AssessmentGradingData submission = persistenceService.getAssessmentGradingFacadeQueries().load(data.getAssessmentGradingId(), false);
+          String siteId = AgentFacade.getCurrentSiteId();
+          checkSubmissionRemovalAllowed(submission, siteId);
+          Set<String> evaluatedItemIds = submission.getItemGradingSet().stream()
+                  .map(item -> submission.getAssessmentGradingId() + "." + item.getPublishedItemId())
+                  .collect(Collectors.toSet());
+          ComponentManager.get(RubricsService.class).deleteEvaluationsForToolAndEvaluatedItems(
+                  RubricsConstants.RBCS_TOOL_SAMIGO, evaluatedItemIds, siteId);
+          // Keep the submission available for retry if rubric cleanup fails.
+          persistenceService.getAssessmentGradingFacadeQueries().removeAssessmentGradingData(submission);
+      } catch (RuntimeException e) {
+          log.warn("Could not remove assessment submission {} and its rubric evaluations", data.getAssessmentGradingId(), e);
+          throw e;
+      }
+  }
+
+  private void checkSubmissionRemovalAllowed(AssessmentGradingData submission, String siteId) {
+      String userId = ComponentManager.get(SessionManager.class).getCurrentSessionUserId();
+      PersistenceService persistenceService = PersistenceService.getInstance();
+      if (StringUtils.isBlank(userId) || StringUtils.isBlank(siteId) || submission == null
+              || !siteId.equals(persistenceService.getPublishedAssessmentFacadeQueries()
+                      .getPublishedAssessmentOwner(submission.getPublishedAssessmentId().toString()))) {
+          throw new SecurityException("You must be authorized to remove the assessment submission in this site");
+      }
+      SecurityService securityService = ComponentManager.get(SecurityService.class);
+      SiteService siteService = ComponentManager.get(SiteService.class);
+      String siteRef = siteService.siteReference(siteId);
+      boolean canGrade = securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, siteRef)
+              || (securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_OWN, siteRef)
+                  && userId.equals(persistenceService.getPublishedAssessmentFacadeQueries()
+                          .loadPublishedAssessment(submission.getPublishedAssessmentId()).getCreatedBy()));
+      if (!canGrade) {
+          throw new SecurityException("You must be authorized to grade the assessment");
+      }
+      try {
+          String restrictionKey = "samigo.removeSubmission.restricted";
+          ResourceProperties properties = siteService.getSite(siteId).getProperties();
+          String siteRestriction = properties == null ? "" : StringUtils.trimToEmpty(properties.getProperty(restrictionKey));
+          boolean restricted = siteRestriction.isEmpty()
+                  ? ComponentManager.get(ServerConfigurationService.class).getBoolean(restrictionKey, false)
+                  : Boolean.parseBoolean(siteRestriction);
+          if (restricted && !securityService.unlock("site.upd", siteService.siteReference("!admin"))) {
+              throw new SecurityException("Assessment submission removal is restricted to administrators");
+          }
+      } catch (IdUnusedException e) {
+          throw new IllegalArgumentException("No site for assessment submission " + submission.getAssessmentGradingId(), e);
+      }
   }
 
   public boolean getHasGradingData(Long publishedAssessmentId) {

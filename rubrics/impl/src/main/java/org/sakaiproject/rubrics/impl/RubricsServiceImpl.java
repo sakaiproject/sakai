@@ -960,6 +960,17 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         return evaluations.size() == 1;
     }
 
+    @Override
+    public int deleteEvaluationsForToolAndEvaluatedItems(String toolId, Set<String> evaluatedItemIds, String siteId) {
+
+        if (evaluatedItemIds.isEmpty()) {
+            return 0;
+        }
+        List<Evaluation> evaluations = evaluationRepository.findByToolAndEvaluatedItemIdsAndOwnerId(toolId, evaluatedItemIds, siteId);
+        evaluations.forEach(this::deleteRubricEvaluation);
+        return evaluations.size();
+    }
+
     @Transactional(readOnly = true)
     public List<EvaluationTransferBean> getEvaluationsForToolAndItem(String toolId, String itemId, String siteId) {
 

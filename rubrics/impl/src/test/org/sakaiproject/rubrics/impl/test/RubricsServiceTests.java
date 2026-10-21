@@ -939,6 +939,78 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void deletingEvaluationsPreservesLocksFromOtherSubmissions() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = RubricsConstants.RBCS_TOOL_SAMIGO;
+        String toolItemId = "pub.100.200";
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, toolItemId,
+                Map.of(RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString())).orElseThrow();
+        EvaluationTransferBean first = buildEvaluation(association.getId(), rubric, "10.200");
+        first.setStatus(EvaluationStatus.RETURNED);
+        first = rubricsService.saveEvaluation(first, siteId);
+        EvaluationTransferBean second = buildEvaluation(association.getId(), rubric, "11.200");
+        second.setStatus(EvaluationStatus.RETURNED);
+        second = rubricsService.saveEvaluation(second, siteId);
+
+        assertEquals(1, rubricsService.deleteEvaluationsForToolAndEvaluatedItems(toolId, Set.of("11.200", "missing"), siteId));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertTrue(rubricsService.getRubric(rubric.getId()).orElseThrow().getLocked());
+        assertTrue(rubricsService.getEvaluation(first.getId(), siteId).isPresent());
+        assertFalse(rubricsService.getEvaluation(second.getId(), siteId).isPresent());
+        assertFalse(returnedEvaluationRepository.findByOriginalEvaluationId(second.getId()).isPresent());
+
+        assertEquals(1, rubricsService.deleteEvaluationsForToolAndEvaluatedItems(toolId, Set.of("10.200"), siteId));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertFalse(rubricsService.getRubric(rubric.getId()).orElseThrow().getLocked());
+        assertTrue(rubricsService.getRubricAssociation(toolId, toolItemId).isPresent());
+    }
+
+    @Test
+    public void bulkEvaluationDeletionIsScopedToToolSiteAndExactIds() throws Exception {
+        switchToInstructor();
+        String toolId = RubricsConstants.RBCS_TOOL_SAMIGO;
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        EvaluationTransferBean first = saveToolEvaluation(rubric, toolId, "pub.100.200", "10.200", siteId);
+        EvaluationTransferBean second = saveToolEvaluation(rubric, toolId, "pub.100.201", "10.201", siteId);
+        EvaluationTransferBean otherItem = saveToolEvaluation(rubric, toolId, "pub.100.200", "10.2000", siteId);
+        EvaluationTransferBean otherTool = saveToolEvaluation(rubric, "sakai.assignment", "assignment1", "10.200", siteId);
+        String otherSiteId = "other-site";
+        when(siteService.getSite(otherSiteId)).thenReturn(site);
+        switchToInstructor(otherSiteId);
+        RubricTransferBean otherRubric = rubricsService.createDefaultRubric(otherSiteId);
+        EvaluationTransferBean otherSite = saveToolEvaluation(otherRubric, toolId, "pub.101.200", "10.200", otherSiteId);
+        switchToInstructor();
+
+        assertEquals(2, rubricsService.deleteEvaluationsForToolAndEvaluatedItems(
+                toolId, Set.of("10.200", "10.201", "missing"), siteId));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertFalse(evaluationRepository.findById(first.getId()).isPresent());
+        assertFalse(evaluationRepository.findById(second.getId()).isPresent());
+        assertFalse(returnedEvaluationRepository.findByOriginalEvaluationId(first.getId()).isPresent());
+        assertFalse(returnedEvaluationRepository.findByOriginalEvaluationId(second.getId()).isPresent());
+        assertTrue(evaluationRepository.findById(otherItem.getId()).isPresent());
+        assertTrue(evaluationRepository.findById(otherTool.getId()).isPresent());
+        assertTrue(evaluationRepository.findById(otherSite.getId()).isPresent());
+        assertEquals(0, rubricsService.deleteEvaluationsForToolAndEvaluatedItems(toolId, Set.of(), siteId));
+        assertEquals(0, rubricsService.deleteEvaluationsForToolAndEvaluatedItems(toolId, Set.of("missing"), siteId));
+    }
+
+    @Test
+    public void bulkEvaluationDeletionDoesNotRequireRubricsEvaluatorPermission() {
+        switchToInstructor();
+        String toolId = RubricsConstants.RBCS_TOOL_SAMIGO;
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        EvaluationTransferBean evaluation = saveToolEvaluation(rubric, toolId, "pub.100.200", "10.200", siteId);
+        switchToUser1();
+        assertEquals(1, rubricsService.deleteEvaluationsForToolAndEvaluatedItems(toolId, Set.of("10.200"), siteId));
+        assertFalse(evaluationRepository.findById(evaluation.getId()).isPresent());
+    }
+
+    @Test
     public void anonymousUserCannotSavePeerEvaluation() {
 
         switchToUser1();
@@ -1470,6 +1542,16 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         assertTrue(evaluationRepository.findByAssociationIdAndEvaluatedItemId(association.getId(), toolItemId).isPresent());
         assertTrue(evaluationRepository.findByAssociationIdAndEvaluatedItemIdAndOwner(association.getId(), toolItemId, user2).isPresent());
+    }
+
+    private EvaluationTransferBean saveToolEvaluation(RubricTransferBean rubric, String toolId, String itemId,
+            String evaluatedItemId, String evaluationSiteId) {
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, itemId,
+                Map.of(RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString()), evaluationSiteId)
+                .orElseThrow();
+        EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, evaluatedItemId);
+        evaluation.setStatus(EvaluationStatus.RETURNED);
+        return rubricsService.saveEvaluation(evaluation, evaluationSiteId);
     }
 
     private TransactionTemplate rubricRaceTransactions() {

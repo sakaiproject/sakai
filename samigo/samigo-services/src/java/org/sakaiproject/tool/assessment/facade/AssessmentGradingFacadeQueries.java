@@ -3684,7 +3684,9 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
     public void removeAssessmentGradingData(final AssessmentGradingData data) {
     	data.setStatus(AssessmentGradingData.REMOVED);
     	data.setForGrade(false);
-    	saveOrUpdateAssessmentGrading(data);
+        if (!saveOrUpdateAssessmentGrading(data)) {
+            throw new IllegalStateException("Could not remove assessment submission " + data.getAssessmentGradingId());
+        }
     }
 
     public boolean getHasGradingData(final Long publishedAssessmentId) {
