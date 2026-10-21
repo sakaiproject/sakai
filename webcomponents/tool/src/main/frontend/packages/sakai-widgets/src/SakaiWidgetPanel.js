@@ -264,6 +264,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
   _onDrop(e, targetIndex) {
 
     e.preventDefault();
+    e.stopPropagation();
     const data = e.dataTransfer.getData("text/plain") || "";
     if (data.startsWith("add:")) {
       this._addWidget(data.substring(4), targetIndex);

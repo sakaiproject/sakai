@@ -93,8 +93,7 @@ class DashboardTest extends SakaiUiTestBase {
             com.microsoft.playwright.options.RequestOptions.create()
                 .setHeader("Content-Type", "application/json")
                 .setData(putBody));
-        org.junit.jupiter.api.Assertions.assertTrue(put.ok() || put.status() == 200 || put.status() == 204
-            || put.status() == 0);
+        org.junit.jupiter.api.Assertions.assertTrue(put.ok());
 
         com.microsoft.playwright.APIResponse getAfter = page.request().get("/api/sites/" + siteId + "/dashboard");
         org.junit.jupiter.api.Assertions.assertTrue(getAfter.ok());
@@ -113,21 +112,19 @@ class DashboardTest extends SakaiUiTestBase {
             com.microsoft.playwright.options.RequestOptions.create()
                 .setHeader("Content-Type", "application/json")
                 .setData("{}"));
-        org.junit.jupiter.api.Assertions.assertTrue(clear.ok() || clear.status() == 200 || clear.status() == 204
-            || clear.status() == 0);
+        org.junit.jupiter.api.Assertions.assertTrue(clear.ok());
 
         com.microsoft.playwright.APIResponse save = page.request().put(
             "/api/users/instructor1/dashboard/filters/courses",
             com.microsoft.playwright.options.RequestOptions.create()
                 .setHeader("Content-Type", "application/json")
                 .setData("{\"filter\":\"courses\",\"term\":\"none\",\"sort\":\"alerts_first\",\"density\":\"compact\",\"alertsFirst\":true}"));
-        org.junit.jupiter.api.Assertions.assertTrue(save.ok() || save.status() == 200 || save.status() == 204
-            || save.status() == 0);
+        org.junit.jupiter.api.Assertions.assertTrue(save.ok());
 
         com.microsoft.playwright.APIResponse dashboard = page.request().get("/api/users/instructor1/dashboard");
         org.junit.jupiter.api.Assertions.assertTrue(dashboard.ok());
         String text = dashboard.text();
-        org.junit.jupiter.api.Assertions.assertTrue(text.contains("widgetFilters") || text.contains("alerts_first")
-            || text.contains("compact"));
+        org.junit.jupiter.api.Assertions.assertTrue(text.contains("alerts_first"));
+        org.junit.jupiter.api.Assertions.assertTrue(text.contains("compact"));
     }
 }

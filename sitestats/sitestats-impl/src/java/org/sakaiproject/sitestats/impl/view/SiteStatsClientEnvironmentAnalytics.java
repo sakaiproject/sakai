@@ -220,26 +220,27 @@ public class SiteStatsClientEnvironmentAnalytics {
 		Date from = filterCatalog == null ? null : filterCatalog.periodFrom(request);
 		Date to = filterCatalog == null ? null : filterCatalog.periodTo(request);
 		String cacheKey = periodCacheKey(from, to);
+		purgeExpiredRollups();
 		ClientRollup cached = cachedRollup(cacheKey);
 		if (cached != null) {
 			return cached;
 		}
 		Object lock = loadLocks.computeIfAbsent(cacheKey, key -> new Object());
 		synchronized (lock) {
-			try {
-				cached = cachedRollup(cacheKey);
-				if (cached != null) {
-					return cached;
-				}
-				ClientRollup loaded = loadRollup(from, to);
-				if (!loaded.failed) {
-					rollupCache.put(cacheKey, new CachedClientRollup(loaded));
-				}
-				return loaded;
-			} finally {
-				loadLocks.remove(cacheKey, lock);
+			cached = cachedRollup(cacheKey);
+			if (cached != null) {
+				return cached;
 			}
+			ClientRollup loaded = loadRollup(from, to);
+			if (!loaded.failed) {
+				rollupCache.put(cacheKey, new CachedClientRollup(loaded));
+			}
+			return loaded;
 		}
+	}
+
+	private void purgeExpiredRollups() {
+		rollupCache.entrySet().removeIf(entry -> entry.getValue().expired());
 	}
 
 	private ClientRollup cachedRollup(String cacheKey) {

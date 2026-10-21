@@ -275,13 +275,12 @@ export class SakaiAnnouncements extends SakaiPageableElement {
 
     const visible = (this.dataPage || []).filter(a => a.visible);
 
-    if (visible.length === 0) {
-      return html`<div class="sak-banner-info">${this._i18n.no_announcements}</div>`;
-    }
-
     return html`
       <div class="dashboard-widget-body">
         <div class="dashboard-widget-main ${this.filtersOpen ? "is-blurred" : ""}">
+          ${visible.length === 0 ? html`
+            <div class="sak-banner-info">${this._i18n.no_announcements}</div>
+          ` : html`
           <div class="announcements ${!this.siteId || this.siteId === "home" ? "home" : "course"}">
             <div class="header">
               <a href="javascript:;"
@@ -321,6 +320,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
             </div>
           `)}
           </div>
+          `}
         </div>
         ${this.filtersOpen ? html`
           <div class="dashboard-filter-overlay" @click=${this._closeFilters}>

@@ -262,13 +262,12 @@ export class SakaiGrades extends SakaiPageableElement {
 
   content() {
 
-    if (this.dataPage.length === 0) {
-      return html`<div class="sak-banner-info">${this._i18n.no_grades}</div>`;
-    }
-
     return html`
       <div class="dashboard-widget-body">
         <div class="dashboard-widget-main ${this.filtersOpen ? "is-blurred" : ""}">
+          ${this.dataPage.length === 0 ? html`
+            <div class="sak-banner-info">${this._i18n.no_grades}</div>
+          ` : html`
           <div id="grades" aria-live="polite">
             <div class="header">${this._i18n.course_assignment}</div>
             <div class="header score">${this._i18n.score}</div>
@@ -299,6 +298,7 @@ export class SakaiGrades extends SakaiPageableElement {
             </div>
             `)}
           </div>
+          `}
         </div>
         ${this.filtersOpen ? html`
           <div class="dashboard-filter-overlay" @click=${this._closeFilters}>

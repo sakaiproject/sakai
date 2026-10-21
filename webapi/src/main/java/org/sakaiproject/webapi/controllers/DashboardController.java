@@ -53,6 +53,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -99,6 +100,10 @@ public class DashboardController extends AbstractSakaiApiController implements E
     private static final String PROP_COURSE_LAYOUT_INSTRUCTOR = "dashboard.course.widget.layout.instructor";
     private static final String PROP_HOME_LAYOUT = "dashboard.home.widget.layout";
     private static final String PROP_HOME_LAYOUT_ADMIN = "dashboard.home.widget.layout.admin";
+    private static final int MAX_WIDGET_FILTER_JSON_BYTES = 4096;
+    private static final int MAX_WIDGET_FILTER_DEPTH = 4;
+    private static final TypeReference<Map<String, Map<String, Object>>> WIDGET_FILTERS_TYPE
+            = new TypeReference<Map<String, Map<String, Object>>>() { };
 
     @Autowired
     private AnnouncementService announcementService;
@@ -265,7 +270,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
                 }
                 String filtersJson = props.getProperty(PROP_WIDGET_FILTERS);
                 if (StringUtils.isNotBlank(filtersJson)) {
-                    bean.setWidgetFilters(new ObjectMapper().readValue(filtersJson, Map.class));
+                    bean.setWidgetFilters(parseWidgetFilters(filtersJson));
                 }
             } catch (Exception e) {
                 log.warn("Failed to deserialise user dashboard config: {}", e.toString());
@@ -298,7 +303,12 @@ public class DashboardController extends AbstractSakaiApiController implements E
                 props.removeProperty("layout");
 
                 if (bean.getWidgetFilters() != null) {
-                    props.addProperty(PROP_WIDGET_FILTERS, mapper.writeValueAsString(bean.getWidgetFilters()));
+                    Map<String, Map<String, Object>> validated = sanitizeWidgetFilters(bean.getWidgetFilters());
+                    if (validated.isEmpty()) {
+                        props.removeProperty(PROP_WIDGET_FILTERS);
+                    } else {
+                        props.addProperty(PROP_WIDGET_FILTERS, mapper.writeValueAsString(validated));
+                    }
                 }
 
             } catch (JsonProcessingException jpe) {
@@ -317,7 +327,8 @@ public class DashboardController extends AbstractSakaiApiController implements E
             log.error("You can only update your own user dashboard filters.");
             return;
         }
-        if (StringUtils.isBlank(widgetId)) {
+        if (StringUtils.isBlank(widgetId) || !isKnownWidgetId(widgetId)) {
+            log.warn("Rejected dashboard filter for unknown widget [{}]", widgetId);
             return;
         }
 
@@ -325,15 +336,21 @@ public class DashboardController extends AbstractSakaiApiController implements E
             ResourcePropertiesEdit props = edit.getPropertiesEdit(DASHBOARD_CONFIG);
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                Map<String, Map<String, Object>> filters = new HashMap<>();
-                String existing = props.getProperty(PROP_WIDGET_FILTERS);
-                if (StringUtils.isNotBlank(existing)) {
-                    filters = mapper.readValue(existing, Map.class);
-                }
+                Map<String, Map<String, Object>> filters = parseWidgetFilters(props.getProperty(PROP_WIDGET_FILTERS));
                 if (filter == null || filter.isEmpty()) {
                     filters.remove(widgetId);
                 } else {
-                    filters.put(widgetId, filter);
+                    Map<String, Object> validated = validateWidgetFilter(filter);
+                    if (validated == null) {
+                        log.warn("Rejected malformed dashboard filter for widget [{}]", widgetId);
+                        return;
+                    }
+                    String serialized = mapper.writeValueAsString(validated);
+                    if (serialized.length() > MAX_WIDGET_FILTER_JSON_BYTES) {
+                        log.warn("Rejected oversized dashboard filter for widget [{}]", widgetId);
+                        return;
+                    }
+                    filters.put(widgetId, validated);
                 }
                 if (filters.isEmpty()) {
                     props.removeProperty(PROP_WIDGET_FILTERS);
@@ -403,32 +420,44 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
         try {
             Site site = siteService.getSite(siteId);
+            String siteRef = site.getReference();
             boolean siteEditable = securityService.isSuperUser()
-                    || securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
+                    || securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef);
+            boolean canVisitSite = securityService.isSuperUser()
+                    || securityService.unlock(SiteService.SITE_VISIT, siteRef)
+                    || securityService.unlock(SiteService.SITE_VISIT_UNPUBLISHED, siteRef);
 
             if (siteEditable) {
-                site.setDescription(sanitizeFormattedText(bean.getOverview()));
-                site.setShortDescription(bean.getProgramme());
-                Map<String, Object> config = readSiteDashboardConfig(site);
-                config.put("showImage", bean.getShowImage() == null || Boolean.TRUE.equals(bean.getShowImage()));
-                if (!(config.get("heroWidth") instanceof String)
-                        || StringUtils.isBlank((String) config.get("heroWidth"))) {
-                    config.put("heroWidth", normalizeHeroWidth(
-                            serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, "wide")));
+                try {
+                    site.setDescription(sanitizeFormattedText(bean.getOverview()));
+                    site.setShortDescription(bean.getProgramme());
+                    Map<String, Object> config = readSiteDashboardConfig(site);
+                    config.put("showImage", bean.getShowImage() == null || Boolean.TRUE.equals(bean.getShowImage()));
+                    if (!(config.get("heroWidth") instanceof String)
+                            || StringUtils.isBlank((String) config.get("heroWidth"))) {
+                        config.put("heroWidth", normalizeHeroWidth(
+                                serverConfigurationService.getString(PROP_COURSE_HERO_WIDTH, "wide")));
+                    }
+                    config.remove("widgetLayout");
+                    config.remove("template");
+                    config.remove("overviewW");
+                    config.remove("overviewH");
+                    config.remove("imageW");
+                    config.remove("imageH");
+                    site.getProperties().addProperty(DASHBOARD_CONFIG,
+                            new ObjectMapper().writeValueAsString(config));
+                    siteService.save(site);
+                } catch (Exception e) {
+                    log.warn("Failed to save editable site dashboard properties for site {}: {}", siteId, e.toString());
                 }
-                config.remove("widgetLayout");
-                config.remove("template");
-                config.remove("overviewW");
-                config.remove("overviewH");
-                config.remove("imageW");
-                config.remove("imageH");
-                site.getProperties().addProperty(DASHBOARD_CONFIG,
-                        new ObjectMapper().writeValueAsString(config));
-                siteService.save(site);
             }
 
-            List<DashboardWidgetTile> layout = DashboardLayoutHelper.normalize(bean.getWidgetLayout());
-            saveUserCourseLayout(userId, siteId, layout, normalizeHeroWidth(bean.getHeroWidth()));
+            if (canVisitSite) {
+                List<DashboardWidgetTile> layout = DashboardLayoutHelper.normalize(bean.getWidgetLayout());
+                saveUserCourseLayout(userId, siteId, layout, normalizeHeroWidth(bean.getHeroWidth()));
+            } else {
+                log.warn("Denied course layout save for user [{}] without SITE_VISIT on site [{}]", userId, siteId);
+            }
         } catch (Exception e) {
             log.warn("Failed to save dashboard for site {}: {}", siteId, e.toString());
         }
@@ -551,6 +580,115 @@ public class DashboardController extends AbstractSakaiApiController implements E
         });
     }
 
+    private boolean isKnownWidgetId(String widgetId) {
+
+        if (StringUtils.isBlank(widgetId)) {
+            return false;
+        }
+        if (courseWidgets.contains(widgetId) || homeWidgets.contains(widgetId)) {
+            return true;
+        }
+        if (widgetId.startsWith(SITESTATS_WIDGET_PREFIX)) {
+            return true;
+        }
+        return "courses".equals(widgetId) || "tasks".equals(widgetId)
+                || "announcements".equals(widgetId) || "calendar".equals(widgetId)
+                || "forums".equals(widgetId) || "grades".equals(widgetId);
+    }
+
+    private Map<String, Map<String, Object>> parseWidgetFilters(String filtersJson) {
+
+        if (StringUtils.isBlank(filtersJson)) {
+            return new HashMap<>();
+        }
+        try {
+            Map<String, Map<String, Object>> raw = new ObjectMapper().readValue(filtersJson, WIDGET_FILTERS_TYPE);
+            return sanitizeWidgetFilters(raw);
+        } catch (Exception e) {
+            log.warn("Discarding malformed widgetFilters preference: {}", e.toString());
+            return new HashMap<>();
+        }
+    }
+
+    private Map<String, Map<String, Object>> sanitizeWidgetFilters(Map<String, Map<String, Object>> raw) {
+
+        Map<String, Map<String, Object>> sanitized = new HashMap<>();
+        if (raw == null) {
+            return sanitized;
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        for (Map.Entry<String, Map<String, Object>> entry : raw.entrySet()) {
+            String widgetId = entry.getKey();
+            if (!isKnownWidgetId(widgetId)) {
+                continue;
+            }
+            Map<String, Object> validated = validateWidgetFilter(entry.getValue());
+            if (validated == null) {
+                continue;
+            }
+            try {
+                if (mapper.writeValueAsString(validated).length() > MAX_WIDGET_FILTER_JSON_BYTES) {
+                    continue;
+                }
+            } catch (JsonProcessingException e) {
+                continue;
+            }
+            sanitized.put(widgetId, validated);
+        }
+        return sanitized;
+    }
+
+    private Map<String, Object> validateWidgetFilter(Map<String, Object> filter) {
+
+        if (filter == null || filter.isEmpty()) {
+            return null;
+        }
+        if (!isSupportedFilterValue(filter, 0)) {
+            return null;
+        }
+        Map<String, Object> copy = new HashMap<>();
+        for (Map.Entry<String, Object> entry : filter.entrySet()) {
+            if (StringUtils.isBlank(entry.getKey())) {
+                return null;
+            }
+            copy.put(entry.getKey(), entry.getValue());
+        }
+        return copy;
+    }
+
+    private boolean isSupportedFilterValue(Object value, int depth) {
+
+        if (depth > MAX_WIDGET_FILTER_DEPTH) {
+            return false;
+        }
+        if (value == null || value instanceof String || value instanceof Boolean
+                || value instanceof Number) {
+            return true;
+        }
+        if (value instanceof Map) {
+            Map<?, ?> map = (Map<?, ?>) value;
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                if (!(entry.getKey() instanceof String) || StringUtils.isBlank((String) entry.getKey())) {
+                    return false;
+                }
+                if (!isSupportedFilterValue(entry.getValue(), depth + 1)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        if (value instanceof List) {
+            List<?> list = (List<?>) value;
+            for (Object item : list) {
+                if (!isSupportedFilterValue(item, depth + 1)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     private static String normalizeHeroWidth(String heroWidth) {
         if ("full".equals(heroWidth) || "wide".equals(heroWidth) || "narrow".equals(heroWidth)) {
             return heroWidth;
@@ -663,9 +801,11 @@ public class DashboardController extends AbstractSakaiApiController implements E
             String fromConfig = fromSite.getProperties().getProperty(DASHBOARD_CONFIG);
             Site toSite = siteService.getSite(toContext);
             toSite.setDescription(sanitizeFormattedText(fromSite.getDescription()));
-            Map<String, Object> chrome = siteChromeConfigForCopy(fromConfig);
-            toSite.getProperties().addProperty(DASHBOARD_CONFIG,
-                    new ObjectMapper().writeValueAsString(chrome));
+            if (StringUtils.isNotBlank(fromConfig)) {
+                Map<String, Object> chrome = siteChromeConfigForCopy(fromConfig);
+                toSite.getProperties().addProperty(DASHBOARD_CONFIG,
+                        new ObjectMapper().writeValueAsString(chrome));
+            }
             siteService.save(toSite);
         } catch (IdUnusedException idue) {
             log.error("No site found for {} or {}", fromContext, toContext);

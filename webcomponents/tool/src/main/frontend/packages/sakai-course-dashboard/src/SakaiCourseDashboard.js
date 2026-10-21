@@ -163,9 +163,10 @@ export class SakaiCourseDashboard extends SakaiElement {
       image: this.imageBackup,
     };
     this._updateAvailableWidgetCount();
+    this.newImageBlob = undefined;
     const programmeEl = document.getElementById("course-dashboard-programme");
     if (programmeEl) {
-      programmeEl.innerHTML = this.data.programme;
+      programmeEl.textContent = this.data.programme ?? "";
     }
   }
 
@@ -173,10 +174,13 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     this.editing = !this.editing;
 
-    if (this._siteEditable && this.newImageBlob) {
+    const imageBlob = this.newImageBlob;
+    this.newImageBlob = undefined;
+
+    if (this._siteEditable && imageBlob) {
 
       const fd = new FormData();
-      fd.append("siteImage", this.newImageBlob);
+      fd.append("siteImage", imageBlob);
 
       const imageUrl = `/api/sites/${this.siteId}/image`;
       fetch(imageUrl, {
