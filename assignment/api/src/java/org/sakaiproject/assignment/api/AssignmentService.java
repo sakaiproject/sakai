@@ -346,6 +346,12 @@ public interface AssignmentService extends EntityProducer {
     boolean canReleaseGroupLocks(Assignment assignment);
 
     /**
+     * Whether a submission contains student work or saved grading data, including a zero score.
+     * Empty grading placeholders and inherited resubmission defaults do not count as work.
+     */
+    boolean hasSubmissionWork(AssignmentSubmission submission);
+
+    /**
      * Restore an assignment from Trash. Empty group assignments return as drafts so that
      * instructors can review current groups before publishing. Missing groups are removed.
      */
