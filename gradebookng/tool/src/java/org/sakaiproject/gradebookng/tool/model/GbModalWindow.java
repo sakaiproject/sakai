@@ -26,10 +26,12 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalDialog;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.sakaiproject.portal.util.PortalUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -91,6 +93,7 @@ public class GbModalWindow extends ModalDialog {
 		super.renderHead(response);
 
 		response.render(CSS);
+		response.render(JavaScriptHeaderItem.forUrl("/gradebookng-tool/scripts/gradebook-modal.js" + PortalUtils.getCDNQuery()));
 	}
 
 	@Override

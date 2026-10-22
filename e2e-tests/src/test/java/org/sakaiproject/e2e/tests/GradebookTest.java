@@ -208,15 +208,18 @@ class GradebookTest extends SakaiUiTestBase {
         page.locator(".gb-view-grade-summary").first().press("Enter");
         Locator summary = page.locator(".gb-modal-dialog:visible");
         assertThat(summary).isVisible();
-        summary.locator("tr").filter(new Locator.FilterOptions().setHasText(itemTitle))
-            .locator("sakai-rubric-student-button a").click();
+        Locator rubricLink = summary.locator("tr").filter(new Locator.FilterOptions().setHasText(itemTitle))
+            .locator("sakai-rubric-student-button a");
+        rubricLink.click();
         Locator preview = page.locator("#rubric-preview");
         assertThat(preview).isVisible();
         assertThat(preview.locator("sakai-rubric-student h3")).hasText(rubricTitle);
+        assertThat(summary.locator("xpath=..")).hasAttribute("inert", "");
         // A normal click verifies that the summary overlay does not intercept the rubric.
         preview.locator(".btn-close").click();
         assertThat(preview).isHidden();
         assertThat(summary).isVisible();
+        assertThat(rubricLink).isFocused();
         summary.locator(".gb-summary-close").click();
         assertThat(summary).isHidden();
     }
