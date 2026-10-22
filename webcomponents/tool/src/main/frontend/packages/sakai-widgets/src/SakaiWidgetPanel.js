@@ -52,19 +52,25 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
     loadToolnames().then(r => this._toolnames = r || {});
   }
 
-  disconnectedCallback() {
+  connectedCallback() {
 
-    if (this._onHostResize) {
-      window.removeEventListener("resize", this._onHostResize);
-      this._onHostResize = undefined;
-    }
-    super.disconnectedCallback();
+    super.connectedCallback();
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = new ResizeObserver(entries => {
+      const width = entries[0]?.contentRect?.width;
+      if (typeof width === "number") {
+        this._updateNarrowColumns(width);
+      }
+    });
+    this._resizeObserver.observe(this);
+    this._updateNarrowColumns(this.clientWidth);
   }
 
-  firstUpdated() {
-    this._updateNarrowColumns(this.clientWidth);
-    this._onHostResize = () => this._updateNarrowColumns(this.clientWidth);
-    window.addEventListener("resize", this._onHostResize);
+  disconnectedCallback() {
+
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = undefined;
+    super.disconnectedCallback();
   }
 
   _updateNarrowColumns(width) {
