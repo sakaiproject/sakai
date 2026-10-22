@@ -83,12 +83,25 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     public boolean lockAssignmentAndCheckDeleted(String assignmentId) {
-        return Boolean.TRUE.equals(geCurrentSession().createQuery(
+        return Boolean.TRUE.equals(assignmentDeletionStateForUpdate(assignmentId).getSingleResult());
+    }
+
+    @Override
+    public boolean lockAssignmentForDraftUpdate(String assignmentId) {
+        List<Boolean> states = assignmentDeletionStateForUpdate(assignmentId).getResultList();
+        if (states.isEmpty()) {
+            geCurrentSession().flush();
+            return lockAssignmentAndCheckDeleted(assignmentId);
+        }
+        return Boolean.TRUE.equals(states.get(0));
+    }
+
+    private org.hibernate.query.Query<Boolean> assignmentDeletionStateForUpdate(String assignmentId) {
+        return geCurrentSession().createQuery(
                 "select a.deleted from Assignment a where a.id = :assignmentId", Boolean.class)
                 .setParameter("assignmentId", assignmentId)
                 .setHibernateFlushMode(FlushMode.COMMIT)
-                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                .getSingleResult());
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE);
     }
 
     @Override

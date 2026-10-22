@@ -48,6 +48,9 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     void newAssignment(Assignment assignment);
 
+    /** Lock before flushing existing edits; flush a pending new insert if no row exists. Returns the deleted flag. */
+    boolean lockAssignmentForDraftUpdate(String assignmentId);
+
     void flush();
 
     boolean existsAssignment(String assignmentId);

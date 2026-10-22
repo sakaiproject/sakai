@@ -746,6 +746,119 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void failedGroupLockReleaseRollsBackEveryGroup() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment created = transaction.execute(status -> {
+            try {
+                return createPublishedGroupAssignment();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        String firstReference = created.getGroups().iterator().next();
+        String secondReference = "/site/" + created.getContext() + "/group/second";
+        AuthzGroup first = authzGroupService.getAuthzGroup(firstReference);
+        AuthzGroup second = mock(AuthzGroup.class);
+        when(authzGroupService.getAuthzGroup(secondReference)).thenReturn(second);
+        Group secondGroup = mock(Group.class);
+        when(secondGroup.getProperties()).thenReturn(new BaseResourceProperties());
+        when(siteService.getSite(created.getContext()).getGroup(secondReference)).thenReturn(secondGroup);
+        Assignment assignment = assignmentService.getAssignment(created.getId());
+        assignment.getGroups().add(secondReference);
+        assignmentService.updateAssignment(assignment);
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS ASSIGNMENT_TEST_LOCKS (GROUP_REF VARCHAR(255) PRIMARY KEY, LOCKED BOOLEAN)");
+        jdbcTemplate.update("INSERT INTO ASSIGNMENT_TEST_LOCKS VALUES (?, TRUE)", firstReference);
+        jdbcTemplate.update("INSERT INTO ASSIGNMENT_TEST_LOCKS VALUES (?, TRUE)", secondReference);
+        org.sakaiproject.db.api.SqlService sqlService = applicationContext.getBean(org.sakaiproject.db.api.SqlService.class);
+        java.util.concurrent.atomic.AtomicInteger saves = new java.util.concurrent.atomic.AtomicInteger();
+        Mockito.doAnswer(invocation -> {
+            AuthzGroup group = invocation.getArgument(0);
+            if (saves.incrementAndGet() == 2) {
+                throw new org.sakaiproject.authz.api.AuthzPermissionException("instructor", "authzgroup.upd", secondReference);
+            }
+            sqlService.transact(() -> sqlService.dbWrite("UPDATE ASSIGNMENT_TEST_LOCKS SET LOCKED = FALSE WHERE GROUP_REF = ?",
+                    new Object[] {group == first ? firstReference : secondReference}), "testGroupSave");
+            return null;
+        }).when(authzGroupService).save(Mockito.any(AuthzGroup.class));
+        try {
+            Assert.assertThrows(PermissionException.class, () -> assignmentService.unpublishAssignment(assignment));
+            Assert.assertEquals(2, saves.get());
+            Assert.assertEquals(Integer.valueOf(2), jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM ASSIGNMENT_TEST_LOCKS WHERE GROUP_REF IN (?, ?) AND LOCKED = TRUE",
+                    Integer.class, firstReference, secondReference));
+            Assert.assertFalse(assignmentService.getAssignment(created.getId()).getDraft());
+        } finally {
+            Mockito.doNothing().when(authzGroupService).save(Mockito.any(AuthzGroup.class));
+            try {
+                jdbcTemplate.update("DELETE FROM ASSIGNMENT_TEST_LOCKS WHERE GROUP_REF IN (?, ?)", firstReference, secondReference);
+            } catch (RuntimeException e) {
+                log.warn("Could not clean up test group locks for assignment {}", created.getId(), e);
+            }
+            cleanupAssignmentAfterTest(created.getId());
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void staleDraftUpdateCannotRestoreSoftDeletedAssignment() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment created = transaction.execute(status -> {
+            try {
+                return createGroupAssignment(true);
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        Assignment stale = assignmentService.getAssignment(created.getId());
+        assignmentService.softDeleteAssignment(assignmentService.getAssignment(created.getId()));
+        try {
+            Assert.assertThrows(PermissionException.class, () -> assignmentService.updateAssignment(stale));
+            Assert.assertTrue(assignmentService.getAssignment(created.getId()).getDeleted());
+            Assert.assertFalse(assignmentService.restoreAssignment(created.getId()).getDeleted());
+        } finally {
+            cleanupAssignmentAfterTest(created.getId());
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void staleManagedDraftUpdateCannotFlushOverSoftDeletion() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment created = transaction.execute(status -> {
+            try {
+                return createGroupAssignment(true);
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        try {
+            transaction.executeWithoutResult(status -> {
+                try {
+                    Assignment stale = assignmentService.getAssignment(created.getId());
+                    TransactionTemplate deletion = new TransactionTemplate(transactionManager);
+                    deletion.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+                    deletion.executeWithoutResult(deletionStatus -> {
+                        try {
+                            assignmentService.softDeleteAssignment(assignmentService.getAssignment(created.getId()));
+                        } catch (IdUnusedException | PermissionException e) {
+                            throw new IllegalStateException(e);
+                        }
+                    });
+                    stale.setTitle("Stale editor changes");
+                    Assert.assertThrows(PermissionException.class, () -> assignmentService.updateAssignment(stale));
+                    status.setRollbackOnly();
+                } catch (IdUnusedException | PermissionException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+            Assert.assertTrue(assignmentService.getAssignment(created.getId()).getDeleted());
+        } finally {
+            cleanupAssignmentAfterTest(created.getId());
+        }
+    }
+
+    @Test
     public void newDraftGroupAssignmentCanBeUpdatedBeforeItsInsertIsFlushed() throws Exception {
         Assignment assignment = createGroupAssignment(true);
         Set<String> groups = new HashSet<>(assignment.getGroups());
@@ -808,6 +921,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void unpublishingGroupAssignmentRejectsStaleGradingAfterRemovingPlaceholders() throws Exception {
+        assertUnpublishSerializesSubmissionChanges(false);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void unpublishingGroupAssignmentSerializesSubmissionRemoval() throws Exception {
+        assertUnpublishSerializesSubmissionChanges(true);
+    }
+
+    private void assertUnpublishSerializesSubmissionChanges(boolean remove) throws Exception {
         TransactionTemplate transaction = new TransactionTemplate(transactionManager);
         Assignment created = transaction.execute(status -> {
             try {
@@ -828,6 +951,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         AssignmentSubmission placeholder = assignmentService.addSubmission(created.getId(), groupId);
         String submissionReference = AssignmentReferenceReckoner.reckoner().submission(placeholder).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
 
         CountDownLatch submissionRead = new CountDownLatch(1);
         CountDownLatch releasingLocks = new CountDownLatch(1);
@@ -849,6 +973,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                     submissionRead.countDown();
                     Assert.assertTrue("Draft update did not reach group locks", releasingLocks.await(10, TimeUnit.SECONDS));
                     submissionAttempted.countDown();
+                    if (remove) {
+                        assignmentService.removeSubmission(submission);
+                        return true;
+                    }
                     submission.setFeedbackComment("Feedback from an already-open grading request");
                     try {
                         assignmentService.updateSubmission(submission);
@@ -1378,6 +1506,14 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals(submission.getFeedbackComment(), restoredSubmission.getFeedbackComment());
         verify(group).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
         verify(group, Mockito.never()).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+    }
+
+    private void cleanupAssignmentAfterTest(String assignmentId) {
+        try {
+            assignmentService.deleteAssignment(assignmentService.getAssignment(assignmentId));
+        } catch (Exception e) {
+            log.warn("Could not clean up assignment {} after the test", assignmentId, e);
+        }
     }
 
     private List<Object> submissionWorkSnapshot(AssignmentSubmission submission) {
