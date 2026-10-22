@@ -204,8 +204,10 @@ class GradebookTest extends SakaiUiTestBase {
         dialog.locator("button.gb-create-or-save").click();
         assertThat(dialog).isHidden();
 
-        page.locator(".gb-view-grade-summary").first().click();
+        // Keyboard activation avoids the table moving the link during pointer selection.
+        page.locator(".gb-view-grade-summary").first().press("Enter");
         Locator summary = page.locator(".gb-modal-dialog:visible");
+        assertThat(summary).isVisible();
         summary.locator("tr").filter(new Locator.FilterOptions().setHasText(itemTitle))
             .locator("sakai-rubric-student-button a").click();
         Locator preview = page.locator("#rubric-preview");
