@@ -152,6 +152,8 @@ public final class SamigoConstants {
     public static final String AUTHZ_ASSESSMENT_ALL_GROUPS = "assessment.all.groups";
     public static final String AUTHZ_PERMISSION_PREFIX = "assessment";
 
+    public static final     String      EVENT_GRADEBOOK_DELETE_ITEM                         = "gradebook.deleteItem";
+
     /*
      * Sakai.properties 
      */

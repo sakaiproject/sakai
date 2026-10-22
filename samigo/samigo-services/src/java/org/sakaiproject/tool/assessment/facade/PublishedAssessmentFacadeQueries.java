@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.facade;
 
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.grading.api.GradingService;
+import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -103,6 +104,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachment
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -3721,7 +3723,6 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 		}
 	}
 
-
 	public List<PublishedAssessmentData> getPublishedDeletedAssessments(final String siteAgentId) {
 		try {
 			Session session = sessionFactory.getCurrentSession();
@@ -3783,4 +3784,31 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 			log.warn("Error restoring published assessment with ID {}: {}", publishedAssessmentId, e.toString());
 		}
 	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Long> findPublishedAssessmentIdsLinkedToGradebookItem(String gradebookAssignmentId) {
+		if (StringUtils.isBlank(gradebookAssignmentId)) {
+			return Collections.emptyList();
+		}
+		final String label = AssessmentMetaDataIfc.TO_GRADEBOOK_ID;
+		try {
+			Session session = sessionFactory.getCurrentSession();
+			return session.createQuery(
+					"select distinct m.assessment.publishedAssessmentId from PublishedMetaData m "
+							+ "where m.label = :label and ("
+							+ "m.entry = :id or m.entry like :idComma or m.entry like :commaId or m.entry like :commaIdComma)",
+					Long.class)
+					.setParameter("label", label)
+					.setParameter("id", gradebookAssignmentId)
+					.setParameter("idComma", gradebookAssignmentId + ",%")
+					.setParameter("commaId", "%," + gradebookAssignmentId)
+					.setParameter("commaIdComma", "%," + gradebookAssignmentId + ",%")
+					.list();
+		} catch (Exception e) {
+			log.warn("Error finding published assessments linked to gradebook item {}: {}", gradebookAssignmentId, e.toString());
+			return Collections.emptyList();
+		}
+	}
+
 }

@@ -425,16 +425,16 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
           if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
             String gradebookItemIdString = assessment.getAssessmentToGradebookNameMetaData();
-
-						if (isGradebookGroupEnabled(gradingService)) {
-							if (gradebookItemIdString != null && !StringUtils.isBlank(gradebookItemIdString)) {
+            if (StringUtils.isBlank(gradebookItemIdString)) {
+              log.warn("Skipping score sync for publishedAssessmentId {}: TO_SELECTED with blank TO_GRADEBOOK_ID",
+                  assessment.getPublishedAssessmentId());
+            } else if (isGradebookGroupEnabled(gradingService)) {
                 Long gradebookItemId = gradingService.getMatchingUserGradebookItemId(AgentFacade.getCurrentSiteId(),
                   ag.getAgentId(), gradebookItemIdString);
 
                 if (gradebookItemId != null) {
                   updateExternalAssessmentScore(ag, gradingService, gradebookItemId);
                 }
-							}
 						} else {
 							updateExternalAssessmentScore(ag, gradingService, Long.valueOf(gradebookItemIdString));
 						}

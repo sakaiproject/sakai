@@ -24,6 +24,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.springframework.transaction.annotation.Transactional;
@@ -125,7 +126,13 @@ public class AutoSubmitFacadeQueries implements AutoSubmitFacadeQueriesAPI
 
 		if (autoSubmitCurrent) {
 			GradingService gs = new GradingService();
-			gs.notifyGradebookByScoringType(adata, assessment); // this may throw runtime exceptions triggering a rollback
+			try {
+				gs.notifyGradebookByScoringType(adata, assessment);
+			} catch (GradebookServiceException e) {
+				// Keep the Samigo submission; Gradebook sync can be fixed later from Scores / settings
+				log.error("Gradebook sync failed after autosubmit; submission kept. assessmentGradingId={}, publishedAssessmentId={}",
+						adata.getAssessmentGradingId(), adata.getPublishedAssessmentId(), e);
+			}
 
 			// if we get this far, the processing of this attempt was successful so it is now safe to
 			// update the log and email the student (triggered by the same method)

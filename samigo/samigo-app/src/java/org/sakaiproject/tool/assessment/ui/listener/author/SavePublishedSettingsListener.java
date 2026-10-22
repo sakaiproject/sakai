@@ -97,6 +97,8 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificat
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.GradebookAssociationHelper;
+import org.sakaiproject.tool.assessment.util.GradebookAssociationHelper.SelectedGradebookValidation;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -594,16 +596,13 @@ implements ActionListener
 
 		String[] groupsAuthorized =  assessmentSettings.getGroupsAuthorized();
 
-		List<String> groupList = Arrays.asList(groupsAuthorized);
+		List<String> groupList = groupsAuthorized != null ? Arrays.asList(groupsAuthorized) : new ArrayList<>();
 
 		String siteId = assessmentSettings.getCurrentSiteId();
 		String defaultToGradebook = assessmentSettings.getToDefaultGradebook();
 
-		if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(defaultToGradebook)
-				&& StringUtils.isBlank(assessmentSettings.getGradebookName())) {
+		if (addSelectedGradebookValidationError(context, defaultToGradebook, assessmentSettings.getGradebookName(), siteId, gradingService)) {
 			error = true;
-			String gradebookItemRequired = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "gradebook_item_required");
-			context.addMessage(null, new FacesMessage(gradebookItemRequired));
 		}
 
 		if (defaultToGradebook != null && isGradebookGroupEnabled) {
@@ -614,7 +613,7 @@ implements ActionListener
 					List<String> selectedCategories = Arrays.asList(categorySelected.split(","));
 
 					boolean areCategoriesInGroups =
-						gradingService.checkMultiSelectorList(siteId, groupList != null ? groupList : new ArrayList<>(), selectedCategories, true);
+						gradingService.checkMultiSelectorList(siteId, groupList, selectedCategories, true);
 
 					if (!areCategoriesInGroups) {
 						error = true;
@@ -625,25 +624,42 @@ implements ActionListener
 				}
 			} else if (defaultToGradebook.equals(EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
 				String gradebookName = assessmentSettings.getGradebookName();
-				if (StringUtils.isBlank(gradebookName)) {
-					return error;
-				}
+				if (StringUtils.isNotBlank(gradebookName)) {
+					List<String> gradebookList = Arrays.asList(gradebookName.split(","));
 
-				List<String> gradebookList = Arrays.asList(gradebookName.split(","));
+					boolean areItemsInGroups =
+						gradingService.checkMultiSelectorList(siteId, groupList, gradebookList, false);
 
-				boolean areItemsInGroups =
-					gradingService.checkMultiSelectorList(siteId, groupList != null ? groupList : new ArrayList<>(), gradebookList, false);
+					if (!areItemsInGroups) {
+						error = true;
+						String itemsInGroups = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","multi_gradebook.items.error");
 
-				if (!areItemsInGroups) {
-					error = true;
-					String itemsInGroups = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","multi_gradebook.items.error");
-
-					context.addMessage(null,new FacesMessage(itemsInGroups));
+						context.addMessage(null,new FacesMessage(itemsInGroups));
+					}
 				}
 			}
 		}
 
 		return error;
+	}
+
+	/**
+	 * @return true if a Faces error was added (validation failed)
+	 */
+	public static boolean addSelectedGradebookValidationError(FacesContext context, String toGradebook, String gradebookName,
+			String siteId, org.sakaiproject.grading.api.GradingService gradingService) {
+		SelectedGradebookValidation validation = GradebookAssociationHelper.validateSelectedGradebookItems(
+				toGradebook, gradebookName, siteId, gradingService);
+		if (validation == SelectedGradebookValidation.OK) {
+			return false;
+		}
+		String messageKey = validation == SelectedGradebookValidation.BLANK
+				? "gradebook_item_required"
+				: "gbNotExistsError";
+		String message = ContextUtil.getLocalizedString(
+				"org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", messageKey);
+		context.addMessage(null, new FacesMessage(message));
+		return true;
 	}
 
 	// Check if title has been changed. If yes, update it.
@@ -980,8 +996,12 @@ implements ActionListener
                 !toGradebook.equals(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString())) {
 			if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(toGradebook)) {
 				String gradebookItemString = assessment.getAssessmentToGradebookNameMetaData();
-				List<String> gradebookItemList = Arrays.asList(gradebookItemString.split(","));
+				if (addSelectedGradebookValidationError(context, toGradebook, gradebookItemString,
+						AgentFacade.getCurrentSiteId(), gradingServiceApi)) {
+					return false;
+				}
 
+				List<String> gradebookItemList = GradebookAssociationHelper.parseItemIds(gradebookItemString);
 				if (gradebookItemList.contains(assessment.getPublishedAssessmentId().toString())) {
 					String gbNotExistsError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "gbNotExistsError");
 					context.addMessage(null, new FacesMessage(gbNotExistsError));
@@ -995,6 +1015,7 @@ implements ActionListener
 				try {
 					gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingServiceApi);
 				} catch (Exception e1) {
+					// External assessment may not exist (never used TO_DEFAULT). Continue; item validation is independent.
 					log.warn("Failed to remove gradebook item for published assessment {}", assessment.getPublishedAssessmentId(), e1);
 				}
 

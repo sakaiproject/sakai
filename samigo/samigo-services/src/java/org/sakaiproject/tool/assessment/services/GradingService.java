@@ -104,6 +104,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.util.GradebookAssociationHelper;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.ImageMapCoordinates;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
@@ -1712,30 +1713,53 @@ public class GradingService
     		if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(toGradebook))
     			gbsHelper.updateExternalAssessmentScore(data, gradingService);
     		else if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(toGradebook)) {
-          if (gbsHelper.isGradebookGroupEnabled(gradingService)) {
-            String gradebookItemString = pub.getAssessmentToGradebookNameMetaData();
+          String gradebookItemString = pub.getAssessmentToGradebookNameMetaData();
+          List<String> gradebookItemList = GradebookAssociationHelper.parseItemIds(gradebookItemString);
+          if (gradebookItemList.isEmpty()) {
+            log.warn("Skipping gradebook sync for publishedAssessmentId {}: TO_SELECTED with blank/missing TO_GRADEBOOK_ID",
+                pub.getPublishedAssessmentId());
+            retryCount = 0;
+            break;
+          }
 
-            if (gradebookItemString != null && !StringUtils.isBlank(gradebookItemString)) {
-              List<String> gradebookItemList = Arrays.asList(gradebookItemString.split(","));
+          // Use assessment site id — AgentFacade has no site in Quartz/autosubmit
+          boolean isGradebookGroupEnabled = gradingService != null
+              && StringUtils.isNotBlank(currentSiteId)
+              && gradingService.isGradebookGroupEnabled(currentSiteId);
 
+          if (isGradebookGroupEnabled) {
               for (String gradebookItem : gradebookItemList) {
-                gbsHelper.updateExternalAssessmentScore(data, gradingService, Long.parseLong(gradebookItem));
+                try {
+                  gbsHelper.updateExternalAssessmentScore(data, gradingService, Long.parseLong(gradebookItem));
+                } catch (NumberFormatException nfe) {
+                  log.warn("Skipping non-numeric gradebook item id '{}' for publishedAssessmentId {}",
+                      gradebookItem, pub.getPublishedAssessmentId());
+                }
               }
-            }
           } else {
-            Long gradebookItemId = Long.valueOf(pub.getAssessmentToGradebookNameMetaData());
-            gbsHelper.updateExternalAssessmentScore(data, gradingService, gradebookItemId);
+            try {
+              Long gradebookItemId = Long.valueOf(gradebookItemList.get(0));
+              gbsHelper.updateExternalAssessmentScore(data, gradingService, gradebookItemId);
+            } catch (NumberFormatException nfe) {
+              log.warn("Skipping gradebook sync for publishedAssessmentId {}: non-numeric TO_GRADEBOOK_ID '{}'",
+                  pub.getPublishedAssessmentId(), gradebookItemString);
+              retryCount = 0;
+              break;
+            }
           }
     		}
     		retryCount = 0;
     	}
       catch (org.sakaiproject.grading.api.AssessmentNotFoundException ante) {
     	  log.warn("problem sending grades to gradebook: {}", ante.getMessage());
-          if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
+          if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(toGradebook)) {
+            log.warn("Gradebook item missing for TO_SELECTED publishedAssessmentId {}; skipping sync", pub.getPublishedAssessmentId());
+            retryCount = 0;
+          } else if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
         	  retryCount = retry(retryCount, ante, pub, true);
           }
           else {
-        	  // Otherwise, do the same exeption handling as others
+        	  // Otherwise, do the same exception handling as others
         	  retryCount = retry(retryCount, ante, pub, false);
           }
       }
