@@ -375,6 +375,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(group.getProperties()).thenReturn(new BaseResourceProperties());
         when(site.getGroup(groupReference)).thenReturn(group);
         when(site.getGroup(deletedGroupReference)).thenReturn(null);
+        when(authzGroupService.getAuthzGroup(deletedGroupReference)).thenThrow(new GroupNotDefinedException(deletedGroupReference));
         AuthzGroup authzGroup = mock(AuthzGroup.class);
         when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
         assignment.setIsGroup(true);
@@ -742,6 +743,43 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         } catch (PermissionException | IdUnusedException e) {
             Assert.fail("Assignment soft deleted\n" + e.toString());
         }
+    }
+
+    @Test
+    public void savingGroupAssignmentAsDraftReleasesLocksOnlyWithoutWork() throws Exception {
+        String context = UUID.randomUUID().toString();
+        String groupId = UUID.randomUUID().toString();
+        AssignmentSubmission submission = createNewGroupSubmission(context, groupId, Set.of("student"));
+        Assignment assignment = submission.getAssignment();
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        AuthzGroup group = authzGroupService.getAuthzGroup("/site/" + context + "/group/" + groupId);
+        assignment.setDraft(false);
+        assignmentService.updateAssignment(assignment);
+        Mockito.clearInvocations(group);
+
+        assignment.setDraft(true);
+        assignmentService.updateAssignment(assignment);
+
+        Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getDraft());
+        verify(group).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+
+        Mockito.clearInvocations(group);
+        assignment.setDraft(false);
+        assignmentService.updateAssignment(assignment);
+        verify(group).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        submission.setFeedbackComment("Saved instructor feedback");
+        assignmentService.updateSubmission(submission);
+        sessionFactory.getCurrentSession().flush();
+        Mockito.clearInvocations(group);
+
+        assignment.setDraft(true);
+        assignmentService.updateAssignment(assignment);
+
+        Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getDraft());
+        Mockito.verifyNoInteractions(group);
+        Assert.assertEquals("Saved instructor feedback", assignmentService.getSubmissions(assignment).iterator().next().getFeedbackComment());
     }
 
     @Test
