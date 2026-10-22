@@ -804,8 +804,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                         }
                     });
                 } finally {
-                    when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
-                    assignmentService.deleteAssignment(assignmentService.getAssignment(assignment.getId()));
+                    try {
+                        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+                        assignmentService.deleteAssignment(assignmentService.getAssignment(assignment.getId()));
+                    } catch (Exception e) {
+                        log.warn("Could not clean up assignment {} after the draft test", assignment.getId(), e);
+                    }
                 }
             }
         }
