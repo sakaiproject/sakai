@@ -54,6 +54,10 @@ public interface RubricsConstants {
 
     public static final String RBCS_EXPORT_PDF = "rubrics.export.pdf";
 
+    public static final String EVENT_RUBRIC_CREATED = "rubrics.rubric.created";
+    public static final String EVENT_RUBRIC_UPDATED = "rubrics.rubric.updated";
+    public static final String EVENT_RUBRIC_DELETED = "rubrics.rubric.deleted";
+
     //samigo custom props
     public static final String RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX = "pub.";
 

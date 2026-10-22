@@ -43,6 +43,13 @@ public interface RubricsService extends EntityProducer {
 
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "rubrics";
 
+    /**
+     * @return the reference of a rubric, as used by its events and the search index: {@code /rubrics/{siteId}/{rubricId}}
+     */
+    static String rubricReference(String siteId, Long rubricId) {
+        return REFERENCE_ROOT + Entity.SEPARATOR + siteId + Entity.SEPARATOR + rubricId;
+    }
+
     RubricTransferBean createDefaultRubric(String siteId);
 
     /**

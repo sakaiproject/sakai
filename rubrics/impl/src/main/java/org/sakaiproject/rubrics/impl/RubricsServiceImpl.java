@@ -22,6 +22,9 @@
 
 package org.sakaiproject.rubrics.impl;
 
+import static org.sakaiproject.rubrics.api.RubricsConstants.EVENT_RUBRIC_CREATED;
+import static org.sakaiproject.rubrics.api.RubricsConstants.EVENT_RUBRIC_DELETED;
+import static org.sakaiproject.rubrics.api.RubricsConstants.EVENT_RUBRIC_UPDATED;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_CONFIG;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_MULTIPLE_OPTIONS_CONFIG;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_PREFIX;
@@ -69,6 +72,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -266,7 +270,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         rubric.setCreated(now);
         rubric.setModified(now);
 
-        Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+        Rubric savedRubric = saveAndPostEvent(updateRubricMaxPoints(rubric), EVENT_RUBRIC_CREATED);
         sessionFactory.getCurrentSession().flush();
         return decorateRubricBean(new RubricTransferBean(savedRubric));
     }
@@ -287,7 +291,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             copy.setCreatorId(sessionManager.getCurrentSessionUserId());
             copy.setTitle(copy.getTitle() + " " + resourceLoader.getString("copy"));
             sanitizeRubric(copy);
-            Rubric savedRubric = rubricRepository.save(copy);
+            Rubric savedRubric = saveAndPostEvent(copy, EVENT_RUBRIC_CREATED);
             sessionFactory.getCurrentSession().flush();
             return decorateRubricBean(new RubricTransferBean(savedRubric));
         }).orElseThrow(() -> new IllegalArgumentException("No rubric with id: " + rubricId));
@@ -354,6 +358,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         rubricRepository.delete(rubric);
         sessionFactory.getCurrentSession().flush();
+        postRubricEvent(EVENT_RUBRIC_DELETED, rubric);
         return true;
     }
 
@@ -406,7 +411,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         clone.setTitle(clone.getTitle() + " " + resourceLoader.getString("copy"));
         sanitizeCriterion(clone);
 
-        Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+        Rubric savedRubric = saveAndPostEvent(updateRubricMaxPoints(rubric), EVENT_RUBRIC_UPDATED);
         sessionFactory.getCurrentSession().flush();
         Criterion newCriterion = savedRubric.getCriteria().stream()
                 .filter(c -> !criterionIds.contains(c.getId()))
@@ -536,7 +541,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             ratings.add(rating3);
 
             rubric.getCriteria().add(criterion);
-            Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+            Rubric savedRubric = saveAndPostEvent(updateRubricMaxPoints(rubric), EVENT_RUBRIC_UPDATED);
             sessionFactory.getCurrentSession().flush();
 
             Criterion newCriterion = savedRubric.getCriteria().stream()
@@ -566,7 +571,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             criterion.setRubric(rubric);
             criterion.setTitle(resourceLoader.getString("default_empty_criterion_title"));
             rubric.getCriteria().add(criterion);
-            Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+            Rubric savedRubric = saveAndPostEvent(updateRubricMaxPoints(rubric), EVENT_RUBRIC_UPDATED);
             sessionFactory.getCurrentSession().flush();
 
             Criterion newCriterion = savedRubric.getCriteria().stream()
@@ -607,7 +612,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             return criterion.getRatings().get(position);
         });
 
-        rubricRepository.save(updateRubricMaxPoints(rubric));
+        saveAndPostEvent(updateRubricMaxPoints(rubric), EVENT_RUBRIC_UPDATED);
         sessionFactory.getCurrentSession().flush();
         return savedRating.map(this::ratingBean);
     }
@@ -718,7 +723,8 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         rubric.setMaxPoints(bean.getMaxPoints());
         rubric.setAdhoc(bean.getAdhoc());
 
-        Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+        String event = bean.getId() == null ? EVENT_RUBRIC_CREATED : EVENT_RUBRIC_UPDATED;
+        Rubric savedRubric = saveAndPostEvent(updateRubricMaxPoints(rubric), event);
         sessionFactory.getCurrentSession().flush();
         return decorateRubricBean(new RubricTransferBean(savedRubric));
     }
@@ -764,7 +770,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                                 r.setDescription(rb.getDescription());
                             }));
             criterion = criterionRepository.save(criterion);
-            rubricRepository.save(updateRubricMaxPoints(criterion.getRubric()));
+            saveAndPostEvent(updateRubricMaxPoints(criterion.getRubric()), EVENT_RUBRIC_UPDATED);
             sessionFactory.getCurrentSession().flush();
             return criterionBean(criterion);
         }
@@ -784,7 +790,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         checkVersion(version, rubric.getVersion());
         rubric.getCriteria().removeIf(c -> c.getId().equals(criterionId));
 
-        Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+        Rubric savedRubric = saveAndPostEvent(updateRubricMaxPoints(rubric), EVENT_RUBRIC_UPDATED);
         sessionFactory.getCurrentSession().flush();
         return decorateRubricBean(new RubricTransferBean(savedRubric));
     }
@@ -810,7 +816,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             Rating updatedRating = ratingRepository.save(rating);
 
             // since the rating points may have changed a rubric update may be needed
-            rubricRepository.save(updateRubricMaxPoints(updatedRating.getCriterion().getRubric()));
+            saveAndPostEvent(updateRubricMaxPoints(updatedRating.getCriterion().getRubric()), EVENT_RUBRIC_UPDATED);
             sessionFactory.getCurrentSession().flush();
 
             return ratingBean(updatedRating);
@@ -840,7 +846,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 .orElseThrow(() ->new IllegalArgumentException("No rubric for id [" + rubricId + "]"));
 
         log.debug("Rubric max points before update: {}", rubric.getMaxPoints());
-        rubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+        rubric = saveAndPostEvent(updateRubricMaxPoints(rubric), EVENT_RUBRIC_UPDATED);
         log.debug("Rubric max points after update:: {}", rubric.getMaxPoints());
         sessionFactory.getCurrentSession().flush();
         return criterionBean(savedCriterion);
@@ -1826,7 +1832,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                     clone.setModified(Instant.now());
                     clone.setLastModifiedBy(sessionManager.getCurrentSessionUserId());
                     sanitizeRubric(clone);
-                    clone = rubricRepository.save(clone);
+                    clone = saveAndPostEvent(clone, EVENT_RUBRIC_CREATED);
                     traversalMap.put(RBCS_PREFIX + rubric.getId(), RBCS_PREFIX + clone.getId());
                 } catch (Exception e) {
                     log.warn("Failed to clone rubric into new site: {}", e.toString());
@@ -1941,7 +1947,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             }
 
             sanitizeRubric(rubric);
-            rubricRepository.save(rubric);
+            saveAndPostEvent(rubric, EVENT_RUBRIC_CREATED);
         });
 
         results.append("completed merging ").append(getLabel()).append(" for site ").append(toSiteId).append(LINE_SEPARATOR);
@@ -2042,7 +2048,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         List<Evaluation> evaluations = evaluationRepository.findByOwnerId(siteId);
         evaluations.forEach(this::deleteRubricEvaluation);
+        List<Rubric> rubrics = rubricRepository.findByOwnerId(siteId);
         rubricRepository.deleteByOwnerId(siteId);
+        rubrics.forEach(rubric -> postRubricEvent(EVENT_RUBRIC_DELETED, rubric));
     }
 
     private String getModifierDisplayName(String userId) {
@@ -2113,6 +2121,20 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         }
 
         return Optional.of(points);
+    }
+
+    private Rubric saveAndPostEvent(Rubric rubric, String event) {
+
+        Rubric savedRubric = rubricRepository.save(rubric);
+        postRubricEvent(event, savedRubric);
+        return savedRubric;
+    }
+
+    // These events drive the search index, see RubricsContentProducer
+    private void postRubricEvent(String event, Rubric rubric) {
+
+        String reference = RubricsService.rubricReference(rubric.getOwnerId(), rubric.getId());
+        eventTrackingService.post(eventTrackingService.newEvent(event, reference, rubric.getOwnerId(), true, NotificationService.NOTI_NONE));
     }
 
     private boolean isCurrentUserEditor(String siteId) {

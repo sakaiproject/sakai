@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -55,6 +56,8 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.RubricsConflictException;
@@ -116,6 +119,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private AssociationRepository associationRepository;
     @Autowired private AssignmentService assignmentService;
     @Autowired private CriterionRepository criterionRepository;
+    @Autowired private EventTrackingService eventTrackingService;
     @Autowired private EvaluationRepository evaluationRepository;
     @Autowired private ReturnedEvaluationRepository returnedEvaluationRepository;
     @Autowired private RubricRepository rubricRepository;
@@ -696,6 +700,23 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(instructor, rubricsService.getRubric(rubricBean.getId()).get().getLastModifiedBy());
         assertThrows(RubricsConflictException.class, () -> rubricsService.updateCriterion(criterion1Bean, siteId));
         assertThrows(RubricsConflictException.class, () -> rubricsService.saveRubric(rubricBean));
+    }
+
+    @Test
+    public void rubricChangesPostSearchEvents() {
+
+        switchToInstructor();
+        reset(eventTrackingService);
+
+        RubricTransferBean rubricBean = rubricsService.createDefaultRubric(siteId);
+        String reference = RubricsService.rubricReference(siteId, rubricBean.getId());
+        verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_CREATED, reference, siteId, true, NotificationService.NOTI_NONE);
+
+        rubricsService.updateCriterion(rubricBean.getCriteria().get(0), siteId);
+        verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_UPDATED, reference, siteId, true, NotificationService.NOTI_NONE);
+
+        assertTrue(rubricsService.deleteRubric(rubricBean.getId()));
+        verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_DELETED, reference, siteId, true, NotificationService.NOTI_NONE);
     }
 
     @Test
