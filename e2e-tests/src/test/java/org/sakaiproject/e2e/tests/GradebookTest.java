@@ -25,7 +25,6 @@ import com.deque.html.axecore.results.Rule;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -198,7 +197,6 @@ class GradebookTest extends SakaiUiTestBase {
         Locator dialog = page.locator(".gb-modal-dialog:visible");
         dialog.locator("input[name$=\"title\"]").fill(itemTitle);
         dialog.locator("input[name$=\"points\"]").fill("100");
-        dialog.locator("select[name$=\"category\"]").selectOption(new SelectOption().setLabel("A"));
         dialog.locator("input[name=rbcs-associate][value=\"1\"]").check();
         Locator rubricSelector = dialog.locator("select[name=rbcs-rubricslist]");
         rubricSelector.selectOption(rubricSelector.locator("option")
