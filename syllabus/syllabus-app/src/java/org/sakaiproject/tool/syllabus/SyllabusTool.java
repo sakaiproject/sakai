@@ -609,6 +609,8 @@ public class SyllabusTool
     					}
     					//update the calendar data for this item since the attachments have chnaged:
     					if(added){
+    						// let search reindex the item with its new attachments, without emailing the site
+    						syllabusService.draftChangeSyllabus(entry.getEntry(), siteId);
     						 //update calendar attachments
     				          if(entry.getEntry().getCalendarEventIdStartDate() != null
     				        		  && !"".equals(entry.getEntry().getCalendarEventIdStartDate())){

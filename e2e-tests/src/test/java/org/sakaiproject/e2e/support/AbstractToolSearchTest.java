@@ -147,8 +147,26 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
         assertThat(result.locator(".search-result-toolname")).hasText(toolLabel());
         assertThat(result.locator(".search-result-title")).containsText(titleWord);
         assertThat(result.locator(".search-result")).containsText(bodyWord);
-        // markup from the content is shown as text, never rendered
+        // markup is stripped, and text that looks like markup is shown as text, never rendered
+        assertThat(result.locator(".search-result")).not().containsText("<b>");
         assertThat(page.locator("sakai-search img")).hasCount(0);
+        assertEquals("undefined", page.evaluate("typeof window.searchXss"));
+    }
+
+    @Test
+    @Order(3)
+    void siteSearchToolShowsTheResultSafely() {
+        sakai.login(author());
+        sakai.gotoPath("/portal/site/" + siteId);
+        sakai.toolClick("Search");
+        page.locator("input#search").fill(bodyWord);
+        page.locator("input[name='sb']").click();
+
+        Locator result = page.locator(".searchItem").filter(new Locator.FilterOptions().setHasText(titleWord));
+        assertThat(result).hasCount(1);
+        assertThat(result.locator(".searchItemBody")).containsText(bodyWord);
+        assertThat(result.locator(".searchItemBody")).not().containsText("<b>");
+        assertThat(page.locator(".searchResultsContainer img")).hasCount(0);
         assertEquals("undefined", page.evaluate("typeof window.searchXss"));
     }
 

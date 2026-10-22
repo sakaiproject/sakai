@@ -27,12 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -149,15 +151,39 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
 		if (ref == null) return "";
 		
 		SyllabusData syllabusData = getSyllabusData(ref);
-		if (syllabusData == null) return "";
+		// the indexer drops documents without content, which keeps drafts and unpublished items out of search
+		if (syllabusData == null || !SyllabusData.ITEM_POSTED.equals(syllabusData.getStatus())) return "";
 		
 		String title = syllabusData.getTitle();
 		String content = syllabusData.getAsset();
 		StringBuilder sb = new StringBuilder();
 		if (title != null) sb.append(title).append(" ");
 		if (content != null) sb.append(content);
+		for (SyllabusAttachment attachment : syllabusManager.getSyllabusAttachmentsForSyllabusData(syllabusData)) {
+			if (attachment.getName() != null) sb.append(" ").append(attachment.getName());
+			sb.append(" ").append(getAttachmentText(attachment.getAttachmentId()));
+		}
 		return sb.toString();
  	}
+
+	/**
+	 * Attachments live in content hosting, so the producer registered for their references (Resources) extracts
+	 * their text, with the same digesters and size limits used for site resources.
+	 */
+	private String getAttachmentText(String attachmentId) {
+		if (attachmentId == null) return "";
+		String reference = ContentHostingService.REFERENCE_ROOT + attachmentId;
+		try {
+			EntityContentProducer producer = searchIndexBuilder.newEntityContentProducer(reference);
+			if (producer != null && producer != this) {
+				String text = producer.getContent(reference);
+				return text != null ? text : "";
+			}
+		} catch (Exception e) {
+			log.debug("Could not extract the text of syllabus attachment {}: {}", reference, e.toString());
+		}
+		return "";
+	}
 
 	@Override
 	public String getId(String ref) {
