@@ -1,0 +1,145 @@
+# Java Style Guide for Attendance Project
+
+## Model Classes
+
+- Use Lombok annotations for boilerplate code
+- Define equals/hashCode with appropriate exclusions for collections
+- Use Status enum for status fields
+
+Example:
+```java
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(exclude="attendanceRecords")
+public class AttendanceEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
+    private Long id;
+    private String name;
+    private Date startDateTime;
+    private Date endDateTime;
+    private boolean isRequired;
+    private boolean isReoccurring;
+    private Long attendanceSiteId;
+    private Date lastModifiedDate;
+    private String lastModifiedBy;
+    private Set<AttendanceRecord> attendanceRecords = new HashSet<>(0);
+    
+    // Custom getters with null handling
+    public Boolean getIsRequired() {
+        if(this.isRequired == null) {
+            return false;
+        }
+        return this.isRequired;
+    }
+}
+```
+
+## Wicket Pages
+
+- Extend BasePage
+- Use internationalization with ResourceModel
+- Follow MVC pattern with models and views
+- Consistent feedback messages
+- Form validation in form components
+
+Example:
+```java
+public class EventView extends BasePage {
+    private static final long serialVersionUID = 1L;
+    
+    @Setter private Long eventId;
+    
+    public EventView(Long id) {
+        this.eventId = id;
+        init();
+    }
+    
+    public void init() {
+        // Model setup
+        AttendanceEvent attendanceEvent = attendanceLogic.getAttendanceEvent(this.eventId);
+        
+        // Form setup
+        Form<?> form = new Form<>("form");
+        add(form);
+        
+        // Add components with feedback
+        form.add(new FeedbackPanel("feedback"));
+        
+        // Add submit behavior
+        form.add(new AjaxButton("submit") {
+            @Override
+            protected void onSubmit(AjaxRequestTarget target) {
+                // Logic here
+                getSession().success(getString("success.message"));
+                target.add(form);
+            }
+        });
+    }
+}
+```
+
+## Implementation Classes
+
+- Use Spring dependency injection
+- Implement interface methods fully
+- Add transactional annotations where needed
+- Comprehensive logging
+- Use safe collections and null checks
+
+Example:
+```java
+public class AttendanceLogicImpl implements AttendanceLogic {
+    @Slf4j
+    
+    @Autowired
+    private AttendanceDao dao;
+    @Autowired
+    private SakaiProxy sakaiProxy;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AttendanceEvent getAttendanceEvent(long id) {
+        if(log.isDebugEnabled()) {
+            log.debug("Getting event with id: " + id);
+        }
+        
+        return dao.getAttendanceEvent(id);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AttendanceEvent> getAttendanceEventsForSite(String siteId) {
+        if(StringUtils.isBlank(siteId)) {
+            throw new IllegalArgumentException("Site ID cannot be null or empty");
+        }
+        
+        // Safe return pattern
+        List<AttendanceEvent> events = dao.getAttendanceEventsForSite(siteId);
+        if(events == null) {
+            return Collections.emptyList();
+        }
+        return events;
+    }
+}
+```
+
+## Utility Classes
+
+- Static methods only
+- No state
+- Clear documentation
+- Parameter validation
+- Exception handling
+
+## Testing Guidelines
+
+- Add unit tests for logic classes
+- Use JUnit and Mockito for testing
+- Test both happy path and error cases
+- Test null handling

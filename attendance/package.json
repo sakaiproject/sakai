@@ -1,0 +1,12 @@
+{
+  "name": "attendance-tests",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test:e2e": "cypress run --spec cypress/e2e/attendance.cy.js",
+    "cypress:open": "cypress open"
+  },
+  "devDependencies": {
+    "cypress": "^15.3.0"
+  }
+}

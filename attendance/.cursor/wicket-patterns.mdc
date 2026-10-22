@@ -1,0 +1,74 @@
+# Wicket Patterns for Attendance Tool
+
+## Pages
+
+- Always extend BasePage
+- Use init() method for page initialization
+- Organize components in logical groups
+- Use ResourceModel for i18n
+- Add a FeedbackPanel for user messages
+
+## Panels
+
+- Create reusable panels for repeated UI components
+- Extend BasePanel
+- Use a clear naming convention: [Function]Panel
+- Pass models and callbacks to panels
+
+## Forms
+
+- Validate all form inputs
+- Provide clear feedback messages
+- Use proper AJAX updating
+- Group related form elements
+- Use PropertyModel for binding
+
+## Component IDs
+
+- Use kebab-case for component IDs
+- Make IDs descriptive and consistent
+- Match HTML IDs with Java component IDs
+- Follow wicket:id format in HTML
+
+## Models
+
+- Use IModel implementations
+- Create DetachableModel classes for domain objects
+- Use CompoundPropertyModel for form binding
+- Properly detach models
+
+## UI Design
+
+- Follow responsive design principles
+- Add proper CSS classes for styling
+- Use feedback for user interactions
+- Implement consistent behavior patterns
+- Use AJAX for better user experience
+
+## Behaviors
+
+- Create reusable behaviors
+- Add AttributeModifier for HTML attributes
+- Use AjaxEventBehavior for event handling
+- Implement custom behaviors for complex functionality
+
+## Tables and Lists
+
+- Use DataView for displaying tables
+- Implement pagination for long lists
+- Add sorting capabilities
+- Consistent data presentation
+
+## Navigation
+
+- Implement breadcrumbs
+- Use proper page parameters
+- BookmarkablePageLink for linkable pages
+- Follow a consistent navigation pattern
+
+## Error Handling
+
+- Show helpful error messages
+- Add proper validation feedback
+- Gracefully handle unexpected errors
+- Log errors appropriately
