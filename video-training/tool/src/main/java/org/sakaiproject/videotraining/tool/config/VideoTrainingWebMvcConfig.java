@@ -16,6 +16,10 @@
 
 package org.sakaiproject.videotraining.tool.config;
 
+import jakarta.servlet.MultipartConfigElement;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
 import org.sakaiproject.videotraining.api.VideoTrainingConstants;
 import org.springframework.context.ApplicationContext;
@@ -25,17 +29,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-import org.thymeleaf.spring5.ISpringTemplateEngine;
-import org.thymeleaf.spring5.SpringTemplateEngine;
-import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
-import org.thymeleaf.spring5.view.ThymeleafViewResolver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.thymeleaf.spring6.ISpringTemplateEngine;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
+import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
@@ -45,6 +51,9 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 public class VideoTrainingWebMvcConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private ServerConfigurationService serverConfigurationService;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -98,10 +107,20 @@ public class VideoTrainingWebMvcConfig implements WebMvcConfigurer, ApplicationC
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.setPatternParser(null);
+    }
+
     @Bean
     public MultipartResolver multipartResolver() {
-        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        resolver.setDefaultEncoding(VideoTrainingConstants.UTF8);
-        return resolver;
+        return new StandardServletMultipartResolver();
+    }
+
+    @Bean
+    public MultipartConfigElement multipartConfigElement() {
+        long maxUploadSize = Long.parseLong(serverConfigurationService.getString(
+                ContentHostingService.SAK_PROP_MAX_UPLOAD_FILE_SIZE)) * 1024L;
+        return new MultipartConfigElement("", maxUploadSize, maxUploadSize, 0);
     }
 }

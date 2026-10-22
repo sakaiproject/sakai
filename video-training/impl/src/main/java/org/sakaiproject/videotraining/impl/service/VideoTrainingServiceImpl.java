@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,9 +43,6 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.videotraining.api.VideoTrainingConstants;
@@ -78,6 +73,8 @@ import org.sakaiproject.videotraining.api.repository.VideoTrainingVideoRepositor
 import org.sakaiproject.videotraining.api.service.ExternalProviderRegistry;
 import org.sakaiproject.videotraining.api.service.VideoTrainingService;
 import org.sakaiproject.videotraining.api.util.ContentResourceHelper;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -86,8 +83,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 public class VideoTrainingServiceImpl implements VideoTrainingService {
-
-    private static final long LIST_CACHE_TTL_MILLIS = 30_000L;
 
     @Setter private VideoTrainingVideoRepository videoRepository;
     @Setter private VideoTrainingAnalyticsEventRepository analyticsEventRepository;
@@ -102,13 +97,11 @@ public class VideoTrainingServiceImpl implements VideoTrainingService {
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SessionManager sessionManager;
     @Setter private SiteService siteService;
-    @Setter private MemoryService memoryService;
+    @Setter private CacheManager cacheManager;
     @Setter private ExternalProviderRegistry externalProviderRegistry;
 
-    private final ConcurrentMap<ListCacheKey, CacheEntry<Long>> countCache = new ConcurrentHashMap<>();
-    private final ConcurrentMap<ListCacheKey, CacheEntry<List<String>>> firstPageCache = new ConcurrentHashMap<>();
-    private Cache<String, Long> distributedCountCache;
-    private Cache<String, List<String>> distributedFirstPageCache;
+    private Cache countCache;
+    private Cache firstPageCache;
 
     public void init() {
         functionManager.registerFunction(PERMISSION_VIEW, true);
@@ -2261,81 +2254,51 @@ public class VideoTrainingServiceImpl implements VideoTrainingService {
     }
 
     private void invalidateListCaches() {
-        countCache.clear();
-        firstPageCache.clear();
+        if (countCache != null) {
+            countCache.clear();
+        }
+        if (firstPageCache != null) {
+            firstPageCache.clear();
+        }
     }
 
     private void initializeDistributedCaches() {
-        if (memoryService == null) {
+        if (cacheManager == null) {
             return;
         }
 
-        SimpleConfiguration<String, Long> countConfig = new SimpleConfiguration<>(20000, 30, 30);
-        SimpleConfiguration<String, List<String>> firstPageConfig = new SimpleConfiguration<>(20000, 30, 30);
-
-        try {
-            distributedCountCache = memoryService.createCache(VideoTrainingConstants.COUNT_CACHE_NAME, countConfig);
-        } catch (Exception e) {
-            distributedCountCache = memoryService.getCache(VideoTrainingConstants.COUNT_CACHE_NAME);
-        }
-
-        try {
-            distributedFirstPageCache = memoryService.createCache(VideoTrainingConstants.FIRST_PAGE_CACHE_NAME, firstPageConfig);
-        } catch (Exception e) {
-            distributedFirstPageCache = memoryService.getCache(VideoTrainingConstants.FIRST_PAGE_CACHE_NAME);
-        }
+        countCache = cacheManager.getCache(VideoTrainingConstants.COUNT_CACHE_NAME);
+        firstPageCache = cacheManager.getCache(VideoTrainingConstants.FIRST_PAGE_CACHE_NAME);
     }
 
     private Long readCachedCount(ListCacheKey key) {
-        String cacheKey = key.asCacheKey();
-        if (distributedCountCache != null) {
-            Long cached = distributedCountCache.get(cacheKey);
-            if (cached != null) {
-                return cached;
-            }
-        }
-
-        CacheEntry<Long> entry = countCache.get(key);
-        if (entry == null || entry.isExpired()) {
-            countCache.remove(key);
+        if (countCache == null) {
             return null;
         }
-        return entry.value();
+        return countCache.get(key.asCacheKey(), Long.class);
     }
 
     private void writeCachedCount(ListCacheKey key, long value) {
-        String cacheKey = key.asCacheKey();
-        if (distributedCountCache != null) {
-            distributedCountCache.put(cacheKey, value);
+        if (countCache != null) {
+            countCache.put(key.asCacheKey(), value);
         }
-        countCache.put(key, new CacheEntry<>(value));
     }
 
     private List<VideoTrainingVideo> readCachedList(ListCacheKey key) {
-        String cacheKey = key.asCacheKey();
-        if (distributedFirstPageCache != null) {
-            List<String> ids = distributedFirstPageCache.get(cacheKey);
-            if (ids != null) {
-                return restoreVideosFromIds(ids);
-            }
-        }
-
-        CacheEntry<List<String>> entry = firstPageCache.get(key);
-        if (entry == null || entry.isExpired()) {
-            firstPageCache.remove(key);
+        if (firstPageCache == null) {
             return null;
         }
-        return restoreVideosFromIds(entry.value());
+        List<String> ids = firstPageCache.get(key.asCacheKey(), List.class);
+        return ids == null ? null : restoreVideosFromIds(ids);
     }
 
     private void writeCachedList(ListCacheKey key, List<VideoTrainingVideo> value) {
         String cacheKey = key.asCacheKey();
         List<String> ids = value.stream().map(VideoTrainingVideo::getId).filter(Objects::nonNull).collect(java.util.stream.Collectors.toList());
         List<String> immutableIds = Collections.unmodifiableList(new ArrayList<>(ids));
-        if (distributedFirstPageCache != null) {
-            distributedFirstPageCache.put(cacheKey, immutableIds);
+        if (firstPageCache != null) {
+            firstPageCache.put(cacheKey, immutableIds);
         }
-        firstPageCache.put(key, new CacheEntry<>(immutableIds));
     }
 
     private List<VideoTrainingVideo> restoreVideosFromIds(List<String> ids) {
@@ -2344,17 +2307,6 @@ public class VideoTrainingServiceImpl implements VideoTrainingService {
             videoRepository.findById(id).ifPresent(videos::add);
         }
         return videos;
-    }
-
-    private record CacheEntry<T>(T value, long createdAtMillis) {
-
-        private CacheEntry(T value) {
-            this(value, System.currentTimeMillis());
-        }
-
-        private boolean isExpired() {
-            return System.currentTimeMillis() - createdAtMillis > LIST_CACHE_TTL_MILLIS;
-        }
     }
 
     private record ListCacheKey(String mode, String siteId, String userId, String searchText, int size, long bucket) implements Serializable {

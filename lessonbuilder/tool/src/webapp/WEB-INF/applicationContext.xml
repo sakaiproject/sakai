@@ -309,7 +309,6 @@ simplePageBean.addForumSummary,
 		lazy-init="true"
 				init-method="init"
 				destroy-method="destroy">
-		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 				<property name="videoTrainingService" ref="org.sakaiproject.videotraining.api.service.VideoTrainingService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
