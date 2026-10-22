@@ -28,7 +28,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.Setter;
@@ -39,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author plukasew
  */
 @Slf4j
-@Transactional
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class AutoSubmitFacadeQueries implements AutoSubmitFacadeQueriesAPI
 {
 	@Setter private SessionFactory sessionFactory;
@@ -129,27 +132,47 @@ public class AutoSubmitFacadeQueries implements AutoSubmitFacadeQueriesAPI
 		}
 
 		if (autoSubmitCurrent) {
-			notifyGradebookInNewTransaction(adata, assessment);
-
 			new GradingService().updateAutosubmitEventLog(adata);
+			scheduleGradebookNotificationAfterCommit(adata, assessment);
 		}
 
 		return true;
 	}
 
-	private void notifyGradebookInNewTransaction(AssessmentGradingData adata, PublishedAssessmentIfc assessment) {
-		Runnable notify = () -> {
-			try {
-				new GradingService().notifyGradebookByScoringType(adata, assessment);
-			} catch (GradebookServiceException e) {
-				log.error("Gradebook sync failed after autosubmit; submission kept. assessmentGradingId={}, publishedAssessmentId={}",
-						adata.getAssessmentGradingId(), adata.getPublishedAssessmentId(), e);
-			}
-		};
-		if (requiresNewTransactionTemplate == null) {
-			notify.run();
+	/**
+	 * Run Gradebook notification after the autosubmission transaction commits, in its own transaction.
+	 */
+	private void scheduleGradebookNotificationAfterCommit(AssessmentGradingData adata, PublishedAssessmentIfc assessment) {
+		if (TransactionSynchronizationManager.isSynchronizationActive()) {
+			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+				@Override
+				public void afterCommit() {
+					notifyGradebookInNewTransaction(adata, assessment);
+				}
+			});
 		} else {
-			requiresNewTransactionTemplate.executeWithoutResult(status -> notify.run());
+			notifyGradebookInNewTransaction(adata, assessment);
+		}
+	}
+
+	/**
+	 * Best-effort Gradebook sync. Exceptions propagate out of the REQUIRES_NEW callback so partial
+	 * TO_SELECTED updates roll back; they are caught here so autosubmit processing continues.
+	 */
+	private void notifyGradebookInNewTransaction(AssessmentGradingData adata, PublishedAssessmentIfc assessment) {
+		try {
+			if (requiresNewTransactionTemplate != null) {
+				requiresNewTransactionTemplate.executeWithoutResult(status ->
+						new GradingService().notifyGradebookByScoringType(adata, assessment));
+			} else {
+				new GradingService().notifyGradebookByScoringType(adata, assessment);
+			}
+		} catch (GradebookServiceException e) {
+			log.error("Gradebook sync failed after autosubmit; submission kept. assessmentGradingId={}, publishedAssessmentId={}",
+					adata.getAssessmentGradingId(), adata.getPublishedAssessmentId(), e);
+		} catch (RuntimeException e) {
+			log.error("Gradebook sync/transaction failed after autosubmit; submission kept. assessmentGradingId={}, publishedAssessmentId={}",
+					adata.getAssessmentGradingId(), adata.getPublishedAssessmentId(), e);
 		}
 	}
 }
