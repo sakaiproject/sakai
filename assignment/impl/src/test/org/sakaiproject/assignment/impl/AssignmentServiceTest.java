@@ -828,6 +828,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }).when(authzGroupService).save(group);
 
         ExecutorService requests = Executors.newFixedThreadPool(2);
+        boolean requestThreadsFinished = false;
         try {
             Future<Boolean> grading = requests.submit(() -> transaction.execute(status -> {
                 try {
@@ -863,10 +864,20 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         } finally {
             finishDraftUpdate.countDown();
             requests.shutdownNow();
-            Assert.assertTrue("Request threads did not finish", requests.awaitTermination(10, TimeUnit.SECONDS));
-            Mockito.doNothing().when(authzGroupService).save(group);
-            assignmentService.deleteAssignment(assignmentService.getAssignment(created.getId()));
+            try {
+                requestThreadsFinished = requests.awaitTermination(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Interrupted while cleaning up requests for assignment {}", created.getId(), e);
+            }
+            try {
+                Mockito.doNothing().when(authzGroupService).save(group);
+                assignmentService.deleteAssignment(assignmentService.getAssignment(created.getId()));
+            } catch (Exception e) {
+                log.warn("Could not clean up assignment {} after the concurrency test", created.getId(), e);
+            }
         }
+        Assert.assertTrue("Request threads did not finish", requestThreadsFinished);
     }
 
     @Test
