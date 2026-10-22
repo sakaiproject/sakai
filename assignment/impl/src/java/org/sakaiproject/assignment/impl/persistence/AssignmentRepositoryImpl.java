@@ -209,6 +209,14 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    public List<AssignmentSubmission> findCurrentSubmissions(String assignmentId) {
+        List<AssignmentSubmission> submissions = findSubmissions(Collections.singleton(assignmentId));
+        // A query can return an earlier version already present in this request's Hibernate session.
+        submissions.forEach(submission -> geCurrentSession().refresh(submission));
+        return submissions;
+    }
+
+    @Override
     @Transactional
     public boolean existsSubmissionSubmitter(Long submissionSubmitterId) {
         if (submissionSubmitterId != null && geCurrentSession().get(AssignmentSubmissionSubmitter.class, submissionSubmitterId) != null) {

@@ -1400,7 +1400,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (!Boolean.TRUE.equals(assignment.getIsGroup()) || assignment.getTypeOfAccess() != GROUP) {
             return false;
         }
-        List<AssignmentSubmission> submissions = assignmentRepository.findSubmissions(Collections.singleton(assignment.getId()));
+        return canReleaseGroupLocks(assignment, assignmentRepository.findCurrentSubmissions(assignment.getId()));
+    }
+
+    private boolean canReleaseGroupLocks(Assignment assignment, List<AssignmentSubmission> submissions) {
+        if (!Boolean.TRUE.equals(assignment.getIsGroup()) || assignment.getTypeOfAccess() != GROUP) {
+            return false;
+        }
         if (submissions.isEmpty()) {
             return true;
         }
@@ -1713,10 +1719,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
 
+        List<AssignmentSubmission> currentSubmissions = Collections.emptyList();
         if (Boolean.TRUE.equals(assignment.getDraft()) && Boolean.TRUE.equals(assignment.getIsGroup())
                 && assignment.getTypeOfAccess() == GROUP) {
             // Use the same assignment-row lock as submission writes before checking whether locks can be released.
             assignmentRepository.lockAssignmentAndCheckDeleted(assignment.getId());
+            currentSubmissions = assignmentRepository.findCurrentSubmissions(assignment.getId());
+            // A detached assignment can also carry stale children into the cascading merge below.
+            assignment.getSubmissions().clear();
+            assignment.getSubmissions().addAll(currentSubmissions);
         }
 
         Collection<String> prevAssignedGroupRefs = assignmentRepository.findGroupsForAssignmentById(assignment.getId());
@@ -1784,7 +1795,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             }
                         }
                     }
-                } else if (canReleaseGroupLocks(assignment)) {
+                } else if (canReleaseGroupLocks(assignment, currentSubmissions)) {
                     releaseAssignmentGroupLocks(assignment, reference);
                     // Empty grading placeholders contain the old group roster.
                     assignment.getSubmissions().clear();

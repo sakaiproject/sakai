@@ -881,6 +881,104 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void savingDraftPreservesWorkCommittedAfterLoadingEmptyPlaceholder() throws Exception {
+        assertDraftPreservesConcurrentWork(false);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void unpublishingPreservesWorkCommittedAfterLoadingEmptyPlaceholder() throws Exception {
+        assertDraftPreservesConcurrentWork(true);
+    }
+
+    private void assertDraftPreservesConcurrentWork(boolean unpublish) throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment created = transaction.execute(status -> {
+            try {
+                return createPublishedGroupAssignment();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(created).reckon().getReference();
+        String groupReference = created.getGroups().iterator().next();
+        String groupId = groupReference.substring(groupReference.lastIndexOf('/') + 1);
+        Site site = siteService.getSite(created.getContext());
+        Group group = site.getGroup(groupReference);
+        when(site.getGroup(groupId)).thenReturn(group);
+        Member member = buildGroupMember("student");
+        when(group.getMembers()).thenReturn(Set.of(member));
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        AssignmentSubmission placeholder = assignmentService.addSubmission(created.getId(), groupId);
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(placeholder).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        AuthzGroup realm = authzGroupService.getAuthzGroup(groupReference);
+        Mockito.clearInvocations(realm);
+
+        CountDownLatch placeholderRead = new CountDownLatch(1);
+        CountDownLatch feedbackSaved = new CountDownLatch(1);
+        ExecutorService requests = Executors.newSingleThreadExecutor();
+        try {
+            Future<?> draftUpdate = requests.submit(() -> transaction.executeWithoutResult(status -> {
+                try {
+                    Assignment assignment = assignmentService.getAssignment(created.getId());
+                    assignmentService.getSubmission(placeholder.getId());
+                    assignment.getSubmissions().size();
+                    if (unpublish) {
+                        sessionFactory.getCurrentSession().clear();
+                    }
+                    placeholderRead.countDown();
+                    Assert.assertTrue("Feedback was not saved", feedbackSaved.await(10, TimeUnit.SECONDS));
+                    if (unpublish) {
+                        assignmentService.unpublishAssignment(assignment);
+                    } else {
+                        assignment.setDraft(true);
+                        assignmentService.updateAssignment(assignment);
+                    }
+                } catch (IdUnusedException | PermissionException | InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }));
+            Assert.assertTrue("Draft request did not load its placeholder", placeholderRead.await(10, TimeUnit.SECONDS));
+            transaction.executeWithoutResult(status -> {
+                try {
+                    AssignmentSubmission submission = assignmentService.getSubmission(placeholder.getId());
+                    submission.setGrade("0");
+                    submission.setFeedbackComment("Saved while the draft editor was open");
+                    assignmentService.updateSubmission(submission);
+                } catch (IdUnusedException | PermissionException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+            feedbackSaved.countDown();
+            draftUpdate.get(10, TimeUnit.SECONDS);
+
+            AssignmentSubmission retained = assignmentService.getSubmission(placeholder.getId());
+            Assert.assertNotNull("Concurrent grading work must not be deleted", retained);
+            Assert.assertEquals("0", retained.getGrade());
+            Assert.assertEquals("Saved while the draft editor was open", retained.getFeedbackComment());
+            verify(realm, Mockito.never()).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+        } finally {
+            feedbackSaved.countDown();
+            requests.shutdownNow();
+            try {
+                if (!requests.awaitTermination(10, TimeUnit.SECONDS)) {
+                    log.warn("Request threads did not finish for assignment {}", created.getId());
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Interrupted while cleaning up requests for assignment {}", created.getId(), e);
+            }
+            try {
+                assignmentService.deleteAssignment(assignmentService.getAssignment(created.getId()));
+            } catch (Exception e) {
+                log.warn("Could not clean up assignment {} after the concurrency test", created.getId(), e);
+            }
+        }
+    }
+
+    @Test
     public void softDeleteEmptyGroupAssignmentReleasesOnlyItsOwnLocks() throws Exception {
         Assignment assignment = createPublishedGroupAssignment();
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
@@ -995,13 +1093,19 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void softDeleteAndRestoreProtectsWorkOnGradingPlaceholders() throws Exception {
         List<Consumer<AssignmentSubmission>> work = Arrays.asList(
                 submission -> submission.setUserSubmission(true),
+                submission -> submission.setSubmittedText("Saved student draft"),
+                submission -> submission.setGraded(true),
+                submission -> submission.setReturned(true),
+                submission -> submission.setGradeReleased(true),
                 submission -> submission.setGrade("0"),
+                submission -> submission.setFeedbackText("Inline feedback"),
                 submission -> submission.setFeedbackComment("Feedback only"),
                 submission -> submission.setPrivateNotes("Instructor notes"),
                 submission -> submission.getAttachments().add("/content/student-draft"),
                 submission -> submission.getFeedbackAttachments().add("/content/feedback"),
                 submission -> submission.getSubmitters().iterator().next().setGrade("0"),
                 submission -> submission.getSubmitters().iterator().next().setFeedback("Individual feedback"),
+                submission -> submission.getSubmitters().iterator().next().setTimeSpent("15"),
                 submission -> submission.getProperties().put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, "Earlier work"));
         for (Consumer<AssignmentSubmission> populate : work) {
             assertGroupSubmissionLocksRetained(submission -> {
@@ -1208,6 +1312,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String groupId = UUID.randomUUID().toString();
         AssignmentSubmission submission = createNewGroupSubmission(context, groupId, Set.of(UUID.randomUUID().toString()));
         Assignment assignment = submission.getAssignment();
+        String studentId = submission.getSubmitters().iterator().next().getSubmitter();
+        when(userDirectoryService.getUser(studentId)).thenThrow(new UserNotDefinedException(studentId));
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         when(sessionManager.getCurrentSessionUserId()).thenReturn(assignment.getAuthor());
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT,
@@ -1223,6 +1329,25 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Mockito.clearInvocations(group);
 
         Assert.assertFalse(assignmentService.canReleaseGroupLocks(assignment));
+        List<Object> expectedWork = submissionWorkSnapshot(submission);
+        String submissionId = submission.getId();
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        assignment.setDraft(true);
+        assignmentService.updateAssignment(assignment);
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assignment = assignmentService.getAssignment(assignment.getId());
+        Assert.assertTrue(assignment.getDraft());
+        Assert.assertEquals(1, assignmentService.getSubmissions(assignment).size());
+        AssignmentSubmission retained = assignmentService.getSubmission(submissionId);
+        Assert.assertNotNull("Saving as draft must preserve submission work", retained);
+        Assert.assertEquals(expectedWork, submissionWorkSnapshot(retained));
+        Mockito.verifyNoInteractions(group);
+        assignment.setDraft(false);
+        assignmentService.updateAssignment(assignment);
+        Mockito.clearInvocations(group);
+
         assignmentService.softDeleteAssignment(assignment);
         Mockito.verifyNoInteractions(group);
         Assignment restored = assignmentService.restoreAssignment(assignment.getId());
@@ -1236,6 +1361,18 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals(submission.getFeedbackComment(), restoredSubmission.getFeedbackComment());
         verify(group).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
         verify(group, Mockito.never()).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+    }
+
+    private List<Object> submissionWorkSnapshot(AssignmentSubmission submission) {
+        return Arrays.asList(submission.getUserSubmission(), submission.getSubmitted(), submission.getGraded(),
+                submission.getReturned(), submission.getGradeReleased(), submission.getSubmittedText(),
+                submission.getGrade(), submission.getFeedbackText(), submission.getFeedbackComment(),
+                submission.getPrivateNotes(), new HashSet<>(submission.getAttachments()),
+                new HashSet<>(submission.getFeedbackAttachments()), new HashMap<>(submission.getProperties()),
+                submission.getSubmitters().stream()
+                        .map(submitter -> Arrays.asList(submitter.getSubmitter(), submitter.getGrade(),
+                                submitter.getFeedback(), submitter.getTimeSpent()))
+                        .collect(Collectors.toSet()));
     }
 
     @Test
