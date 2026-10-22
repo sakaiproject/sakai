@@ -52,26 +52,26 @@ class RubricsSearchTest extends AbstractToolSearchTest {
 
     @Override
     protected String createItem(String siteId, String title, String body) {
-        JsonObject rubric = json(api("POST", rubricsPath(siteId) + "/default", null));
+        JsonObject rubric = json(api("POST", rubricsPath(siteId) + "/default", null, null));
         long rubricId = rubric.get("id").getAsLong();
         long criterionId = rubric.getAsJsonArray("criteria").get(0).getAsJsonObject().get("id").getAsLong();
-
-        patch(rubricsPath(siteId) + "/" + rubricId, replace("/title", title));
-        patch(rubricsPath(siteId) + "/" + rubricId + "/criteria/" + criterionId, replace("/description", body));
-
         String reference = "/rubrics/" + siteId + "/" + rubricId;
+
+        patch(reference, "", replace("/title", title));
+        patch(reference, "/criteria/" + criterionId, replace("/description", body));
+
         criterionIds.put(reference, criterionId);
         return reference;
     }
 
     @Override
     protected void updateItem(String siteId, String itemKey, String body) {
-        patch(rubricsPath(siteId) + "/" + rubricId(itemKey) + "/criteria/" + criterionIds.get(itemKey), replace("/description", body));
+        patch(itemKey, "/criteria/" + criterionIds.get(itemKey), replace("/description", body));
     }
 
     @Override
     protected void deleteItem(String siteId, String itemKey) {
-        api("DELETE", rubricsPath(siteId) + "/" + rubricId(itemKey), null);
+        api("DELETE", rubricPath(itemKey), null, currentVersion(itemKey));
     }
 
     @Override
@@ -89,7 +89,7 @@ class RubricsSearchTest extends AbstractToolSearchTest {
         String controlWord = uniqueWord();
 
         String adhoc = createItem(siteId, "Adhoc " + adhocWord, "Grading by " + adhocWord);
-        patch(rubricsPath(siteId) + "/" + rubricId(adhoc), "[{\"op\":\"replace\",\"path\":\"/adhoc\",\"value\":true}]");
+        patch(adhoc, "", "[{\"op\":\"replace\",\"path\":\"/adhoc\",\"value\":true}]");
         updateItem(siteId, adhoc, "Graded by " + adhocWord);
         String control = createItem(siteId, "Control " + controlWord, "Grading by " + controlWord);
 
@@ -103,8 +103,9 @@ class RubricsSearchTest extends AbstractToolSearchTest {
         return "/api/sites/" + siteId + "/rubrics";
     }
 
-    private static String rubricId(String reference) {
-        return reference.substring(reference.lastIndexOf('/') + 1);
+    // the api path of the rubric a "/rubrics/{siteId}/{rubricId}" reference names
+    private static String rubricPath(String reference) {
+        return "/api/sites" + reference.substring("/rubrics".length()).replaceFirst("/(\\d+)$", "/rubrics/$1");
     }
 
     private static String replace(String path, String value) {
@@ -117,12 +118,21 @@ class RubricsSearchTest extends AbstractToolSearchTest {
         return patch.toString();
     }
 
-    private void patch(String path, String jsonPatch) {
-        api("PATCH", path, jsonPatch);
+    /** Patches the rubric, or a part of it named by subPath, at its current version. */
+    private void patch(String reference, String subPath, String jsonPatch) {
+        api("PATCH", rubricPath(reference) + subPath, jsonPatch, currentVersion(reference));
     }
 
-    private APIResponse api(String method, String path, String jsonPatch) {
+    // changes are guarded by optimistic locking on the rubric version, sent as If-Match like the rubrics UI does
+    private String currentVersion(String reference) {
+        return json(api("GET", rubricPath(reference), null, null)).get("version").getAsString();
+    }
+
+    private APIResponse api(String method, String path, String jsonPatch, String version) {
         RequestOptions options = RequestOptions.create().setMethod(method);
+        if (version != null) {
+            options.setHeader("If-Match", "\"" + version + "\"");
+        }
         if (jsonPatch != null) {
             options.setHeader("Content-Type", "application/json-patch+json").setData(jsonPatch);
         }

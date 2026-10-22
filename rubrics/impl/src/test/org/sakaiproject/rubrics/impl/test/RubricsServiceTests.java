@@ -734,7 +734,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         // deleting also cleans up the committed rubric
         TestTransaction.start();
         TestTransaction.flagForCommit();
-        assertTrue(rubricsService.deleteRubric(rubricBean.getId()));
+        assertTrue(rubricsService.deleteRubric(rubricBean.getId(), rubricsService.getRubric(rubricBean.getId()).get().getVersion()));
         TestTransaction.end();
         verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_DELETED, reference, siteId, true, NotificationService.NOTI_NONE);
 
