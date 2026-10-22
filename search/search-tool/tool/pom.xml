@@ -95,12 +95,6 @@
         <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.opensearch</groupId>
-      <artifactId>opensearch</artifactId>
-      <version>${sakai.opensearch.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>jmock</groupId>
       <artifactId>jmock</artifactId>
       <version>1.2.0</version>
