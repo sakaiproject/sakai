@@ -58,6 +58,7 @@ import org.sakaiproject.videotraining.api.repository.VideoTrainingCategoryReposi
 import org.sakaiproject.videotraining.api.repository.VideoTrainingLessonLinkRepository;
 import org.sakaiproject.videotraining.api.repository.VideoTrainingVideoRepository;
 import org.sakaiproject.videotraining.api.util.ContentResourceHelper;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
 public class VideoTrainingServiceImplTest {
 
@@ -106,6 +107,10 @@ public class VideoTrainingServiceImplTest {
         service.setServerConfigurationService(serverConfigurationService);
         service.setSessionManager(sessionManager);
         service.setSiteService(siteService);
+        service.setCacheManager(new ConcurrentMapCacheManager(
+                VideoTrainingConstants.COUNT_CACHE_NAME,
+                VideoTrainingConstants.FIRST_PAGE_CACHE_NAME));
+        service.init();
         // inject contentResourceHelper mock
         this.contentResourceHelper = Mockito.mock(ContentResourceHelper.class);
         service.setContentResourceHelper(this.contentResourceHelper);
