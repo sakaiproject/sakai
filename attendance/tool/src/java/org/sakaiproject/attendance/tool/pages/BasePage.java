@@ -25,7 +25,9 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalDialog;
+import org.apache.wicket.extensions.ajax.markup.html.modal.theme.DefaultTheme;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.head.*;
 import org.apache.wicket.markup.html.IHeaderContributor;
@@ -45,9 +47,8 @@ import org.sakaiproject.attendance.model.Status;
 import org.sakaiproject.attendance.tool.panels.EventInputPanel;
 import org.sakaiproject.attendance.tool.util.AttendanceFeedbackPanel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.util.ResourceLoader;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 /**
@@ -72,7 +73,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name="org.sakaiproject.attendance.api.AttendanceGradebookProvider")
 	protected AttendanceGradebookProvider attendanceGradebookProvider;
 
-	protected String role;
 	
 	Link<Void> addLink;
 	Link<Void> homepageLink;
@@ -84,13 +84,15 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	FeedbackPanel feedbackPanel;
 
 	@Getter
-	ModalWindow addOrEditItemWindow;
+	ModalDialog addOrEditItemWindow;
 	
 	public BasePage() {
 		
 		log.debug("BasePage()");
 
-		this.role = sakaiProxy.getCurrentUserRoleInCurrentSite();
+        if (!sakaiProxy.canManageAttendance(sakaiProxy.getCurrentSiteId()) && !(this instanceof StudentView)) {
+            throw new org.apache.wicket.RestartResponseException(StudentView.class);
+        }
 
 		//Add Event link/tab
 		addLink = new Link<Void>("add-link"){
@@ -171,11 +173,18 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			getSession().error((new ResourceModel("attendance.site.syncing.error")).getObject());
 		}
 
-		this.addOrEditItemWindow = new ModalWindow("addOrEditItemWindow");
-		this.addOrEditItemWindow.showUnloadConfirmation(false);
-		this.addOrEditItemWindow.setInitialHeight(400);
+		this.addOrEditItemWindow = new ModalDialog("addOrEditItemWindow") {
+            @Override
+            protected WebMarkupContainer newDialog(String id) {
+                WebMarkupContainer dialog = super.newDialog(id);
+                dialog.add(new AttributeModifier("aria-labelledby", "attendance-dialog-title"));
+                return dialog;
+            }
+        };
+		this.addOrEditItemWindow.add(new DefaultTheme());
+        this.addOrEditItemWindow.closeOnEscape().trapFocus();
 		add(this.addOrEditItemWindow);
-		getSession().setLocale((new ResourceLoader()).getLocale());
+		getSession().setLocale(sakaiProxy.getLocale());
     }
 	
 	/**
@@ -237,11 +246,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
-				final ModalWindow window = getAddOrEditItemWindow();
-				window.setTitle(new ResourceModel("attendance.add.edit.header"));
-				window.setCssClassName(window.getCssClassName() + " editItemModal");
-				window.setContent(new EventInputPanel(window.getContentId(), window, new CompoundPropertyModel<>(obj)));
-				window.show(target);
+				final ModalDialog window = getAddOrEditItemWindow();
+				window.setContent(new EventInputPanel(ModalDialog.CONTENT_ID, window, new CompoundPropertyModel<>(obj)));
+				window.open(target);
 			}
 		};
 	}

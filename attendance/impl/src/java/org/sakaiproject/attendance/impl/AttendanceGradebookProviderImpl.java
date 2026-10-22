@@ -58,6 +58,7 @@ public class AttendanceGradebookProviderImpl implements AttendanceGradebookProvi
      * {@inheritDoc}
      */
     public boolean create(AttendanceSite aS, String categoryId) {
+        requireManageAttendance(aS);
         log.debug("create Gradebook");
         boolean returnVal = false;
 
@@ -86,6 +87,7 @@ public class AttendanceGradebookProviderImpl implements AttendanceGradebookProvi
      * {@inheritDoc}
      */
     public boolean remove(AttendanceSite aS) {
+        requireManageAttendance(aS);
         log.debug("remove GB for AS {}", aS.getSiteID());
         String siteID = aS.getSiteID();
         String aUID = getAttendanceUID(aS);
@@ -105,6 +107,7 @@ public class AttendanceGradebookProviderImpl implements AttendanceGradebookProvi
      * {@inheritDoc}
      */
     public boolean update(AttendanceSite aS, String categoryId) {
+        requireManageAttendance(aS);
         log.debug("Updating GB for AS {}", aS.getSiteID());
         Long categoryIdNumber = null;
         if(categoryId != null){
@@ -132,6 +135,7 @@ public class AttendanceGradebookProviderImpl implements AttendanceGradebookProvi
         if(aG == null) {
             return false;
         }
+        requireManageAttendance(aG.getAttendanceSite());
 
         final AttendanceSite aS = aG.getAttendanceSite();
         final String siteID = aS.getSiteID();
@@ -204,5 +208,10 @@ public class AttendanceGradebookProviderImpl implements AttendanceGradebookProvi
 
     private String getAttendanceUID(Long id) {
         return AttendanceConstants.SAKAI_TOOL_NAME + "." + id.toString();
+    }
+    private void requireManageAttendance(AttendanceSite site) {
+        if (site == null || !sakaiProxy.canManageAttendance(site.getSiteID())) {
+            throw new SecurityException("Not allowed to send attendance grades for this site");
+        }
     }
 }

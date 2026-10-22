@@ -41,7 +41,6 @@ import org.sakaiproject.attendance.tool.panels.PrintPanel;
 import org.sakaiproject.attendance.tool.util.ConfirmationLink;
 
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * The overview page which lists AttendanceEvents and basic statistics of each
@@ -64,7 +63,7 @@ public class Overview extends BasePage {
 	public Overview() {
 		disableLink(this.homepageLink);
 
-		if (this.role != null && this.role.equals("Student")) {
+		if (!sakaiProxy.canManageAttendance(sakaiProxy.getCurrentSiteId())) {
 			throw new RestartResponseException(StudentView.class);
 		}
 
@@ -139,7 +138,7 @@ public class Overview extends BasePage {
 				item.add(eventLink);
 
 				Instant start = modelObject.getStartDateTime();
-				Label eventDate = new Label("event-date", start != null ? Date.from(start) : null);
+				Label eventDate = new Label("event-date", sakaiProxy.formatDateTime(start));
 				eventDate.add(new AttributeModifier("data-text", start != null ? start.toEpochMilli() : 0));
 				item.add(eventDate);
 

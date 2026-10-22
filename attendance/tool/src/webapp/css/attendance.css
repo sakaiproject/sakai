@@ -882,3 +882,21 @@ div.wicket-modal div.w_content_3 div.messageSuccess, div.wicket-modal div.w_cont
     text-align: center;
     font-size: 1.3em;
 }
+
+/* Wicket dialogs do not use Bootstrap's .modal-content, which normally restores pointer events. */
+.modal-dialog-overlay > .modal-dialog {
+    pointer-events: auto;
+}
+
+@media (max-width: 575.98px) {
+    img.overviewInfo:hover + div.overviewInfo,
+    img.statisticsInfo:hover + div.statisticsInfo,
+    a.statisticsInfo:hover + div.statisticsInfo {
+        position: fixed;
+        left: 1rem;
+        right: 1rem;
+        width: auto;
+        max-width: calc(100vw - 2rem);
+        box-sizing: border-box;
+    }
+}

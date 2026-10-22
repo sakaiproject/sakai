@@ -50,18 +50,15 @@ public class BasePanel extends Panel {
     @SpringBean(name="org.sakaiproject.attendance.api.AttendanceGradebookProvider")
     protected AttendanceGradebookProvider attendanceGradebookProvider;
 
-    protected String role;
 
     protected FeedbackPanel pageFeedbackPanel;
 
     public BasePanel(String id) {
         super(id);
-        init();
     }
 
     public BasePanel(String id, IModel<?> i){
         super(id, i);
-        init();
     }
 
     protected void enable(FeedbackPanel panel) {
@@ -84,7 +81,4 @@ public class BasePanel extends Panel {
         }
     }
 
-    private void init(){
-        this.role = sakaiProxy.getCurrentUserRoleInCurrentSite();
-    }
 }

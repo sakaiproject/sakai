@@ -35,7 +35,7 @@
 * Bugfixes
   * Sequence for ATTENDANCE\_GRADE\_T set correctly.
   Oracle users should run the PSQL defined at the bottom of the 
-  [attendance-20170215-oracle.sql](/docs/sql/attendance-20170215-oracle.sql) file.
+  [attendance-20170215-oracle.sql](https://github.com/sakaicontrib/attendance/blob/2a230316cb859a3627c5b0d43960fe4f1d786f03/docs/sql/attendance-20170215-oracle.sql) file.
   * Minor fixes
 
 ## 1.0

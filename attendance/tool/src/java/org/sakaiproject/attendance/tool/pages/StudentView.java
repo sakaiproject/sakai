@@ -18,7 +18,6 @@ package org.sakaiproject.attendance.tool.pages;
 
 
 import java.time.Instant;
-import java.util.Date;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
@@ -74,7 +73,7 @@ public class StudentView extends BasePage {
 
     private void init() {
         this.attendanceStatusProvider = new AttendanceStatusProvider(attendanceLogic.getCurrentAttendanceSite(), AttendanceStatusProvider.ACTIVE);
-        if(this.role != null && this.role.equals("Student")){
+        if(!sakaiProxy.canManageAttendance(sakaiProxy.getCurrentSiteId())){
             this.isStudent = true;
             hideNavigationLink(this.addLink);
             hideNavigationLink(this.homepageLink);
@@ -224,7 +223,7 @@ public class StudentView extends BasePage {
                 }
                 item.add(eventLink);
                 Instant start = item.getModelObject().getAttendanceEvent().getStartDateTime();
-                item.add(new Label("event-date", start != null ? Date.from(start) : null));
+                item.add(new Label("event-date", sakaiProxy.formatDateTime(start)));
                 AjaxLazyLoadPanel dataPanelSlow = new AjaxLazyLoadPanel("dataPanelSlow") {
                     @Override
                     public Component getLazyLoadComponent(String s) {

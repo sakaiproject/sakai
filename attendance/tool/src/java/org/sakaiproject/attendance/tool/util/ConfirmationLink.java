@@ -17,6 +17,7 @@
 package org.sakaiproject.attendance.tool.util;
 
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.core.util.string.JavaScriptUtils;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 
@@ -42,7 +43,7 @@ public abstract class ConfirmationLink<T> extends AjaxLink<T>
         super.updateAjaxAttributes( attributes );
 
         AjaxCallListener ajaxCallListener = new AjaxCallListener();
-        ajaxCallListener.onPrecondition( "return confirm('" + text + "');" );
+        ajaxCallListener.onPrecondition( "return confirm('" + JavaScriptUtils.escapeQuotesAndBackslash(text) + "');" );
         attributes.getAjaxCallListeners().add( ajaxCallListener );
     }
 }

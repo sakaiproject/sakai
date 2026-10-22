@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * Created by Leonardo Canessa [lcanessa1 (at) udayton (dot) edu]

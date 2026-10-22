@@ -64,7 +64,7 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
         this.recordIModel = aR;
         this.oldStatus = aR.getObject().getStatus();
         this.showCommentsToStudents = recordIModel.getObject().getAttendanceEvent().getAttendanceSite().getShowCommentsToStudents();
-        this.restricted = this.role != null && this.role.equals("Student");
+        this.restricted = !sakaiProxy.canManageAttendance(sakaiProxy.getCurrentSiteId());
         this.returnPage = rP;
         enable(fP);
         this.ajaxTargets.add(this.pageFeedbackPanel);
@@ -136,20 +136,20 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
                 statusRadio.setLabel(Model.of("")); //second label for creating a colored box
                 SimpleFormComponentLabel clickBox = new SimpleFormComponentLabel("record-status-box", statusRadio);
                 AttributeAppender iconMaker = null;
-                switch (getStatusString(itemStatus)){   //make icon based on what status it is.
-                    case "Present":
+                switch (itemStatus) {   //make icon based on what status it is.
+                    case PRESENT:
                         iconMaker = new AttributeAppender("class", " fa fa-check");
                         break;
-                    case "Absent":
+                    case UNEXCUSED_ABSENCE:
                         iconMaker = new AttributeAppender("class", " fa fa-times");
                         break;
-                    case "Excused":
+                    case EXCUSED_ABSENCE:
                         iconMaker = new AttributeAppender("class", " fa fa-genderless");
                         break;
-                    case "Late":
+                    case LATE:
                         iconMaker = new AttributeAppender("class", " fa fa-clock-o");
                         break;
-                    case "Left Early":
+                    case LEFT_EARLY:
                         iconMaker = new AttributeAppender("class", " fa fa-sign-out");
                         break;
                     default:

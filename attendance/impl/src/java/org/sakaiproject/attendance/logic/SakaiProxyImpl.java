@@ -33,6 +33,10 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.*;
 
 import java.util.*;
+import java.time.Instant;
+import java.time.ZoneId;
+import org.sakaiproject.util.api.LocaleService;
+import org.sakaiproject.time.api.UserTimeService;
 
 /**
  * Implementation of our SakaiProxy API
@@ -45,6 +49,39 @@ import java.util.*;
 @Getter
 @Slf4j
 public class SakaiProxyImpl implements SakaiProxy {
+
+    public boolean canManageAttendance(String siteId) {
+        if (siteId == null || getCurrentUserId() == null) {
+            return false;
+        }
+        String reference = siteService.siteReference(siteId);
+        return securityService.isSuperUser()
+                || securityService.unlock("section.role.instructor", reference)
+                || securityService.unlock("section.role.ta", reference)
+                || securityService.unlock(SiteService.SECURE_UPDATE_SITE, reference);
+    }
+
+    public boolean canAccessAttendance(String siteId) {
+        return siteId != null && getCurrentUserId() != null
+                && (canManageAttendance(siteId) || siteService.allowAccessSite(siteId));
+    }
+
+
+    private LocaleService localeService;
+    private UserTimeService userTimeService;
+
+    public Locale getLocale() {
+        return localeService.getLocaleForCurrentSiteAndUser();
+    }
+
+    public ZoneId getZoneId() {
+        return userTimeService.getLocalTimeZone().toZoneId();
+    }
+
+    public String formatDateTime(Instant instant) {
+        return instant == null ? "" : userTimeService.shortLocalizedTimestamp(instant, getLocale());
+    }
+
 
 	/**
  	* {@inheritDoc}

@@ -41,7 +41,7 @@ public class SettingsPage extends BasePage {
 	public SettingsPage() {
 		disableLink(settingsLink);
 
-		if(this.role != null && this.role.equals("Student")) {
+		if(!sakaiProxy.canManageAttendance(sakaiProxy.getCurrentSiteId())) {
 			throw new RestartResponseException(StudentView.class);
 		}
 

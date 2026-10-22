@@ -54,7 +54,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -134,7 +133,7 @@ public class EventView extends BasePage {
 
         add(new Label("event-name", attendanceEvent.getName()));
         Instant start = attendanceEvent.getStartDateTime();
-        add(new Label("event-date", start != null ? Date.from(start) : null));
+        add(new Label("event-date", sakaiProxy.formatDateTime(start)));
         add(new Label("take-attendance-header", getString("attendance.event.view.take.attendance")));
 
         final Form<?> setAllForm = new Form<Void>("set-all-form"){

@@ -21,14 +21,14 @@ import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.form.DateTextField;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalDialog;
+import org.apache.wicket.extensions.markup.html.form.datetime.LocalDateTimeTextField;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -52,15 +52,15 @@ public class EventInputPanel extends BasePanel {
 
     private IModel<AttendanceEvent> eventModel;
     private AttendanceEvent attendanceEvent;
-    private ModalWindow window;
+    private ModalDialog window;
     private boolean isEditing;
     private boolean recursiveAddAnother;
 
-    public EventInputPanel(String id, final ModalWindow window, final IModel<AttendanceEvent> event) {
+    public EventInputPanel(String id, final ModalDialog window, final IModel<AttendanceEvent> event) {
         this(id, window, event, false);
     }
 
-    public EventInputPanel(String id, final ModalWindow window, final IModel<AttendanceEvent> event, boolean recursive) {
+    public EventInputPanel(String id, final ModalDialog window, final IModel<AttendanceEvent> event, boolean recursive) {
         super(id, event);
         this.window = window;
         this.recursiveAddAnother = recursive;
@@ -75,6 +75,7 @@ public class EventInputPanel extends BasePanel {
             attendanceEvent = event.getObject();
         }
 
+        add(new Label("dialog-title", new ResourceModel(isEditing ? "attendance.add.edit.header" : "attendance.add.header")));
         add(createEventInputForm());
     }
 
@@ -112,15 +113,27 @@ public class EventInputPanel extends BasePanel {
     private void processSave(AjaxRequestTarget target, Form<?> form, boolean addAnother) {
         AttendanceEvent e = (AttendanceEvent) form.getModelObject();
         e.setAttendanceSite(attendanceLogic.getCurrentAttendanceSite());
-        boolean result = attendanceLogic.updateAttendanceEvent(e);
+        boolean newEvent = e.getId() == null;
+        boolean result;
+        try {
+            result = attendanceLogic.updateAttendanceEvent(e);
+        } catch (org.springframework.dao.DataAccessException | jakarta.persistence.PersistenceException failure) {
+            // A rolled-back identity insert may have assigned an ID to the page model.
+            if (newEvent) {
+                e.setId(null);
+            }
+            log.warn("Unable to save attendance event {}", e.getId(), failure);
+            result = false;
+        }
 
         if(result){
             StringResourceModel temp = new StringResourceModel("attendance.add.success", this);
             temp.setParameters(e.getName());
             getSession().success(temp.getString());
         } else {
-            error(getString("attendance.add.failure"));
+            error(new StringResourceModel("attendance.add.failure", this).setParameters(e.getName()).getString());
             target.addChildren(form, FeedbackPanel.class);
+            return;
         }
 
         final Class<? extends Page> currentPageClass = getPage().getPageClass();
@@ -129,11 +142,10 @@ public class EventInputPanel extends BasePanel {
                 window.close(target);
 
                 Overview overviewPage = (Overview) getPage();
-                final ModalWindow window2 = overviewPage.getAddOrEditItemWindow();
-                window2.setTitle(new ResourceModel("attendance.add.header"));
-                window2.setContent(new EventInputPanel(window2.getContentId(), window2, null, true));
+                final ModalDialog window2 = overviewPage.getAddOrEditItemWindow();
+                window2.setContent(new EventInputPanel(ModalDialog.CONTENT_ID, window2, null, true));
                 target.addChildren(form, FeedbackPanel.class);
-                window2.show(target);
+                window2.open(target);
             }
         } else {
             if(EventView.class.equals(currentPageClass)) {
@@ -177,18 +189,18 @@ public class EventInputPanel extends BasePanel {
         final TextField<String> name = new TextField<>("name");
         name.setRequired(true);
 
-        final IModel<Date> startDateModel = new IModel<Date>() {
+        final IModel<LocalDateTime> startDateModel = new IModel<LocalDateTime>() {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Date getObject() {
+            public LocalDateTime getObject() {
                 Instant start = eventModel.getObject().getStartDateTime();
-                return start != null ? Date.from(start) : null;
+                return start != null ? LocalDateTime.ofInstant(start, sakaiProxy.getZoneId()) : null;
             }
 
             @Override
-            public void setObject(Date object) {
-                eventModel.getObject().setStartDateTime(object != null ? object.toInstant() : null);
+            public void setObject(LocalDateTime object) {
+                eventModel.getObject().setStartDateTime(object != null ? object.atZone(sakaiProxy.getZoneId()).toInstant() : null);
             }
 
             @Override
@@ -197,7 +209,12 @@ public class EventInputPanel extends BasePanel {
             }
         };
 
-        final DateTextField startDateTime = new DateTextField("startDateTime", startDateModel, "yyyy-MM-dd'T'HH:mm");
+        final LocalDateTimeTextField startDateTime = new LocalDateTimeTextField("startDateTime", startDateModel, "yyyy-MM-dd'T'HH:mm") {
+            @Override
+            protected String[] getInputTypes() {
+                return new String[] { "datetime-local" };
+            }
+        };
 
         event.add(name);
         event.add(startDateTime);

@@ -21,17 +21,17 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -118,6 +118,10 @@ public class AttendanceSite implements Serializable {
 		this.isSyncing = false;
 	}
 
+    public Boolean getShowCommentsToStudents() {
+        return Boolean.TRUE.equals(showCommentsToStudents);
+    }
+
 	public Boolean getSendToGradebook() {
 		if(this.sendToGradebook == null) {
 			return false;
@@ -135,7 +139,7 @@ public class AttendanceSite implements Serializable {
 	}
 
 	public Boolean getUseAutoGrading() {
-        return this.gradingMethod != null;
+        return this.gradingMethod != null && this.gradingMethod != AttendanceConstants.GRADING_METHOD_NONE;
     }
 
 }

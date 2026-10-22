@@ -20,6 +20,9 @@ import org.sakaiproject.user.api.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.time.Instant;
+import java.time.ZoneId;
 
 /**
  * An interface to abstract all Sakai related API calls in a central method that can be injected into our app.
@@ -29,6 +32,23 @@ import java.util.List;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
 public interface SakaiProxy {
+
+    /** Whether the current user may manage attendance in the specified site. */
+    boolean canManageAttendance(String siteId);
+
+    /** Whether the current user may access the specified site. */
+    boolean canAccessAttendance(String siteId);
+
+
+    /** Effective Sakai site/user locale. */
+    Locale getLocale();
+
+    /** Current user's preferred timezone from Sakai preferences. */
+    ZoneId getZoneId();
+
+    /** Localized date and time in the current user's preferred timezone. */
+    String formatDateTime(Instant instant);
+
 
 	/**
 	 * Get current siteid
