@@ -712,7 +712,7 @@ class SiteStatsTest extends SakaiUiTestBase {
         assertThat(metricLabels.first()).isVisible();
         for (String label : labels) {
             assertThat(metricLabels.filter(new Locator.FilterOptions()
-                    .setHasText(Pattern.compile("^" + Pattern.quote(label) + "$")))).hasCount(1);
+                    .setHasText(Pattern.compile("^" + label + "$")))).hasCount(1);
         }
     }
 
