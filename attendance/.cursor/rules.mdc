@@ -1,0 +1,105 @@
+# Cursor Rules for Attendance Project
+
+## Code Structure
+
+### File Organization
+- Package declaration first
+- Imports grouped by type with blank lines between groups
+- Class documentation before class declaration
+- Constants and static fields at the top
+- Instance fields after constants
+- Constructors after fields
+- Public methods before private methods
+
+### Import Order
+- java.*
+- javax.*
+- lombok.*
+- org.apache.*
+- org.sakaiproject.*
+- org.sakaiproject.attendance.*
+
+### Class Structure
+- Models use Lombok annotations
+- Controllers/pages extend base classes
+- Utility classes contain static methods
+- Implementation classes implement interfaces
+
+## Naming Conventions
+
+### Classes
+- Use PascalCase
+- Model classes: Attendance[Entity]
+- Controller classes: [Entity]Page
+- Util classes: [Purpose]Util
+- Implementation classes: [Interface]Impl
+- Panel classes: [Purpose]Panel
+
+### Methods
+- Use camelCase
+- Getters: get[Property]
+- Setters: set[Property]
+- Boolean getters: is[Property]
+- Action methods: descriptive verbs (update, delete, add)
+
+### Variables
+- Use camelCase
+- Boolean variables prefixed with "is" or "has"
+- Constants in UPPER_SNAKE_CASE
+- Member variables: no prefix (direct naming)
+
+### Method JavaDoc
+For new methods:
+```java
+/**
+ * Brief description of what the method does.
+ *
+ * @param paramName Description of parameter
+ * @return Description of return value
+ * @throws ExceptionType When/why this exception is thrown
+ */
+```
+
+## Coding Patterns
+
+### Lombok
+- Use @Getter/@Setter at class level for models
+- Use @NoArgsConstructor/@AllArgsConstructor for models
+- Use @EqualsAndHashCode(exclude={"collections"}) to avoid issues
+- Use @Slf4j for logging
+
+### Error Handling
+- Check parameters with explicit null checks
+- Use IllegalArgumentException for invalid inputs
+- Return empty collections instead of null
+- Use try-catch blocks for expected exceptions
+- Use logging with appropriate levels (debug, info, warn, error)
+
+### Wicket Patterns
+- Use CompoundPropertyModel for form binding
+- Use ResourceModel for internationalization
+- Component IDs use kebab-case
+- Extend BasePage for pages
+- Extend BasePanel for panels
+- Use AttributeModifier for HTML attributes
+- Use AjaxLink for AJAX interactions
+
+## Code Formatting
+
+### Indentation
+- 4 spaces (not tabs)
+- Align field declarations for readability
+
+### Braces
+- Opening brace on same line
+- Always use braces, even for single-line blocks
+
+### Spacing
+- Space after keywords (if, for, while)
+- Spaces around operators
+- No space after method names in calls
+
+### Line Breaks
+- Maximum line length: 120 characters
+- Break before operators when wrapping
+- Chain method calls with each call on a new line

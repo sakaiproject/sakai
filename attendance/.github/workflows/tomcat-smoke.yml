@@ -1,0 +1,131 @@
+name: Sakai Tomcat Smoke Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  sakai-tomcat:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    env:
+      TERM: xterm
+      JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
+      MAVEN_OPTS: "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true"
+      TOMCAT_DIR: "${{ github.workspace }}/tomcat"
+
+    steps:
+      - name: Checkout attendance tool
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout latest Sakai
+        uses: actions/checkout@v4
+        with:
+          repository: sakaiproject/sakai
+          ref: master
+          path: sakai
+          fetch-depth: 1
+          fetch-tags: false
+
+      - name: Set up Temurin JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+
+      - name: Set up Maven 3.9.9
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.9.9
+
+      - name: Provision Tomcat and database
+        run: |
+          sudo systemctl start mysql.service
+          echo "127.0.0.1 repository.dev.java.net" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 maven-repository.dev.java.net" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 maven2-repository.dev.java.net" | sudo tee -a /etc/hosts
+          mkdir -p "${TOMCAT_DIR}"
+          pushd "${TOMCAT_DIR}"
+          curl -s -o tomcat.tar.gz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.111/bin/apache-tomcat-9.0.111.tar.gz
+          tar --strip-components=1 -xzf tomcat.tar.gz
+          git clone https://github.com/sakaiproject/nightly-config.git sakai
+          cp sakai/setenv.sh bin/setenv.sh
+          cp sakai/cypress.properties sakai/sakai.properties
+          sed -i '/DEBUG/d' sakai/sakai.properties
+          cp -f sakai/context.xml conf/context.xml
+          cp -f sakai/catalina.properties conf/catalina.properties
+          sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
+          popd
+          mysql -u root -proot -e "DROP DATABASE IF EXISTS sakai; CREATE DATABASE sakai;"
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Build Sakai master and deploy to Tomcat
+        working-directory: sakai
+        run: mvn --batch-mode -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home="${TOMCAT_DIR}"
+
+      - name: Build attendance tool and deploy to Tomcat
+        run: mvn --batch-mode install sakai:deploy-exploded -Dmaven.tomcat.home="${TOMCAT_DIR}"
+
+      - name: Start Tomcat and verify startup
+        run: |
+          touch "${TOMCAT_DIR}/logs/catalina.out"
+          "${TOMCAT_DIR}/bin/catalina.sh" start
+          if ! timeout 600 bash -c 'until grep -q "Server startup in" "'"${TOMCAT_DIR}/logs/catalina.out"'"; do sleep 10; done'; then
+            echo "Tomcat failed to report startup within 10 minutes" >&2
+            tail -n 200 "${TOMCAT_DIR}/logs/catalina.out" || true
+            exit 1
+          fi
+          curl --fail --silent --show-error --max-time 60 http://localhost:8080/portal/ > /tmp/portal.html
+          tail -n 20 "${TOMCAT_DIR}/logs/catalina.out"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install Cypress dependencies
+        run: npm ci --no-fund --no-audit
+
+      - name: Run Attendance Cypress suite
+        env:
+          CYPRESS_BASE_URL: http://localhost:8080
+        run: npm run test:e2e
+
+      - name: Upload Cypress screenshots
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots/**
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Upload Cypress videos
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: cypress/videos/**
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Upload Tomcat logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tomcat-logs
+          path: "${{ env.TOMCAT_DIR }}/logs"
+          retention-days: 7
