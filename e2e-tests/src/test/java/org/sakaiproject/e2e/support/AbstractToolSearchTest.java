@@ -147,8 +147,7 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
         assertThat(result.locator(".search-result-toolname")).hasText(toolLabel());
         assertThat(result.locator(".search-result-title")).containsText(titleWord);
         assertThat(result.locator(".search-result")).containsText(bodyWord);
-        // markup is stripped, and text that looks like markup is shown as text, never rendered
-        assertThat(result.locator(".search-result")).not().containsText("<b>");
+        assertMarkupNeitherShownNorRendered(result.locator(".search-result"));
         assertThat(page.locator("sakai-search img")).hasCount(0);
         assertEquals("undefined", page.evaluate("typeof window.searchXss"));
     }
@@ -165,7 +164,7 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
         Locator result = page.locator(".searchItem").filter(new Locator.FilterOptions().setHasText(titleWord));
         assertThat(result).hasCount(1);
         assertThat(result.locator(".searchItemBody")).containsText(bodyWord);
-        assertThat(result.locator(".searchItemBody")).not().containsText("<b>");
+        assertMarkupNeitherShownNorRendered(result.locator(".searchItemBody"));
         assertThat(page.locator(".searchResultsContainer img")).hasCount(0);
         assertEquals("undefined", page.evaluate("typeof window.searchXss"));
     }
@@ -256,6 +255,16 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
 
         awaitNoItem(updatedWord);
         awaitNoItem(titleWord);
+    }
+
+    /**
+     * The content's {@code <b>bold</b>} must be stripped: neither shown as literal tags (the raw markup bug)
+     * nor rendered as an element. Matched terms are legitimately wrapped in the highlighter's own tags.
+     */
+    private void assertMarkupNeitherShownNorRendered(Locator snippet) {
+        assertThat(snippet).containsText("bold");
+        assertThat(snippet).not().containsText("<b>");
+        assertThat(snippet.locator("b, strong").filter(new Locator.FilterOptions().setHasText("bold"))).hasCount(0);
     }
 
     // --- search helpers, for subclasses too ---

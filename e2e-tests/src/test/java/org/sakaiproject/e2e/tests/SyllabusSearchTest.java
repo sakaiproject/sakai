@@ -102,6 +102,16 @@ class SyllabusSearchTest extends AbstractToolSearchTest {
         // file names are indexed literally, with their extension, as they are for Resources
         awaitItem(fileWord + ".pdf", key);
         awaitItem(pdfWord, key);
+
+        // removal is saved at once, without publishing again, so it alone has to update search
+        openItemEditor(title);
+        // the remove action only shows while hovering its row
+        Locator attachmentRow = page.locator("tr").filter(new Locator.FilterOptions().setHasText(fileWord + ".pdf"));
+        attachmentRow.hover();
+        attachmentRow.locator("a").filter(new Locator.FilterOptions().setHasText("Remove")).first().click();
+        page.locator("input[type=submit][value='Delete']").click();
+        await("'" + pdfWord + "' to stop finding " + key + " after its attachment was removed",
+            () -> findItem(search(pdfWord), key) == null, gone -> gone);
     }
 
     @Test

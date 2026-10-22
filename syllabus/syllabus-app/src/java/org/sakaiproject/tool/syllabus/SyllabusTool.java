@@ -1590,13 +1590,13 @@ public class SyllabusTool
           getEntry().getEntry().setStatus(SyllabusData.ITEM_POSTED);
           SyllabusData saved = syllabusManager.saveSyllabus(getEntry().getEntry());
 
-          syllabusService.postChangeSyllabus(saved);
-          
           for(int i=0; i<attachments.size(); i++)
           {
             syllabusManager.addSyllabusAttachToSyllabusData(saved,
                 (SyllabusAttachment)attachments.get(i));            
           }
+          // after the attachments, so search and the notification see the whole item
+          syllabusService.postChangeSyllabus(saved);
           //update calendar attachments
           if(saved.getCalendarEventIdStartDate() != null){
         	  syllabusManager.addCalendarAttachments(saved.getSyllabusItem().getContextId(), saved.getCalendarEventIdStartDate(), attachments);
@@ -2236,6 +2236,8 @@ public class SyllabusTool
         }
 
         if(id.toLowerCase().startsWith("/attachment")) contentHostingService.removeResource(id);
+        // the attachment is gone even if the edit is cancelled, so let search drop its text now
+        syllabusService.draftChangeSyllabus(entry.getEntry());
       }
       catch(Exception e)
       {

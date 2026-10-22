@@ -292,18 +292,6 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
 	}
 
 	@Override
-	public boolean isForIndex(String reference) {
-		Reference ref = getReference(reference);
-		if (ref == null) return false;
-		
-		SyllabusData syllabusData = getSyllabusData(ref);
-		if (syllabusData == null) return false;
-		
-		// Only index published syllabus entries
-		return SyllabusData.ITEM_POSTED.equals(syllabusData.getStatus());
-	}
-
-	@Override
 	public boolean matches(String reference) {
 		return reference.startsWith(SyllabusService.REFERENCE_ROOT);
 	}
