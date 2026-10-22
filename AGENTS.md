@@ -21,6 +21,7 @@
 - **Repositories**: Keep repositories focused on persistence of mapped entities and queries. Create adapters, DTO assembly, and tool-specific workflow objects in services.
 - **Singleton State**: Do not store request-specific state such as user id, site id, locale, timezone, or request parameters in singleton Spring beans/controllers.
 - **Strategy Consistency**: Avoid mixing competing solutions for the same problem, such as backend locks plus UI state throttling, unless both are explicitly required and documented.
+- **Locking**: Prefer existing persistence patterns and simple service checks. Exotic or cross-tool locking may appear to close concurrency gaps, but Sakai's shared Hibernate sessions, transaction boundaries, and tool workflows make it prone to unexpected conflicts and regressions; do not introduce it without a demonstrated need and tests covering the affected tools through transaction commit.
 
 ### Kernel
 - **Core Services**: The Kernel provides core services that should be used by all tools

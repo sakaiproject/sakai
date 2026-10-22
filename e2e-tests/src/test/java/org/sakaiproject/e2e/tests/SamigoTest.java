@@ -259,7 +259,11 @@ class SamigoTest extends SakaiUiTestBase {
 
         clickFirstVisible(page.locator("a:has-text(\"Publish\"), input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\")"));
         clickFirstVisibleIfPresent(page.locator("#publishAssessmentForm\\:publish, input[type=\"submit\"][value*=\"Publish\"], button:has-text(\"Publish\")"));
-        assertThat(page.locator("body")).containsText(Pattern.compile("Essay with Rubric", Pattern.CASE_INSENSITIVE));
+        assertThat(page.locator("body")).not().containsText("A Gradebook item could not be created");
+        Locator publishedEssay = page.locator("[id='authorIndexForm:coreAssessments'] tbody > tr")
+            .filter(new Locator.FilterOptions().setHasText(ESSAY_TITLE))
+            .filter(new Locator.FilterOptions().setHas(page.locator(".status_published_2")));
+        assertThat(publishedEssay).hasCount(1);
     }
 
     @Test
