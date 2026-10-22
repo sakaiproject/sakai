@@ -25,6 +25,24 @@ describe("sakai-rubrics-list pagination", () => {
       .get("*", 500);
   }
 
+  it("should sort numeric modified timestamps from the same day in both directions", async () => {
+    setRoutes([
+      { ...data.rubric1, id: 1, modified: 1792683060.5 },
+      { ...data.rubric1, id: 2, modified: 1792681860.5 },
+    ]);
+    const el = await fixture(html`<sakai-rubrics-list site-id="${data.siteId}"></sakai-rubrics-list>`);
+    await waitUntil(() => el.querySelectorAll("sakai-rubric").length === 2, "Rubrics not loaded");
+    const renderedIds = () => Array.from(el.querySelectorAll("sakai-rubric"), row => row.rubric.id);
+
+    el.sortRubrics("modified", true);
+    await elementUpdated(el);
+    expect(renderedIds()).to.deep.equal([ 2, 1 ]);
+
+    el.sortRubrics("modified", false);
+    await elementUpdated(el);
+    expect(renderedIds()).to.deep.equal([ 1, 2 ]);
+  });
+
   it("should paginate rubrics correctly", async () => {
     // This test checks that pagination works as expected for the main rubrics list
     // Create 25 rubrics for pagination
