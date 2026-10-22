@@ -17,12 +17,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-impl</artifactId>
-            <version>${sakai.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
         </dependency>

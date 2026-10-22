@@ -211,7 +211,6 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.sakaiproject.util.MergeConfig;
-import org.sakaiproject.db.api.SqlService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -231,7 +230,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private AssignmentRepository assignmentRepository;
     @Setter private AssignmentSupplementItemService assignmentSupplementItemService;
     @Setter private AuthzGroupService authzGroupService;
-    @Setter private SqlService sqlService;
     @Setter private CalendarService calendarService;
     @Setter private CandidateDetailProvider candidateDetailProvider;
     @Setter private ContentHostingService contentHostingService;
@@ -1402,13 +1400,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (!Boolean.TRUE.equals(assignment.getIsGroup()) || assignment.getTypeOfAccess() != GROUP) {
             return false;
         }
-        return canReleaseGroupLocks(assignment, assignmentRepository.findCurrentSubmissions(assignment.getId()));
-    }
-
-    private boolean canReleaseGroupLocks(Assignment assignment, List<AssignmentSubmission> submissions) {
-        if (!Boolean.TRUE.equals(assignment.getIsGroup()) || assignment.getTypeOfAccess() != GROUP) {
-            return false;
-        }
+        List<AssignmentSubmission> submissions = assignmentRepository.findSubmissions(Collections.singleton(assignment.getId()));
         if (submissions.isEmpty()) {
             return true;
         }
@@ -1455,29 +1447,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     private void releaseAssignmentGroupLocks(Assignment assignment, String reference) throws PermissionException {
-        AtomicReference<PermissionException> permissionException = new AtomicReference<>();
-        try {
-            sqlService.transact(() -> {
-                for (String groupReference : assignment.getGroups()) {
-                    try {
-                        AuthzGroup group = authzGroupService.getAuthzGroup(groupReference);
-                        group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
-                        authzGroupService.save(group);
-                    } catch (GroupNotDefinedException e) {
-                        log.debug("Group {} no longer exists while releasing assignment {} locks", groupReference, assignment.getId());
-                    } catch (AuthzPermissionException e) {
-                        log.warn("Unable to release group {} lock for assignment {}", groupReference, assignment.getId(), e);
-                        permissionException.set(new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, groupReference));
-                        // SqlService rolls back on runtime failures; preserve the checked service contract below.
-                        throw new IllegalStateException("Unable to release assignment group locks", e);
-                    }
-                }
-            }, "assignmentGroupLocks:" + assignment.getId());
-        } catch (RuntimeException e) {
-            if (permissionException.get() != null) {
-                throw permissionException.get();
+        for (String groupReference : assignment.getGroups()) {
+            try {
+                AuthzGroup group = authzGroupService.getAuthzGroup(groupReference);
+                group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                authzGroupService.save(group);
+            } catch (GroupNotDefinedException e) {
+                log.debug("Group {} no longer exists while releasing assignment {} locks", groupReference, assignment.getId());
+            } catch (AuthzPermissionException e) {
+                log.warn("Unable to release group {} lock for assignment {}", groupReference, assignment.getId(), e);
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, groupReference);
             }
-            throw e;
         }
     }
 
@@ -1508,8 +1488,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         assignment.setDeleted(false);
         assignment.setSoftRemovedDate(null);
-        // Restore is the authorized transition out of deletion, under the row lock acquired above.
-        assignmentRepository.flush();
         updateAssignment(assignment);
         return assignment;
     }
@@ -1706,12 +1684,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             // remove submission
-            if (Boolean.TRUE.equals(submission.getAssignment().getIsGroup())) {
-                assignmentRepository.lockAssignmentAndCheckDeleted(submission.getAssignment().getId());
-                if (!assignmentRepository.existsPersistedSubmission(submission.getId())) {
-                    return;
-                }
-            }
             assignmentRepository.deleteSubmission(submission.getId());
 
             // track event
@@ -1739,19 +1711,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // security check
         if (!allowUpdateAssignment(reference)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
-        }
-
-        List<AssignmentSubmission> currentSubmissions = Collections.emptyList();
-        if (Boolean.TRUE.equals(assignment.getDraft()) && Boolean.TRUE.equals(assignment.getIsGroup())
-                && assignment.getTypeOfAccess() == GROUP) {
-            // Check deletion before existing edits can flush; new assignments are inserted before locking.
-            if (assignmentRepository.lockAssignmentForDraftUpdate(assignment.getId())) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, reference);
-            }
-            currentSubmissions = assignmentRepository.findCurrentSubmissions(assignment.getId());
-            // A detached assignment can also carry stale children into the cascading merge below.
-            assignment.getSubmissions().clear();
-            assignment.getSubmissions().addAll(currentSubmissions);
         }
 
         Collection<String> prevAssignedGroupRefs = assignmentRepository.findGroupsForAssignmentById(assignment.getId());
@@ -1819,10 +1778,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             }
                         }
                     }
-                } else if (canReleaseGroupLocks(assignment, currentSubmissions)) {
+                } else if (canReleaseGroupLocks(assignment)) {
                     releaseAssignmentGroupLocks(assignment, reference);
-                    // Empty grading placeholders contain the old group roster.
-                    assignment.getSubmissions().clear();
                 }
                 break;
             case SITE:
@@ -2356,11 +2313,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
 
-        if (Boolean.TRUE.equals(submission.getAssignment().getIsGroup())) {
-            if (assignmentRepository.lockAssignmentAndCheckDeleted(submission.getAssignment().getId())
-                    || !assignmentRepository.existsPersistedSubmission(submission.getId())) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
-            }
+        if (Boolean.TRUE.equals(submission.getAssignment().getIsGroup())
+                && assignmentRepository.lockAssignmentAndCheckDeleted(submission.getAssignment().getId())) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
 
         reconcileGroupSubmissionSubmittersOnPost(submission, assignmentReference, reference);

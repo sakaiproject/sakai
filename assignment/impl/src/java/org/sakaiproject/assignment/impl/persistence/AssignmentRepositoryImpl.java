@@ -83,25 +83,12 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     public boolean lockAssignmentAndCheckDeleted(String assignmentId) {
-        return Boolean.TRUE.equals(assignmentDeletionStateForUpdate(assignmentId).getSingleResult());
-    }
-
-    @Override
-    public boolean lockAssignmentForDraftUpdate(String assignmentId) {
-        List<Boolean> states = assignmentDeletionStateForUpdate(assignmentId).getResultList();
-        if (states.isEmpty()) {
-            geCurrentSession().flush();
-            return lockAssignmentAndCheckDeleted(assignmentId);
-        }
-        return Boolean.TRUE.equals(states.get(0));
-    }
-
-    private org.hibernate.query.Query<Boolean> assignmentDeletionStateForUpdate(String assignmentId) {
-        return geCurrentSession().createQuery(
+        return Boolean.TRUE.equals(geCurrentSession().createQuery(
                 "select a.deleted from Assignment a where a.id = :assignmentId", Boolean.class)
                 .setParameter("assignmentId", assignmentId)
                 .setHibernateFlushMode(FlushMode.COMMIT)
-                .setLockMode(LockModeType.PESSIMISTIC_WRITE);
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .getSingleResult());
     }
 
     @Override
@@ -146,11 +133,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             assignment.setDateCreated(Instant.now());
             geCurrentSession().persist(assignment);
         }
-    }
-
-    @Override
-    public void flush() {
-        geCurrentSession().flush();
     }
 
     @Override
@@ -214,24 +196,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             return true;
         }
         return false;
-    }
-
-    @Override
-    public boolean existsPersistedSubmission(String submissionId) {
-        // Check persisted state even if an already-open request has the submission cached.
-        return submissionId != null && geCurrentSession().createQuery(
-                "select count(s.id) from AssignmentSubmission s where s.id = :submissionId", Long.class)
-                .setParameter("submissionId", submissionId)
-                .setHibernateFlushMode(FlushMode.COMMIT)
-                .getSingleResult() > 0;
-    }
-
-    @Override
-    public List<AssignmentSubmission> findCurrentSubmissions(String assignmentId) {
-        List<AssignmentSubmission> submissions = findSubmissions(Collections.singleton(assignmentId));
-        // A query can return an earlier version already present in this request's Hibernate session.
-        submissions.forEach(submission -> geCurrentSession().refresh(submission));
-        return submissions;
     }
 
     @Override

@@ -48,11 +48,6 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     void newAssignment(Assignment assignment);
 
-    /** Lock before flushing existing edits; flush a pending new insert if no row exists. Returns the deleted flag. */
-    boolean lockAssignmentForDraftUpdate(String assignmentId);
-
-    void flush();
-
     boolean existsAssignment(String assignmentId);
 
     void deleteAssignment(String assignmentId);
@@ -66,12 +61,6 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
     void updateSubmission(AssignmentSubmission submission);
 
     boolean existsSubmission(String submissionId);
-
-    /** Checks the database without flushing or trusting an already-loaded submission. */
-    boolean existsPersistedSubmission(String submissionId);
-
-    /** Reload submission work after the caller has locked the assignment row. */
-    List<AssignmentSubmission> findCurrentSubmissions(String assignmentId);
 
     boolean existsSubmissionSubmitter(Long submissionSubmitterId);
 

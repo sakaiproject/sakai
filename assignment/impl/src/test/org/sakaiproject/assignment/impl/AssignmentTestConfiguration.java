@@ -91,16 +91,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 @PropertySource("classpath:/hibernate.properties")
 public class AssignmentTestConfiguration {
 
-    @Bean(name = "org.sakaiproject.db.api.SqlService")
-    public org.sakaiproject.db.api.SqlService sqlService(DataSource dataSource) {
-        org.sakaiproject.db.impl.BasicSqlService service = new org.sakaiproject.db.impl.BasicSqlService();
-        service.setDefaultDataSource(dataSource);
-        service.setThreadLocalManager(new org.sakaiproject.thread_local.impl.ThreadLocalComponent());
-        service.setDatabaseBeans(java.util.Map.of("hsqldb", new org.sakaiproject.db.impl.BasicSqlServiceSqlHSql()));
-        service.setSqlServiceSql("hsqldb");
-        return service;
-    }
-
     @Autowired
     private Environment environment;
 
