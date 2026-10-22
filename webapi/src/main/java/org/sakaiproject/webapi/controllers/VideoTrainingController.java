@@ -79,7 +79,7 @@ public class VideoTrainingController extends AbstractSakaiApiController {
 
     @GetMapping(value = {"/sites/{siteId}/videos"}, produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedResponse<VideoTrainingRestBean> getSiteVideos(
-        @PathVariable(required = true) String siteId,
+        @PathVariable("siteId") String siteId,
         @RequestParam(name = "q", required = false) String q,
         @RequestParam(name = "page", defaultValue = "1") int page,
         @RequestParam(name = "size", defaultValue = "10") int size,
