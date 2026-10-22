@@ -21,7 +21,7 @@ import java.util.List;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 import org.sakaiproject.videotraining.api.model.VideoTrainingAnalyticsEvent;
 
-public interface VideoTrainingAnalyticsEventRepository extends SpringCrudRepository<VideoTrainingAnalyticsEvent, String> {
+public interface VideoTrainingAnalyticsEventRepository extends SpringCrudRepository<VideoTrainingAnalyticsEvent, Long> {
 
     List<VideoTrainingAnalyticsEvent> findByVideoIdOrderByEventTimeDesc(String videoId);
 

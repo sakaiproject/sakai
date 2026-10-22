@@ -350,7 +350,7 @@
 		<dependency>
             <groupId>org.webjars.npm</groupId>
             <artifactId>plyr</artifactId>
-            <version>3.7.8</version>
+            <version>3.8.5</version>
             <scope>runtime</scope>
         </dependency>
 		<dependency>
@@ -362,7 +362,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>sortablejs</artifactId>
-			<version>1.15.2</version>
+			<version>1.15.7</version>
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
