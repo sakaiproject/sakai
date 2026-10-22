@@ -747,7 +747,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void draftingGroupAssignmentsReleasesOnlySafeLocksAndPreservesSubmissions() throws Exception {
+    public void savingDraftUnlocksGroupsWithoutWork() throws Exception {
         TransactionTemplate transaction = new TransactionTemplate(transactionManager);
         for (boolean unpublish : new boolean[] {false, true}) {
             // No submissions, an empty grading placeholder, and saved student/instructor work.
