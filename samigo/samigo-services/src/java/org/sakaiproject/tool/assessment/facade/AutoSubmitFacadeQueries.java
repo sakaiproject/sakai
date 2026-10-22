@@ -24,10 +24,12 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AutoSubmitFacadeQueries implements AutoSubmitFacadeQueriesAPI
 {
 	@Setter private SessionFactory sessionFactory;
+	/** Isolates Gradebook sync so failures do not mark the Samigo attempt transaction rollback-only. */
+	@Setter private TransactionTemplate requiresNewTransactionTemplate;
 
 	@Override
 	public boolean processAttempt(AssessmentGradingData adata, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
@@ -125,20 +129,27 @@ public class AutoSubmitFacadeQueries implements AutoSubmitFacadeQueriesAPI
 		}
 
 		if (autoSubmitCurrent) {
-			GradingService gs = new GradingService();
-			try {
-				gs.notifyGradebookByScoringType(adata, assessment);
-			} catch (GradebookServiceException e) {
-				// Keep the Samigo submission; Gradebook sync can be fixed later from Scores / settings
-				log.error("Gradebook sync failed after autosubmit; submission kept. assessmentGradingId={}, publishedAssessmentId={}",
-						adata.getAssessmentGradingId(), adata.getPublishedAssessmentId(), e);
-			}
+			notifyGradebookInNewTransaction(adata, assessment);
 
-			// if we get this far, the processing of this attempt was successful so it is now safe to
-			// update the log and email the student (triggered by the same method)
-			gs.updateAutosubmitEventLog(adata);
+			new GradingService().updateAutosubmitEventLog(adata);
 		}
 
 		return true;
+	}
+
+	private void notifyGradebookInNewTransaction(AssessmentGradingData adata, PublishedAssessmentIfc assessment) {
+		Runnable notify = () -> {
+			try {
+				new GradingService().notifyGradebookByScoringType(adata, assessment);
+			} catch (GradebookServiceException e) {
+				log.error("Gradebook sync failed after autosubmit; submission kept. assessmentGradingId={}, publishedAssessmentId={}",
+						adata.getAssessmentGradingId(), adata.getPublishedAssessmentId(), e);
+			}
+		};
+		if (requiresNewTransactionTemplate == null) {
+			notify.run();
+		} else {
+			requiresNewTransactionTemplate.executeWithoutResult(status -> notify.run());
+		}
 	}
 }

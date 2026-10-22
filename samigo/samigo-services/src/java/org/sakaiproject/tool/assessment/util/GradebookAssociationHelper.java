@@ -39,7 +39,14 @@ public final class GradebookAssociationHelper {
 	public enum SelectedGradebookValidation {
 		OK,
 		BLANK,
-		INVALID_OR_MISSING
+		INVALID_OR_MISSING,
+		LOOKUP_FAILED
+	}
+
+	public enum GradebookItemPresence {
+		PRESENT,
+		ABSENT,
+		UNKNOWN
 	}
 
 	private GradebookAssociationHelper() {
@@ -93,24 +100,43 @@ public final class GradebookAssociationHelper {
 
 	/**
 	 * Remap gradebook item ids using the site-import transversal map keys {@code gb/{oldId} → gb/{newId}}.
+	 * Ids without a map entry are preserved. When {@code siteId} and {@code gradingService} are provided,
+	 * a mapped id is dropped only when the new item is confirmed absent in the target site.
 	 *
-	 * @return remapped CSV of ids that had a map entry; empty string if none could be remapped
+	 * @return remapped CSV; empty string only when every id was mapped and confirmed absent (or input blank)
 	 */
 	public static String remapItemIds(String gradebookItemIds, Map<String, String> transversalMap) {
-		if (transversalMap == null || transversalMap.isEmpty()) {
+		return remapItemIds(gradebookItemIds, transversalMap, null, null);
+	}
+
+	public static String remapItemIds(String gradebookItemIds, Map<String, String> transversalMap,
+			String siteId, GradingService gradingService) {
+		if (StringUtils.isBlank(gradebookItemIds)) {
 			return "";
+		}
+		if (transversalMap == null || transversalMap.isEmpty()) {
+			return StringUtils.trimToEmpty(gradebookItemIds);
 		}
 		List<String> remapped = new ArrayList<>();
 		for (String oldId : parseItemIds(gradebookItemIds)) {
 			String mapped = transversalMap.get(GB_TRANSVERSAL_PREFIX + oldId);
-			if (StringUtils.isNotBlank(mapped)) {
-				String newId = mapped.startsWith(GB_TRANSVERSAL_PREFIX)
-						? mapped.substring(GB_TRANSVERSAL_PREFIX.length())
-						: mapped;
-				if (StringUtils.isNotBlank(newId)) {
-					remapped.add(newId);
-				}
+			if (StringUtils.isBlank(mapped)) {
+				remapped.add(oldId);
+				continue;
 			}
+			String newId = mapped.startsWith(GB_TRANSVERSAL_PREFIX)
+					? mapped.substring(GB_TRANSVERSAL_PREFIX.length())
+					: mapped;
+			if (StringUtils.isBlank(newId)) {
+				continue;
+			}
+			if (gradingService != null && StringUtils.isNotBlank(siteId)
+					&& checkGradebookItemPresence(siteId, newId, gradingService) == GradebookItemPresence.ABSENT) {
+				log.info("Dropping remapped gradebook item {} (from {}) confirmed absent in site {}",
+						newId, oldId, siteId);
+				continue;
+			}
+			remapped.add(newId);
 		}
 		return joinItemIds(remapped);
 	}
@@ -128,43 +154,92 @@ public final class GradebookAssociationHelper {
 			return SelectedGradebookValidation.BLANK;
 		}
 		if (gradingService == null || StringUtils.isBlank(siteId)) {
-			return SelectedGradebookValidation.INVALID_OR_MISSING;
+			return SelectedGradebookValidation.LOOKUP_FAILED;
 		}
+		boolean lookupFailed = false;
 		for (String itemId : itemIds) {
-			if (!isGradebookItemPresent(siteId, itemId, gradingService)) {
+			GradebookItemPresence presence = checkGradebookItemPresence(siteId, itemId, gradingService);
+			if (presence == GradebookItemPresence.ABSENT) {
 				return SelectedGradebookValidation.INVALID_OR_MISSING;
 			}
+			if (presence == GradebookItemPresence.UNKNOWN) {
+				lookupFailed = true;
+			}
 		}
-		return SelectedGradebookValidation.OK;
+		return lookupFailed ? SelectedGradebookValidation.LOOKUP_FAILED : SelectedGradebookValidation.OK;
 	}
 
 	/**
 	 * @return true if the id is numeric and a non-removed assignment exists for the site
 	 */
 	public static boolean isGradebookItemPresent(String siteId, String itemId, GradingService gradingService) {
+		return checkGradebookItemPresence(siteId, itemId, gradingService) == GradebookItemPresence.PRESENT;
+	}
+
+	/**
+	 * Resolve the item's gradebook UID (including group gradebooks), verify it belongs to the site,
+	 * and distinguish confirmed absence from temporary lookup failure.
+	 */
+	public static GradebookItemPresence checkGradebookItemPresence(String siteId, String itemId,
+			GradingService gradingService) {
 		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(itemId) || gradingService == null) {
-			return false;
+			return GradebookItemPresence.UNKNOWN;
 		}
+		Long assignmentId;
 		try {
-			Long assignmentId = Long.valueOf(itemId);
-			Assignment assignment = gradingService.getAssignment(siteId, siteId, assignmentId);
-			return assignment != null && !Boolean.TRUE.equals(assignment.getExternallyMaintained());
-		} catch (NumberFormatException | AssessmentNotFoundException e) {
-			return false;
+			assignmentId = Long.valueOf(itemId);
+		} catch (NumberFormatException e) {
+			return GradebookItemPresence.ABSENT;
+		}
+
+		String gradebookUid;
+		try {
+			gradebookUid = gradingService.getGradebookUidByAssignmentById(siteId, assignmentId);
+		} catch (AssessmentNotFoundException e) {
+			return GradebookItemPresence.ABSENT;
+		} catch (Exception e) {
+			log.warn("Unable to resolve gradebook uid for item {} in site {}: {}", itemId, siteId, e.toString());
+			return GradebookItemPresence.UNKNOWN;
+		}
+		if (StringUtils.isBlank(gradebookUid)) {
+			return GradebookItemPresence.ABSENT;
+		}
+
+		try {
+			if (gradingService.isGradebookGroupEnabled(siteId)) {
+				List<String> siteGradebookUids = gradingService.getGradebookGroupInstancesIds(siteId);
+				if (siteGradebookUids == null || !siteGradebookUids.contains(gradebookUid)) {
+					return GradebookItemPresence.ABSENT;
+				}
+			} else if (!siteId.equals(gradebookUid)) {
+				return GradebookItemPresence.ABSENT;
+			}
+
+			Assignment assignment = gradingService.getAssignment(gradebookUid, siteId, assignmentId);
+			if (assignment == null || Boolean.TRUE.equals(assignment.getExternallyMaintained())) {
+				return GradebookItemPresence.ABSENT;
+			}
+			return GradebookItemPresence.PRESENT;
+		} catch (AssessmentNotFoundException e) {
+			return GradebookItemPresence.ABSENT;
 		} catch (Exception e) {
 			log.warn("Unable to verify gradebook item {} in site {}: {}", itemId, siteId, e.toString());
-			return false;
+			return GradebookItemPresence.UNKNOWN;
 		}
 	}
 
 	/**
-	 * Drop any ids from the CSV that are blank, non-numeric, or no longer present in Gradebook.
+	 * Drop ids that are blank, non-numeric, or confirmed absent in Gradebook.
+	 * Ids that cannot be verified (temporary lookup failure) are preserved.
 	 *
-	 * @return remaining valid ids, or empty string
+	 * @return remaining ids, or empty string
 	 */
 	public static String filterPresentItemIds(String gradebookItemIds, String siteId, GradingService gradingService) {
 		List<String> valid = parseItemIds(gradebookItemIds).stream()
-				.filter(id -> isGradebookItemPresent(siteId, id, gradingService))
+				.filter(id -> {
+					GradebookItemPresence presence = checkGradebookItemPresence(siteId, id, gradingService);
+					return presence == GradebookItemPresence.PRESENT || presence == GradebookItemPresence.UNKNOWN;
+				})
 				.collect(Collectors.toList());
 		return joinItemIds(valid);
 	}

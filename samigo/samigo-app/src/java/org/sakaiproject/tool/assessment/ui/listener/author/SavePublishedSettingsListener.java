@@ -653,9 +653,14 @@ implements ActionListener
 		if (validation == SelectedGradebookValidation.OK) {
 			return false;
 		}
-		String messageKey = validation == SelectedGradebookValidation.BLANK
-				? "gradebook_item_required"
-				: "gbNotExistsError";
+		String messageKey;
+		if (validation == SelectedGradebookValidation.BLANK) {
+			messageKey = "gradebook_item_required";
+		} else if (validation == SelectedGradebookValidation.LOOKUP_FAILED) {
+			messageKey = "gradebook_item_lookup_failed";
+		} else {
+			messageKey = "gbNotExistsError";
+		}
 		String message = ContextUtil.getLocalizedString(
 				"org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", messageKey);
 		context.addMessage(null, new FacesMessage(message));

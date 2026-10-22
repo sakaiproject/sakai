@@ -43,7 +43,9 @@ public interface AutoSubmitFacadeQueriesAPI
 	 * @param lastAgentId agent id from the previously processed attempt
 	 * @param lastPublishedAssessmentId assessment id from the previously processed attempt
 	 * @param sectionSetMap map of assessment id to assessment sections (aka parts)
-	 * @return true if Samigo persistence and event logging succeeded (Gradebook failure still returns true)
+	 * @return true if the attempt was processed successfully, or if it is not yet due (deferred: returns true without
+	 *         saving assessment grading or updating the event log). After a due attempt is processed, true means Samigo
+	 *         persistence and event logging succeeded (Gradebook failure still returns true).
 	 */
 	public boolean processAttempt(AssessmentGradingData adata, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
 			Date currentTime, String lastAgentId, Long lastPublishedAssessmentId, Map<Long, Set<PublishedSectionData>> sectionSetMap);

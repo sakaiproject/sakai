@@ -1734,6 +1734,9 @@ public class GradingService
                 } catch (NumberFormatException nfe) {
                   log.warn("Skipping non-numeric gradebook item id '{}' for publishedAssessmentId {}",
                       gradebookItem, pub.getPublishedAssessmentId());
+                } catch (org.sakaiproject.grading.api.AssessmentNotFoundException ante) {
+                  log.warn("Skipping missing gradebook item id '{}' for publishedAssessmentId {}: {}",
+                      gradebookItem, pub.getPublishedAssessmentId(), ante.getMessage());
                 }
               }
           } else {
@@ -1743,6 +1746,11 @@ public class GradingService
             } catch (NumberFormatException nfe) {
               log.warn("Skipping gradebook sync for publishedAssessmentId {}: non-numeric TO_GRADEBOOK_ID '{}'",
                   pub.getPublishedAssessmentId(), gradebookItemString);
+              retryCount = 0;
+              break;
+            } catch (org.sakaiproject.grading.api.AssessmentNotFoundException ante) {
+              log.warn("Skipping gradebook sync for publishedAssessmentId {}: missing item '{}': {}",
+                  pub.getPublishedAssessmentId(), gradebookItemString, ante.getMessage());
               retryCount = 0;
               break;
             }
