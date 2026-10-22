@@ -762,6 +762,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         Assert.assertTrue(assignmentService.getAssignment(assignment.getId()).getDraft());
         verify(group).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+        sessionFactory.getCurrentSession().flush();
+        Assert.assertTrue(assignmentService.getSubmissions(assignment).isEmpty());
+        Assert.assertNull(sessionFactory.getCurrentSession().get(AssignmentSubmission.class, submission.getId()));
+
+        Group siteGroup = siteService.getSite(context).getGroup(groupId);
+        Member member = buildGroupMember("new-student");
+        when(siteGroup.getMembers()).thenReturn(Set.of(member));
 
         Mockito.clearInvocations(group);
         assignment.setDraft(false);
@@ -769,6 +776,9 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         verify(group).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
 
         when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        submission = assignmentService.addSubmission(assignment.getId(), groupId);
+        Assert.assertEquals(Set.of("new-student"), submission.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet()));
         submission.setFeedbackComment("Saved instructor feedback");
         assignmentService.updateSubmission(submission);
         sessionFactory.getCurrentSession().flush();
@@ -784,7 +794,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void draftGroupUpdateHoldsAssignmentLockWhileReleasingGroupLocks() throws Exception {
+    public void unpublishingGroupAssignmentRejectsStaleGradingAfterRemovingPlaceholders() throws Exception {
         TransactionTemplate transaction = new TransactionTemplate(transactionManager);
         Assignment created = transaction.execute(status -> {
             try {
@@ -819,13 +829,20 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         ExecutorService requests = Executors.newFixedThreadPool(2);
         try {
-            Future<?> grading = requests.submit(() -> transaction.executeWithoutResult(status -> {
+            Future<Boolean> grading = requests.submit(() -> transaction.execute(status -> {
                 try {
                     AssignmentSubmission submission = assignmentService.getSubmission(placeholder.getId());
                     submissionRead.countDown();
                     Assert.assertTrue("Draft update did not reach group locks", releasingLocks.await(10, TimeUnit.SECONDS));
                     submissionAttempted.countDown();
-                    assignmentService.updateSubmission(submission);
+                    submission.setFeedbackComment("Feedback from an already-open grading request");
+                    try {
+                        assignmentService.updateSubmission(submission);
+                        return false;
+                    } catch (PermissionException expected) {
+                        status.setRollbackOnly();
+                        return true;
+                    }
                 } catch (IdUnusedException | PermissionException | InterruptedException e) {
                     throw new IllegalStateException(e);
                 }
@@ -833,16 +850,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertTrue("Grading request did not load its submission", submissionRead.await(10, TimeUnit.SECONDS));
             Future<?> draftUpdate = requests.submit(() -> {
                 Assignment assignment = assignmentService.getAssignment(created.getId());
-                assignment.setDraft(true);
-                assignmentService.updateAssignment(assignment);
+                assignmentService.unpublishAssignment(assignment);
                 return null;
             });
             Assert.assertTrue("Grading request did not attempt its update", submissionAttempted.await(10, TimeUnit.SECONDS));
             Assert.assertThrows(TimeoutException.class, () -> grading.get(200, TimeUnit.MILLISECONDS));
             finishDraftUpdate.countDown();
             draftUpdate.get(10, TimeUnit.SECONDS);
-            grading.get(10, TimeUnit.SECONDS);
+            Assert.assertTrue("Removed placeholders must not accept stale grading", grading.get(10, TimeUnit.SECONDS));
             Assert.assertTrue(assignmentService.getAssignment(created.getId()).getDraft());
+            Assert.assertNull(assignmentService.getSubmission(placeholder.getId()));
         } finally {
             finishDraftUpdate.countDown();
             requests.shutdownNow();

@@ -199,6 +199,16 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    public boolean existsPersistedSubmission(String submissionId) {
+        // Check persisted state even if an already-open request has the submission cached.
+        return submissionId != null && geCurrentSession().createQuery(
+                "select count(s.id) from AssignmentSubmission s where s.id = :submissionId", Long.class)
+                .setParameter("submissionId", submissionId)
+                .setHibernateFlushMode(FlushMode.COMMIT)
+                .getSingleResult() > 0;
+    }
+
+    @Override
     @Transactional
     public boolean existsSubmissionSubmitter(Long submissionSubmitterId) {
         if (submissionSubmitterId != null && geCurrentSession().get(AssignmentSubmissionSubmitter.class, submissionSubmitterId) != null) {

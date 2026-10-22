@@ -1786,6 +1786,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     }
                 } else if (canReleaseGroupLocks(assignment)) {
                     releaseAssignmentGroupLocks(assignment, reference);
+                    // Empty grading placeholders contain the old group roster.
+                    assignment.getSubmissions().clear();
                 }
                 break;
             case SITE:
@@ -2319,9 +2321,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
 
-        if (Boolean.TRUE.equals(submission.getAssignment().getIsGroup())
-                && assignmentRepository.lockAssignmentAndCheckDeleted(submission.getAssignment().getId())) {
-            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
+        if (Boolean.TRUE.equals(submission.getAssignment().getIsGroup())) {
+            if (assignmentRepository.lockAssignmentAndCheckDeleted(submission.getAssignment().getId())
+                    || !assignmentRepository.existsPersistedSubmission(submission.getId())) {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
+            }
         }
 
         reconcileGroupSubmissionSubmittersOnPost(submission, assignmentReference, reference);

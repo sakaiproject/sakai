@@ -62,6 +62,9 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     boolean existsSubmission(String submissionId);
 
+    /** Checks the database without flushing or trusting an already-loaded submission. */
+    boolean existsPersistedSubmission(String submissionId);
+
     boolean existsSubmissionSubmitter(Long submissionSubmitterId);
 
     AssignmentSubmission newSubmission(String assignmentId,
