@@ -708,20 +708,12 @@ class SiteStatsTest extends SakaiUiTestBase {
     }
 
     private void assertWidgetHasMetricLabels(Locator widget, String... labels) {
-        assertThat(widget.locator("sakai-sitestats-widget-metrics dt").first()).isVisible();
+        Locator metricLabels = widget.locator("sakai-sitestats-widget-metrics dt");
+        assertThat(metricLabels.first()).isVisible();
         for (String label : labels) {
-            assertThat(widget.locator("xpath=.//dt[normalize-space()=" + xpathString(label) + "]")).hasCount(1);
+            assertThat(metricLabels.filter(new Locator.FilterOptions()
+                    .setHasText(Pattern.compile("^" + Pattern.quote(label) + "$")))).hasCount(1);
         }
-    }
-
-    private static String xpathString(String value) {
-        if (!value.contains("'")) {
-            return "'" + value + "'";
-        }
-        if (!value.contains("\"")) {
-            return "\"" + value + "\"";
-        }
-        return "concat('" + value.replace("'", "',\"'\",'") + "')";
     }
 
     private void assertReportSummaryRendered() {
