@@ -1713,6 +1713,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
 
+        if (Boolean.TRUE.equals(assignment.getDraft()) && Boolean.TRUE.equals(assignment.getIsGroup())
+                && assignment.getTypeOfAccess() == GROUP) {
+            // Use the same assignment-row lock as submission writes before checking whether locks can be released.
+            assignmentRepository.lockAssignmentAndCheckDeleted(assignment.getId());
+        }
+
         Collection<String> prevAssignedGroupRefs = assignmentRepository.findGroupsForAssignmentById(assignment.getId());
         switch (assignment.getTypeOfAccess()) {
             case GROUP:

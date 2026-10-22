@@ -783,6 +783,76 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void draftGroupUpdateHoldsAssignmentLockWhileReleasingGroupLocks() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        Assignment created = transaction.execute(status -> {
+            try {
+                return createPublishedGroupAssignment();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(created).reckon().getReference();
+        String groupReference = created.getGroups().iterator().next();
+        String groupId = groupReference.substring(groupReference.lastIndexOf('/') + 1);
+        Site site = siteService.getSite(created.getContext());
+        Group siteGroup = site.getGroup(groupReference);
+        when(site.getGroup(groupId)).thenReturn(siteGroup);
+        Member member = buildGroupMember("student");
+        when(siteGroup.getMembers()).thenReturn(Set.of(member));
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        AssignmentSubmission placeholder = assignmentService.addSubmission(created.getId(), groupId);
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(placeholder).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+        CountDownLatch submissionRead = new CountDownLatch(1);
+        CountDownLatch releasingLocks = new CountDownLatch(1);
+        CountDownLatch submissionAttempted = new CountDownLatch(1);
+        CountDownLatch finishDraftUpdate = new CountDownLatch(1);
+        AuthzGroup group = authzGroupService.getAuthzGroup(groupReference);
+        Mockito.doAnswer(invocation -> {
+            releasingLocks.countDown();
+            Assert.assertTrue("Draft update was not released", finishDraftUpdate.await(10, TimeUnit.SECONDS));
+            return null;
+        }).when(authzGroupService).save(group);
+
+        ExecutorService requests = Executors.newFixedThreadPool(2);
+        try {
+            Future<?> grading = requests.submit(() -> transaction.executeWithoutResult(status -> {
+                try {
+                    AssignmentSubmission submission = assignmentService.getSubmission(placeholder.getId());
+                    submissionRead.countDown();
+                    Assert.assertTrue("Draft update did not reach group locks", releasingLocks.await(10, TimeUnit.SECONDS));
+                    submissionAttempted.countDown();
+                    assignmentService.updateSubmission(submission);
+                } catch (IdUnusedException | PermissionException | InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }));
+            Assert.assertTrue("Grading request did not load its submission", submissionRead.await(10, TimeUnit.SECONDS));
+            Future<?> draftUpdate = requests.submit(() -> {
+                Assignment assignment = assignmentService.getAssignment(created.getId());
+                assignment.setDraft(true);
+                assignmentService.updateAssignment(assignment);
+                return null;
+            });
+            Assert.assertTrue("Grading request did not attempt its update", submissionAttempted.await(10, TimeUnit.SECONDS));
+            Assert.assertThrows(TimeoutException.class, () -> grading.get(200, TimeUnit.MILLISECONDS));
+            finishDraftUpdate.countDown();
+            draftUpdate.get(10, TimeUnit.SECONDS);
+            grading.get(10, TimeUnit.SECONDS);
+            Assert.assertTrue(assignmentService.getAssignment(created.getId()).getDraft());
+        } finally {
+            finishDraftUpdate.countDown();
+            requests.shutdownNow();
+            Assert.assertTrue("Request threads did not finish", requests.awaitTermination(10, TimeUnit.SECONDS));
+            Mockito.doNothing().when(authzGroupService).save(group);
+            assignmentService.deleteAssignment(assignmentService.getAssignment(created.getId()));
+        }
+    }
+
+    @Test
     public void softDeleteEmptyGroupAssignmentReleasesOnlyItsOwnLocks() throws Exception {
         Assignment assignment = createPublishedGroupAssignment();
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
