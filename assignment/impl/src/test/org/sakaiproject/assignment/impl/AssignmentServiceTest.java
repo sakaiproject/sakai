@@ -746,6 +746,19 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void newDraftGroupAssignmentCanBeUpdatedBeforeItsInsertIsFlushed() throws Exception {
+        Assignment assignment = createGroupAssignment(true);
+        Set<String> groups = new HashSet<>(assignment.getGroups());
+        sessionFactory.getCurrentSession().clear();
+
+        Assignment saved = assignmentService.getAssignment(assignment.getId());
+        Assert.assertTrue(saved.getDraft());
+        Assert.assertTrue(saved.getIsGroup());
+        Assert.assertEquals(Assignment.Access.GROUP, saved.getTypeOfAccess());
+        Assert.assertEquals(groups, saved.getGroups());
+    }
+
+    @Test
     public void savingGroupAssignmentAsDraftReleasesLocksOnlyWithoutWork() throws Exception {
         String context = UUID.randomUUID().toString();
         String groupId = UUID.randomUUID().toString();
@@ -1282,12 +1295,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     private Assignment createPublishedGroupAssignment() throws Exception {
+        return createGroupAssignment(false);
+    }
+
+    private Assignment createGroupAssignment(boolean draft) throws Exception {
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
         String groupReference = "/site/" + context + "/group/" + UUID.randomUUID();
         assignment.setIsGroup(true);
         assignment.setTypeOfAccess(Assignment.Access.GROUP);
-        assignment.setDraft(false);
+        assignment.setDraft(draft);
         assignment.getGroups().add(groupReference);
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, reference)).thenReturn(true);

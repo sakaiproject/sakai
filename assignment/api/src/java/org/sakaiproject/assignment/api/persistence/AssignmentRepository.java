@@ -48,6 +48,8 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     void newAssignment(Assignment assignment);
 
+    void flush();
+
     boolean existsAssignment(String assignmentId);
 
     void deleteAssignment(String assignmentId);

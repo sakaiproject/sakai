@@ -136,6 +136,11 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    public void flush() {
+        geCurrentSession().flush();
+    }
+
+    @Override
     @Transactional
     public boolean existsAssignment(String assignmentId) {
         if (assignmentId != null && exists(assignmentId)) {

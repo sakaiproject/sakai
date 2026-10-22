@@ -1722,7 +1722,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         List<AssignmentSubmission> currentSubmissions = Collections.emptyList();
         if (Boolean.TRUE.equals(assignment.getDraft()) && Boolean.TRUE.equals(assignment.getIsGroup())
                 && assignment.getTypeOfAccess() == GROUP) {
-            // Use the same assignment-row lock as submission writes before checking whether locks can be released.
+            // Flush new assignments before acquiring the row lock used by submission writes.
+            assignmentRepository.flush();
             assignmentRepository.lockAssignmentAndCheckDeleted(assignment.getId());
             currentSubmissions = assignmentRepository.findCurrentSubmissions(assignment.getId());
             // A detached assignment can also carry stale children into the cascading merge below.
