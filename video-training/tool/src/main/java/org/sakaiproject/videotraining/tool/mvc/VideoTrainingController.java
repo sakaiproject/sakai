@@ -70,7 +70,7 @@ import org.sakaiproject.videotraining.api.service.VideoTrainingService;
 import org.sakaiproject.videotraining.api.service.VideoTrainingUploadService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.http.HttpStatus;
@@ -523,7 +523,7 @@ public class VideoTrainingController {
     }
 
     @GetMapping("/videos/{videoId}/edit")
-    public String editVideo(@PathVariable String videoId,
+    public String editVideo(@PathVariable("videoId") String videoId,
             RedirectAttributes redirectAttributes,
             Locale locale,
             Model model) {
@@ -849,7 +849,7 @@ public class VideoTrainingController {
     }
 
     @PostMapping("/videos/{videoId}")
-    public String updateVideo(@PathVariable String videoId,
+    public String updateVideo(@PathVariable("videoId") String videoId,
             @RequestParam("title") String title,
             @RequestParam("description") String description,
             @RequestParam("providerType") String providerType,
@@ -1131,7 +1131,7 @@ public class VideoTrainingController {
     }
 
     @PostMapping("/videos/{videoId}/delete")
-    public String deleteVideo(@PathVariable String videoId,
+    public String deleteVideo(@PathVariable("videoId") String videoId,
             RedirectAttributes redirectAttributes,
             Locale locale) {
 
@@ -1158,7 +1158,7 @@ public class VideoTrainingController {
 
     @PostMapping(value = "/videos/{videoId}/delete/ajax", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> deleteVideoAjax(@PathVariable String videoId, Locale locale) {
+    public Map<String, Object> deleteVideoAjax(@PathVariable("videoId") String videoId, Locale locale) {
         Map<String, Object> response = new HashMap<>();
         VideoTrainingVideo existing = videoTrainingService.getVideoById(videoId).orElse(null);
         if (existing == null) {
@@ -1183,7 +1183,7 @@ public class VideoTrainingController {
 
     @PostMapping(value = "/videos/{videoId}/status/ajax", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> updatePublicationStatusAjax(@PathVariable String videoId,
+    public Map<String, Object> updatePublicationStatusAjax(@PathVariable("videoId") String videoId,
             @RequestParam(name = "status") String status,
             Locale locale) {
         Map<String, Object> response = new HashMap<>();
@@ -1217,7 +1217,7 @@ public class VideoTrainingController {
     }
 
         @PostMapping("/videos/{videoId}/publish")
-        public String publishVideo(@PathVariable String videoId,
+        public String publishVideo(@PathVariable("videoId") String videoId,
             RedirectAttributes redirectAttributes,
             Locale locale) {
         VideoTrainingVideo existing = videoTrainingService.getVideoById(videoId).orElse(null);
@@ -1243,7 +1243,7 @@ public class VideoTrainingController {
         }
 
         @PostMapping("/videos/{videoId}/withdraw")
-        public String withdrawVideo(@PathVariable String videoId,
+        public String withdrawVideo(@PathVariable("videoId") String videoId,
             RedirectAttributes redirectAttributes,
             Locale locale) {
         return updatePublicationStatus(videoId, VideoPublicationStatus.WITHDRAWN,
@@ -1251,7 +1251,7 @@ public class VideoTrainingController {
         }
 
         @PostMapping("/videos/{videoId}/archive")
-        public String archiveVideo(@PathVariable String videoId,
+        public String archiveVideo(@PathVariable("videoId") String videoId,
             RedirectAttributes redirectAttributes,
             Locale locale) {
         return updatePublicationStatus(videoId, VideoPublicationStatus.ARCHIVED,
@@ -1259,7 +1259,7 @@ public class VideoTrainingController {
         }
 
         @PostMapping("/videos/{videoId}/restore-draft")
-        public String restoreVideoToDraft(@PathVariable String videoId,
+        public String restoreVideoToDraft(@PathVariable("videoId") String videoId,
             RedirectAttributes redirectAttributes,
             Locale locale) {
         return updatePublicationStatus(videoId, VideoPublicationStatus.DRAFT,
@@ -1267,7 +1267,7 @@ public class VideoTrainingController {
         }
 
         @PostMapping("/videos/{videoId}/submit-approval")
-        public String submitVideoForApproval(@PathVariable String videoId,
+        public String submitVideoForApproval(@PathVariable("videoId") String videoId,
             RedirectAttributes redirectAttributes,
             Locale locale) {
         return updatePublicationStatus(videoId, VideoPublicationStatus.PENDING_APPROVAL,
@@ -1275,7 +1275,7 @@ public class VideoTrainingController {
         }
 
         @PostMapping("/videos/{videoId}/reject-approval")
-        public String rejectVideoApproval(@PathVariable String videoId,
+        public String rejectVideoApproval(@PathVariable("videoId") String videoId,
             RedirectAttributes redirectAttributes,
             Locale locale) {
         return updatePublicationStatus(videoId, VideoPublicationStatus.DRAFT,
@@ -1283,7 +1283,7 @@ public class VideoTrainingController {
         }
 
     @GetMapping("/videos/{videoId}")
-    public String details(@PathVariable String videoId,
+    public String details(@PathVariable("videoId") String videoId,
             RedirectAttributes redirectAttributes,
             Locale locale,
             @RequestParam(name = "lessonPageId", required = false) String lessonPageId,
@@ -1338,7 +1338,7 @@ public class VideoTrainingController {
     }
 
     @PostMapping("/videos/{videoId}/favorite")
-    public String setFavorite(@PathVariable String videoId,
+    public String setFavorite(@PathVariable("videoId") String videoId,
         @RequestParam(name = "favorite", defaultValue = "true") boolean favorite,
         @RequestParam(name = "returnTo", required = false) String returnTo,
         RedirectAttributes redirectAttributes,
@@ -1359,7 +1359,7 @@ public class VideoTrainingController {
     }
 
     @PostMapping("/videos/{videoId}/watch-later")
-    public String setWatchLater(@PathVariable String videoId,
+    public String setWatchLater(@PathVariable("videoId") String videoId,
         @RequestParam(name = "watchLater", defaultValue = "true") boolean watchLater,
         @RequestParam(name = "returnTo", required = false) String returnTo,
         RedirectAttributes redirectAttributes,
@@ -1381,7 +1381,7 @@ public class VideoTrainingController {
 
     @PostMapping(value = "/videos/{videoId}/favorite/ajax", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> setFavoriteAjax(@PathVariable String videoId,
+    public Map<String, Object> setFavoriteAjax(@PathVariable("videoId") String videoId,
             @RequestParam(name = "favorite", defaultValue = "true") boolean favorite,
             Locale locale) {
         String siteId = currentSiteId();
@@ -1403,7 +1403,7 @@ public class VideoTrainingController {
 
     @PostMapping(value = "/videos/{videoId}/watch-later/ajax", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> setWatchLaterAjax(@PathVariable String videoId,
+    public Map<String, Object> setWatchLaterAjax(@PathVariable("videoId") String videoId,
             @RequestParam(name = "watchLater", defaultValue = "true") boolean watchLater,
             Locale locale) {
         String siteId = currentSiteId();
@@ -1608,7 +1608,7 @@ public class VideoTrainingController {
     }
 
     @GetMapping("/categories/{categoryId}/delete")
-    public String confirmDeleteCategory(@PathVariable String categoryId,
+    public String confirmDeleteCategory(@PathVariable("categoryId") String categoryId,
             @RequestParam(name = "q", required = false) String query,
             @RequestParam(name = "page", required = false, defaultValue = "1") int page,
             @RequestParam(name = "size", required = false, defaultValue = "15") int size,
@@ -1644,7 +1644,7 @@ public class VideoTrainingController {
     }
 
     @PostMapping("/categories/{categoryId}/delete")
-    public String deleteCategory(@PathVariable String categoryId,
+    public String deleteCategory(@PathVariable("categoryId") String categoryId,
             @RequestParam(name = "q", required = false) String query,
             @RequestParam(name = "page", required = false, defaultValue = "1") int page,
             @RequestParam(name = "size", required = false, defaultValue = "15") int size,

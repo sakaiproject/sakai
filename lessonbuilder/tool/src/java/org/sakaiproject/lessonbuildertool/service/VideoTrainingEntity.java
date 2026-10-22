@@ -31,7 +31,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -59,7 +58,6 @@ public class VideoTrainingEntity implements LessonEntity {
 
     protected static VideoTrainingService videoTrainingService = null;
 
-    protected static MemoryService memoryService = null;
     protected static ToolManager toolManager = null;
     protected static SiteService siteService = null;
 
@@ -96,10 +94,6 @@ public class VideoTrainingEntity implements LessonEntity {
 
     public LessonEntity getNextEntity() {
         return nextEntity;
-    }
-
-    public void setMemoryService(MemoryService m) {
-        memoryService = m;
     }
 
     public void setToolManager(ToolManager tm) {

@@ -53,10 +53,10 @@
                     <input type="hidden" name="size" th:value="${size}">
                     <input type="hidden" name="sortBy" th:value="${sortBy}">
                     <input type="hidden" name="sortDir" th:value="${sortDir}">
-                    <button type="submit" name="viewMode" value="cards" class="btn vt-icon-toggle" th:classappend="${isCardsView} ? 'btn-primary' : 'btn-outline-secondary'" th:title="#{video.training.view.cards}" th:aria-label="#{video.training.view.cards}">
+                    <button type="submit" name="viewMode" value="cards" class="btn vt-icon-toggle" th:classappend="${isCardsView} ? 'btn-primary' : 'btn-outline-secondary'" th:title="#{video.training.view.mode.cards}" th:aria-label="#{video.training.view.mode.cards}">
                         <span class="bi bi-grid"></span>
                     </button>
-                    <button type="submit" name="viewMode" value="table" class="btn vt-icon-toggle" th:classappend="${isTableView} ? 'btn-primary' : 'btn-outline-secondary'" th:title="#{video.training.view.table}" th:aria-label="#{video.training.view.table}">
+                    <button type="submit" name="viewMode" value="table" class="btn vt-icon-toggle" th:classappend="${isTableView} ? 'btn-primary' : 'btn-outline-secondary'" th:title="#{video.training.view.mode.table}" th:aria-label="#{video.training.view.mode.table}">
                         <span class="bi bi-view-list"></span>
                     </button>
                 </form>
