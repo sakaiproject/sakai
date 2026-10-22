@@ -812,8 +812,6 @@ public class GradingServiceImpl implements GradingService {
             Gradebook gradebook = optAsn.get().getGradebook();
             gradingPersistenceManager.saveAssignment(optAsn.get());
             log.info("GradebookAssignment {} has been removed from {}", optAsn.get().getName(), gradebook);
-            String resource = "/gradebookng/" + gradebook.getUid() + "/" + assignmentId;
-            this.eventTrackingService.post(this.eventTrackingService.newEvent("gradebook.deleteItem", resource, true));
         } else {
             log.warn("No assignment for id {}", assignmentId);
         }

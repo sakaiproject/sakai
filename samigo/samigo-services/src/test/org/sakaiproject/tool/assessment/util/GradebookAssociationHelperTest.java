@@ -88,10 +88,44 @@ public class GradebookAssociationHelperTest {
 	public void remapItemIds_dropsMappedWhenConfirmedAbsent() {
 		Map<String, String> map = new HashMap<>();
 		map.put("gb/10", "gb/100");
-		GradingService gradingService = mock(GradingService.class);
+		GradingService gradingService = mockSiteAssignment("site1", 20L, false);
 		when(gradingService.getGradebookUidByAssignmentById(eq("site1"), eq(100L)))
 				.thenThrow(new AssessmentNotFoundException("gone"));
 		assertEquals("20", GradebookAssociationHelper.remapItemIds("10,20", map, "site1", gradingService));
+	}
+
+	@Test
+	public void remapItemIds_partialMap_dropsUnmappedSourceItem() {
+		Map<String, String> map = Map.of("gb/10", "gb/100");
+		GradingService gradingService = mockSiteAssignment("target", 100L, false);
+		when(gradingService.getGradebookUidByAssignmentById("target", 20L)).thenReturn("source");
+
+		assertEquals("100", GradebookAssociationHelper.remapItemIds("10,20", map, "target", gradingService));
+	}
+
+	@Test
+	public void remapItemIds_emptyMap_dropsSourceItems() {
+		GradingService gradingService = mock(GradingService.class);
+		when(gradingService.getGradebookUidByAssignmentById("target", 10L)).thenReturn("source");
+
+		assertEquals("", GradebookAssociationHelper.remapItemIds("10", Map.of(), "target", gradingService));
+		assertEquals("", GradebookAssociationHelper.remapItemIds("10", null, "target", gradingService));
+	}
+
+	@Test
+	public void remapItemIds_emptyMap_preservesExistingTargetItem() {
+		GradingService gradingService = mockSiteAssignment("target", 10L, false);
+
+		assertEquals("10", GradebookAssociationHelper.remapItemIds("10", Map.of(), "target", gradingService));
+	}
+
+	@Test
+	public void remapItemIds_preservesUnmappedItemWhenLookupFails() {
+		GradingService gradingService = mock(GradingService.class);
+		when(gradingService.getGradebookUidByAssignmentById("target", 10L))
+				.thenThrow(new RuntimeException("timeout"));
+
+		assertEquals("10", GradebookAssociationHelper.remapItemIds("10", Map.of(), "target", gradingService));
 	}
 
 	@Test
