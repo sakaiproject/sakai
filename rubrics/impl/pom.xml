@@ -116,6 +116,10 @@
             <artifactId>jsoup</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.grading</groupId>
             <artifactId>sakai-grading-api</artifactId>
         </dependency>

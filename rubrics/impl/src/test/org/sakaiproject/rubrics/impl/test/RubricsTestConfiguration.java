@@ -29,6 +29,7 @@ import org.sakaiproject.rubrics.impl.repository.CriterionRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.EvaluationRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.RatingRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.RubricRepositoryImpl;
+import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
@@ -128,5 +129,10 @@ public class RubricsTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "PersistenceService")
     public PersistenceService assessmentPersistenceService() {
         return mock(PersistenceService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchIndexBuilder")
+    public SearchIndexBuilder searchIndexBuilder() {
+        return mock(SearchIndexBuilder.class);
     }
 }
