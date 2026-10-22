@@ -30,7 +30,7 @@ import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 import org.sakaiproject.videotraining.api.model.VideoTrainingAnalyticsEvent;
 import org.sakaiproject.videotraining.api.repository.VideoTrainingAnalyticsEventRepository;
 
-public class VideoTrainingAnalyticsEventRepositoryImpl extends SpringCrudRepositoryImpl<VideoTrainingAnalyticsEvent, String>
+public class VideoTrainingAnalyticsEventRepositoryImpl extends SpringCrudRepositoryImpl<VideoTrainingAnalyticsEvent, Long>
         implements VideoTrainingAnalyticsEventRepository {
 
     @Override

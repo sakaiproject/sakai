@@ -464,7 +464,7 @@ public class VideoTrainingServiceImplTest {
     public void deleteVideoShouldDeleteEventsBeforeVideo() {
         VideoTrainingVideo video = baseVideo();
         VideoTrainingAnalyticsEvent event = new VideoTrainingAnalyticsEvent();
-        event.setId("e1");
+        event.setId(1L);
 
         when(videoRepository.findById(VIDEO_ID)).thenReturn(Optional.of(video));
         when(securityService.unlock(USER_ID, VideoTrainingConstants.PERMISSION_MANAGE_ALL, SITE_REF)).thenReturn(true);

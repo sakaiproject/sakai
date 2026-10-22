@@ -21,11 +21,11 @@ import java.time.Instant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
-import org.hibernate.annotations.GenericGenerator;
+import org.sakaiproject.hibernate.annotations.NativeGenerator;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.Data;
@@ -33,13 +33,14 @@ import lombok.Data;
 @Entity
 @Data
 @Table(name = "vtm_analytics_event")
-public class VideoTrainingAnalyticsEvent implements PersistableEntity<String> {
+public class VideoTrainingAnalyticsEvent implements PersistableEntity<Long> {
 
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(nullable = false, length = 36)
-    private String id;
+    @NativeGenerator(sequenceForm = @SequenceGenerator(
+            name = "vtm_analytics_event_id_sequence",
+            sequenceName = "VTM_ANALYTICS_EVENT_S"))
+    @Column(nullable = false)
+    private Long id;
 
     @Column(nullable = false, length = 36)
     private String videoId;
