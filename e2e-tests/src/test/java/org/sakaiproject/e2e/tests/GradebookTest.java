@@ -43,7 +43,7 @@ class GradebookTest extends SakaiUiTestBase {
     @Order(1)
     void canCreateNewCourse() {
         sakai.login("instructor1");
-        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng"));
+        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng", "sakai\\.rubrics"));
     }
 
     @Test
@@ -179,6 +179,49 @@ class GradebookTest extends SakaiUiTestBase {
 
         page.evaluate("() => document.documentElement.classList.remove('sakaiUserTheme-dark')");
         assertNoAxeContrastViolations("light mode");
+    }
+
+    @Test
+    @Order(6)
+    void rubricPreviewOpensAboveStudentSummary() {
+        String rubricTitle = "Summary rubric " + System.currentTimeMillis();
+        String itemTitle = "Rubric item " + System.currentTimeMillis();
+        sakai.createRubric("instructor1", sakaiUrl);
+        page.locator("input[title=\"Rubric Title\"]:visible").fill(rubricTitle);
+        page.locator("sakai-rubric-edit .modal.show .modal-footer .btn-primary").click();
+        assertThat(page.locator("sakai-rubric .rubric-name")
+            .filter(new Locator.FilterOptions().setHasText(rubricTitle))).hasText(rubricTitle);
+
+        sakai.toolClick("Gradebook");
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$=\"title\"]").fill(itemTitle);
+        dialog.locator("input[name$=\"points\"]").fill("100");
+        dialog.locator("input[name=rbcs-associate][value=\"1\"]").check();
+        Locator rubricSelector = dialog.locator("select[name=rbcs-rubricslist]");
+        rubricSelector.selectOption(rubricSelector.locator("option")
+            .filter(new Locator.FilterOptions().setHasText(rubricTitle)).getAttribute("value"));
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog).isHidden();
+
+        // Keyboard activation avoids the table moving the link during pointer selection.
+        page.locator(".gb-view-grade-summary").first().press("Enter");
+        Locator summary = page.locator(".gb-modal-dialog:visible");
+        assertThat(summary).isVisible();
+        Locator rubricLink = summary.locator("tr").filter(new Locator.FilterOptions().setHasText(itemTitle))
+            .locator("sakai-rubric-student-button a");
+        rubricLink.click();
+        Locator preview = page.locator("#rubric-preview");
+        assertThat(preview).isVisible();
+        assertThat(preview.locator("sakai-rubric-student h3")).hasText(rubricTitle);
+        assertThat(summary.locator("xpath=..")).hasAttribute("inert", "");
+        // A normal click verifies that the summary overlay does not intercept the rubric.
+        preview.locator(".btn-close").click();
+        assertThat(preview).isHidden();
+        assertThat(summary).isVisible();
+        assertThat(rubricLink).isFocused();
+        summary.locator(".gb-summary-close").click();
+        assertThat(summary).isHidden();
     }
 
     private void assertNoAxeContrastViolations(String theme) {
