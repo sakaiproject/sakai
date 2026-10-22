@@ -1,12 +1,12 @@
 package org.sakaiproject.attendance.tool.pages;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.form.DateTextField;
+import org.apache.wicket.extensions.markup.html.form.datetime.LocalDateTimeTextField;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -20,16 +20,14 @@ import org.sakaiproject.attendance.tool.util.AttendanceFeedbackPanel;
 import org.sakaiproject.attendance.tool.util.PlaceholderBehavior;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 
+@Slf4j
 public class EventInputPage extends BasePage{
     private static final long serialVersionUID = 1L;
     private IModel<AttendanceEvent> eventModel;
     private AttendanceEvent attendanceEvent;
-    private ModalWindow window;
-    private boolean isEditing;
-    private boolean recursiveAddAnother;
     @Getter @Setter private String nextPage;
     public static String STUDENT_OVERVIEW = "org.sakaiproject.attendance.tool.pages.StudentView";
     public static String GRADING = "org.sakaiproject.attendance.tool.pages.GradingPage";
@@ -37,7 +35,6 @@ public class EventInputPage extends BasePage{
     public static String IMPORTEXPORT = "org.sakaiproject.attendance.tool.pages.ExportPage";
 
     public EventInputPage(final IModel<AttendanceEvent> event) {
-        this.isEditing = true;
         this.eventModel = event;
         attendanceEvent = event.getObject();
         disableLink(this.addLink);
@@ -81,18 +78,18 @@ public class EventInputPage extends BasePage{
         name.setRequired(true);
         name.add(new PlaceholderBehavior(getString("event.placeholder.name")));
 
-        final IModel<Date> startDateModel = new IModel<Date>() {
+        final IModel<LocalDateTime> startDateModel = new IModel<LocalDateTime>() {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Date getObject() {
+            public LocalDateTime getObject() {
                 Instant start = eventModel.getObject().getStartDateTime();
-                return start != null ? Date.from(start) : null;
+                return start != null ? LocalDateTime.ofInstant(start, sakaiProxy.getZoneId()) : null;
             }
 
             @Override
-            public void setObject(Date object) {
-                eventModel.getObject().setStartDateTime(object != null ? object.toInstant() : null);
+            public void setObject(LocalDateTime object) {
+                eventModel.getObject().setStartDateTime(object != null ? object.atZone(sakaiProxy.getZoneId()).toInstant() : null);
             }
 
             @Override
@@ -101,7 +98,12 @@ public class EventInputPage extends BasePage{
             }
         };
 
-        final DateTextField startDateTime = new DateTextField("startDateTime", startDateModel, "yyyy-MM-dd'T'HH:mm");
+        final LocalDateTimeTextField startDateTime = new LocalDateTimeTextField("startDateTime", startDateModel, "yyyy-MM-dd'T'HH:mm") {
+            @Override
+            protected String[] getInputTypes() {
+                return new String[] { "datetime-local" };
+            }
+        };
 
         eventForm.add(name);
         eventForm.add(startDateTime);
@@ -112,14 +114,26 @@ public class EventInputPage extends BasePage{
     private void processSave(AjaxRequestTarget target, Form<?> form, boolean addAnother) {
         AttendanceEvent e = (AttendanceEvent) form.getModelObject();
         e.setAttendanceSite(attendanceLogic.getCurrentAttendanceSite());
-        boolean result = attendanceLogic.updateAttendanceEvent(e);
+        boolean newEvent = e.getId() == null;
+        boolean result;
+        try {
+            result = attendanceLogic.updateAttendanceEvent(e);
+        } catch (org.springframework.dao.DataAccessException | jakarta.persistence.PersistenceException failure) {
+            // A rolled-back identity insert may have assigned an ID to the page model.
+            if (newEvent) {
+                e.setId(null);
+            }
+            log.warn("Unable to save attendance event {}", e.getId(), failure);
+            result = false;
+        }
         if(result){
             StringResourceModel temp = new StringResourceModel("attendance.add.success", this);
             temp.setParameters(e.getName());
             getSession().success(temp.getString());
         } else {
-            error(getString("attendance.add.failure"));
+            error(new StringResourceModel("attendance.add.failure", this).setParameters(e.getName()).getString());
             target.addChildren(form, FeedbackPanel.class);
+            return;
         }
         if(addAnother) {
             setResponsePage(new EventInputPage(new CompoundPropertyModel<>(new AttendanceEvent())));

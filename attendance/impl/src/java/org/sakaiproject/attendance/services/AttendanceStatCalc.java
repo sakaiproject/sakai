@@ -19,8 +19,6 @@ package org.sakaiproject.attendance.services;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.sakaiproject.attendance.dao.AttendanceDao;
 import org.sakaiproject.attendance.logic.AttendanceLogic;
@@ -45,10 +43,18 @@ import java.util.Set;
  */
 @Slf4j
 public class AttendanceStatCalc implements AttendanceStatCalcService {
-    private int     sitesProcessed = 0;
-    private int     sitesNotMarked = 0;
-    private int     sitesInError = 0;
-    private int     sitesWithNoUsers = 0;
+    private static class RunSummary {
+        private int sitesProcessed;
+        private int sitesNotMarked;
+        private int sitesInError;
+        private int sitesWithNoUsers;
+
+        @Override
+        public String toString() {
+            return String.format("%d Attendance Sites synced, %d Attendance Sites with no users, %d Attendance Sites unsuccessfully synced",
+                    sitesProcessed, sitesWithNoUsers, sitesInError + sitesNotMarked);
+        }
+    }
 
     public void init() {
         log.debug("AttendanceStatCalc init()");
@@ -59,96 +65,85 @@ public class AttendanceStatCalc implements AttendanceStatCalcService {
     }
 
     public void execute() {
-        log.debug("AttendanceStatCalc execute()");
-	Instant syncTime = Instant.now();
+        RunSummary summary = new RunSummary();
+        log.debug("Calculating attendance statistics");
+        Instant syncTime = Instant.now();
         Long lastId = 0L;
 
         List<Long> ids = dao.getAttendanceSiteBatch(syncTime, lastId);
         if(ids.isEmpty()) {
-            String summary = getOverallSummary();
-            if(summary.isEmpty()) {
+            String overallSummary = getOverallSummary();
+            if(overallSummary.isEmpty()) {
                 log.info("AttendanceStatCalc no sites left to sync");
             } else {
-                log.info("AttendanceStatCalc done, but there are errors\n{}", summary);
+                log.info("Attendance statistics completed with errors: {}", overallSummary);
             }
         } else {
             while(!ids.isEmpty()) {
                 // capture current batch because 'ids' will be reassigned later
                 final List<Long> batchIds = new ArrayList<>(ids);
                 // mark batch in-progress in a single transaction
-                txTemplate.execute(new TransactionCallbackWithoutResult() {
-                    @Override
-                    protected void doInTransactionWithoutResult(TransactionStatus status) {
-                        dao.markAttendanceSiteForSync(batchIds, syncTime);
-                    }
-                });
+                txTemplate.executeWithoutResult(status -> dao.markAttendanceSiteForSync(batchIds, syncTime));
                 for (Long id : batchIds) {
                     // execute per-site calculation in its own transaction
-                    txTemplate.execute(new TransactionCallbackWithoutResult() {
-                        @Override
-                        protected void doInTransactionWithoutResult(TransactionStatus status) {
-                            calculateStats(id);
-                        }
-                    });
-                    lastId = id > lastId ? id : lastId++; // never-ending loop protection
+                    try {
+                        txTemplate.executeWithoutResult(status -> calculateStats(id, summary));
+                    } catch (RuntimeException e) {
+                        summary.sitesInError++;
+                        log.warn("Error syncing attendance site {}", id, e);
+                    }
+                    lastId = Math.max(id, lastId); // never-ending loop protection
                 }
-                log.info("AttendanceStatCalc in progress {}", getSummary());
+                log.info("AttendanceStatCalc in progress {}", summary);
                 ids = dao.getAttendanceSiteBatch(syncTime, lastId);
             }
-            log.info("AttendanceStatCalc finished {}", getSummary());
+            log.info("AttendanceStatCalc finished {}", summary);
             log.info(getOverallSummary());
         }
-
-        resetCounters();
     }
 
-    private void calculateStats(Long id) {
-        try {
-            AttendanceSite attendanceSite = dao.getAttendanceSite(id);
+    private void calculateStats(Long id, RunSummary summary) {
+        AttendanceSite attendanceSite = dao.getAttendanceSite(id);
 
-            if(attendanceSite.getIsSyncing()) {
-                List<String> userIds = sakaiProxy.getSiteMembershipIds(attendanceSite.getSiteID());
-                if(!userIds.isEmpty()) { // only calculate stats for sites still available
-                    Map<String, int[]> userStatsList = new HashMap<>(userIds.size());
+        if(attendanceSite.getIsSyncing()) {
+            List<String> userIds = sakaiProxy.getSiteMembershipIds(attendanceSite.getSiteID());
+            if(!userIds.isEmpty()) { // only calculate stats for sites still available
+                Map<String, int[]> userStatsList = new HashMap<>(userIds.size());
 
-                    userIds.forEach(userId -> {
-                        int[] array = {0, 0, 0, 0, 0}; // present, unexcused, excused, late, leftEarly
-                        userStatsList.put(userId, array);
-                    });
+                userIds.forEach(userId -> {
+                    int[] array = {0, 0, 0, 0, 0}; // present, unexcused, excused, late, leftEarly
+                    userStatsList.put(userId, array);
+                });
 
-                    List<AttendanceEvent> events = attendanceLogic.getAttendanceEventsForSite(attendanceSite);
-                    if (!events.isEmpty()) {
-                        events.forEach(attendanceEvent -> calculateEventStats(attendanceEvent, userStatsList));
+                List<AttendanceEvent> events = attendanceLogic.getAttendanceEventsForSite(attendanceSite);
+                if (!events.isEmpty()) {
+                    events.forEach(attendanceEvent -> calculateEventStats(attendanceEvent, userStatsList));
 
-                        for (String key : userStatsList.keySet()) {
-                            AttendanceUserStats userStat = attendanceLogic.getStatsForUser(key, attendanceSite);
-                            int[] userRecordStats = userStatsList.get(key);
-                            userStat.setPresent(userRecordStats[0]);
-                            userStat.setUnexcused(userRecordStats[1]);
-                            userStat.setExcused(userRecordStats[2]);
-                            userStat.setLate(userRecordStats[3]);
-                            userStat.setLeftEarly(userRecordStats[4]);
+                    for (String key : userStatsList.keySet()) {
+                        AttendanceUserStats userStat = attendanceLogic.getStatsForUser(key, attendanceSite);
+                        int[] userRecordStats = userStatsList.get(key);
+                        userStat.setPresent(userRecordStats[0]);
+                        userStat.setUnexcused(userRecordStats[1]);
+                        userStat.setExcused(userRecordStats[2]);
+                        userStat.setLate(userRecordStats[3]);
+                        userStat.setLeftEarly(userRecordStats[4]);
 
-                            dao.updateAttendanceUserStats(userStat);
-                        }
+                        dao.updateAttendanceUserStats(userStat);
                     }
-                } else {
-                    sitesWithNoUsers++;
-                    log.debug("AttendanceSite, id: '{}' has no users or Site, id: '{}' no longer exists.", id, attendanceSite.getSiteID());
                 }
-
-                attendanceSite.setIsSyncing(false);
-                attendanceLogic.updateAttendanceSite(attendanceSite);
-
-                log.debug("AttendanceSite synced with id: {}", id);
-                sitesProcessed++;
             } else {
-                log.debug("AttendanceSite not marked as in progress{}", id);
-                sitesNotMarked++;
+                summary.sitesWithNoUsers++;
+                log.debug("AttendanceSite, id: '{}' has no users or Site, id: '{}' no longer exists.", id, attendanceSite.getSiteID());
             }
-        } catch (Exception e) {
-            sitesInError++;
-            log.warn("Error syncing AttendanceSite id: {}", id, e);
+
+            attendanceSite.setIsSyncing(false);
+            attendanceLogic.updateAttendanceSite(attendanceSite);
+
+            log.debug("AttendanceSite synced with id: {}", id);
+            summary.sitesProcessed++;
+        } else {
+            log.debug("AttendanceSite not marked as in progress{}", id);
+            summary.sitesNotMarked++;
         }
     }
 
@@ -197,11 +192,6 @@ public class AttendanceStatCalc implements AttendanceStatCalcService {
         }
     }
 
-    private String getSummary() {
-        return String.format("%d Attendance Sites synced, %d Attendance Sites with no users, %d Attendance Sites unsuccessfully synced",
-                sitesProcessed, sitesWithNoUsers, sitesInError + sitesNotMarked);
-    }
-
     private String getOverallSummary() {
         List<Long> inProgress = dao.getAttendanceSitesInSync();
         if(!inProgress.isEmpty()) {
@@ -209,13 +199,6 @@ public class AttendanceStatCalc implements AttendanceStatCalcService {
             return String.format(message, inProgress.size(), inProgress);
         }
         return "";
-    }
-
-    private void resetCounters() {
-        this.sitesInError = 0;
-        this.sitesNotMarked = 0;
-        this.sitesProcessed = 0;
-        this.sitesWithNoUsers = 0;
     }
 
     @Setter

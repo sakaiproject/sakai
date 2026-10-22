@@ -37,7 +37,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -107,7 +106,7 @@ public class PrintPanel extends BasePanel {
 		if (eventModel.getObject() != null) {
 			printForm.add(new Label("event-name", eventModel.getObject().getName()));
 			Instant start = eventModel.getObject().getStartDateTime();
-			printForm.add(new Label("event-date", start != null ? Date.from(start) : null));
+			printForm.add(new Label("event-date", sakaiProxy.formatDateTime(start)));
 		} else {
 			printForm.add(new Label("event-name", ""));
 			printForm.add(new Label("event-date", ""));

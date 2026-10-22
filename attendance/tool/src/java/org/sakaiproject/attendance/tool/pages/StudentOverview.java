@@ -65,7 +65,7 @@ public class StudentOverview extends BasePage {
     public StudentOverview() {
         disableLink(this.studentOverviewLink);
 
-        if(this.role != null && this.role.equals("Student")) {
+        if(!sakaiProxy.canManageAttendance(sakaiProxy.getCurrentSiteId())) {
             throw new RestartResponseException(StudentView.class);
         }
 
@@ -78,7 +78,7 @@ public class StudentOverview extends BasePage {
     public StudentOverview(String selectedGroup) {
         disableLink(this.studentOverviewLink);
 
-        if(this.role != null && this.role.equals("Student")) {
+        if(!sakaiProxy.canManageAttendance(sakaiProxy.getCurrentSiteId())) {
             throw new RestartResponseException(StudentView.class);
         }
 

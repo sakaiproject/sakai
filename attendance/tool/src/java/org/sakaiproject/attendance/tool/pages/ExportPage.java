@@ -70,13 +70,8 @@ public class ExportPage extends BasePage{
     boolean includeComments = false;
     boolean blankSheet = false;
     public ExportPage() {
-    }
-
-    @Override
-    protected void onBeforeRender() {
-        super.onBeforeRender();
         disableLink(exportLink);
-        if(this.role != null && this.role.equals("Student")) {
+        if(!sakaiProxy.canManageAttendance(sakaiProxy.getCurrentSiteId())) {
             throw new RestartResponseException(StudentView.class);
         }
 
@@ -291,8 +286,15 @@ public class ExportPage extends BasePage{
             boolean commentsChanged = false;
             List<String> errors = new ArrayList<String>();
             // Start processing
-            HSSFSheet sheet = getIterableExcelSheet();
-            if(sheet != null){    //if we weren't able to get a usable sheet, it would be Null and we shouldn't process it.
+            try (HSSFWorkbook workbook = readWorkbook()) {
+                if (workbook == null) {
+                    return;
+                }
+                if (workbook.getNumberOfSheets() == 0) {
+                    error(getString("attendance.export.import.error.empty_file"));
+                    return;
+                }
+                HSSFSheet sheet = workbook.getSheetAt(0);
                 Iterator<Row> rows = sheet.rowIterator();
                 if(rows.hasNext()){ //don't do anything with the Iterator unless it has something.
                     final List<String> headerRow = processHeaderRow(rows);
@@ -304,8 +306,12 @@ public class ExportPage extends BasePage{
                     }
                 }else{
                     getSession().error(getString("attendance.export.import.error.empty_file"));
-                    setResponsePage(new ExportPage());
+                    return;
                 }
+            } catch (IOException e) {
+                log.warn("Unable to close attendance import workbook", e);
+                error(getString("attendance.export.import.save.fileError"));
+                return;
             }
             if(!checkHeader){
                 getSession().error(getString("attendance.export.import.error.badHeaderError.submit"));
@@ -314,30 +320,27 @@ public class ExportPage extends BasePage{
             setResponsePage(new ImportConfirmation(ICList ,commentsChanged));
         }
 
-        private HSSFSheet getIterableExcelSheet(){
-            final FileUpload upload = this.fileUploadField.getFileUpload();
-            String extension = upload.getClientFileName().substring(upload.getClientFileName().lastIndexOf(".")+1);
+        private HSSFWorkbook readWorkbook() {
+            FileUpload upload = fileUploadField.getFileUpload();
             if (upload == null) {
-                getSession().error(getString("attendance.export.import.error.null_file"));
-                setResponsePage(new Overview());
-            } else if (upload.getSize() == 0) {
-                getSession().error(getString("attendance.export.import.error.empty_file"));
-                setResponsePage(new ExportPage());
-            }else if (!(ExportPage.ExportFormat.XLS.toString().toLowerCase()).equals(extension)) {
-                getSession().error(getString("attendance.export.import.error.bad_file_format"));
-                setResponsePage(new ExportPage());
+                error(getString("attendance.export.import.error.null_file"));
+                return null;
             }
-            HSSFSheet sheet = null;
-            try{
-                File temp = upload.writeToTempFile();
-                FileInputStream fis = new FileInputStream(temp);
-                HSSFWorkbook workbook = new HSSFWorkbook(fis);
-                sheet = workbook.getSheetAt(0);
-            }catch (final Exception e){
-                getSession().error(getString("attendance.export.import.save.fileError"));
-                setResponsePage(new ExportPage());
+            if (upload.getSize() == 0) {
+                error(getString("attendance.export.import.error.empty_file"));
+                return null;
             }
-            return sheet;
+            if (!upload.getClientFileName().toLowerCase(Locale.ROOT).endsWith(".xls")) {
+                error(getString("attendance.export.import.error.bad_file_format"));
+                return null;
+            }
+            try (InputStream input = upload.getInputStream()) {
+                return new HSSFWorkbook(input);
+            } catch (IOException | RuntimeException e) {
+                log.warn("Unable to read attendance import workbook", e);
+                error(getString("attendance.export.import.save.fileError"));
+                return null;
+            }
         }
 
         private List<String> processHeaderRow(Iterator rows){
@@ -376,7 +379,12 @@ public class ExportPage extends BasePage{
             }catch(StringIndexOutOfBoundsException e){
                 errors.add(getString("attendance.import.bad.column"));
             }
-            return Long.parseLong(idHolder);
+            try {
+                return Long.valueOf(idHolder);
+            } catch (NumberFormatException e) {
+                errors.add(getString("attendance.import.bad.column"));
+                return null;
+            }
         }
 
         private List<Long> getActualEventIds (List<AttendanceEvent> siteEventList){

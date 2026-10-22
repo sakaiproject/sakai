@@ -36,10 +36,8 @@ import org.sakaiproject.user.api.User;
 
 import java.awt.Color;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,22 +54,12 @@ public class PDFEventExporterImpl implements PDFEventExporter {
 
     private static final Font tableHeader = new Font(Font.HELVETICA, 12, Font.BOLD, Color.BLACK);
 
-    private AttendanceEvent event;
-    private Document document;
-    private List<User> users;
-    private String groupOrSiteTitle;
-
     /**
      * {@inheritDoc}
      */
     public void createSignInPdf(AttendanceEvent event, OutputStream outputStream, List<User> usersToPrint, String groupOrSiteTitle) {
 
-        this.event = event;
-        this.document = new Document();
-        this.users = usersToPrint;
-        this.groupOrSiteTitle = groupOrSiteTitle;
-
-        buildDocumentShell(outputStream, true);
+        buildDocumentShell(event, outputStream, usersToPrint, groupOrSiteTitle, true);
     }
 
     /**
@@ -79,23 +67,20 @@ public class PDFEventExporterImpl implements PDFEventExporter {
      */
     public void createAttendanceSheetPdf(AttendanceEvent event, OutputStream outputStream, List<User> usersToPrint, String groupOrSiteTitle) {
 
-        this.event = event;
-        this.document = new Document();
-        this.users = usersToPrint;
-        this.groupOrSiteTitle = groupOrSiteTitle;
-
-        buildDocumentShell(outputStream, false);
+        buildDocumentShell(event, outputStream, usersToPrint, groupOrSiteTitle, false);
     }
 
-    private void buildDocumentShell(OutputStream outputStream, boolean isSignInSheet) {
+    private void buildDocumentShell(AttendanceEvent event, OutputStream outputStream, List<User> usersToPrint, String groupOrSiteTitle, boolean isSignInSheet) {
 		String eventName = event.getName();
 		Instant eventDate = event.getStartDateTime();
 
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d, yyyy h:mm a");
+        Document document = new Document();
+        List<User> users = new ArrayList<>(usersToPrint);
 
         try {
-            PdfWriter.getInstance(document, outputStream);
+            PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+            writer.setCloseStream(false);
 
             document.open();
 
@@ -106,27 +91,27 @@ public class PDFEventExporterImpl implements PDFEventExporter {
 
             document.add(title);
 
-			Date printableDate = eventDate == null ? null : Date.from(eventDate);
-			String eventDateString = printableDate == null ? "" : " (" + dateFormat.format(printableDate) + ")";
+			String eventDateString = eventDate == null ? "" : " (" + sakaiProxy.formatDateTime(eventDate) + ")";
 
             Paragraph eventHeader = new Paragraph(eventName + eventDateString, h3);
             eventHeader.setSpacingBefore(14);
             document.add(eventHeader);
 
             if(isSignInSheet) {
-                document.add(signInSheetTable());
+                document.add(signInSheetTable(users));
             } else {
-                document.add(attendanceSheetTable());
+                document.add(attendanceSheetTable(event, users));
             }
 
-            document.close(); // no need to close PDFwriter?
 
         } catch (DocumentException e) {
-            log.warn("Exception creating PDF", e);
+            throw new IllegalStateException("Unable to create attendance PDF for event " + event.getId(), e);
+        } finally {
+            document.close();
         }
     }
 
-    private PdfPTable signInSheetTable() {
+    private PdfPTable signInSheetTable(List<User> users) {
 
         PdfPTable table = new PdfPTable(2);
         table.setWidthPercentage(100);
@@ -159,7 +144,7 @@ public class PDFEventExporterImpl implements PDFEventExporter {
 
     }
 
-    private PdfPTable attendanceSheetTable() {
+    private PdfPTable attendanceSheetTable(AttendanceEvent event, List<User> users) {
 
         List<AttendanceStatus> activeStatuses = attendanceLogic.getActiveStatusesForSite(event.getAttendanceSite());
         int colSpan = activeStatuses.size() - 1;

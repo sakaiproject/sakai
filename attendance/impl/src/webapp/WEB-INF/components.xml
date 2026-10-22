@@ -26,6 +26,8 @@
         init-method="init">
 
         <!-- API injection -->
+        <property name="localeService" ref="org.sakaiproject.util.api.LocaleService" />
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
@@ -40,15 +42,17 @@
 
     <!-- DAO uses the Sakai-managed DataSource via the global SessionFactory -->
 
-	<!-- Enable @Transactional annotations at the service layer -->
-	<!-- Use JDK proxies (default) to avoid forcing CGLIB across the shared context -->
-	<tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+    <!-- Kernel enables transaction annotations. Attendance explicitly selects the JPA
+         manager on its beans without changing the shared context's default manager. -->
 
-	<!-- Attendance Data Access Object (no transaction proxy; transactions are managed in services) -->
+    <bean id="attendanceEntityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+    </bean>
+
+	<!-- Attendance DAO joins service transactions and supports standalone scheduled reads. -->
 	<bean id="org.sakaiproject.attendance.dao.AttendanceDao"
-		  class="org.sakaiproject.attendance.dao.impl.AttendanceDaoImpl"
-		  init-method="init">
-		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		  class="org.sakaiproject.attendance.dao.impl.AttendanceDaoImpl">
+		<property name="entityManager" ref="attendanceEntityManager" />
 	</bean>
 
 	<!-- AttendanceLogic -->
@@ -103,17 +107,12 @@
 
 	<!-- HBM mappings removed: entities now use JPA annotations -->
 
-	<!-- Cache: ttl=1 hour -->
-	<bean id="org.sakaiproject.attendance.cache.CacheManager"
-		  class="org.sakaiproject.attendance.cache.CacheManagerImpl">
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
-	</bean>
-
 	<!-- Job to Sync the Statistics -->
 	<bean id="AttendanceStatCalc"
 		  class="org.sakaiproject.attendance.services.AttendanceStatCalcJob"
 		  init-method="init" destroy-method="destroy">
-		<property name="attendanceStatCalc" ref="org.sakaiproject.attendance.services.AttendanceStatCalc" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="attendanceStatCalc" ref="org.sakaiproject.attendance.services.AttendanceStatCalc" />
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
@@ -134,6 +133,6 @@
 		<property name="dao" ref="org.sakaiproject.attendance.dao.AttendanceDao" />
 		<property name="sakaiProxy" ref="org.sakaiproject.attendance.logic.SakaiProxy" />
 		<property name="attendanceLogic" ref="org.sakaiproject.attendance.logic.AttendanceLogic" />
-		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.jpa.GlobalJpaTransactionManager" />
 	</bean>
 </beans>

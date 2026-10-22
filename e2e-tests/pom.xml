@@ -27,6 +27,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>${sakai.poi.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.deque.html.axe-core</groupId>
       <artifactId>playwright</artifactId>
       <version>${axe.core.version}</version>

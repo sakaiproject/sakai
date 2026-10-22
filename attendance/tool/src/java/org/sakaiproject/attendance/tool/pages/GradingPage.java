@@ -30,7 +30,7 @@ public class GradingPage extends BasePage {
     public GradingPage() {
         disableLink(gradingLink);
 
-        if(this.role != null && this.role.equals("Student")) {
+        if(!sakaiProxy.canManageAttendance(sakaiProxy.getCurrentSiteId())) {
             throw new RestartResponseException(StudentView.class);
         }
 
