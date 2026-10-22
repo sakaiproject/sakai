@@ -707,6 +707,27 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void savedRubricsStayInTheirSite() {
+
+        String otherSiteId = "othersite";
+        // an editor in both sites, so only the ownership check can stop the move
+        switchToInstructor(otherSiteId);
+        switchToInstructor();
+
+        RubricTransferBean regular = rubricsService.createDefaultRubric(siteId);
+        Rubric adhocRubric = rubricRepository.findById(rubricsService.createDefaultRubric(siteId).getId()).get();
+        adhocRubric.setAdhoc(true);
+        rubricRepository.save(adhocRubric);
+
+        for (Long rubricId : List.of(regular.getId(), adhocRubric.getId())) {
+            RubricTransferBean bean = rubricsService.getRubric(rubricId).get();
+            bean.setOwnerId(otherSiteId);
+            assertThrows(SecurityException.class, () -> rubricsService.saveRubric(bean));
+            assertEquals(siteId, rubricRepository.findById(rubricId).get().getOwnerId());
+        }
+    }
+
+    @Test
     public void rubricEventsArePostedOnlyAfterCommit() {
 
         switchToInstructor();

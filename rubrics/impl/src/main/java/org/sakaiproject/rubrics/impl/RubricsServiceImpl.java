@@ -650,6 +650,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             }).collect(Collectors.toList()));
         } else if (bean.getAdhoc()) {
             rubric = rubricRepository.getById(bean.getId());
+            checkOwnerUnchanged(bean, rubric);
             checkVersion(bean.getVersion(), rubric.getVersion());
             checkDraftTransition(bean, rubric);
             checkCriteriaVersions(bean, rubric);
@@ -696,6 +697,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             rubric.getCriteria().addAll(newCriterion);
         } else {
             rubric = rubricRepository.getById(bean.getId());
+            checkOwnerUnchanged(bean, rubric);
             checkVersion(bean.getVersion(), rubric.getVersion());
             checkDraftTransition(bean, rubric);
             checkCriteriaVersions(bean, rubric);
@@ -729,6 +731,15 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         Rubric savedRubric = saveAndPostEvent(updateRubricMaxPoints(rubric), event);
         sessionFactory.getCurrentSession().flush();
         return decorateRubricBean(new RubricTransferBean(savedRubric));
+    }
+
+    // A rubric stays in its site, copyRubricToSite puts a copy in another. The editor check in saveRubric is made
+    // against the bean's site, so this also ensures it is the rubric's own site.
+    private void checkOwnerUnchanged(RubricTransferBean bean, Rubric rubric) {
+
+        if (!Objects.equals(rubric.getOwnerId(), bean.getOwnerId())) {
+            throw new SecurityException("Rubric " + rubric.getId() + " cannot be saved to another site");
+        }
     }
 
     private void checkDraftTransition(RubricTransferBean bean, Rubric rubric) {
