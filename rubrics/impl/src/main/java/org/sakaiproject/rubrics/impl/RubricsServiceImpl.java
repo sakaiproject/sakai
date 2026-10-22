@@ -115,6 +115,8 @@ import org.sakaiproject.util.api.FormattedText;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.CollectionUtils;
 
 import com.lowagie.text.Chunk;
@@ -2130,11 +2132,26 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         return savedRubric;
     }
 
-    // These events drive the search index, see RubricsContentProducer
+    /**
+     * These events drive the search index, see RubricsContentProducer. Observers are notified as soon as an event is
+     * posted, so wait for the commit: a rolled back change must not reach the index.
+     */
     private void postRubricEvent(String event, Rubric rubric) {
 
-        String reference = RubricsService.rubricReference(rubric.getOwnerId(), rubric.getId());
-        eventTrackingService.post(eventTrackingService.newEvent(event, reference, rubric.getOwnerId(), true, NotificationService.NOTI_NONE));
+        String siteId = rubric.getOwnerId();
+        String reference = RubricsService.rubricReference(siteId, rubric.getId());
+        Runnable post = () -> eventTrackingService.post(eventTrackingService.newEvent(event, reference, siteId, true, NotificationService.NOTI_NONE));
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    post.run();
+                }
+            });
+        } else {
+            post.run();
+        }
     }
 
     private boolean isCurrentUserEditor(String siteId) {

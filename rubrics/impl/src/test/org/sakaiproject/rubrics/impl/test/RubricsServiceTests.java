@@ -23,11 +23,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,6 +53,7 @@ import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.transaction.TestTransaction;
 
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
@@ -703,20 +707,38 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void rubricChangesPostSearchEvents() {
+    public void rubricEventsArePostedOnlyAfterCommit() {
 
         switchToInstructor();
         reset(eventTrackingService);
 
+        // the test transaction rolls back, so nothing may be posted
+        rubricsService.createDefaultRubric(siteId);
+        TestTransaction.end();
+        verify(eventTrackingService, never()).post(any());
+
+        TestTransaction.start();
+        TestTransaction.flagForCommit();
         RubricTransferBean rubricBean = rubricsService.createDefaultRubric(siteId);
         String reference = RubricsService.rubricReference(siteId, rubricBean.getId());
+        verify(eventTrackingService, never()).newEvent(anyString(), anyString(), anyString(), anyBoolean(), anyInt());
+        TestTransaction.end();
         verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_CREATED, reference, siteId, true, NotificationService.NOTI_NONE);
 
+        TestTransaction.start();
+        TestTransaction.flagForCommit();
         rubricsService.updateCriterion(rubricBean.getCriteria().get(0), siteId);
+        TestTransaction.end();
         verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_UPDATED, reference, siteId, true, NotificationService.NOTI_NONE);
 
+        // deleting also cleans up the committed rubric
+        TestTransaction.start();
+        TestTransaction.flagForCommit();
         assertTrue(rubricsService.deleteRubric(rubricBean.getId()));
+        TestTransaction.end();
         verify(eventTrackingService).newEvent(RubricsConstants.EVENT_RUBRIC_DELETED, reference, siteId, true, NotificationService.NOTI_NONE);
+
+        TestTransaction.start();
     }
 
     @Test
