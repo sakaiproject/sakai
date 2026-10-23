@@ -47,6 +47,7 @@
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
+                <module>attendance</module>
                 <module>lti</module>
                 <module>calendar</module>
                 <module>card-game</module>
@@ -134,6 +135,7 @@
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
+                <module>attendance</module>
                 <module>assignment2</module>
                 <module>lti</module>
                 <module>calendar</module>
