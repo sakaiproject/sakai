@@ -16,9 +16,8 @@
 
 package org.sakaiproject.videotraining.impl.job;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,6 +29,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -220,11 +223,11 @@ public class HlsTranscodingJob implements ScheduledInvocationCommand {
 
     private void renderVariants(Path inputFile, Path outputDir) throws IOException, InterruptedException {
         List<HlsVariant> ALL_VARIANTS = Arrays.asList(
-                new HlsVariant("1080p", 1080, "4000k", "4500k", "8000k", 1920, 1080),
-                new HlsVariant("720p", 720, "2000k", "2500k", "4000k", 1280, 720),
-                new HlsVariant("480p", 480, "1200k", "1400k", "2400k", 854, 480),
-                new HlsVariant("360p", 360, "800k", "1000k", "1600k", 640, 360),
-                new HlsVariant("144p", 144, "400k", "500k", "800k", 256, 144)
+                new HlsVariant("1080p", 1080, "4000k", "4500k", "8000k", 1920, 4_500_000),
+                new HlsVariant("720p", 720, "2000k", "2500k", "4000k", 1280, 2_500_000),
+                new HlsVariant("480p", 480, "1200k", "1400k", "2400k", 854, 1_400_000),
+                new HlsVariant("360p", 360, "800k", "1000k", "1600k", 640, 1_000_000),
+                new HlsVariant("144p", 144, "400k", "500k", "800k", 256, 500_000)
         );
 
         int sourceHeight = getVideoHeightWithFfprobe(inputFile);
@@ -312,14 +315,10 @@ public class HlsTranscodingJob implements ScheduledInvocationCommand {
                 "-of", "csv=s=x:p=0",
                 inputFile.toString()
         );
-
-        Process process = pb.start();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line = reader.readLine();
-            process.waitFor();
-
-            if (line != null && !line.trim().isEmpty()) {
+        String output = executeProcess(pb, true);
+        String line = output.lines().findFirst().orElse(null);
+        try {
+            if (StringUtils.isNotBlank(line)) {
                 return Integer.parseInt(line.trim());
             }
         } catch (NumberFormatException e) {
@@ -333,18 +332,82 @@ public class HlsTranscodingJob implements ScheduledInvocationCommand {
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.directory(workDir.toFile());
         builder.redirectErrorStream(true);
+        executeProcess(builder, false);
+    }
+
+    private String executeProcess(ProcessBuilder builder, boolean captureOutput) throws IOException, InterruptedException {
         Process process;
         try {
             process = builder.start();
         } catch (IOException ex) {
-            throw new IOException("HLS transcoder is not available on this server.");
+            throw new IOException("HLS transcoder is not available on this server.", ex);
         }
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-            reader.lines().collect(Collectors.joining(System.lineSeparator()));
+
+        CompletableFuture<String> outputFuture = CompletableFuture.supplyAsync(() -> {
+            try {
+                if (captureOutput) {
+                    return new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                }
+                process.getInputStream().transferTo(OutputStream.nullOutputStream());
+                return "";
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+        });
+
+        try {
+            long timeoutSeconds = serverConfigurationService.getLong(
+                    VideoTrainingConstants.HLS_PROCESS_TIMEOUT_PROPERTY,
+                    VideoTrainingConstants.DEFAULT_HLS_PROCESS_TIMEOUT_SECONDS);
+            if (timeoutSeconds <= 0) {
+                timeoutSeconds = VideoTrainingConstants.DEFAULT_HLS_PROCESS_TIMEOUT_SECONDS;
+            }
+            if (!process.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
+                terminateProcess(process);
+                outputFuture.cancel(true);
+                throw new IllegalStateException("HLS process timed out after " + timeoutSeconds + " seconds.");
+            }
+
+            String output = awaitProcessOutput(outputFuture);
+            int exitCode = process.exitValue();
+            if (exitCode != 0) {
+                throw new IllegalStateException("HLS process failed with exit code " + exitCode + ": " + output.trim());
+            }
+            return output;
+        } catch (InterruptedException ex) {
+            terminateProcess(process);
+            outputFuture.cancel(true);
+            throw ex;
+        } finally {
+            if (process.isAlive()) {
+                terminateProcess(process);
+            }
         }
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            throw new IllegalStateException("HLS transcoding failed with exit code " + exitCode);
+    }
+
+    private String awaitProcessOutput(CompletableFuture<String> outputFuture) throws IOException, InterruptedException {
+        try {
+            return outputFuture.get(5, TimeUnit.SECONDS);
+        } catch (ExecutionException ex) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof UncheckedIOException uncheckedIOException) {
+                throw uncheckedIOException.getCause();
+            }
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new IOException("Unable to read HLS process output.", cause);
+        } catch (TimeoutException ex) {
+            outputFuture.cancel(true);
+            throw new IOException("Timed out while reading HLS process output.", ex);
+        }
+    }
+
+    private void terminateProcess(Process process) throws InterruptedException {
+        process.destroy();
+        if (!process.waitFor(5, TimeUnit.SECONDS)) {
+            process.destroyForcibly();
+            process.waitFor(5, TimeUnit.SECONDS);
         }
     }
 

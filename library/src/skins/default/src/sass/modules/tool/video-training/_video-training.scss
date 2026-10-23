@@ -61,6 +61,18 @@
     margin-bottom: $standard-space-2x;
   }
 
+  .vt-status-legend-toggle {
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    text-align: left;
+    vertical-align: baseline;
+    background-color: transparent;
+    border: 0;
+    border-radius: 0;
+    width: 100%;
+  }
+
   .vt-status-legend-detail {
     color: var(--sakai-text-color-2);
     font-size: $default-font-size-small;

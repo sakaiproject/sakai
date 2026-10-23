@@ -19,6 +19,7 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -36,6 +37,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.videotraining.api.model.VideoProviderType;
+import org.sakaiproject.videotraining.api.model.VideoPublicationStatus;
 import org.sakaiproject.videotraining.api.model.VideoTrainingVideo;
 import org.sakaiproject.videotraining.api.service.VideoTrainingService;
 
@@ -391,7 +393,14 @@ public class VideoTrainingEntity implements LessonEntity {
 
     @Override
     public boolean notPublished() {
-        return !objectExists();
+        loadVideo();
+        if (video == null || video.getPublicationStatus() != VideoPublicationStatus.PUBLISHED) {
+            return true;
+        }
+
+        Instant now = Instant.now();
+        return (video.getReleaseDate() != null && now.isBefore(video.getReleaseDate()))
+                || (video.getRetractDate() != null && !now.isBefore(video.getRetractDate()));
     }
 
     @Override

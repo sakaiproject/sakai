@@ -182,6 +182,7 @@ public class VideoTrainingVideoRepositoryImpl extends SpringCrudRepositoryImpl<V
         Predicate predicate = buildOwnerSearchWithCategoriesPredicate(cb, root, siteId, ownerId, searchText, categoryIds);
 
         query.select(root)
+                .distinct(true)
                 .where(predicate)
                 .orderBy(buildSortOrders(cb, root, sortField, ascending));
 
@@ -235,6 +236,7 @@ public class VideoTrainingVideoRepositoryImpl extends SpringCrudRepositoryImpl<V
         Predicate predicate = buildSearchWithCategoriesPredicate(cb, root, siteId, searchText, categoryIds);
 
         query.select(root)
+                .distinct(true)
                 .where(predicate)
                 .orderBy(buildSortOrders(cb, root, sortField, ascending));
 
@@ -529,6 +531,7 @@ public class VideoTrainingVideoRepositoryImpl extends SpringCrudRepositoryImpl<V
         Predicate predicate = buildVisibleSearchWithCategoriesPredicate(cb, root, siteId, now, searchText, categoryIds);
 
         query.select(root)
+                .distinct(true)
                 .where(predicate)
                 .orderBy(buildSortOrders(cb, root, sortField, ascending));
 
@@ -870,8 +873,19 @@ public class VideoTrainingVideoRepositoryImpl extends SpringCrudRepositoryImpl<V
 
         Predicate scopePredicate = cb.equal(root.get("visibilityScope"), VideoVisibilityScope.GLOBAL);
         Predicate publicationPredicate = cb.equal(root.get("publicationStatus"), VideoPublicationStatus.PUBLISHED);
+        Instant now = Instant.now();
+        Predicate releasePredicate = cb.or(
+                cb.isNull(root.get("releaseDate")),
+                cb.lessThanOrEqualTo(root.get("releaseDate"), now)
+        );
+        Predicate retractPredicate = cb.or(
+                cb.isNull(root.get("retractDate")),
+                cb.greaterThan(root.get("retractDate"), now)
+        );
         Predicate searchPredicate = buildSearchPredicate(cb, root, searchText);
-        Predicate predicate = searchPredicate == null ? cb.and(scopePredicate, publicationPredicate) : cb.and(scopePredicate, publicationPredicate, searchPredicate);
+        Predicate predicate = searchPredicate == null
+                ? cb.and(scopePredicate, publicationPredicate, releasePredicate, retractPredicate)
+                : cb.and(scopePredicate, publicationPredicate, releasePredicate, retractPredicate, searchPredicate);
         predicate = appendCursorPredicate(cb, root, predicate, cursorModifiedOn, cursorVideoId);
 
         query.select(root)
@@ -894,8 +908,19 @@ public class VideoTrainingVideoRepositoryImpl extends SpringCrudRepositoryImpl<V
 
         Predicate scopePredicate = cb.equal(root.get("visibilityScope"), VideoVisibilityScope.GLOBAL);
         Predicate publicationPredicate = cb.equal(root.get("publicationStatus"), VideoPublicationStatus.PUBLISHED);
+        Instant now = Instant.now();
+        Predicate releasePredicate = cb.or(
+                cb.isNull(root.get("releaseDate")),
+                cb.lessThanOrEqualTo(root.get("releaseDate"), now)
+        );
+        Predicate retractPredicate = cb.or(
+                cb.isNull(root.get("retractDate")),
+                cb.greaterThan(root.get("retractDate"), now)
+        );
         Predicate searchPredicate = buildSearchPredicate(cb, root, searchText);
-        Predicate predicate = searchPredicate == null ? cb.and(scopePredicate, publicationPredicate) : cb.and(scopePredicate, publicationPredicate, searchPredicate);
+        Predicate predicate = searchPredicate == null
+                ? cb.and(scopePredicate, publicationPredicate, releasePredicate, retractPredicate)
+                : cb.and(scopePredicate, publicationPredicate, releasePredicate, retractPredicate, searchPredicate);
 
         query.select(root)
                 .where(predicate)
