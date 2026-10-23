@@ -16,11 +16,8 @@
 
 package org.sakaiproject.videotraining.tool.config;
 
-import jakarta.servlet.MultipartConfigElement;
-
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
+import org.sakaiproject.util.SakaiMultipartResolver;
 import org.sakaiproject.videotraining.api.VideoTrainingConstants;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -29,7 +26,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -37,7 +33,6 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.thymeleaf.spring6.ISpringTemplateEngine;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
@@ -51,9 +46,6 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 public class VideoTrainingWebMvcConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
-
-    @Autowired
-    private ServerConfigurationService serverConfigurationService;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -114,13 +106,6 @@ public class VideoTrainingWebMvcConfig implements WebMvcConfigurer, ApplicationC
 
     @Bean
     public MultipartResolver multipartResolver() {
-        return new StandardServletMultipartResolver();
-    }
-
-    @Bean
-    public MultipartConfigElement multipartConfigElement() {
-        long maxUploadSize = Long.parseLong(serverConfigurationService.getString(
-                ContentHostingService.SAK_PROP_MAX_UPLOAD_FILE_SIZE)) * 1024L * 1024L;
-        return new MultipartConfigElement("", maxUploadSize, maxUploadSize, 0);
+        return new SakaiMultipartResolver();
     }
 }
