@@ -7,14 +7,15 @@ portal.search.setup = options => {
   options.tool ? search.setAttribute("tool", options.tool) : search.removeAttribute("tool");
   options.site ? search.setAttribute("site-id", options.site) : search.removeAttribute("site-id");
   const label = document.getElementById("sakai-search-panel-label");
-  // toolId names the tool for the title when its search results use a different tool name, e.g. wiki for sakai.rwiki
-  label.innerHTML = options.tool ? `${portal.search.searchTranslation} ${portal.toolTitles[options.toolId || options.tool]}` : portal.search.defaultTitle;
+  // toolId names the tool for the title when its search results use a different tool name, e.g. wiki for sakai.rwiki.
+  // Tool titles are site content, so the label is set as text.
+  label.textContent = options.tool ? `${portal.search.searchTranslation} ${portal.toolTitles[options.toolId || options.tool]}` : portal.search.defaultTitle;
 };
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  portal.search.searchTranslation = document.getElementById("sakai-search-translation")?.innerHTML;
-  portal.search.defaultTitle = document.getElementById("sakai-search-default-title")?.innerHTML;
+  portal.search.searchTranslation = document.getElementById("sakai-search-translation")?.textContent;
+  portal.search.defaultTitle = document.getElementById("sakai-search-default-title")?.textContent;
 
   document.getElementById("sakai-search-panel")?.addEventListener("shown.bs.offcanvas", e => {
     e.target.querySelector("sakai-search input")?.focus();

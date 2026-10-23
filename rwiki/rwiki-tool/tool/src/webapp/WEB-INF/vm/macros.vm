@@ -23,9 +23,15 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
 #macro( searchBox )
 #if ( $requestScope.SearchTarget == "full_search" )
 	    <li class="rwiki_searchBox">
-	      <button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#sakai-search-panel"
-	          aria-controls="sakai-search-panel"
-	          onclick="portal.search.setup({ site: portal.siteId, tool: 'wiki', toolId: 'sakai.rwiki' })">${rlb.jsp_search}</button>
+	      <button type="button" class="btn btn-secondary" aria-controls="sakai-search-panel" onclick="rwikiOpenSearch()">${rlb.jsp_search}</button>
+	      <script>
+	        // the wiki may render inline or, if portal.iframesuppress excludes it, in an iframe; the search panel is in the portal page
+	        function rwikiOpenSearch() {
+	          const portalWindow = window.top;
+	          portalWindow.portal.search.setup({ site: portalWindow.portal.siteId, tool: "wiki", toolId: "sakai.rwiki" });
+	          portalWindow.bootstrap.Offcanvas.getOrCreateInstance(portalWindow.document.getElementById("sakai-search-panel")).show();
+	        }
+	      </script>
 	    </li>
 #else
 	    <li class="rwiki_searchBox">
