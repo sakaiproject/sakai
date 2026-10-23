@@ -140,11 +140,6 @@ public class CalendarContentProducer implements EntityContentProducer, EntityCon
     }
 
     @Override
-    public String getType(String reference) {
-        return "event";
-    }
-
-    @Override
     public String getId(String reference) {
         return parse(reference).map(EventRef::eventId).orElse("");
     }
@@ -152,11 +147,6 @@ public class CalendarContentProducer implements EntityContentProducer, EntityCon
     @Override
     public String getSiteId(String reference) {
         return parse(reference).map(EventRef::siteId).orElse(null);
-    }
-
-    @Override
-    public String getContainer(String reference) {
-        return parse(reference).map(EventRef::siteId).orElse("");
     }
 
     @Override
