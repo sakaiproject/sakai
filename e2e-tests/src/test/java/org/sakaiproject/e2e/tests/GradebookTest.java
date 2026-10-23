@@ -224,6 +224,27 @@ class GradebookTest extends SakaiUiTestBase {
         assertThat(summary).isHidden();
     }
 
+    @Test
+    @Order(7)
+    void clearingTheStudentFilterRestoresAllStudents() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Gradebook");
+        Locator filter = page.locator("#studentFilterInput");
+        Locator students = page.locator(".gb-view-grade-summary");
+        assertThat(students.nth(1)).isVisible();
+        int all = students.count();
+
+        filter.fill("student0011");
+        filter.press("Enter");
+        assertThat(students).hasCount(1);
+        assertThat(filter).hasValue("student0011");
+
+        // deleting the text, as the native clear button does, shows every student again
+        filter.fill("");
+        assertThat(students).hasCount(all);
+    }
+
     private void assertNoAxeContrastViolations(String theme) {
         AxeResults results = new AxeBuilder(page)
             .include("#settingsGradeRelease")

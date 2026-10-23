@@ -1,7 +1,7 @@
 <!-- lti_tool_site.vm -->
 #macro(toolLinksFilter $column $label)
 #set($searchLabel = $formattedText.escapeHtml($tlang.getFormattedMessage('searchby', $label)))
-<td><input class="form-control form-control-sm" data-column="$column" placeholder="$searchLabel" aria-label="$searchLabel" /></td>
+<td><input type="search" class="form-control form-control-sm" data-column="$column" placeholder="$searchLabel" aria-label="$searchLabel" /></td>
 #end
 <script>includeWebjarLibrary('datatables');</script>
 <script type="module">

@@ -94,17 +94,20 @@ $Id$
       </div>
 	
 	  <h:panelGroup styleClass="form-group row search-box" layout="block">
-	    <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
-        <div class="col-md-10">
-			<h:inputText
-				id="searchString"
-				value="#{submissionStatus.searchString}"
-				onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
+	    <h:outputLabel styleClass="col-md-2" for="searchString" value="#{evaluationMessages.search}"/>
+        <div class="col-md-10 sakai-table-searchFilter">
+			<h:inputText id="searchString" value="#{submissionStatus.searchString}" styleClass="form-control"
 				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
-			<h:outputText value="&nbsp;" escape="false" />
-			<h:commandButton actionListener="#{submissionStatus.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
-			<h:outputText value="&nbsp;" escape="false" />
-			<h:commandButton actionListener="#{submissionStatus.clear}" value="#{evaluationMessages.search_clear}"/>
+			<%-- the field searches on Enter and clears when emptied, see setupStudentSearch --%>
+			<h:commandButton actionListener="#{submissionStatus.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" style="display:none" />
+			<h:commandButton actionListener="#{submissionStatus.clear}" value="#{evaluationMessages.search_clear}" id="searchClearButton" style="display:none" />
+			<script>
+			  {
+			    const prompt = document.createElement("div");
+			    prompt.innerHTML = <h:outputText value="`#{evaluationMessages.search_default_student_search_string}`" />;
+			    setupStudentSearch("editTotalResults:searchString", prompt.textContent, "editTotalResults:searchClearButton");
+			  }
+			</script>
 	    </div>
 	  </h:panelGroup>
     </h:panelGroup>
