@@ -40,13 +40,12 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * This class parses an import file from iCalendar.
@@ -54,6 +53,13 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class IcalendarReader extends Reader {
 	public static final long MINUTES_IN_DAY = TimeUnit.DAYS.toMinutes(1) - 5;
+
+	/**
+	 * Matches DATE-TIME values that are effectively date-only (midnight), with or without Z.
+	 * Feeds often omit VALUE=DATE; ical4j then rewrites them as yyyyMMddT000000.
+	 */
+	private static final Pattern MIDNIGHT_DATE_TIME = Pattern.compile("\\d{8}T000000Z?");
+
 	private static final ResourceLoader resourceLoader = new ResourceLoader("calendar");
 
 	private final Map<String, String> defaultHeaderMap = getDefaultColumnMap();
@@ -128,14 +134,12 @@ public class IcalendarReader extends Reader {
 					continue;
 				}
 
-				if (start.getParameters().contains(Value.DATE)) {
-					// all day event
-					Date startDate = Date.from(LocalDate
-							.parse(start.getValue(), DateTimeFormatter.BASIC_ISO_DATE)
+				if (isAllDay(start, end)) {
+					// All-day / date-only event (VALUE=DATE or midnight DATE-TIME without VALUE=DATE)
+					Date startDate = Date.from(toLocalDate(start)
 							.atStartOfDay(calendarZone)
 							.toInstant());
-					Date endDate = Date.from(LocalDate
-							.parse(end.getValue(), DateTimeFormatter.BASIC_ISO_DATE)
+					Date endDate = Date.from(toLocalDate(end)
 							.atTime(LocalTime.MAX)
 							.atZone(calendarZone)
 							.minusDays(1)
@@ -176,18 +180,55 @@ public class IcalendarReader extends Reader {
 		return calendarTzid;
 	}
 
+	/**
+	 * True when DTSTART/DTEND represent an all-day event per RFC 5545 VALUE=DATE,
+	 * or the common real-world variant that omits VALUE=DATE and uses midnight DATE-TIMEs.
+	 */
+	static boolean isAllDay(Property start, Property end) {
+		if (hasDateValue(start) || hasDateValue(end)) {
+			return true;
+		}
+		String startValue = start.getValue();
+		String endValue = end.getValue();
+		if (startValue == null || endValue == null) {
+			return false;
+		}
+		if (isBasicDate(startValue) && isBasicDate(endValue)) {
+			return true;
+		}
+		return isMidnightDateTime(startValue) && isMidnightDateTime(endValue);
+	}
+
+	private static boolean hasDateValue(Property property) {
+		return property != null && property.getParameters().contains(Value.DATE);
+	}
+
+	private static boolean isBasicDate(String value) {
+		return value.length() == 8 && value.indexOf('T') < 0;
+	}
+
+	private static boolean isMidnightDateTime(String value) {
+		return MIDNIGHT_DATE_TIME.matcher(value).matches();
+	}
+
+	static LocalDate toLocalDate(Property property) {
+		String value = property.getValue();
+		return LocalDate.parse(value.substring(0, 8), DateTimeFormatter.BASIC_ISO_DATE);
+	}
+
 	private void processRow(ReaderImportRowHandler handler, String summary, String description,
 							ColumnHeader[] columnDescriptionArray, String location, int lineNumber, Period period) {
 
-		TemporalAmount amount = period.getDuration();
-		if (amount.getUnits().stream().anyMatch(TemporalUnit::isDurationEstimated)) {
-			log.warn("Estimated duration for event [{}] detected, skipping", summary);
+		long durationMinutes = Duration.between(
+				period.getStart().toInstant(),
+				period.getEnd().toInstant()).toMinutes();
+
+		if (durationMinutes <= 0) {
+			log.warn("Non-positive duration for event [{}] detected, skipping", summary);
 			return;
 		}
 
 		String[] columns;
-		long durationMinutes = Duration.from(amount).toMinutes();
-
 		// for any event spanning more than a single day we setup a daily frequency using until
 		if (durationMinutes > MINUTES_IN_DAY) {
 			columns = new String[] {
