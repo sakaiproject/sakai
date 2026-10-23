@@ -120,7 +120,7 @@ public class VideoTrainingWebMvcConfig implements WebMvcConfigurer, ApplicationC
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         long maxUploadSize = Long.parseLong(serverConfigurationService.getString(
-                ContentHostingService.SAK_PROP_MAX_UPLOAD_FILE_SIZE)) * 1024L;
+                ContentHostingService.SAK_PROP_MAX_UPLOAD_FILE_SIZE)) * 1024L * 1024L;
         return new MultipartConfigElement("", maxUploadSize, maxUploadSize, 0);
     }
 }

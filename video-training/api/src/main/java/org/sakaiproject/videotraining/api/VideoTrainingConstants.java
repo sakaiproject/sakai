@@ -42,6 +42,7 @@ public final class VideoTrainingConstants {
     public static final boolean DEFAULT_HLS_ENABLED = false;
     public static final boolean DEFAULT_MODERATION_ENABLED = false;
     public static final String DEFAULT_HLS_FFMPEG = "ffmpeg";
+    public static final long DEFAULT_HLS_PROCESS_TIMEOUT_SECONDS = 3600L;
     public static final String DEFAULT_MAX_NATIVE_UPLOAD_SIZE = "512";
     public static final String DEFAULT_OAUTH_ENCRYPTION_KEY = null;
     public static final String DEFAULT_PROVIDER_YOUTUBE_API_KEY = "";
@@ -116,6 +117,7 @@ public final class VideoTrainingConstants {
     public static final String GLOBAL_ROOT_PROPERTY = "video.training.global.root";
     public static final String HLS_ENABLED_PROPERTY = "video.training.hls.enabled";
     public static final String HLS_FFMPEG_PROPERTY = "video.training.hls.ffmpeg";
+    public static final String HLS_PROCESS_TIMEOUT_PROPERTY = "video.training.hls.process.timeout.seconds";
     public static final String MANAGED_UPLOAD_OWNER_PROPERTY = "video.training.ownerId";
     public static final String MANAGED_UPLOAD_PROPERTY = "video.training.managed";
     public static final String MANAGED_UPLOAD_SCOPE_PROPERTY = "video.training.visibilityScope";

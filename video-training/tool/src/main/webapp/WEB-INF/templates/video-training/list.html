@@ -68,15 +68,17 @@
     </div>
 
     <div class="vt-status-legend sak-banner-info" th:if="${canManage && isManageableList && !isGlobalSite && !#lists.isEmpty(videos)}">
-        <h5 class="vt-status-legend-title"
-            data-bs-toggle="collapse"
-            data-bs-target="#vtmStatusLegend"
-            aria-expanded="false"
-            aria-controls="vtmStatusLegend"
-            style="cursor: pointer;">
-            <span th:text="#{video.training.status.legend.title}">Publication Status</span>
-            <br>
-            <small class="text-muted" th:text="#{video.training.status.legend.toggle}"> Click to show/hide</small>
+        <h5 class="vt-status-legend-title">
+            <button type="button"
+                    class="vt-status-legend-toggle btn btn-link text-start text-decoration-none p-0"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#vtmStatusLegend"
+                    aria-expanded="false"
+                    aria-controls="vtmStatusLegend">
+                <span th:text="#{video.training.status.legend.title}">Publication Status</span>
+                <br>
+                <small class="text-muted" th:text="#{video.training.status.legend.toggle}"> Click to show/hide</small>
+            </button>
         </h5>
         <div class="collapse" id="vtmStatusLegend">
             <strong th:text="#{video.training.status.DRAFT}">Draft</strong>

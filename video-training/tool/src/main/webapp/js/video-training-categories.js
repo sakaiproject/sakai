@@ -44,7 +44,6 @@
         const reorderUrl = rootBody.dataset.reorderUrl;
         if (!reorderUrl) return;
 
-                'X-Requested-With': 'XMLHttpRequest'
         const payload = buildOrderPayload();
 
         orderSaveQueue = orderSaveQueue
