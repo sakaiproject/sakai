@@ -187,14 +187,7 @@ public class SakaiHelper {
         String templateKey = resolvedUsername + "|" + siteType;
         String templateUrl = SITE_TEMPLATE_URL_CACHE.computeIfAbsent(templateKey,
             key -> createSiteThroughUi(resolvedUsername, List.of(), siteType));
-        if (fixtureSessionId == null) {
-            APIResponse login = fixtureRequest.post("/direct/session/new", RequestOptions.create()
-                .setForm(FormData.create().set("_username", "admin").set("_password", passwordFor("admin"))));
-            if (!login.ok()) {
-                throw new IllegalStateException("Unable to authenticate site fixture requests: HTTP " + login.status());
-            }
-            fixtureSessionId = login.text().trim();
-        }
+        fixtureSession();
         String siteId = UUID.randomUUID().toString();
         callSakaiScript("copySite", fixtureSessionId, Map.of(
             "siteidtocopy", siteIdFromUrl(templateUrl), "newsiteid", siteId,
@@ -217,6 +210,48 @@ public class SakaiHelper {
         String siteUrl = "/portal/site/" + siteId;
         COURSE_URL_CACHE.put(courseCacheKey, siteUrl);
         return siteUrl;
+    }
+
+    /**
+     * Adds a group with the given members to a site from createCourse or createProject.
+     *
+     * @return the group id
+     */
+    public String addGroup(String siteUrl, String title, String... usernames) {
+        String siteId = siteIdFromUrl(siteUrl);
+        String groupId = sakaiScript("addGroupToSite", Map.of("siteid", siteId, "grouptitle", title, "groupdesc", title));
+        if (groupId.isEmpty()) {
+            throw new IllegalStateException("Site fixture addGroupToSite failed for " + siteId);
+        }
+        for (String username : usernames) {
+            String userId = sakaiScript("getUserId", Map.of("eid", resolveUser(username)));
+            if (!"true".equals(sakaiScript("addMemberToGroup", Map.of("siteid", siteId, "groupid", groupId, "userid", userId)))) {
+                throw new IllegalStateException("Site fixture addMemberToGroup failed for " + username);
+            }
+        }
+        return groupId;
+    }
+
+    private String fixtureSession() {
+        if (fixtureSessionId == null) {
+            APIResponse login = fixtureRequest.post("/direct/session/new", RequestOptions.create()
+                .setForm(FormData.create().set("_username", "admin").set("_password", passwordFor("admin"))));
+            if (!login.ok()) {
+                throw new IllegalStateException("Unable to authenticate site fixture requests: HTTP " + login.status());
+            }
+            fixtureSessionId = login.text().trim();
+        }
+        return fixtureSessionId;
+    }
+
+    private String sakaiScript(String action, Map<String, String> parameters) {
+        RequestOptions options = RequestOptions.create().setQueryParam("sessionid", fixtureSession());
+        parameters.forEach(options::setQueryParam);
+        APIResponse response = fixtureRequest.get("/sakai-ws/rest/sakai/" + action, options);
+        if (!response.ok()) {
+            throw new IllegalStateException("Site fixture " + action + " failed: HTTP " + response.status());
+        }
+        return response.text().trim();
     }
 
     private void callSakaiScript(String action, String sessionId, Map<String, String> parameters) {

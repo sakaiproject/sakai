@@ -394,18 +394,18 @@ $Id$
 
         <h:panelGroup styleClass="samigo-search-student form-group sakai-table-searchFilter" layout="block">
           <h:outputLabel styleClass="col-md-2" for="searchString" value="#{evaluationMessages.search}"/>
-          <h:panelGroup styleClass="sakai-table-searchFilter-inputWrapper position-relative d-flex align-items-center" layout="block">
-            <h:inputText id="searchString" value="#{questionScores.searchString}" styleClass="sakai-table-searchFilter-searchField"
-                onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
-                onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"
-                onkeyup="toggleSearchClear(this, '#{evaluationMessages.search_default_student_search_string}')"/>
-            <%-- shown only while there is a search to clear, see toggleSearchClear --%>
-            <h:commandButton actionListener="#{questionScores.clear}" value="✕" id="searchClearButton" title="#{evaluationMessages.search_clear}"
-                styleClass="sakai-table-searchFilter-clearBtn bg-transparent border-0 m-0 lh-1"
-                style="#{empty questionScores.searchString or questionScores.searchString eq evaluationMessages.search_default_student_search_string ? 'display:none' : ''}"/>
-          </h:panelGroup>
-          <%-- searches on Enter, through submitOnEnter --%>
+          <h:inputText id="searchString" value="#{questionScores.searchString}" styleClass="form-control"
+              onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
+          <%-- the field searches on Enter and clears when emptied, see setupStudentSearch --%>
           <h:commandButton actionListener="#{questionScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" style="display:none" />
+          <h:commandButton actionListener="#{questionScores.clear}" value="#{evaluationMessages.search_clear}" id="searchClearButton" style="display:none" />
+          <script>
+            {
+              const prompt = document.createElement("div");
+              prompt.innerHTML = <h:outputText value="`#{evaluationMessages.search_default_student_search_string}`" />;
+              setupStudentSearch("editTotalResults:searchString", prompt.textContent, "editTotalResults:searchClearButton");
+            }
+          </script>
         </h:panelGroup>
     </h:panelGroup>
 

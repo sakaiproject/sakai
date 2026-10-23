@@ -176,7 +176,6 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
   
   // Searching
   private String searchString;
-  private String defaultSearchString;
   private String applyToUngraded = "";
   
   private boolean multipleSubmissionsAllowed = false;
@@ -210,8 +209,6 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
   }
 
 	protected void init() {
-        defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
-
 		try {
 			Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 			boolean sitePropertyExists = false;
@@ -232,8 +229,9 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
 			log.warn(ex.getMessage(), ex);
 		}
 
+		// no search is an empty search; the page shows its prompt as a placeholder
 		if (searchString == null) {
-			searchString = defaultSearchString;
+			searchString = "";
 		}
 		
 		// Get allAgents only at the first time
@@ -1262,7 +1260,7 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
   }
   public void setSearchString(String searchString) {
 	  if (StringUtils.trimToNull(searchString) == null) {
-          searchString = defaultSearchString;
+          searchString = "";
       }
 	  if (!StringUtils.equals(searchString, this.searchString)) {
 	    	log.debug("setSearchString " + searchString);
@@ -1283,7 +1281,7 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
   }
   
 	private boolean isFilteredSearch() {
-        return !StringUtils.equals(searchString, defaultSearchString);
+        return StringUtils.isNotBlank(searchString);
 	}
 	
 	/**

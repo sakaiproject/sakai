@@ -1177,12 +1177,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   
   let filterTimeout;
   let previousFilterText = "";
-  // the clear button only shows while there is something to clear
-  const toggleStudentFilterClear = () => $(".gb-student-filter-clear-button").toggle($("#studentFilterInput").val().length > 0);
-  toggleStudentFilterClear();
   $("#studentFilterInput")
     .on("input", function (event) {
-      toggleStudentFilterClear();
       clearTimeout(filterTimeout);
       filterTimeout = setTimeout(function () {
         let currentFilterText = event.target.value;
@@ -1198,19 +1194,13 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     .on("keydown", function (event) {
       if (event.key === "Enter") {
         clearTimeout(filterTimeout);
+        // remember what is now applied, so emptying the field afterwards still redraws
+        previousFilterText = event.target.value;
         GbGradeTable.redrawRows();
         return false;
       }
     });
   
-  // Clear Student Filter
-  $(document).on("click", ".gb-student-filter-clear-button", function (event) {
-    event.preventDefault();
-    const $input = $("#studentFilterInput");
-    if ($input.val().length > 0) {
-      $input.val("").trigger("input").trigger("focus");
-    }
-  });
   
   rubricGradingRow = 0;
   rubricGradingCol = 0;

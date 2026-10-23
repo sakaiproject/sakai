@@ -212,8 +212,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
     delivery.setActionString("gradeAssessment");
 
     // Reset the search field
-    String defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
-    bean.setSearchString(defaultSearchString);
+    bean.setSearchString(null);
     
     // reset question score page content 
     questionbean.setSections(new ArrayList());
