@@ -12,6 +12,7 @@ import com.microsoft.playwright.options.RequestOptions;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -139,13 +140,17 @@ class VideoTrainingTest extends SakaiUiTestBase {
         assertThat(page.locator("#uploadSourceSection")).isVisible();
         assertThat(page.locator("#resourcesSourceSection")).isHidden();
 
-        page.locator("#title").fill("Playwright Video Training Upload " + System.currentTimeMillis());
+        String title = "Playwright Video Training Upload " + System.currentTimeMillis();
+        page.locator("#title").fill(title);
         page.locator("#description").fill("Upload mode test");
-        page.setInputFiles("#nativeFile", new FilePayload("video.webm", "video/webm", "dummy".getBytes(StandardCharsets.UTF_8)));
+        page.locator("#nativeFile").setInputFiles(
+            new FilePayload("video.webm", "video/webm", "dummy".getBytes(StandardCharsets.UTF_8)));
         page.locator("button[type=\"submit\"]").first().click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator(".sak-banner-success")).isVisible();
 
-        assertThat(page.locator(".vt-video-table"))
-            .containsText(Pattern.compile("Playwright Video Training Upload", Pattern.CASE_INSENSITIVE));
+        openCurrentPathWithParams("viewMode=table&q="
+                + URLEncoder.encode(title, StandardCharsets.UTF_8));
+        assertThat(page.locator(".vt-video-table")).containsText(title);
     }
 
     @Test
