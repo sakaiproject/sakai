@@ -47,9 +47,22 @@
 			<form action="?#" method="get" class="inlineForm"  >  
 
 				<input type="hidden" name="panel" value="Main" />
-				<input type="text" id="search"  name="search" maxlength="1024" value="${searchModel.search}"/>
-				<input type="submit" name="sb" value="${rlb.jsp_search}" class="mt-1 mt-sm-0"/>
-				<br/>
+				## searches on Enter; the clear button shows while there is a search, like the shared search filter
+				<div class="sakai-table-searchFilter">
+					<label for="search" class="me-2">${rlb.jsp_search}</label>
+					<div class="sakai-table-searchFilter-inputWrapper position-relative d-flex align-items-center">
+						<input type="text" id="search" name="search" maxlength="1024" value="${searchModel.search}" class="sakai-table-searchFilter-searchField w-100"/>
+						<button type="button" id="searchClear" class="sakai-table-searchFilter-clearBtn bg-transparent border-0 m-0 lh-1" aria-label="${rlb.jsp_clear_search}" #if ("$!searchModel.search" == "") style="display:none" #end>&#x2715;</button>
+					</div>
+				</div>
+				<script>
+					(() => {
+						const field = document.getElementById("search");
+						const clear = document.getElementById("searchClear");
+						field.addEventListener("input", () => clear.style.display = field.value ? "" : "none");
+						clear.addEventListener("click", () => { field.value = ""; field.form.submit(); });
+					})();
+				</script>
 				<input id="searchSite" type="radio" name="scope" value="SITE" #if($searchModel.isScope('SITE')) checked="true" #end />
 				<label for="searchSite">${rlb.jsp_current_site}</label>
 				<input id="searchMine" type="radio" name="scope" value="MINE" #if($searchModel.isScope('MINE')) checked="true" #end />

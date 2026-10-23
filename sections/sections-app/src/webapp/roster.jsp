@@ -31,11 +31,21 @@
 	</t:div>
 	
     <h:panelGrid styleClass="sectionContainerNav" columns="1" columnClasses="sectionLeftNav,sectionRightNav">
-        <t:div>
-            <h:inputText id="search" onkeydown="submitSearchText(event)" value="#{rosterBean.searchText}"
-                onfocus="clearIfDefaultString(this, `#{msgs.roster_search_text}`)"/>
-            <h:commandButton value="#{msgs.roster_search_button}" actionListener="#{rosterBean.search}"/>
-            <h:commandButton value="#{msgs.roster_clear_button}" actionListener="#{rosterBean.clearSearch}"/>
+        <t:div styleClass="sakai-table-searchFilter">
+            <t:div styleClass="sakai-table-searchFilter-inputWrapper position-relative d-flex align-items-center">
+                <h:inputText id="search" onkeydown="submitSearchText(event)" value="#{rosterBean.searchText}" styleClass="sakai-table-searchFilter-searchField"
+                    onfocus="clearIfDefaultString(this, `#{msgs.roster_search_text}`)"
+                    onkeyup="toggleSearchClear(this, `#{msgs.roster_search_text}`)"/>
+                <%-- shown only while there is a search to clear, see toggleSearchClear --%>
+                <%-- a link, so the mark is an entity: these pages have no page encoding to carry a literal one --%>
+                <h:commandLink id="searchClearButton" title="#{msgs.roster_clear_button}" actionListener="#{rosterBean.clearSearch}"
+                    styleClass="sakai-table-searchFilter-clearBtn text-decoration-none lh-1"
+                    style="#{empty rosterBean.searchText or rosterBean.searchText eq msgs.roster_search_text ? 'display:none' : ''}">
+                    <h:outputText value="&#x2715;" escape="false"/>
+                </h:commandLink>
+            </t:div>
+            <%-- searches on Enter, through submitSearchText --%>
+            <h:commandButton id="searchButton" value="#{msgs.roster_search_button}" actionListener="#{rosterBean.search}" style="display:none"/>
         </t:div>
         
         <t:div>

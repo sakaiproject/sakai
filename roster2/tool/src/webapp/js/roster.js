@@ -219,7 +219,6 @@ roster.switchState = function (state, args) {
       roster.selectViewMode(roster.currentLayout || roster.defaultOverviewMode);
 
       roster.setupPrintButton();
-      roster.readySearchButton();
       roster.readySearchField();
       roster.readyClearButton(state);
 
@@ -269,7 +268,6 @@ roster.switchState = function (state, args) {
       roster.clickViewSpreadsheetRadio();
       roster.addExportHandler();
       roster.setupPrintButton();
-      roster.readySearchButton();
       roster.readySearchField();
       roster.readyClearButton(state);
 
@@ -548,7 +546,7 @@ roster.renderMembership = function (options) {
 
 roster.readyClearButton = function (state) {
 
-  $('#roster_form_clear_button').click(function (e) {
+  $('.sakai-table-searchFilter-clearBtn').click(function (e) {
 
     roster.roleToView = null;
     roster.groupToView = null;
@@ -599,21 +597,6 @@ roster.search = function (query) {
   }
 };
 
-roster.readySearchButton = function () {
-
-  const button = $('#roster-search-button');
-  button.prop("disabled", true);
-
-  this.searchIndexPromise.then(() => {
-
-    button.prop("disabled", false).off('click').on('click', function (e) {
-
-      const searchFieldValue = $('#roster-search-field').val();
-      roster.search(searchFieldValue);
-    });
-  });
-};
-
 roster.readySearchField = function () {
 
   const field = $('#roster-search-field');
@@ -621,11 +604,14 @@ roster.readySearchField = function () {
 
   this.searchIndexPromise.then(() => {
 
+    // the clear button only shows while there is something to clear
+    field.on('input', () => $('.sakai-table-searchFilter-clearBtn').toggle(field.val().length > 0));
+
     field.keydown(function (e) {
 
       if (e.which === 13) {
         e.preventDefault();
-        $('#roster-search-button').click();
+        roster.search(field.val());
       }
     });
 
