@@ -153,6 +153,22 @@ class GradebookTest extends SakaiUiTestBase {
         assertThat(dialog).hasAttribute("role", "dialog");
         dialog.locator(".gb-summary-next-student").click();
         assertThat(dialog.locator("[data-studentid]").first()).hasAttribute("data-studentid", nextStudentId);
+        int originalWidth = page.viewportSize().width;
+        int originalHeight = page.viewportSize().height;
+        try {
+            for (int width : List.of(1280, 640)) {
+                page.setViewportSize(width, originalHeight);
+                assertTrue((Boolean) dialog.evaluate("element => { "
+                    + "const navigation = element.querySelector('.gb-summary-previous-student').getBoundingClientRect(); "
+                    + "const done = element.querySelector('.gb-summary-close').getBoundingClientRect(); "
+                    + "const print = element.querySelector('.gb-summary-print').getBoundingClientRect(); "
+                    + "return done.top - navigation.bottom >= 8 "
+                    + "&& (print.left - done.right >= 6 || print.top - done.bottom >= 6); }"),
+                    "Student navigation and footer actions should have space between them at width " + width);
+            }
+        } finally {
+            page.setViewportSize(originalWidth, originalHeight);
+        }
         dialog.locator(".gb-summary-close").click();
         assertThat(dialog).isHidden();
     }
