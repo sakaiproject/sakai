@@ -25,6 +25,7 @@ import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.PeriodList;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.parameter.Value;
+import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.util.CompatibilityHints;
 import org.sakaiproject.calendar.impl.DailyRecurrenceRule;
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
@@ -45,7 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * This class parses an import file from iCalendar.
@@ -53,12 +53,6 @@ import java.util.regex.Pattern;
 @Slf4j
 public class IcalendarReader extends Reader {
 	public static final long MINUTES_IN_DAY = TimeUnit.DAYS.toMinutes(1) - 5;
-
-	/**
-	 * Matches DATE-TIME values that are effectively date-only (midnight), with or without Z.
-	 * Feeds often omit VALUE=DATE; ical4j then rewrites them as yyyyMMddT000000.
-	 */
-	private static final Pattern MIDNIGHT_DATE_TIME = Pattern.compile("\\d{8}T000000Z?");
 
 	private static final ResourceLoader resourceLoader = new ResourceLoader("calendar");
 
@@ -135,24 +129,18 @@ public class IcalendarReader extends Reader {
 				}
 
 				if (isAllDay(start, end)) {
-					// All-day / date-only event (VALUE=DATE or midnight DATE-TIME without VALUE=DATE)
-					Date startDate = Date.from(toLocalDate(start)
-							.atStartOfDay(calendarZone)
-							.toInstant());
-					Date endDate = Date.from(toLocalDate(end)
-							.atTime(LocalTime.MAX)
-							.atZone(calendarZone)
-							.minusDays(1)
-							.toInstant());
-					Period period = new Period(new DateTime(startDate), new DateTime(endDate));
-
-					processRow(handler,
+					// RFC 5545 DATE values: DTEND is exclusive
+					LocalDate startLocal = toLocalDate(start);
+					LocalDate exclusiveEnd = toLocalDate(end);
+					processAllDayRow(handler,
 							summary.getValue(),
 							description != null ? description.getValue() : "",
 							columnDescriptionArray,
 							location != null ? location.getValue() : "",
 							lineNumber,
-							period);
+							startLocal,
+							exclusiveEnd,
+							calendarZone);
 					lineNumber++;
 				} else {
 					DateTime from = new DateTime(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
@@ -181,39 +169,80 @@ public class IcalendarReader extends Reader {
 	}
 
 	/**
-	 * True when DTSTART/DTEND represent an all-day event per RFC 5545 VALUE=DATE,
-	 * or the common real-world variant that omits VALUE=DATE and uses midnight DATE-TIMEs.
+	 * True when DTSTART/DTEND are DATE values (RFC 5545 VALUE=DATE, or an ical4j
+	 * {@link net.fortuna.ical4j.model.Date} that is not a {@link DateTime}).
 	 */
 	static boolean isAllDay(Property start, Property end) {
-		if (hasDateValue(start) || hasDateValue(end)) {
-			return true;
-		}
-		String startValue = start.getValue();
-		String endValue = end.getValue();
-		if (startValue == null || endValue == null) {
+		return isDateTyped(start) && isDateTyped(end);
+	}
+
+	private static boolean isDateTyped(Property property) {
+		if (property == null) {
 			return false;
 		}
-		if (isBasicDate(startValue) && isBasicDate(endValue)) {
+		if (property.getParameters().contains(Value.DATE)) {
 			return true;
 		}
-		return isMidnightDateTime(startValue) && isMidnightDateTime(endValue);
-	}
-
-	private static boolean hasDateValue(Property property) {
-		return property != null && property.getParameters().contains(Value.DATE);
-	}
-
-	private static boolean isBasicDate(String value) {
-		return value.length() == 8 && value.indexOf('T') < 0;
-	}
-
-	private static boolean isMidnightDateTime(String value) {
-		return MIDNIGHT_DATE_TIME.matcher(value).matches();
+		String value = property.getValue();
+		if (value != null && value.length() == 8 && value.indexOf('T') < 0) {
+			return true;
+		}
+		if (property instanceof DateProperty) {
+			return !(((DateProperty) property).getDate() instanceof DateTime);
+		}
+		return false;
 	}
 
 	static LocalDate toLocalDate(Property property) {
 		String value = property.getValue();
 		return LocalDate.parse(value.substring(0, 8), DateTimeFormatter.BASIC_ISO_DATE);
+	}
+
+	private void processAllDayRow(ReaderImportRowHandler handler, String summary, String description,
+								  ColumnHeader[] columnDescriptionArray, String location, int lineNumber,
+								  LocalDate startLocal, LocalDate exclusiveEnd, ZoneId calendarZone) {
+
+		if (!exclusiveEnd.isAfter(startLocal)) {
+			log.warn("Non-positive date range for event [{}] detected, skipping", summary);
+			return;
+		}
+
+		boolean multiDay = exclusiveEnd.isAfter(startLocal.plusDays(1));
+		ZonedDateTime startZoned = startLocal.atStartOfDay(calendarZone);
+
+		String[] columns;
+		if (multiDay) {
+			LocalDate lastInclusive = exclusiveEnd.minusDays(1);
+			columns = new String[] {
+					summary,
+					description,
+					GenericCalendarImporter.dateISOFormatter().format(startZoned),
+					GenericCalendarImporter.timeFormatter().format(startZoned),
+					Long.toString(MINUTES_IN_DAY),
+					location,
+					DailyRecurrenceRule.FREQ,
+					"1",
+					GenericCalendarImporter.dateISOFormatter().format(lastInclusive)
+			};
+		} else {
+			columns = new String[] {
+					summary,
+					description,
+					GenericCalendarImporter.dateISOFormatter().format(startZoned),
+					GenericCalendarImporter.timeFormatter().format(startZoned),
+					Long.toString(MINUTES_IN_DAY),
+					location,
+					"",
+					"",
+					""
+			};
+		}
+
+		try {
+			handler.handleRow(processLine(columnDescriptionArray, lineNumber, columns));
+		} catch (ImportException e) {
+			log.warn("Could not import all-day event [{}/{}], {}", lineNumber, summary, e.toString());
+		}
 	}
 
 	private void processRow(ReaderImportRowHandler handler, String summary, String description,

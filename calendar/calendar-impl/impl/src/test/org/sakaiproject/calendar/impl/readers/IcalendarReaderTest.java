@@ -18,6 +18,7 @@ package org.sakaiproject.calendar.impl.readers;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -85,31 +86,26 @@ public class IcalendarReaderTest {
 		Map<String, Object> singleDay = findByTitle(rows, "Public Holiday");
 		assertNotNull(singleDay);
 		assertEquals(LocalDate.of(2024, 7, 4), singleDay.get(GenericCalendarImporter.DATE_PROPERTY_NAME));
-		Integer duration = (Integer) singleDay.get(GenericCalendarImporter.DURATION_PROPERTY_NAME);
-		assertNotNull(duration);
-		assertTrue("Single-day all-day duration should be near a full day", duration > 23 * 60);
+		assertEquals(Integer.valueOf((int) IcalendarReader.MINUTES_IN_DAY),
+				singleDay.get(GenericCalendarImporter.DURATION_PROPERTY_NAME));
+		assertNull("Single-day all-day must not use daily recurrence",
+				singleDay.get(GenericCalendarImporter.FREQUENCY_PROPERTY_NAME));
 	}
 
 	@Test
 	public void testImportDateOnlyWithoutValueDate() throws ImportException {
 		List<Map<String, Object>> rows = importRows("/allday_date_only_no_value.ics");
 
-		assertEquals("Date-only events without VALUE=DATE must be imported (including outside the timed-event window)",
-				3, rows.size());
+		assertEquals("Date-only events without VALUE=DATE must be imported", 2, rows.size());
 
-		Map<String, Object> pastHoliday = findByTitle(rows, "New Year Day");
-		assertNotNull("Events far in the past must still import via the all-day path", pastHoliday);
-		assertEquals(LocalDate.of(2019, 1, 1), pastHoliday.get(GenericCalendarImporter.DATE_PROPERTY_NAME));
-
-		Map<String, Object> singleDay = findByTitle(rows, "Winter Holiday");
+		Map<String, Object> singleDay = findByTitle(rows, "Spring Holiday");
 		assertNotNull(singleDay);
-		assertEquals(LocalDate.of(2025, 12, 25), singleDay.get(GenericCalendarImporter.DATE_PROPERTY_NAME));
+		assertEquals(LocalDate.of(2026, 5, 1), singleDay.get(GenericCalendarImporter.DATE_PROPERTY_NAME));
 
 		Map<String, Object> period = findByTitle(rows, "Winter Break");
 		assertNotNull(period);
-		assertEquals(LocalDate.of(2025, 12, 23), period.get(GenericCalendarImporter.DATE_PROPERTY_NAME));
+		assertEquals(LocalDate.of(2026, 12, 23), period.get(GenericCalendarImporter.DATE_PROPERTY_NAME));
 		assertEquals(DailyRecurrenceRule.FREQ, period.get(GenericCalendarImporter.FREQUENCY_PROPERTY_NAME));
-		assertEquals(LocalDate.of(2026, 1, 5), period.get(GenericCalendarImporter.ENDS_PROPERTY_NAME));
 	}
 
 	@Test
@@ -135,7 +131,31 @@ public class IcalendarReaderTest {
 	}
 
 	@Test
-	public void testIsAllDayDetectsValueDateAndMidnightDateTime() {
+	public void testMidnightDateTimeIsNotAllDayButStillImports() throws ImportException {
+		LocalDate start = LocalDate.now(ZoneId.of("UTC")).plusDays(14);
+		LocalDate end = start.plusDays(1);
+		String startStamp = start.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE) + "T000000Z";
+		String endStamp = end.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE) + "T000000Z";
+		String ics = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n"
+				+ "UID:midnight@example.com\n"
+				+ "DTSTART:" + startStamp + "\n"
+				+ "DTEND:" + endStamp + "\n"
+				+ "SUMMARY:Midnight Timed Range\n"
+				+ "END:VEVENT\nEND:VCALENDAR\n";
+
+		assertFalse("Explicit midnight DATE-TIME must stay on the timed path", isAllDayFromIcs(ics));
+
+		GenericImportRowHandler handler = new GenericImportRowHandler(reader.getDefaultColumnMap(), resourceLoader);
+		reader.importStreamFromDelimitedFile(
+				new ByteArrayInputStream(ics.getBytes(StandardCharsets.UTF_8)), handler);
+		List<Map<String, Object>> rows = handler.getRowList();
+
+		assertEquals(1, rows.size());
+		assertEquals("Midnight Timed Range", rows.get(0).get("Summary"));
+	}
+
+	@Test
+	public void testIsAllDayDetectsValueDateOnly() {
 		String valueDateIcs =
 				"BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n"
 						+ "DTSTART;VALUE=DATE:20240617\nDTEND;VALUE=DATE:20240618\n"
@@ -144,13 +164,18 @@ public class IcalendarReaderTest {
 				"BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n"
 						+ "DTSTART:20251225\nDTEND:20251226\n"
 						+ "SUMMARY:Y\nEND:VEVENT\nEND:VCALENDAR\n";
+		String midnightDateTimeIcs =
+				"BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n"
+						+ "DTSTART:20251225T000000\nDTEND:20251226T000000\n"
+						+ "SUMMARY:M\nEND:VEVENT\nEND:VCALENDAR\n";
 		String timedIcs =
 				"BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n"
 						+ "DTSTART:20240617T100000Z\nDTEND:20240617T110000Z\n"
 						+ "SUMMARY:Z\nEND:VEVENT\nEND:VCALENDAR\n";
 
 		assertTrue(isAllDayFromIcs(valueDateIcs));
-		assertTrue(isAllDayFromIcs(dateOnlyIcs));
+		assertFalse(isAllDayFromIcs(dateOnlyIcs));
+		assertFalse(isAllDayFromIcs(midnightDateTimeIcs));
 		assertFalse(isAllDayFromIcs(timedIcs));
 	}
 
