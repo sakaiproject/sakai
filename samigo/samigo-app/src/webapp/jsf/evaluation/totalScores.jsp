@@ -215,17 +215,20 @@ function showLoadingMessage() {
 
       </h:panelGroup>
 
-	  <h:panelGroup styleClass="search-student form-group" layout="block">
-      <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
- 	        <h:inputText
-				id="searchString"
-				value="#{totalScores.searchString}"
-				onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
-				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
-			<h:outputText value="&nbsp;" escape="false" />
-			<h:commandButton actionListener="#{totalScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
-			<h:outputText value="&nbsp;" escape="false" />
-			<h:commandButton actionListener="#{totalScores.clear}" value="#{evaluationMessages.search_clear}"/>
+	  <h:panelGroup styleClass="search-student form-group sakai-table-searchFilter" layout="block">
+	    <h:outputLabel styleClass="col-md-2" for="searchString" value="#{evaluationMessages.search}"/>
+	    <h:panelGroup styleClass="sakai-table-searchFilter-inputWrapper position-relative d-flex align-items-center" layout="block">
+	      <h:inputText id="searchString" value="#{totalScores.searchString}" styleClass="sakai-table-searchFilter-searchField"
+	          onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
+	          onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"
+	          onkeyup="toggleSearchClear(this, '#{evaluationMessages.search_default_student_search_string}')"/>
+	      <%-- shown only while there is a search to clear, see toggleSearchClear --%>
+	      <h:commandButton actionListener="#{totalScores.clear}" value="✕" id="searchClearButton" title="#{evaluationMessages.search_clear}"
+	          styleClass="sakai-table-searchFilter-clearBtn bg-transparent border-0 m-0 lh-1"
+	          style="#{empty totalScores.searchString or totalScores.searchString eq evaluationMessages.search_default_student_search_string ? 'display:none' : ''}"/>
+	    </h:panelGroup>
+	    <%-- searches on Enter, through submitOnEnter --%>
+	    <h:commandButton actionListener="#{totalScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" style="display:none" />
 	  </h:panelGroup>
   </h:panelGroup>
    

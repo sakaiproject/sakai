@@ -392,19 +392,21 @@ $Id$
 
     </h:panelGroup>
 
-        <h:panelGroup styleClass="samigo-search-student form-group" layout="block">
-            <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:inputText
-                    id="searchString"
-                    value="#{questionScores.searchString}"
-                    onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
-                    onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
-            <h:outputText value="&nbsp;" escape="false" />
-            <h:commandButton actionListener="#{questionScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
-            <h:outputText value="&nbsp;" escape="false" />
-            <h:commandButton actionListener="#{questionScores.clear}" value="#{evaluationMessages.search_clear}"/>
-         </h:panelGroup>
+        <h:panelGroup styleClass="samigo-search-student form-group sakai-table-searchFilter" layout="block">
+          <h:outputLabel styleClass="col-md-2" for="searchString" value="#{evaluationMessages.search}"/>
+          <h:panelGroup styleClass="sakai-table-searchFilter-inputWrapper position-relative d-flex align-items-center" layout="block">
+            <h:inputText id="searchString" value="#{questionScores.searchString}" styleClass="sakai-table-searchFilter-searchField"
+                onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
+                onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"
+                onkeyup="toggleSearchClear(this, '#{evaluationMessages.search_default_student_search_string}')"/>
+            <%-- shown only while there is a search to clear, see toggleSearchClear --%>
+            <h:commandButton actionListener="#{questionScores.clear}" value="✕" id="searchClearButton" title="#{evaluationMessages.search_clear}"
+                styleClass="sakai-table-searchFilter-clearBtn bg-transparent border-0 m-0 lh-1"
+                style="#{empty questionScores.searchString or questionScores.searchString eq evaluationMessages.search_default_student_search_string ? 'display:none' : ''}"/>
+          </h:panelGroup>
+          <%-- searches on Enter, through submitOnEnter --%>
+          <h:commandButton actionListener="#{questionScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" style="display:none" />
+        </h:panelGroup>
     </h:panelGroup>
 
     <h:panelGroup layout="block" styleClass="samigo-pager col-md-6" style="text-align: right">

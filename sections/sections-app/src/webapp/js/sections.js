@@ -296,6 +296,14 @@ function proceedBasedOnManagement(management) {
 	}
 }
 
+// Shows a search's clear button only while the field holds a search, not its default prompt
+function toggleSearchClear(formField, defaultString) {
+	var clearButton = document.getElementById(formField.form.id + ":searchClearButton");
+	if (clearButton) {
+		clearButton.style.display = formField.value && formField.value != defaultString ? "" : "none";
+	}
+}
+
 function submitSearchText(event) {
 	var charCode = event.charCode;
 	if (event.keyCode === 13) {

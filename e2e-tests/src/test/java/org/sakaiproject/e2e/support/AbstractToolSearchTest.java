@@ -159,7 +159,7 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
         sakai.gotoPath("/portal/site/" + siteId);
         sakai.toolClick("Search");
         page.locator("input#search").fill(bodyWord);
-        page.locator("input[name='sb']").click();
+        page.locator("input#search").press("Enter");
 
         Locator result = page.locator(".searchItem").filter(new Locator.FilterOptions().setHasText(titleWord));
         assertThat(result).hasCount(1);
