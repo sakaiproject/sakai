@@ -18,10 +18,10 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
 </script>  
 #end
 
-## With site search on, Search opens the portal search panel scoped to this wiki; the panel's results are
+## When the portal search panel is on the page, Search opens it scoped to this wiki; the panel's results are
 ## filtered by the search tool name "wiki" and titled after the sakai.rwiki tool
 #macro( searchBox )
-#if ( $requestScope.SearchTarget == "full_search" )
+#if ( $requestScope.PortalSearch )
 	    <li class="rwiki_searchBox">
 	      <button type="button" class="btn btn-secondary" aria-controls="sakai-search-panel" onclick="rwikiOpenSearch()">${rlb.jsp_search}</button>
 	      <script>
