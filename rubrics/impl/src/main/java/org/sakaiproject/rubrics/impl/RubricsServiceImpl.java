@@ -30,8 +30,6 @@ import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_MULTIPLE_OPTION
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_PREFIX;
 import static org.sakaiproject.rubrics.api.RubricsConstants.LINE_SEPARATOR;
 
-import jakarta.persistence.LockModeType;
-
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -1335,21 +1333,14 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         if (Boolean.TRUE.equals(rubric.getDraft())) {
             throw new RubricsConflictException("Rubric " + rubric.getId() + " must be published before it can be linked again");
         }
-        lockRubricVersion(rubric);
         association.setActive(true);
         return associationRepository.save(association);
-    }
-
-    private void lockRubricVersion(Rubric rubric) {
-        // Association writes change the child only, so participate in the rubric's version check.
-        sessionFactory.getCurrentSession().lock(rubric, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
     }
 
     private Optional<ToolItemRubricAssociation> createToolItemRubricAssociation(String toolId, String toolItemId, Map<String, String> params, Long requestedRubricId) {
         log.debug("Creating new association for rubric [{}], tool [{}], item[{}]", requestedRubricId, toolId, toolItemId);
         Optional<Rubric> rubric = rubricRepository.findById(requestedRubricId);
         if (rubric.isPresent()) {
-            lockRubricVersion(rubric.get());
             ToolItemRubricAssociation newAssociation = new ToolItemRubricAssociation();
             newAssociation.setRubric(rubric.get());
             newAssociation.setToolId(toolId);
