@@ -1,4 +1,3 @@
-@ -1,378 +0,0 @@
 package org.sakaiproject.user.impl.test;
 
 import org.junit.After;
