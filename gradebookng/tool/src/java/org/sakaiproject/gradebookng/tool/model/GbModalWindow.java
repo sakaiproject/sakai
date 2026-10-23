@@ -76,8 +76,10 @@ public class GbModalWindow extends ModalDialog {
 			+ "padding: 0.75em 1em; background: var(--sakai-modal-header-bg, #f5f5f5); "
 			+ "color: var(--sakai-modal-header-color, #000); border-bottom: 1px solid var(--sakai-border-color, #ddd); }"
 			+ ".gb-modal-title { font-weight: bold; font-size: 1.1em; color: inherit; }"
-			+ ".gb-modal-close { text-decoration: none; color: inherit; opacity: 0.75; font-size: 1.2em; padding: 0 0.25em; }"
-			+ ".gb-modal-close:hover { opacity: 1; }"
+			+ ".gb-modal-titlebar .gb-modal-close { text-decoration: none; color: inherit; font-size: 1.2em; padding: 0 0.25em; }"
+			+ ".gb-modal-titlebar .gb-modal-close:hover, .gb-modal-titlebar .gb-modal-close:active { "
+			+ "color: inherit; background-color: transparent; text-decoration: none; }"
+			+ ".gb-modal-titlebar .gb-modal-close:focus-visible { outline-color: currentColor; }"
 			+ ".gb-modal-content { padding: 1em; }"
 			+ ".gb-modal-dialog .gb-summary-print { position: static; }",
 			"gb-modal-window-css");

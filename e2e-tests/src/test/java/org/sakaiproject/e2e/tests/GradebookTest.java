@@ -111,6 +111,25 @@ class GradebookTest extends SakaiUiTestBase {
 
         assertThat(dialog).isVisible();
 
+        Locator closeLink = dialog.locator(".gb-modal-close");
+        String originalTheme = page.locator("html").getAttribute("class");
+        try {
+            for (String theme : List.of("light", "dark")) {
+                page.locator("html").evaluate("(element, theme) => { element.classList.remove('sakaiUserTheme-light', 'sakaiUserTheme-dark'); element.classList.add('sakaiUserTheme-' + theme); }", theme);
+                String headerColor = (String) dialog.locator(".gb-modal-titlebar")
+                    .evaluate("element => getComputedStyle(element).color");
+                assertThat(closeLink).hasCSS("color", headerColor);
+                assertThat(closeLink).hasCSS("opacity", "1");
+                closeLink.hover();
+                assertThat(closeLink).hasCSS("color", headerColor);
+                closeLink.focus();
+                assertThat(closeLink).isFocused();
+                assertThat(closeLink).hasCSS("color", headerColor);
+            }
+        } finally {
+            page.locator("html").evaluate("(element, originalTheme) => { if (originalTheme === null) element.removeAttribute('class'); else element.setAttribute('class', originalTheme); }", originalTheme);
+        }
+
         Locator cancelButton = dialog.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName(Pattern.compile("Cancel|Close", Pattern.CASE_INSENSITIVE))).first();
         if (cancelButton.count() > 0) {
