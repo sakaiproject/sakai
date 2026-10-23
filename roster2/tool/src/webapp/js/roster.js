@@ -220,7 +220,6 @@ roster.switchState = function (state, args) {
 
       roster.setupPrintButton();
       roster.readySearchField();
-      roster.readyClearButton(state);
 
       $('#roster-groups-selector').change(function (e) {
 
@@ -269,7 +268,6 @@ roster.switchState = function (state, args) {
       roster.addExportHandler();
       roster.setupPrintButton();
       roster.readySearchField();
-      roster.readyClearButton(state);
 
       $('#roster-enrollmentset-selector').change(function (e) {
 
@@ -544,18 +542,6 @@ roster.renderMembership = function (options) {
   });
 };
 
-roster.readyClearButton = function (state) {
-
-  $('.sakai-table-searchFilter-clearBtn').click(function (e) {
-
-    roster.roleToView = null;
-    roster.groupToView = null;
-    roster.userIds = null;
-    roster.noParticipants = false;
-    roster.switchState(state);
-  });
-};
-
 roster.renderNoParticipants = function () {
   $('#roster-members').html(`<div id="roster-information">${roster.i18n.no_participants}</div>`);
 };
@@ -566,9 +552,24 @@ roster.normalizeText = function (text) {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };
 
+// Drops the applied search, keeping the selected group, role or enrollment set
+roster.clearSearch = function () {
+
+  if (!roster.userIds && !roster.noParticipants) {
+    return;
+  }
+  if (roster.noParticipants) {
+    $('#roster-members-total').show();
+    $('#roster_type_selector').show();
+  }
+  roster.userIds = null;
+  roster.noParticipants = false;
+  roster.renderMembership({ replace: true });
+};
+
 roster.search = function (query) {
 
-  if (query && query !== roster.i18n.roster_search_text) {
+  if (query) {
     if (!roster.searchIndex || !Array.isArray(roster.searchIndex)) {
       console.error("Search index not available");
       return;
@@ -604,14 +605,14 @@ roster.readySearchField = function () {
 
   this.searchIndexPromise.then(() => {
 
-    // the clear button only shows while there is something to clear
-    field.on('input', () => $('.sakai-table-searchFilter-clearBtn').toggle(field.val().length > 0));
+    // emptying the field, with the native clear button or by deleting the text, drops the search
+    field.on('input', () => field.val() || roster.clearSearch());
 
     field.keydown(function (e) {
 
-      if (e.which === 13) {
+      if (e.which === 13 && !e.originalEvent?.isComposing) {
         e.preventDefault();
-        roster.search(field.val());
+        field.val() ? roster.search(field.val()) : roster.clearSearch();
       }
     });
 

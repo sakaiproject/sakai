@@ -33,8 +33,7 @@
             <label for="roster-search-field">{{tr 'roster_search_text'}}</label>
             <div class="sakai-table-searchFilterControls act">
                 <div class="sakai-table-searchFilter-inputWrapper position-relative d-flex align-items-center flex-grow-1">
-                    <input id="roster-search-field" type="text" value="{{#if searchQuery}}{{searchQuery}}{{/if}}" class="sakai-table-searchFilter-searchField w-100" />
-                    <button type="button" class="sakai-table-searchFilter-clearBtn bg-transparent border-0 m-0 lh-1" aria-label="{{tr 'roster_clear_button'}}" {{#unless searchQuery}}style="display:none"{{/unless}}>&#x2715;</button>
+                    <input id="roster-search-field" type="search" value="{{#if searchQuery}}{{searchQuery}}{{/if}}" class="sakai-table-searchFilter-searchField w-100" />
                 </div>
             </div>
         </div>

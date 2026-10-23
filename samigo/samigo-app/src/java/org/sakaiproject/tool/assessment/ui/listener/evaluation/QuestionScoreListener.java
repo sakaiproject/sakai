@@ -132,8 +132,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 				.lookupBean("questionScores");
 
 		// Reset the search field
-		String defaultSearchString = evaluationMessages.getString("search_default_student_search_string");
-		bean.setSearchString(defaultSearchString);
+		bean.setSearchString(null);
 
 		// we probably want to change the poster to be consistent
 		String publishedId = ContextUtil.lookupParam("publishedId");
