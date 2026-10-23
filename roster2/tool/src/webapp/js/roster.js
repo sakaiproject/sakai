@@ -335,6 +335,8 @@ roster.renderMembership = function (options) {
   }
 
   if (options.replace) {
+    // the listing starts over, so a response still due for the previous one must not be added to it
+    roster.membershipRequest?.abort();
     $('#roster-members').empty();
     roster.nextPage = 0;
 
@@ -419,7 +421,7 @@ roster.renderMembership = function (options) {
   const loadImage = $('#roster-members-loading-image')
   loadImage.show();
 
-  $.ajax({
+  roster.membershipRequest = $.ajax({
     url: url,
     dataType: "json",
     cache: false,
@@ -528,6 +530,9 @@ roster.renderMembership = function (options) {
       });
     },
     error: function (jqXHR, textStatus, errorThrown) {
+      if (textStatus === "abort") {
+        return;
+      }
       if(jqXHR.status === 404){
         loadImage.hide();
         if (roster.nextPage === 0) {

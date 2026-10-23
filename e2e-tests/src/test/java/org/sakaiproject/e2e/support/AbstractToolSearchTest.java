@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -167,6 +168,12 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
         assertMarkupNeitherShownNorRendered(result.locator(".searchItemBody"));
         assertThat(page.locator(".searchResultsContainer img")).hasCount(0);
         assertEquals("undefined", page.evaluate("typeof window.searchXss"));
+
+        // emptying the field drops the search, so the tool is back to having none
+        page.locator("input#search").fill("");
+        assertThat(page).hasURL(Pattern.compile("[?&]search=(&|#|$)"));
+        assertThat(page.locator("input#search")).hasValue("");
+        assertThat(page.locator(".searchItem")).hasCount(0);
     }
 
     @Test
