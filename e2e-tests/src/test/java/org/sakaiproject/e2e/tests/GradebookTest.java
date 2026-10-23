@@ -111,6 +111,25 @@ class GradebookTest extends SakaiUiTestBase {
 
         assertThat(dialog).isVisible();
 
+        Locator closeLink = dialog.locator(".gb-modal-close");
+        String originalTheme = page.locator("html").getAttribute("class");
+        try {
+            for (String theme : List.of("light", "dark")) {
+                page.locator("html").evaluate("(element, theme) => { element.classList.remove('sakaiUserTheme-light', 'sakaiUserTheme-dark'); element.classList.add('sakaiUserTheme-' + theme); }", theme);
+                String headerColor = (String) dialog.locator(".gb-modal-titlebar")
+                    .evaluate("element => getComputedStyle(element).color");
+                assertThat(closeLink).hasCSS("color", headerColor);
+                assertThat(closeLink).hasCSS("opacity", "1");
+                closeLink.hover();
+                assertThat(closeLink).hasCSS("color", headerColor);
+                closeLink.focus();
+                assertThat(closeLink).isFocused();
+                assertThat(closeLink).hasCSS("color", headerColor);
+            }
+        } finally {
+            page.locator("html").evaluate("(element, originalTheme) => { if (originalTheme === null) element.removeAttribute('class'); else element.setAttribute('class', originalTheme); }", originalTheme);
+        }
+
         Locator cancelButton = dialog.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName(Pattern.compile("Cancel|Close", Pattern.CASE_INSENSITIVE))).first();
         if (cancelButton.count() > 0) {
@@ -134,6 +153,22 @@ class GradebookTest extends SakaiUiTestBase {
         assertThat(dialog).hasAttribute("role", "dialog");
         dialog.locator(".gb-summary-next-student").click();
         assertThat(dialog.locator("[data-studentid]").first()).hasAttribute("data-studentid", nextStudentId);
+        int originalWidth = page.viewportSize().width;
+        int originalHeight = page.viewportSize().height;
+        try {
+            for (int width : List.of(1280, 640)) {
+                page.setViewportSize(width, originalHeight);
+                assertTrue((Boolean) dialog.evaluate("element => { "
+                    + "const navigation = element.querySelector('.gb-summary-previous-student').getBoundingClientRect(); "
+                    + "const done = element.querySelector('.gb-summary-close').getBoundingClientRect(); "
+                    + "const print = element.querySelector('.gb-summary-print').getBoundingClientRect(); "
+                    + "return done.top - navigation.bottom >= 8 "
+                    + "&& (print.left - done.right >= 6 || print.top - done.bottom >= 6); }"),
+                    "Student navigation and footer actions should have space between them at width " + width);
+            }
+        } finally {
+            page.setViewportSize(originalWidth, originalHeight);
+        }
         dialog.locator(".gb-summary-close").click();
         assertThat(dialog).isHidden();
     }
@@ -222,6 +257,41 @@ class GradebookTest extends SakaiUiTestBase {
         assertThat(rubricLink).isFocused();
         summary.locator(".gb-summary-close").click();
         assertThat(summary).isHidden();
+    }
+
+    @Test
+    @Order(7)
+    void canCancelAndConfirmBulkItemDeletion() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Gradebook");
+
+        String itemTitle = "Bulk deletion " + System.currentTimeMillis();
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$=\"title\"]").fill(itemTitle);
+        dialog.locator("input[name$=\"points\"]").fill("100");
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog).isHidden();
+
+        page.locator("#bulkEditItemsToolbarItem").click();
+        Locator itemRow = dialog.locator("tr").filter(new Locator.FilterOptions().setHasText(itemTitle));
+        itemRow.locator(".deleteBox").check();
+        dialog.locator("#gb-bulk-edit-fake-submit").click();
+        Locator confirmation = page.locator(".gb-bulk-edit-confirmation");
+        assertThat(confirmation).isVisible();
+        confirmation.locator(".gb-bulk-edit-cancel").click();
+        assertThat(confirmation).hasCount(0);
+        assertThat(itemRow.locator(".deleteBox")).isChecked();
+        assertThat(page.locator(".modal-backdrop")).hasCount(0);
+
+        dialog.locator("#gb-bulk-edit-fake-submit").click();
+        assertThat(confirmation).isVisible();
+        confirmation.locator(".gb-bulk-edit-continue").click();
+        assertThat(dialog).isHidden();
+        assertThat(page.locator(".tabulator-col")
+            .filter(new Locator.FilterOptions().setHasText(itemTitle))).hasCount(0);
+        assertThat(page.locator(".modal-backdrop")).hasCount(0);
     }
 
     private void assertNoAxeContrastViolations(String theme) {

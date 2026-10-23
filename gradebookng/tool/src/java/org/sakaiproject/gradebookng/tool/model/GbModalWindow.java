@@ -24,7 +24,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalDialog;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -64,24 +63,6 @@ public class GbModalWindow extends ModalDialog {
 	private int initialHeight = -1;
 	private String widthUnit = "px";
 
-	// Keep Gradebook dialogs below Bootstrap popups opened from their content, such as rubrics.
-	private static final CssHeaderItem CSS = CssHeaderItem.forCSS(
-			".gb-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; "
-			+ "background: rgba(0, 0, 0, 0.5); display: flex; align-items: flex-start; justify-content: center; }"
-			+ ".gb-modal-overlay-transparent { background: transparent; }"
-			+ ".gb-modal-dialog { position: relative; background: var(--sakai-modal-content-bg, #fff); "
-			+ "color: var(--sakai-text-color-1, #000); margin-top: 5vh; max-height: 90vh; max-width: 95vw; "
-			+ "overflow: auto; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4); border-radius: 3px; }"
-			+ ".gb-modal-titlebar { display: flex; align-items: center; justify-content: space-between; "
-			+ "padding: 0.75em 1em; background: var(--sakai-modal-header-bg, #f5f5f5); "
-			+ "color: var(--sakai-modal-header-color, #000); border-bottom: 1px solid var(--sakai-border-color, #ddd); }"
-			+ ".gb-modal-title { font-weight: bold; font-size: 1.1em; color: inherit; }"
-			+ ".gb-modal-close { text-decoration: none; color: inherit; opacity: 0.75; font-size: 1.2em; padding: 0 0.25em; }"
-			+ ".gb-modal-close:hover { opacity: 1; }"
-			+ ".gb-modal-content { padding: 1em; }"
-			+ ".gb-modal-dialog .gb-summary-print { position: static; }",
-			"gb-modal-window-css");
-
 	public GbModalWindow(final String id) {
 		super(id);
 
@@ -92,7 +73,6 @@ public class GbModalWindow extends ModalDialog {
 	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 
-		response.render(CSS);
 		response.render(JavaScriptHeaderItem.forUrl("/gradebookng-tool/scripts/gradebook-modal.js" + PortalUtils.getCDNQuery()));
 	}
 
