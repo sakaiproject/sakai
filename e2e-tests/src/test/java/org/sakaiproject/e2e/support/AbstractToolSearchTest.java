@@ -147,8 +147,25 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
         assertThat(result.locator(".search-result-toolname")).hasText(toolLabel());
         assertThat(result.locator(".search-result-title")).containsText(titleWord);
         assertThat(result.locator(".search-result")).containsText(bodyWord);
-        // markup from the content is shown as text, never rendered
+        assertMarkupNeitherShownNorRendered(result.locator(".search-result"));
         assertThat(page.locator("sakai-search img")).hasCount(0);
+        assertEquals("undefined", page.evaluate("typeof window.searchXss"));
+    }
+
+    @Test
+    @Order(3)
+    void siteSearchToolShowsTheResultSafely() {
+        sakai.login(author());
+        sakai.gotoPath("/portal/site/" + siteId);
+        sakai.toolClick("Search");
+        page.locator("input#search").fill(bodyWord);
+        page.locator("input[name='sb']").click();
+
+        Locator result = page.locator(".searchItem").filter(new Locator.FilterOptions().setHasText(titleWord));
+        assertThat(result).hasCount(1);
+        assertThat(result.locator(".searchItemBody")).containsText(bodyWord);
+        assertMarkupNeitherShownNorRendered(result.locator(".searchItemBody"));
+        assertThat(page.locator(".searchResultsContainer img")).hasCount(0);
         assertEquals("undefined", page.evaluate("typeof window.searchXss"));
     }
 
@@ -238,6 +255,16 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
 
         awaitNoItem(updatedWord);
         awaitNoItem(titleWord);
+    }
+
+    /**
+     * The content's {@code <b>bold</b>} must be stripped: neither shown as literal tags (the raw markup bug)
+     * nor rendered as an element. Matched terms are legitimately wrapped in the highlighter's own tags.
+     */
+    private void assertMarkupNeitherShownNorRendered(Locator snippet) {
+        assertThat(snippet).containsText("bold");
+        assertThat(snippet).not().containsText("<b>");
+        assertThat(snippet.locator("b, strong").filter(new Locator.FilterOptions().setHasText("bold"))).hasCount(0);
     }
 
     // --- search helpers, for subclasses too ---
