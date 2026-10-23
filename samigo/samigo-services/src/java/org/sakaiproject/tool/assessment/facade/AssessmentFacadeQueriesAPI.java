@@ -251,4 +251,9 @@ public interface AssessmentFacadeQueriesAPI {
     public void restoreAssessment(Long assessmentId);
 
     public Set<String> getDuplicateItemHashesForAssessmentIds(Collection<Long> assessmentIds);
+
+	/**
+	 * Assessment base ids whose TO_GRADEBOOK_ID metadata references the given gradebook assignment id.
+	 */
+	public List<Long> findAssessmentIdsLinkedToGradebookItem(String gradebookAssignmentId);
 }

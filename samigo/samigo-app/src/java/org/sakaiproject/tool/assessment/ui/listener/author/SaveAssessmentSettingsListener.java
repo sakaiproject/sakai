@@ -152,6 +152,12 @@ public class SaveAssessmentSettingsListener
 
 	boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(AgentFacade.getCurrentSiteId());
 	boolean isReleaseToSelectedGroups = assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
+	String siteId = assessmentSettings.getCurrentSiteId();
+	String defaultToGradebook = assessmentSettings.getToDefaultGradebook();
+
+	if (SavePublishedSettingsListener.addSelectedGradebookValidationError(context, defaultToGradebook, assessmentSettings.getGradebookName(), siteId, gradingService)) {
+		error = true;
+	}
 
 	if (isGradebookGroupEnabled && !isReleaseToSelectedGroups) {
 		error = true;
@@ -170,9 +176,6 @@ public class SaveAssessmentSettingsListener
     	}
     	else {
 			List<String> groupList = Arrays.asList(groupsAuthorized);
-
-			String siteId = assessmentSettings.getCurrentSiteId();
-			String defaultToGradebook = assessmentSettings.getToDefaultGradebook();
 
 			if (defaultToGradebook != null && isGradebookGroupEnabled) {
 				if (defaultToGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
@@ -193,16 +196,18 @@ public class SaveAssessmentSettingsListener
 					}
 				} else if (defaultToGradebook.equals(EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
 					String gradebookName = assessmentSettings.getGradebookName();
-					List<String> gradebookList = Arrays.asList(gradebookName.split(","));
+					if (StringUtils.isNotBlank(gradebookName)) {
+						List<String> gradebookList = Arrays.asList(gradebookName.split(","));
 
-					boolean areItemsInGroups =
-						gradingService.checkMultiSelectorList(siteId, groupList != null ? groupList : new ArrayList<>(), gradebookList, false);
+						boolean areItemsInGroups =
+							gradingService.checkMultiSelectorList(siteId, groupList != null ? groupList : new ArrayList<>(), gradebookList, false);
 
-					if (!areItemsInGroups) {
-						error = true;
-						String itemsInGroups = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","multi_gradebook.items.error");
+						if (!areItemsInGroups) {
+							error = true;
+							String itemsInGroups = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","multi_gradebook.items.error");
 
-						context.addMessage(null,new FacesMessage(itemsInGroups));
+							context.addMessage(null,new FacesMessage(itemsInGroups));
+						}
 					}
 				}
 			}

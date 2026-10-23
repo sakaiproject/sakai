@@ -2340,8 +2340,6 @@ public class GradebookNgBusinessService {
 		taskService.removeTaskByReference(reference);
 		rubricsService.deleteRubricAssociationsByItemIdPrefix(assignmentId.toString(), RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
 		this.gradingService.removeAssignment(assignmentId);
-
-		EventHelper.postDeleteAssignmentEvent(getGradebook(gradebookUid, siteId), assignmentId, getUserRoleOrNone(siteId));
 	}
 
 	/**

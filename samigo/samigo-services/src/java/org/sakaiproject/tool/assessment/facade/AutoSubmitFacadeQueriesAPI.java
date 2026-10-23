@@ -22,17 +22,20 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 
 /**
- * Queries for persisting a single attempt/submission and all related updates in a single transaction. This is important
+ * Queries for persisting a single attempt/submission in its own transaction. This is important
  * because exceptions thrown in the autosubmit job can roll back the entire progress of the job. By processing
  * each attempt in a separate transaction, each successfully processed attempt will still be saved if the job aborts
  * and rolls back the main transaction.
+ * <p>
+ * Gradebook sync is best-effort: a Gradebook failure after the Samigo attempt is persisted does not roll back
+ * the submission.
  * @author plukasew
  */
 public interface AutoSubmitFacadeQueriesAPI
 {
 	/**
 	 * Persist updates to a single assessment attempt/submission to the database. This includes updating the attempt,
-	 * the Gradebook integration, and the Samigo event log, as well as firing an event to trigger the email notification system.
+	 * best-effort Gradebook integration, and the Samigo event log, as well as firing an event to trigger the email notification system.
 	 * @param adata the data for this attempt/submission
 	 * @param agfq service for persisting the attempt
 	 * @param assessment the assessment
@@ -40,7 +43,9 @@ public interface AutoSubmitFacadeQueriesAPI
 	 * @param lastAgentId agent id from the previously processed attempt
 	 * @param lastPublishedAssessmentId assessment id from the previously processed attempt
 	 * @param sectionSetMap map of assessment id to assessment sections (aka parts)
-	 * @return true if all processing succeeded
+	 * @return true if the attempt was processed successfully, or if it is not yet due (deferred: returns true without
+	 *         saving assessment grading or updating the event log). After a due attempt is processed, true means Samigo
+	 *         persistence and event logging succeeded (Gradebook failure still returns true).
 	 */
 	public boolean processAttempt(AssessmentGradingData adata, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
 			Date currentTime, String lastAgentId, Long lastPublishedAssessmentId, Map<Long, Set<PublishedSectionData>> sectionSetMap);

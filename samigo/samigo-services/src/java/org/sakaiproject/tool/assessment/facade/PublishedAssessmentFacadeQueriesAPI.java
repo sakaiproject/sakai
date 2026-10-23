@@ -325,4 +325,9 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public List<PublishedAssessmentData> getPublishedDeletedAssessments(String siteId);
 
   public void restorePublishedAssessment(Long publishedAssessmentId);
+
+  /**
+   * Published assessment ids whose TO_GRADEBOOK_ID metadata references the given gradebook assignment id.
+   */
+  public List<Long> findPublishedAssessmentIdsLinkedToGradebookItem(String gradebookAssignmentId);
 }
