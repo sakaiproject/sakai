@@ -66,7 +66,7 @@ class CalendarSearchTest extends AbstractToolSearchTest {
         page.locator("#startMinute").selectOption("0");
         page.locator("#duHour").selectOption("1");
         page.locator("#duMinute").selectOption("0");
-        sakai.typeCkEditorIfPresent("description", body);
+        fillDescription(body);
         submit("eventSubmit_doAdd");
         eventTitle = title;
         // the site has this one event, so its references share this prefix
@@ -77,7 +77,7 @@ class CalendarSearchTest extends AbstractToolSearchTest {
     protected void updateItem(String siteId, String itemKey, String body) {
         openEvent(siteId);
         page.locator("input[name=\"eventSubmit_doRevise\"]").click();
-        sakai.typeCkEditorIfPresent("description", body);
+        fillDescription(body);
         submit("eventSubmit_doUpdate");
     }
 
@@ -115,6 +115,19 @@ class CalendarSearchTest extends AbstractToolSearchTest {
         }
         page.locator("table a").filter(new Locator.FilterOptions().setHasText(eventTitle)).first()
             .click(new Locator.ClickOptions().setForce(true));
+    }
+
+    // as CalendarTest does, fall back to the plain field when the form has no CKEditor
+    private void fillDescription(String html) {
+        if (sakai.typeCkEditorIfPresent("description", html)) {
+            return;
+        }
+        Locator field = page.locator("textarea#description, textarea:visible, [contenteditable=\"true\"]:visible").first();
+        assertThat(field).isVisible();
+        field.fill(html.replaceAll("<[^>]+>", "").trim());
+        field.dispatchEvent("input");
+        field.dispatchEvent("change");
+        field.dispatchEvent("blur");
     }
 
     private void submit(String buttonName) {
