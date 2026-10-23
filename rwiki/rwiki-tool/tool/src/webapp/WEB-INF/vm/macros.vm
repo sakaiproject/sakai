@@ -18,6 +18,25 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
 </script>  
 #end
 
+## With site search on, Search opens the portal search panel scoped to this wiki; the panel's results are
+## filtered by the search tool name "wiki" and titled after the sakai.rwiki tool
+#macro( searchBox )
+#if ( $requestScope.SearchTarget == "full_search" )
+	    <li class="rwiki_searchBox">
+	      <button type="button" class="btn btn-secondary" data-bs-toggle="offcanvas" data-bs-target="#sakai-search-panel"
+	          aria-controls="sakai-search-panel"
+	          onclick="portal.search.setup({ site: portal.siteId, tool: 'wiki', toolId: 'sakai.rwiki' })">${rlb.jsp_search}</button>
+	    </li>
+#else
+	    <li class="rwiki_searchBox">
+	      <label for="searchField">${rlb.jsp_search}:</label>
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" id="searchField" name="search" />
+	    </li>
+#end
+#end
+
 #macro( footer ) 
 ##
 ##  If you increase the width to 500x300 there and set debug = "true"
