@@ -25,6 +25,7 @@ import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.PeriodList;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.parameter.Value;
+import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.util.CompatibilityHints;
 import org.sakaiproject.calendar.impl.DailyRecurrenceRule;
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
@@ -40,8 +41,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class IcalendarReader extends Reader {
 	public static final long MINUTES_IN_DAY = TimeUnit.DAYS.toMinutes(1) - 5;
+
 	private static final ResourceLoader resourceLoader = new ResourceLoader("calendar");
 
 	private final Map<String, String> defaultHeaderMap = getDefaultColumnMap();
@@ -128,27 +128,19 @@ public class IcalendarReader extends Reader {
 					continue;
 				}
 
-				if (start.getParameters().contains(Value.DATE)) {
-					// all day event
-					Date startDate = Date.from(LocalDate
-							.parse(start.getValue(), DateTimeFormatter.BASIC_ISO_DATE)
-							.atStartOfDay(calendarZone)
-							.toInstant());
-					Date endDate = Date.from(LocalDate
-							.parse(end.getValue(), DateTimeFormatter.BASIC_ISO_DATE)
-							.atTime(LocalTime.MAX)
-							.atZone(calendarZone)
-							.minusDays(1)
-							.toInstant());
-					Period period = new Period(new DateTime(startDate), new DateTime(endDate));
-
-					processRow(handler,
+				if (isAllDay(start, end)) {
+					// RFC 5545 DATE values: DTEND is exclusive
+					LocalDate startLocal = toLocalDate(start);
+					LocalDate exclusiveEnd = toLocalDate(end);
+					processAllDayRow(handler,
 							summary.getValue(),
 							description != null ? description.getValue() : "",
 							columnDescriptionArray,
 							location != null ? location.getValue() : "",
 							lineNumber,
-							period);
+							startLocal,
+							exclusiveEnd,
+							calendarZone);
 					lineNumber++;
 				} else {
 					DateTime from = new DateTime(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
@@ -176,18 +168,96 @@ public class IcalendarReader extends Reader {
 		return calendarTzid;
 	}
 
+	/**
+	 * True when DTSTART/DTEND are DATE values (RFC 5545 VALUE=DATE, or an ical4j
+	 * {@link net.fortuna.ical4j.model.Date} that is not a {@link DateTime}).
+	 */
+	static boolean isAllDay(Property start, Property end) {
+		return isDateTyped(start) && isDateTyped(end);
+	}
+
+	private static boolean isDateTyped(Property property) {
+		if (property == null) {
+			return false;
+		}
+		if (property.getParameters().contains(Value.DATE)) {
+			return true;
+		}
+		String value = property.getValue();
+		if (value != null && value.length() == 8 && value.indexOf('T') < 0) {
+			return true;
+		}
+		if (property instanceof DateProperty) {
+			return !(((DateProperty) property).getDate() instanceof DateTime);
+		}
+		return false;
+	}
+
+	static LocalDate toLocalDate(Property property) {
+		String value = property.getValue();
+		return LocalDate.parse(value.substring(0, 8), DateTimeFormatter.BASIC_ISO_DATE);
+	}
+
+	private void processAllDayRow(ReaderImportRowHandler handler, String summary, String description,
+								  ColumnHeader[] columnDescriptionArray, String location, int lineNumber,
+								  LocalDate startLocal, LocalDate exclusiveEnd, ZoneId calendarZone) {
+
+		if (!exclusiveEnd.isAfter(startLocal)) {
+			log.warn("Non-positive date range for event [{}] detected, skipping", summary);
+			return;
+		}
+
+		boolean multiDay = exclusiveEnd.isAfter(startLocal.plusDays(1));
+		ZonedDateTime startZoned = startLocal.atStartOfDay(calendarZone);
+
+		String[] columns;
+		if (multiDay) {
+			LocalDate lastInclusive = exclusiveEnd.minusDays(1);
+			columns = new String[] {
+					summary,
+					description,
+					GenericCalendarImporter.dateISOFormatter().format(startZoned),
+					GenericCalendarImporter.timeFormatter().format(startZoned),
+					Long.toString(MINUTES_IN_DAY),
+					location,
+					DailyRecurrenceRule.FREQ,
+					"1",
+					GenericCalendarImporter.dateISOFormatter().format(lastInclusive)
+			};
+		} else {
+			columns = new String[] {
+					summary,
+					description,
+					GenericCalendarImporter.dateISOFormatter().format(startZoned),
+					GenericCalendarImporter.timeFormatter().format(startZoned),
+					Long.toString(MINUTES_IN_DAY),
+					location,
+					"",
+					"",
+					""
+			};
+		}
+
+		try {
+			handler.handleRow(processLine(columnDescriptionArray, lineNumber, columns));
+		} catch (ImportException e) {
+			log.warn("Could not import all-day event [{}/{}], {}", lineNumber, summary, e.toString());
+		}
+	}
+
 	private void processRow(ReaderImportRowHandler handler, String summary, String description,
 							ColumnHeader[] columnDescriptionArray, String location, int lineNumber, Period period) {
 
-		TemporalAmount amount = period.getDuration();
-		if (amount.getUnits().stream().anyMatch(TemporalUnit::isDurationEstimated)) {
-			log.warn("Estimated duration for event [{}] detected, skipping", summary);
+		long durationMinutes = Duration.between(
+				period.getStart().toInstant(),
+				period.getEnd().toInstant()).toMinutes();
+
+		if (durationMinutes <= 0) {
+			log.warn("Non-positive duration for event [{}] detected, skipping", summary);
 			return;
 		}
 
 		String[] columns;
-		long durationMinutes = Duration.from(amount).toMinutes();
-
 		// for any event spanning more than a single day we setup a daily frequency using until
 		if (durationMinutes > MINUTES_IN_DAY) {
 			columns = new String[] {
