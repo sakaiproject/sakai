@@ -224,6 +224,41 @@ class GradebookTest extends SakaiUiTestBase {
         assertThat(summary).isHidden();
     }
 
+    @Test
+    @Order(7)
+    void canCancelAndConfirmBulkItemDeletion() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Gradebook");
+
+        String itemTitle = "Bulk deletion " + System.currentTimeMillis();
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$=\"title\"]").fill(itemTitle);
+        dialog.locator("input[name$=\"points\"]").fill("100");
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog).isHidden();
+
+        page.locator("#bulkEditItemsToolbarItem").click();
+        Locator itemRow = dialog.locator("tr").filter(new Locator.FilterOptions().setHasText(itemTitle));
+        itemRow.locator(".deleteBox").check();
+        dialog.locator("#gb-bulk-edit-fake-submit").click();
+        Locator confirmation = page.locator(".gb-bulk-edit-confirmation");
+        assertThat(confirmation).isVisible();
+        confirmation.locator(".gb-bulk-edit-cancel").click();
+        assertThat(confirmation).hasCount(0);
+        assertThat(itemRow.locator(".deleteBox")).isChecked();
+        assertThat(page.locator(".modal-backdrop")).hasCount(0);
+
+        dialog.locator("#gb-bulk-edit-fake-submit").click();
+        assertThat(confirmation).isVisible();
+        confirmation.locator(".gb-bulk-edit-continue").click();
+        assertThat(dialog).isHidden();
+        assertThat(page.locator(".tabulator-col")
+            .filter(new Locator.FilterOptions().setHasText(itemTitle))).hasCount(0);
+        assertThat(page.locator(".modal-backdrop")).hasCount(0);
+    }
+
     private void assertNoAxeContrastViolations(String theme) {
         AxeResults results = new AxeBuilder(page)
             .include("#settingsGradeRelease")

@@ -1,8 +1,23 @@
 document.addEventListener("show.bs.modal", event => {
+  if (event.defaultPrevented) return;
+  const popup = event.target;
+  const parentOverlay = popup.closest(".gb-modal-overlay");
+  if (parentOverlay) {
+    const existingBackdrops = new Set(document.querySelectorAll(".modal-backdrop"));
+    // Bootstrap appends its backdrop after the show event. Keep a nested popup's
+    // backdrop in the same stacking context instead of above the entire overlay.
+    queueMicrotask(() => {
+      if (event.defaultPrevented) return;
+      const backdrop = [...document.querySelectorAll("body > .modal-backdrop")]
+        .find(element => !existingBackdrops.has(element));
+      if (backdrop) parentOverlay.append(backdrop);
+    });
+    return;
+  }
+
   const previousFocus = document.activeElement;
   const overlay = previousFocus.closest(".gb-modal-overlay");
-  const popup = event.target;
-  if (!overlay || overlay.contains(popup) || event.defaultPrevented) return;
+  if (!overlay) return;
 
   // Wicket must not pull focus back from a Bootstrap popup outside its overlay.
   overlay.inert = true;
