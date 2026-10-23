@@ -219,13 +219,23 @@ public class VideoTrainingServiceImpl implements VideoTrainingService {
         }
 
         VideoTrainingVideo existing = getVideoById(videoId).orElseThrow(() -> new IllegalArgumentException("Unknown videoId"));
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+        if (!canManageVideo(videoId, currentUserId)) {
+            throw new SecurityException("User cannot manage video " + videoId);
+        }
 
-        // Check and update source state first. If the source was detected missing we will
-        // mark it as deleted and allow state transitions (except to PUBLISHED).
+        VideoPublicationStatus currentStatus = normalizePublicationStatus(existing.getPublicationStatus());
+        VideoPublicationStatus requested = normalizePublicationStatus(newStatus);
+        if (currentStatus == VideoPublicationStatus.PENDING_APPROVAL
+                && requested != VideoPublicationStatus.PENDING_APPROVAL
+                && isModerationRequired(existing.getVisibilityScope())
+                && !canApprovePublication(existing.getSiteId(), currentUserId)) {
+            throw new SecurityException("User cannot approve publication for video " + videoId);
+        }
+
         boolean sourceStateChanged = ensureSourceState(existing);
 
         // If user tries to publish but source is missing, prevent it.
-        VideoPublicationStatus requested = normalizePublicationStatus(newStatus);
         if (requested == VideoPublicationStatus.PUBLISHED
             && existing.isSourceDeleted()
             && (existing.getProviderType() == org.sakaiproject.videotraining.api.model.VideoProviderType.NATIVE
@@ -242,7 +252,6 @@ public class VideoTrainingServiceImpl implements VideoTrainingService {
         existing.setPublicationStatus(newStatus);
 
         VideoTrainingVideo saved = videoRepository.save(existing);
-        String currentUserId = sessionManager.getCurrentSessionUserId();
         registerAudit(saved.getSiteId(), currentUserId, "VIDEO_UPDATED", saved.getId(), StringUtils.defaultString(saved.getSourceReference()));
         registerAudit(saved.getSiteId(), currentUserId, "PUBLICATION_STATUS_CHANGED", saved.getId(), previous.name() + "->" + normalizePublicationStatus(newStatus).name());
         invalidateListCaches();
@@ -308,7 +317,8 @@ public class VideoTrainingServiceImpl implements VideoTrainingService {
 
         VideoTrainingVideo existingVideo = getVideoById(videoId).orElseThrow(() -> new IllegalArgumentException("Unknown videoId"));
 
-        boolean canManage = canManageVideo(videoId, videoId);
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+        boolean canManage = canManageVideo(videoId, currentUserId);
 
         if (!canManage) {
             throw new SecurityException("User cannot manage video " + videoId);
@@ -1735,6 +1745,11 @@ public class VideoTrainingServiceImpl implements VideoTrainingService {
             || (securityService.unlock(userId, PERMISSION_MANAGE, siteRefForVideo)
                 && video != null
                 && Objects.equals(video.getOwnerId(), userId));
+    }
+
+    private boolean canApprovePublication(String siteId, String userId) {
+        return securityService.isSuperUser(userId)
+                || securityService.unlock(userId, PERMISSION_APPROVE_PUBLISH, siteService.siteReference(siteId));
     }
 
     @Override

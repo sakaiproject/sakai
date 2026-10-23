@@ -803,8 +803,10 @@ public class VideoTrainingServiceImplTest {
         VideoTrainingVideo existing = baseVideo();
         existing.setPublicationStatus(VideoPublicationStatus.DRAFT);
         existing.setVisibilityScope(VideoVisibilityScope.COURSE);
+        existing.setOwnerId(USER_ID);
         when(videoRepository.findById(VIDEO_ID)).thenReturn(Optional.of(existing));
         when(videoRepository.save(existing)).thenReturn(existing);
+        when(securityService.unlock(USER_ID, VideoTrainingConstants.PERMISSION_MANAGE, SITE_REF)).thenReturn(true);
 
         service.updateVideoStatus(VIDEO_ID, VideoPublicationStatus.PENDING_APPROVAL);
 
@@ -819,14 +821,60 @@ public class VideoTrainingServiceImplTest {
         VideoTrainingVideo existing = baseVideo();
         existing.setPublicationStatus(VideoPublicationStatus.PENDING_APPROVAL);
         existing.setVisibilityScope(VideoVisibilityScope.COURSE);
+        existing.setOwnerId(USER_ID);
         Mockito.doReturn(Mockito.mock(ContentResource.class))
             .when(contentResourceHelper)
             .getContentResource(existing.getSourceReference());
         when(videoRepository.findById(VIDEO_ID)).thenReturn(Optional.of(existing));
         when(videoRepository.save(existing)).thenReturn(existing);
+        when(securityService.unlock(USER_ID, VideoTrainingConstants.PERMISSION_MANAGE, SITE_REF)).thenReturn(true);
+        when(securityService.unlock(USER_ID, VideoTrainingConstants.PERMISSION_APPROVE_PUBLISH, SITE_REF)).thenReturn(true);
 
         service.updateVideoStatus(VIDEO_ID, VideoPublicationStatus.PUBLISHED);
 
+        verify(videoRepository).save(existing);
+    }
+
+    @Test
+    public void updateVideoStatusShouldRejectUserWithoutManagePermission() {
+        VideoTrainingVideo existing = baseVideo();
+        existing.setOwnerId("another-user");
+        existing.setPublicationStatus(VideoPublicationStatus.PUBLISHED);
+        when(videoRepository.findById(VIDEO_ID)).thenReturn(Optional.of(existing));
+
+        org.junit.Assert.assertThrows(SecurityException.class,
+                () -> service.updateVideoStatus(VIDEO_ID, VideoPublicationStatus.WITHDRAWN));
+        verify(videoRepository, never()).save(existing);
+    }
+
+    @Test
+    public void updateVideoStatusShouldRejectApprovalWithoutApprovalPermission() {
+        VideoTrainingVideo existing = baseVideo();
+        existing.setOwnerId(USER_ID);
+        existing.setPublicationStatus(VideoPublicationStatus.PENDING_APPROVAL);
+        when(serverConfigurationService.getBoolean(VideoTrainingConstants.MODERATION_ENABLED_PROPERTY,
+                VideoTrainingConstants.DEFAULT_MODERATION_ENABLED)).thenReturn(true);
+        when(videoRepository.findById(VIDEO_ID)).thenReturn(Optional.of(existing));
+        when(securityService.unlock(USER_ID, VideoTrainingConstants.PERMISSION_MANAGE, SITE_REF)).thenReturn(true);
+        when(securityService.unlock(USER_ID, VideoTrainingConstants.PERMISSION_APPROVE_PUBLISH, SITE_REF)).thenReturn(false);
+
+        org.junit.Assert.assertThrows(SecurityException.class,
+                () -> service.updateVideoStatus(VIDEO_ID, VideoPublicationStatus.PUBLISHED));
+        verify(videoRepository, never()).save(existing);
+    }
+
+    @Test
+    public void updateVideoScheduleShouldUseCurrentUserForAuthorization() {
+        VideoTrainingVideo existing = baseVideo();
+        existing.setOwnerId(USER_ID);
+        when(videoRepository.findById(VIDEO_ID)).thenReturn(Optional.of(existing));
+        when(videoRepository.save(existing)).thenReturn(existing);
+        when(securityService.unlock(USER_ID, VideoTrainingConstants.PERMISSION_MANAGE, SITE_REF)).thenReturn(true);
+
+        Instant releaseDate = Instant.parse("2026-11-01T00:00:00Z");
+        VideoTrainingVideo saved = service.updateVideoSchedule(VIDEO_ID, releaseDate, null);
+
+        assertEquals(releaseDate, saved.getReleaseDate());
         verify(videoRepository).save(existing);
     }
 
