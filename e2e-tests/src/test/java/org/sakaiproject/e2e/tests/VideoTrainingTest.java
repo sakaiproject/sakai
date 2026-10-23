@@ -2,10 +2,13 @@ package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FilePayload;
+import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.RequestOptions;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -31,13 +34,19 @@ class VideoTrainingTest extends SakaiUiTestBase {
         Assumptions.assumeTrue(isSakaiReachable(), "Sakai instance not reachable at " + SakaiEnvironment.baseUrl());
         sakai.login("instructor1");
 
+        boolean created = false;
         try {
             sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.video\\.training"));
+            created = true;
         } catch (Throwable ex) {
             String configuredSite = configuredSiteUrl();
             Assumptions.assumeTrue(configuredSite != null && !configuredSite.isBlank(),
                 "No course could be auto-created and PLAYWRIGHT_VIDEO_TRAINING_SITE_URL was not provided");
             sakaiUrl = configuredSite;
+        }
+
+        if (created) {
+            grantVideoTrainingPermissions();
         }
     }
 
@@ -55,9 +64,9 @@ class VideoTrainingTest extends SakaiUiTestBase {
         createExternalVideo(firstTitle, "Created by Playwright test A");
         createExternalVideo(secondTitle, "Created by Playwright test B");
 
-        openCurrentPathWithParams("size=1");
-        assertThat(page.locator("#viewMode")).hasValue("table");
-        assertThat(page.locator(".sakai-table-pagerControls")).isVisible();
+        openCurrentPathWithParams("size=1&viewMode=table");
+        assertThat(page.locator(".vt-video-table")).isVisible();
+        assertThat(page.locator(".vt-pager-container")).isVisible();
         assertThat(page.locator(".vt-video-table tbody tr")).hasCount(1);
 
         String tablePage1Title = currentTableTitle();
@@ -69,17 +78,16 @@ class VideoTrainingTest extends SakaiUiTestBase {
         assertTitleIsOneOf(tablePage2Title, firstTitle, secondTitle);
         org.junit.jupiter.api.Assertions.assertNotEquals(tablePage1Title, tablePage2Title);
 
-        page.locator("#viewMode").selectOption("cards");
-        page.waitForLoadState();
-        assertThat(page.locator(".sakai-table-pagerControls")).isVisible();
-        assertThat(page.locator(".vt-video-card")).hasCount(1);
-        String cardsPage2Title = currentCardTitle();
-        org.junit.jupiter.api.Assertions.assertEquals(tablePage2Title, cardsPage2Title);
-
         clickPagerPage(1);
+        page.locator("button[name='viewMode'][value='cards']").click(new Locator.ClickOptions().setForce(true));
         assertThat(page.locator(".vt-video-card")).hasCount(1);
         String cardsPage1Title = currentCardTitle();
         org.junit.jupiter.api.Assertions.assertEquals(tablePage1Title, cardsPage1Title);
+
+        clickPagerPage(2);
+        assertThat(page.locator(".vt-video-card")).hasCount(1);
+        String cardsPage2Title = currentCardTitle();
+        org.junit.jupiter.api.Assertions.assertEquals(tablePage2Title, cardsPage2Title);
 
         sakai.login("student0011");
         sakai.gotoPath(sakaiUrl);
@@ -115,9 +123,7 @@ class VideoTrainingTest extends SakaiUiTestBase {
         sakai.gotoPath(sakaiUrl);
         sakai.toolClick("Video Training");
 
-        Locator addVideoButton = page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("Add video", Pattern.CASE_INSENSITIVE))).first();
-        addVideoButton.click(new Locator.ClickOptions().setForce(true));
+        openNewVideoForm();
 
         assertThat(page.locator("#sourceModeExternal")).isVisible();
         assertThat(page.locator("#sourceModeUpload")).isVisible();
@@ -138,7 +144,8 @@ class VideoTrainingTest extends SakaiUiTestBase {
         page.setInputFiles("#nativeFile", new FilePayload("video.webm", "video/webm", "dummy".getBytes(StandardCharsets.UTF_8)));
         page.locator("button[type=\"submit\"]").first().click(new Locator.ClickOptions().setForce(true));
 
-        assertThat(page.locator("body")).containsText(Pattern.compile("Playwright Video Training Upload", Pattern.CASE_INSENSITIVE));
+        assertThat(page.locator(".vt-video-table"))
+            .containsText(Pattern.compile("Playwright Video Training Upload", Pattern.CASE_INSENSITIVE));
     }
 
     @Test
@@ -153,12 +160,63 @@ class VideoTrainingTest extends SakaiUiTestBase {
         assertThat(page.locator(".navIntraTool")).not().containsText(Pattern.compile("Analytics", Pattern.CASE_INSENSITIVE));
     }
 
+    private void grantVideoTrainingPermissions() {
+        String siteId = sakai.siteIdFromUrl(sakaiUrl);
+        if (siteId.isBlank()) {
+            return;
+        }
+
+        // Video Training uses its own realm functions, which are not granted when the tool
+        // is added to a site. Grant them explicitly, like an administrator would.
+        sakai.login("admin");
+        APIResponse response = page.request().post("/api/sites/" + siteId + "/permissions",
+            RequestOptions.create().setForm(FormData.create()
+                .set("ref", "/site/" + siteId)
+                .set("Instructor:video.training.view", "true")
+                .set("Instructor:video.training.manage", "true")
+                .set("Instructor:video.training.manage.all", "true")
+                .set("Instructor:video.training.analytics", "true")
+                .set("Instructor:video.training.categories.manage", "true")
+                .set("Instructor:video.training.approve", "true")
+                .set("Instructor:video.training.global", "true")
+                .set("Student:video.training.view", "true")));
+        org.junit.jupiter.api.Assertions.assertTrue(response.ok(),
+            "Unable to grant Video Training permissions: HTTP " + response.status() + " " + response.text());
+    }
+
+    private void openNewVideoForm() {
+        page.locator("a[href$='/videos/new']").first()
+            .click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator("#title")).isVisible();
+        // The page ships with every source section in the markup; the form script hides the
+        // inactive ones. Wait for that initialisation before driving the source mode radios.
+        assertThat(page.locator("#externalSourceSection")).isHidden();
+    }
+
     private void createExternalVideo(String title, String description) {
+        openNewVideoForm();
         page.locator("#title").fill(title);
         page.locator("#description").fill(description);
         page.locator("#sourceModeExternal").click(new Locator.ClickOptions().setForce(true));
         page.locator("#sourceReference").fill("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
         page.locator("button[type=\"submit\"]").first().click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator(".vt-video-table")).containsText(title);
+        publishVideo(title);
+    }
+
+    private void publishVideo(String title) {
+        Locator row = videoTableRow(title);
+        assertThat(row).isVisible();
+        row.locator("form[action$='/publish'] button[type='submit']").first()
+            .click(new Locator.ClickOptions().setForce(true));
+        page.waitForLoadState();
+        assertThat(videoTableRow(title).locator("td").nth(2)).containsText(Pattern.compile("PUBLISHED"));
+    }
+
+    private Locator videoTableRow(String title) {
+        return page.locator(".vt-video-table tbody tr")
+            .filter(new Locator.FilterOptions().setHasText(title)).first();
     }
 
     private void openCurrentPathWithParams(String params) {
@@ -172,7 +230,7 @@ class VideoTrainingTest extends SakaiUiTestBase {
     }
 
     private void clickPagerPage(int pageNumber) {
-        page.locator(".sakai-table-pagerControls button[value='" + pageNumber + "']").first()
+        page.locator(".vt-pager-controls button[value='" + pageNumber + "']").first()
             .click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
     }
@@ -190,11 +248,13 @@ class VideoTrainingTest extends SakaiUiTestBase {
         Locator favoriteButton = card.locator("button[aria-label='Add to favorites']");
         if (favoriteButton.count() > 0) {
             favoriteButton.first().click(new Locator.ClickOptions().setForce(true));
+            assertThat(card.locator("button[aria-label='Remove from favorites']").first()).isVisible();
         }
 
         Locator watchLaterButton = card.locator("button[aria-label='Add to watch later']");
         if (watchLaterButton.count() > 0) {
             watchLaterButton.first().click(new Locator.ClickOptions().setForce(true));
+            assertThat(card.locator("button[aria-label='Remove from watch later']").first()).isVisible();
         }
     }
 
@@ -206,7 +266,7 @@ class VideoTrainingTest extends SakaiUiTestBase {
     }
 
     private void verifyPagedPreferenceList(String firstTitle, String secondTitle) {
-        assertThat(page.locator(".sakai-table-pagerControls")).isVisible();
+        assertThat(page.locator(".vt-pager-container")).isVisible();
         assertThat(page.locator(".vt-video-card")).hasCount(1);
 
         String firstPageTitle = currentCardTitle();
