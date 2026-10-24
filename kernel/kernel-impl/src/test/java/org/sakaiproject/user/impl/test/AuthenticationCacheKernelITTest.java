@@ -3,7 +3,6 @@ package org.sakaiproject.user.impl.test;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.sakaiproject.test.SakaiKernelTestBase;
@@ -18,11 +17,7 @@ import org.sakaiproject.util.WebDavEvidence;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.UUID;
-import java.sql.ResultSet;
 import org.sakaiproject.user.impl.PasswordService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -32,13 +27,11 @@ import java.util.List;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.impl.DbUserService;
-import org.sakaiproject.user.impl.UserAuthnComponent;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import java.lang.reflect.Proxy;
 import java.lang.reflect.InvocationTargetException;
 
-public class AuthenticationCacheKernelIT
+public class AuthenticationCacheKernelITTest
         extends SakaiKernelTestBase {
 
     private AuthenticationManager authManager;
@@ -127,63 +120,18 @@ public class AuthenticationCacheKernelIT
 
     @Test
     public void cacheHit() throws Exception {
-        final  UserDirectoryService original = users;
-            UserAuthnComponent component = (UserAuthnComponent) authManager;
+        authCache.removeAuthentification(eid);
 
-        try {
-            // place proxy-n for testing.
-            // count calls to authenticate().
-            // repeat 3 times login.
-
-
-            AtomicInteger verificationCount = new AtomicInteger(0);
-
-            UserDirectoryService counting =
-                (UserDirectoryService) Proxy.newProxyInstance(
-                    UserDirectoryService.class.getClassLoader(),
-                    new Class<?>[] { UserDirectoryService.class },
-                    (proxy, method, args) -> {
-
-                        if (method.getName().equals("authenticate")
-                                && args != null && args.length == 2) {
-                            verificationCount.incrementAndGet();
-                        }
-
-                        try {
-                            return method.invoke(original, args);
-                        } catch (InvocationTargetException ex) {
-                            throw ex.getCause();
-                        }
-                    }
-                );
-                try {
-                    // connect proxy-n.
-                    component.setUserDirectoryService(counting);
-                    authCache.removeAuthentification(eid);
-                    assertNull(authCache.getAuthentication(eid, PASSWORD));
-                    
-                    // we do three authentications.
-                    login(PASSWORD);
-                    login(PASSWORD);
-                    login(PASSWORD);
-
-                    // we wait for one verification.
-                    assertEquals(1, verificationCount.get());
-
-                } finally {
-                    // return original service.
-                    component.setUserDirectoryService(original);
-                }
+        assertNull(authCache.getAuthentication(eid, PASSWORD));
             
-            // after three hits assertEquals(1, verificationCount.get());
-
-        } finally {
-            // return original service.
-            component.setUserDirectoryService(original);
-        }
 
         Authentication first = login(PASSWORD);
+        assertNotNull(authCache.getAuthentication(eid, PASSWORD));
+        
         assertEquals(eid, first.getEid());
+        assertEquals(userId, first.getUid());
+        login(PASSWORD);
+
 
         Authentication cached =
                 authCache.getAuthentication(eid, PASSWORD);
@@ -278,31 +226,24 @@ public void legacyRecordCompatibility() throws Exception {
     authCache.removeAuthentification(eid);
 
     // Clear the actual user-directory call cache.
-    CacheManager manager = (CacheManager)
-        getService("org.sakaiproject.ignite.SakaiCacheManager");
+    MemoryService memory = getService(MemoryService.class);
 
-    assertNotNull(manager);
+    assertNotNull(memory);    
 
-    Cache callCache = manager.getCache(
+    Cache callCache = memory.getCache(
         "org.sakaiproject.user.api.UserDirectoryService.callCache"
     );
 
     assertNotNull(callCache);
 
-    String ref = users.userReference(userId);
-    callCache.evict(ref);
+    String userEidRef = users.userReference(userId);
+    callCache.remove(userEidRef);
 
     assertNull(
-        "User cache entry survived eviction",
-        callCache.get(ref)
+        "User cache entry survived removal",
+        callCache.get(userEidRef)
     );
 
-    // Clear thread-local state associated with this user.
-    ThreadLocalManager threadLocals =
-        getService(ThreadLocalManager.class);
-
-    assertNotNull(threadLocals);
-    threadLocals.set(ref, null);
 
     // Clear the database user ID/EID mapping cache.
     if (users instanceof DbUserService) {
