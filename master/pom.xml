@@ -1747,6 +1747,7 @@
         <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>basiclti-util</artifactId>
         <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.basiclti</groupId>
