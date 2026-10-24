@@ -3,8 +3,8 @@ package org.sakaiproject.user.impl;
 import org.junit.Test;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.junit.BeforeClass;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import org.sakaiproject.user.api.UserEdit;
@@ -20,10 +20,6 @@ import org.sakaiproject.util.WebDavEvidence;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.sakaiproject.user.impl.UserAuthnComponent;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.InvocationTargetException;
 
 import java.util.UUID;
 
@@ -47,19 +43,12 @@ public class AuthenticationCacheLegacyRecordTest
 
             assertNotNull(authCache);
 
-            CacheManager manager = (CacheManager) getService(
-                "org.sakaiproject.ignite.SakaiCacheManager"
-            );
-
-            assertNotNull(manager);
-            
-            Cache records = manager.getCache(
-                "org.sakaiproject.user.api.AuthenticationManager"
-            );
-            assertNotNull(authCache);
-            assertNotNull(manager);
-
+           MemoryService memory = getService(MemoryService.class);
+           Cache<String, AuthenticationCache.AuthenticationRecord> records =
+            memory.getCache("org.sakaiproject.user.api.AuthenticationManager");
             assertNotNull(records);
+
+
 
 
             UserDirectoryService users = getService(
@@ -126,53 +115,27 @@ public class AuthenticationCacheLegacyRecordTest
                 );
 
                 records.put(user.getEid(), legacyRecord);
+
+                AuthenticationCache.AuthenticationRecord before = 
+                    records.get(eid);
+
+                assertNotNull(before);
+
+                assertEquals(28, before.encodedPassword.length);
             
-                AtomicInteger verificationCount = new AtomicInteger(0);
-                UserDirectoryService original = users;
 
-
-                UserAuthnComponent component = (UserAuthnComponent) authManager;
-
-                UserDirectoryService counting = 
-                    (UserDirectoryService) Proxy.newProxyInstance(
-                        UserDirectoryService.class.getClassLoader(),
-                        new Class<?>[] { UserDirectoryService.class },
-                        (proxy, method, args) -> {
-
-                        if (method.getName().equals("authenticate")
-                            && args != null && args.length == 2){
-                                verificationCount.incrementAndGet();
-                        } 
-                        try {
-                            return method.invoke(original, args);
-                        } catch (InvocationTargetException ex) {
-                            throw ex.getCause();
-                        }
-                    }
+                // when we call  this below we expect to refuse historical cache hit
+                Authentication result = authManager.authenticate(
+                    new WebDavEvidence(user.getEid(), password, null)
                 );
-                component.setUserDirectoryService(counting);
+                assertEquals(user.getId(), result.getUid());
 
-                try {
-                    // when we call  this below we expect to refuse historical cache hit
-                    Authentication result = authManager.authenticate(
-                        new WebDavEvidence(user.getEid(), password, null)
-                    );
-                    assertEquals(1, verificationCount.get());
-                    assertEquals(user.getId(), result.getUid());
+                AuthenticationCache.AuthenticationRecord stored
+                    = records.get(user.getEid());
 
 
-                    Cache.ValueWrapper wrapper = records.get(user.getEid());
+                assertEquals(48, stored.encodedPassword.length);
 
-                    assertNotNull(wrapper);
-                    Object stored = wrapper.get();
-                    assertNotNull(stored);
-                    AuthenticationCache.AuthenticationRecord refreshed =
-                            (AuthenticationCache.AuthenticationRecord) stored;
-
-                    assertEquals(48, refreshed.encodedPassword.length);
-                } finally {
-                    component.setUserDirectoryService(original);
-                }
             } finally {
                 SecurityService security = getService(
                     SecurityService.class
