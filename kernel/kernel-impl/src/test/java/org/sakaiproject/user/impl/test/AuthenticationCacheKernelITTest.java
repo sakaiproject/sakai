@@ -24,8 +24,8 @@ import java.sql.PreparedStatement;
 import java.util.UUID;
 import java.sql.ResultSet;
 import org.sakaiproject.user.impl.PasswordService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import static org.junit.Assert.*;
 import java.util.List;
 
