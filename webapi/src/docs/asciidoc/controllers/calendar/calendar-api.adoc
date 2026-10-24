@@ -19,7 +19,7 @@ include::{snippets}/get-user-calendar/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns a calendar object containing a list of calendar events.
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response
@@ -42,7 +42,7 @@ include::{snippets}/get-site-calendar/curl-request.adoc[]
 |===
 | Status Code | Status | Details
 | 200 OK | Success | Returns a calendar object containing a list of calendar events for the site.
-| 401 Unauthorized | Error | User is not authenticated.
+| 403 Forbidden | Error | User is not authenticated.
 |===
 
 ==== Example Success Response

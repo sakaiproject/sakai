@@ -17,57 +17,41 @@ package org.sakaiproject.webapi.controllers.test;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.junit.runner.RunWith;
+
+
 import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.controllers.ProfileController;
-import org.sakaiproject.webapi.exception.GlobalExceptionHandler;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-public class ProfileControllerTests {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-    @Mock
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, ProfileController.class })
+public class ProfileControllerTests extends BaseControllerTests {
+
+    @Autowired
+    private ProfileController controller;
+
+    @Autowired
     private ProfileService profileService;
-
-    @Mock
-    private SessionManager sessionManager;
-
-    private MockMvc mockMvc;
-    private AutoCloseable mocks;
 
     @Before
     public void setup() {
-
-        mocks = MockitoAnnotations.openMocks(this);
-
-        ProfileController profileController = new ProfileController();
-        profileController.setSessionManager(sessionManager);
-        ReflectionTestUtils.setField(profileController, "profileService", profileService);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(profileController)
-            .setControllerAdvice(new GlobalExceptionHandler())
-            .build();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-
-        if (mocks != null) {
-            mocks.close();
-        }
+        reset(profileService, sessionManager);
+        buildMockMvc(controller);
     }
 
     @Test

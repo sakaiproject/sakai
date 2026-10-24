@@ -13,26 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.webapi.test;
+package org.sakaiproject.webapi.controllers.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.hamcrest.CoreMatchers.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.reset;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.junit.runner.RunWith;
+
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -45,81 +42,71 @@ import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.webapi.beans.DashboardRestBean;
 import org.sakaiproject.webapi.controllers.DashboardController;
-import org.springframework.test.util.ReflectionTestUtils;
 
-public class DashboardControllerTests {
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-    @Mock
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, DashboardController.class })
+public class DashboardControllerTests extends BaseControllerTests {
+
+    @Autowired
     private AnnouncementService announcementService;
 
-    @Mock
+    @Autowired
     private PreferencesService preferencesService;
 
-    @Mock
+    @Autowired
     private SakaiPersonManager sakaiPersonManager;
 
-    @Mock
+    @Autowired
     private SecurityService securityService;
 
-    @Mock
+    @Autowired
     private ServerConfigurationService serverConfigurationService;
 
-    @Mock
+    @Autowired
     private EntityManager entityManager;
 
-    @Mock
-    private SessionManager sessionManager;
-
-    @Mock
+    @Autowired
     private SiteService siteService;
 
-    @Mock
+    @Autowired
     private UserDirectoryService userDirectoryService;
 
-    @Mock
+    @Autowired
     private FormattedText formattedText;
 
-    private DashboardController dashboardController;
-    private AutoCloseable mocks;
+    @Autowired
+    private DashboardController controller;
 
     @Before
     public void setup() {
 
-        mocks = MockitoAnnotations.openMocks(this);
-
-        dashboardController = new DashboardController();
-        dashboardController.setSessionManager(sessionManager);
-
-        ReflectionTestUtils.setField(dashboardController, "announcementService", announcementService);
-        ReflectionTestUtils.setField(dashboardController, "preferencesService", preferencesService);
-        ReflectionTestUtils.setField(dashboardController, "sakaiPersonManager", sakaiPersonManager);
-        ReflectionTestUtils.setField(dashboardController, "securityService", securityService);
-        ReflectionTestUtils.setField(dashboardController, "serverConfigurationService", serverConfigurationService);
-        ReflectionTestUtils.setField(dashboardController, "entityManager", entityManager);
-        ReflectionTestUtils.setField(dashboardController, "siteService", siteService);
-        ReflectionTestUtils.setField(dashboardController, "userDirectoryService", userDirectoryService);
-        ReflectionTestUtils.setField(dashboardController, "formattedText", formattedText);
-        ReflectionTestUtils.setField(dashboardController, "defaultHomeLayout", List.of());
-        ReflectionTestUtils.setField(dashboardController, "homeWidgets", List.of());
-        ReflectionTestUtils.setField(dashboardController, "maxNumberMotd", 5);
-
-        when(formattedText.processFormattedText(anyString(), isNull(), any(FormattedText.Level.class)))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+        reset(announcementService, preferencesService, sakaiPersonManager, securityService,
+            serverConfigurationService, entityManager, sessionManager, siteService, userDirectoryService, formattedText);
+        when(serverConfigurationService.getInt("dashboard.home.motd.display", 1)).thenReturn(5);
+        controller.init();
+        buildMockMvc(controller);
     }
 
-    @After
-    public void tearDown() throws Exception {
-
-        if (mocks != null) {
-            mocks.close();
-        }
+    @Test
+    public void testMissingSession() throws Exception {
+        testMissingSession("/users/admin-user/dashboard");
     }
 
     @Test
@@ -148,9 +135,10 @@ public class DashboardControllerTests {
         when(announcementService.getVisibleMessagesOfTheDay(null, 5, false))
             .thenReturn(List.of(visibleMessage, secondVisibleMessage));
 
-        DashboardRestBean bean = dashboardController.getUserDashboard("admin-user");
-
-        assertEquals("I'm here!\nStill here!", bean.getMotd());
+        mockMvc.perform(get("/users/admin-user/dashboard"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.motd").value("I'm here!\nStill here!"))
+            .andDo(document("get-user-dashboard"));
     }
 
     @Test
@@ -172,11 +160,13 @@ public class DashboardControllerTests {
 
         when(announcementService.getVisibleMessagesOfTheDay(null, -1, false)).thenReturn(List.of());
 
-        ReflectionTestUtils.setField(dashboardController, "maxNumberMotd", -1);
+        when(serverConfigurationService.getInt("dashboard.home.motd.display", 1)).thenReturn(-1);
+        controller.init();
 
-        DashboardRestBean bean = dashboardController.getUserDashboard("admin-user");
+        mockMvc.perform(get("/users/admin-user/dashboard"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.motd").value(""));
 
-        assertEquals("", bean.getMotd());
         verify(announcementService).getVisibleMessagesOfTheDay(null, -1, false);
     }
 
@@ -200,13 +190,14 @@ public class DashboardControllerTests {
         when(props.getProperty("widgetLayout")).thenReturn("[\"announcements\",\"calendar\"]");
         when(announcementService.getVisibleMessagesOfTheDay(null, 5, false)).thenReturn(List.of());
 
-        ReflectionTestUtils.setField(dashboardController, "homeWidgets", List.of("announcements", "calendar"));
+        when(serverConfigurationService.getStringList("dashboard.home.widgets", null))
+            .thenReturn(List.of("announcements", "calendar"));
+        controller.init();
 
-        DashboardRestBean bean = dashboardController.getUserDashboard("admin-user");
-
-        assertEquals(List.of("announcements", "calendar"), bean.getWidgets());
-        assertFalse(bean.getWidgetLayout().contains("courses"));
-        assertEquals("announcements", bean.getWidgetLayout().get(0));
+        mockMvc.perform(get("/users/admin-user/dashboard"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.widgets", is(List.of("announcements", "calendar"))))
+            .andExpect(jsonPath("$.widgetLayout", not(hasItem("courses"))));
     }
 
     @Test
@@ -235,18 +226,12 @@ public class DashboardControllerTests {
         when(serverConfigurationService.getStringList("dashboard.course.widget.layout3", null)).thenReturn(List.of());
         when(serverConfigurationService.getInt("dashboard.home.motd.display", 1)).thenReturn(5);
 
-        dashboardController.init();
+        controller.init();
 
-        List<String> homeWidgets = (List<String>) ReflectionTestUtils.getField(dashboardController, "homeWidgets");
-        List<String> defaultHomeLayout = (List<String>) ReflectionTestUtils.getField(dashboardController, "defaultHomeLayout");
-
-        assertEquals("courses", homeWidgets.get(0));
-        assertEquals("courses", defaultHomeLayout.get(0));
-
-        DashboardRestBean bean = dashboardController.getUserDashboard("admin-user");
-
-        assertEquals(List.of("courses", "announcements", "calendar", "grades", "forums"), bean.getWidgetLayout());
-        assertEquals("courses", bean.getWidgetLayout().get(0));
+        mockMvc.perform(get("/users/admin-user/dashboard"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.widgets[0]", is("courses")))
+            .andExpect(jsonPath("$.widgetLayout", is(List.of("courses", "announcements", "calendar", "grades", "forums"))));
     }
 
     @Test
@@ -272,7 +257,12 @@ public class DashboardControllerTests {
         bean.setWidgetLayout(List.of("announcements"));
         bean.setTemplate(1);
 
-        dashboardController.saveSiteDashboard(siteId, bean);
+        ObjectMapper jsonMapper = new ObjectMapper();
+        String json = jsonMapper.writeValueAsString(bean);
+
+        mockMvc.perform(put("/sites/" + siteId + "/dashboard").contentType("application/json").content(json))
+          .andExpect(status().isOk())
+          .andDo(document("save-site-dashboard"));
 
         verify(site).setDescription(clean);
     }

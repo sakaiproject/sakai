@@ -17,10 +17,26 @@ package org.sakaiproject.webapi.controllers.test;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.Rule;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.restdocs.mockmvc.UriConfigurer;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.webapi.exception.GlobalExceptionHandler;
+import org.sakaiproject.webapi.exception.MissingSessionException;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Rule;
 
 public abstract class BaseControllerTests {
 
@@ -28,6 +44,11 @@ public abstract class BaseControllerTests {
     public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
 
     protected UriConfigurer configurer;
+
+    protected MockMvc mockMvc;
+
+    @Autowired
+    protected SessionManager sessionManager;
 
     public BaseControllerTests() {
 
@@ -39,5 +60,29 @@ public abstract class BaseControllerTests {
             .uris()
             .withHost("your-sakai.edu")
             .withPort(80);
+    }
+
+    protected void buildMockMvc(Object controller) {
+
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+            .defaultRequest(get("/").with(request -> {
+                request.setContextPath("/api");
+                request.setRequestURI("/api" + request.getRequestURI());
+                return request;
+            }))
+            .setControllerAdvice(new GlobalExceptionHandler())
+            .apply(configurer)
+            .build();
+    }
+
+    protected void testMissingSession(String path) throws Exception {
+
+        Session session = mock(Session.class);
+        when(session.getUserId()).thenReturn(null);
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+
+        mockMvc.perform(get(path))
+            .andExpect(status().isForbidden())
+            .andExpect(result -> assertTrue(result.getResolvedException() instanceof MissingSessionException));
     }
 }

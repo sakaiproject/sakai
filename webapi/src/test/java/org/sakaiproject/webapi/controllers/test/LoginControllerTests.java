@@ -28,84 +28,58 @@ import static org.springframework.restdocs.request.RequestDocumentation.formPara
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.web.servlet.MvcResult;
+
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.controllers.LoginController;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { WebApiTestConfiguration.class })
+@ContextConfiguration(classes = { WebApiTestConfiguration.class, LoginController.class })
 public class LoginControllerTests extends BaseControllerTests {
 
-    private MockMvc mockMvc;
-
-    @Mock
+    @Autowired
     private AuthenticationManager authenticationManager;
 
-    @Mock
+    @Autowired
+    private LoginController controller;
+
+    @Autowired
     private UsageSessionService usageSessionService;
 
-    @Mock
-    private SessionManager sessionManager;
-
-    @Mock
+    @Autowired
     private UserDirectoryService userDirectoryService;
 
-    private AutoCloseable mocks;
-
     @Before
-	public void setup() {
+    public void setup() {
 
-        mocks = MockitoAnnotations.openMocks(this);
+        reset(authenticationManager, usageSessionService, userDirectoryService, sessionManager);
 
-        reset(sessionManager);
-
-        LoginController controller = new LoginController();
-
-        controller.setUserDirectoryService(userDirectoryService);
-
-        controller.setSessionManager(sessionManager);
-
-        controller.setAuthenticationManager(authenticationManager);
-
-        controller.setUsageSessionService(usageSessionService);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).apply(configurer).build();
-	}
-
-    @After
-    public void tearDown() throws Exception {
-        if (mocks != null) {
-            mocks.close();
-        }
+        buildMockMvc(controller);
     }
 
     @Test
     public void testSuccessfulLogin() throws Exception {
 
-        var auth = mock(Authentication.class);
+        Authentication auth = mock(Authentication.class);
         when(authenticationManager.authenticate(any())).thenReturn(auth);
 
-        var session = mock(Session.class);
+        Session session = mock(Session.class);
         when(session.getId()).thenReturn("session1");
         when(sessionManager.startSession()).thenReturn(session);
 
-        var username = "user1";
-        var password = "password1";
+        String username = "user1";
+        String password = "password1";
 
         MvcResult result = mockMvc.perform(post("/login")
                 .param("username", username)
@@ -129,8 +103,8 @@ public class LoginControllerTests extends BaseControllerTests {
 
         when(sessionManager.startSession()).thenReturn(null);
 
-        var username = "user1";
-        var password = "password1";
+        String username = "user1";
+        String password = "password1";
 
         mockMvc.perform(post("/login").param("username", username).param("password", password))
             .andExpect(status().isInternalServerError());
