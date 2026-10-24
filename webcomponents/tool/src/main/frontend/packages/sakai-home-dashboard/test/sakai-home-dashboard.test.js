@@ -14,6 +14,7 @@ describe("sakai-home-dashboard tests", () => {
       .get(data.courseListUrl, data.courseList)
       .get(data.dashboardUrl, data.dashboardData)
       .get(data.widgetPanelI18nUrl, data.widgetPanelI18n)
+      .get(data.toolnamesI18nUrl, data.toolnamesI18n)
       .get(data.courseCardI18nUrl, data.courseCardI18n);
   });
 
@@ -39,5 +40,12 @@ describe("sakai-home-dashboard tests", () => {
     swMock.expects("register").once().returns(Promise.resolve());
 
     await expect(el).to.be.accessible();
+
+    const editBtn = el.querySelector(".btn-icon .si-edit");
+    expect(editBtn).to.exist;
+
+    const available = el.querySelector(".dashboard-widgets-available");
+    expect(available).to.exist;
+    expect(available.textContent).to.include("1");
   });
 });

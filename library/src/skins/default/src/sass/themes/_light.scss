@@ -583,16 +583,20 @@
     // Dashboard
     --sakai-dashboard-widget-bg-color: var(--sakai-background-color-1);
     --sakai-dashboard-widget-border-color: var(--sakai-border-color);
-    --sakai-title-bar-bg-color: var(--sakai-background-color-2);
+    --sakai-dashboard-widget-secondary-bg-color: var(--sakai-background-color-2);
+    --sakai-title-bar-bg-color: var(--sakai-dashboard-widget-secondary-bg-color);
+    --sakai-title-bar-text-color: var(--sakai-text-color-1);
     --sakai-close-icon-color: var(--errorBanner-color);
     --sakai-table-even-color: var(--sakai-background-color-2);
     --sakai-separator-color: var(--sakai-border-color);
-    --sakai-calendar-button-background-color: #FFFFFF;
-    --sakai-calendar-button-color: var(--button-text-color);
+    --sakai-calendar-button-background-color: var(--sakai-background-color-1);
+    --sakai-calendar-button-color: var(--sakai-text-color-1);
     --sakai-calendar-button-disabled-color: var(--button-disabled-text-color);
     --sakai-calendar-button-disabled-bg-color: var(--button-disabled-background);
     --sakai-calendar-today-bg-color: var(--sakai-color-blue);
     --sakai-calendar-today-color: var(--sakai-text-color-inverted);
+    --sakai-calendar-selected-bg-color: var(--sakai-color-blue--darker-2);
+    --sakai-calendar-selected-color: var(--sakai-text-color-inverted);
     --sakai-calendar-has-events-bg-color: var(--sakai-color-green--darker-4);
     --sakai-calendar-has-events-fg-color: var(--sakai-text-color-inverted);
     --sakai-grades-count-color: var(--sakai-text-color-dimmed);

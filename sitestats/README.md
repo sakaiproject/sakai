@@ -18,8 +18,23 @@ using the tool Preferences screen). See SiteStats Confluence page for configurat
 ## Tool security (permissions)
 For SiteStats 0.5.5 or higher, the 'sitestats.view' permission IS REQUIRED in order to use the tool.
 Please use the permissions admin tool to back fill permissions existing realms or add the permission to the '!site.helper' realm.
-Access to the sitestats administrator view can be granted to non-administrator users by adding the permission 'sitestats.view.admin'.
+Access to the sitestats administrator view can be granted to non-administrator users by adding the permission 'sitestats.admin.view'.
 The tool won't be listed on left menu if the user doesn't have the required permission.
+
+### Student / access unlock (Sakai 27+)
+Default site templates grant `sitestats.view` (in addition to `sitestats.own`) to **Student** and **access**.
+After upgrading, run the Sakai 27 conversion scripts in sakai-reference so existing sites receive the same grant.
+With `view` + `own`, learners can open SiteStats and see the overview **own** audience widgets.
+The site preference `showOwnStatisticsToStudents` still applies: when it is false, own statistics remain hidden even if the user has `sitestats.own`.
+
+### Dashboard widgets
+Course dashboards can offer compact SiteStats overview widgets (`sitestats-*`):
+audience **all** to users with `sitestats.all`, or audience **own** (`sitestats-student-*`) to users with `sitestats.own` (and without all).
+Home dashboards can offer institutional/admin widgets (audience **admin**) to users with `sitestats.admin.view`.
+Toggle with `dashboard.sitestats.enabled` (default true).
+Default layout order is configured per audience via `dashboard.course.widget.layout.student` /
+`dashboard.course.widget.layout.instructor` and `dashboard.home.widget.layout` /
+`dashboard.home.widget.layout.admin`; tiles still require the matching permission to appear.
 
 ## External Database feature
 In order to configure sitestats to use a different database for its tables set the following sakai property:

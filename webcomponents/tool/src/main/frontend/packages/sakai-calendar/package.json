@@ -31,6 +31,7 @@
     "./sakai-calendar.js": "./sakai-calendar.js"
   },
   "dependencies": {
+    "@sakai-ui/sakai-element": "file:../sakai-element",
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
     "@sakai-ui/sakai-icon": "file:../sakai-icon"
   }

@@ -5,21 +5,28 @@ import { SakaiDashboardWidget } from "./SakaiDashboardWidget.js";
 
 export class SakaiCoursesWidget extends SakaiDashboardWidget {
 
+  static properties = {
+    savedFilters: { attribute: false, type: Object },
+  };
+
   constructor() {
 
     super();
 
     this.widgetId = "courses";
+    this.hasFilters = true;
   }
 
   content() {
 
     return html`
-      <div class="mb-3">
-        <sakai-course-list
-          user-id="${ifDefined(this.userId)}">
-        </sakai-course-list>
-      </div>
+      <sakai-course-list
+        user-id="${ifDefined(this.userId)}"
+        ?save-filters=${Boolean(this.userId)}
+        ?filters-open=${this.filtersOpen}
+        .savedFilters=${this.savedFilters}
+        @filters-closed=${this._closeFilters}>
+      </sakai-course-list>
     `;
   }
 }

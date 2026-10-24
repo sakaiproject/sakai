@@ -297,75 +297,114 @@ const checkUserChangedThenSet = userId => {
 };
 
 /**
- * Create a promise which will setup the service worker and message registration
- * functions before fulfilling. Consumers can wait on this promise and then register
- * the push event they want to listen for. For an example of this, checkout
- * sakai-notifications.js in webcomponents
+ * Lazily set up the service worker and message registration. Starts only when a
+ * consumer first awaits / then()s — so merely importing this module (e.g. via
+ * course-card in unit tests) does not register a SW or reject outside a test.
+ *
+ * Consumers wait on this thenable and then register the push event they want.
+ * See sakai-notifications.js.
  */
-export const pushSetupComplete = new Promise((resolve, reject) => {
+let _pushSetupPromise;
 
-  if (!navigator.serviceWorker || !window.Notification) {
-    console.error("Service worker not supported");
-    reject(NOT_PUSH_CAPABLE);
-    return;
+const startPushSetup = () => {
+
+  if (_pushSetupPromise) {
+    return _pushSetupPromise;
   }
 
-  // Check if this is iOS Safari without PWA mode
-  const browserInfo = getBrowserInfo();
-  if (browserInfo.requiresPWA && !isPWA()) {
-    console.debug("iOS Safari detected without PWA installation - push notifications require PWA");
-    reject(PUSH_PERMISSION_STATES.PWA_REQUIRED);
-    return;
-  } else if (browserInfo.platform === "ios" && isPWA()) {
-    console.debug("iOS Safari PWA detected - push notifications should work with user interaction");
-  }
+  _pushSetupPromise = new Promise((resolve, reject) => {
 
-  navigator.serviceWorker.register(serviceWorkerPath).then(reg => {
-
-    if (!reg.pushManager) {
+    if (!navigator.serviceWorker || !window.Notification) {
+      console.error("Service worker not supported");
       reject(NOT_PUSH_CAPABLE);
       return;
     }
 
-    const worker = reg.active;
+    // Check if this is iOS Safari without PWA mode
+    const browserInfo = getBrowserInfo();
+    if (browserInfo.requiresPWA && !isPWA()) {
+      console.debug("iOS Safari detected without PWA installation - push notifications require PWA");
+      reject(PUSH_PERMISSION_STATES.PWA_REQUIRED);
+      return;
+    } else if (browserInfo.platform === "ios" && isPWA()) {
+      console.debug("iOS Safari PWA detected - push notifications should work with user interaction");
+    }
 
-    if (worker) {
+    navigator.serviceWorker.register(serviceWorkerPath).then(reg => {
 
-      // The service worker is already active, setup the listener and register function.
+      if (!reg.pushManager) {
+        reject(NOT_PUSH_CAPABLE);
+        return;
+      }
 
-      setupServiceWorkerListener();
-      console.debug("Worker registered and setup");
-      resolve();
-    } else {
+      const worker = reg.active;
+
+      if (worker) {
+
+        // The service worker is already active, setup the listener and register function.
+
+        setupServiceWorkerListener();
+        console.debug("Worker registered and setup");
+        resolve();
+        return;
+      }
+
       console.debug("No active worker. Waiting for update ...");
 
-      // Not active. We'll listen for an update then hook things up.
-
-      reg.addEventListener("updatefound", () => {
-
-        console.debug("Worker updated. Waiting for state change ...");
-
-        const installingWorker = reg.installing;
-
+      const activateFromWorker = installingWorker => {
+        if (!installingWorker) {
+          reject(NOT_PUSH_CAPABLE);
+          return;
+        }
+        if (installingWorker.state === "activated") {
+          setupServiceWorkerListener();
+          console.debug("Worker registered and setup");
+          resolve();
+          return;
+        }
         installingWorker.addEventListener("statechange", e => {
-
           console.debug("Worker state changed");
-
           if (e.target.state === "activated") {
-
             console.debug("Worker activated. Setting up ...");
-
-            // The service worker has been updated, setup the listener and register function.
-
             setupServiceWorkerListener();
             console.debug("Worker registered and setup");
             resolve();
           }
         });
+      };
+
+      if (reg.installing) {
+        activateFromWorker(reg.installing);
+        return;
+      }
+
+      // Not active. We'll listen for an update then hook things up.
+      reg.addEventListener("updatefound", () => {
+        console.debug("Worker updated. Waiting for state change ...");
+        activateFromWorker(reg.installing);
       });
-    }
+    }).catch(error => {
+      // Failed register() must reject setup; otherwise the promise stays pending
+      // forever (missing SW in unit tests, offline, blocked registration, etc.).
+      console.error("Service worker registration failed", error);
+      reject(NOT_PUSH_CAPABLE);
+    });
   });
-}); // pushSetupComplete
+
+  return _pushSetupPromise;
+};
+
+export const pushSetupComplete = {
+  then(onFulfilled, onRejected) {
+    return startPushSetup().then(onFulfilled, onRejected);
+  },
+  catch(onRejected) {
+    return startPushSetup().catch(onRejected);
+  },
+  finally(onFinally) {
+    return startPushSetup().finally(onFinally);
+  },
+};
 
 // We set this up for other parts of the code to call, without needing to register
 // the service worker first. We capture the registration in the closure.

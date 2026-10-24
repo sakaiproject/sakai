@@ -29,15 +29,15 @@ describe("sakai-calendar tests", () => {
     expect(el.shadowRoot.getElementById("container")).to.exist;
 
     await waitUntil(() => {
-      const calendarMessage = el.shadowRoot.querySelector(".calendar-msg");
-      return el._events && calendarMessage && calendarMessage.textContent.includes(data.pinnedSitesMessage);
+      const statusMessage = el.shadowRoot.querySelector("#widget-status");
+      return el._events && statusMessage && statusMessage.textContent.includes(data.pinnedSitesMessage);
     });
 
     await elementUpdated(el);
     await expect(el).to.be.accessible();
 
-    expect(el.shadowRoot.querySelector(".calendar-msg")).to.exist;
-    expect(el.shadowRoot.querySelector(".calendar-msg").textContent).to.contain(data.pinnedSitesMessage);
+    expect(el.shadowRoot.querySelector("#widget-status")).to.exist;
+    expect(el.shadowRoot.querySelector("#widget-status").textContent).to.contain(data.pinnedSitesMessage);
 
     el.dispatchEvent(new CustomEvent("user-selected-date-changed", { detail: { selectedDate: data.selectedDate } }));
 
@@ -55,10 +55,10 @@ describe("sakai-calendar tests", () => {
       <sakai-calendar site-id="${data.siteId}"></sakai-calendar>
     `);
 
-    await waitUntil(() => el._events && el._i18n && !el.shadowRoot.querySelector(".calendar-msg"));
+    await waitUntil(() => el._events && el._i18n && !el.shadowRoot.querySelector("#widget-status"));
     await elementUpdated(el);
     await expect(el).to.be.accessible();
 
-    expect(el.shadowRoot.querySelector(".calendar-msg")).to.not.exist;
+    expect(el.shadowRoot.querySelector("#widget-status")).to.not.exist;
   });
 });

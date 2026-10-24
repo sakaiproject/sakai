@@ -10,7 +10,9 @@ export class SakaiCourseCard extends SakaiShadowElement {
   static properties = {
     courseData: { type: Object },
     siteId: { attribute: "site-id", type: String },
+    density: { type: String },
     _styles: { state: true },
+    _textStyles: { state: true },
   };
 
   constructor() {
@@ -68,6 +70,7 @@ export class SakaiCourseCard extends SakaiShadowElement {
     } else {
       this._styles.backgroundColor = this.courseData.courseCardBackgroundColor;
     }
+    this._textStyles = { color: this.courseData.courseCardForegroundColor };
 
     pushSetupComplete.then(() => {
 
@@ -107,6 +110,7 @@ export class SakaiCourseCard extends SakaiShadowElement {
   _foregroundColorChanged(e) {
 
     this._styles.color = e.detail.color;
+    this._textStyles = { color: e.detail.color };
     this.requestUpdate();
   }
 
@@ -130,6 +134,15 @@ export class SakaiCourseCard extends SakaiShadowElement {
     return this._i18n && this.courseData;
   }
 
+  _effectiveDensity() {
+
+    return this.density === "compact" ? "compact" : "comfortable";
+  }
+
+  _alertTools() {
+    return this.courseData.tools.filter(tool => tool.hasAlerts);
+  }
+
   _renderSettingsModal() {
 
     return html`
@@ -147,45 +160,42 @@ export class SakaiCourseCard extends SakaiShadowElement {
 
   render() {
 
+    const density = this._effectiveDensity();
+    const description = this.courseData.shortDescription?.trim();
+
     return html`
       ${this._renderSettingsModal()}
-      <div class="info-block" style=${styleMap(this._styles)}>
-        <div class="d-flex">
-          <div>
-            <a class="${!this.courseData.image ? "no-background" : ""}"
+      <div class="info-block ${density}${this._alertTools().length === 0 ? " rounded-bottom" : ""}" style=${styleMap(this._styles)}>
+        ${this.courseData.canEdit ? html`
+          <button type="button"
+              class="btn btn-icon settings-button"
+              title="${this._i18n.settings_tooltip}"
+              @click=${this._openSettingsModal}>
+            <i class="bi bi-three-dots-vertical fs-6" style=${styleMap(this._textStyles)}></i>
+          </button>
+        ` : nothing}
+        <div class="info-content ${this.courseData.canEdit ? "has-settings" : ""}">
+          <a class="info-title ${!this.courseData.image ? "no-background" : ""}"
+              href="${this.courseData.url}"
+              title="${this._i18n.visit} ${this.courseData.title}"
+              style=${styleMap(this._textStyles)}>
+            ${this.courseData.title}
+          </a>
+          ${description ? html`
+            <a class="info-description-link"
                 href="${this.courseData.url}"
-                title="${this._i18n.visit} ${this.courseData.title}"
-                style=${styleMap(this._styles)}>
-              <div class="ms-2">${this.courseData.title}</div>
-            </a>
-          </div>
-          ${this.courseData.shortDescription && this.courseData.shortDescription.trim() ? html`
-          <div>
-            <a href="${this.courseData.url}" title="${this._i18n.visit} ${this.courseData.title}">
-              <div
-                class="code-block description-block"
-                title="${this.courseData.shortDescription.trim()}"
-                style="display: -webkit-box; -webkit-line-clamp: var(--sakai-course-card-description-lines, 2); -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
-                ${this.courseData.shortDescription.trim()}
+                title="${this._i18n.visit} ${this.courseData.title}">
+              <div class="code-block description-block" title="${description}" style=${styleMap(this._textStyles)}>
+                ${description}
               </div>
             </a>
-          </div>
-          ` : nothing}
-          ${this.courseData.canEdit ? html`
-          <div class="ms-auto">
-            <button type="button"
-                class="btn btn-icon settings-button"
-                title="${this._i18n.settings_tooltip}"
-                @click=${this._openSettingsModal}>
-              <i class="bi bi-three-dots-vertical fs-6" style=${styleMap(this._styles)}></i>
-            </button>
-          </div>
           ` : nothing}
         </div>
       </div>
 
+      ${this._alertTools().length ? html`
       <div class="tool-alerts-block">
-        ${this.courseData.tools.filter(tool => tool.hasAlerts).map(tool => html`
+        ${this._alertTools().map(tool => html`
           <div class="mx-2">
             <a href="${tool.url}" @click=${this._toolClicked} data-tool-id="${tool.id}" title="${tool.title}" style="position: relative;">
               <i class="si ${tool.iconClass}"></i>
@@ -194,6 +204,7 @@ export class SakaiCourseCard extends SakaiShadowElement {
           </div>
         `)}
       </div>
+      ` : nothing}
     `;
   }
 
@@ -210,6 +221,11 @@ export class SakaiCourseCard extends SakaiShadowElement {
       }
 
       .info-block {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-sizing: border-box;
         height: 110px;
         background-repeat: no-repeat;
         background-color: var(--sakai-background-color-2);
@@ -217,13 +233,14 @@ export class SakaiCourseCard extends SakaiShadowElement {
         background-position: center;
         color: var(--sakai-text-color-inverse, white);
         font-weight: bold;
-        padding: 1rem;
+        padding: 0.75rem 1rem;
         border-top-left-radius: var(--bs-border-radius);
         border-top-right-radius: var(--bs-border-radius);
         border: solid 1px var(--sakai-border-color);
 
         a {
           color: var(--sakai-text-color-inverse, white);
+          background: transparent;
           &:hover {
             color: var(--sakai-text-color-inverse, white);
           }
@@ -239,10 +256,82 @@ export class SakaiCourseCard extends SakaiShadowElement {
         i {
           font-size: 20px;
         }
+
+        &.compact {
+          height: 72px;
+          padding: 0.5rem 0.75rem;
+        }
+
+        &.compact .description-block {
+          -webkit-line-clamp: 1;
+          line-clamp: 1;
+        }
+
+        &.rounded-bottom {
+          border-bottom-left-radius: var(--bs-border-radius);
+          border-bottom-right-radius: var(--bs-border-radius);
+        }
       }
+
+      .info-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0;
+        min-height: 0;
+      }
+
+      .info-content.has-settings {
+        padding-inline-end: 1.75rem;
+      }
+
+      .info-title {
+        min-width: 0;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+        line-height: 1.25;
+        background: transparent;
+      }
+
+      .info-block.compact .info-title {
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+      }
+
+      .settings-button {
+        position: absolute;
+        top: 0.35rem;
+        inset-inline-end: 0.35rem;
+        z-index: 1;
+        background: transparent;
+        --bs-btn-bg: transparent;
+        --bs-btn-hover-bg: transparent;
+        --bs-btn-active-bg: transparent;
+        --bs-btn-color: inherit;
+      }
+
+      .info-description-link {
+        margin-top: 0.35rem;
+        min-width: 0;
+        background: transparent;
+      }
+
       .code-block {
         color: var(--sakai-text-color-inverse);
         font-size: 12px;
+        font-weight: 400;
+      }
+
+      .description-block {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: var(--sakai-course-card-description-lines, 2);
+        line-clamp: var(--sakai-course-card-description-lines, 2);
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .tool-alerts-block {

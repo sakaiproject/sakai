@@ -60,15 +60,74 @@ class DashboardTest extends SakaiUiTestBase {
 
         sakai.toolClick("Dashboard");
 
-        com.microsoft.playwright.Locator editButton = page.locator("#course-dashboard-edit button").first();
+        com.microsoft.playwright.Locator editButton = page.locator("#course-dashboard-edit");
         assertThat(editButton).isVisible();
         editButton.click(new com.microsoft.playwright.Locator.ClickOptions().setForce(true));
 
-        com.microsoft.playwright.Locator saveButton = page.locator("#course-dashboard-save button").first();
+        com.microsoft.playwright.Locator saveButton = page.locator("#course-dashboard-save");
         if (saveButton.count() > 0) {
             saveButton.click(new com.microsoft.playwright.Locator.ClickOptions().setForce(true));
         }
 
         assertThat(page.locator("main#content")).isVisible();
+    }
+
+    @Test
+    @Order(3)
+    void savesAndReloadsWidgetLayoutViaApi() {
+        sakai.login("instructor1");
+
+        String siteId = sakaiUrl.contains("/site/")
+            ? sakaiUrl.replaceAll(".*/site/([^/]+).*", "$1")
+            : null;
+        org.junit.jupiter.api.Assertions.assertNotNull(siteId);
+
+        com.microsoft.playwright.APIResponse getBefore = page.request().get("/api/sites/" + siteId + "/dashboard");
+        org.junit.jupiter.api.Assertions.assertTrue(getBefore.ok());
+        String body = getBefore.text();
+        org.junit.jupiter.api.Assertions.assertTrue(body.contains("\"widgetLayout\""));
+
+        String putBody = "{\"widgetLayout\":[{\"id\":\"announcements\",\"w\":2,\"h\":1},{\"id\":\"calendar\",\"w\":1,\"h\":1}],"
+            + "\"overview\":\"\",\"programme\":\"\",\"template\":2}";
+        com.microsoft.playwright.APIResponse put = page.request().put("/api/sites/" + siteId + "/dashboard",
+            com.microsoft.playwright.options.RequestOptions.create()
+                .setHeader("Content-Type", "application/json")
+                .setData(putBody));
+        org.junit.jupiter.api.Assertions.assertTrue(put.ok());
+
+        com.microsoft.playwright.APIResponse getAfter = page.request().get("/api/sites/" + siteId + "/dashboard");
+        org.junit.jupiter.api.Assertions.assertTrue(getAfter.ok());
+        String after = getAfter.text();
+        org.junit.jupiter.api.Assertions.assertTrue(after.contains("\"w\":2") || after.contains("\"w\": 2"));
+        org.junit.jupiter.api.Assertions.assertTrue(after.contains("announcements"));
+    }
+
+    @Test
+    @Order(4)
+    void filterPrefsRequireExplicitSave() {
+        sakai.login("instructor1");
+        page.navigate("/portal/");
+        String userId = (String) page.evaluate("portal.user.id");
+        org.junit.jupiter.api.Assertions.assertNotNull(userId);
+
+        com.microsoft.playwright.APIResponse clear = page.request().put(
+            "/api/users/" + userId + "/dashboard/filters/courses",
+            com.microsoft.playwright.options.RequestOptions.create()
+                .setHeader("Content-Type", "application/json")
+                .setData("{}"));
+        org.junit.jupiter.api.Assertions.assertTrue(clear.ok());
+
+        com.microsoft.playwright.APIResponse save = page.request().put(
+            "/api/users/" + userId + "/dashboard/filters/courses",
+            com.microsoft.playwright.options.RequestOptions.create()
+                .setHeader("Content-Type", "application/json")
+                .setData("{\"filter\":\"courses\",\"term\":\"none\",\"sort\":\"alerts_first\",\"density\":\"compact\",\"alertsFirst\":true}"));
+        org.junit.jupiter.api.Assertions.assertTrue(save.ok());
+
+        com.microsoft.playwright.APIResponse dashboard = page.request().get("/api/users/" + userId + "/dashboard");
+        org.junit.jupiter.api.Assertions.assertTrue(dashboard.ok());
+        String text = dashboard.text();
+        org.junit.jupiter.api.Assertions.assertTrue(text.contains("alerts_first"), text);
+        org.junit.jupiter.api.Assertions.assertTrue(text.contains("compact"), text);
     }
 }
