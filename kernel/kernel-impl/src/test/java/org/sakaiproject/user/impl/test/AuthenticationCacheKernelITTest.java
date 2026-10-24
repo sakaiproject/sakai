@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.InvocationTargetException;
 
-public class AuthenticationCacheKernelIT
+public class AuthenticationCacheKernelITTest
         extends SakaiKernelTestBase {
 
     private AuthenticationManager authManager;
