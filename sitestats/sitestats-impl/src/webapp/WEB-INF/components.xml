@@ -324,11 +324,9 @@
 	</bean>
 
 	<bean id="org.sakaiproject.sitestats.impl.view.SiteStatsClientEnvironmentAnalytics"
-		  class="org.sakaiproject.sitestats.impl.view.SiteStatsClientEnvironmentAnalytics"
-		  init-method="init">
+		  class="org.sakaiproject.sitestats.impl.view.SiteStatsClientEnvironmentAnalytics">
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-		<property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
 	</bean>
 
 	<bean id="org.sakaiproject.sitestats.impl.view.ServerWideReportCatalog"
