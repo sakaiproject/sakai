@@ -10,6 +10,8 @@ syn_discussion_heading=New in Discussions
 sort_by_site_tooltip=Sort by site title
 syn_site_heading=Site
 syn_hide_tooltip=Hide this site from this forums/messages view
+no_discussions=No discussions
+widget_title=Discussions
 `;
 
 export const userId = "adrian";
