@@ -69,6 +69,20 @@ public class SiteStatsWidgetCatalog {
 		return overview;
 	}
 
+	/**
+	 * Available overview widget ids for the given audience flags, without metric/highlight payloads.
+	 */
+	public List<String> listAvailableWidgetIds(boolean allAllowed, boolean ownAllowed, boolean adminAllowed) {
+		List<String> ids = new ArrayList<String>();
+		for (WidgetSpec spec : widgetSpecs.values()) {
+			if (!spec.isAvailable() || !isAudienceAllowed(spec.getAudience(), allAllowed, ownAllowed, adminAllowed)) {
+				continue;
+			}
+			ids.add(spec.getId());
+		}
+		return ids;
+	}
+
 	public SiteStatsWidgetTab getWidgetTab(String siteId, String widgetId, String tabId) {
 		WidgetTabSpec spec = tabSpecs.get(key(widgetId, tabId));
 		if (spec == null || !widgetAvailable(widgetId)) {
