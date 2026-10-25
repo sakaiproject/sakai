@@ -7,6 +7,7 @@ today=Today
 days_message=Showing events for the next {} days
 events_for=Events for
 pinned_sites_message=${pinnedSitesMessage}
+close_filters=Hide filters
 `;
 
 export const userId = "adrian";
