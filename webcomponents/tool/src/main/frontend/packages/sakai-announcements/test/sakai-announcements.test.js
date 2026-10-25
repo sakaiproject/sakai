@@ -43,6 +43,9 @@ describe("sakai-announcements tests", () => {
 
     expect(el.shadowRoot.querySelector(".title").innerHTML).to.contain(data.announcements[0].subject);
 
+    el.filtersOpen = true;
+    await elementUpdated(el);
+
     const sortingSelect = el.shadowRoot.querySelector("#sorting > select");
     expect(sortingSelect).to.exist;
 
