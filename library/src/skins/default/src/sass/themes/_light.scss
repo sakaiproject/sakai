@@ -583,7 +583,9 @@
     // Dashboard
     --sakai-dashboard-widget-bg-color: var(--sakai-background-color-1);
     --sakai-dashboard-widget-border-color: var(--sakai-border-color);
-    --sakai-title-bar-bg-color: var(--sakai-background-color-2);
+    --sakai-dashboard-widget-secondary-bg-color: var(--sakai-background-color-2);
+    --sakai-title-bar-bg-color: var(--sakai-dashboard-widget-secondary-bg-color);
+    --sakai-title-bar-text-color: var(--sakai-text-color-1);
     --sakai-close-icon-color: var(--errorBanner-color);
     --sakai-table-even-color: var(--sakai-background-color-2);
     --sakai-separator-color: var(--sakai-border-color);
