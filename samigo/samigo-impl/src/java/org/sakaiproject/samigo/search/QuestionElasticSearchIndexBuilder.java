@@ -909,7 +909,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
     protected SearchRequest newSearchRequestAndQueryBuilders(String searchTerms, List<String> references, List<String> siteIds) {
-        SearchRequest searchRequest = new SearchRequest();
+        SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.source().query(boolQuery());
         return searchRequest;
     }
