@@ -45,11 +45,11 @@ class SharedToolComponentsTest {
 
     private static final Path FRONTEND = Path.of("../webcomponents/tool/src/main/frontend");
     private static final String SCORE = """
-        {"id":"score","siteId":"site","itemId":"source","type":"SCORE",
+        {"id":"score","siteId":"site","toolId":"sakai.lessonbuildertool","itemId":"source","type":"SCORE",
          "operator":"GREATER_THAN","argument":"10"}
         """;
     private static final String SECOND_SCORE = """
-        {"id":"score-or","siteId":"site","itemId":"source","type":"SCORE",
+        {"id":"score-or","siteId":"site","toolId":"sakai.lessonbuildertool","itemId":"source","type":"SCORE",
          "operator":"GREATER_THAN","argument":"20"}
         """;
     private Playwright playwright;
@@ -117,8 +117,6 @@ class SharedToolComponentsTest {
                     [{"name":"Group A","items":[{"id":"a1","name":"Essay"},{"id":"a2","name":"Quiz"}]},
                      {"name":"Group B","items":[{"id":"b1","name":"Essay"}]}]
                     """);
-            } else if (path.equals("/direct/lessons/lesson/1.json")) {
-                json(route, "{\"contentsList\":[{\"id\":\"source\",\"name\":\"Essay\"}]}");
             } else if (path.startsWith("/api/sites/site/conditions")) {
                 conditionResponse(route, uri);
             } else if (path.contains("rubric-associations/")) {
@@ -214,7 +212,7 @@ class SharedToolComponentsTest {
     void lessonsPersistsThePrerequisiteTreeAndRemovesItsReference() {
         openFixture("""
             <sakai-condition-picker site-id="site" tool-id="sakai.lessonbuildertool"
-                item-id="target" lesson-id="1"></sakai-condition-picker>
+                item-id="target" lesson-items='[{"id":"source","name":"Essay"}]'></sakai-condition-picker>
             """);
         Locator picker = page.locator("sakai-condition-picker");
         picker.locator("select").first().selectOption("score");
