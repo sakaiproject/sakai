@@ -51,6 +51,8 @@ $(window).load( function() {
 
 <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
+<script type="text/javascript" src="/samigo-app/js/editAssessmentAccordion.js"></script>
+
 <script type="text/JavaScript">	
 	jQuery(window).load(function(){
 			
@@ -244,7 +246,9 @@ $(window).load( function() {
   <h:dataTable id="parts" width="100%" value="#{assessmentBean.sections}" var="partBean">
     <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
     <h:column>
-      <h:panelGrid styleClass="table table-striped" columns="2" width="100%" columnClasses="navView,navList" border="0">
+     <details open="open" data-part-id="<h:outputText value="#{assessmentBean.assessmentId}"/>-<h:outputText value="#{partBean.sectionId}"/>">
+     <summary style="cursor: pointer; list-style-position: inside;">
+      <h:panelGrid style="display: inline-table; width: calc(100% - 1.6rem); vertical-align: middle; margin-bottom: 0;" styleClass="table table-striped" columns="2" width="100%" columnClasses="navView,navList" border="0">
        <h:panelGroup rendered="#{!author.isEditPoolFlow}">
           <h:outputLabel for="number" value="#{authorMessages.p}" />
           <h:outputText value="&#160;" escape="false" />
@@ -312,6 +316,7 @@ $(window).load( function() {
       </h:panelGroup>
 	  
     </h:panelGrid>
+    </summary>
 
     <h:outputText escape="false" value="#{partBean.description}" />
 
@@ -539,6 +544,7 @@ $(window).load( function() {
     </h:column>
   </t:dataTable>
 </div>
+</details>
 <%--Question Cancellation Modal--%>
 <div id="cancelQuestionModal" class="modal modal-lg fade question-cancel-modal" tabindex="-1">
   <h:panelGroup styleClass="modal-dialog" layout="block">
