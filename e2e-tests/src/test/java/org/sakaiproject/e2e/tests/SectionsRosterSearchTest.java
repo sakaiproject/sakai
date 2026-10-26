@@ -16,6 +16,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import java.util.List;
@@ -38,8 +39,11 @@ class SectionsRosterSearchTest extends SakaiUiTestBase {
         Locator search = page.locator("[id='rosterForm:search']");
         Locator students = page.locator("[id='rosterForm:sectionsTable'] > tbody > tr");
 
-        // the course's own roster section, which the filter submits the page to show
-        String section = filter.locator("option").nth(1).getAttribute("value");
+        // the course's own roster section, from the demo provider, which the filter submits the page to show
+        Locator sections = filter.locator("option:not([value='']):not([value='NoSections'])");
+        assertThat(filter).isVisible();
+        assertTrue(sections.count() > 0, "the course has no roster section to filter by");
+        String section = sections.first().getAttribute("value");
         submits(() -> filter.selectOption(section));
         assertThat(filter).hasValue(section);
         assertThat(search).hasAttribute("type", "search");
