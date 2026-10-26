@@ -1070,9 +1070,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   {
     log.debug("processDisplayForum()");
     multiDeleteSuccess = false;
-    if (searchPvtMsgs != null)
-    	searchPvtMsgs.clear();
-    this.selectedTags = "";
+    clearSearchResults();
     this.fromPreview = false;
     return DISPLAY_MESSAGES_PG;
   }
@@ -1150,6 +1148,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     /** reset sort type */
     sortType = SORT_DATE_DESC;
+    clearSearchResults();
     
     setSelectedTopicId(getExternalParameterByKey(EXTERNAL_TOPIC_ID));
    	selectedTopic = new PrivateTopicDecoratedBean(forumManager.getTopicByUuid(getExternalParameterByKey(EXTERNAL_TOPIC_ID)));
@@ -2344,6 +2343,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */
   public String processDisplayPreviousTopic() {
     multiDeleteSuccess = false;
+    clearSearchResults();
     String prevTopicTitle = getExternalParameterByKey("previousTopicTitle");
     if(StringUtils.isNotEmpty(prevTopicTitle))
     {
@@ -2381,6 +2381,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processDisplayNextTopic()
   {
     multiDeleteSuccess = false;
+    clearSearchResults();
     String nextTitle = getExternalParameterByKey("nextTopicTitle");
     if(StringUtils.isNotEmpty(nextTitle))
     {
@@ -4194,16 +4195,21 @@ public void processChangeSelectView(ValueChangeEvent eve)
         setSearchToDate(DateFormatterUtil.parseISODate(searchToISODate));
     }
 
+    // an incomplete search is reported, not run, as blank text would list every message
     if(searchOnDate && searchFromDate == null && searchToDate==null) {
        setErrorMessage(getResourceBundleString(MISSING_BEG_END_DATE));
+       return null;
     }
 
-    if(searchOnSubject && StringUtils.isEmpty(searchText)) {
+    // the date, label and tag options can search without any text
+    if (StringUtils.isBlank(searchText) && !searchOnDate && !searchOnLabel && !searchOnTags) {
        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TEXT));
+       return null;
     }
 
     if(searchOnTags && StringUtils.isEmpty(selectedTags)) {
        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TAGS));
+       return null;
     }
 
     if(searchToDate != null){
@@ -4236,22 +4242,17 @@ public void processChangeSelectView(ValueChangeEvent eve)
     }
   }
 
-  /**
-   * Clear Search text
-   */
-  public String processClearSearch()
-  {
-    searchText="";
-    if(searchPvtMsgs != null)
-    {
+  // a folder opens without the previous search, so its own messages are the ones listed and acted on,
+  // and no option hidden in the closed search options narrows a later search
+  private void clearSearchResults() {
+    if (searchPvtMsgs != null) {
       searchPvtMsgs.clear();
-      //searchPvtMsgs= decoratedPvtMsgs;   
     }
-    
-    searchOnBody=false ;
+    searchText = "";
+    searchOnBody=true;
     searchOnSubject=true;
     searchOnLabel= false ;
-    searchOnAuthor=false;
+    searchOnAuthor=true;
     searchOnDate=false;
     searchOnTags=false;
     searchFromDate=null;
@@ -4259,18 +4260,27 @@ public void processChangeSelectView(ValueChangeEvent eve)
     searchFromDateString=null;
     searchToDateString=null;
     selectedTags = "";
-    
+  }
+
+  /**
+   * Clear Search text
+   */
+  public String processClearSearch()
+  {
+    clearSearchResults();
     return DISPLAY_MESSAGES_PG;
   }
 
+  // text is searched in the subject, author and body by default, so a search finds at least
+  // what typing in the search box showed in the list
   @Getter @Setter
-  private boolean searchOnBody=false ;
+  private boolean searchOnBody=true;
   @Getter @Setter
-  private boolean searchOnSubject=true;  //default is search on Subject
+  private boolean searchOnSubject=true;
   @Getter @Setter
   private boolean searchOnLabel= false ;
   @Getter @Setter
-  private boolean searchOnAuthor=false;
+  private boolean searchOnAuthor=true;
   @Getter @Setter
   private boolean searchOnDate=false;
   @Getter @Setter
