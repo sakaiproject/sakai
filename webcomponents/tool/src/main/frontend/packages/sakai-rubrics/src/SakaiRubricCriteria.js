@@ -534,6 +534,11 @@ export class SakaiRubricCriteria extends RubricsElement {
         `)}
         </div>
       </sakai-reorderer>
+      ${!this.weighted ? html `
+        <div class="rubric-totals mb-3">
+          <span class="fw-bold">${this.tr("total_grade")}</span> ${this.maxPoints}
+        </div>
+      ` : nothing }
       ${!this.isLocked ? html`
         <div class="action-buttons">
           ${this.weighted ? html`
@@ -551,11 +556,7 @@ export class SakaiRubricCriteria extends RubricsElement {
               <span class="add fa fa-save" aria-hidden="true"></span>
               ${this._i18n.save_weights}
             </button>
-          ` : html`
-            <div class="rubric-totals mb-3">
-              <span class="fw-bold">${this.tr("total_grade")}</span> ${this.maxPoints}
-            </div>
-          ` }
+          ` : nothing }
           <button class="btn-link add-criterion" @click="${this.createCriterion}">
             <span class="add fa fa-plus" aria-hidden="true"></span>
             ${this._i18n.add_criterion}
