@@ -35,15 +35,13 @@
         <f:verbatim><span class="bi bi-sliders" aria-hidden="true"></span><span class="visually-hidden"></f:verbatim><h:outputText value="#{msgs.pvt_search_options}" /><f:verbatim></span></f:verbatim>
       <f:verbatim></button></f:verbatim>
     <f:verbatim></div></f:verbatim>
-    <h:commandButton id="search_button" value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" style="display:none" />
-    <h:commandButton id="clear_search_button" value="#{msgs.pvt_clear_search}" action="#{PrivateMessagesTool.processClearSearch}" style="display:none" />
   </h:panelGroup>
 
 	<h:panelGroup>
 		<f:verbatim><div id="adv_input" hidden></f:verbatim>
 			<h:panelGroup styleClass="itemNav specialLink">
-				<h:commandButton styleClass="button_search" value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" />
-				<h:commandButton styleClass="button_search" value="#{msgs.pvt_clear_search}" action="#{PrivateMessagesTool.processClearSearch}" />
+				<h:commandButton id="search_button" styleClass="button_search" value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" />
+				<h:commandButton id="clear_search_button" styleClass="button_search" value="#{msgs.pvt_clear_search}" action="#{PrivateMessagesTool.processClearSearch}" />
 			</h:panelGroup>
 			<%-- gsilver:jsf problem - all these h:selectBooleanCheckbox produce input[type="checkbox"] missing name and/or value attributes--%>
 			<%-- gsilver:jsf problem - and they also produce unary/shorthand  attributes - that do not validate (ie "checked" instead of "checked="checked"--%>
@@ -124,12 +122,6 @@
 
 		<f:verbatim></div></f:verbatim>
 	</h:panelGroup>
-	<script>
-	  {
-	    const searchField = document.getElementById("prefs_pvt_form:search_text");
-	    searchField && setupMessagesSearch(searchField);
-	  }
-	</script>
 
 	  <h:panelGroup> <%-- This is the show items --%>
 	  	<f:verbatim><div class="viewNav messages_viewnav"></f:verbatim>

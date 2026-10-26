@@ -1070,9 +1070,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   {
     log.debug("processDisplayForum()");
     multiDeleteSuccess = false;
-    if (searchPvtMsgs != null)
-    	searchPvtMsgs.clear();
-    searchText = "";
+    clearSearchResults();
     this.selectedTags = "";
     this.fromPreview = false;
     return DISPLAY_MESSAGES_PG;
@@ -1151,8 +1149,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     /** reset sort type */
     sortType = SORT_DATE_DESC;
-    // a folder opens without the previous search
-    searchText = "";
+    clearSearchResults();
     
     setSelectedTopicId(getExternalParameterByKey(EXTERNAL_TOPIC_ID));
    	selectedTopic = new PrivateTopicDecoratedBean(forumManager.getTopicByUuid(getExternalParameterByKey(EXTERNAL_TOPIC_ID)));
@@ -2347,7 +2344,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */
   public String processDisplayPreviousTopic() {
     multiDeleteSuccess = false;
-    searchText = "";
+    clearSearchResults();
     String prevTopicTitle = getExternalParameterByKey("previousTopicTitle");
     if(StringUtils.isNotEmpty(prevTopicTitle))
     {
@@ -2385,7 +2382,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processDisplayNextTopic()
   {
     multiDeleteSuccess = false;
-    searchText = "";
+    clearSearchResults();
     String nextTitle = getExternalParameterByKey("nextTopicTitle");
     if(StringUtils.isNotEmpty(nextTitle))
     {
@@ -4199,17 +4196,21 @@ public void processChangeSelectView(ValueChangeEvent eve)
         setSearchToDate(DateFormatterUtil.parseISODate(searchToISODate));
     }
 
+    // an incomplete search is reported, not run, as blank text would list every message
     if(searchOnDate && searchFromDate == null && searchToDate==null) {
        setErrorMessage(getResourceBundleString(MISSING_BEG_END_DATE));
+       return null;
     }
 
     // the date, label and tag options can search without any text
     if (StringUtils.isBlank(searchText) && !searchOnDate && !searchOnLabel && !searchOnTags) {
        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TEXT));
+       return null;
     }
 
     if(searchOnTags && StringUtils.isEmpty(selectedTags)) {
        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TAGS));
+       return null;
     }
 
     if(searchToDate != null){
@@ -4240,6 +4241,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
         setErrorMessage(getResourceBundleString(NO_MATCH_FOUND));
         return null;
     }
+  }
+
+  // a folder opens without the previous search, so its own messages are the ones listed and acted on
+  private void clearSearchResults() {
+    if (searchPvtMsgs != null) {
+      searchPvtMsgs.clear();
+    }
+    searchText = "";
   }
 
   /**

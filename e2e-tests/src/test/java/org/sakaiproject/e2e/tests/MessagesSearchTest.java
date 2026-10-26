@@ -22,6 +22,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
@@ -71,6 +72,13 @@ class MessagesSearchTest extends SakaiUiTestBase {
         submits(() -> search.fill(""));
         assertThat(ours).hasCount(2);
         assertThat(search).hasValue("");
+
+        // with the options open, Enter searches by an option alone; both drafts have the normal label
+        options.click();
+        page.locator("[id='prefs_pvt_form:label']").check();
+        submits(() -> search.press("Enter"));
+        assertThat(page).hasURL(Pattern.compile("/privateMsg/pvtMsgEx"));
+        assertThat(ours).hasCount(2);
     }
 
     private void saveDraft(String courseUrl, String subject, String body) {

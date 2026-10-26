@@ -117,15 +117,23 @@ $(document).ready(function(){
 
 });
 
-// Messages has one search box. Typing filters the listed messages, Enter searches the folder with the
-// options behind the options button, and emptying the box drops a search the page was loaded with.
-function setupMessagesSearch(field) {
+// Messages has one search box (see msgHeader.jsp). Typing filters the listed messages, Enter searches
+// the folder with the options behind the options button, and emptying the box drops a search the page
+// was loaded with. The options' own Search and Clear Search buttons do the submitting.
+document.addEventListener("DOMContentLoaded", () => {
+
+  const field = document.getElementById("prefs_pvt_form:search_text");
+  if (!field) {
+    return;
+  }
 
   // JSF here cannot render a search type
   field.type = "search";
   const applied = field.value;
   const searchButton = document.getElementById("prefs_pvt_form:search_button");
   const clearButton = document.getElementById("prefs_pvt_form:clear_search_button");
+  const toggle = document.getElementById("search-options-toggle");
+  const options = document.getElementById("adv_input");
 
   field.addEventListener("input", () => {
     if (applied && !field.value) {
@@ -140,15 +148,14 @@ function setupMessagesSearch(field) {
       return;
     }
     e.preventDefault();
-    if (field.value.trim()) {
+    // with the options open, a date, label or tag can search without any text
+    if (field.value.trim() || !options.hidden) {
       searchButton.click();
     } else if (applied) {
       clearButton.click();
     }
   });
 
-  const toggle = document.getElementById("search-options-toggle");
-  const options = document.getElementById("adv_input");
   toggle.addEventListener("click", () => {
     options.hidden = !options.hidden;
     toggle.setAttribute("aria-expanded", String(!options.hidden));
@@ -160,4 +167,4 @@ function setupMessagesSearch(field) {
     show("pvt_selected_label", chosen("label"));
     show("pvt_selected_tags", chosen("search_by_tags"));
   });
-}
+});
