@@ -5,7 +5,7 @@ import fetchMock from "fetch-mock";
 import { mockTranslations } from "../../../test/component-i18n.js";
 
 const itemUrl = "/api/sites/site/conditions?toolId=sakai.lessonbuildertool&itemId=target";
-const score = { id: "score", siteId: "site", itemId: "source", type: "SCORE", operator: "GREATER_THAN", argument: "10" };
+const score = { id: "score", siteId: "site", toolId: "sakai.lessonbuildertool", itemId: "source", type: "SCORE", operator: "GREATER_THAN", argument: "10" };
 
 async function ready(el) {
   await waitUntil(() => el.renderRoot.querySelector("select:not(:disabled)"));
@@ -108,15 +108,19 @@ describe("Lessons Lit condition controls", () => {
     }
   });
 
-  it("loads labels from the rendered JSON attribute and excludes items from other pages", async () => {
+  it("loads labels from the rendered JSON attribute and excludes conditions from other pages and tools", async () => {
     fetchMock.get(itemUrl, []);
-    fetchMock.get("/api/sites/site/conditions", [ score, { ...score, id: "elsewhere", itemId: "other-page" } ]);
+    fetchMock.get("/api/sites/site/conditions", [ score,
+      { ...score, id: "elsewhere", itemId: "other-page" },
+      { ...score, id: "other-tool", toolId: "sakai.assignment.grades" },
+    ]);
     const el = await fixture(html`<sakai-condition-picker site-id="site" tool-id="sakai.lessonbuildertool"
         item-id="target" lesson-items=${JSON.stringify([ { id: "source", name: 'A & B "quoted" <b>question</b>' } ])}></sakai-condition-picker>`);
     await ready(el);
     expect(el.renderRoot.querySelector("optgroup").label).to.equal('A & B "quoted" question');
     expect(el.renderRoot.querySelector('option[value="score"]')).to.exist;
     expect(el.renderRoot.querySelector('option[value="elsewhere"]')).not.to.exist;
+    expect(el.renderRoot.querySelector('option[value="other-tool"]')).not.to.exist;
     expect(fetchMock.callHistory.calls().some(call => call.url.includes("/direct/lessons/"))).to.be.false;
   });
 

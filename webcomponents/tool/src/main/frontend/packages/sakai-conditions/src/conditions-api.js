@@ -39,8 +39,8 @@ export async function getConditionsForSite(siteId) {
 
 }
 
-export async function getItemsWithConditions(siteId, lessonItems) {
-  if (!allParamsNonNull(siteId, lessonItems)) { return null; }
+export async function getItemsWithConditions(siteId, toolId, lessonItems) {
+  if (!allParamsNonNull(siteId, toolId, lessonItems)) { return null; }
 
   const conditions = await getConditionsForSite(siteId);
   if (conditions === null) { return null; }
@@ -49,7 +49,7 @@ export async function getItemsWithConditions(siteId, lessonItems) {
     id: item.id,
     name: item.name,
     conditions: conditions.filter(nonRootConditionFilter).filter(nonParentConditionFilter)
-      .filter(condition => String(condition.itemId) === String(item.id)),
+      .filter(condition => condition.toolId === toolId && String(condition.itemId) === String(item.id)),
   })).filter(item => item.conditions.length > 0);
 }
 

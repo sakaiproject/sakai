@@ -27,7 +27,7 @@ export class SakaiConditionPicker extends ConditionElement {
     this._toolItems = [];
     this._root = null;
     const [ items, root ] = await Promise.all([
-      getItemsWithConditions(this.siteId, this.lessonItems),
+      getItemsWithConditions(this.siteId, this.toolId, this.lessonItems),
       getRootCondition(this.siteId, this.toolId, this.itemId),
     ]);
     if (items === null) { throw new Error("Unable to retrieve lesson conditions"); }
