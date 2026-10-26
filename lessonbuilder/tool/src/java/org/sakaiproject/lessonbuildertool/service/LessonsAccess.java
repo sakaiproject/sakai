@@ -339,7 +339,11 @@ public class LessonsAccess {
 
     public List<SimplePageItem> getAccessibleItemsOnPage(String siteId, long pageId, String currentUserId, SimplePageBean simplePageBean) {
         List<SimplePageItem> items = dao.findItemsOnPage(pageId);
-        if (securityService.unlock(currentUserId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteService.siteReference(siteId))) {
+        if (securityService.unlock(currentUserId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteService.siteReference(siteId))
+                || (simplePageBean != null
+                    && simplePageBean.getCurrentPageId() == pageId
+                    && siteId.equals(simplePageBean.getCurrentSiteId())
+                    && simplePageBean.canEditPage())) {
             return items;
         }
         return items.stream()

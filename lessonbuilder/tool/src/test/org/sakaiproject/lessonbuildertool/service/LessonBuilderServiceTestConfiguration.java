@@ -30,6 +30,7 @@ import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.util.api.LocaleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,6 +134,22 @@ public class LessonBuilderServiceTestConfiguration extends SakaiTestConfiguratio
     @Bean(name = "org.sakaiproject.lessonbuildertool.service.ForumEntity")
     public LessonEntity forumEntity() {
         return mock(LessonEntity.class);
+    }
+
+    @Bean
+    public User lessonBuilderTestUser() {
+        return mock(User.class);
+    }
+
+    @Bean(name = "org.sakaiproject.lessonbuildertool.service.LessonsAccess")
+    public LessonsAccess lessonsAccess(SimplePageToolDao dao,
+            org.sakaiproject.authz.api.SecurityService securityService,
+            org.sakaiproject.site.api.SiteService siteService) {
+        LessonsAccess lessonsAccess = new LessonsAccess();
+        lessonsAccess.setDao(dao);
+        lessonsAccess.setSecurityService(securityService);
+        lessonsAccess.setSiteService(siteService);
+        return lessonsAccess;
     }
 
     @Bean(name = "org.sakaiproject.lessonbuildertool.service.PageIndexService")
