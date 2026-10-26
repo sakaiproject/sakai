@@ -32,7 +32,9 @@ import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.util.ResourceLoader;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -41,9 +43,12 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -53,6 +58,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class IcalendarReader extends Reader {
 	public static final long MINUTES_IN_DAY = TimeUnit.DAYS.toMinutes(1) - 5;
+
+	static final long FULL_DAY_MINUTES = TimeUnit.DAYS.toMinutes(1);
 
 	private static final ResourceLoader resourceLoader = new ResourceLoader("calendar");
 
@@ -86,8 +93,11 @@ public class IcalendarReader extends Reader {
 			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_OUTLOOK_COMPATIBILITY, true); 
 			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_VALIDATION, true); 
 
+			byte[] icsBytes = stream.readAllBytes();
+			List<Boolean> rawDateOnlyEvents = detectRawDateOnlyEvents(new String(icsBytes, StandardCharsets.UTF_8));
+
 			CalendarBuilder builder = new CalendarBuilder();
-			Calendar calendar = builder.build(stream);
+			Calendar calendar = builder.build(new ByteArrayInputStream(icsBytes));
 
 			ZoneId calendarZone = null;
 			try {
@@ -111,6 +121,7 @@ public class IcalendarReader extends Reader {
 			}
 
 			int lineNumber = 1;
+			int eventIndex = 0;
 			for (Component event : calendar.getComponents(Component.VEVENT)) {
 				Property summary = event.getProperty(Property.SUMMARY);
 				Property start = event.getProperty(Property.DTSTART);
@@ -120,15 +131,20 @@ public class IcalendarReader extends Reader {
 
 				if (summary == null) {
 					log.warn("Defer importing this calendar event as it has no SUMMARY, [{}]", event);
+					eventIndex++;
 					continue;
 				}
 
 				if ( start == null || end == null) {
 					log.warn("Defer importing this calendar event as it has no START or END, [{}]", event);
+					eventIndex++;
 					continue;
 				}
 
-				if (isAllDay(start, end)) {
+				boolean rawDateOnly = eventIndex < rawDateOnlyEvents.size() && rawDateOnlyEvents.get(eventIndex);
+				eventIndex++;
+
+				if (isAllDay(start, end) || rawDateOnly) {
 					// RFC 5545 DATE values: DTEND is exclusive
 					LocalDate startLocal = toLocalDate(start);
 					LocalDate exclusiveEnd = toLocalDate(end);
@@ -169,8 +185,10 @@ public class IcalendarReader extends Reader {
 	}
 
 	/**
-	 * True when DTSTART/DTEND are DATE values (RFC 5545 VALUE=DATE, or an ical4j
+	 * True when DTSTART/DTEND are DATE values after ical4j parsing (VALUE=DATE, or a
 	 * {@link net.fortuna.ical4j.model.Date} that is not a {@link DateTime}).
+	 * Untagged date-only forms normalized to DATE-TIME are handled via
+	 * {@link #detectRawDateOnlyEvents(String)} before parse.
 	 */
 	static boolean isAllDay(Property start, Property end) {
 		return isDateTyped(start) && isDateTyped(end);
@@ -191,6 +209,59 @@ public class IcalendarReader extends Reader {
 			return !(((DateProperty) property).getDate() instanceof DateTime);
 		}
 		return false;
+	}
+
+	static List<Boolean> detectRawDateOnlyEvents(String ics) {
+		if (ics == null || ics.isEmpty()) {
+			return Collections.emptyList();
+		}
+		String unfolded = ics.replaceAll("\\r?\\n[ \\t]", "");
+		List<Boolean> flags = new ArrayList<>();
+		boolean inEvent = false;
+		Boolean startDateOnly = null;
+		Boolean endDateOnly = null;
+
+		for (String line : unfolded.split("\\r?\\n")) {
+			String trimmed = line.trim();
+			if (trimmed.isEmpty()) {
+				continue;
+			}
+			String upper = trimmed.toUpperCase(Locale.ROOT);
+			if ("BEGIN:VEVENT".equals(upper)) {
+				inEvent = true;
+				startDateOnly = null;
+				endDateOnly = null;
+			} else if ("END:VEVENT".equals(upper)) {
+				if (inEvent) {
+					flags.add(Boolean.TRUE.equals(startDateOnly) && Boolean.TRUE.equals(endDateOnly));
+				}
+				inEvent = false;
+			} else if (inEvent) {
+				if (upper.startsWith("DTSTART")) {
+					startDateOnly = isRawDateOnlyPropertyLine(trimmed);
+				} else if (upper.startsWith("DTEND")) {
+					endDateOnly = isRawDateOnlyPropertyLine(trimmed);
+				}
+			}
+		}
+		return flags;
+	}
+
+	static boolean isRawDateOnlyPropertyLine(String line) {
+		int colon = line.lastIndexOf(':');
+		if (colon < 0 || colon == line.length() - 1) {
+			return false;
+		}
+		String value = line.substring(colon + 1).trim();
+		if (value.length() != 8) {
+			return false;
+		}
+		for (int i = 0; i < value.length(); i++) {
+			if (!Character.isDigit(value.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	static LocalDate toLocalDate(Property property) {
@@ -258,8 +329,7 @@ public class IcalendarReader extends Reader {
 		}
 
 		String[] columns;
-		// for any event spanning more than a single day we setup a daily frequency using until
-		if (durationMinutes > MINUTES_IN_DAY) {
+		if (durationMinutes > FULL_DAY_MINUTES) {
 			columns = new String[] {
 					summary,
 					description,

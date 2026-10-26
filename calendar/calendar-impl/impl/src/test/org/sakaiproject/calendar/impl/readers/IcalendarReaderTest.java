@@ -96,16 +96,21 @@ public class IcalendarReaderTest {
 	public void testImportDateOnlyWithoutValueDate() throws ImportException {
 		List<Map<String, Object>> rows = importRows("/allday_date_only_no_value.ics");
 
-		assertEquals("Date-only events without VALUE=DATE must be imported", 2, rows.size());
+		assertEquals("Date-only events without VALUE=DATE must be imported as all-day", 2, rows.size());
 
 		Map<String, Object> singleDay = findByTitle(rows, "Spring Holiday");
 		assertNotNull(singleDay);
 		assertEquals(LocalDate.of(2026, 5, 1), singleDay.get(GenericCalendarImporter.DATE_PROPERTY_NAME));
+		assertEquals(Integer.valueOf((int) IcalendarReader.MINUTES_IN_DAY),
+				singleDay.get(GenericCalendarImporter.DURATION_PROPERTY_NAME));
+		assertNull("Single-day date-only must not use daily recurrence",
+				singleDay.get(GenericCalendarImporter.FREQUENCY_PROPERTY_NAME));
 
 		Map<String, Object> period = findByTitle(rows, "Winter Break");
 		assertNotNull(period);
 		assertEquals(LocalDate.of(2026, 12, 23), period.get(GenericCalendarImporter.DATE_PROPERTY_NAME));
 		assertEquals(DailyRecurrenceRule.FREQ, period.get(GenericCalendarImporter.FREQUENCY_PROPERTY_NAME));
+		assertEquals(LocalDate.of(2027, 1, 5), period.get(GenericCalendarImporter.ENDS_PROPERTY_NAME));
 	}
 
 	@Test
@@ -144,6 +149,8 @@ public class IcalendarReaderTest {
 				+ "END:VEVENT\nEND:VCALENDAR\n";
 
 		assertFalse("Explicit midnight DATE-TIME must stay on the timed path", isAllDayFromIcs(ics));
+		assertFalse("Explicit DATE-TIME must not be flagged by raw date-only scan",
+				IcalendarReader.detectRawDateOnlyEvents(ics).get(0));
 
 		GenericImportRowHandler handler = new GenericImportRowHandler(reader.getDefaultColumnMap(), resourceLoader);
 		reader.importStreamFromDelimitedFile(
@@ -151,7 +158,13 @@ public class IcalendarReaderTest {
 		List<Map<String, Object>> rows = handler.getRowList();
 
 		assertEquals(1, rows.size());
-		assertEquals("Midnight Timed Range", rows.get(0).get("Summary"));
+		Map<String, Object> row = rows.get(0);
+		assertEquals("Midnight Timed Range", row.get("Summary"));
+		assertEquals("Exact 1440-minute timed range must keep its duration",
+				Integer.valueOf((int) IcalendarReader.FULL_DAY_MINUTES),
+				row.get(GenericCalendarImporter.DURATION_PROPERTY_NAME));
+		assertNull("Exact one-day timed range must not become daily recurrence",
+				row.get(GenericCalendarImporter.FREQUENCY_PROPERTY_NAME));
 	}
 
 	@Test
@@ -162,11 +175,11 @@ public class IcalendarReaderTest {
 						+ "SUMMARY:X\nEND:VEVENT\nEND:VCALENDAR\n";
 		String dateOnlyIcs =
 				"BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n"
-						+ "DTSTART:20251225\nDTEND:20251226\n"
+						+ "DTSTART:20260501\nDTEND:20260502\n"
 						+ "SUMMARY:Y\nEND:VEVENT\nEND:VCALENDAR\n";
 		String midnightDateTimeIcs =
 				"BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n"
-						+ "DTSTART:20251225T000000\nDTEND:20251226T000000\n"
+						+ "DTSTART:20260501T000000\nDTEND:20260502T000000\n"
 						+ "SUMMARY:M\nEND:VEVENT\nEND:VCALENDAR\n";
 		String timedIcs =
 				"BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n"
@@ -175,8 +188,12 @@ public class IcalendarReaderTest {
 
 		assertTrue(isAllDayFromIcs(valueDateIcs));
 		assertFalse(isAllDayFromIcs(dateOnlyIcs));
+		assertTrue(IcalendarReader.detectRawDateOnlyEvents(dateOnlyIcs).get(0));
 		assertFalse(isAllDayFromIcs(midnightDateTimeIcs));
+		assertFalse(IcalendarReader.detectRawDateOnlyEvents(midnightDateTimeIcs).get(0));
 		assertFalse(isAllDayFromIcs(timedIcs));
+		assertTrue(IcalendarReader.isRawDateOnlyPropertyLine("DTSTART:20260501"));
+		assertFalse(IcalendarReader.isRawDateOnlyPropertyLine("DTSTART:20260501T000000"));
 	}
 
 	private boolean isAllDayFromIcs(String ics) {
