@@ -103,30 +103,6 @@ table{
 	{
 		@include flex-grow(1);
 
-		.sakai-table-searchFilter-inputWrapper
-		{
-			&:has(.sakai-table-searchFilter-clearBtn) .sakai-table-searchFilter-searchField
-			{
-				padding-right: 1.5em;
-			}
-
-			.sakai-table-searchFilter-clearBtn
-			{
-				position: absolute;
-				right: 4px;
-				top: 50%;
-				transform: translateY(-50%);
-				cursor: pointer;
-				color: var(--sakai-text-color-2);
-				font-size: 0.85em;
-
-				&:hover
-				{
-					color: var(--sakai-text-color-1);
-				}
-			}
-		}
-
 		input[type=button], input[type=submit],
 		input[type=button]:disabled, input[type=submit]:disabled
 		{
