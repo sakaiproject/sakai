@@ -32,6 +32,8 @@
 						if (messagesTable) {
 							new DataTable(messagesTable, {
 								"paging": false,
+								// the search box above the table filters it, see setupMessagesSearch
+								"layout": {"topEnd": null},
 								"info": false,
 								"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
 							});
@@ -42,6 +44,8 @@
 						if (threadedMessagesTable) {
 							new DataTable(threadedMessagesTable, {
 								"paging": false,
+								// the search box above the table filters it, see setupMessagesSearch
+								"layout": {"topEnd": null},
 								"info": false,
 								"order": [[4, "desc"]] // Sort by date column (index 4) in descending order
 							});

@@ -115,21 +115,49 @@ $(document).ready(function(){
       $('#prefs_pvt_form\\:pvt_selected_tags').toggleClass('showed');
     });
 
-    $('#prefs_pvt_form\\:advanced_search_button').mousedown( function(){
-      var searchByDateCheckbox = $('#prefs_pvt_form\\:search_by_date');
-      if(searchByDateCheckbox.is(":checked") && !$('#prefs_pvt_form\\:pvt_beg_date').hasClass('showed')){
-          $('#prefs_pvt_form\\:pvt_beg_date, #prefs_pvt_form\\:pvt_end_date').toggleClass('showed');
-      }
-
-      var searchByLabelCheckbox = $('#prefs_pvt_form\\:label');
-      if(searchByLabelCheckbox.is(":checked") && !$('#prefs_pvt_form\\:pvt_selected_label').hasClass('showed')){
-          $('#prefs_pvt_form\\:pvt_selected_label').toggleClass('showed');
-      }
-
-      var searchByTagsCheckbox = $('#prefs_pvt_form\\:search_by_tags');
-      if(searchByTagsCheckbox.is(":checked") && !$('#prefs_pvt_form\\:pvt_selected_tags').hasClass('showed')){
-          $('#prefs_pvt_form\\:pvt_selected_tags').toggleClass('showed');
-      }
-    });
-
 });
+
+// Messages has one search box. Typing filters the listed messages, Enter searches the folder with the
+// options behind the options button, and emptying the box drops a search the page was loaded with.
+function setupMessagesSearch(field) {
+
+  // JSF here cannot render a search type
+  field.type = "search";
+  const applied = field.value;
+  const searchButton = document.getElementById("prefs_pvt_form:search_button");
+  const clearButton = document.getElementById("prefs_pvt_form:clear_search_button");
+
+  field.addEventListener("input", () => {
+    if (applied && !field.value) {
+      clearButton.click();
+      return;
+    }
+    DataTable.tables({ api: true }).search(field.value).draw();
+  });
+
+  field.addEventListener("keydown", e => {
+    if (e.key !== "Enter" || e.isComposing) {
+      return;
+    }
+    e.preventDefault();
+    if (field.value.trim()) {
+      searchButton.click();
+    } else if (applied) {
+      clearButton.click();
+    }
+  });
+
+  const toggle = document.getElementById("search-options-toggle");
+  const options = document.getElementById("adv_input");
+  toggle.addEventListener("click", () => {
+    options.hidden = !options.hidden;
+    toggle.setAttribute("aria-expanded", String(!options.hidden));
+    // show the fields of the options already chosen
+    const chosen = id => document.getElementById(`prefs_pvt_form:${id}`)?.checked;
+    const show = (id, visible) => document.getElementById(`prefs_pvt_form:${id}`)?.classList.toggle("showed", visible);
+    show("pvt_beg_date", chosen("search_by_date"));
+    show("pvt_end_date", chosen("search_by_date"));
+    show("pvt_selected_label", chosen("label"));
+    show("pvt_selected_tags", chosen("search_by_tags"));
+  });
+}

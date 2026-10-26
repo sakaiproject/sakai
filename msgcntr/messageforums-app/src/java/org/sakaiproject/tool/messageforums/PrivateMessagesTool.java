@@ -1072,6 +1072,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     multiDeleteSuccess = false;
     if (searchPvtMsgs != null)
     	searchPvtMsgs.clear();
+    searchText = "";
     this.selectedTags = "";
     this.fromPreview = false;
     return DISPLAY_MESSAGES_PG;
@@ -1150,6 +1151,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     /** reset sort type */
     sortType = SORT_DATE_DESC;
+    // a folder opens without the previous search
+    searchText = "";
     
     setSelectedTopicId(getExternalParameterByKey(EXTERNAL_TOPIC_ID));
    	selectedTopic = new PrivateTopicDecoratedBean(forumManager.getTopicByUuid(getExternalParameterByKey(EXTERNAL_TOPIC_ID)));
@@ -2344,6 +2347,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */
   public String processDisplayPreviousTopic() {
     multiDeleteSuccess = false;
+    searchText = "";
     String prevTopicTitle = getExternalParameterByKey("previousTopicTitle");
     if(StringUtils.isNotEmpty(prevTopicTitle))
     {
@@ -2381,6 +2385,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processDisplayNextTopic()
   {
     multiDeleteSuccess = false;
+    searchText = "";
     String nextTitle = getExternalParameterByKey("nextTopicTitle");
     if(StringUtils.isNotEmpty(nextTitle))
     {
@@ -4198,7 +4203,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
        setErrorMessage(getResourceBundleString(MISSING_BEG_END_DATE));
     }
 
-    if(searchOnSubject && StringUtils.isEmpty(searchText)) {
+    // the date, label and tag options can search without any text
+    if (StringUtils.isBlank(searchText) && !searchOnDate && !searchOnLabel && !searchOnTags) {
        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TEXT));
     }
 
@@ -4248,10 +4254,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
       //searchPvtMsgs= decoratedPvtMsgs;   
     }
     
-    searchOnBody=false ;
+    searchOnBody=true;
     searchOnSubject=true;
     searchOnLabel= false ;
-    searchOnAuthor=false;
+    searchOnAuthor=true;
     searchOnDate=false;
     searchOnTags=false;
     searchFromDate=null;
@@ -4263,14 +4269,16 @@ public void processChangeSelectView(ValueChangeEvent eve)
     return DISPLAY_MESSAGES_PG;
   }
 
+  // text is searched in the subject, author and body by default, so a search finds at least
+  // what typing in the search box showed in the list
   @Getter @Setter
-  private boolean searchOnBody=false ;
+  private boolean searchOnBody=true;
   @Getter @Setter
-  private boolean searchOnSubject=true;  //default is search on Subject
+  private boolean searchOnSubject=true;
   @Getter @Setter
   private boolean searchOnLabel= false ;
   @Getter @Setter
-  private boolean searchOnAuthor=false;
+  private boolean searchOnAuthor=true;
   @Getter @Setter
   private boolean searchOnDate=false;
   @Getter @Setter

@@ -15,8 +15,9 @@
  	}
 
  	.searchNav{
- 		.button_search{
- 			margin: 0 0 0 $standard-space;
+ 		margin-bottom: 1em;
+ 		.input-group{
+ 			max-width: 30em;
  		}
  	}
 

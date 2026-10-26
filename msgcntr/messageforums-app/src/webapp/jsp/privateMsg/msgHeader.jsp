@@ -25,32 +25,25 @@
     });
   </script>
 
-  <h:panelGroup>
-  <f:verbatim><div class="searchNav specialLink space_mobile"></f:verbatim>
+  <%-- One search box: typing filters the listed messages, Enter searches the folder with the
+       options below, and emptying the box drops the search. See setupMessagesSearch in messages.js --%>
+  <h:panelGroup layout="block" styleClass="searchNav sakai-table-searchFilter">
     <h:outputLabel for="search_text"><h:outputText value="#{msgs.pvt_search_text}" /></h:outputLabel>
-    <h:outputText value=" " />
-	  <h:inputText value="#{PrivateMessagesTool.searchText}" id="search_text" />
-		<h:commandButton styleClass="button_search" value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" onkeypress="document.forms[0].submit;"/>
-		
-		<f:verbatim><span id='adv_button'></f:verbatim>
-		  <h:commandButton id="advanced_search_button" styleClass="button_search" value="#{msgs.pvt_advsearch}" onmousedown="javascript:toggleDisplay('adv_input','adv_button');setMainFrameHeight('#{PrivateMessagesTool.placementId}');" title="#{msgs.pvt_advsearch}"/>
-		<f:verbatim></span></f:verbatim>
-		<f:verbatim></div></f:verbatim>
+    <f:verbatim><div class="input-group"></f:verbatim>
+      <h:inputText value="#{PrivateMessagesTool.searchText}" id="search_text" styleClass="form-control" />
+      <f:verbatim><button type="button" id="search-options-toggle" class="btn btn-outline-secondary" aria-controls="adv_input" aria-expanded="false"></f:verbatim>
+        <f:verbatim><span class="bi bi-sliders" aria-hidden="true"></span><span class="visually-hidden"></f:verbatim><h:outputText value="#{msgs.pvt_search_options}" /><f:verbatim></span></f:verbatim>
+      <f:verbatim></button></f:verbatim>
+    <f:verbatim></div></f:verbatim>
+    <h:commandButton id="search_button" value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" style="display:none" />
+    <h:commandButton id="clear_search_button" value="#{msgs.pvt_clear_search}" action="#{PrivateMessagesTool.processClearSearch}" style="display:none" />
   </h:panelGroup>
-  		
-	<h:outputText value="  " />
+
 	<h:panelGroup>
-		<f:verbatim><div id='adv_input' style="display: none;" ></f:verbatim>
-		
-		  <h:outputText value=" " />
-			<h:outputText value=" " />
-			<h:outputText value=" " />
-			<h:outputText value=" " />
+		<f:verbatim><div id="adv_input" hidden></f:verbatim>
 			<h:panelGroup styleClass="itemNav specialLink">
-	      	<h:commandButton styleClass="button_search" value="#{msgs.pvt_clear_search}" action="#{PrivateMessagesTool.processClearSearch}" onkeypress="document.forms[0].submit;"
-	                     title="#{msgs.pvt_clear_search}"/>
-				<h:commandButton  styleClass="button_search" value="#{msgs.pvt_normal_search}" onmousedown="javascript:toggleDisplay('adv_button','adv_input');" 
-				               title="#{msgs.pvt_normal_search}" />
+				<h:commandButton styleClass="button_search" value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" />
+				<h:commandButton styleClass="button_search" value="#{msgs.pvt_clear_search}" action="#{PrivateMessagesTool.processClearSearch}" />
 			</h:panelGroup>
 			<%-- gsilver:jsf problem - all these h:selectBooleanCheckbox produce input[type="checkbox"] missing name and/or value attributes--%>
 			<%-- gsilver:jsf problem - and they also produce unary/shorthand  attributes - that do not validate (ie "checked" instead of "checked="checked"--%>
@@ -129,8 +122,14 @@
 			  </div>
 			</h:panelGroup>
 
-		<f:verbatim></div></f:verbatim><h:outputText value=" " />
+		<f:verbatim></div></f:verbatim>
 	</h:panelGroup>
+	<script>
+	  {
+	    const searchField = document.getElementById("prefs_pvt_form:search_text");
+	    searchField && setupMessagesSearch(searchField);
+	  }
+	</script>
 
 	  <h:panelGroup> <%-- This is the show items --%>
 	  	<f:verbatim><div class="viewNav messages_viewnav"></f:verbatim>
