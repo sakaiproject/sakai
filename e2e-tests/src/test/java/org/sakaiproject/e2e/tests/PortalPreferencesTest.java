@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.APIResponse;
+import com.microsoft.playwright.Clock;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Request;
@@ -48,10 +49,11 @@ class PortalPreferencesTest extends SakaiUiTestBase {
     @EnumSource(value = ColorScheme.class, names = {"DARK", "LIGHT"})
     void navigationReadsPreferencesAndExplicitChoicesSurviveReload(ColorScheme osTheme) {
         page.emulateMedia(new Page.EmulateMediaOptions().setColorScheme(osTheme));
-        String username = sakai.resolveUsername("instructor1");
+        // Reserve a separate account for account-wide navigation and theme changes.
+        String username = sakai.resolveUsername("student0152");
         sakai.login(username);
-        String firstSite = sakai.createCourse(username, List.of("sakai.announcements"));
-        String secondSite = sakai.createProject(username, List.of("sakai.announcements"));
+        String firstSite = sakai.createProject(username, List.of("sakai.announcements"));
+        String secondSite = sakai.createProject(username, List.of("sakai.announcements", "sakai.schedule"));
         page.navigate(firstSite);
         String siteId = firstSite.substring(firstSite.lastIndexOf('/') + 1);
         String userId = (String) page.evaluate("portal.user.id");
@@ -144,8 +146,8 @@ class PortalPreferencesTest extends SakaiUiTestBase {
                     saves.add(request);
                 }
             });
-            page.clock().install();
-            page.clock().pauseAt(System.currentTimeMillis());
+            page.clock().install(new Clock.InstallOptions().setTime("2026-01-01T00:00:00Z"));
+            page.clock().pauseAt("2026-01-01T00:01:00Z");
             individualPin.click();
             assertTrue(saves.isEmpty());
             if (reorder) {

@@ -245,7 +245,10 @@ class GradebookTest extends SakaiUiTestBase {
         assertThat(summary).isVisible();
         Locator rubricLink = summary.locator("tr").filter(new Locator.FilterOptions().setHasText(itemTitle))
             .locator("sakai-rubric-student-button a");
-        rubricLink.click();
+        // Establish the opener's focus before checking that closing the preview restores it.
+        rubricLink.focus();
+        assertThat(rubricLink).isFocused();
+        rubricLink.press("Enter");
         Locator preview = page.locator("#rubric-preview");
         assertThat(preview).isVisible();
         assertThat(preview.locator("sakai-rubric-student h3")).hasText(rubricTitle);

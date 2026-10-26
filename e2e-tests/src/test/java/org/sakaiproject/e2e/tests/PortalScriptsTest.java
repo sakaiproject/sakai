@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.Clock;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.Route;
@@ -158,8 +159,8 @@ class PortalScriptsTest {
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(
                 Path.of("../library/src/webapp/js/portal/portal.all.sites.js")));
             page.evaluate("allsites.setup()");
-            page.clock().install();
-            page.clock().pauseAt(System.currentTimeMillis());
+            page.clock().install(new Clock.InstallOptions().setTime("2026-01-01T00:00:00Z"));
+            page.clock().pauseAt("2026-01-01T00:01:00Z");
 
             page.locator("#pin-a").click();
             assertTrue(saves.isEmpty());
