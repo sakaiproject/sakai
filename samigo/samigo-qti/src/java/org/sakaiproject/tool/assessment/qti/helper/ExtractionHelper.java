@@ -1953,7 +1953,15 @@ public class ExtractionHelper
     else {
     	item.setPartialCreditFlag((Boolean.FALSE));
     }
-    
+
+    item.setIsExtraCredit(Boolean.parseBoolean(item.getItemMetaDataByLabel("EXTRA_CREDIT")));
+
+    String minScore = item.getItemMetaDataByLabel("MIN_SCORE");
+    if (notNullOrEmpty(minScore))
+    {
+      item.setMinScore(getValidDouble(minScore));
+    }
+
     item.setHint( (String) itemMap.get("hint"));
     if (notNullOrEmpty(hasRationale))
     {
@@ -2169,7 +2177,7 @@ public class ExtractionHelper
 						  long index = answer.getSequence().longValue(); 
 						  index = index - 1L;
 						  int indexInteger = Long.valueOf(index).intValue();
-						  String strPCredit = answerScoreList.contains(indexInteger) ? answerScoreList.get(indexInteger) : "0";
+						  String strPCredit = indexInteger < answerScoreList.size() ? answerScoreList.get(indexInteger) : "0";
 						  double fltPCredit = Double.parseDouble(strPCredit);
 						  Double pCredit = (fltPCredit/(item.getScore().doubleValue()))*100;
 						  if (pCredit.isNaN()){

@@ -212,12 +212,17 @@ public class Item extends ASIBaseClass
     }else{
     	setFieldentry("PARTIAL_CREDIT", "FALSE");
     }
+    setOrCreateFieldentry("EXTRA_CREDIT", Boolean.TRUE.equals(item.getIsExtraCredit()) ? "TRUE" : "FALSE");
     //  rshastri: SAK-1824
     // item data
     if (!this.isSurvey() && !this.isMXSURVEY()) //surveys are unscored
     {
       helper.addMaxScore(item.getScore(), this);
       helper.addMinScore(item.getDiscount(), this);
+      if (item.getMinScore() != null)
+      {
+        setOrCreateFieldentry("MIN_SCORE", item.getMinScore().toString());
+      }
     }
 
     if(item !=null &&(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK))) {
@@ -231,7 +236,7 @@ public class Item extends ASIBaseClass
     
     if(item !=null && (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) || item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION))) {
     	setFieldentry("RANDOMIZE", item.getItemMetaDataByLabel(ItemMetaDataIfc.RANDOMIZE ));
-    	setFieldentry("MCMS_PARTIAL_CREDIT", item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT ));
+    	setOrCreateFieldentry("MCMS_PARTIAL_CREDIT", item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT ));
     }
     
     if (this.isMXSURVEY()) {
@@ -352,6 +357,23 @@ public class Item extends ASIBaseClass
 
     String xpath = helper.getMetaLabelXPath(fieldlabel);
     super.setFieldentry(xpath, setValue);
+  }
+
+  /**
+   * Set a metadata field entry, creating the field first when the item
+   * template does not carry it. Sakai-specific settings that are not in the
+   * templates must use this, otherwise setFieldentry silently drops them.
+   *
+   * @param fieldlabel the field label
+   * @param setValue the value
+   */
+  public void setOrCreateFieldentry(String fieldlabel, String setValue)
+  {
+    if (this.selectNodes(helper.getMetaLabelXPath(fieldlabel)).isEmpty())
+    {
+      createFieldentry(fieldlabel);
+    }
+    setFieldentry(fieldlabel, setValue);
   }
 
   /**
