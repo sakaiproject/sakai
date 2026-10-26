@@ -49,13 +49,18 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import jakarta.servlet.ServletContext;
+import org.springframework.web.context.ServletContextAware;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 // This class is used to check whether a page or item should be
 // accessible for the user. It checks all conditions. SimplePageBean
 // has individual checks for them, but this puts them all together,
 // for use in services where individual checks aren't needed.
 // In general this will be used by services such as /access or /direct
 @Slf4j
-public class LessonsAccess {
+public class LessonsAccess implements ServletContextAware {
+    @Setter private ServletContext servletContext;
     // Sakai Service Beans
     @Setter private SimplePageToolDao dao;
     @Setter private MessageLocator messageLocator;
@@ -339,7 +344,10 @@ public class LessonsAccess {
 
     public SimplePageBean makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage) {
 	if (simplePageBean == null) {
-	    simplePageBean = new SimplePageBean(true);
+	    simplePageBean = new SimplePageBean();
+	    // Use the Lessons context even when called through /direct.
+	    SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(simplePageBean, servletContext);
+	    simplePageBean.init();
 	    simplePageBean.setCurrentSiteId(siteId);
 	    simplePageBean.setCurrentPage(currentPage);
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());

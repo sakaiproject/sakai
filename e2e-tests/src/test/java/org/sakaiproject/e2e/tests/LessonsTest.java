@@ -16,9 +16,11 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -202,6 +204,36 @@ class LessonsTest extends SakaiUiTestBase {
         } finally {
             imageServer.stop(0);
         }
+    }
+
+    @Test
+    @Order(8)
+    void editingTextLoadsLessonConditionsAndSavesChanges() {
+        if (sakaiUrl == null) {
+            canCreateNewCourse();
+        }
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Lessons");
+
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click();
+        page.locator(".add-text-link:visible").click();
+        sakai.typeCkEditor(sakai.findFirstCkEditorId(), "Original lesson text");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save").setExact(true)).click();
+
+        Locator textItem = page.locator(".right-col").filter(new Locator.FilterOptions()
+            .setHas(page.locator(".textbox").filter(new Locator.FilterOptions().setHasText("Original lesson text"))));
+        textItem.hover();
+        Response lessonResponse = page.waitForResponse(
+            response -> response.url().matches(".*/direct/lessons/lesson/[0-9]+\\.json"),
+            () -> textItem.locator(".itemLink").click());
+        assertEquals(200, lessonResponse.status(), lessonResponse.text());
+        assertThat(page.locator("#edit-condition-picker")).isVisible();
+        sakai.typeCkEditor(sakai.findFirstCkEditorId(), "Updated lesson text");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save").setExact(true)).click();
+        page.reload();
+        assertThat(page.locator(".textbox").filter(new Locator.FilterOptions()
+            .setHasText("Updated lesson text"))).isVisible();
     }
 
     private void restoreTopLevelPageAfterRemoval(String title, java.util.function.Consumer<String> removePage) {
