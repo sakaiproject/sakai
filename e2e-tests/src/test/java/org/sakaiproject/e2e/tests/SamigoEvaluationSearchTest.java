@@ -57,21 +57,28 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
 
     private void assertSearchClears(String table) {
         Locator search = page.locator("[id='editTotalResults:searchString']");
-        Locator students = page.locator(table + " tbody tr")
+        Locator students = page.locator(table + " > tbody > tr")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("student0011", Pattern.CASE_INSENSITIVE)));
         assertThat(search).hasAttribute("type", "search");
         assertThat(search).hasValue("");
         assertThat(students).hasCount(1);
 
-        search.fill("nobody matches this");
-        search.press("Enter");
-        assertThat(search).hasValue("nobody matches this");
+        submits(() -> {
+            search.fill("nobody matches this");
+            search.press("Enter");
+        });
         assertThat(students).hasCount(0);
+        assertThat(search).hasValue("nobody matches this");
 
         // deleting the text, as the native clear button does, drops the search
-        search.fill("");
+        submits(() -> search.fill(""));
         assertThat(students).hasCount(1);
         assertThat(search).hasValue("");
+    }
+
+    /** Runs an action that posts the evaluation form and waits for the page it answers with. */
+    private void submits(Runnable action) {
+        page.waitForResponse(r -> "POST".equals(r.request().method()) && r.url().contains("/jsf/evaluation/"), action);
     }
 
     private void createQuiz(String title) {

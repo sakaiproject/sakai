@@ -26,7 +26,7 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class SectionsRosterSearchTest extends SakaiUiTestBase {
 
     @Test
-    void clearingTheSearchRestoresStudentsWithinTheSelectedFilter() {
+    void clearingTheSearchRestoresStudentsWithinTheSelectedSection() {
         sakai.login("instructor1");
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.sections"));
         sakai.gotoPath(siteUrl);
@@ -34,26 +34,34 @@ class SectionsRosterSearchTest extends SakaiUiTestBase {
         page.locator("a").filter(new Locator.FilterOptions()
             .setHasText(Pattern.compile("Student Memberships", Pattern.CASE_INSENSITIVE))).first().click();
 
-        Locator filter = page.locator("#rosterForm select").first();
+        Locator filter = page.locator("[id='rosterForm:selectSectionFilter']");
         Locator search = page.locator("[id='rosterForm:search']");
-        Locator students = page.locator("[id='rosterForm:sectionsTable'] tbody tr");
+        Locator students = page.locator("[id='rosterForm:sectionsTable'] > tbody > tr");
 
-        // the filter submits the page when changed
-        filter.selectOption("NoSections");
-        assertThat(filter).hasValue("NoSections");
+        // the course's own roster section, which the filter submits the page to show
+        String section = filter.locator("option").nth(1).getAttribute("value");
+        submits(() -> filter.selectOption(section));
+        assertThat(filter).hasValue(section);
         assertThat(search).hasAttribute("type", "search");
         assertThat(students.nth(1)).isVisible();
         int listed = students.count();
 
-        search.fill("student0011");
-        search.press("Enter");
+        submits(() -> {
+            search.fill("student0011");
+            search.press("Enter");
+        });
         assertThat(students).hasCount(1);
         assertThat(search).hasValue("student0011");
 
-        // deleting the text, as the native clear button does, drops the search and keeps the filter
-        search.fill("");
+        // deleting the text, as the native clear button does, drops the search and keeps the section
+        submits(() -> search.fill(""));
         assertThat(students).hasCount(listed);
         assertThat(search).hasValue("");
-        assertThat(filter).hasValue("NoSections");
+        assertThat(filter).hasValue(section);
+    }
+
+    /** Runs an action that posts the roster form and waits for the page it answers with. */
+    private void submits(Runnable action) {
+        page.waitForResponse(r -> "POST".equals(r.request().method()) && r.url().contains("/roster"), action);
     }
 }
