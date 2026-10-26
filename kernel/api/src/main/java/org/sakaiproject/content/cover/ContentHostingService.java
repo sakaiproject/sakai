@@ -72,7 +72,6 @@ public class ContentHostingService
 
 	private static org.sakaiproject.content.api.ContentHostingService m_instance = null;
 
-	public static final String CONDITIONAL_ACCESS_LIST = org.sakaiproject.content.api.ContentHostingService.CONDITIONAL_ACCESS_LIST;
 
 
 	public static java.lang.String APPLICATION_ID = org.sakaiproject.content.api.ContentHostingService.APPLICATION_ID;

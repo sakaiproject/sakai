@@ -104,7 +104,6 @@ public interface ContentHostingService extends EntityProducer
 	static final String APPLICATION_ID = "sakai:content";
 
 	
-	public static final String CONDITIONAL_ACCESS_LIST = "conditional_access_list";
 
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "content";
@@ -131,8 +130,7 @@ public interface ContentHostingService extends EntityProducer
 
 	/** 
 	 * Name of the event when the availability of a content-entity changes - includes 
-	 * transitions between hidden and shown, changes in release/retraction dates,
-	 * and changes in ConditionalRelease status. 
+	 * transitions between hidden and shown and changes in release/retraction dates.
 	 */
 	public static final String EVENT_RESOURCE_UPD_VISIBILITY = "content.upd.visibility";
 

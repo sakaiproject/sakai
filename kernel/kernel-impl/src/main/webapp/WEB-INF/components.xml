@@ -20,7 +20,6 @@
      <import resource="cluster-components.xml" />
      <import resource="antivirus-components.xml"/>
      <import resource="content-components.xml" />
-	 <import resource="conditions-components.xml" />
      <import resource="entity-components.xml" />
      <import resource="user-components.xml" />
      <import resource="event-components.xml" />

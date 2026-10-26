@@ -14,7 +14,6 @@ Contains the implementations to the kernel's API and their associated spring wir
 * Authz [implementation](kernel-impl/src/main/java/org/sakaiproject/authz/impl) | [components.xml](kernel-impl/src/main/webapp/WEB-INF/authz-components.xml)
 * Cluster [implementation](kernel-impl/src/main/java/org/sakaiproject/cluster/impl) | [components.xml](kernel-impl/src/main/webapp/WEB-INF/cluster-components.xml)
 * Component [implementation](kernel-impl/src/main/java/org/sakaiproject/component/impl) | [components.xml](kernel-impl/src/main/webapp/WEB-INF/component-components.xml)
-* Conditions [implementation](kernel-impl/src/main/java/org/sakaiproject/conditions/impl) | [components.xml](kernel-impl/src/main/webapp/WEB-INF/conditions-components.xml)
 * ConfigStore [implementation](kernel-impl/src/main/java/org/sakaiproject/config/impl) | [components.xml](kernel-impl/src/main/webapp/WEB-INF/configstore-components.xml)
 * Content [implementation](kernel-impl/src/main/java/org/sakaiproject/content/impl) | [components.xml](kernel-impl/src/main/webapp/WEB-INF/content-components.xml)
 * DB [implementation](kernel-impl/src/main/java/org/sakaiproject/db/impl) | [components.xml](kernel-impl/src/main/webapp/WEB-INF/db-components.xml)
