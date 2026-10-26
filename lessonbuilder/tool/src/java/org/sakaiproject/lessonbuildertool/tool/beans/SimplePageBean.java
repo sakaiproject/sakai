@@ -491,7 +491,7 @@ public class SimplePageBean {
     @Autowired @Setter private TaskService taskService;
     @Autowired @Setter private ToolManager toolManager;
     @Autowired @Setter private UserDirectoryService userDirectoryService;
-    @Autowired @Qualifier("org.sakaiproject.time.api.UserTimeService") @Setter private UserTimeService userTimeService;
+    @Autowired @Setter private UserTimeService userTimeService;
 
 	// Caches
 

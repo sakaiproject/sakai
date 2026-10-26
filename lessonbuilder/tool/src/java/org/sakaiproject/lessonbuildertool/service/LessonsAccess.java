@@ -33,9 +33,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -49,9 +51,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import jakarta.servlet.ServletContext;
-import org.springframework.web.context.ServletContextAware;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.springframework.cache.CacheManager;
 
 // This class is used to check whether a page or item should be
 // accessible for the user. It checks all conditions. SimplePageBean
@@ -59,10 +59,10 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 // for use in services where individual checks aren't needed.
 // In general this will be used by services such as /access or /direct
 @Slf4j
-public class LessonsAccess implements ServletContextAware {
-    @Setter private ServletContext servletContext;
+public class LessonsAccess {
     // Sakai Service Beans
     @Setter private SimplePageToolDao dao;
+    @Setter private AssignmentService assignmentService;
     @Setter private MessageLocator messageLocator;
     @Setter private AuthzGroupService authzGroupService;
     @Setter private SecurityService securityService;
@@ -74,11 +74,14 @@ public class LessonsAccess implements ServletContextAware {
     @Setter private ConditionService conditionService;
     @Setter private ContentHostingService contentHostingService;
     @Setter private GradebookIfc gradebookIfc;
+    @Setter private CacheManager cacheManager;
+    @Setter private ServerConfigurationService serverConfigurationService;
 
     @Setter private LessonEntity forumEntity;
     @Setter private LessonEntity quizEntity;
     @Setter private LessonEntity assignmentEntity;
     @Setter private LessonEntity bltiEntity;
+    @Setter private LessonEntity scormEntity;
 
     public void init() {
         log.info("init()");
@@ -345,12 +348,30 @@ public class LessonsAccess implements ServletContextAware {
     public SimplePageBean makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage) {
 	if (simplePageBean == null) {
 	    simplePageBean = new SimplePageBean();
-	    // Use the Lessons context even when called through /direct.
-	    SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(simplePageBean, servletContext);
-	    simplePageBean.init();
+	    simplePageBean.setAssignmentService(assignmentService);
+	    simplePageBean.setAuthzGroupService(authzGroupService);
+	    simplePageBean.setMessageLocator(messageLocator);
+	    simplePageBean.setToolManager(toolManager);
+	    simplePageBean.setSecurityService(securityService);
+	    simplePageBean.setSessionManager(sessionManager);
+	    simplePageBean.setSiteService(siteService);
+	    simplePageBean.setContentHostingService(contentHostingService);
+	    simplePageBean.setSimplePageToolDao(dao);
+	    simplePageBean.setForumEntity(forumEntity);
+	    simplePageBean.setQuizEntity(quizEntity);
+	    simplePageBean.setAssignmentEntity(assignmentEntity);
+	    simplePageBean.setBltiEntity(bltiEntity);
+	    simplePageBean.setScormEntity(scormEntity);
+	    simplePageBean.setGradebookIfc(gradebookIfc);
 	    simplePageBean.setCurrentSiteId(siteId);
 	    simplePageBean.setCurrentPage(currentPage);
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());
+	    simplePageBean.setUserTimeService(userTimeService);
+	    simplePageBean.setUserDirectoryService(userDirectoryService);
+	    simplePageBean.setConditionService(conditionService);
+	    simplePageBean.setCacheManager(cacheManager);
+	    simplePageBean.setServerConfigurationService(serverConfigurationService);
+	    simplePageBean.init();
 	}
 
 	return simplePageBean;
