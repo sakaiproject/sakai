@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -111,6 +112,43 @@ public class IcalendarReaderTest {
 		assertEquals(LocalDate.of(2026, 12, 23), period.get(GenericCalendarImporter.DATE_PROPERTY_NAME));
 		assertEquals(DailyRecurrenceRule.FREQ, period.get(GenericCalendarImporter.FREQUENCY_PROPERTY_NAME));
 		assertEquals(LocalDate.of(2027, 1, 5), period.get(GenericCalendarImporter.ENDS_PROPERTY_NAME));
+	}
+
+	@Test
+	public void testImportDateOnlyWithRruleExpandsOccurrences() throws ImportException {
+		LocalDate start = LocalDate.now(ZoneId.of("Europe/Madrid")).plusDays(10);
+		while (start.getDayOfWeek().getValue() != 1) {
+			start = start.plusDays(1);
+		}
+		LocalDate end = start.plusDays(1);
+		String startDate = start.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE);
+		String endDate = end.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE);
+		String ics = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n"
+				+ "UID:date-only-rrule@example.com\n"
+				+ "DTSTART:" + startDate + "\n"
+				+ "DTEND:" + endDate + "\n"
+				+ "RRULE:FREQ=WEEKLY;COUNT=3\n"
+				+ "SUMMARY:Weekly Date Only\n"
+				+ "END:VEVENT\nEND:VCALENDAR\n";
+
+		GenericImportRowHandler handler = new GenericImportRowHandler(reader.getDefaultColumnMap(), resourceLoader);
+		reader.importStreamFromDelimitedFile(
+				new ByteArrayInputStream(ics.getBytes(StandardCharsets.UTF_8)), handler);
+		List<Map<String, Object>> rows = handler.getRowList();
+
+		assertEquals(3, rows.size());
+		LocalDate first = (LocalDate) rows.get(0).get(GenericCalendarImporter.DATE_PROPERTY_NAME);
+		LocalDate second = (LocalDate) rows.get(1).get(GenericCalendarImporter.DATE_PROPERTY_NAME);
+		LocalDate third = (LocalDate) rows.get(2).get(GenericCalendarImporter.DATE_PROPERTY_NAME);
+		assertNotNull(first);
+		assertEquals(7, ChronoUnit.DAYS.between(first, second));
+		assertEquals(7, ChronoUnit.DAYS.between(second, third));
+		for (Map<String, Object> row : rows) {
+			assertEquals("Weekly Date Only", row.get("Summary"));
+			assertEquals(Integer.valueOf((int) IcalendarReader.MINUTES_IN_DAY),
+					row.get(GenericCalendarImporter.DURATION_PROPERTY_NAME));
+			assertNull(row.get(GenericCalendarImporter.FREQUENCY_PROPERTY_NAME));
+		}
 	}
 
 	@Test

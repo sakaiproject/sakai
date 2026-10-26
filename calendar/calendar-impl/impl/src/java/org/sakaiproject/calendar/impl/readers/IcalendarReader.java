@@ -144,34 +144,34 @@ public class IcalendarReader extends Reader {
 				boolean rawDateOnly = eventIndex < rawDateOnlyEvents.size() && rawDateOnlyEvents.get(eventIndex);
 				eventIndex++;
 
-				if (isAllDay(start, end) || rawDateOnly) {
-					// RFC 5545 DATE values: DTEND is exclusive
-					LocalDate startLocal = toLocalDate(start);
-					LocalDate exclusiveEnd = toLocalDate(end);
-					processAllDayRow(handler,
-							summary.getValue(),
-							description != null ? description.getValue() : "",
-							columnDescriptionArray,
-							location != null ? location.getValue() : "",
-							lineNumber,
-							startLocal,
-							exclusiveEnd,
-							calendarZone);
-					lineNumber++;
-				} else {
-					DateTime from = new DateTime(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
-					DateTime to = new DateTime(Date.from(ZonedDateTime.now().plusMonths(12).toInstant()));
-					Period range = new Period(from, to);
+				String summaryValue = summary.getValue();
+				String descriptionValue = description != null ? description.getValue() : "";
+				String locationValue = location != null ? location.getValue() : "";
 
-					PeriodList periods = event.calculateRecurrenceSet(range);
+				if (isAllDay(start, end)) {
+					processAllDayRow(handler, summaryValue, descriptionValue, columnDescriptionArray,
+							locationValue, lineNumber, toLocalDate(start), toLocalDate(end), calendarZone);
+					lineNumber++;
+				} else if (rawDateOnly) {
+					if (event.getProperty(Property.RRULE) != null) {
+						PeriodList periods = event.calculateRecurrenceSet(importExpansionRange());
+						for (Period period : periods) {
+							LocalDate startLocal = period.getStart().toInstant().atZone(calendarZone).toLocalDate();
+							LocalDate exclusiveEnd = exclusiveEndDate(period, calendarZone);
+							processAllDayRow(handler, summaryValue, descriptionValue, columnDescriptionArray,
+									locationValue, lineNumber, startLocal, exclusiveEnd, calendarZone);
+							lineNumber++;
+						}
+					} else {
+						processAllDayRow(handler, summaryValue, descriptionValue, columnDescriptionArray,
+								locationValue, lineNumber, toLocalDate(start), toLocalDate(end), calendarZone);
+						lineNumber++;
+					}
+				} else {
+					PeriodList periods = event.calculateRecurrenceSet(importExpansionRange());
 					for (Period period : periods) {
-						processRow(handler,
-								summary.getValue(),
-								description != null ? description.getValue() : "",
-								columnDescriptionArray,
-								location != null ? location.getValue() : "",
-								lineNumber,
-								period);
+						processRow(handler, summaryValue, descriptionValue, columnDescriptionArray,
+								locationValue, lineNumber, period);
 						lineNumber++;
 					}
 				}
@@ -184,14 +184,22 @@ public class IcalendarReader extends Reader {
 		return calendarTzid;
 	}
 
-	/**
-	 * True when DTSTART/DTEND are DATE values after ical4j parsing (VALUE=DATE, or a
-	 * {@link net.fortuna.ical4j.model.Date} that is not a {@link DateTime}).
-	 * Untagged date-only forms normalized to DATE-TIME are handled via
-	 * {@link #detectRawDateOnlyEvents(String)} before parse.
-	 */
 	static boolean isAllDay(Property start, Property end) {
 		return isDateTyped(start) && isDateTyped(end);
+	}
+
+	private static Period importExpansionRange() {
+		DateTime from = new DateTime(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
+		DateTime to = new DateTime(Date.from(ZonedDateTime.now().plusMonths(12).toInstant()));
+		return new Period(from, to);
+	}
+
+	private static LocalDate exclusiveEndDate(Period period, ZoneId zone) {
+		ZonedDateTime end = period.getEnd().toInstant().atZone(zone);
+		if (end.toLocalTime().equals(LocalTime.MIDNIGHT)) {
+			return end.toLocalDate();
+		}
+		return end.toLocalDate().plusDays(1);
 	}
 
 	private static boolean isDateTyped(Property property) {
