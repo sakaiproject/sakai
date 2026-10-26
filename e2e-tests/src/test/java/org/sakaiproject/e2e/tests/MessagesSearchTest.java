@@ -79,6 +79,13 @@ class MessagesSearchTest extends SakaiUiTestBase {
         submits(() -> search.press("Enter"));
         assertThat(page).hasURL(Pattern.compile("/privateMsg/pvtMsgEx"));
         assertThat(ours).hasCount(2);
+
+        // opening a folder leaves no option behind to narrow a later search unseen
+        page.locator("a, input, button").filter(new Locator.FilterOptions()
+            .setHasText(Pattern.compile("Next Folder"))).first().click();
+        assertThat(page).hasURL(Pattern.compile("/privateMsg/pvtMsg$"));
+        options.click();
+        assertThat(page.locator("[id='prefs_pvt_form:label']")).not().isChecked();
     }
 
     private void saveDraft(String courseUrl, String subject, String body) {

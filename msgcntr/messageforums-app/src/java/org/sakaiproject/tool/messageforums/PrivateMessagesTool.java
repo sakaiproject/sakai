@@ -1071,7 +1071,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
     log.debug("processDisplayForum()");
     multiDeleteSuccess = false;
     clearSearchResults();
-    this.selectedTags = "";
     this.fromPreview = false;
     return DISPLAY_MESSAGES_PG;
   }
@@ -4243,26 +4242,13 @@ public void processChangeSelectView(ValueChangeEvent eve)
     }
   }
 
-  // a folder opens without the previous search, so its own messages are the ones listed and acted on
+  // a folder opens without the previous search, so its own messages are the ones listed and acted on,
+  // and no option hidden in the closed search options narrows a later search
   private void clearSearchResults() {
     if (searchPvtMsgs != null) {
       searchPvtMsgs.clear();
     }
     searchText = "";
-  }
-
-  /**
-   * Clear Search text
-   */
-  public String processClearSearch()
-  {
-    searchText="";
-    if(searchPvtMsgs != null)
-    {
-      searchPvtMsgs.clear();
-      //searchPvtMsgs= decoratedPvtMsgs;   
-    }
-    
     searchOnBody=true;
     searchOnSubject=true;
     searchOnLabel= false ;
@@ -4274,7 +4260,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
     searchFromDateString=null;
     searchToDateString=null;
     selectedTags = "";
-    
+  }
+
+  /**
+   * Clear Search text
+   */
+  public String processClearSearch()
+  {
+    clearSearchResults();
     return DISPLAY_MESSAGES_PG;
   }
 
