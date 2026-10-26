@@ -25,7 +25,6 @@ import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
-import com.microsoft.playwright.options.FormData;
 import com.microsoft.playwright.options.RequestOptions;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
@@ -34,41 +33,28 @@ class PreferencesTest extends SakaiUiTestBase {
 
     @Test
     void userCanSaveATimeZoneAndReadItInANewSession() {
-        // Preferences are shared across sessions, so never change a shared fixture user's timezone.
-        String username = "timezone-prefs-" + UUID.randomUUID();
-        sakai.login("admin");
-        APIResponse created = page.request().post("/direct/user/new", RequestOptions.create().setForm(FormData.create()
-            .set("id", username).set("eid", username).set("firstName", "Timezone").set("lastName", "Preferences")
-            .set("email", username + "@example.com").set("type", "registered")
-            .set("password", sakai.passwordFor(username))));
+        openUserTimeZone();
+        Locator timeZones = page.locator("[id='timezone_form'] select");
+        String original = timeZones.inputValue();
+        String selected = "Europe/Paris".equals(original) ? "America/New_York" : "Europe/Paris";
         try {
-            assertTrue(created.ok(), "Unable to create isolated timezone-test account: HTTP " + created.status());
-        } finally {
-            created.dispose();
-        }
-        try {
-            openUserTimeZone(username);
-            Locator timeZones = page.locator("[id='timezone_form'] select");
-            String original = timeZones.inputValue();
-            String selected = "Europe/Paris".equals(original) ? "America/New_York" : "Europe/Paris";
             timeZones.selectOption(selected);
             page.locator("[id='timezone_form:submit']").click();
             assertThat(page.getByText("Your preferences have been updated successfully.",
                     new Page.GetByTextOptions().setExact(true))).isVisible();
-            openUserTimeZone(username);
+            openUserTimeZone();
             assertThat(page.locator("[id='timezone_form'] select")).hasValue(selected);
         } finally {
-            sakai.login("admin");
-            APIResponse removed = page.request().delete("/direct/user/" + username);
-            try {
-                assertTrue(removed.ok(), "Unable to remove isolated timezone-test account: HTTP " + removed.status());
-            } finally {
-                removed.dispose();
-            }
+            page.locator("[id='timezone_form'] select").selectOption(original);
+            page.locator("[id='timezone_form:submit']").click();
+            assertThat(page.getByText("Your preferences have been updated successfully.",
+                    new Page.GetByTextOptions().setExact(true))).isVisible();
         }
     }
 
-    private void openUserTimeZone(String username) {
+    private void openUserTimeZone() {
+        // Keep timezone changes away from instructor1, which other parallel tests use.
+        String username = sakai.resolveUsername("student0151");
         sakai.login(username);
         page.navigate("/portal/site/~" + username);
         sakai.toolClick("Preferences");
