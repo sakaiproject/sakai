@@ -50,8 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.Version;
-import net.fortuna.ical4j.util.MapTimeZoneCache;
+import net.fortuna.ical4j.model.property.immutable.ImmutableVersion;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -122,7 +121,7 @@ public class ExternalCalendaringServiceTest {
 	@Before
 	public void setupData() {
 
-		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", MapTimeZoneCache.class.getName());
+
 
 		MockitoAnnotations.initMocks(this);
 		//Needs these for timeService
@@ -173,9 +172,11 @@ public class ExternalCalendaringServiceTest {
 		log.debug("{}", vevent);
 		
 		Assert.assertNotNull(vevent);
+        assertEventTimes(vevent);
 
 		//Testing timeIsLocal case
 		vevent = service.createEvent(event, null, true);
+        assertEventTimes(vevent);
 		
 		log.debug("testGeneratingVEvent");
 		log.debug("####################");
@@ -190,6 +191,14 @@ public class ExternalCalendaringServiceTest {
 		
 	}
 	
+    private void assertEventTimes(VEvent event) {
+        net.fortuna.ical4j.model.property.DtStart<?> start = event.getRequiredProperty("DTSTART");
+        net.fortuna.ical4j.model.property.DtEnd<?> end = event.getRequiredProperty("DTEND");
+        Assert.assertEquals(java.time.Instant.ofEpochMilli(START_TIME), java.time.Instant.from(start.getDate()));
+        Assert.assertEquals(java.time.Instant.ofEpochMilli(END_TIME), java.time.Instant.from(end.getDate()));
+        Assert.assertEquals(EVENT_NAME, event.getProperty("SUMMARY").orElseThrow().getValue());
+    }
+
 	@Test
 	public void testGeneratingVEventWithOverridenUuid() {
 		
@@ -209,7 +218,7 @@ public class ExternalCalendaringServiceTest {
 		Assert.assertNotNull(vevent);
 		
 		//should be equal to show it has been overriden
-		Assert.assertEquals("XXX", vevent.getUid().getValue());
+		Assert.assertEquals("XXX", vevent.getUid().orElseThrow().getValue());
 		
 		
 		//TODO check the attributes of the vevent
@@ -311,6 +320,9 @@ public class ExternalCalendaringServiceTest {
 		log.debug("{}", cancelledTwice);
 
 		Assert.assertNotNull(cancelledTwice);
+        Assert.assertEquals(1, cancelledTwice.getProperties("STATUS").size());
+        Assert.assertEquals("CANCELLED", cancelledTwice.getProperty("STATUS").orElseThrow().getValue());
+        Assert.assertEquals("1", cancelledTwice.getProperty("SEQUENCE").orElseThrow().getValue());
 
 		Calendar calendar = service.createCalendar(Collections.singletonList(cancelledTwice));
 		Assert.assertNotNull(service.toFile(calendar));
@@ -409,8 +421,8 @@ public class ExternalCalendaringServiceTest {
 		Assert.assertNotNull(calendar);
 		
 		//check attributes of the ical4j calendar are what we expect and match those in the event
-		Assert.assertEquals(Version.VERSION_2_0, calendar.getVersion());
-		Assert.assertEquals(CalScale.GREGORIAN, calendar.getCalendarScale());
+		Assert.assertEquals(ImmutableVersion.VERSION_2_0, calendar.getVersion());
+		Assert.assertEquals(new CalScale(CalScale.VALUE_GREGORIAN), calendar.getCalendarScale());
 		
 	}
 	
@@ -437,8 +449,8 @@ public class ExternalCalendaringServiceTest {
 		Assert.assertNotNull(calendar);
 		
 		//check attributes of the ical4j calendar are what we expect and match those in the event
-		Assert.assertEquals(Version.VERSION_2_0, calendar.getVersion());
-		Assert.assertEquals(CalScale.GREGORIAN, calendar.getCalendarScale());
+		Assert.assertEquals(ImmutableVersion.VERSION_2_0, calendar.getVersion());
+		Assert.assertEquals(new CalScale(CalScale.VALUE_GREGORIAN), calendar.getCalendarScale());
 		
 		//TODO check count of vevents
 		

@@ -39,8 +39,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.GregorianCalendar;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -49,7 +50,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendaring.logic.SakaiProxy;
-import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 
@@ -57,7 +57,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
@@ -79,7 +78,7 @@ import net.fortuna.ical4j.model.property.Sequence;
 import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Url;
-import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.immutable.ImmutableVersion;
 import net.fortuna.ical4j.validate.ValidationException;
 
 /**
@@ -139,15 +138,13 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		VTimeZone tz = getTimeZone(timeIsLocal);
 
 		//start and end date
-		DateTime start = new DateTime(getStartDate(event.getRange()).getTime());
-		DateTime end = new DateTime(getEndDate(event.getRange()).getTime());
+		ZoneId zone = ZoneId.of(tz.getTimeZoneId().getValue());
+		ZonedDateTime start = Instant.ofEpochMilli(event.getRange().firstTime().getTime()).atZone(zone);
+		ZonedDateTime end = Instant.ofEpochMilli(event.getRange().lastTime().getTime()).atZone(zone);
 		
 		//create event incl title/summary
 		VEvent vevent = new VEvent(start, end, event.getDisplayName());
 			
-		//add timezone
-		vevent.getProperties().add(tz.getTimeZoneId());
-		
 		//add uid to event
 		//could come from the vevent_uuid field in the calendar event, otherwise from event ID.
 		String uuid = null;
@@ -156,21 +153,21 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		} else {
 			uuid = event.getId();
 		}		
-		vevent.getProperties().add(new Uid(uuid));
+		vevent.add(new Uid(uuid));
 		
 		//add sequence to event
 		//will come from the vevent_sequnece field in the calendar event, otherwise skip it
 		String sequence = null;
 		if(StringUtils.isNotBlank(event.getField("vevent_sequence"))) {
 			sequence = event.getField("vevent_sequence");
-			vevent.getProperties().add(new Sequence(sequence));
+			vevent.add(new Sequence(sequence));
 		}
 			
 		//add description to event
-		vevent.getProperties().add(new Description(event.getDescription()));
+		vevent.add(new Description(event.getDescription()));
 		
 		//add location to event
-		vevent.getProperties().add(new Location(event.getLocation()));
+		vevent.add(new Location(event.getLocation()));
 		
 		//add organiser to event
 		if(StringUtils.isNotBlank(event.getCreator())) {
@@ -181,8 +178,8 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 			Cn commonName = new Cn(sakaiProxy.getUserDisplayName(event.getCreator()));
 
 			Organizer organizer = new Organizer(mailURI);
-			organizer.getParameters().add(commonName);
-			vevent.getProperties().add(organizer);
+			organizer.add(commonName);
+			vevent.add(organizer);
 		}
 		
 		//add attendees to event with 'required participant' role
@@ -195,8 +192,8 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 			Url u = new Url();
 			try {
 				u.setValue(url);
-				vevent.getProperties().add(u);
-			} catch (URISyntaxException e) {
+				vevent.add(u);
+			} catch (IllegalArgumentException e) {
 				//it doesnt matter, ignore it
 			}
 		}
@@ -243,12 +240,12 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		if(attendees != null){
 			for(User u: attendees) {
 				Attendee a = new Attendee(createMailURI(u.getEmail()));
-				a.getParameters().add(role);
-				a.getParameters().add(new Cn(u.getDisplayName()));
-				a.getParameters().add(PartStat.ACCEPTED);
-				a.getParameters().add(Rsvp.FALSE);
+				a.add(role);
+				a.add(new Cn(u.getDisplayName()));
+				a.add(PartStat.ACCEPTED);
+				a.add(Rsvp.FALSE);
 			
-				vevent.getProperties().add(a);
+				vevent.add(a);
 			}
 		}
 		
@@ -269,12 +266,12 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 			return null;
 		}
 		// You can only have one status so make sure we remove any previous ones.
-		vevent.getProperties().removeAll(vevent.getProperties(Property.STATUS));
-		vevent.getProperties().add(Status.VEVENT_CANCELLED);
+		vevent.removeAll(Property.STATUS);
+		vevent.add(new Status(Status.VALUE_CANCELLED));
 
 		// Must define a sequence for cancellations. If one was not defined when the event was created use 1
-		if (vevent.getProperties().getProperty(Property.SEQUENCE) == null) {
-			vevent.getProperties().add(new Sequence("1"));
+		if (vevent.getProperty(Property.SEQUENCE).isEmpty()) {
+			vevent.add(new Sequence("1"));
 		}
 
 		if(log.isDebugEnabled()){
@@ -313,16 +310,20 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		}
 		
 		//add vevents to calendar
-		calendar.getComponents().addAll(events);
+		events.forEach(calendar::add);
 		
 		//add vtimezone
 		VTimeZone tz = getTimeZone(timeIsLocal);
 
-		calendar.getComponents().add(tz);
+		calendar.add(tz);
 		
 		//validate
 		try {
-			calendar.validate(true);
+			net.fortuna.ical4j.validate.ValidationResult validation = calendar.validate(true);
+			if (validation.hasErrors()) {
+				log.error("Calendar failed validation: {}", validation);
+				return null;
+			}
 		} catch (ValidationException e) {
 			log.error("createCalendar failed validation", e);
 			return null;
@@ -409,39 +410,17 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		
 		//setup calendar
 		Calendar calendar = new Calendar();
-		calendar.getProperties().add(new ProdId("-//"+serverName+"//Sakai External Calendaring Service//EN"));
-		calendar.getProperties().add(Version.VERSION_2_0);
-		calendar.getProperties().add(CalScale.GREGORIAN);
+		calendar.add(new ProdId("-//"+serverName+"//Sakai External Calendaring Service//EN"));
+		calendar.add(ImmutableVersion.VERSION_2_0);
+		calendar.add(new CalScale(CalScale.VALUE_GREGORIAN));
 		if (method != null) {
-			calendar.getProperties().add(new Method(method));
+			calendar.add(new Method(method));
 		}
 		return calendar;
 	}
 	
 	
 	
-	
-	/**
-	 * Helper to extract the startDate of a TimeRange into a java.util.Calendar object. 
-	 * @param range 
-	 * @return
-	 */
-	private java.util.Calendar getStartDate(TimeRange range) {
-		java.util.Calendar c = new GregorianCalendar();
-		c.setTimeInMillis(range.firstTime().getTime());
-		return c;
-	}
-	
-	/**
-	 * Helper to extract the endDate of a TimeRange into a java.util.Calendar object. 
-	 * @param range 
-	 * @return
-	 */
-	private java.util.Calendar getEndDate(TimeRange range) {
-		java.util.Calendar c = new GregorianCalendar();
-		c.setTimeInMillis(range.lastTime().getTime());
-		return c;
-	}
 	
 	/**
 	 * Helper to create the name of the ICS file we are to write

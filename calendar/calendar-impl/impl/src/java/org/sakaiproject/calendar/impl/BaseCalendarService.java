@@ -44,7 +44,6 @@ import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.parameter.TzId;
 import net.fortuna.ical4j.model.property.*;
-import net.fortuna.ical4j.util.MapTimeZoneCache;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -544,7 +543,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		functionManager.registerFunction(AUTH_OPTIONS_CALENDAR, true);
 		functionManager.registerFunction(AUTH_VIEW_AUDIENCE, true);
 
-		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", MapTimeZoneCache.class.getName());
 
 		eventTrackingService.addObserver(this);
 		pdfExportService = new PDFExportService(timeService, rb);
@@ -5231,15 +5229,15 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	{
 		// generate iCal text file 
 		net.fortuna.ical4j.model.Calendar ical = new net.fortuna.ical4j.model.Calendar();
-		ical.getProperties().add(new ProdId("-//SakaiProject//iCal4j 1.0//EN"));
-		ical.getProperties().add(Version.VERSION_2_0);
-		ical.getProperties().add(CalScale.GREGORIAN);
-		ical.getProperties().add(new XProperty("X-WR-CALNAME", calendarName));
-		ical.getProperties().add(new XProperty("X-WR-CALDESC", calendarName));
+		ical.add(new ProdId("-//SakaiProject//iCal4j 1.0//EN"));
+		ical.add(net.fortuna.ical4j.model.property.immutable.ImmutableVersion.VERSION_2_0);
+		ical.add(new CalScale(CalScale.VALUE_GREGORIAN));
+		ical.add(new XProperty("X-WR-CALNAME", calendarName));
+		ical.add(new XProperty("X-WR-CALDESC", calendarName));
 		
 		TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry(); 
 		TzId tzId = new TzId( timeService.getLocalTimeZone().getID() );
-		ical.getComponents().add(registry.getTimeZone(tzId.getValue()).getVTimeZone());
+		ical.add(registry.getTimeZone(tzId.getValue()).getVTimeZone());
 		
 		CalendarOutputter icalOut = new CalendarOutputter();
 		int numEvents = generateICal(ical, calRefs);

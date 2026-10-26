@@ -420,13 +420,13 @@ public class GenericCalendarImporter implements CalendarImporterService
 		} else {
 			srcZoneId = ZoneId.of(timeService.getLocalTimeZone().getID());
 		}
-		return getPrototypeEvents(scheduleImport.filterEvents(rowList, customFieldPropertyNames, srcZoneId), customFieldPropertyNames);
+		return getPrototypeEvents(scheduleImport.filterEvents(rowList, customFieldPropertyNames, srcZoneId), customFieldPropertyNames, srcZoneId);
 	}
 
 	/**
 	 * Interprets the list of maps created by doImport()
 	 */
-	protected List<? extends CalendarEvent> getPrototypeEvents(List<Map<String, Object>> rowList, String[] customFieldPropertyNames) throws ImportException {
+	protected List<? extends CalendarEvent> getPrototypeEvents(List<Map<String, Object>> rowList, String[] customFieldPropertyNames, ZoneId srcZoneId) throws ImportException {
 		List<PrototypeEvent> eventList = new ArrayList<>();
 		int lineNumber = 1;
 
@@ -484,7 +484,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 				} else if (until == null && interval != null && count == null) {
 					recurrenceRule = calendarService.newRecurrence(frequencyString, interval);
 				} else if (until != null && interval != null && count == null) {
-					Time untilTime = timeService.newTime(until.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+					Time untilTime = timeService.newTime(until.atTime(LocalTime.MAX).atZone(srcZoneId).toInstant().toEpochMilli());
 					recurrenceRule = calendarService.newRecurrence(frequencyString, interval, untilTime);
 				}
 

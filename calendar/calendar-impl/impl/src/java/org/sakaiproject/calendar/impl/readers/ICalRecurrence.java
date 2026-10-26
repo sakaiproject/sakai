@@ -15,7 +15,11 @@
  */
 package org.sakaiproject.calendar.impl.readers;
 
-import java.text.ParseException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -27,7 +31,7 @@ import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
 
 import net.fortuna.ical4j.model.Recur;
-import net.fortuna.ical4j.model.WeekDayList;
+import net.fortuna.ical4j.transform.recurrence.Frequency;
 import net.fortuna.ical4j.model.property.RRule;
 
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -51,11 +55,7 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 
 import net.fortuna.ical4j.model.DateList;
-import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.TimeZoneRegistry;
-import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.WeekDay;
-import net.fortuna.ical4j.model.WeekDayList;
 import net.fortuna.ical4j.model.parameter.TzId;
 import net.fortuna.ical4j.model.property.ExDate;
 
@@ -63,8 +63,8 @@ import net.fortuna.ical4j.model.property.ExDate;
 public class ICalRecurrence  
 {
 	private String rrule_text = "";
-	private RRule rrule = null;
-	private Recur recur = null;
+	private RRule<Temporal> rrule = null;
+	private Recur<Temporal> recur = null;
 	private static final Map<String,String> frequencyLookup;
 	private static final Map<String,String> dayListToSakaiFrequency;
 
@@ -104,9 +104,9 @@ public class ICalRecurrence
 		
 		try {
 			this.rrule_text = rrule_text;
-			this.rrule = new RRule(rrule_text);
-		} catch (ParseException e) {
-			log.warn("Parse exception for iCal recurrence rule: "+rrule_text);
+			this.rrule = new RRule<>(rrule_text);
+		} catch (IllegalArgumentException e) {
+			log.warn("Could not parse iCal recurrence rule [{}]", rrule_text, e);
 			throw new ImportException(e);
 		}
 		
@@ -124,8 +124,8 @@ public class ICalRecurrence
 		}
 
 		String extendedFrequency = recur.getFrequency().toString();
-		WeekDayList dayList = recur.getDayList();
-		String dayListAsString = dayList.toString();
+		List<WeekDay> dayList = recur.getDayList();
+		String dayListAsString = dayList.stream().map(WeekDay::toString).collect(Collectors.joining(","));
 		
 		if (! dayList.isEmpty()) {
 			String sakaiFromDayList = dayListToSakaiFrequency.get(dayListAsString);
@@ -144,8 +144,11 @@ public class ICalRecurrence
 		if (recur == null) {
 			return null;
 		}
-		Date d = recur.getUntil();
-		return d;
+		Temporal until = recur.getUntil();
+		if (until == null) {
+			return null;
+		}
+		return Date.from(net.fortuna.ical4j.model.TemporalAdapter.toLocalTime(until, ZoneOffset.UTC).toInstant());
 	}
 
 	// How frequently should the event be scheduled?
@@ -227,54 +230,53 @@ public class ICalRecurrence
 	 * Converts a Sakai recurrence rule to an iCal4j RRULE property.
 	 *
 	 * @param rule Sakai recurrence rule
-	 * @param timeZone timezone applied to UNTIL so it matches DTSTART TZID handling
 	 * @return RRULE property, or null when the Sakai frequency has no iCal equivalent
 	 */
-	public static RRule toRRule(RecurrenceRule rule, TimeZone timeZone)
+	public static RRule<Instant> toRRule(RecurrenceRule rule)
 	{
 		if (rule == null || rule.getFrequency() == null)
 		{
 			return null;
 		}
 
-		Recur.Builder builder;
+		Recur.Builder<Instant> builder;
 		switch (rule.getFrequency())
 		{
 			case DailyRecurrenceRule.FREQ:
-				builder = new Recur.Builder().frequency(Recur.Frequency.DAILY);
+				builder = new Recur.Builder<Instant>().frequency(Frequency.DAILY);
 				break;
 			case WeeklyRecurrenceRule.FREQ:
-				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY);
+				builder = new Recur.Builder<Instant>().frequency(Frequency.WEEKLY);
 				break;
 			case MonthlyRecurrenceRule.FREQ:
-				builder = new Recur.Builder().frequency(Recur.Frequency.MONTHLY);
+				builder = new Recur.Builder<Instant>().frequency(Frequency.MONTHLY);
 				break;
 			case YearlyRecurrenceRule.FREQ:
-				builder = new Recur.Builder().frequency(Recur.Frequency.YEARLY);
+				builder = new Recur.Builder<Instant>().frequency(Frequency.YEARLY);
 				break;
 			case MWFRecurrenceRule.FREQ:
-				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
-						.dayList(weekDayList(WeekDay.MO, WeekDay.WE, WeekDay.FR));
+				builder = new Recur.Builder<Instant>().frequency(Frequency.WEEKLY)
+						.dayList(WeekDay.MO, WeekDay.WE, WeekDay.FR);
 				break;
 			case TThRecurrenceRule.FREQ:
-				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
-						.dayList(weekDayList(WeekDay.TU, WeekDay.TH));
+				builder = new Recur.Builder<Instant>().frequency(Frequency.WEEKLY)
+						.dayList(WeekDay.TU, WeekDay.TH);
 				break;
 			case MWRecurrenceRule.FREQ:
-				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
-						.dayList(weekDayList(WeekDay.MO, WeekDay.WE));
+				builder = new Recur.Builder<Instant>().frequency(Frequency.WEEKLY)
+						.dayList(WeekDay.MO, WeekDay.WE);
 				break;
 			case SMWRecurrenceRule.FREQ:
-				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
-						.dayList(weekDayList(WeekDay.SU, WeekDay.MO, WeekDay.WE));
+				builder = new Recur.Builder<Instant>().frequency(Frequency.WEEKLY)
+						.dayList(WeekDay.SU, WeekDay.MO, WeekDay.WE);
 				break;
 			case SMTWRecurrenceRule.FREQ:
-				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
-						.dayList(weekDayList(WeekDay.SU, WeekDay.MO, WeekDay.TU, WeekDay.WE));
+				builder = new Recur.Builder<Instant>().frequency(Frequency.WEEKLY)
+						.dayList(WeekDay.SU, WeekDay.MO, WeekDay.TU, WeekDay.WE);
 				break;
 			case STTRecurrenceRule.FREQ:
-				builder = new Recur.Builder().frequency(Recur.Frequency.WEEKLY)
-						.dayList(weekDayList(WeekDay.SU, WeekDay.TU, WeekDay.TH));
+				builder = new Recur.Builder<Instant>().frequency(Frequency.WEEKLY)
+						.dayList(WeekDay.SU, WeekDay.TU, WeekDay.TH);
 				break;
 			default:
 				log.warn("No iCal RRULE mapping for Sakai recurrence frequency [{}]", rule.getFrequency());
@@ -291,24 +293,19 @@ public class ICalRecurrence
 		}
 		else if (rule.getUntil() != null)
 		{
-			DateTime until = new DateTime(rule.getUntil().getTime());
-			net.fortuna.ical4j.model.TimeZone icalTimeZone = icalTimeZone(timeZone);
-			if (icalTimeZone != null)
-			{
-				until.setTimeZone(icalTimeZone);
-			}
+			Instant until = Instant.ofEpochMilli(rule.getUntil().getTime());
 			builder.until(until);
 		}
 
-		return new RRule(builder.build());
+		return new RRule<>(builder.build());
 	}
 
 	/**
 	 * Builds EXDATE properties for excluded occurrences on a recurring event.
 	 */
-	public static List<ExDate> toExDates(CalendarEvent event, TimeService timeService)
+	public static List<ExDate<ZonedDateTime>> toExDates(CalendarEvent event, TimeService timeService)
 	{
-		List<ExDate> exDates = new ArrayList<>();
+		List<ExDate<ZonedDateTime>> exDates = new ArrayList<>();
 		RecurrenceRule exclusionRule = event.getExclusionRule();
 		if (exclusionRule == null)
 		{
@@ -316,8 +313,7 @@ public class ICalRecurrence
 		}
 
 		TimeZone timeZone = resolveEventTimeZone(event, timeService);
-		DateList dateList = new DateList();
-		dateList.setUtc(false);
+		List<ZonedDateTime> dates = new ArrayList<>();
 
 		if (exclusionRule instanceof ExclusionRecurrenceRule)
 		{
@@ -325,7 +321,7 @@ public class ICalRecurrence
 			for (Object rangeObj : rangeExclusions.getRanges())
 			{
 				TimeRange excludedRange = (TimeRange) rangeObj;
-				dateList.add(dateTimeForExclusion(excludedRange.firstTime(), timeZone));
+				dates.add(dateTimeForExclusion(excludedRange.firstTime(), timeZone));
 			}
 		}
 		else if (exclusionRule instanceof ExclusionSeqRecurrenceRule)
@@ -350,15 +346,15 @@ public class ICalRecurrence
 				RecurrenceInstance instance = (RecurrenceInstance) instanceObj;
 				if (excludedSequences.contains(instance.getSequence()))
 				{
-					dateList.add(dateTimeForExclusion(instance.getRange().firstTime(), timeZone));
+					dates.add(dateTimeForExclusion(instance.getRange().firstTime(), timeZone));
 				}
 			}
 		}
 
-		if (!dateList.isEmpty())
+		if (!dates.isEmpty())
 		{
-			ExDate exDate = new ExDate(dateList);
-			exDate.getParameters().add(new TzId(timeZone.getID()));
+			ExDate<ZonedDateTime> exDate = new ExDate<>(new DateList<>(dates));
+			exDate.add(new TzId(timeZone.getID()));
 			exDates.add(exDate);
 		}
 		return exDates;
@@ -394,35 +390,9 @@ public class ICalRecurrence
 		return TimeZone.getTimeZone(timeZoneId);
 	}
 
-	private static DateTime dateTimeForExclusion(Time time, TimeZone timeZone)
+	private static ZonedDateTime dateTimeForExclusion(Time time, TimeZone timeZone)
 	{
-		DateTime dateTime = new DateTime(time.getTime());
-		net.fortuna.ical4j.model.TimeZone icalTimeZone = icalTimeZone(timeZone);
-		if (icalTimeZone != null)
-		{
-			dateTime.setTimeZone(icalTimeZone);
-		}
-		return dateTime;
-	}
-
-	private static net.fortuna.ical4j.model.TimeZone icalTimeZone(TimeZone timeZone)
-	{
-		if (timeZone == null)
-		{
-			return null;
-		}
-		TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
-		return registry.getTimeZone(timeZone.getID());
-	}
-
-	private static WeekDayList weekDayList(WeekDay... days)
-	{
-		WeekDayList list = new WeekDayList();
-		for (WeekDay day : days)
-		{
-			list.add(day);
-		}
-		return list;
+		return Instant.ofEpochMilli(time.getTime()).atZone(timeZone.toZoneId());
 	}
 
 }

@@ -21,17 +21,16 @@
 package org.sakaiproject.calendar.impl.writers;
 
 import java.net.URI;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Iterator;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
-import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.Property;
+
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.parameter.Cn;
-import net.fortuna.ical4j.model.parameter.TzId;
-import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.Comment;
 import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.ExDate;
@@ -138,7 +137,7 @@ public class CalendarIcalExporter
 					continue;
 				}
 
-				ical.getComponents().add(buildVEvent(event, rule));
+				ical.add(buildVEvent(event, rule));
 				numEvents++;
 			}
 		}
@@ -148,19 +147,14 @@ public class CalendarIcalExporter
 
 	private VEvent buildVEvent(CalendarEvent event, RecurrenceRule rule)
 	{
-		DateTime icalStartDate = new DateTime(event.getRange().firstTime().getTime());
-		// Export an explicit DTEND rather than a DURATION: IcalendarReader (used when one Sakai
-		// instance subscribes to another) only understands DTEND, so a DURATION-only VEVENT
-		// silently fails to import.
-		DateTime icalEndDate = new DateTime(event.getRange().lastTime().getTime());
+		ZonedDateTime icalStartDate = Instant.ofEpochMilli(event.getRange().firstTime().getTime())
+				.atZone(timeService.getLocalTimeZone().toZoneId());
+		// Export explicit DTSTART/DTEND boundaries; the importer also supports DURATION.
+		ZonedDateTime icalEndDate = Instant.ofEpochMilli(event.getRange().lastTime().getTime())
+				.atZone(timeService.getLocalTimeZone().toZoneId());
 		VEvent icalEvent = new VEvent(icalStartDate, icalEndDate, event.getDisplayName());
 
-		TzId tzId = new TzId(timeService.getLocalTimeZone().getID());
-		icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);
-		icalEvent.getProperty(Property.DTSTART).getParameters().add(Value.DATE_TIME);
-		icalEvent.getProperty(Property.DTEND).getParameters().add(new TzId(timeService.getLocalTimeZone().getID()));
-		icalEvent.getProperty(Property.DTEND).getParameters().add(Value.DATE_TIME);
-		icalEvent.getProperties().add(new Uid(event.getId()));
+		icalEvent.add(new Uid(event.getId()));
 
 		// Build the description, appending attachment URLs if present.
 		StringBuffer description = new StringBuffer("");
@@ -180,12 +174,12 @@ public class CalendarIcalExporter
 		}
 		if (!description.isEmpty())
 		{
-			icalEvent.getProperties().add(new Description(description.toString().replace('\r', '\n')));
+			icalEvent.add(new Description(description.toString().replace('\r', '\n')));
 		}
 
 		if (StringUtils.isNotBlank(event.getLocation()))
 		{
-			icalEvent.getProperties().add(new Location(event.getLocation().replace('\r', '\n')));
+			icalEvent.add(new Location(event.getLocation().replace('\r', '\n')));
 		}
 
 		try
@@ -195,8 +189,8 @@ public class CalendarIcalExporter
 			if (StringUtils.isNotBlank(email))
 			{
 				Organizer organizer = new Organizer(URI.create("mailto:" + email));
-				organizer.getParameters().add(new Cn(creator.getDisplayName()));
-				icalEvent.getProperties().add(organizer);
+				organizer.add(new Cn(creator.getDisplayName()));
+				icalEvent.add(organizer);
 			}
 		}
 		catch (UserNotDefinedException e) { log.warn("Creator not found for calendar event [{}]", event.getId()); }
@@ -205,19 +199,19 @@ public class CalendarIcalExporter
 		comment.append(" (");
 		comment.append(event.getSiteName());
 		comment.append(")");
-		icalEvent.getProperties().add(new Comment(comment.toString()));
+		icalEvent.add(new Comment(comment.toString()));
 
 		if (rule != null)
 		{
-			RRule rrule = ICalRecurrence.toRRule(rule, timeService.getLocalTimeZone());
+			RRule<Instant> rrule = ICalRecurrence.toRRule(rule);
 			if (rrule != null)
 			{
-				icalEvent.getProperties().add(rrule);
+				icalEvent.add(rrule);
 			}
 
-			for (ExDate exDate : ICalRecurrence.toExDates(event, timeService))
+			for (ExDate<ZonedDateTime> exDate : ICalRecurrence.toExDates(event, timeService))
 			{
-				icalEvent.getProperties().add(exDate);
+				icalEvent.add(exDate);
 			}
 		}
 
