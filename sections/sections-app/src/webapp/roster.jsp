@@ -31,11 +31,18 @@
 	</t:div>
 	
     <h:panelGrid styleClass="sectionContainerNav" columns="1" columnClasses="sectionLeftNav,sectionRightNav">
-        <t:div>
-            <h:inputText id="search" onkeydown="submitSearchText(event)" value="#{rosterBean.searchText}"
-                onfocus="clearIfDefaultString(this, `#{msgs.roster_search_text}`)"/>
-            <h:commandButton value="#{msgs.roster_search_button}" actionListener="#{rosterBean.search}"/>
-            <h:commandButton value="#{msgs.roster_clear_button}" actionListener="#{rosterBean.clearSearch}"/>
+        <t:div styleClass="sakai-table-searchFilter">
+            <h:inputText id="search" onkeydown="submitSearchText(event)" value="#{rosterBean.searchText}" styleClass="form-control"/>
+            <%-- the field searches on Enter and clears when emptied, see setupRosterSearch --%>
+            <h:commandButton id="searchButton" value="#{msgs.roster_search_button}" actionListener="#{rosterBean.search}" style="display:none"/>
+            <h:commandButton id="searchClearButton" value="#{msgs.roster_clear_button}" actionListener="#{rosterBean.clearSearch}" style="display:none"/>
+            <script>
+                {
+                    const prompt = document.createElement("div");
+                    prompt.innerHTML = <h:outputText value="`#{msgs.roster_search_text}`" />;
+                    setupRosterSearch("rosterForm:search", prompt.textContent, "rosterForm:searchClearButton");
+                }
+            </script>
         </t:div>
         
         <t:div>

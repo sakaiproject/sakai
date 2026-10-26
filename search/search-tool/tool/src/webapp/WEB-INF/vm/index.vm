@@ -47,9 +47,19 @@
 			<form action="?#" method="get" class="inlineForm"  >  
 
 				<input type="hidden" name="panel" value="Main" />
-				<input type="text" id="search"  name="search" maxlength="1024" value="${searchModel.search}"/>
-				<input type="submit" name="sb" value="${rlb.jsp_search}" class="mt-1 mt-sm-0"/>
-				<br/>
+				## searches on Enter; emptying the field, with the native clear button or by deleting the text, drops the search
+				<div class="sakai-table-searchFilter">
+					<label for="search" class="me-2">${rlb.jsp_search}</label>
+					<input type="search" id="search" name="search" maxlength="1024" value="${searchModel.search}" class="form-control"/>
+				</div>
+				<script>
+					(() => {
+						const field = document.getElementById("search");
+						// only a search this page was loaded with needs resetting
+						const applied = field.value;
+						field.addEventListener("input", () => applied && !field.value && field.form.submit());
+					})();
+				</script>
 				<input id="searchSite" type="radio" name="scope" value="SITE" #if($searchModel.isScope('SITE')) checked="true" #end />
 				<label for="searchSite">${rlb.jsp_current_site}</label>
 				<input id="searchMine" type="radio" name="scope" value="MINE" #if($searchModel.isScope('MINE')) checked="true" #end />

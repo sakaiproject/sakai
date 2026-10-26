@@ -168,8 +168,6 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   //Searching
   @Getter
   private String searchString;
-  @Getter @Setter
-  private String defaultSearchString;
   
   @Getter @Setter
   private Map userIdMap;
@@ -218,10 +216,9 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 			searchString = null;
 		}
 
-		defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
-
+		// no search is an empty search; the page shows its prompt as a placeholder
 		if (searchString == null) {
-			searchString = defaultSearchString;
+			searchString = "";
 		}
 
 		// Get allAgents only at the first time
@@ -521,7 +518,7 @@ public List getAllAgents(boolean valueChanged)
 
 public void setSearchString(String searchString) {
     if (StringUtils.trimToNull(searchString) == null) {
-        searchString = defaultSearchString;
+        searchString = "";
     }
 	if (!StringUtils.equals(searchString, this.searchString)) {
 	        log.debug("setSearchString {}", searchString);
@@ -541,7 +538,7 @@ public void clear(ActionEvent event) {
 }
 
 	private boolean isFilteredSearch() {
-      return !StringUtils.equals(searchString, defaultSearchString);
+      return StringUtils.isNotBlank(searchString);
 	}
 	
 	/**

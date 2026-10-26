@@ -219,9 +219,7 @@ roster.switchState = function (state, args) {
       roster.selectViewMode(roster.currentLayout || roster.defaultOverviewMode);
 
       roster.setupPrintButton();
-      roster.readySearchButton();
       roster.readySearchField();
-      roster.readyClearButton(state);
 
       $('#roster-groups-selector').change(function (e) {
 
@@ -269,9 +267,7 @@ roster.switchState = function (state, args) {
       roster.clickViewSpreadsheetRadio();
       roster.addExportHandler();
       roster.setupPrintButton();
-      roster.readySearchButton();
       roster.readySearchField();
-      roster.readyClearButton(state);
 
       $('#roster-enrollmentset-selector').change(function (e) {
 
@@ -339,6 +335,8 @@ roster.renderMembership = function (options) {
   }
 
   if (options.replace) {
+    // the listing starts over, so a response still due for the previous one must not be added to it
+    roster.membershipRequest?.abort();
     $('#roster-members').empty();
     roster.nextPage = 0;
 
@@ -423,7 +421,7 @@ roster.renderMembership = function (options) {
   const loadImage = $('#roster-members-loading-image')
   loadImage.show();
 
-  $.ajax({
+  roster.membershipRequest = $.ajax({
     url: url,
     dataType: "json",
     cache: false,
@@ -532,6 +530,9 @@ roster.renderMembership = function (options) {
       });
     },
     error: function (jqXHR, textStatus, errorThrown) {
+      if (textStatus === "abort") {
+        return;
+      }
       if(jqXHR.status === 404){
         loadImage.hide();
         if (roster.nextPage === 0) {
@@ -546,18 +547,6 @@ roster.renderMembership = function (options) {
   });
 };
 
-roster.readyClearButton = function (state) {
-
-  $('#roster_form_clear_button').click(function (e) {
-
-    roster.roleToView = null;
-    roster.groupToView = null;
-    roster.userIds = null;
-    roster.noParticipants = false;
-    roster.switchState(state);
-  });
-};
-
 roster.renderNoParticipants = function () {
   $('#roster-members').html(`<div id="roster-information">${roster.i18n.no_participants}</div>`);
 };
@@ -568,9 +557,24 @@ roster.normalizeText = function (text) {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };
 
+// Drops the applied search, keeping the selected group, role or enrollment set
+roster.clearSearch = function () {
+
+  if (!roster.userIds && !roster.noParticipants) {
+    return;
+  }
+  if (roster.noParticipants) {
+    $('#roster-members-total').show();
+    $('#roster_type_selector').show();
+  }
+  roster.userIds = null;
+  roster.noParticipants = false;
+  roster.renderMembership({ replace: true });
+};
+
 roster.search = function (query) {
 
-  if (query && query !== roster.i18n.roster_search_text) {
+  if (query) {
     if (!roster.searchIndex || !Array.isArray(roster.searchIndex)) {
       console.error("Search index not available");
       return;
@@ -599,21 +603,6 @@ roster.search = function (query) {
   }
 };
 
-roster.readySearchButton = function () {
-
-  const button = $('#roster-search-button');
-  button.prop("disabled", true);
-
-  this.searchIndexPromise.then(() => {
-
-    button.prop("disabled", false).off('click').on('click', function (e) {
-
-      const searchFieldValue = $('#roster-search-field').val();
-      roster.search(searchFieldValue);
-    });
-  });
-};
-
 roster.readySearchField = function () {
 
   const field = $('#roster-search-field');
@@ -621,11 +610,14 @@ roster.readySearchField = function () {
 
   this.searchIndexPromise.then(() => {
 
+    // emptying the field, with the native clear button or by deleting the text, drops the search
+    field.on('input', () => field.val() || roster.clearSearch());
+
     field.keydown(function (e) {
 
-      if (e.which === 13) {
+      if (e.which === 13 && !e.originalEvent?.isComposing) {
         e.preventDefault();
-        $('#roster-search-button').click();
+        field.val() ? roster.search(field.val()) : roster.clearSearch();
       }
     });
 

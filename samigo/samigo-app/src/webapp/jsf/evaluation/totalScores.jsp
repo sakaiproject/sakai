@@ -215,17 +215,20 @@ function showLoadingMessage() {
 
       </h:panelGroup>
 
-	  <h:panelGroup styleClass="search-student form-group" layout="block">
-      <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
- 	        <h:inputText
-				id="searchString"
-				value="#{totalScores.searchString}"
-				onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
-				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
-			<h:outputText value="&nbsp;" escape="false" />
-			<h:commandButton actionListener="#{totalScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
-			<h:outputText value="&nbsp;" escape="false" />
-			<h:commandButton actionListener="#{totalScores.clear}" value="#{evaluationMessages.search_clear}"/>
+	  <h:panelGroup styleClass="search-student form-group sakai-table-searchFilter" layout="block">
+	    <h:outputLabel styleClass="col-md-2" for="searchString" value="#{evaluationMessages.search}"/>
+	    <h:inputText id="searchString" value="#{totalScores.searchString}" styleClass="form-control"
+	        onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
+	    <%-- the field searches on Enter and clears when emptied, see setupStudentSearch --%>
+	    <h:commandButton actionListener="#{totalScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" style="display:none" />
+	    <h:commandButton actionListener="#{totalScores.clear}" value="#{evaluationMessages.search_clear}" id="searchClearButton" style="display:none" />
+	    <script>
+	      {
+	        const prompt = document.createElement("div");
+	        prompt.innerHTML = <h:outputText value="`#{evaluationMessages.search_default_student_search_string}`" />;
+	        setupStudentSearch("editTotalResults:searchString", prompt.textContent, "editTotalResults:searchClearButton");
+	      }
+	    </script>
 	  </h:panelGroup>
   </h:panelGroup>
    

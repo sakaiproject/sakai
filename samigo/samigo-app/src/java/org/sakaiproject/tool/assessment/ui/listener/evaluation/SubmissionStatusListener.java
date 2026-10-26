@@ -93,8 +93,7 @@ public class SubmissionStatusListener extends SpringBeanAutowiringSupport
     String publishedId = ContextUtil.lookupParam("publishedId");
 
     // Reset the search field
-    String defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
-    bean.setSearchString(defaultSearchString);
+    bean.setSearchString(null);
     
     if (!submissionStatus(publishedId, bean, totalScoresBean, false))
     {
