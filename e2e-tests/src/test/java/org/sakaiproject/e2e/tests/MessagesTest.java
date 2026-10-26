@@ -47,7 +47,9 @@ class MessagesTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Draft").setExact(true)).click();
         String tagRequests = "**/api/sites/*/tools/*/tags/*";
         page.route(tagRequests, route -> route.fulfill(new Route.FulfillOptions().setStatus(503)));
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(subject).setExact(true)).click();
+        page.waitForResponse(response -> response.url().contains("/tools/privatemessages/tags/")
+                && response.status() == 503,
+            () -> page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(subject).setExact(true)).click());
         assertThat(selector.getByRole(AriaRole.ALERT)).isVisible();
         String savedTagIds = selector.getAttribute("selected-ids");
         assertTrue(savedTagIds != null && !savedTagIds.isBlank());
