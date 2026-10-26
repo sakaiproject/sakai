@@ -155,9 +155,10 @@ public class IcalendarReader extends Reader {
 				} else if (rawDateOnly) {
 					if (event.getProperty(Property.RRULE) != null) {
 						PeriodList periods = event.calculateRecurrenceSet(importExpansionRange());
+						ZoneId floatingZone = ZoneId.systemDefault();
 						for (Period period : periods) {
-							LocalDate startLocal = period.getStart().toInstant().atZone(calendarZone).toLocalDate();
-							LocalDate exclusiveEnd = exclusiveEndDate(period, calendarZone);
+							LocalDate startLocal = period.getStart().toInstant().atZone(floatingZone).toLocalDate();
+							LocalDate exclusiveEnd = exclusiveEndDate(period, floatingZone);
 							processAllDayRow(handler, summaryValue, descriptionValue, columnDescriptionArray,
 									locationValue, lineNumber, startLocal, exclusiveEnd, calendarZone);
 							lineNumber++;
