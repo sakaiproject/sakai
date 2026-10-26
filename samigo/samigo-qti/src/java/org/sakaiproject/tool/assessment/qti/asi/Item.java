@@ -360,12 +360,7 @@ public class Item extends ASIBaseClass
   }
 
   /**
-   * Set a metadata field entry, creating the field first when the item
-   * template does not carry it. Sakai-specific settings that are not in the
-   * templates must use this, otherwise setFieldentry silently drops them.
-   *
-   * @param fieldlabel the field label
-   * @param setValue the value
+   * Set a metadata field entry, creating it first if the template lacks it
    */
   public void setOrCreateFieldentry(String fieldlabel, String setValue)
   {

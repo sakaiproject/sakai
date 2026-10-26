@@ -18,6 +18,7 @@ package org.sakaiproject.tool.assessment.qti.helper;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,13 +53,12 @@ import org.sakaiproject.util.api.FormattedText;
  * Exports items through the QTI 1.2 templates and imports them back, checking
  * that Sakai-specific settings survive the trip.
  */
-public class QtiItemRoundTripTest {
+public class ItemExportImportTest {
 
   private MockedStatic<ComponentManager> componentManagerMock;
 
   @Before
   public void setUp() {
-    // FormattedText is only used to sanitize item text; pass strings through unchanged
     FormattedText formattedText = Mockito.mock(FormattedText.class, invocation ->
         invocation.getMethod().getReturnType() == String.class && invocation.getArguments().length > 0
             ? invocation.getArgument(0)
@@ -72,17 +72,16 @@ public class QtiItemRoundTripTest {
     componentManagerMock.close();
   }
 
-  // SAK-42532
   @Test
-  public void extraCreditSurvivesRoundTrip() {
+  public void extraCreditSurvivesExportImport() {
     ItemData item = newItem(TypeIfc.ESSAY_QUESTION, "Essay");
     item.setIsExtraCredit(true);
-    assertTrue(roundTrip(item).getIsExtraCredit());
+    assertTrue(exportAndImport(item).getIsExtraCredit());
   }
 
   @Test
-  public void regularItemIsNotExtraCreditAfterRoundTrip() {
-    assertFalse(roundTrip(newItem(TypeIfc.ESSAY_QUESTION, "Essay")).getIsExtraCredit());
+  public void regularItemIsNotExtraCreditAfterExportImport() {
+    assertFalse(exportAndImport(newItem(TypeIfc.ESSAY_QUESTION, "Essay")).getIsExtraCredit());
   }
 
   @Test
@@ -90,30 +89,27 @@ public class QtiItemRoundTripTest {
     ItemData item = newItem(TypeIfc.ESSAY_QUESTION, "Essay");
     item.setIsExtraCredit(true);
     Item itemXml = export(item);
-    // simulate a file exported before EXTRA_CREDIT was written
     itemXml.setFieldentry("EXTRA_CREDIT", "");
     assertFalse(importItem(itemXml).getIsExtraCredit());
   }
 
-  // SAK-40476
   @Test
-  public void minScoreSurvivesRoundTrip() {
+  public void minScoreSurvivesExportImport() {
     for (Long typeId : new Long[] {TypeIfc.MULTIPLE_CHOICE, TypeIfc.TRUE_FALSE, TypeIfc.ESSAY_QUESTION, TypeIfc.FILL_IN_BLANK}) {
       ItemData item = newItem(typeId, TypeIfc.FILL_IN_BLANK.equals(typeId) ? "Roses are {red}" : "Question");
       addAnswer(item, "red", "A", true, null);
       item.setMinScore(2.5d);
-      assertEquals("type " + typeId, Double.valueOf(2.5d), roundTrip(item).getMinScore());
+      assertEquals("type " + typeId, Double.valueOf(2.5d), exportAndImport(item).getMinScore());
     }
   }
 
   @Test
   public void missingMinScoreStaysUnset() {
-    assertNull(roundTrip(newItem(TypeIfc.ESSAY_QUESTION, "Essay")).getMinScore());
+    assertNull(exportAndImport(newItem(TypeIfc.ESSAY_QUESTION, "Essay")).getMinScore());
   }
 
-  // SAK-43227
   @Test
-  public void singleCorrectPartialCreditSurvivesRoundTrip() {
+  public void singleCorrectPartialCreditSurvivesExportImport() {
     ItemData item = newItem(TypeIfc.MULTIPLE_CHOICE, "Pick one");
     item.setPartialCreditFlag(true);
     addAnswer(item, "right", "A", true, 100d);
@@ -121,7 +117,7 @@ public class QtiItemRoundTripTest {
     addAnswer(item, "wrong", "C", false, 0d);
 
     Map<String, Double> partialCredits = new HashMap<>();
-    for (ItemTextIfc itemText : roundTrip(item).getItemTextSet()) {
+    for (ItemTextIfc itemText : exportAndImport(item).getItemTextSet()) {
       for (AnswerIfc answer : itemText.getAnswerSet()) {
         partialCredits.put(answer.getLabel(), answer.getPartialCredit());
       }
@@ -129,30 +125,47 @@ public class QtiItemRoundTripTest {
     assertEquals(Map.of("A", 100d, "B", 50d, "C", 0d), partialCredits);
   }
 
-  // SAK-34222
   @Test
-  public void multipleCorrectAllOrNothingSurvivesRoundTrip() {
+  public void singleCorrectAnswerWithoutScoreImportsWithNoPartialCredit() {
+    ItemData item = newItem(TypeIfc.MULTIPLE_CHOICE, "Pick one");
+    item.setPartialCreditFlag(true);
+    addAnswer(item, "right", "A", true, 100d);
+    addAnswer(item, "half", "B", false, 50d);
+    Item itemXml = export(item);
+    ExtractionHelper extractionHelper = new ExtractionHelper(QTIVersion.VERSION_1_2);
+    Map itemMap = extractionHelper.mapItem(itemXml);
+    itemMap.put("answerScore", List.of("", ""));
+    ItemFacade imported = new ItemFacade();
+    extractionHelper.updateItem(imported, itemXml, itemMap);
+    for (ItemTextIfc itemText : imported.getItemTextSet()) {
+      for (AnswerIfc answer : itemText.getAnswerSet()) {
+        assertEquals(Double.valueOf(0d), answer.getPartialCredit());
+      }
+    }
+  }
+
+  @Test
+  public void multipleCorrectAllOrNothingSurvivesExportImport() {
     for (String mcmsPartialCredit : new String[] {"false", "true"}) {
       ItemData item = newItem(TypeIfc.MULTIPLE_CORRECT, "Pick many");
       item.getItemMetaDataSet().add(new ItemMetaData(item, ItemMetaDataIfc.MCMS_PARTIAL_CREDIT, mcmsPartialCredit));
       addAnswer(item, "a", "A", true, null);
       addAnswer(item, "b", "B", true, null);
       addAnswer(item, "c", "C", false, null);
-      assertEquals(mcmsPartialCredit, roundTrip(item).getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT));
+      assertEquals(mcmsPartialCredit, exportAndImport(item).getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT));
     }
   }
 
-  // SAK-52973
   @Test
-  public void fillInBlankMutuallyExclusiveSurvivesRoundTrip() {
+  public void fillInBlankMutuallyExclusiveSurvivesExportImport() {
     ItemData item = newItem(TypeIfc.FILL_IN_BLANK, "Name two colours: {red|blue} and {red|blue}");
     item.getItemMetaDataSet().add(new ItemMetaData(item, ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB, "true"));
     addAnswer(item, "red|blue", "A", true, null);
     addAnswer(item, "red|blue", "B", true, null);
-    assertEquals("true", roundTrip(item).getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB));
+    assertEquals("true", exportAndImport(item).getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB));
   }
 
-  private ItemFacade roundTrip(ItemData item) {
+  private ItemFacade exportAndImport(ItemData item) {
     return importItem(export(item));
   }
 
