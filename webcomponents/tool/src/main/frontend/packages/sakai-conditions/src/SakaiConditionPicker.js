@@ -1,14 +1,14 @@
 import { html, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { ConditionElement } from "./ConditionElement.js";
-import { createCondition, getRootCondition, getToolItemsWithConditionsForLesson, updateCondition } from "./conditions-api.js";
+import { createCondition, getRootCondition, getItemsWithConditions, updateCondition } from "./conditions-api.js";
 import { ConditionType, ConditionOperator, formatConditionText, makeParentCondition, makeRootCondition, plainText } from "./condition-utils.js";
 import "../sakai-condition-text.js";
 
 export class SakaiConditionPicker extends ConditionElement {
 
   static properties = {
-    lessonId: { attribute: "lesson-id", type: Number },
+    lessonItems: { attribute: "lesson-items", type: Array },
     _toolItems: { state: true },
     _root: { state: true },
     _selected: { state: true },
@@ -17,6 +17,7 @@ export class SakaiConditionPicker extends ConditionElement {
 
   constructor() {
     super();
+    this.lessonItems = [];
     this._toolItems = [];
     this._selected = "";
     this._conjunction = ConditionOperator.AND;
@@ -26,7 +27,7 @@ export class SakaiConditionPicker extends ConditionElement {
     this._toolItems = [];
     this._root = null;
     const [ items, root ] = await Promise.all([
-      getToolItemsWithConditionsForLesson(this.siteId, this.lessonId),
+      getItemsWithConditions(this.siteId, this.lessonItems),
       getRootCondition(this.siteId, this.toolId, this.itemId),
     ]);
     if (items === null) { throw new Error("Unable to retrieve lesson conditions"); }

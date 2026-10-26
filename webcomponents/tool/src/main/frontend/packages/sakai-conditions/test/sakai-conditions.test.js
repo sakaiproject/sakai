@@ -69,15 +69,13 @@ describe("Lessons Lit condition controls", () => {
     const conditions = [ score, { ...score, id: "other", itemId: "other-source" } ];
     fetchMock.get(itemUrl, []);
     fetchMock.get("/api/sites/site/conditions", conditions);
-    fetchMock.get("/direct/lessons/lesson/1.json", { contentsList: [
-      { id: "source", name: "Essay" }, { id: "other-source", name: "Quiz" },
-    ] });
+    const lessonItems = [ { id: "source", name: "Essay" }, { id: "other-source", name: "Quiz" } ];
     fetchMock.post("/api/sites/site/conditions", ({ options }) => {
       const condition = JSON.parse(options.body);
       return { ...condition, id: condition.type === "ROOT" ? "root" : condition.operator.toLowerCase() };
     });
     fetchMock.put(/\/api\/sites\/site\/conditions\/(root|and|or)$/, ({ options }) => JSON.parse(options.body));
-    const el = await fixture(html`<sakai-condition-picker site-id="site" tool-id="sakai.lessonbuildertool" item-id="target" lesson-id="1"></sakai-condition-picker>`);
+    const el = await fixture(html`<sakai-condition-picker site-id="site" tool-id="sakai.lessonbuildertool" item-id="target" .lessonItems=${lessonItems}></sakai-condition-picker>`);
     await ready(el);
     change(el.renderRoot.querySelector("select"), "score");
     await elementUpdated(el);
@@ -101,15 +99,35 @@ describe("Lessons Lit condition controls", () => {
   it("excludes the current item's conditions for numeric and string item IDs", async () => {
     fetchMock.get("/api/sites/site/conditions?toolId=sakai.lessonbuildertool&itemId=7", []);
     fetchMock.get("/api/sites/site/conditions", [ { ...score, id: "own", itemId: 7 }, score ]);
-    fetchMock.get("/direct/lessons/lesson/1.json", { contentsList: [
-      { id: 7, name: "Current item" }, { id: "source", name: "Essay" },
-    ] });
+    const lessonItems = [ { id: 7, name: "Current item" }, { id: "source", name: "Essay" } ];
     for (const itemId of [ 7, "7" ]) {
-      const el = await fixture(html`<sakai-condition-picker site-id="site" tool-id="sakai.lessonbuildertool" .itemId=${itemId} lesson-id="1"></sakai-condition-picker>`);
+      const el = await fixture(html`<sakai-condition-picker site-id="site" tool-id="sakai.lessonbuildertool" .itemId=${itemId} .lessonItems=${lessonItems}></sakai-condition-picker>`);
       await ready(el);
       expect(el.renderRoot.querySelector('option[value="own"]')).not.to.exist;
       expect(el.renderRoot.querySelector('option[value="score"]')).to.exist;
     }
+  });
+
+  it("loads labels from the rendered JSON attribute and excludes items from other pages", async () => {
+    fetchMock.get(itemUrl, []);
+    fetchMock.get("/api/sites/site/conditions", [ score, { ...score, id: "elsewhere", itemId: "other-page" } ]);
+    const el = await fixture(html`<sakai-condition-picker site-id="site" tool-id="sakai.lessonbuildertool"
+        item-id="target" lesson-items=${JSON.stringify([ { id: "source", name: 'A & B "quoted" <b>question</b>' } ])}></sakai-condition-picker>`);
+    await ready(el);
+    expect(el.renderRoot.querySelector("optgroup").label).to.equal('A & B "quoted" question');
+    expect(el.renderRoot.querySelector('option[value="score"]')).to.exist;
+    expect(el.renderRoot.querySelector('option[value="elsewhere"]')).not.to.exist;
+    expect(fetchMock.callHistory.calls().some(call => call.url.includes("/direct/lessons/"))).to.be.false;
+  });
+
+  it("handles a page without available conditions", async () => {
+    fetchMock.get(itemUrl, []);
+    fetchMock.get("/api/sites/site/conditions", []);
+    const el = await fixture(html`<sakai-condition-picker site-id="site" tool-id="sakai.lessonbuildertool"
+        item-id="target" lesson-items='[]'></sakai-condition-picker>`);
+    await waitUntil(() => el.renderRoot.querySelector(".alert-info"));
+    expect(el.renderRoot.querySelector("select")).not.to.exist;
+    expect(fetchMock.callHistory.calls().some(call => call.url.includes("/direct/lessons/"))).to.be.false;
   });
 
   it("renders condition arguments as text and preserves translated emphasis", async () => {

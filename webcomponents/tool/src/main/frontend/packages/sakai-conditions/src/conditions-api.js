@@ -7,7 +7,6 @@ import {
 
 import {
     ConditionType,
-    lessonItemName,
     nonParentConditionFilter,
     nonRootConditionFilter,
 } from "./condition-utils.js";
@@ -40,25 +39,18 @@ export async function getConditionsForSite(siteId) {
 
 }
 
-export async function getToolItemsWithConditionsForLesson(siteId, lessonId) {
-  if (!allParamsNonNull(siteId, lessonId)) { return null; }
+export async function getItemsWithConditions(siteId, lessonItems) {
+  if (!allParamsNonNull(siteId, lessonItems)) { return null; }
 
-  const lessonPromise = fetchJson(`/direct/lessons/lesson/${lessonId}.json`);
-  const conditionsPromise = getConditionsForSite(siteId);
+  const conditions = await getConditionsForSite(siteId);
+  if (conditions === null) { return null; }
 
-  const [ lesson, conditions ] = await Promise.all([ lessonPromise, conditionsPromise ]);
-
-  if (!lesson?.contentsList || conditions === null) {
-    console.error("Lesson or conditions not found");
-    return null;
-  }
-
-  return lesson.contentsList.map(lessonItem => ({
-    id: lessonItem.id,
-    name: lessonItemName(lessonItem),
+  return lessonItems.map(item => ({
+    id: item.id,
+    name: item.name,
     conditions: conditions.filter(nonRootConditionFilter).filter(nonParentConditionFilter)
-      .filter(condition => String(condition.itemId) === String(lessonItem.id)),
-  })).filter(lessonItem => lessonItem.conditions.length > 0);
+      .filter(condition => String(condition.itemId) === String(item.id)),
+  })).filter(item => item.conditions.length > 0);
 }
 
 // Create condition
