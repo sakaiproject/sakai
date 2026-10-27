@@ -24,15 +24,9 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -42,12 +36,10 @@ import lombok.extern.slf4j.Slf4j;
  * @author plukasew
  */
 @Slf4j
-@Transactional(propagation = Propagation.REQUIRES_NEW)
+@Transactional
 public class AutoSubmitFacadeQueries implements AutoSubmitFacadeQueriesAPI
 {
 	@Setter private SessionFactory sessionFactory;
-	/** Isolates Gradebook sync so failures do not mark the Samigo attempt transaction rollback-only. */
-	@Setter private TransactionTemplate requiresNewTransactionTemplate;
 
 	@Override
 	public boolean processAttempt(AssessmentGradingData adata, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
@@ -132,47 +124,14 @@ public class AutoSubmitFacadeQueries implements AutoSubmitFacadeQueriesAPI
 		}
 
 		if (autoSubmitCurrent) {
-			new GradingService().updateAutosubmitEventLog(adata);
-			scheduleGradebookNotificationAfterCommit(adata, assessment);
+			GradingService gs = new GradingService();
+			gs.notifyGradebookByScoringType(adata, assessment); // this may throw runtime exceptions triggering a rollback
+
+			// if we get this far, the processing of this attempt was successful so it is now safe to
+			// update the log and email the student (triggered by the same method)
+			gs.updateAutosubmitEventLog(adata);
 		}
 
 		return true;
-	}
-
-	/**
-	 * Run Gradebook notification after the autosubmission transaction commits, in its own transaction.
-	 */
-	private void scheduleGradebookNotificationAfterCommit(AssessmentGradingData adata, PublishedAssessmentIfc assessment) {
-		if (TransactionSynchronizationManager.isSynchronizationActive()) {
-			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-				@Override
-				public void afterCommit() {
-					notifyGradebookInNewTransaction(adata, assessment);
-				}
-			});
-		} else {
-			notifyGradebookInNewTransaction(adata, assessment);
-		}
-	}
-
-	/**
-	 * Best-effort Gradebook sync. Exceptions propagate out of the REQUIRES_NEW callback so partial
-	 * TO_SELECTED updates roll back; they are caught here so autosubmit processing continues.
-	 */
-	private void notifyGradebookInNewTransaction(AssessmentGradingData adata, PublishedAssessmentIfc assessment) {
-		try {
-			if (requiresNewTransactionTemplate != null) {
-				requiresNewTransactionTemplate.executeWithoutResult(status ->
-						new GradingService().notifyGradebookByScoringType(adata, assessment));
-			} else {
-				new GradingService().notifyGradebookByScoringType(adata, assessment);
-			}
-		} catch (GradebookServiceException e) {
-			log.error("Gradebook sync failed after autosubmit; submission kept. assessmentGradingId={}, publishedAssessmentId={}",
-					adata.getAssessmentGradingId(), adata.getPublishedAssessmentId(), e);
-		} catch (RuntimeException e) {
-			log.error("Gradebook sync/transaction failed after autosubmit; submission kept. assessmentGradingId={}, publishedAssessmentId={}",
-					adata.getAssessmentGradingId(), adata.getPublishedAssessmentId(), e);
-		}
 	}
 }
