@@ -460,7 +460,6 @@ public class ResourcesAction
 	private final String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private final ResourceLoader srb = Resource.getResourceLoader(resourceClass, resourceBundle);
 	
-	static final ResourceConditionsHelper conditionsHelper = new ResourceConditionsHelper();
 
 	public static final String PREFIX = "resources.";
 	public static final String SYS = "sys.";
@@ -1167,7 +1166,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					resourceProperties.addProperty(entry.getKey(), entry.getValue());
 				}
 				contentHostingService.commitCollection(edit);
-				ResourceConditionsHelper.notifyCondition(edit);
 				new_collections.add(edit);
 			}
 			catch (PermissionException e)
@@ -1289,7 +1287,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				try
 				{
 					contentHostingService.commitResource(resource, notification);
-					ResourceConditionsHelper.notifyCondition(resource);
 					item_added = true;
 					new_resources.add(resource);
 				}
@@ -3937,7 +3934,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
 			context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
 			
-			ResourceConditionsHelper.buildConditionContext(context, state);
 		}
 		
 		// Get default notification ("r", "o" or "n") 
@@ -5487,7 +5483,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			context.put("showMountPointProperty", Boolean.TRUE.toString());
 		}
-		ResourceConditionsHelper.buildConditionContext(context, state);
 		
 		context.put("shortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.resources.enabled", true));
 		
@@ -6095,14 +6090,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			ListItem item = (ListItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
 			item.captureProperties(params, ListItem.DOT + "0");
-			if (item.numberFieldIsInvalid) {
-				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
-				return;
-			}
-			if (item.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new Object[] { item.getConditionAssignmentPoints() }));
-				return;
-			}
 			if(!"".equals(item.metadataValidationFails)) {
 				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", item.metadataValidationFails));
 				return;
@@ -6171,7 +6158,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				
 				resource.setResourceType(resourceType);
 				item.setId(resource.getId());
-				ResourceConditionsHelper.saveCondition(item, params, state, 0);
 				item.updateContentResourceEdit(resource);
 				
 				extractContent(pipe, resource);
@@ -6241,7 +6227,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					try
 					{
 						contentHostingService.commitResource(resource, noti);
-						ResourceConditionsHelper.notifyCondition(resource);
 						if(action instanceof InteractionAction)
 						{
 						    InteractionAction iAction = (InteractionAction) action;
@@ -6565,7 +6550,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 
 			startHelper(data.getRequest(), iAction.getHelperId());
-			conditionsHelper.loadConditionData(state);
 		}
 		else if(action instanceof ServiceLevelAction)
 		{
@@ -6626,7 +6610,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					state.setAttribute (STATE_MODE, MODE_REVISE_METADATA);
 					ListItem item = getListItem(state);
 					state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
-					conditionsHelper.loadConditionData(state);
 					// sAction.finalizeAction(reference);
 					break;
 				case CUSTOM_TOOL_ACTION:
@@ -7389,14 +7372,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				
 			}
 			item.captureProperties(params, ListItem.DOT + "0");
-			if (item.numberFieldIsInvalid) {
-				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
-				return;
-			}
-			if (item.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new Object[] { item.getConditionAssignmentPoints() }));
-				return;
-			}
 			if(!"".equals(item.metadataValidationFails)) {
 				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", item.metadataValidationFails));
 				return;
@@ -7460,7 +7435,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				try 
 				{
-					ResourceConditionsHelper.saveCondition(item, params, state, 0);
 					
 					Entity entity;
 					if(item.isCollection())
@@ -7482,7 +7456,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					    slAction.finalizeAction(entityManager.newReference(contentHostingService.getReference(item.getId())));
 					}
 
-					ResourceConditionsHelper.notifyCondition(entity);
 					state.setAttribute(STATE_MODE, MODE_LIST);
 				} 
 				catch (IdUnusedException e) 
@@ -9096,7 +9069,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				try
 				{
 					contentHostingService.commitResource(resource, notification);
-					ResourceConditionsHelper.notifyCondition(resource);
 					item_added = true;
 					new_resources.add(resource);
 				}

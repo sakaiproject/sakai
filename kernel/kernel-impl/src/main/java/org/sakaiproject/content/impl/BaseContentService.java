@@ -102,7 +102,6 @@ import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.content.api.ContentChangeHandler;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -10395,10 +10394,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			return m_accessUpdated;
 		}
 
-		private boolean isConditionallyReleased(ContentEntity entity) {
-			return StringUtils.equalsIgnoreCase("true", entity.getProperties().getProperty(ConditionService.PROP_CONDITIONAL_RELEASE));
-		}
-
 		public boolean isAvailable() 
 		{
 			boolean available = !this.isHidden();
@@ -10412,7 +10407,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 			while (available && currentEntity != null) {
 			
-				if(available && (currentEntity.getReleaseDate() != null || currentEntity.getRetractDate() != null || isConditionallyReleased(currentEntity)))
+				if(available && (currentEntity.getReleaseDate() != null || currentEntity.getRetractDate() != null))
 				{
 					Time now = timeService.newTime();
 					if (currentEntity.getReleaseDate() != null) {
@@ -10420,21 +10415,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					}
 					if (available && currentEntity.getRetractDate() != null) {
 						available = currentEntity.getRetractDate().after(now);
-					}
-					if (available && isConditionallyReleased(currentEntity)) {
-						// first check for global rule satisfaction
-						String satisfiesRule = currentEntity.getProperties().getProperty("resource.satisfies.rule");
-						if (satisfiesRule == null) {
-							Collection<?> acl = (Collection<?>) currentEntity.getProperties().get("conditional_access_list");
-							if (acl == null) {
-								available = false;
-							} else {
-								// acl acts as a white list for availability
-								available = acl.contains(sessionManager.getCurrentSessionUserId());
-							}
-						} else {
-							available = Boolean.parseBoolean(satisfiesRule);
-						}
 					}
 				}
 				if (!available) {
@@ -10631,36 +10611,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		public void setResourceType(String type)
 		{
 			m_resourceType = type;
-		}
-
-		public boolean isConditionallyReleased() {
-			try {
-				return this.m_properties.getBooleanProperty(ConditionService.PROP_CONDITIONAL_RELEASE);
-			} catch (EntityPropertyNotDefinedException e) {
-				return false;
-			} catch (EntityPropertyTypeException e) {
-				return false;
-			}
-		}
-
-		public void setConditionallyReleased(boolean isConditionallyReleased) {
-			try {
-				Boolean oldValue = this.m_properties.getBooleanProperty(ConditionService.PROP_CONDITIONAL_RELEASE);
-				if(oldValue.booleanValue() != isConditionallyReleased) {
-					this.m_visibilityUpdated = true;
-				}
-			} catch (EntityPropertyNotDefinedException e) {
-				// oldValue is false
-				if(isConditionallyReleased) {
-					this.m_visibilityUpdated = true;
-				}
-			} catch (EntityPropertyTypeException e) {
-				// assume oldValue is false
-				if(isConditionallyReleased) {
-					this.m_visibilityUpdated = true;
-				}
-			}
-			m_properties.addProperty(ConditionService.PROP_CONDITIONAL_RELEASE, Boolean.toString(isConditionallyReleased));
 		}
 
 	}	// BasicGroupAwareEntity

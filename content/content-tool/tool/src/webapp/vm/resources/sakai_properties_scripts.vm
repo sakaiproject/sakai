@@ -803,14 +803,6 @@
 			{
 				newElement.style.display = "none";
 			}
-			if( root.id.match( /^grade_argument_span${DOT}\d+$/ ) )
-			{
-				newElement.style.display = "none";			
-			}
-			if( root.id.match( /^selectCondition${DOT}\d+$/ ) )
-			{
-				newElement.onchange = handleSelectConditionChange;
-			}
 			if( root.id.match( /^groupTable${DOT}\d+$/ ) )
 			{
 				newElement.style.display = "none";
@@ -1573,43 +1565,8 @@
 		{
 			use_end_date.checked = false;
 		}
-		var use_condition = document.getElementById("cbCondition");
-		if(use_condition)
-		{
-			use_condition.checked = false;
-		}	
 	}
 
-	function changeCondition(selectValue,dotSuffix)
-	{
-		selectIndex = Number(selectValue.substring(0, selectValue.indexOf("|")));
-		if (selectIndex < 9) {
-			document.getElementById("grade_argument_span" + dotSuffix).style.display = "none";
-		} else if (selectIndex < 11){
-			document.getElementById("grade_argument_span" + dotSuffix).style.display = "inline";
-		}
-	}
-	
-	function handleSelectConditionChange(evt)
-	{
-		evt = (evt) ? evt : ((event) ? event : null);
-		if(evt)
-		{
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
-			if(element)
-			{
-				var selectedValue = element.options[element.selectedIndex].value;
-				var dot = element.id.lastIndexOf("$DOT");
-				if(dot >= 0)
-				{
-					var index = element.id.substr(dot + 1);
-					changeCondition(selectedValue, "${DOT}" + index);
-				}								
-			}
-		}
-		
-	}
-	
 	//handles showing either the short url or the full url, depending on the state of the checkbox 
 	//(if configured, otherwise returns url as-is as according to the url shortening entity provder)
 	function toggleResourcesShortUrlOutput(defaultUrl) {		

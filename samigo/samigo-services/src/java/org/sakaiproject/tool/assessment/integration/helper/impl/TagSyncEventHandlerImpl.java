@@ -230,10 +230,6 @@ public class TagSyncEventHandlerImpl implements TagEventHandler {
     }
 
     private String entityIdFor(Event event) throws IllegalArgumentException {
-        // Properly this should go through the EntityManager/Entity/Reference APIs to eventually result in a
-        // Reference.getId() call. But event handlers certainly exist that *dont* do that
-        // (see ResourceReleaseRule). And we're trying to put off building all that machinery for as long as
-        // possible since it really just amounts to boilerplate for our needs.
         final String resourceRef = event.getResource();
         if ( resourceRef == null ) {
             throw new IllegalArgumentException("Null resource reference for event: " + event);
