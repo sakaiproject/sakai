@@ -102,4 +102,16 @@ public class ZipTest {
             Zip.resolveContainedPath(root, "pages/../images/image.png"));
         assertThrows(IOException.class, () -> Zip.resolveEntryPath(root, "pages/../images/image.png"));
     }
+    @Test
+    public void resolvesReferencesFromNestedPackageDirectory() throws IOException {
+        Path root = temporary.newFolder().toPath().toRealPath();
+        Path base = Files.createDirectory(root.resolve("manifest"));
+        assertEquals(root.resolve("images/file.txt"), Zip.resolveContainedPath(root, base, "../images/file.txt"));
+        assertThrows(IOException.class, () -> Zip.resolveContainedPath(root, base, "../../outside.txt"));
+        assertThrows(IOException.class, () -> Zip.resolveContainedPath(root, base, "/outside.txt"));
+        assertThrows(IOException.class, () -> Zip.resolveContainedPath(root, base, "C:/outside.txt"));
+        Path outside = temporary.newFolder().toPath();
+        assertThrows(IOException.class, () -> Zip.resolveContainedPath(root, outside, "file.txt"));
+    }
+
 }

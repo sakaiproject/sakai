@@ -313,17 +313,19 @@ public abstract class IMSFileParser extends ZipFileParser {
 		
 		//This should be avoided
 		public byte[] getFileBytesForNode(Node node, String contextPath) throws IOException {
-			String filePath = getFilePathForNode(node, contextPath);
-			return getBytesFromFile(new File(pathToData + "/" + filePath));
+			return getBytesFromFile(getSourceFileForNode(node));
 		}
 		
 		
 		public InputStream getInputStreamForNode(Node node, String contextPath) throws IOException{
-			String filePath = getFilePathForNode(node,contextPath);
-			InputStream is = new FileInputStream(filePath);
+			InputStream is = new FileInputStream(getSourceFileForNode(node));
 			return is;
 		}
 		
+        protected File getSourceFileForNode(Node node) throws IOException {
+            return resolvePackageFile(XPathHelper.getNodeValue("./@href", node));
+        }
+
 		public String getFilePathForNode(Node node, String contextPath) {
 			return contextPath + "/" + getFilenameForNode(node);
 		}
