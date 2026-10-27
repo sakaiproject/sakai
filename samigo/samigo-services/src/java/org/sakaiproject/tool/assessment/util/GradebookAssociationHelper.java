@@ -100,10 +100,11 @@ public final class GradebookAssociationHelper {
 
 	/**
 	 * Remap gradebook item ids using the site-import transversal map keys {@code gb/{oldId} → gb/{newId}}.
-	 * Ids without a map entry are preserved. When {@code siteId} and {@code gradingService} are provided,
-	 * a mapped id is dropped only when the new item is confirmed absent in the target site.
+	 * When {@code siteId} and {@code gradingService} are provided, both mapped and unmapped ids
+	 * are dropped when confirmed absent in the target site. Existing target-site ids and ids whose
+	 * lookup fails temporarily are preserved.
 	 *
-	 * @return remapped CSV; empty string only when every id was mapped and confirmed absent (or input blank)
+	 * @return remapped CSV, or empty string if no ids remain
 	 */
 	public static String remapItemIds(String gradebookItemIds, Map<String, String> transversalMap) {
 		return remapItemIds(gradebookItemIds, transversalMap, null, null);
@@ -114,15 +115,11 @@ public final class GradebookAssociationHelper {
 		if (StringUtils.isBlank(gradebookItemIds)) {
 			return "";
 		}
-		if (transversalMap == null || transversalMap.isEmpty()) {
-			return StringUtils.trimToEmpty(gradebookItemIds);
-		}
 		List<String> remapped = new ArrayList<>();
 		for (String oldId : parseItemIds(gradebookItemIds)) {
-			String mapped = transversalMap.get(GB_TRANSVERSAL_PREFIX + oldId);
+			String mapped = transversalMap == null ? null : transversalMap.get(GB_TRANSVERSAL_PREFIX + oldId);
 			if (StringUtils.isBlank(mapped)) {
-				remapped.add(oldId);
-				continue;
+				mapped = oldId;
 			}
 			String newId = mapped.startsWith(GB_TRANSVERSAL_PREFIX)
 					? mapped.substring(GB_TRANSVERSAL_PREFIX.length())
@@ -132,7 +129,7 @@ public final class GradebookAssociationHelper {
 			}
 			if (gradingService != null && StringUtils.isNotBlank(siteId)
 					&& checkGradebookItemPresence(siteId, newId, gradingService) == GradebookItemPresence.ABSENT) {
-				log.info("Dropping remapped gradebook item {} (from {}) confirmed absent in site {}",
+				log.info("Dropping gradebook item {} (from {}) confirmed absent in site {}",
 						newId, oldId, siteId);
 				continue;
 			}

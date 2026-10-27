@@ -470,8 +470,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 	/**
 	 * Remap TO_SELECTED_GRADEBOOK item ids using {@code gb/oldId → gb/newId} from the shared transversal map.
-	 * Ids without a map entry are preserved (including assessments outside this transfer). A mapped id is
-	 * dropped only when the new item is confirmed absent in the target site; if none remain, reset to
+	 * Existing target-site ids are preserved, including assessments outside this transfer. Any id
+	 * confirmed absent in the target site is dropped; if none remain, reset to
 	 * NOT_TO_GRADEBOOK.
 	 */
 	void remapGradebookAssociations(String toContext, Map<String, String> transversalMap) {
@@ -498,7 +498,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				evaluation.setToGradeBook(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString());
 				assessmentFacade.updateAssessmentToGradebookNameMetaData("");
 				changed = true;
-				log.info("Cleared TO_SELECTED gradebook association for assessment {} in site {} (mapped items confirmed absent; original ids [{}])",
+				log.info("Cleared TO_SELECTED gradebook association for assessment {} in site {} (items confirmed absent; original ids [{}])",
 						assessmentFacade.getAssessmentId(), toContext, originalIds);
 			} else if (!remappedIds.equals(StringUtils.defaultString(originalIds))) {
 				assessmentFacade.updateAssessmentToGradebookNameMetaData(remappedIds);

@@ -85,18 +85,14 @@ public class SamigoObserver implements Observer {
     }
 
     /**
-     * Resource formats:
-     * <ul>
-     *   <li>{@code /gradebookng/{gradebookUid}/{assignmentId}} (from GradingServiceImpl)</li>
-     *   <li>{@code /gradebookng/{gradebookId}/{assignmentId}/{role}} (legacy EventHelper)</li>
-     * </ul>
+     * Resource format: {@code /gradebookng/{gradebookId}/{assignmentId}/{role}}.
      */
     void handleGradebookItemDeleted(String resource) {
         if (StringUtils.isBlank(resource)) {
             return;
         }
         String[] parts = StringUtils.split(resource, '/');
-        // parts: ["gradebookng", gradebookUidOrId, assignmentId, (optional role)]
+        // parts: ["gradebookng", gradebookId, assignmentId, role]
         if (parts == null || parts.length < 3 || !"gradebookng".equals(parts[0])) {
             log.warn("Unexpected gradebook.deleteItem resource format: {}", resource);
             return;
