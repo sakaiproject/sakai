@@ -203,6 +203,12 @@
       <groupId>org.sakaiproject.conditions</groupId>
       <artifactId>sakai-conditions-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.videotraining</groupId>
+      <artifactId>video-training-api</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <!-- Spring dependencies -->
     <dependency>
       <groupId>org.springframework</groupId>
@@ -233,7 +239,7 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
-      <dependency>
+    <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jdk8</artifactId>
     </dependency>
@@ -271,7 +277,6 @@
       <artifactId>sections-api</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>
