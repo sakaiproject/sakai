@@ -52,6 +52,8 @@
             if (messagesTable?.querySelector('tbody td:not(:empty)')) {
                 new DataTable(messagesTable, {
                     "paging": false,
+                    // the search box above the table filters it, see setupMessagesSearch
+                    "layout": {"topEnd": null},
                     "info": false,
                     "order": [[4, "desc"]],
                     "columns": [
@@ -89,6 +91,8 @@
             if (threadedMessagesTable?.querySelector('tbody td:not(:empty)')) {
                 new DataTable(threadedMessagesTable, {
                     "paging": false,
+                    // the search box above the table filters it, see setupMessagesSearch
+                    "layout": {"topEnd": null},
                     "order": [[4, "desc"]],
                     "info": false,
                     "columns": [

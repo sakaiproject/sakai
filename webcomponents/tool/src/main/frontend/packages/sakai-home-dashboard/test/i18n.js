@@ -26,4 +26,5 @@ option3=Option 3
 select=Select
 layout=Layout
 layout_tooltip=Launch the layout picker
+widgets_available={0} widgets available
 `;

@@ -430,56 +430,6 @@ button.btn.btn-default.multiselect-clear-filter{
 							</label>
 						</div>
 					</div>
-					#if($conditions_enabled)
-						<div class="form-group">
-							#if($resourceSelections.size() == 0)
-								<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" class="form-check-input" type="checkbox" disabled>
-							#else
-								#if($item.isUseConditionalRelease())
-									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" class="form-check-input" type="checkbox" checked>
-								#else
-									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" class="form-check-input" type="checkbox">
-								#end
-							#end
-							<label for="cbCondition${DOT}$i">$tlang.getString("conditional.only_if_condition_is_met")</label>
-						</div>
-						<div class="form-group">
-							#if($resourceSelections.size() == 0)
-								$tlang.getString("no.gradebook.assignments")
-							#else
-								$tlang.getString("conditional.gradebook_tool_name")
-								<select name="selectResource${DOT}$i" id="selectResource${DOT}$i">
-								#foreach ($key in $resourceSelections.keySet())
-									#if($key.startsWith("${item.getSubmittedResourceFilter()}/") && $item.isUseConditionalRelease())
-										<option value="${key.replaceAll('"','&quot;')}" selected="selected">${resourceSelections.get(${key})}</option>
-									#else
-										<option value="${key.replaceAll('"','&quot;')}">${resourceSelections.get(${key})}</option>
-									#end
-								#end
-								</select>
-								<select name="selectCondition${DOT}$i"
-										id="selectCondition${DOT}$i"
-										onchange="changeCondition(this.options[this.selectedIndex].value, '${DOT}$i');">
-									#foreach ($key in $conditionSelections.keySet())
-										#if($key.equals($item.getSelectedConditionKey()) && $item.isUseConditionalRelease())
-											<option value="${key}" selected="selected">${conditionSelections.get(${key})}</option>
-										#else
-											<option value="${key}">${conditionSelections.get(${key})}</option>
-										#end
-									#end
-								</select>
-								#if($item.getSelectedConditionKey().startsWith("9") || $item.getSelectedConditionKey().startsWith("10"))
-									<span id="grade_argument_span${DOT}$i" style="display:inline;">
-										<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" value="$item.getConditionArgument()" />
-									</span>
-								#else
-									<span id="grade_argument_span${DOT}$i" style="display:none;">
-										<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" />
-									</span>
-								#end
-							#end
-						</div>
-					#end
 				#end
 				#if(!$model.isSiteCollection())
 					<p class="text-muted mt-4 mb-2 h5">$model.getAccessInstruction()</p>

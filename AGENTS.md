@@ -21,6 +21,7 @@
 - **Repositories**: Keep repositories focused on persistence of mapped entities and queries. Create adapters, DTO assembly, and tool-specific workflow objects in services.
 - **Singleton State**: Do not store request-specific state such as user id, site id, locale, timezone, or request parameters in singleton Spring beans/controllers.
 - **Strategy Consistency**: Avoid mixing competing solutions for the same problem, such as backend locks plus UI state throttling, unless both are explicitly required and documented.
+- **Locking**: Prefer existing persistence patterns and simple service checks. Exotic or cross-tool locking may appear to close concurrency gaps, but Sakai's shared Hibernate sessions, transaction boundaries, and tool workflows make it prone to unexpected conflicts and regressions; do not introduce it without a demonstrated need and tests covering the affected tools through transaction commit.
 
 ### Kernel
 - **Core Services**: The Kernel provides core services that should be used by all tools
@@ -97,6 +98,7 @@
 - **No `var` in Java**: Do not use local variable type inference (`var`) in Java code. Always declare explicit types (e.g., `List<String> names = new ArrayList<>();` not `var names = new ArrayList<String>();`).
    - Enforced: The build runs a Checkstyle rule during `mvn validate` to fail on `var` usages. To bypass in emergencies only, run with `-Dcheckstyle.skip=true` (not recommended for commits).
 - **Secure XML Parsing**: For DOM XML parsing, use `org.sakaiproject.util.Xml.createSecureDocumentBuilderFactory()` instead of manually configuring `DocumentBuilderFactory`. `MapperFactory` is only for Jackson `ObjectMapper`/`XmlMapper` creation.
+- **ZIP Handling**: Use `org.sakaiproject.util.Zip` for ZIP entry paths and package-relative file references instead of tool-local path checks. Use `Zip.validateEntryName()` before using entry names in content collections or virtual paths, and use its returned normalized name. For filesystem extraction, use `Zip.resolveEntryPath()` before creating directories or opening output files. For package-relative file reads, use `Zip.resolveContainedPath()`; when a reference is relative to a nested directory, pass both the archive root and the base directory. Apply these rules to nested ZIPs and secondary extraction stages as well as the initial upload.
 
 ## Review Heuristics
 - **Security Context**: Check links, entity providers, background jobs, site copy/import, and user/site operations for explicit permissions and trustworthy user/site/session context.

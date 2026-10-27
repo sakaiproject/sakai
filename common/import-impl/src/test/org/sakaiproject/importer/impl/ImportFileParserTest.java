@@ -101,6 +101,23 @@ public class ImportFileParserTest {
         assertEquals("first", Files.readString(first.resolve("imsmanifest.xml")));
     }
 
+    @Test
+    public void dataSourceCleanupRemovesOnlyItsOwnExtractionDirectory() throws IOException {
+        Path parent = temporary.newFolder().toPath();
+        Path canary = Files.writeString(parent.resolve("keep.txt"), "keep");
+        ExtractionParser parser = new ExtractionParser();
+        org.sakaiproject.importer.api.ImportDataSource first = parser.parse(archive(Map.of("imsmanifest.xml", "first")), parent.toString());
+        Path firstPath = parser.extractedPath;
+        org.sakaiproject.importer.api.ImportDataSource second = parser.parse(archive(Map.of("imsmanifest.xml", "second")), parent.toString());
+        Path secondPath = parser.extractedPath;
+        first.cleanup();
+        assertFalse(Files.exists(firstPath));
+        assertTrue(Files.exists(secondPath));
+        second.cleanup();
+        assertFalse(Files.exists(secondPath));
+        assertEquals("keep", Files.readString(canary));
+    }
+
     private ByteArrayInputStream archive(Map<String, String> entries) throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (ZipOutputStream zip = new ZipOutputStream(bytes)) {

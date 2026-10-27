@@ -328,6 +328,11 @@
                             <span rsf:id="msg.simplepage.scorm"></span>
                           </a>
                         </li>
+                        <li class="list-group-item m-1" rsf:id="video-training-li">
+                          <a role="button" href="#" rsf:id="add-video-training" class="add-before-param">
+                            <span rsf:id="msg=simplepage.video-training"></span>
+                          </a>
+                        </li>
                         <li class="list-group-item m-1" rsf:id="forum-li">
                           <a role="button" class="add-forum-link add-before-param" href="#" rsf:id="add-forum">
                             <span rsf:id="msg.simplepage.forum"></span>
@@ -491,7 +496,9 @@
               <input type="hidden" rsf:id="subpage-add-before" id="subpage-add-before" />
             </div>
             <div class="modal-footer">
+             <div>
               <button class="btn-primary" type="submit" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();"></button>
+             </div>
               <a class="button" id="subpage-choose" role="button" rsf:id="subpage-choose"><span rsf:id="msg=simplepage.page.chooser"></span></a>
               <button class="btn btn-secondary" type="submit" data-bs-dismiss="modal" rsf:id="cancel-subpage"></button>
             </div>

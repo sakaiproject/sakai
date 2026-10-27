@@ -1702,7 +1702,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = PermissionException.class)
     public void updateAssignment(Assignment assignment) throws PermissionException {
         Assert.notNull(assignment, "Assignment cannot be null");
         Assert.notNull(assignment.getId(), "Assignment doesn't appear to have been persisted yet");
@@ -1778,6 +1778,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             }
                         }
                     }
+                } else if (canReleaseGroupLocks(assignment)) {
+                    releaseAssignmentGroupLocks(assignment, reference);
                 }
                 break;
             case SITE:

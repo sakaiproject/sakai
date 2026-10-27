@@ -2929,7 +2929,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 * @return extractDir returnst the path of the directory the file is
 	 *         extracted to
 	 */
-	private String importContentPackage(String iPIF, String encoding) {
+	private String importContentPackage(String iPIF, String encoding) throws IOException {
 		// get the extract dir
 		log.debug("CPValidator importContentPackage()");
 
@@ -3243,7 +3243,17 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		// If the CTS is testing a Package Interchange File, then import the
 		// content package (unzip and set up the CTS).
 		if (iTestType.equals("pif")) {
-			rootDirectory = importContentPackage(iFileName, encoding);
+            try {
+                rootDirectory = importContentPackage(iFileName, encoding);
+            } catch (IOException e) {
+                log.warn("Unable to extract content package {}", iFileName, e);
+                setIsIMSManifestPresent(false);
+                String importDirectory = mEnvironmentVariable + File.separator + "PackageImport" + File.separator;
+                if (new File(importDirectory).exists()) {
+                    cleanImportDirectory(importDirectory);
+                }
+                return false;
+            }
 			mBaseDirectory = mEnvironmentVariable + File.separator + "PackageImport" + File.separator;
 		} else {
 			rootDirectory = mBaseDirectory = getPathOfFile(iFileName);

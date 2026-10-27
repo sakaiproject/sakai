@@ -106,6 +106,21 @@ public final class Zip {
         }
     }
 
+    /** Resolves a reference relative to a base directory contained in the package root. */
+    public static Path resolveContainedPath(Path directory, Path baseDirectory, String name) throws IOException {
+        String portableName = relativeName(name);
+        Path root = directory.toRealPath();
+        Path base = baseDirectory.toRealPath();
+        if (!base.startsWith(root)) {
+            throw new InvalidEntryException("Path escapes ZIP archive directory");
+        }
+        try {
+            return resolveContainedPath(root, root.relativize(base).resolve(portableName).toString());
+        } catch (InvalidPathException e) {
+            throw new IOException("Invalid path in ZIP archive", e);
+        }
+    }
+
     /** Signals a security rejection; callers must not retry it as a charset or parsing failure. */
     public static final class InvalidEntryException extends IOException {
         private static final long serialVersionUID = 1L;

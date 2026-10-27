@@ -1,5 +1,7 @@
-.#{$namespace}sakai-sitestats,
-.#{$namespace}sakai-sitestats-admin{
+// Compact metrics/highlights for Lit web components also live in
+// webcomponents/.../sakai-sitestats/src/site-stats-compact-styles.js.
+// Keep these rules in sync when changing the overview card chrome.
+@mixin sitestats-compact-widget-styles {
   .sitestats-widgets {
     display: grid;
     gap: $standard-spacing;
@@ -203,6 +205,15 @@
       border-block-start: 1px solid var(--sakai-border-color);
     }
   }
+}
+
+.#{$namespace}sakai-dashboard {
+  @include sitestats-compact-widget-styles;
+}
+
+.#{$namespace}sakai-sitestats,
+.#{$namespace}sakai-sitestats-admin {
+  @include sitestats-compact-widget-styles;
 
   .sitestats-activity-definition:has(#all-tools:checked) #activity-event-options {
     display: none;

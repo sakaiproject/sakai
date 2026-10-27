@@ -57,6 +57,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -218,6 +219,9 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 	@Setter
 	private ContentHostingService contentHostingService;
 
+	@Setter
+	private SessionManager sessionManager;
+
 	
 	/**
 	 * Simplified helper class to represent the Syllabus for a site
@@ -302,6 +306,10 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 					title = title.trim();
 					if(!"".equals(title)){
 						SyllabusItem item = syllabusManager.getSyllabusItemByContextId(siteId);
+						if (item == null) {
+							// the tool creates a site's syllabus when it is first opened, which an api caller may not have done
+							item = syllabusManager.createSyllabusItem(sessionManager.getCurrentSessionUserId(), siteId, null);
+						}
 						int initPosition = syllabusManager.findLargestSyllabusPosition(item) + 1;
 
 						String published;
@@ -325,6 +333,7 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 							}
 						}
 						syllabusManager.addSyllabusToSyllabusItem(item, data);
+						notifyChange(data, siteId);
 					}
 				}
 			}else{
@@ -409,6 +418,7 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 						if(title != null && !"".equals(title.trim())){
 							data.setTitle(title.trim());
 							syllabusManager.saveSyllabus(data);
+							notifyChange(data, item.getContextId());
 						}
 					}else if("body".equals(params.get("name"))){
 						String body = (String) params.get("value");
@@ -417,6 +427,7 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 						if (cleanedText != null) {
 							data.setAsset(cleanedText);
 							syllabusManager.saveSyllabus(data);
+							notifyChange(data, item.getContextId());
 						}
 					}else if("startDate".equals(params.get("name"))){
 						String startDate = (String) params.get("value");
@@ -526,10 +537,19 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 								log.error(e.getMessage(), e);
 							}
 						}
+						notifyChange(data, item.getContextId());
 					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * Lets search reindex the item. Uses the draft change event, which sends no email, so that quick edits
+	 * here do not notify the site the way publishing from the editor can.
+	 */
+	private void notifyChange(SyllabusData data, String siteId) {
+		syllabusService.draftChangeSyllabus(data, siteId);
 	}
 
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params){

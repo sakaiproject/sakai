@@ -47,11 +47,14 @@ class PreferencesTest extends SakaiUiTestBase {
         } finally {
             page.locator("[id='timezone_form'] select").selectOption(original);
             page.locator("[id='timezone_form:submit']").click();
+            assertThat(page.getByText("Your preferences have been updated successfully.",
+                    new Page.GetByTextOptions().setExact(true))).isVisible();
         }
     }
 
     private void openUserTimeZone() {
-        String username = sakai.resolveUsername("instructor1");
+        // Keep timezone changes away from instructor1, which other parallel tests use.
+        String username = sakai.resolveUsername("student0151");
         sakai.login(username);
         page.navigate("/portal/site/~" + username);
         sakai.toolClick("Preferences");

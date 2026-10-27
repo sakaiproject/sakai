@@ -81,6 +81,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.sakaiproject.util.Zip;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -14531,7 +14532,11 @@ public class AssignmentAction extends PagedResourceActionII {
             Files.copy(fileContentStream, destination, StandardCopyOption.REPLACE_EXISTING);
             final Charset tempFileCharset = getZipFileCharset(tempFile);
 
-            ZipFile zipFile = new ZipFile(tempFile, tempFileCharset);
+            try (ZipFile zipFile = new ZipFile(tempFile, tempFileCharset)) {
+            Enumeration<? extends ZipEntry> validationEntries = zipFile.entries();
+            while (validationEntries.hasMoreElements()) {
+                Zip.validateEntryName(validationEntries.nextElement().getName());
+            }
             Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
             ZipEntry entry;
             // SAK-17606
@@ -14539,7 +14544,7 @@ public class AssignmentAction extends PagedResourceActionII {
             boolean isAnon = assignmentService.assignmentUsesAnonymousGrading(assignment);
             while (zipEntries.hasMoreElements() && validZipFormat) {
                 entry = zipEntries.nextElement();
-                String entryName = entry.getName();
+                String entryName = Zip.validateEntryName(entry.getName());
                 if (!entry.isDirectory() && !entryName.contains("/.")) {
                     if (entryName.endsWith("grades.csv") || entryName.endsWith("grades.xls")) {
                         if (hasGradeFile && entryName.endsWith("grades.csv") && "csv".equals(gradeFileFormat)) {
@@ -14778,6 +14783,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
                 }
+            }
             }
         } catch (IOException e) {
             // uploaded file is not a valid archive

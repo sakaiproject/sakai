@@ -24,6 +24,7 @@ package org.sakaiproject.importer.impl.handlers;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.io.ByteArrayInputStream;
 
 import java.text.Format;
@@ -68,6 +69,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Zip;
 
 @Slf4j
 public class ResourcesHandler implements HandlesImportable {
@@ -99,6 +101,7 @@ public class ResourcesHandler implements HandlesImportable {
 					return SecurityAdvice.PASS;
 				}
 			});
+            try {
 			String id = null;
 			String contentType = null;
 			int notifyOption = NotificationService.NOTI_NONE;
@@ -224,13 +227,14 @@ public class ResourcesHandler implements HandlesImportable {
 	    		addContentCollection(path,resourceProps);
 
 			}
-			securityService.popAdvisor();
+            } finally {
+                securityService.popAdvisor();
+            }
 		}
 
 	}
 	
 	protected void addAllResources(InputStream archive, String path, int notifyOption) {
-		ZipInputStream zipStream = new ZipInputStream(archive);
 		ZipEntry entry;
 		String contentType;
 		if (path.charAt(0) == '/') {
@@ -239,11 +243,12 @@ public class ResourcesHandler implements HandlesImportable {
 		if (!path.endsWith("/")) {
 			path = path + "/";
 		}
-		try {
+		try (ZipInputStream zipStream = new ZipInputStream(archive)) {
 			while((entry = zipStream.getNextEntry()) != null) {
+                String entryName = Zip.validateEntryName(entry.getName());
 				Map resourceProps = new HashMap();
-				contentType = new MimetypesFileTypeMap().getContentType(entry.getName());
-				String title = entry.getName();
+				contentType = new MimetypesFileTypeMap().getContentType(entryName);
+				String title = entryName;
 				if (title.lastIndexOf("/") > 0) {
 					title = title.substring(title.lastIndexOf("/") + 1);
 				}
@@ -263,16 +268,16 @@ public class ResourcesHandler implements HandlesImportable {
 
 				if (entry.isDirectory()) {
 
-					addContentCollection(path + entry.getName(), resourceProps);
-					addAllResources(new ByteArrayInputStream(contents.toByteArray()), path + entry.getName(), notifyOption);
+					addContentCollection(path + entryName, resourceProps);
+					addAllResources(new ByteArrayInputStream(contents.toByteArray()), path + entryName, notifyOption);
 				}
 				else {
-					addContentResource(path + entry.getName(), contentType, new ByteArrayInputStream(contents.toByteArray()), resourceProps, notifyOption);
+					addContentResource(path + entryName, contentType, new ByteArrayInputStream(contents.toByteArray()), resourceProps, notifyOption);
 				}
 				
 			}
 		} catch (IOException e) {
-			log.error(e.getMessage(), e);
+			throw new UncheckedIOException("Unable to read nested ZIP archive", e);
 		} 
 	}
 

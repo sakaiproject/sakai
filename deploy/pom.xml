@@ -942,6 +942,13 @@
             <artifactId>ical4j</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- Required by iCal4j; shared-library deployment copies direct dependencies only. -->
+        <dependency>
+            <groupId>org.threeten</groupId>
+            <artifactId>threeten-extra</artifactId>
+            <version>1.8.0</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>

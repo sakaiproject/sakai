@@ -77,4 +77,13 @@
 
 	<import resource="hibernate-hbms.xml"/>
 
+	<bean id="org.sakaiproject.calendar.impl.CalendarContentProducer"
+		class="org.sakaiproject.calendar.impl.CalendarContentProducer"
+		init-method="init">
+		<property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+		<property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+	</bean>
+
 </beans>

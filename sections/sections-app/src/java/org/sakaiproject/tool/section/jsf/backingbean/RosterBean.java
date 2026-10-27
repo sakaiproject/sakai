@@ -89,14 +89,14 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		// Get the section categories
 		categories = getSectionManager().getSectionCategories(getSiteContext());
 
-		// Get the default search text
+		// no search is an empty search; the page shows its prompt as a placeholder
 		if(StringUtils.trimToNull(searchText) == null) {
-			searchText = JsfUtil.getLocalizedMessage("roster_search_text");
+			searchText = "";
 		}
 
 		// Get the site enrollments
 		//List<EnrollmentRecord> siteStudents;
-		if(searchText.equals(JsfUtil.getLocalizedMessage("roster_search_text"))) {
+		if(searchText.isEmpty()) {
 			siteStudents = getSectionManager().getSiteEnrollments(getSiteContext());
 		} else {
 			siteStudents = getSectionManager().findSiteEnrollments(getSiteContext(), searchText);
@@ -327,7 +327,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 	public void setSearchText(String searchText) {
         if (StringUtils.trimToNull(searchText) == null) {
-        	searchText = JsfUtil.getLocalizedMessage("roster_search_text");
+        	searchText = "";
         }
     	if (!StringUtils.equals(searchText, this.searchText)) {
 	    	if (log.isDebugEnabled()) log.debug("setSearchString " + searchText);

@@ -43,7 +43,7 @@ class GradebookTest extends SakaiUiTestBase {
     @Order(1)
     void canCreateNewCourse() {
         sakai.login("instructor1");
-        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng"));
+        sakaiUrl = sakai.createCourse("instructor1", List.of("sakai\\.gradebookng", "sakai\\.rubrics"));
     }
 
     @Test
@@ -111,6 +111,25 @@ class GradebookTest extends SakaiUiTestBase {
 
         assertThat(dialog).isVisible();
 
+        Locator closeLink = dialog.locator(".gb-modal-close");
+        String originalTheme = page.locator("html").getAttribute("class");
+        try {
+            for (String theme : List.of("light", "dark")) {
+                page.locator("html").evaluate("(element, theme) => { element.classList.remove('sakaiUserTheme-light', 'sakaiUserTheme-dark'); element.classList.add('sakaiUserTheme-' + theme); }", theme);
+                String headerColor = (String) dialog.locator(".gb-modal-titlebar")
+                    .evaluate("element => getComputedStyle(element).color");
+                assertThat(closeLink).hasCSS("color", headerColor);
+                assertThat(closeLink).hasCSS("opacity", "1");
+                closeLink.hover();
+                assertThat(closeLink).hasCSS("color", headerColor);
+                closeLink.focus();
+                assertThat(closeLink).isFocused();
+                assertThat(closeLink).hasCSS("color", headerColor);
+            }
+        } finally {
+            page.locator("html").evaluate("(element, originalTheme) => { if (originalTheme === null) element.removeAttribute('class'); else element.setAttribute('class', originalTheme); }", originalTheme);
+        }
+
         Locator cancelButton = dialog.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName(Pattern.compile("Cancel|Close", Pattern.CASE_INSENSITIVE))).first();
         if (cancelButton.count() > 0) {
@@ -134,6 +153,22 @@ class GradebookTest extends SakaiUiTestBase {
         assertThat(dialog).hasAttribute("role", "dialog");
         dialog.locator(".gb-summary-next-student").click();
         assertThat(dialog.locator("[data-studentid]").first()).hasAttribute("data-studentid", nextStudentId);
+        int originalWidth = page.viewportSize().width;
+        int originalHeight = page.viewportSize().height;
+        try {
+            for (int width : List.of(1280, 640)) {
+                page.setViewportSize(width, originalHeight);
+                assertTrue((Boolean) dialog.evaluate("element => { "
+                    + "const navigation = element.querySelector('.gb-summary-previous-student').getBoundingClientRect(); "
+                    + "const done = element.querySelector('.gb-summary-close').getBoundingClientRect(); "
+                    + "const print = element.querySelector('.gb-summary-print').getBoundingClientRect(); "
+                    + "return done.top - navigation.bottom >= 8 "
+                    + "&& (print.left - done.right >= 6 || print.top - done.bottom >= 6); }"),
+                    "Student navigation and footer actions should have space between them at width " + width);
+            }
+        } finally {
+            page.setViewportSize(originalWidth, originalHeight);
+        }
         dialog.locator(".gb-summary-close").click();
         assertThat(dialog).isHidden();
     }
@@ -179,6 +214,108 @@ class GradebookTest extends SakaiUiTestBase {
 
         page.evaluate("() => document.documentElement.classList.remove('sakaiUserTheme-dark')");
         assertNoAxeContrastViolations("light mode");
+    }
+
+    @Test
+    @Order(6)
+    void rubricPreviewOpensAboveStudentSummary() {
+        String rubricTitle = "Summary rubric " + System.currentTimeMillis();
+        String itemTitle = "Rubric item " + System.currentTimeMillis();
+        sakai.createRubric("instructor1", sakaiUrl);
+        page.locator("input[title=\"Rubric Title\"]:visible").fill(rubricTitle);
+        page.locator("sakai-rubric-edit .modal.show .modal-footer .btn-primary").click();
+        assertThat(page.locator("sakai-rubric .rubric-name")
+            .filter(new Locator.FilterOptions().setHasText(rubricTitle))).hasText(rubricTitle);
+
+        sakai.toolClick("Gradebook");
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$=\"title\"]").fill(itemTitle);
+        dialog.locator("input[name$=\"points\"]").fill("100");
+        dialog.locator("input[name=rbcs-associate][value=\"1\"]").check();
+        Locator rubricSelector = dialog.locator("select[name=rbcs-rubricslist]");
+        rubricSelector.selectOption(rubricSelector.locator("option")
+            .filter(new Locator.FilterOptions().setHasText(rubricTitle)).getAttribute("value"));
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog).isHidden();
+
+        // Keyboard activation avoids the table moving the link during pointer selection.
+        page.locator(".gb-view-grade-summary").first().press("Enter");
+        Locator summary = page.locator(".gb-modal-dialog:visible");
+        assertThat(summary).isVisible();
+        Locator rubricLink = summary.locator("tr").filter(new Locator.FilterOptions().setHasText(itemTitle))
+            .locator("sakai-rubric-student-button a");
+        // Establish the opener's focus before checking that closing the preview restores it.
+        rubricLink.focus();
+        assertThat(rubricLink).isFocused();
+        rubricLink.press("Enter");
+        Locator preview = page.locator("#rubric-preview");
+        assertThat(preview).isVisible();
+        assertThat(preview.locator("sakai-rubric-student h3")).hasText(rubricTitle);
+        assertThat(summary.locator("xpath=..")).hasAttribute("inert", "");
+        // A normal click verifies that the summary overlay does not intercept the rubric.
+        preview.locator(".btn-close").click();
+        assertThat(preview).isHidden();
+        assertThat(summary).isVisible();
+        assertThat(rubricLink).isFocused();
+        summary.locator(".gb-summary-close").click();
+        assertThat(summary).isHidden();
+    }
+
+    @Test
+    @Order(7)
+    void canCancelAndConfirmBulkItemDeletion() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Gradebook");
+
+        String itemTitle = "Bulk deletion " + System.currentTimeMillis();
+        page.locator("button.gb-add-gradebook-item-button").click();
+        Locator dialog = page.locator(".gb-modal-dialog:visible");
+        dialog.locator("input[name$=\"title\"]").fill(itemTitle);
+        dialog.locator("input[name$=\"points\"]").fill("100");
+        dialog.locator("button.gb-create-or-save").click();
+        assertThat(dialog).isHidden();
+
+        page.locator("#bulkEditItemsToolbarItem").click();
+        Locator itemRow = dialog.locator("tr").filter(new Locator.FilterOptions().setHasText(itemTitle));
+        itemRow.locator(".deleteBox").check();
+        dialog.locator("#gb-bulk-edit-fake-submit").click();
+        Locator confirmation = page.locator(".gb-bulk-edit-confirmation");
+        assertThat(confirmation).isVisible();
+        confirmation.locator(".gb-bulk-edit-cancel").click();
+        assertThat(confirmation).hasCount(0);
+        assertThat(itemRow.locator(".deleteBox")).isChecked();
+        assertThat(page.locator(".modal-backdrop")).hasCount(0);
+
+        dialog.locator("#gb-bulk-edit-fake-submit").click();
+        assertThat(confirmation).isVisible();
+        confirmation.locator(".gb-bulk-edit-continue").click();
+        assertThat(dialog).isHidden();
+        assertThat(page.locator(".tabulator-col")
+            .filter(new Locator.FilterOptions().setHasText(itemTitle))).hasCount(0);
+        assertThat(page.locator(".modal-backdrop")).hasCount(0);
+    }
+
+    @Test
+    @Order(8)
+    void clearingTheStudentFilterRestoresAllStudents() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Gradebook");
+        Locator filter = page.locator("#studentFilterInput");
+        Locator students = page.locator(".gb-view-grade-summary");
+        assertThat(students.nth(1)).isVisible();
+        int all = students.count();
+
+        filter.fill("student0011");
+        filter.press("Enter");
+        assertThat(students).hasCount(1);
+        assertThat(filter).hasValue("student0011");
+
+        // deleting the text, as the native clear button does, shows every student again
+        filter.fill("");
+        assertThat(students).hasCount(all);
     }
 
     private void assertNoAxeContrastViolations(String theme) {

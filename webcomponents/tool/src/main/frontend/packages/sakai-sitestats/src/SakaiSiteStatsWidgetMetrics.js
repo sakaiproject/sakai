@@ -1,24 +1,30 @@
 import { html, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { siteStatsCompactMetricsStyles } from "./site-stats-compact-styles.js";
 
 export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
 
   static properties = {
     endpoint: { type: String },
+    dashboard: { type: Boolean, reflect: true },
     _metrics: { state: true },
     _loading: { state: true },
     _error: { state: true },
     _errorStatus: { state: true },
     _openHelpId: { state: true },
+    _expandedHelp: { state: true },
   };
 
-  createRenderRoot() {
-    return this;
-  }
+  static styles = [
+    ...SakaiShadowElement.styles,
+    siteStatsCompactMetricsStyles,
+  ];
 
   constructor() {
 
     super();
+    this.dashboard = false;
+    this._expandedHelp = new Set();
     this.loadTranslations("sitestats");
   }
 
@@ -53,6 +59,14 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
 
     if (!this._metrics?.length) {
       return nothing;
+    }
+
+    if (this.dashboard) {
+      return html`
+        <div class="sitestats-metrics">
+          ${this._metrics.map(metric => this._renderDashboardMetric(metric))}
+        </div>
+      `;
     }
 
     return html`
@@ -101,9 +115,54 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
     `;
   }
 
+  _renderDashboardMetric(metric) {
+
+    const snapshot = metric.snapshot || {};
+    const detail = snapshot.detail;
+    const primary = snapshot.primary;
+    const help = metric.help;
+    const extra = !help && detail && detail !== primary ? detail : null;
+    const helpText = help || extra;
+    const expanded = helpText && this._expandedHelp.has(metric.id);
+
+    return html`
+      <div class="sitestats-metric ${expanded ? "is-expanded" : ""}">
+        <dd>
+          <span class="sitestats-metric-primary">${primary ?? ""}</span>
+          ${snapshot.percentage != null ? html`
+            <span class="sitestats-metric-percentage">${this._formatPercentage(snapshot.percentage)}</span>
+          ` : nothing}
+        </dd>
+        <div class="sitestats-metric-header">
+          <dt>${metric.label}</dt>
+          ${helpText ? html`
+            <button type="button"
+                class="sitestats-metric-help ${expanded ? "is-expanded" : ""}"
+                @click=${() => this._toggleDashboardHelp(metric.id)}
+                title="${helpText}"
+                aria-expanded="${expanded ? "true" : "false"}">
+              ${helpText}
+            </button>
+          ` : nothing}
+        </div>
+      </div>
+    `;
+  }
+
   _toggleHelp(id) {
 
     this._openHelpId = this._openHelpId === id ? undefined : id;
+  }
+
+  _toggleDashboardHelp(metricId) {
+
+    const next = new Set(this._expandedHelp);
+    if (next.has(metricId)) {
+      next.delete(metricId);
+    } else {
+      next.add(metricId);
+    }
+    this._expandedHelp = next;
   }
 
   _helpKeydown(event) {
@@ -139,6 +198,11 @@ export class SakaiSiteStatsWidgetMetrics extends SakaiShadowElement {
       if (!response.ok) {
         this._error = true;
         this._errorStatus = response.status;
+        this.dispatchEvent(new CustomEvent("sitestats-unavailable", {
+          detail: { status: response.status },
+          bubbles: true,
+          composed: true,
+        }));
         return;
       }
       this._metrics = await response.json();

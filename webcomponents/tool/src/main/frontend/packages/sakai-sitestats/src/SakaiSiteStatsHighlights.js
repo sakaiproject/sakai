@@ -1,5 +1,6 @@
-import { css, html, nothing } from "lit";
+import { html, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { siteStatsCompactHighlightsStyles } from "./site-stats-compact-styles.js";
 import "../sakai-sitestats-chart.js";
 
 export class SakaiSiteStatsHighlights extends SakaiShadowElement {
@@ -7,39 +8,19 @@ export class SakaiSiteStatsHighlights extends SakaiShadowElement {
   static properties = {
     charts: { type: Array },
     endpoint: { type: String },
+    dashboard: { type: Boolean, reflect: true },
   };
 
   static styles = [
     ...SakaiShadowElement.styles,
-    css`
-      :host {
-        display: block;
-        width: 100%;
-      }
-
-      :host([hidden]) {
-        display: none;
-      }
-
-      .metric-highlight {
-        display: block;
-        width: 100%;
-        color: var(--sakai-text-color-dimmed);
-        font-size: 0.875rem;
-        font-weight: 400;
-        text-align: center;
-      }
-
-      .metric-highlight + .metric-highlight {
-        margin-block-start: 0.75rem;
-      }
-    `,
+    siteStatsCompactHighlightsStyles,
   ];
 
   constructor() {
 
     super();
     this.charts = [];
+    this.dashboard = false;
     this.hidden = true;
   }
 
@@ -101,6 +82,11 @@ export class SakaiSiteStatsHighlights extends SakaiShadowElement {
         signal: this._abortController.signal,
       });
       if (!response.ok) {
+        this.dispatchEvent(new CustomEvent("sitestats-unavailable", {
+          detail: { status: response.status },
+          bubbles: true,
+          composed: true,
+        }));
         return;
       }
       this.charts = await response.json();

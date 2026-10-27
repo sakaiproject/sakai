@@ -22,12 +22,14 @@ export class SakaiSearch extends SakaiElement {
     this.iconMapping = {
       "announcement": "si si-sakai-announcements",
       "assignments": "si si-sakai-assignment-grades",
+      "calendar": "si si-sakai-schedule",
       "chat": "si si-sakai-chat",
       "sakai.conversations": "si si-sakai-conversations",
       "forums": "si si-sakai-forums",
       "lessons": "si si-sakai-lessonbuildertool",
       "commons": "si si-sakai-commons",
       "content": "si si-sakai-resources",
+      "rubrics": "si si-sakai-rubrics",
       "syllabus": "si si-sakai-syllabus",
       "wiki": "si si-sakai-rwiki"
     };
@@ -38,12 +40,14 @@ export class SakaiSearch extends SakaiElement {
       this.toolNameMapping = {
         "announcement": this._i18n.toolname_announcement,
         "assignments": this._i18n.toolname_assignment,
+        "calendar": this._i18n.toolname_calendar,
         "chat": this._i18n.toolname_chat,
         "sakai.conversations": this._i18n.toolname_conversations,
         "forums": this._i18n.toolname_forum,
         "lessons": this._i18n.toolname_lesson,
         "commons": this._i18n.toolname_commons,
         "content": this._i18n.toolname_resources,
+        "rubrics": this._i18n.toolname_rubrics,
         "syllabus": this._i18n.toolname_syllabus,
         "wiki": this._i18n.toolname_wiki
       };
@@ -79,7 +83,7 @@ export class SakaiSearch extends SakaiElement {
 
     if (terms.length > this.searchMinLengthValue - 1) {
 
-      const url = `/api/search?terms=${terms}${this.siteId ? `&site=${this.siteId}` : ""}${this.tool ? `&tool=${this.tool}` : ""}`;
+      const url = `/api/search?terms=${encodeURIComponent(terms)}${this.siteId ? `&site=${encodeURIComponent(this.siteId)}` : ""}${this.tool ? `&tool=${encodeURIComponent(this.tool)}` : ""}`;
       fetch(url, {
         cache: "no-cache",
         credentials: "same-origin"

@@ -15,15 +15,22 @@
  */
 package org.sakaiproject.archive.impl;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class SiteZipperTest {
 
@@ -55,4 +62,55 @@ public class SiteZipperTest {
 
         Assert.assertEquals(null, folder);
     }
+    @Rule public TemporaryFolder temporary = new TemporaryFolder();
+
+    @Test
+    public void rejectsEntryNamesBeforeCreatingAnyArchiveContents() throws Exception {
+        for (String name : new String[] {"c/../../outside.txt", "../outside/", "c/../../../outside.txt",
+                "c/..\\..\\outside.txt", "/outside.txt", "C:/outside.txt", "file:stream",
+                "\\\\server/share/file.txt"}) {
+            Path parent = temporary.newFolder().toPath();
+            Path root = Files.createDirectory(parent.resolve("output"));
+            Path canary = Files.writeString(parent.resolve("outside.txt"), "original");
+            Path zip = archive("c/", "c/manifest.xml", name);
+            Assert.assertThrows(name, IOException.class, () -> siteZipper.unzipArchive(zip.toString(), root.toString()));
+            Assert.assertEquals("original", Files.readString(canary));
+            try (Stream<Path> files = Files.list(root)) {
+                Assert.assertEquals(0, files.count());
+            }
+        }
+    }
+
+    @Test
+    public void extractsOnlyTheFirstDirectoryAndNormalizesNames() throws Exception {
+        Path root = temporary.newFolder().toPath();
+        Path zip = archive("./c/", "c/nested/file.txt", "c\\other.txt", "other/file.txt");
+        Assert.assertEquals("c/", siteZipper.unzipArchive(zip.toString(), root.toString()));
+        Assert.assertEquals("marker", Files.readString(root.resolve("c/nested/file.txt")));
+        Assert.assertEquals("marker", Files.readString(root.resolve("c/other.txt")));
+        Assert.assertFalse(Files.exists(root.resolve("other/file.txt")));
+    }
+
+    @Test
+    public void rejectsSymlinkedDestinationsBeforeWriting() throws Exception {
+        Path root = temporary.newFolder().toPath();
+        Path outside = temporary.newFolder().toPath();
+        Files.createSymbolicLink(root.resolve("c"), outside);
+        Path zip = archive("c/", "c/missing/file.txt");
+        Assert.assertThrows(IOException.class, () -> siteZipper.unzipArchive(zip.toString(), root.toString()));
+        Assert.assertFalse(Files.exists(outside.resolve("missing")));
+    }
+
+    private Path archive(String... names) throws IOException {
+        Path zip = temporary.newFile().toPath();
+        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(zip))) {
+            for (String name : names) {
+                out.putNextEntry(new ZipEntry(name));
+                if (!name.endsWith("/")) out.write("marker".getBytes(StandardCharsets.UTF_8));
+                out.closeEntry();
+            }
+        }
+        return zip;
+    }
+
 }

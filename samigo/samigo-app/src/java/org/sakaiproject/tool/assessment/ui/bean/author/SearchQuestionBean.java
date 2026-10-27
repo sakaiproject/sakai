@@ -25,7 +25,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +34,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.bean.ManagedBean;
 
 import org.opensearch.action.search.SearchResponse;
+import org.opensearch.common.document.DocumentField;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.aggregations.bucket.terms.Terms;
 import org.opensearch.search.aggregations.metrics.TopHits;
@@ -164,7 +164,7 @@ public class SearchQuestionBean   implements Serializable {
                     log.debug(" -> id [{"+hit.getId()+"}]");
                     String typeId = hit.field("typeId").getValue();
                     String qText = hit.field("qText").getValue();
-                    Set<String> tagsSet = getTagsFromString(hit.field("tags").getValues());
+                    Set<String> tagsSet = getTagsFromString(hit.field("tags"));
                     ItemSearchResult itemTemp = new ItemSearchResult(hit.getId(),typeId,qText,tagsSet,origin(hit));
                     resultsTemp.put(hit.getId(),itemTemp);
                 }
@@ -235,7 +235,7 @@ public class SearchQuestionBean   implements Serializable {
                     log.debug(" -> id [{"+hit.getId()+"}]");
                     String typeId = hit.field("typeId").getValue();
                     String qText = hit.field("qText").getValue();
-                    Set<String> tagsSet = getTagsFromString(hit.field("tags").getValues());
+                    Set<String> tagsSet = getTagsFromString(hit.field("tags"));
                     ItemSearchResult itemTemp = new ItemSearchResult(hit.getId(),typeId,qText,tagsSet,origin(hit));
                     resultsTemp.put(hit.getId(),itemTemp);
                     //resultIds.put(hit.getId(),origin(hit));
@@ -316,11 +316,13 @@ public class SearchQuestionBean   implements Serializable {
         }
     }
 
-    private Set<String> getTagsFromString(List tags){
+    // a question without tags is indexed without a tags field
+    private Set<String> getTagsFromString(DocumentField tags){
         Set<String> tagSet = new HashSet<>();
-        Iterator<String> iterator = tags.iterator();
-        while (iterator.hasNext()){
-            tagSet.add(iterator.next().toString());
+        if (tags != null) {
+            for (Object tag : tags.getValues()) {
+                tagSet.add(tag.toString());
+            }
         }
         return tagSet;
     }
@@ -345,7 +347,8 @@ public class SearchQuestionBean   implements Serializable {
             HashMap<String, String> additionalSearchInformation = new HashMap<String, String>();
             additionalSearchInformation.put("scope", "own");
             additionalSearchInformation.put("subtype", "item");
-            additionalSearchInformation.put("questionId", questionId);
+            // questions are indexed by their reference
+            additionalSearchInformation.put("questionId", "/sam_item/" + questionId);
 
             try {
 

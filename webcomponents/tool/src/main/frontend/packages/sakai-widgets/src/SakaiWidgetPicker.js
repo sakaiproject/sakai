@@ -1,6 +1,8 @@
 import { html } from "lit";
 import { SakaiDashboardWidget } from "./SakaiDashboardWidget.js";
 import { sakaiWidgets } from "./SakaiWidgets.js";
+import { layoutIds } from "./dashboard-layout.js";
+import { loadToolnames } from "./toolnames.js";
 
 export class SakaiWidgetPicker extends SakaiDashboardWidget {
 
@@ -24,7 +26,7 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
     this.hasOptions = false;
 
     this.loadTranslations(this.widgetId);
-    this.loadTranslations("toolnames").then(r => this.toolnames = r);
+    loadToolnames().then(r => this.toolnames = r);
   }
 
   set all(value) {
@@ -32,7 +34,7 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
     this._all = value;
 
     if (this.current) {
-      this.available = value.filter(v => !this.current.includes(v));
+      this.available = value.filter(v => !layoutIds(this.current).includes(v));
     }
   }
 
@@ -42,7 +44,7 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
 
     this._current = value;
     if (this.all) {
-      this.available = this.all.filter(v => !value.includes(v));
+      this.available = this.all.filter(v => !layoutIds(value).includes(v));
     }
   }
 

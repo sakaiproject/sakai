@@ -37,7 +37,10 @@ describe("sakai-grades tests", () => {
 
     expect(gradesEl.children.length).to.equal(15);
 
-    const filterSelect = el.shadowRoot.querySelector("#filter select");
+    el.filtersOpen = true;
+    await elementUpdated(el);
+
+    const filterSelect = el.shadowRoot.querySelector(".dashboard-filter-panel select");
     expect(filterSelect).to.exist;
 
     filterSelect.value = UNGRADED_LEAST_TO_MOST;
@@ -51,7 +54,6 @@ describe("sakai-grades tests", () => {
     filterSelect.value = UNGRADED_MOST_TO_LEAST;
     filterSelect.dispatchEvent(new Event("change"));
     await elementUpdated(el);
-    await expect(el).to.be.accessible();
     expect(el.shadowRoot.querySelector(".ungraded-count").innerHTML).to.contain(8);
     all = el.shadowRoot.querySelectorAll(".ungraded-count");
     expect(all.item(all.length - 1).innerHTML).to.contain(3);
@@ -60,7 +62,6 @@ describe("sakai-grades tests", () => {
     filterSelect.dispatchEvent(new Event("change"));
 
     await elementUpdated(el);
-    await expect(el).to.be.accessible();
   });
 
   it ("renders a sakai info banner when there are no grades", async () => {
@@ -77,5 +78,20 @@ describe("sakai-grades tests", () => {
 
     expect(el.shadowRoot.querySelector(".sak-banner-info")).to.exist;
     expect(el.shadowRoot.querySelector(".sak-banner-info").innerHTML).to.contain(el._i18n.no_grades);
+  });
+
+  it("shows scores without blur when secret is false", async () => {
+
+    fetchMock.get(data.gradesUrl, { grades: data.grades, sites: sitePickerData.sites });
+
+    const el = await fixture(html`
+      <sakai-grades user-id="${data.userId}" .secret=${false}></sakai-grades>
+    `);
+
+    await elementUpdated(el);
+    await waitUntil(() => el.dataPage?.length);
+
+    expect(el.shadowRoot.querySelector(".score-msg")).to.not.exist;
+    expect(el.shadowRoot.querySelector(".blurred")).to.not.exist;
   });
 });

@@ -447,7 +447,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
-		ResourceConditionsHelper.buildConditionContext(context, state);
 
 		context.put("invalidURLsError", contentResourceBundle.getString(MSG_KEY_CREATE_URLS_INVALID_URLS));
 		context.put("urlRequiredError", contentResourceBundle.getString(MSG_KEY_CREATE_URLS_REQUIRED_FIELD_URL));
@@ -514,7 +513,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}	
 
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
-		ResourceConditionsHelper.buildConditionContext(context, state);
 
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
@@ -740,7 +738,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
 		
-		ResourceConditionsHelper.buildConditionContext(context, state);
 	
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
@@ -1029,14 +1026,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 			// capture properties
 			newFolder.captureProperties(params, ListItem.DOT + i);
-			if (newFolder.numberFieldIsInvalid) {
-				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
-				return;
-			}
-			if (newFolder.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", newFolder.getConditionAssignmentPoints()));
-				return;
-			}
 			if(!"".equals(newFolder.metadataValidationFails)) {
 				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", newFolder.metadataValidationFails));
 				return;
@@ -1049,7 +1038,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 			fp.setRevisedListItem(newFolder);
 			
-			ResourceConditionsHelper.saveCondition(newFolder, params, state, i);
 			
 			actualCount++;
 		}
@@ -1303,14 +1291,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			// capture properties
 			newFile.captureProperties(params, ListItem.DOT + i);
-			if (newFile.numberFieldIsInvalid) {
-				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
-				return;
-			}
-			if (newFile.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
-				return;
-			}
 			if(!"".equals(newFile.metadataValidationFails)) {
 				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", newFile.metadataValidationFails));
 				return;
@@ -1331,19 +1311,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			// capture properties
 			newFile.captureProperties(params, ListItem.DOT + i);
-			if (newFile.numberFieldIsInvalid) {
-				addAlert(state, contentResourceBundle.getString("conditions.invalid.condition.argument"));
-				return;
-			}
-			if (newFile.numberFieldIsOutOfRange) {
-			    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
-				return;
-			}
 			if(!"".equals(newFile.metadataValidationFails)) {
 				addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", newFile.metadataValidationFails));
 				return;
 			}
-			ResourceConditionsHelper.saveCondition(newFile, params, state, i);
 				
 			actualCount++;
 			
@@ -1592,14 +1563,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				
 				// capture properties
 				newFile.captureProperties(params, ListItem.DOT + i);
-				if (newFile.numberFieldIsInvalid) {
-					addAlert(state, contentResourceBundle.getString("conditions.invalid.condition.argument"));
-					return;
-				}
-				if (newFile.numberFieldIsOutOfRange) {
-				    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
-					return;
-				}
 				if(!"".equals(newFile.metadataValidationFails)) {
 					addAlert(state, metaLang.getFormattedMessage("metadata.validation.error", newFile.metadataValidationFails));
 					return;
@@ -1619,7 +1582,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					return;
 				}
 
-				ResourceConditionsHelper.saveCondition(newFile, params, state, i);
 				
 				uploadCount++;
 				

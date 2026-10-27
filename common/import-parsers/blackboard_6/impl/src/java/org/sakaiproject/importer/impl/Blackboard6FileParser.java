@@ -265,8 +265,9 @@ public class Blackboard6FileParser extends IMSFileParser {
 				String descriptorFilename = resourceNode.getAttributes().getNamedItem("bb:file").getNodeValue();
 				DocumentBuilder docBuilder;
 				docBuilder = Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder();
-			    InputStream fis = new FileInputStream(pathToData + "/" + descriptorFilename);
-			    return (Document) docBuilder.parse(fis);
+                try (InputStream fis = new FileInputStream(resolvePackageFile(descriptorFilename))) {
+                    return (Document) docBuilder.parse(fis);
+                }
 			} catch (Exception e) {
 				return null;
 			}
@@ -322,13 +323,11 @@ public class Blackboard6FileParser extends IMSFileParser {
 	
 	protected class Bb6FileHelper extends FileHelper {
 		
-		public byte[] getFileBytesForNode(Node node, String contextPath) throws IOException {
-			//for Bb we ignore the contextPath...
-			String basePath = XPathHelper.getNodeValue("./@identifier",node.getParentNode());
-			String fileHref = XPathHelper.getNodeValue("./@href", node).replaceAll("\\\\", "/");
-			String filePath = basePath + "/" + fileHref;
-			return getBytesFromFile(new File(pathToData + "/" + filePath));
-		}	
+        @Override
+        protected File getSourceFileForNode(Node node) throws IOException {
+            String basePath = XPathHelper.getNodeValue("./@identifier", node.getParentNode());
+            return resolvePackageFile(basePath, XPathHelper.getNodeValue("./@href", node));
+        }
 	
 		public String getFilePathForNode(Node node, String contextPath) {
 			// for files that are part of an assessment, we're going to

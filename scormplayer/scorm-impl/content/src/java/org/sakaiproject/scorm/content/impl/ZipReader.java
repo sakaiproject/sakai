@@ -26,6 +26,7 @@ import java.util.zip.ZipInputStream;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.util.Zip;
 
 @Slf4j
 public abstract class ZipReader
@@ -59,7 +60,8 @@ public abstract class ZipReader
 			count = 0;
 			entry = zipStream.getNextEntry();
 			while (entry != null) {
-				if (isValid(entry.getName()))
+                String entryPath = Zip.validateEntryName(entry.getName());
+				if (isValid(entryPath))
 				{
 					if (includeContent(entry.isDirectory()))
 					{
@@ -75,7 +77,7 @@ public abstract class ZipReader
 						}
 					}
 
-					ContentEntity o = processEntry(entry.getName(), outStream, entry.isDirectory());
+					ContentEntity o = processEntry(entryPath, outStream, entry.isDirectory());
 					if (null != o)
 					{
 						list.add(o);
@@ -125,7 +127,8 @@ public abstract class ZipReader
 			entry = zipStream.getNextEntry();
 			while (entry != null)
 			{
-				if (isValid(entry.getName()))
+                String entryPath = Zip.validateEntryName(entry.getName());
+				if (isValid(entryPath))
 				{
 					if (includeContent(entry.isDirectory()))
 					{
@@ -138,7 +141,7 @@ public abstract class ZipReader
 						outStream.close();
 					}
 
-					Object o = processEntry(entry.getName(), outStream, entry.isDirectory());
+					Object o = processEntry(entryPath, outStream, entry.isDirectory());
 					zipStream.close();
 					if (null != outStream)
 					{

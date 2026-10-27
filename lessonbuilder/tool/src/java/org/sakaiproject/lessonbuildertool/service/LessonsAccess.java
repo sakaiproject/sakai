@@ -337,6 +337,20 @@ public class LessonsAccess {
 
     }
 
+    public List<SimplePageItem> getAccessibleItemsOnPage(String siteId, long pageId, String currentUserId, SimplePageBean simplePageBean) {
+        List<SimplePageItem> items = dao.findItemsOnPage(pageId);
+        if (securityService.unlock(currentUserId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteService.siteReference(siteId))
+                || (simplePageBean != null
+                    && simplePageBean.getCurrentPageId() == pageId
+                    && siteId.equals(simplePageBean.getCurrentSiteId())
+                    && simplePageBean.canEditPage())) {
+            return items;
+        }
+        return items.stream()
+                .filter(item -> isItemAccessible(item.getId(), siteId, currentUserId, simplePageBean))
+                .toList();
+    }
+
     public SimplePageBean makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage) {
 	if (simplePageBean == null) {
 	    simplePageBean = new SimplePageBean(true);

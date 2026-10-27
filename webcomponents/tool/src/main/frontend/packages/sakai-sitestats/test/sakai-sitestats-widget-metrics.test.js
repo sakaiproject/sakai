@@ -38,10 +38,10 @@ describe("sakai-sitestats-widget-metrics tests", () => {
       <sakai-sitestats-widget-metrics endpoint=${endpoint}></sakai-sitestats-widget-metrics>
     `);
 
-    await waitUntil(() => el.querySelector(".sitestats-metric-primary"));
+    await waitUntil(() => el.renderRoot.querySelector(".sitestats-metric-primary"));
     await elementUpdated(el);
 
-    const metrics = el.querySelectorAll(".sitestats-metric");
+    const metrics = el.renderRoot.querySelectorAll(".sitestats-metric");
     expect(metrics).to.have.length(2);
     expect(metrics[0].querySelector("dt").textContent).to.equal("Visits");
     expect(metrics[0].querySelector(".sitestats-metric-primary").textContent).to.equal("12");
@@ -59,8 +59,43 @@ describe("sakai-sitestats-widget-metrics tests", () => {
 
     helpTrigger.click();
     await elementUpdated(el);
-    expect(el.querySelector(".sitestats-metric").classList.contains("is-open")).to.be.true;
-    expect(el.querySelector(".sitestats-metric-help-trigger").getAttribute("aria-expanded")).to.equal("true");
+    expect(el.renderRoot.querySelector(".sitestats-metric").classList.contains("is-open")).to.be.true;
+    expect(el.renderRoot.querySelector(".sitestats-metric-help-trigger").getAttribute("aria-expanded")).to.equal("true");
+  });
+
+  it("renders dashboard card metrics with expandable help", async () => {
+
+    fetchMock.get(endpoint, [
+      {
+        id: "visits-total",
+        label: "Visits",
+        help: "Total site visits, including repeat visits.",
+        snapshot: { primary: "12", percentage: 50, detail: "12 of 24" },
+      },
+      {
+        id: "visits-unique",
+        label: "Unique visitors",
+        snapshot: { primary: "4" },
+      },
+    ]);
+
+    const el = await fixture(html`
+      <sakai-sitestats-widget-metrics dashboard endpoint=${endpoint}></sakai-sitestats-widget-metrics>
+    `);
+
+    await waitUntil(() => el.renderRoot.querySelector(".sitestats-metric-primary"));
+    await elementUpdated(el);
+
+    expect(el.hasAttribute("dashboard")).to.be.true;
+    const metrics = el.renderRoot.querySelectorAll(".sitestats-metric");
+    expect(metrics).to.have.length(2);
+    expect(metrics[0].querySelector(".sitestats-metric-help").textContent.trim()).to.equal("Total site visits, including repeat visits.");
+    expect(metrics[0].querySelector(".sitestats-metric-help-trigger")).to.be.null;
+    expect(metrics[1].querySelector(".sitestats-metric-help")).to.be.null;
+
+    metrics[0].querySelector(".sitestats-metric-help").click();
+    await elementUpdated(el);
+    expect(metrics[0].querySelector(".sitestats-metric-help").classList.contains("is-expanded")).to.be.true;
   });
 
   it("shows an error when the metrics endpoint fails", async () => {
@@ -70,8 +105,8 @@ describe("sakai-sitestats-widget-metrics tests", () => {
       <sakai-sitestats-widget-metrics endpoint=${endpoint}></sakai-sitestats-widget-metrics>
     `);
 
-    await waitUntil(() => el.querySelector("[role='alert']"));
-    expect(el.querySelector("[role='alert']").textContent).to.contain("Failed to load statistics");
+    await waitUntil(() => el.renderRoot.querySelector("[role='alert']"));
+    expect(el.renderRoot.querySelector("[role='alert']").textContent).to.contain("Failed to load statistics");
   });
 
   it("loads a preset endpoint once", async () => {

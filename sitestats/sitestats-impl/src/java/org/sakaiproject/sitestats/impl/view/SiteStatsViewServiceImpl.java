@@ -68,6 +68,25 @@ public class SiteStatsViewServiceImpl implements SiteStatsViewService {
 	}
 
 	@Override
+	public List<String> getCourseDashboardWidgetIds(String siteId) {
+		boolean allAllowed = siteStatsReportAccess.isViewAllAllowed(siteId);
+		boolean ownAllowed = siteStatsReportAccess.isViewOwnAllowed(siteId);
+		if (!allAllowed && !ownAllowed) {
+			return Collections.emptyList();
+		}
+		return siteStatsWidgetCatalog.listAvailableWidgetIds(allAllowed, ownAllowed && !allAllowed, false);
+	}
+
+	@Override
+	public List<String> getHomeDashboardWidgetIds(String siteId) {
+		if (!siteStatsReportAccess.isViewAdminAllowed(siteId)) {
+			return Collections.emptyList();
+		}
+		siteStatsReportAccess.assertCanViewAdmin(siteId);
+		return siteStatsWidgetCatalog.listAvailableWidgetIds(false, false, true);
+	}
+
+	@Override
 	public SiteStatsWidgetTab getWidgetTab(String siteId, String widgetId, String tabId) {
 		siteStatsReportAccess.assertCanViewWidget(siteId, widgetId);
 		return siteStatsWidgetCatalog.getWidgetTab(siteId, widgetId, tabId);

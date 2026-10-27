@@ -47,6 +47,7 @@
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
+                <module>attendance</module>
                 <module>lti</module>
                 <module>calendar</module>
                 <module>card-game</module>
@@ -89,6 +90,7 @@
                 <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
+                <module>video-training</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
@@ -134,6 +136,7 @@
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
+                <module>attendance</module>
                 <module>assignment2</module>
                 <module>lti</module>
                 <module>calendar</module>
@@ -175,6 +178,7 @@
                 <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
+                <module>video-training</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
@@ -272,6 +276,7 @@
                 <module>microsoft-integration/api</module>
                 <module>pasystem/pasystem-api/api</module>
                 <module>polls/api</module>
+                <module>video-training/api</module>
                 <module>profile2/api</module>
                 <module>rubrics/api</module>
                 <module>site/term-manager/api</module>

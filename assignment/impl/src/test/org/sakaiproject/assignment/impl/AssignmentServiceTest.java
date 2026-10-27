@@ -375,6 +375,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(group.getProperties()).thenReturn(new BaseResourceProperties());
         when(site.getGroup(groupReference)).thenReturn(group);
         when(site.getGroup(deletedGroupReference)).thenReturn(null);
+        when(authzGroupService.getAuthzGroup(deletedGroupReference)).thenThrow(new GroupNotDefinedException(deletedGroupReference));
         AuthzGroup authzGroup = mock(AuthzGroup.class);
         when(authzGroupService.getAuthzGroup(groupReference)).thenReturn(authzGroup);
         assignment.setIsGroup(true);
@@ -741,6 +742,76 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertTrue(assignment.getDeleted());
         } catch (PermissionException | IdUnusedException e) {
             Assert.fail("Assignment soft deleted\n" + e.toString());
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void savingDraftUnlocksGroupsWithoutWork() throws Exception {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        for (boolean unpublish : new boolean[] {false, true}) {
+            // No submissions, an empty grading placeholder, and saved student/instructor work.
+            for (int state = 0; state < 3; state++) {
+                final int submissionState = state;
+                Assignment assignment = transaction.execute(status -> {
+                    try {
+                        if (submissionState == 0) {
+                            return createPublishedGroupAssignment();
+                        }
+                        AssignmentSubmission submission = createNewGroupSubmission(UUID.randomUUID().toString(),
+                                UUID.randomUUID().toString(), Set.of("student"));
+                        Assignment parent = submission.getAssignment();
+                        parent.setDraft(false);
+                        assignmentService.updateAssignment(parent);
+                        if (submissionState == 2) {
+                            submission.setSubmittedText("Student draft");
+                            submission.setGrade("0");
+                            submission.setFeedbackComment("Instructor feedback");
+                            submission.getAttachments().add("/content/student-work");
+                            submission.getSubmitters().iterator().next().setGrade("0");
+                        }
+                        return parent;
+                    } catch (Exception e) {
+                        throw new IllegalStateException(e);
+                    }
+                });
+                String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                AuthzGroup group = authzGroupService.getAuthzGroup(assignment.getGroups().iterator().next());
+                Mockito.clearInvocations(group);
+                try {
+                    if (unpublish) {
+                        assignmentService.unpublishAssignment(assignment);
+                    } else {
+                        assignment.setDraft(true);
+                        assignmentService.updateAssignment(assignment);
+                    }
+                    if (state < 2) {
+                        verify(group).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                    } else {
+                        Mockito.verifyNoInteractions(group);
+                    }
+                    transaction.executeWithoutResult(status -> {
+                        Assignment saved = sessionFactory.getCurrentSession().get(Assignment.class, assignment.getId());
+                        Assert.assertTrue(saved.getDraft());
+                        Assert.assertEquals(submissionState == 0 ? 0 : 1, saved.getSubmissions().size());
+                        if (submissionState == 2) {
+                            AssignmentSubmission retained = saved.getSubmissions().iterator().next();
+                            Assert.assertEquals("Student draft", retained.getSubmittedText());
+                            Assert.assertEquals("0", retained.getGrade());
+                            Assert.assertEquals("Instructor feedback", retained.getFeedbackComment());
+                            Assert.assertEquals(Set.of("/content/student-work"), retained.getAttachments());
+                            Assert.assertEquals("0", retained.getSubmitters().iterator().next().getGrade());
+                        }
+                    });
+                } finally {
+                    try {
+                        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, reference)).thenReturn(true);
+                        assignmentService.deleteAssignment(assignmentService.getAssignment(assignment.getId()));
+                    } catch (Exception e) {
+                        log.warn("Could not clean up assignment {} after the draft test", assignment.getId(), e);
+                    }
+                }
+            }
         }
     }
 

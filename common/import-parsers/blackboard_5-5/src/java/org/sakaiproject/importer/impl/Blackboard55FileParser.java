@@ -213,8 +213,9 @@ public class Blackboard55FileParser extends IMSFileParser {
 			DocumentBuilder docBuilder;
 		    try {
 				docBuilder = Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder();
-			    InputStream fis = new FileInputStream(pathToData + "/" + descriptorFilename);
-			    return (Document) docBuilder.parse(fis);
+                try (InputStream fis = new FileInputStream(resolvePackageFile(descriptorFilename))) {
+                    return (Document) docBuilder.parse(fis);
+                }
 			} catch (Exception e) {
 				return null;
 			}
@@ -271,14 +272,11 @@ public class Blackboard55FileParser extends IMSFileParser {
 	
 	protected class Bb55FileHelper extends FileHelper {
 		
-		public byte[] getFileBytesForNode(Node node, String contextPath) throws IOException {
-			// for Bb, we ignore the context path
-			String basePath = XPathHelper.getNodeValue("./@baseurl",node.getParentNode());
-			String fileName = XPathHelper.getNodeValue("./@href", node);
-			String filePath = basePath + "/" + fileName;
-			return getBytesFromFile(new File(pathToData + "/" + filePath));
-		}
-		
+        @Override
+        protected File getSourceFileForNode(Node node) throws IOException {
+            String basePath = XPathHelper.getNodeValue("./@baseurl", node.getParentNode());
+            return resolvePackageFile(basePath, XPathHelper.getNodeValue("./@href", node));
+        }
 	}
 
 	public ImportFileParser newParser() {
