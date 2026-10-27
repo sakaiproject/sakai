@@ -48,8 +48,9 @@ class AttendanceTest extends SakaiUiTestBase {
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Edit Attendance Item"))).isVisible();
         page.locator("input#name").fill(name + " updated");
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Changes").setExact(true)).click();
-        page.reload();
         Locator updated = eventRow(name + " updated");
+        assertThat(updated).isVisible();
+        page.reload();
         assertThat(updated).isVisible();
 
         updated.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Actions")).click();
