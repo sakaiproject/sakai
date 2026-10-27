@@ -27,6 +27,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     _evaluation: { state: true },
     _pendingChanges: { state: true },
     _totalPoints: { state: true },
+    _maxPoints: { state: true },
     _criteria: { state: true },
     _rubric: { state: true },
     _currentView: { state: true },
@@ -111,7 +112,13 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       ${this.renderSaveError()}
       <div class="rubric-details grading">
         <h3>
-          <span>${this._rubric.title}</span>
+          <span>
+            ${this._rubric.title}
+            ${this._maxPoints !== undefined ? html`
+              (${this._maxPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 })} ${this._i18n.points})
+            ` : nothing }
+          </span>
+
           ${this.enablePdfExport ? html`
             <sakai-rubric-pdf
                 rubric-title="${this._rubric.title}"
