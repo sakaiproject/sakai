@@ -246,9 +246,11 @@ $(window).load( function() {
   <h:dataTable id="parts" width="100%" value="#{assessmentBean.sections}" var="partBean">
     <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
     <h:column>
-     <details open="open" data-part-id="<h:outputText value="#{assessmentBean.assessmentId}"/>-<h:outputText value="#{partBean.sectionId}"/>">
-     <summary style="cursor: pointer; list-style-position: inside;">
-      <h:panelGrid style="display: inline-table; width: calc(100% - 1.6rem); vertical-align: middle; margin-bottom: 0;" styleClass="table table-striped" columns="2" width="100%" columnClasses="navView,navList" border="0">
+	<h:panelGroup rendered="#{!author.isEditPoolFlow}">
+     <details open="open" style="border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px;" data-part-id="<h:outputText value="#{assessmentBean.assessmentId}"/>-<h:outputText value="#{partBean.sectionId}"/>">
+     <summary style="padding: 3px; font-size: 1.1em; font-weight: bold;"><h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1')}" value="#{partBean.title}" escape="false"/></summary>
+	</h:panelGroup>
+	  <h:panelGrid styleClass="table table-striped" columns="2" width="100%" columnClasses="navView,navList" border="0">
        <h:panelGroup rendered="#{!author.isEditPoolFlow}">
           <h:outputLabel for="number" value="#{authorMessages.p}" />
           <h:outputText value="&#160;" escape="false" />
@@ -258,9 +260,9 @@ $(window).load( function() {
         <h:outputText value="#{partBean.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
         <h:outputText value="&#160;" escape="false" />
 	  <h:panelGroup rendered="#{!author.isEditPoolFlow}">
-		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions > 1}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}" escape="false"/>
-		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 1}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.question_lower_case}" escape="false"/>
-		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 0}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}" escape="false"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions > 1}" value="#{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}" escape="false"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 1}" value="#{authorMessages.dash} #{partBean.questions} #{authorMessages.question_lower_case}" escape="false"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 0}" value="#{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}" escape="false"/>
 
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3') && partBean.numberToBeFixedString > 1}" value="#{authorMessages.fixed_draw_type} #{partBean.poolNameToBeFixed} - #{partBean.numberToBeFixedString} #{authorMessages.questions_lower_case}" escape="false"/>
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3') && partBean.numberToBeFixedString == 1}" value="#{authorMessages.fixed_draw_type} #{partBean.poolNameToBeFixed} - #{partBean.numberToBeFixedString} #{authorMessages.question_lower_case}" escape="false"/>
@@ -316,7 +318,6 @@ $(window).load( function() {
       </h:panelGroup>
 	  
     </h:panelGrid>
-    </summary>
 
     <h:outputText escape="false" value="#{partBean.description}" />
 
@@ -544,7 +545,6 @@ $(window).load( function() {
     </h:column>
   </t:dataTable>
 </div>
-</details>
 <%--Question Cancellation Modal--%>
 <div id="cancelQuestionModal" class="modal modal-lg fade question-cancel-modal" tabindex="-1">
   <h:panelGroup styleClass="modal-dialog" layout="block">
@@ -605,6 +605,7 @@ $(window).load( function() {
     </h:panelGroup>
   </h:panelGroup>
 </div>
+   <h:panelGroup rendered="#{!author.isEditPoolFlow}"></details></h:panelGroup>
   </h:column>
 </h:dataTable>
 <div class="act">
