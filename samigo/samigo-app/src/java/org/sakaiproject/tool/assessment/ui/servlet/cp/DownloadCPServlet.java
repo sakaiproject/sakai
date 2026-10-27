@@ -112,6 +112,14 @@ public class DownloadCPServlet extends HttpServlet {
 	 */
 	private void exportAssessmentZip(HttpServletRequest req, HttpServletResponse res, String assessmentId, String agentIdString) throws ServletException, IOException {
 		AssessmentService assessmentService = new AssessmentService();
+		String currentSiteId = assessmentService.getAssessmentSiteId(assessmentId);
+		String createdBy = assessmentService.getAssessmentCreatedBy(assessmentId);
+
+		if (!canExport(req, res, agentIdString, currentSiteId, createdBy)) {
+			handleAccessDenied(req, res);
+			return;
+		}
+
 		AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
 		int success = assessmentService.updateAllRandomPoolQuestions(assessment);
 		String errorPoolSizeTooLarge = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "update_pool_error_size_too_large");
@@ -124,14 +132,6 @@ public class DownloadCPServlet extends HttpServlet {
 			} else {
 				handleExportError(req, res, errorPoolUpdateUnknown, pathUpdateError);
 			}
-			return;
-		}
-
-		String currentSiteId = assessmentService.getAssessmentSiteId(assessmentId);
-		String createdBy = assessmentService.getAssessmentCreatedBy(assessmentId);
-
-		if (!canExport(req, res, agentIdString, currentSiteId, createdBy)) {
-			handleAccessDenied(req, res);
 			return;
 		}
 
