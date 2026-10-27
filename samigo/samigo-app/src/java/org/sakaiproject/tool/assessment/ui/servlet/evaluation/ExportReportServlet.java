@@ -121,6 +121,11 @@ public class ExportReportServlet extends SamigoBaseServlet {
             return;
         }
 
+        if (!StringUtils.equals(siteId, assessment.getOwnerSiteId())) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
         PublishedAssessmentData assessmentData = (PublishedAssessmentData) assessment.getData();
 
         // Initial checks done, get data and build response
