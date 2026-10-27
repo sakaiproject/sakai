@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
@@ -1953,7 +1954,15 @@ public class ExtractionHelper
     else {
     	item.setPartialCreditFlag((Boolean.FALSE));
     }
-    
+
+    item.setIsExtraCredit(Boolean.parseBoolean(item.getItemMetaDataByLabel("EXTRA_CREDIT")));
+
+    String minScore = item.getItemMetaDataByLabel("MIN_SCORE");
+    if (notNullOrEmpty(minScore))
+    {
+      item.setMinScore(getValidDouble(minScore));
+    }
+
     item.setHint( (String) itemMap.get("hint"));
     if (notNullOrEmpty(hasRationale))
     {
@@ -2169,8 +2178,7 @@ public class ExtractionHelper
 						  long index = answer.getSequence().longValue(); 
 						  index = index - 1L;
 						  int indexInteger = Long.valueOf(index).intValue();
-						  String strPCredit = answerScoreList.contains(indexInteger) ? answerScoreList.get(indexInteger) : "0";
-						  double fltPCredit = Double.parseDouble(strPCredit);
+						  double fltPCredit = indexInteger < answerScoreList.size() ? NumberUtils.toDouble(answerScoreList.get(indexInteger)) : 0d;
 						  Double pCredit = (fltPCredit/(item.getScore().doubleValue()))*100;
 						  if (pCredit.isNaN()){
 							  answer.setPartialCredit(0D);
