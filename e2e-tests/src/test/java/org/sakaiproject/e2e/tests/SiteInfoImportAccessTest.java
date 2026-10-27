@@ -43,7 +43,17 @@ class SiteInfoImportAccessTest extends SakaiUiTestBase {
         assertTrue(response.contains("The upload size limit of"));
     }
 
+    @Test
+    void studentCannotPostToSiteCreationArchiveUploadHandler() {
+        String response = postUploadWithoutFile(System.getProperty("siteinfo.security.student", "student0011"), "doUploadArchive");
+        assertTrue(response.contains("You do not have permission to change the access to this site."));
+    }
+
     private String postUploadWithoutFile(String username) {
+        return postUploadWithoutFile(username, "doUpload_Mtrl_Frm_File");
+    }
+
+    private String postUploadWithoutFile(String username, String action) {
         sakai.login(username);
         page.navigate(System.getProperty("siteinfo.security.siteUrl"));
         sakai.toolClick("Site Info");
@@ -52,7 +62,7 @@ class SiteInfoImportAccessTest extends SakaiUiTestBase {
         APIResponse response = context.request().post(page.url(), RequestOptions.create()
             .setHeader("Referer", page.url())
             .setMultipart(FormData.create()
-                .set("sakai_action", "doUpload_Mtrl_Frm_File")
+                .set("sakai_action", action)
                 .set("sakai_csrf_token", csrf)));
         try {
             assertEquals(200, response.status());

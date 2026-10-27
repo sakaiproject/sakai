@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.importer.api.SakaiArchive;
+import org.sakaiproject.util.Zip;
 
 @Slf4j
 public class SakaiArchiveDataSource extends BasicImportDataSource implements SakaiArchive {
@@ -80,7 +81,7 @@ public class SakaiArchiveDataSource extends BasicImportDataSource implements Sak
     	            entryName = entry.getName();
     	            if (entryName.equals(selectedFileName)) {
     	                // TODO this code block is identical to the code below? (See A1)
-    	                File zipEntryFile = new File(dir.getPath() + "/" + entryName);
+                        File zipEntryFile = resolveEntry(dir, entryName);
     	                if (!zipEntryFile.isDirectory()) {
     	                    FileOutputStream ofile = null;
                             try {
@@ -150,7 +151,7 @@ public class SakaiArchiveDataSource extends BasicImportDataSource implements Sak
     	        entryName = entry.getName();
     	        if (!entryName.endsWith(".xml")) {
                     // TODO A1 this code block is identical to the code above?
-    	            File zipEntryFile = new File(dir.getPath() + "/" + entryName);
+                    File zipEntryFile = resolveEntry(dir, entryName);
     	            if (!zipEntryFile.isDirectory()) {
     	                FileOutputStream ofile = null;
                         try {
@@ -201,5 +202,13 @@ public class SakaiArchiveDataSource extends BasicImportDataSource implements Sak
 	    }
 	}
 
+
+    private File resolveEntry(File directory, String entryName) {
+        try {
+            return Zip.resolveEntryPath(directory.toPath(), entryName).toFile();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to resolve site archive entry", e);
+        }
+    }
 
 }

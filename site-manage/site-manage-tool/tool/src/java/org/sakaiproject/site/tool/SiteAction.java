@@ -18,10 +18,12 @@ package org.sakaiproject.site.tool;
 import static org.sakaiproject.site.util.SiteConstants.*;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -16154,55 +16156,37 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * Handles uploading an archive file as part of the site creation workflow
 	 * @param data
 	 */
-	public void doUploadArchive(RunData data)
-	{	
-		ParameterParser params = data.getParameters();
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-	
-		//get params
-		FileItem fi = data.getParameters().getFileItem ("importFile");
-		
-		//get uploaded file into a location we can process
-		String archiveUnzipBase = serverConfigurationService.getString("archive.storage.path", FileUtils.getTempDirectoryPath());
-	
-		//convert inputstream into actual file so we can unzip it
-		String zipFilePath = archiveUnzipBase + File.separator + fi.getFileName();
-		
-		//rudimentary check that the file is a zip file
-		if(!StringUtils.endsWith(fi.getFileName(), ".zip")){
-			addAlert(state, rb.getString("archive.createsite.failedupload"));
-			return;
-		}
-		
-		
-		
-		File tempZipFile = new File(zipFilePath);
-		if(tempZipFile.exists()) {
-			tempZipFile.delete();
-		}
-		
-		FileOutputStream fileOutputStream = null;
-		try {
-			fileOutputStream = new FileOutputStream(tempZipFile);
-			//copy contents into this file
-			IOUtils.copyLarge(fi.getInputStream(), fileOutputStream);
-			
-			//set path into state so we can process it later
-			state.setAttribute(STATE_UPLOADED_ARCHIVE_PATH, tempZipFile.getAbsolutePath());
-			state.setAttribute(STATE_UPLOADED_ARCHIVE_NAME, tempZipFile.getName());
-			
-		} catch (Exception e) {
-			log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
-			addAlert(state, rb.getString("archive.createsite.failedupload"));
-		}
-		finally {
-			IOUtils.closeQuietly(fileOutputStream);
-		}
-		
-		//go to confirm screen
-		state.setAttribute(STATE_TEMPLATE_INDEX, "10");
-	}
-	
+    public void doUploadArchive(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        if (!siteService.allowImportArchiveSite()) {
+            addAlert(state, rb.getString("java.notaccess"));
+            return;
+        }
+
+        FileItem fi = data.getParameters().getFileItem("importFile");
+        if (fi == null || !StringUtils.endsWith(fi.getFileName(), ".zip")) {
+            addAlert(state, rb.getString("archive.createsite.failedupload"));
+            return;
+        }
+
+        String archiveUnzipBase = serverConfigurationService.getString("archive.storage.path", FileUtils.getTempDirectoryPath());
+        try {
+            File tempZipFile = File.createTempFile("sakai-site-archive-", ".zip", new File(archiveUnzipBase));
+            try (InputStream in = fi.getInputStream(); OutputStream out = new FileOutputStream(tempZipFile)) {
+                IOUtils.copyLarge(in, out);
+            } catch (IOException e) {
+                Files.deleteIfExists(tempZipFile.toPath());
+                throw e;
+            }
+            state.setAttribute(STATE_UPLOADED_ARCHIVE_PATH, tempZipFile.getAbsolutePath());
+            state.setAttribute(STATE_UPLOADED_ARCHIVE_NAME, new File(fi.getFileName().replace('\\', '/')).getName());
+            state.setAttribute(STATE_TEMPLATE_INDEX, "10");
+        } catch (IOException e) {
+            log.warn("Unable to store uploaded site archive", e);
+            addAlert(state, rb.getString("archive.createsite.failedupload"));
+        }
+    }
+
 	/**
 	 * Handles merging an uploaded archive into the newly created site
 	 * This is done after the site has been created in the site creation workflow
@@ -16212,6 +16196,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private void doMergeArchiveIntoNewSite(String siteId, SessionState state) {	
 		
+        if (!siteService.allowImportArchiveSite()) {
+            addAlert(state, rb.getString("java.notaccess"));
+            return;
+        }
+
 		String currentUserId = userDirectoryService.getCurrentUser().getId();
 		
 		try {

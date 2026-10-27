@@ -72,7 +72,10 @@ public class SakaiResourceServiceTest
 		when(toolManager.getCurrentPlacement()).thenReturn(placement);
 		when(placement.getContext()).thenReturn("site-a");
 
-		service = new TestSakaiResourceService(configurationService, toolManager);
+		TestSakaiResourceService resourceService = new TestSakaiResourceService(configurationService, toolManager);
+        when(resourceService.siteService.siteReference("site-a")).thenReturn("/site/site-a");
+        when(resourceService.securityService.unlock("scorm.upload", "/site/site-a")).thenReturn(true);
+        service = resourceService;
 	}
 
 	@After
@@ -104,6 +107,24 @@ public class SakaiResourceServiceTest
 
 		assertThrows(ResourceStorageException.class, () -> service.getArchive(resourceId));
 	}
+
+    @Test
+    public void uploadRequiresPermissionBeforeCreatingTemporaryFiles() throws Exception {
+        TestSakaiResourceService resourceService = (TestSakaiResourceService) service;
+        when(resourceService.securityService.unlock("scorm.upload", "/site/site-a")).thenReturn(false);
+        assertThrows(PermissionException.class, () -> service.putArchive(
+            new ByteArrayInputStream(new byte[] {1}), "test.zip", "application/zip", false, 0));
+        assertFalse(Files.exists(tempRoot.resolve("temp")));
+    }
+
+    @Test
+    public void superUserCanUploadWithoutExplicitSitePermission() throws Exception {
+        TestSakaiResourceService resourceService = (TestSakaiResourceService) service;
+        when(resourceService.securityService.unlock("scorm.upload", "/site/site-a")).thenReturn(false);
+        when(resourceService.securityService.isSuperUser()).thenReturn(true);
+        String id = service.putArchive(new ByteArrayInputStream(new byte[] {1}), "test.zip", "application/zip", false, 0);
+        assertTrue(id.startsWith("tmp:site-a:"));
+    }
 
 	private static final class TestSakaiResourceService extends SakaiResourceService
 	{
