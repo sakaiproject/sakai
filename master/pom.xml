@@ -48,7 +48,7 @@
     <sakai.node.version>v22.14.0</sakai.node.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>${sakai.version}</sakai.pluto.version>
-    <sakai.quartz.version>2.3.2</sakai.quartz.version>
+    <sakai.quartz.version>2.5.2</sakai.quartz.version>
     <sakai.opencsv.version>5.12.0</sakai.opencsv.version>
     <sakai.openpdf.version>2.4.0</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
