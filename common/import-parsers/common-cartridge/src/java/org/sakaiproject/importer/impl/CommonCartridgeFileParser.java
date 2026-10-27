@@ -170,7 +170,7 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 			}
 
 		    try {
-                fis = new FileInputStream(pathToData + File.separator + descriptorFilename);
+                fis = new FileInputStream(resolvePackageFile(descriptorFilename));
 				DocumentBuilderFactory builderFactory = Xml.createSecureDocumentBuilderFactory(false);
 				docBuilder = builderFactory.newDocumentBuilder();
 			    doc = (Document) docBuilder.parse(fis);

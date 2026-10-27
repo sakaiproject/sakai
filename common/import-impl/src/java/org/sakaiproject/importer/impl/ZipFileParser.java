@@ -60,6 +60,7 @@ public abstract class ZipFileParser implements ImportFileParser {
 	protected MimetypesFileTypeMap mimeTypes = new MimetypesFileTypeMap();
 	protected String pathToData;
 	protected String localArchiveLocation;
+    private Path archiveRoot;
 
 	public boolean isValidArchive(InputStream fileData) {
 		ZipInputStream zipStream = new ZipInputStream(fileData);
@@ -110,6 +111,7 @@ public abstract class ZipFileParser implements ImportFileParser {
 		} catch (IOException e) {
 			throw new UncheckedIOException("Could not create archive extraction directory", e);
 		}
+        archiveRoot = root;
 		String localArchiveLocation = root.getFileName().toString();
 		try (ZipInputStream zipStream = new ZipInputStream(fileData)) {
 			boolean foundTheManifest = false;
@@ -220,6 +222,10 @@ public abstract class ZipFileParser implements ImportFileParser {
 	}
 	
 	
+    protected File resolvePackageFile(String reference) throws IOException {
+        return Zip.resolveContainedPath(archiveRoot, Path.of(pathToData), reference).toFile();
+    }
+
 	protected byte[] getBytesFromFile(File file) throws IOException {
         InputStream is = new FileInputStream(file);
     
