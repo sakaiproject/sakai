@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -5059,23 +5060,33 @@ public class SiteAction extends PagedResourceActionII {
 		fnlList.addAll(directList);
 	 	log.info("about to import {} top level items", fnlList.size());
 	 	log.info("the importDataSource is {}", importDataSource.getClass().getName());
-		if (importDataSource instanceof SakaiArchive) {
-		 	log.info("our data source is a Sakai format");
-			((SakaiArchive) importDataSource).buildSourceFolder(fnlList);
-		 	log.info("source folder is {}", ((SakaiArchive) importDataSource).getSourceFolder());
-			archiveService.merge(((SakaiArchive) importDataSource).getSourceFolder(), siteId, null);
-		} else {
-			importService.doImportItems(importDataSource
-					.getItemsForCategories(fnlList), siteId);
-		}
-		// remove attributes
-		state.removeAttribute(ALL_ZIP_IMPORT_SITES);
-		state.removeAttribute(DIRECT_ZIP_IMPORT_SITES);
-		state.removeAttribute(CLASSIC_ZIP_FILE_NAME);
-		state.removeAttribute(SESSION_CONTEXT_ID);
-		state.removeAttribute(IMPORT_DATA_SOURCE);
-
-		state.setAttribute(STATE_TEMPLATE_INDEX, "48");
+        boolean imported = false;
+        try {
+            if (importDataSource instanceof SakaiArchive) {
+                ((SakaiArchive) importDataSource).buildSourceFolder(fnlList);
+                archiveService.merge(((SakaiArchive) importDataSource).getSourceFolder(), siteId, null);
+            } else {
+                importService.doImportItems(importDataSource.getItemsForCategories(fnlList), siteId);
+            }
+            imported = true;
+        } catch (UncheckedIOException e) {
+            log.warn("Unable to import archive into site {}", siteId, e);
+            addAlert(state, rb.getString("importFile.invalidfile"));
+        } finally {
+            try {
+                importDataSource.cleanup();
+            } finally {
+                state.removeAttribute(ALL_ZIP_IMPORT_SITES);
+                state.removeAttribute(DIRECT_ZIP_IMPORT_SITES);
+                state.removeAttribute(CLASSIC_ZIP_FILE_NAME);
+                state.removeAttribute(SESSION_CONTEXT_ID);
+                state.removeAttribute(IMPORT_DATA_SOURCE);
+                if (!imported) {
+                    state.removeAttribute(FINAL_ZIP_IMPORT_SITES);
+                }
+                state.setAttribute(STATE_TEMPLATE_INDEX, imported ? "48" : "45");
+            }
+        }
 
 	} // doSave_MtrlSite
 
@@ -7972,6 +7983,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// template
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        cleanupUploadedArchive(state);
 		removeAddClassContext(state);
 		state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 		
@@ -16178,6 +16190,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
                 Files.deleteIfExists(tempZipFile.toPath());
                 throw e;
             }
+            cleanupUploadedArchive(state);
             state.setAttribute(STATE_UPLOADED_ARCHIVE_PATH, tempZipFile.getAbsolutePath());
             state.setAttribute(STATE_UPLOADED_ARCHIVE_NAME, new File(fi.getFileName().replace('\\', '/')).getName());
             state.setAttribute(STATE_TEMPLATE_INDEX, "10");
@@ -16194,30 +16207,37 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param siteId
 	 * @param state
 	 */
-	private void doMergeArchiveIntoNewSite(String siteId, SessionState state) {	
-		
-        if (!siteService.allowImportArchiveSite()) {
-            addAlert(state, rb.getString("java.notaccess"));
-            return;
+    private void doMergeArchiveIntoNewSite(String siteId, SessionState state) {
+        try {
+            if (!siteService.allowImportArchiveSite()) {
+                addAlert(state, rb.getString("java.notaccess"));
+                return;
+            }
+            String archivePath = (String) state.getAttribute(STATE_UPLOADED_ARCHIVE_PATH);
+            String currentUserId = userDirectoryService.getCurrentUser().getId();
+            archiveService.mergeFromZip(archivePath, siteId, currentUserId);
+        } catch (Exception e) {
+            log.warn("Unable to merge uploaded archive into site {}", siteId, e);
+            addAlert(state, rb.getString("archive.createsite.failedmerge"));
+        } finally {
+            cleanupUploadedArchive(state);
         }
+    }
 
-		String currentUserId = userDirectoryService.getCurrentUser().getId();
-		
-		try {
-		
-			String archivePath = (String)state.getAttribute(STATE_UPLOADED_ARCHIVE_PATH);
-			
-			//merge the zip into our new site
-			//we ignore the return because its not very useful. See ArchiveService for more details
-			archiveService.mergeFromZip(archivePath, siteId, currentUserId);
-			
-		} catch (Exception e) {
-			log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
-			addAlert(state, rb.getString("archive.createsite.failedmerge"));
-		}
-		
-	}
-	
+    private void cleanupUploadedArchive(SessionState state) {
+        String archivePath = (String) state.getAttribute(STATE_UPLOADED_ARCHIVE_PATH);
+        try {
+            if (archivePath != null) {
+                Files.deleteIfExists(java.nio.file.Path.of(archivePath));
+            }
+        } catch (IOException | java.nio.file.InvalidPathException e) {
+            log.warn("Unable to remove uploaded site archive {}", archivePath, e);
+        } finally {
+            state.removeAttribute(STATE_UPLOADED_ARCHIVE_PATH);
+            state.removeAttribute(STATE_UPLOADED_ARCHIVE_NAME);
+        }
+    }
+
 	/**
 	 * Get the list of tools that are in a list of sites that are available for import.
 	 * 

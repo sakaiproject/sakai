@@ -82,6 +82,21 @@ public class UnZipHandlerTest {
         assertFalse(Files.exists(root.resolve("PackageImport/imsmanifest.xml")));
     }
 
+    @Test
+    public void validatorRemovesPartialFilesAfterExtractionConflict() throws Exception {
+        Path root = temporary.newFolder().toPath();
+        Path zip = archive("imsmanifest.xml", "imsmanifest.xml/child.txt");
+        CPValidator validator = new CPValidator(root.toString());
+        assertFalse(validator.validate(zip.toString(), "pif", "contentpackage", false, "UTF-8"));
+        assertFalse(validator.getADLValidatorOutcome().getDoesIMSManifestExist());
+        try (java.util.stream.Stream<Path> files = Files.list(root.resolve("PackageImport"))) {
+            assertEquals(0, files.count());
+        }
+        CPValidator next = new CPValidator(root.toString());
+        next.validate(archive("payload.txt").toString(), "pif", "contentpackage", false, "UTF-8");
+        assertFalse(next.getADLValidatorOutcome().getDoesIMSManifestExist());
+    }
+
     private Path archive(String... names) throws IOException {
         Path zip = temporary.newFile().toPath();
         try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(zip))) {

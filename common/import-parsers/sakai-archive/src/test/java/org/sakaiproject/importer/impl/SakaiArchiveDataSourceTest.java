@@ -18,6 +18,7 @@ package org.sakaiproject.importer.impl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -50,7 +51,7 @@ public class SakaiArchiveDataSourceTest {
         BasicImportMetadata selected = new BasicImportMetadata();
         selected.setFileName("../outside.xml");
         SakaiArchiveDataSource source = dataSource(root, "../outside.xml");
-        assertThrows(IllegalArgumentException.class, () -> source.buildSourceFolder(List.of(selected)));
+        assertThrows(UncheckedIOException.class, () -> source.buildSourceFolder(List.of(selected)));
         assertEquals("original", Files.readString(canary));
     }
 
@@ -60,7 +61,7 @@ public class SakaiArchiveDataSourceTest {
             Path root = temporary.newFolder().toPath();
             Path canary = Files.writeString(root.resolve("outside.txt"), "original");
             SakaiArchiveDataSource source = dataSource(root, name);
-            assertThrows(IllegalArgumentException.class, () -> source.buildSourceFolder(List.of()));
+            assertThrows(UncheckedIOException.class, () -> source.buildSourceFolder(List.of()));
             assertEquals("original", Files.readString(canary));
         }
     }
@@ -73,8 +74,29 @@ public class SakaiArchiveDataSourceTest {
         Path canary = Files.writeString(outside.resolve("outside.txt"), "original");
         Files.createSymbolicLink(source.resolve("attachment.txt"), canary);
         SakaiArchiveDataSource data = dataSource(root, "attachment.txt");
-        assertThrows(IllegalArgumentException.class, () -> data.buildSourceFolder(List.of()));
+        assertThrows(UncheckedIOException.class, () -> data.buildSourceFolder(List.of()));
         assertEquals("original", Files.readString(canary));
+    }
+
+    @Test
+    public void extractsExplicitDirectoriesAndNestedSelectedXml() throws Exception {
+        Path root = temporary.newFolder().toPath();
+        BasicImportMetadata selected = new BasicImportMetadata();
+        selected.setFileName("folder/selected.xml");
+        dataSource(root, "folder/", "folder/selected.xml", "folder/file.txt").buildSourceFolder(List.of(selected));
+        assertTrue(Files.isDirectory(root.resolve("source/folder")));
+        assertEquals("marker", Files.readString(root.resolve("source/folder/selected.xml")));
+        assertEquals("marker", Files.readString(root.resolve("source/folder/file.txt")));
+    }
+
+    @Test
+    public void createsImplicitParentDirectoriesForFiles() throws Exception {
+        Path root = temporary.newFolder().toPath();
+        BasicImportMetadata selected = new BasicImportMetadata();
+        selected.setFileName("nested/selected.xml");
+        dataSource(root, "nested/selected.xml", "attachments/deep/file.txt").buildSourceFolder(List.of(selected));
+        assertEquals("marker", Files.readString(root.resolve("source/nested/selected.xml")));
+        assertEquals("marker", Files.readString(root.resolve("source/attachments/deep/file.txt")));
     }
 
     private SakaiArchiveDataSource dataSource(Path root, String... names) throws IOException {
@@ -82,7 +104,7 @@ public class SakaiArchiveDataSourceTest {
         try (ZipOutputStream out = new ZipOutputStream(bytes)) {
             for (String name : names) {
                 out.putNextEntry(new ZipEntry(name));
-                out.write("marker".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                if (!name.endsWith("/")) out.write("marker".getBytes(java.nio.charset.StandardCharsets.UTF_8));
                 out.closeEntry();
             }
         }

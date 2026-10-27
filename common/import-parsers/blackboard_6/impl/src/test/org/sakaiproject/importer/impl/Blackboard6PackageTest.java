@@ -78,6 +78,25 @@ public class Blackboard6PackageTest {
         assertNotNull(parser.resourceHelper.getDescriptor(resource));
     }
 
+    @Test
+    public void rejectsAbsoluteHrefEvenWhenPrefixedFileExists() throws Exception {
+        Blackboard6FileParser parser = parsePackage();
+        for (String href : new String[] {"/file.txt", "\\file.txt", "C:/file.txt", "C:file.txt", "\\\\server/share/file.txt"}) {
+            assertThrows(IOException.class,
+                () -> parser.new Bb6FileHelper().getInputStreamForNode(fileNode(href), "destination"));
+            assertThrows(IOException.class,
+                () -> parser.new Bb6FileHelper().getFileBytesForNode(fileNode(href), "destination"));
+        }
+    }
+
+    @Test
+    public void permitsParentHrefInsidePackage() throws Exception {
+        Blackboard6FileParser parser = parsePackage();
+        try (InputStream in = parser.new Bb6FileHelper().getInputStreamForNode(fileNode("../descriptor.xml"), "destination")) {
+            assertTrue(new String(in.readAllBytes(), StandardCharsets.UTF_8).contains("package descriptor"));
+        }
+    }
+
     private Blackboard6FileParser parsePackage() throws Exception {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (ZipOutputStream zip = new ZipOutputStream(bytes)) {

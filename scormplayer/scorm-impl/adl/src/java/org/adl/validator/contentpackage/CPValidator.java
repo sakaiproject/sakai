@@ -3248,6 +3248,10 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
             } catch (IOException e) {
                 log.warn("Unable to extract content package {}", iFileName, e);
                 setIsIMSManifestPresent(false);
+                String importDirectory = mEnvironmentVariable + File.separator + "PackageImport" + File.separator;
+                if (new File(importDirectory).exists()) {
+                    cleanImportDirectory(importDirectory);
+                }
                 return false;
             }
 			mBaseDirectory = mEnvironmentVariable + File.separator + "PackageImport" + File.separator;

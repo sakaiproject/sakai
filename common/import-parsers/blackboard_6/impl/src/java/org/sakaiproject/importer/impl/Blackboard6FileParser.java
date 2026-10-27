@@ -265,8 +265,9 @@ public class Blackboard6FileParser extends IMSFileParser {
 				String descriptorFilename = resourceNode.getAttributes().getNamedItem("bb:file").getNodeValue();
 				DocumentBuilder docBuilder;
 				docBuilder = Xml.createSecureDocumentBuilderFactory(false).newDocumentBuilder();
-			    InputStream fis = new FileInputStream(resolvePackageFile(descriptorFilename));
-			    return (Document) docBuilder.parse(fis);
+                try (InputStream fis = new FileInputStream(resolvePackageFile(descriptorFilename))) {
+                    return (Document) docBuilder.parse(fis);
+                }
 			} catch (Exception e) {
 				return null;
 			}
@@ -323,9 +324,9 @@ public class Blackboard6FileParser extends IMSFileParser {
 	protected class Bb6FileHelper extends FileHelper {
 		
         @Override
-        protected String getSourceReferenceForNode(Node node) {
+        protected File getSourceFileForNode(Node node) throws IOException {
             String basePath = XPathHelper.getNodeValue("./@identifier", node.getParentNode());
-            return basePath + "/" + XPathHelper.getNodeValue("./@href", node);
+            return resolvePackageFile(basePath, XPathHelper.getNodeValue("./@href", node));
         }
 	
 		public String getFilePathForNode(Node node, String contextPath) {
