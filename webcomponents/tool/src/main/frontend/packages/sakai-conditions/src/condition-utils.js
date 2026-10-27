@@ -25,10 +25,6 @@ export const ConditionType = {
   ROOT: "ROOT",
 };
 
-export const LessonItemType = {
-  QUESTION: 11,
-};
-
 export function formatOperator(conditionI18n, operator) {
   return conditionI18n[operator.toLowerCase()];
 }
@@ -87,13 +83,4 @@ export function nonRootConditionFilter(condition) {
 
 export function nonParentConditionFilter(condition) {
   return condition.type !== ConditionType.PARENT;
-}
-
-export function lessonItemName(lessonItem) {
-  switch (lessonItem.type) {
-    case LessonItemType.QUESTION:
-      return lessonItem.questionText ?? lessonItem.name;
-    default:
-      return lessonItem.name;
-  }
 }

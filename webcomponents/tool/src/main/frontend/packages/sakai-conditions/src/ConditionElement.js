@@ -22,11 +22,11 @@ export class ConditionElement extends SakaiShadowElement {
   }
 
   get _context() {
-    return JSON.stringify([ this.siteId, this.toolId, this.itemId, this.lessonId ]);
+    return JSON.stringify([ this.siteId, this.toolId, this.itemId, this.lessonItems ]);
   }
 
   updated(changed) {
-    if ([ "siteId", "toolId", "itemId", "lessonId" ].some(name => changed.has(name))) {
+    if ([ "siteId", "toolId", "itemId", "lessonItems" ].some(name => changed.has(name))) {
       this._load();
     }
   }

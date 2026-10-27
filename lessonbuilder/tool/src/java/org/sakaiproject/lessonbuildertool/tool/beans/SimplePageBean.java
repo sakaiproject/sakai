@@ -500,7 +500,7 @@ public class SimplePageBean {
     @Autowired @Setter private LTIService ltiService;
     @Autowired @Setter private LessonBuilderAccessService lessonBuilderAccessService;
     @Autowired @Setter private LessonBuilderEntityProducer lessonBuilderEntityProducer;
-    @Autowired @Setter private LessonsAccess lessonsAccess;
+    @Autowired @Getter @Setter private LessonsAccess lessonsAccess;
     @Autowired @Getter @Setter private MessageLocator messageLocator;
     @Autowired @Setter private NotificationService notificationService;
     @Autowired @Setter private PagePromotionService pagePromotionService;
