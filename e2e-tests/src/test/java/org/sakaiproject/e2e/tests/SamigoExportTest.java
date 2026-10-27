@@ -30,7 +30,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
 
-/** Uses the prepared export fixtures documented in e2e-tests/README.md. */
+/** Exercises deployed assessment exports with prepared fixtures. */
 @EnabledIfSystemProperty(named = "samigo.export.siteUrl", matches = ".+")
 class SamigoExportTest extends SakaiUiTestBase {
 

@@ -128,34 +128,3 @@ PLAYWRIGHT_BASE_URL=https://sakai.example mvn -P e2e test \
 
 The tests check instructor access, hidden unrelated group quizzes, both displayed
 counts for site and group releases, empty-group visibility, and a TA page reload.
-
-## Samigo export regression (SAK-53054)
-
-`SamigoExportTest` uses disposable prepared assessments so it can compare the
-draft's last modifier before and after unsuccessful exports. It exercises the deployed
-servlets and normal browser login without replacing tool services.
-
-Prepare two English-language sites with Tests & Quizzes:
-
-- In the first site, `instructor1` owns a draft named `Export fixture a` containing
-  a random-draw part backed by a question pool. Its published copy has at least
-  one graded student submission. `student0011` is a student in this site.
-- In the second site, `instructor2` has the normal Instructor role and has no
-  membership in the first site.
-
-Use disposable data: successful owner exports refresh random-draw questions.
-Run against the deployed code, supplying the published assessment ID:
-
-```bash
-mvn -f e2e-tests/pom.xml -Dtest=SamigoExportTest \
-  -DPLAYWRIGHT_BASE_URL=https://sakai.example \
-  -Dsamigo.export.siteUrl=https://sakai.example/portal/site/FIRST_SITE \
-  -Dsamigo.export.otherSiteUrl=https://sakai.example/portal/site/SECOND_SITE \
-  -Dsamigo.export.draftTitle='Export fixture a' \
-  -Dsamigo.export.publishedId=PUBLISHED_ID test
-```
-
-The owner usernames can be overridden with `samigo.export.owner` and
-`samigo.export.otherInstructor`. The suite checks student and anonymous requests
-leave draft modification details unchanged, mismatched report contexts return
-403, and owner ZIP/text/XLSX/PDF exports still return attachments.
