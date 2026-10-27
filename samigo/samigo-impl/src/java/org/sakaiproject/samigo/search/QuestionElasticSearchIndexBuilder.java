@@ -992,6 +992,12 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             query.must(matchQuery("hash", additionalSearchInformation.get("hash")));
         }
 
+        // limits the search to one question, as when checking the user can reach it
+        if (additionalSearchInformation.containsKey("questionId")) {
+            log.debug("We will search this question: {}", additionalSearchInformation.get("questionId"));
+            query.must(termQuery("questionId", additionalSearchInformation.get("questionId")));
+        }
+
         // the scope of the search in the advancedSearchInformation Map...
         // scope "all" = no filter
         // scope "owns" or no scope = all their sites as instructor and qpools with permissions (That's the default value)

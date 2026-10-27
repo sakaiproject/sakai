@@ -16,27 +16,49 @@
 package org.sakaiproject.samigo.search;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryStringQueryBuilder;
+import org.opensearch.index.query.TermQueryBuilder;
 
 public class QuestionElasticSearchIndexBuilderTest {
 
+    private final QuestionElasticSearchIndexBuilder indexBuilder = new QuestionElasticSearchIndexBuilder();
+
+    @Before
+    public void setUp() {
+        indexBuilder.setIndexName("questions_index");
+    }
+
     @Test
     public void textSearchQueriesTheQuestionsIndex() {
-        QuestionElasticSearchIndexBuilder indexBuilder = new QuestionElasticSearchIndexBuilder();
-        indexBuilder.setIndexName("questions_index");
-
         SearchRequest request = indexBuilder.prepareSearchRequest("photosynthesis", List.of(), List.of(), List.of(), 0, 10, Map.of());
 
         assertArrayEquals(new String[] {"questions_index"}, request.indices());
         BoolQueryBuilder query = (BoolQueryBuilder) request.source().query();
         assertTrue(query.must().stream().anyMatch(QueryStringQueryBuilder.class::isInstance));
+    }
+
+    @Test
+    public void questionIdLimitsTheSearchToThatQuestion() {
+        SearchRequest request = indexBuilder.prepareSearchRequest("", List.of(), List.of(), List.of(), 0, 1,
+                Map.of("subtype", "item", "questionId", "/sam_item/42"));
+
+        BoolQueryBuilder query = (BoolQueryBuilder) request.source().query();
+        List<TermQueryBuilder> questionTerms = query.must().stream()
+                .filter(TermQueryBuilder.class::isInstance)
+                .map(TermQueryBuilder.class::cast)
+                .filter(term -> "questionId".equals(term.fieldName()))
+                .toList();
+        assertEquals(1, questionTerms.size());
+        assertEquals("/sam_item/42", questionTerms.get(0).value());
     }
 }

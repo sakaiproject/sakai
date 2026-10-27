@@ -347,7 +347,8 @@ public class SearchQuestionBean   implements Serializable {
             HashMap<String, String> additionalSearchInformation = new HashMap<String, String>();
             additionalSearchInformation.put("scope", "own");
             additionalSearchInformation.put("subtype", "item");
-            additionalSearchInformation.put("questionId", questionId);
+            // questions are indexed by their reference
+            additionalSearchInformation.put("questionId", "/sam_item/" + questionId);
 
             try {
 
