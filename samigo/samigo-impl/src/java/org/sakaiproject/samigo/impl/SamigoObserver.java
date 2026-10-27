@@ -93,15 +93,12 @@ public class SamigoObserver implements Observer {
         }
         String[] parts = StringUtils.split(resource, '/');
         // parts: ["gradebookng", gradebookId, assignmentId, role]
-        if (parts == null || parts.length < 3 || !"gradebookng".equals(parts[0])) {
+        if (parts.length < 3 || !"gradebookng".equals(parts[0])) {
             log.warn("Unexpected gradebook.deleteItem resource format: {}", resource);
             return;
         }
         String assignmentId = parts[2];
-        if (StringUtils.isBlank(assignmentId)) {
-            return;
-        }
-        log.info("Gradebook item {} deleted; clearing Samigo TO_SELECTED links", assignmentId);
+        log.debug("Gradebook item {} deleted; clearing Samigo TO_SELECTED links", assignmentId);
         unlinkGradebookItemFromDraftAssessments(assignmentId);
         unlinkGradebookItemFromPublishedAssessments(assignmentId);
     }
@@ -120,7 +117,7 @@ public class SamigoObserver implements Observer {
                     facade::updateAssessmentToGradebookNameMetaData,
                     assignmentId)) {
                 assessmentService.saveAssessment(facade);
-                log.info("Cleared deleted gradebook item {} from draft assessment {}", assignmentId, assessmentId);
+                log.debug("Cleared deleted gradebook item {} from draft assessment {}", assignmentId, assessmentId);
             }
         }
     }
@@ -139,7 +136,7 @@ public class SamigoObserver implements Observer {
                     facade::updateAssessmentToGradebookNameMetaData,
                     assignmentId)) {
                 publishedAssessmentService.saveAssessment(facade);
-                log.info("Cleared deleted gradebook item {} from published assessment {}", assignmentId, publishedId);
+                log.debug("Cleared deleted gradebook item {} from published assessment {}", assignmentId, publishedId);
             }
         }
     }
@@ -152,16 +149,14 @@ public class SamigoObserver implements Observer {
         if (!EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
             return false;
         }
-        if (!GradebookAssociationHelper.containsItemId(currentIds, assignmentId)) {
+        if (!GradebookAssociationHelper.parseItemIds(currentIds).contains(assignmentId)) {
             return false;
         }
         String remaining = GradebookAssociationHelper.removeItemId(currentIds, assignmentId);
         if (StringUtils.isBlank(remaining)) {
             evaluation.setToGradeBook(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString());
-            updateMetadata.accept("");
-        } else {
-            updateMetadata.accept(remaining);
         }
+        updateMetadata.accept(remaining);
         return true;
     }
 

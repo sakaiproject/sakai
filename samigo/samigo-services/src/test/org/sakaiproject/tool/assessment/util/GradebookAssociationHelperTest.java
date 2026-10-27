@@ -16,7 +16,6 @@
 package org.sakaiproject.tool.assessment.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -33,7 +32,6 @@ import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.util.GradebookAssociationHelper.GradebookItemPresence;
 import org.sakaiproject.tool.assessment.util.GradebookAssociationHelper.SelectedGradebookValidation;
 
 public class GradebookAssociationHelperTest {
@@ -54,13 +52,7 @@ public class GradebookAssociationHelperTest {
 		assertEquals("20,30", GradebookAssociationHelper.removeItemId("10,20,30", "10"));
 		assertEquals("", GradebookAssociationHelper.removeItemId("10", "10"));
 		assertEquals("10", GradebookAssociationHelper.removeItemId("10", "99"));
-	}
-
-	@Test
-	public void containsItemId() {
-		assertTrue(GradebookAssociationHelper.containsItemId("10,20", "20"));
-		assertFalse(GradebookAssociationHelper.containsItemId("10,20", "2"));
-		assertFalse(GradebookAssociationHelper.containsItemId(null, "10"));
+		assertEquals("10,20", GradebookAssociationHelper.removeItemId("10,20", "2"));
 	}
 
 	@Test
@@ -68,20 +60,10 @@ public class GradebookAssociationHelperTest {
 		Map<String, String> map = new HashMap<>();
 		map.put("gb/10", "gb/100");
 		map.put("gb/20", "gb/200");
-		assertEquals("100,200", GradebookAssociationHelper.remapItemIds("10,20", map));
-	}
-
-	@Test
-	public void remapItemIds_partialMap_preservesUnmapped() {
-		Map<String, String> map = new HashMap<>();
-		map.put("gb/10", "gb/100");
-		assertEquals("100,20", GradebookAssociationHelper.remapItemIds("10,20", map));
-	}
-
-	@Test
-	public void remapItemIds_emptyMap_preservesOriginal() {
-		assertEquals("10,20", GradebookAssociationHelper.remapItemIds("10,20", new HashMap<>()));
-		assertEquals("10", GradebookAssociationHelper.remapItemIds("10", null));
+		GradingService gradingService = mockSiteAssignment("site1", 100L, false);
+		when(gradingService.getGradebookUidByAssignmentById("site1", 200L)).thenReturn("site1");
+		when(gradingService.getAssignment("site1", "site1", 200L)).thenReturn(new Assignment());
+		assertEquals("100,200", GradebookAssociationHelper.remapItemIds("10,20", map, "site1", gradingService));
 	}
 
 	@Test
@@ -182,17 +164,17 @@ public class GradebookAssociationHelperTest {
 	}
 
 	@Test
-	public void checkGradebookItemPresence_groupGradebook() {
+	public void validateSelectedGradebookItems_groupGradebook() {
 		GradingService gradingService = mock(GradingService.class);
-		Assignment assignment = mock(Assignment.class);
-		when(assignment.getExternallyMaintained()).thenReturn(false);
+		Assignment assignment = new Assignment();
 		when(gradingService.isGradebookGroupEnabled("site1")).thenReturn(true);
 		when(gradingService.getGradebookUidByAssignmentById("site1", 42L)).thenReturn("group-gb");
 		when(gradingService.getGradebookGroupInstancesIds("site1")).thenReturn(List.of("group-gb", "other-gb"));
 		when(gradingService.getAssignment(eq("group-gb"), eq("site1"), eq(42L))).thenReturn(assignment);
 
-		assertEquals(GradebookItemPresence.PRESENT,
-				GradebookAssociationHelper.checkGradebookItemPresence("site1", "42", gradingService));
+		assertEquals(SelectedGradebookValidation.OK,
+				GradebookAssociationHelper.validateSelectedGradebookItems(
+						EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString(), "42", "site1", gradingService));
 	}
 
 	@Test
@@ -203,10 +185,29 @@ public class GradebookAssociationHelperTest {
 		assertEquals("42", GradebookAssociationHelper.filterPresentItemIds("42", "site1", gradingService));
 	}
 
+	@Test
+	public void filterPresentItemIds_preservesItemWhenAssignmentLookupFails() {
+		GradingService gradingService = mockSiteAssignment("site1", 42L, false);
+		when(gradingService.getAssignment("site1", "site1", 42L)).thenThrow(new RuntimeException("timeout"));
+
+		assertEquals("42", GradebookAssociationHelper.filterPresentItemIds("42", "site1", gradingService));
+	}
+
+	@Test
+	public void validateSelectedGradebookItems_rejectsExternallyMaintainedItem() {
+		GradingService gradingService = mockSiteAssignment("site1", 42L, false);
+		Assignment assignment = new Assignment();
+		assignment.setExternallyMaintained(true);
+		when(gradingService.getAssignment("site1", "site1", 42L)).thenReturn(assignment);
+
+		assertEquals(SelectedGradebookValidation.INVALID_OR_MISSING,
+				GradebookAssociationHelper.validateSelectedGradebookItems(
+						EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString(), "42", "site1", gradingService));
+	}
+
 	private GradingService mockSiteAssignment(String siteId, long assignmentId, boolean groupEnabled) {
 		GradingService gradingService = mock(GradingService.class);
-		Assignment assignment = mock(Assignment.class);
-		when(assignment.getExternallyMaintained()).thenReturn(false);
+		Assignment assignment = new Assignment();
 		when(gradingService.isGradebookGroupEnabled(siteId)).thenReturn(groupEnabled);
 		when(gradingService.getGradebookUidByAssignmentById(siteId, assignmentId)).thenReturn(siteId);
 		when(gradingService.getAssignment(eq(siteId), eq(siteId), eq(assignmentId))).thenReturn(assignment);

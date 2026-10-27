@@ -34,7 +34,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 @Slf4j
 public final class GradebookAssociationHelper {
 
-	public static final String GB_TRANSVERSAL_PREFIX = "gb/";
+	private static final String GB_TRANSVERSAL_PREFIX = "gb/";
 
 	public enum SelectedGradebookValidation {
 		OK,
@@ -43,7 +43,7 @@ public final class GradebookAssociationHelper {
 		LOOKUP_FAILED
 	}
 
-	public enum GradebookItemPresence {
+	private enum GradebookItemPresence {
 		PRESENT,
 		ABSENT,
 		UNKNOWN
@@ -69,13 +69,6 @@ public final class GradebookAssociationHelper {
 		return result;
 	}
 
-	public static String joinItemIds(List<String> itemIds) {
-		if (itemIds == null || itemIds.isEmpty()) {
-			return "";
-		}
-		return itemIds.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining(","));
-	}
-
 	/**
 	 * Remove one assignment id from a CSV list of gradebook item ids.
 	 *
@@ -85,17 +78,9 @@ public final class GradebookAssociationHelper {
 		if (StringUtils.isBlank(assignmentIdToRemove)) {
 			return StringUtils.defaultString(gradebookItemIds);
 		}
-		List<String> remaining = parseItemIds(gradebookItemIds).stream()
+		return parseItemIds(gradebookItemIds).stream()
 				.filter(id -> !assignmentIdToRemove.equals(id))
-				.collect(Collectors.toList());
-		return joinItemIds(remaining);
-	}
-
-	public static boolean containsItemId(String gradebookItemIds, String assignmentId) {
-		if (StringUtils.isBlank(assignmentId)) {
-			return false;
-		}
-		return parseItemIds(gradebookItemIds).contains(assignmentId);
+				.collect(Collectors.joining(","));
 	}
 
 	/**
@@ -106,10 +91,6 @@ public final class GradebookAssociationHelper {
 	 *
 	 * @return remapped CSV, or empty string if no ids remain
 	 */
-	public static String remapItemIds(String gradebookItemIds, Map<String, String> transversalMap) {
-		return remapItemIds(gradebookItemIds, transversalMap, null, null);
-	}
-
 	public static String remapItemIds(String gradebookItemIds, Map<String, String> transversalMap,
 			String siteId, GradingService gradingService) {
 		if (StringUtils.isBlank(gradebookItemIds)) {
@@ -127,19 +108,18 @@ public final class GradebookAssociationHelper {
 			if (StringUtils.isBlank(newId)) {
 				continue;
 			}
-			if (gradingService != null && StringUtils.isNotBlank(siteId)
-					&& checkGradebookItemPresence(siteId, newId, gradingService) == GradebookItemPresence.ABSENT) {
+			if (checkGradebookItemPresence(siteId, newId, gradingService) == GradebookItemPresence.ABSENT) {
 				log.info("Dropping gradebook item {} (from {}) confirmed absent in site {}",
 						newId, oldId, siteId);
 				continue;
 			}
 			remapped.add(newId);
 		}
-		return joinItemIds(remapped);
+		return String.join(",", remapped);
 	}
 
 	/**
-	 * Validate that TO_SELECTED_GRADEBOOK has at least one parseable item id that still exists in Gradebook.
+	 * Require at least one selected item and verify that every item still exists in the site Gradebook.
 	 */
 	public static SelectedGradebookValidation validateSelectedGradebookItems(String toGradebook,
 			String gradebookItemIds, String siteId, GradingService gradingService) {
@@ -167,17 +147,10 @@ public final class GradebookAssociationHelper {
 	}
 
 	/**
-	 * @return true if the id is numeric and a non-removed assignment exists for the site
-	 */
-	public static boolean isGradebookItemPresent(String siteId, String itemId, GradingService gradingService) {
-		return checkGradebookItemPresence(siteId, itemId, gradingService) == GradebookItemPresence.PRESENT;
-	}
-
-	/**
 	 * Resolve the item's gradebook UID (including group gradebooks), verify it belongs to the site,
 	 * and distinguish confirmed absence from temporary lookup failure.
 	 */
-	public static GradebookItemPresence checkGradebookItemPresence(String siteId, String itemId,
+	private static GradebookItemPresence checkGradebookItemPresence(String siteId, String itemId,
 			GradingService gradingService) {
 		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(itemId) || gradingService == null) {
 			return GradebookItemPresence.UNKNOWN;
@@ -189,20 +162,11 @@ public final class GradebookAssociationHelper {
 			return GradebookItemPresence.ABSENT;
 		}
 
-		String gradebookUid;
 		try {
-			gradebookUid = gradingService.getGradebookUidByAssignmentById(siteId, assignmentId);
-		} catch (AssessmentNotFoundException e) {
-			return GradebookItemPresence.ABSENT;
-		} catch (Exception e) {
-			log.warn("Unable to resolve gradebook uid for item {} in site {}: {}", itemId, siteId, e.toString());
-			return GradebookItemPresence.UNKNOWN;
-		}
-		if (StringUtils.isBlank(gradebookUid)) {
-			return GradebookItemPresence.ABSENT;
-		}
-
-		try {
+			String gradebookUid = gradingService.getGradebookUidByAssignmentById(siteId, assignmentId);
+			if (StringUtils.isBlank(gradebookUid)) {
+				return GradebookItemPresence.ABSENT;
+			}
 			if (gradingService.isGradebookGroupEnabled(siteId)) {
 				List<String> siteGradebookUids = gradingService.getGradebookGroupInstancesIds(siteId);
 				if (siteGradebookUids == null || !siteGradebookUids.contains(gradebookUid)) {
@@ -232,12 +196,8 @@ public final class GradebookAssociationHelper {
 	 * @return remaining ids, or empty string
 	 */
 	public static String filterPresentItemIds(String gradebookItemIds, String siteId, GradingService gradingService) {
-		List<String> valid = parseItemIds(gradebookItemIds).stream()
-				.filter(id -> {
-					GradebookItemPresence presence = checkGradebookItemPresence(siteId, id, gradingService);
-					return presence == GradebookItemPresence.PRESENT || presence == GradebookItemPresence.UNKNOWN;
-				})
-				.collect(Collectors.toList());
-		return joinItemIds(valid);
+		return parseItemIds(gradebookItemIds).stream()
+				.filter(id -> checkGradebookItemPresence(siteId, id, gradingService) != GradebookItemPresence.ABSENT)
+				.collect(Collectors.joining(","));
 	}
 }

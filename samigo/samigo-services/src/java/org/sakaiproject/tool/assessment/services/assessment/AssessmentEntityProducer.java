@@ -477,7 +477,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	void remapGradebookAssociations(String toContext, Map<String, String> transversalMap) {
 		AssessmentService service = new AssessmentService();
 		List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
-		Map<String, String> map = transversalMap != null ? transversalMap : Collections.emptyMap();
 		GradingService gradingService = ComponentManager.get(GradingService.class);
 
 		for (AssessmentData assessment : assessmentList) {
@@ -491,25 +490,17 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			}
 
 			String originalIds = assessmentFacade.getAssessmentToGradebookNameMetaData();
-			String remappedIds = GradebookAssociationHelper.remapItemIds(originalIds, map, toContext, gradingService);
-			boolean changed = false;
-
+			String remappedIds = GradebookAssociationHelper.remapItemIds(originalIds, transversalMap, toContext, gradingService);
+			if (remappedIds.equals(StringUtils.defaultString(originalIds))) {
+				continue;
+			}
 			if (StringUtils.isBlank(remappedIds) && StringUtils.isNotBlank(originalIds)) {
 				evaluation.setToGradeBook(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString());
-				assessmentFacade.updateAssessmentToGradebookNameMetaData("");
-				changed = true;
-				log.info("Cleared TO_SELECTED gradebook association for assessment {} in site {} (items confirmed absent; original ids [{}])",
-						assessmentFacade.getAssessmentId(), toContext, originalIds);
-			} else if (!remappedIds.equals(StringUtils.defaultString(originalIds))) {
-				assessmentFacade.updateAssessmentToGradebookNameMetaData(remappedIds);
-				changed = true;
-				log.info("Remapped TO_SELECTED gradebook ids for assessment {} in site {} from [{}] to [{}]",
-						assessmentFacade.getAssessmentId(), toContext, originalIds, remappedIds);
 			}
-
-			if (changed) {
-				service.saveAssessment(assessmentFacade);
-			}
+			assessmentFacade.updateAssessmentToGradebookNameMetaData(remappedIds);
+			service.saveAssessment(assessmentFacade);
+			log.debug("Updated TO_SELECTED gradebook ids for assessment {} in site {} from [{}] to [{}]",
+					assessmentFacade.getAssessmentId(), toContext, originalIds, remappedIds);
 		}
 	}
 
