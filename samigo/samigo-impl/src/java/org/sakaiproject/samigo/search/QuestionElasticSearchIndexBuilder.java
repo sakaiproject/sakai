@@ -909,7 +909,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
     protected SearchRequest newSearchRequestAndQueryBuilders(String searchTerms, List<String> references, List<String> siteIds) {
-        SearchRequest searchRequest = new SearchRequest();
+        SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.source().query(boolQuery());
         return searchRequest;
     }
@@ -990,6 +990,12 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         if (additionalSearchInformation.containsKey("hash")) {
             log.debug("We will search this hash: {}", additionalSearchInformation.get("hash"));
             query.must(matchQuery("hash", additionalSearchInformation.get("hash")));
+        }
+
+        // limits the search to one question, as when checking the user can reach it
+        if (additionalSearchInformation.containsKey("questionId")) {
+            log.debug("We will search this question: {}", additionalSearchInformation.get("questionId"));
+            query.must(termQuery("questionId", additionalSearchInformation.get("questionId")));
         }
 
         // the scope of the search in the advancedSearchInformation Map...
