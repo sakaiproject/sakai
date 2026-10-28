@@ -325,8 +325,12 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   public void setMetadataRandowDraw(SectionDataIfc section) {
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) != null){
-		Integer numberdrawn = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-		setNumberToBeDrawn(numberdrawn);
+		try {
+			setNumberToBeDrawn(Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN)));
+		} catch (NumberFormatException e) {
+			log.warn("Invalid random draw count for section {}", section.getSectionId());
+			setNumberToBeDrawn(-1);
+		}
 	}
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW) != null) {

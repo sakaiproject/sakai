@@ -1000,12 +1000,17 @@ public class PublishedAssessmentService extends AssessmentService{
           HAVE CHANGED (IN CASE OF MULTI GRADEBOOK) */
         if (updateGradebookCategoryMap.size() >= 1) {
           try {
-            gbsHelper.updateGradebook(assessment, isGradebookGroupEnabled, gradebookUidList, updateGradebookCategoryMap, gradingService);
+            if (!gbsHelper.updateGradebook(assessment, isGradebookGroupEnabled, gradebookUidList, updateGradebookCategoryMap, gradingService)) {
+              log.warn("Cannot transfer scores for published assessment {}: gradebook maximum update failed",
+                  assessment.getPublishedAssessmentId());
+              return;
+            }
           } catch (InvalidCategoryException e) {
             throw e;
           } catch (Exception e) {
             evaluation.setToGradeBook("0");
             log.warn("Exception thrown in updateGB():" + e.getMessage());
+            return;
           }
 
           gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);

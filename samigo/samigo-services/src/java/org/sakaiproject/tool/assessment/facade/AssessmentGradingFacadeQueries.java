@@ -4406,7 +4406,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                     log.warn("Completing grades for assessment {} section {} with {} eligible random questions instead of {}",
                             publishedAssessmentId, publishedSectionData.getSectionId(), available, numberToBeDrawn);
                 }
-                itemArrayList = draw.select(Math.min(numberToBeDrawn, available), seed);
+                itemArrayList = draw.select(Math.max(0, Math.min(numberToBeDrawn, available)), seed);
                 for (ItemDataIfc selectedItem : itemArrayList) {
                     publishedItemData = (PublishedItemData) selectedItem;
                     publishedItemId = publishedItemData.getItemId();
