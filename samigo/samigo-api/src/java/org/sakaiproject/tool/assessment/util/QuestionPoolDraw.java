@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.services.assessment;
+package org.sakaiproject.tool.assessment.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +31,7 @@ import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.assessment.facade.ItemHashUtil;
+import org.sakaiproject.tool.assessment.shared.api.assessment.QuestionContentHash;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
@@ -47,7 +47,7 @@ public final class QuestionPoolDraw {
         this(fixedItems, randomItems, item -> {
             String hash = item.getHash();
             return StringUtils.isNotBlank(hash) ? hash
-                    : ComponentManager.get(ItemHashUtil.class).hashItemUnchecked(item);
+                    : ComponentManager.get(QuestionContentHash.class).hashItemUnchecked(item);
         });
     }
 

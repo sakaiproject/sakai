@@ -75,6 +75,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.util.QuestionPoolDraw;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;

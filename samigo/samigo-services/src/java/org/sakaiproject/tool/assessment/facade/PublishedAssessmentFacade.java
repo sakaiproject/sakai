@@ -22,7 +22,6 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -57,7 +56,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.QuestionPoolDraw;
 
 @Slf4j
 public class PublishedAssessmentFacade
@@ -760,42 +758,12 @@ public class PublishedAssessmentFacade
 
   /** Returns null when an invalid published draw makes the maximum score unavailable. */
   public Double getTotalScore(){
-    BigDecimal total = BigDecimal.valueOf(0);
-    Iterator iter = this.publishedSectionSet.iterator();
-    while (iter.hasNext()){
-      SectionDataIfc s = (SectionDataIfc) iter.next();
-      List<ItemDataIfc> list = s.getItemArray();
-
-      String authorType = s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
-      if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)
-          || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(authorType)
-          || SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)) {
-        QuestionPoolDraw draw = QuestionPoolDraw.fromSection(s);
-        int numberToBeDrawn;
-        try {
-          numberToBeDrawn = Integer.parseInt(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-        } catch (NumberFormatException e) {
-          log.warn("Maximum score unavailable for published assessment {}: invalid draw count in section {}",
-              getPublishedAssessmentId(), s.getSectionId());
-          return null;
-        }
-        if (!draw.isValid(numberToBeDrawn)) {
-          log.warn("Maximum score unavailable for published assessment {}: section {} requests {} random questions with {} eligible",
-              getPublishedAssessmentId(), s.getSectionId(), numberToBeDrawn, draw.getEligibleRandomItems().size());
-          return null;
-        }
-        list = draw.select(numberToBeDrawn);
-      }
-      Iterator<ItemDataIfc> iter2 = list.iterator();
-
-      while (iter2.hasNext()){
-        ItemDataIfc item = (ItemDataIfc)iter2.next();
-        if (!item.getIsExtraCredit()) {
-          total = total.add(BigDecimal.valueOf(item.getScore()));
-        }
-      }
+    Double total = data.getTotalScore();
+    if (total == null) {
+      log.warn("Maximum score unavailable for published assessment {}: invalid question pool draw",
+          getPublishedAssessmentId());
     }
-    return  Double.valueOf(total.doubleValue());
+    return total;
   }
 
   public PublishedAssessmentFacade clonePublishedAssessment(){

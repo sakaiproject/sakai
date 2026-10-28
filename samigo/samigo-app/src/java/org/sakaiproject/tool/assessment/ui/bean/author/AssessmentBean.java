@@ -45,7 +45,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.QuestionPoolDraw;
+import org.sakaiproject.tool.assessment.util.QuestionPoolDraw;
 import org.sakaiproject.tool.assessment.ui.bean.util.QuestionCancellationEligibility;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;

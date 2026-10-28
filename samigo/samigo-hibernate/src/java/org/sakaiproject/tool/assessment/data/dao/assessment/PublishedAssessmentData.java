@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.util.QuestionPoolDraw;
 
 public class PublishedAssessmentData
     implements java.io.Serializable,
@@ -687,49 +688,35 @@ public class PublishedAssessmentData
     return this.feedbackDate;
   }
 
+  /** Returns null when a published draw cannot supply the configured question count. */
   public Double getTotalScore(){
-    BigDecimal total = BigDecimal.valueOf(0);
-    Iterator iter = this.sectionSet.iterator();
-    while (iter.hasNext()){
-      PublishedSectionData s = (PublishedSectionData) iter.next();
-      List<ItemDataIfc> list = s.getItemArray();
-      Iterator iter2 = null;
-      if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
-            || (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
-            || (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()))))
-{
-        ArrayList randomsample = new ArrayList();
-        Integer numberToBeDrawn= Integer.valueOf(0);
-        Integer numberToBeFixed= Integer.valueOf(0);
-
-        // adding a second condition because metadata are not removed from DB
-        if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) !=null && s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
-            numberToBeFixed= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+    BigDecimal total = BigDecimal.ZERO;
+    for (Object sectionObject : this.sectionSet) {
+      SectionDataIfc section = (SectionDataIfc) sectionObject;
+      List<ItemDataIfc> items = section.getItemArray();
+      String authorType = section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
+      if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)
+          || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(authorType)
+          || SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)) {
+        QuestionPoolDraw draw = QuestionPoolDraw.fromSection(section);
+        int requested;
+        try {
+          requested = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+        } catch (NumberFormatException e) {
+          return null;
         }
-
-        if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-          numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+        if (!draw.isValid(requested)) {
+          return null;
         }
-
-        int samplesize = numberToBeDrawn.intValue();
-        samplesize += numberToBeFixed;
-        for (int i=0; i<samplesize; i++){
-          randomsample.add(list.get(i));
-        }
-        iter2 = randomsample.iterator();
+        items = draw.select(requested);
       }
-      else {
-        iter2 = list.iterator();
-      }
-
-      while (iter2.hasNext()){
-        PublishedItemData item = (PublishedItemData)iter2.next();
-        if(!item.getIsExtraCredit()) {
-            total = total.add(BigDecimal.valueOf(item.getScore()));
+      for (ItemDataIfc item : items) {
+        if (!item.getIsExtraCredit()) {
+          total = total.add(BigDecimal.valueOf(item.getScore()));
         }
       }
     }
-    return  Double.valueOf(total.doubleValue());
+    return total.doubleValue();
   }
 
   public Set getAssessmentAttachmentSet() {

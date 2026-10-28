@@ -55,7 +55,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.sakaiproject.tool.assessment.services.assessment.QuestionPoolDraw;
+import org.sakaiproject.tool.assessment.util.QuestionPoolDraw;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;

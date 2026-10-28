@@ -146,6 +146,9 @@
         <property name="itemHashUtil" ref="org.sakaiproject.tool.assessment.facade.ItemHashUtil"/>
     </bean>
 
+    <alias name="org.sakaiproject.tool.assessment.facade.ItemHashUtil"
+           alias="org.sakaiproject.tool.assessment.shared.api.assessment.QuestionContentHash" />
+
     <bean id="org.sakaiproject.tool.assessment.facade.ItemHashUtil"
           class="org.sakaiproject.tool.assessment.facade.ItemHashUtil">
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />

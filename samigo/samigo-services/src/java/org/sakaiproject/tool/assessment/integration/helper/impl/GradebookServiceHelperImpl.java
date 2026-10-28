@@ -141,13 +141,20 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
       return false;
     }
 
+    Double totalScore = publishedAssessment.getTotalScore();
+    if (totalScore == null) {
+      log.warn("Cannot add published assessment {} to gradebook: maximum score is unavailable",
+          publishedAssessment.getPublishedAssessmentId());
+      return false;
+    }
+
     String title = StringEscapeUtils.unescapeHtml4(publishedAssessment.getTitle());
     if (!g.isAssignmentDefined(gradebookUId, siteId, title)) {
       g.addExternalAssessment(gradebookUId, siteId,
               publishedAssessment.getPublishedAssessmentId().toString(),
               null,
               title,
-              publishedAssessment.getTotalScore(),
+              totalScore,
               publishedAssessment.getAssessmentAccessControl().getDueDate(),
               getAppName(), // Use the app name from sakai
               null,
