@@ -131,6 +131,7 @@ ul.favorite-site-list {
     margin: 0.3em;
     position: relative;
     width: 305px;
+    max-width: calc(100% - 0.6em);
     white-space: nowrap;
     padding: 0;
 
@@ -264,6 +265,7 @@ div.fav-title-myworkspace {
 
 .fav-title {
   width: 240px;
+  max-width: calc(100% - 2rem);
   overflow: hidden;
   display: inline-block;
   vertical-align: middle;
