@@ -188,8 +188,15 @@ public class AssessmentBean  implements Serializable {
         randomPartCount++;
         QuestionPoolDraw draw = AssessmentService.getItemQuestionPoolDraw(items, authorType);
         Integer requested = sectionBean.getNumberToBeDrawn();
-        boolean currentPoolValid = assessmentService == null
-            || assessmentService.verifyItemsDrawSize(assessmentService.getSection(sectionBean.getSectionId()));
+        boolean currentPoolValid = true;
+        if (assessmentService != null) {
+          try {
+            currentPoolValid = assessmentService.verifyItemsDrawSize(assessmentService.getSection(sectionBean.getSectionId()));
+          } catch (RuntimeException e) {
+            log.warn("Cannot verify current question pool for assessment {} section {}", this.assessmentId, sectionBean.getSectionId(), e);
+            currentPoolValid = false;
+          }
+        }
         if (requested == null || !draw.isValid(requested) || !currentPoolValid) {
           this.questionPoolDrawValid = false;
           this.questionSize += draw.getFixedItems().size() + (requested == null ? 0 : Math.max(0, requested));

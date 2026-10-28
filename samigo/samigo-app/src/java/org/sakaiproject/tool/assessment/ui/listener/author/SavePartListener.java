@@ -163,7 +163,8 @@ public class SavePartListener
 
     }
 
-    if ((sectionBean.getType().equals("3")) && (sectionBean.getSelectedPoolFixed().equals(""))) {
+    if (SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionBean.getType())
+        && (StringUtils.isBlank(sectionBean.getSelectedPool()) || StringUtils.isBlank(sectionBean.getSelectedPoolFixed()))) {
     	String selectedPool_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","selectedPool_error");
     	context.addMessage(null,new FacesMessage(selectedPool_err));
     	sectionBean.setOutcome("editPart");
