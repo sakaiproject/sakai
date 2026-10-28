@@ -26,6 +26,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.RequestOptions;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -230,9 +231,10 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
 
     private void saveAssignment(String title) {
         page.locator(".act input[name=post]").click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator(".sak-banner-error:visible")).hasText(new String[0]);
         assertThat(assignmentRow(title)).isVisible();
         assertThat(page.locator("#assignments-list")).isVisible();
-        assertThat(page.locator(".sak-banner-error:visible")).hasCount(0);
     }
 
     private void openGroupGrading(String courseUrl, String title, String group) {
