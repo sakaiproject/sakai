@@ -81,7 +81,6 @@ import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProv
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.ItemHashUtil;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -467,14 +466,7 @@ public class AssessmentService {
 		for (String poolId : randomPoolIds) {
 			randomItems.addAll(poolService.getAllItems(Long.valueOf(poolId)));
 		}
-		Map<Long, String> hashes = new HashMap<>();
-		return new QuestionPoolDraw(fixedItems, randomItems, item -> {
-			if (StringUtils.isNotBlank(item.getHash())) {
-				return item.getHash();
-			}
-			return hashes.computeIfAbsent(item.getItemId(), id ->
-					ComponentManager.get(ItemHashUtil.class).hashItemUnchecked(item));
-		});
+		return new QuestionPoolDraw(fixedItems, randomItems);
 	}
 
 	private QuestionPoolDraw getQuestionPoolDraw(SectionFacade section) {

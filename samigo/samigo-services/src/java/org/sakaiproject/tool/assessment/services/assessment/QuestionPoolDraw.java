@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.assessment.facade.ItemHashUtil;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
@@ -42,7 +44,11 @@ public final class QuestionPoolDraw {
     private final List<ItemDataIfc> eligibleRandomItems;
 
     public QuestionPoolDraw(List<? extends ItemDataIfc> fixedItems, List<? extends ItemDataIfc> randomItems) {
-        this(fixedItems, randomItems, ItemDataIfc::getHash);
+        this(fixedItems, randomItems, item -> {
+            String hash = item.getHash();
+            return StringUtils.isNotBlank(hash) ? hash
+                    : ComponentManager.get(ItemHashUtil.class).hashItemUnchecked(item);
+        });
     }
 
     public QuestionPoolDraw(List<? extends ItemDataIfc> fixedItems, List<? extends ItemDataIfc> randomItems,

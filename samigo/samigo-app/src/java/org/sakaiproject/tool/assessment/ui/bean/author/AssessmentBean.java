@@ -176,6 +176,7 @@ public class AssessmentBean  implements Serializable {
    this.totalScore = 0;
    this.questionPoolDrawValid = true;
    int randomPartCount = 0;
+   AssessmentService assessmentService = assessment instanceof AssessmentFacade ? new AssessmentService() : null;
 
    for (SectionContentsBean sectionBean : this.sections) {
       List<ItemDataIfc> items = sectionBean.getItemContents().stream()
@@ -187,7 +188,9 @@ public class AssessmentBean  implements Serializable {
         randomPartCount++;
         QuestionPoolDraw draw = QuestionPoolDraw.fromItems(items, authorType);
         Integer requested = sectionBean.getNumberToBeDrawn();
-        if (requested == null || !draw.isValid(requested)) {
+        boolean currentPoolValid = assessmentService == null
+            || assessmentService.verifyItemsDrawSize(assessmentService.getSection(sectionBean.getSectionId()));
+        if (requested == null || !draw.isValid(requested) || !currentPoolValid) {
           this.questionPoolDrawValid = false;
           this.questionSize += draw.getFixedItems().size() + (requested == null ? 0 : Math.max(0, requested));
           continue;
@@ -223,6 +226,7 @@ public class AssessmentBean  implements Serializable {
 				  sections.set(i, new SectionContentsBean(assessmentService.getSection(sectionBean.getSectionId())));
 				  setQuestionSizeAndTotalScore();
 			  }else{
+				  setQuestionSizeAndTotalScore();
 				  return success;
 			  }
 		  }
