@@ -278,9 +278,9 @@ class SamigoTest extends SakaiUiTestBase {
 
         assertThat(page.locator("body")).containsText(Pattern.compile("Assessments|Tests", Pattern.CASE_INSENSITIVE));
         Locator availableAssessmentsTable = page.locator("#selectIndexForm\\:selectTable");
-        assertThat(availableAssessmentsTable).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        assertThat(availableAssessmentsTable).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
         Locator availableAssessmentTitles = availableAssessmentsTable.locator("a[id$=':takeAssessment'] .spanValue");
-        assertThat(availableAssessmentTitles.first()).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        assertThat(availableAssessmentTitles.first()).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
 
         List<String> titles = availableAssessmentTitles.allTextContents().stream()
             .map(String::trim)
@@ -300,7 +300,7 @@ class SamigoTest extends SakaiUiTestBase {
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator takeAssessmentForm = page.locator("#takeAssessmentForm");
-        assertThat(takeAssessmentForm).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        assertThat(takeAssessmentForm).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
         assertThat(takeAssessmentForm).containsText(SAMIGO_TITLE);
         assertThat(takeAssessmentForm).containsText("Begin Assessment");
     }
@@ -420,9 +420,9 @@ class SamigoTest extends SakaiUiTestBase {
         clickFirstVisible(page.locator("#authorIndexForm").locator("a[id$='permissionsLink'], a:has-text(\"Permissions\")"));
 
         Locator permissions = page.locator("#samigo-permissions");
-        assertThat(permissions).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        assertThat(permissions).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
         assertThat(page.locator(".samigo-container h1")).containsText(Pattern.compile("Permissions", Pattern.CASE_INSENSITIVE));
-        assertThat(permissions.locator(".permission-row").first()).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        assertThat(permissions.locator(".permission-row").first()).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
         assertThat(permissions).containsText(Pattern.compile("Create assessments", Pattern.CASE_INSENSITIVE));
         assertThat(permissions.locator("button[data-perm^='assessment.template.']")).hasCount(0);
     }
@@ -447,13 +447,13 @@ class SamigoTest extends SakaiUiTestBase {
         page.waitForLoadState(LoadState.NETWORKIDLE);
 
         Locator previewIframe = page.locator("#print-pdf-preview");
-        assertThat(previewIframe).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(20_000));
+        assertThat(previewIframe).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
 
         page.waitForFunction("() => {"
             + "const iframe = document.getElementById('print-pdf-preview');"
             + "const url = document.getElementById('pdf-preview-url');"
             + "return iframe && url && url.textContent.trim().length > 0;"
-            + "}", null, new com.microsoft.playwright.Page.WaitForFunctionOptions().setTimeout(30_000));
+            + "}", null, new com.microsoft.playwright.Page.WaitForFunctionOptions().setTimeout(15_000));
 
         String viewerUrl = page.locator("#pdf-preview-url").textContent().trim();
         String pdfPath = URLDecoder.decode(URI.create(viewerUrl).getRawQuery().substring("file=".length()), StandardCharsets.UTF_8);

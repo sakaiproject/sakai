@@ -28,6 +28,7 @@ import com.microsoft.playwright.Request;
 import com.microsoft.playwright.options.ColorScheme;
 import com.microsoft.playwright.options.FormData;
 import com.microsoft.playwright.options.RequestOptions;
+import com.microsoft.playwright.options.WaitUntilState;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -54,7 +55,7 @@ class PortalPreferencesTest extends SakaiUiTestBase {
         sakai.login(username);
         String firstSite = sakai.createProject(username, List.of("sakai.announcements"));
         String secondSite = sakai.createProject(username, List.of("sakai.announcements", "sakai.schedule"));
-        page.navigate(firstSite);
+        sakai.gotoPath(firstSite);
         String siteId = firstSite.substring(firstSite.lastIndexOf('/') + 1);
         String userId = (String) page.evaluate("portal.user.id");
         Map<?, ?> originalTheme = preferences(THEME);
@@ -71,15 +72,15 @@ class PortalPreferencesTest extends SakaiUiTestBase {
             Map<String, Map<?, ?>> before = snapshot();
             writes.clear();
 
-            page.navigate(firstSite);
+            sakai.gotoPath(firstSite);
             assertThat(currentSiteTools()).not().hasClass(Pattern.compile(".*\\bshow\\b.*"));
-            page.reload();
+            page.reload(new Page.ReloadOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
             assertThat(currentSiteTools()).not().hasClass(Pattern.compile(".*\\bshow\\b.*"));
             assertEquals(before, snapshot(), "Reload must retain an explicit collapsed choice without saving");
-            page.navigate(secondSite);
+            sakai.gotoPath(secondSite);
             assertThat(currentSiteTools()).hasClass(Pattern.compile(".*\\bshow\\b.*"));
             assertEquals(before, snapshot(), "Switching sites must derive expansion without changing preferences");
-            page.navigate(firstSite);
+            sakai.gotoPath(firstSite);
             assertThat(currentSiteTools()).not().hasClass(Pattern.compile(".*\\bshow\\b.*"));
             assertEquals(before, snapshot());
             assertTrue(writes.isEmpty(), "Page loads must not issue preference mutations");
@@ -88,7 +89,7 @@ class PortalPreferencesTest extends SakaiUiTestBase {
                     && response.url().contains("currentExpanded=true"),
                 () -> page.locator("li.is-current-site button[data-bs-toggle=collapse]").first().click());
             assertEquals("true", preferences(NAVIGATION).get("currentExpanded"));
-            page.reload();
+            page.reload(new Page.ReloadOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
             assertThat(currentSiteTools()).hasClass(Pattern.compile(".*\\bshow\\b.*"));
 
             page.locator("[data-bs-target='#sakai-account-panel']:visible").first().click();
@@ -101,7 +102,7 @@ class PortalPreferencesTest extends SakaiUiTestBase {
             assertEquals(chosen, preferences(THEME).get("theme"));
             assertEquals(1, writes.size(), "One explicit theme click must save exactly once");
             Map<String, Map<?, ?>> after = snapshot();
-            page.reload();
+            page.reload(new Page.ReloadOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
             assertThat(page.locator("html")).hasClass(Pattern.compile(".*" + chosen + ".*"));
             assertEquals(after, snapshot());
             assertEquals(1, writes.size(), "Reload must not save the chosen theme again");
@@ -132,7 +133,7 @@ class PortalPreferencesTest extends SakaiUiTestBase {
             String firstSite = sakai.createProject(username, List.of("sakai.announcements"));
             sakai.createProject(username, List.of("sakai.announcements", "sakai.schedule"));
             sakai.createProject(username, List.of("sakai.schedule"));
-            page.navigate(firstSite);
+            sakai.gotoPath(firstSite);
             String siteId = sakai.siteIdFromUrl(firstSite);
             List<Object> expectedIds = new ArrayList<>((List<?>) page.evaluate(
                 "async () => (await (await fetch('/portal/favorites/list')).json()).favoriteSiteIds"));

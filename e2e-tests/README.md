@@ -12,7 +12,7 @@ mvn -P e2e test
 ### Run tests against a running Sakai instance:
 
 ```bash
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PLAYWRIGHT_BASE_URL=https://sakai.example
 mvn -P e2e test
 ```
@@ -20,7 +20,7 @@ mvn -P e2e test
 ### Run headed (watch browser) against a running Sakai instance:
 
 ```bash
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PLAYWRIGHT_BASE_URL=https://sakai.example
 export PLAYWRIGHT_HEADLESS=false
 mvn -P e2e test
@@ -58,17 +58,16 @@ independent of POM changes, operating system, and CPU architecture. Maven downlo
 missing dependencies during each build. Only pushes to `master` save the cache,
 seeding it when no reusable cache exists.
 
-Failure traces are written to `target/playwright-artifacts/`. Traces retain DOM
-snapshots, action timings, and network details, with screenshot capture disabled.
-Passing recordings are discarded without exporting a ZIP. Video recording and
-standalone screenshots are disabled.
+Browser recording is disabled entirely: no traces, DOM snapshots, screenshots, or
+video are collected. CI retains Surefire reports, test output, and Tomcat logs.
+Browser actions and navigation waits are capped at 15 seconds.
 
 ## Test helpers
 
 Shared helpers live in `src/test/java/org/sakaiproject/e2e/support`:
 
-- `SakaiUiTestBase`: browser/context lifecycle + failure traces.
-- `SakaiHelper`: login/navigation/tool actions/site creation/date selection.
+- `SakaiUiTestBase`: browser/context lifecycle and 15-second wait limits.
+- `SakaiHelper`: request-based login/navigation/tool actions/site creation/date selection.
 - `SakaiEnvironment`: base URL, browser/headless flags.
 
 ## Adding tests

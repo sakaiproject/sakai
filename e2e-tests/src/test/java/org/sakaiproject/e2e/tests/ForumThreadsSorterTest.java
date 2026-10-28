@@ -18,6 +18,7 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import java.nio.file.Path;
@@ -28,8 +29,10 @@ class ForumThreadsSorterTest {
     @Test
     void restoresThreadHierarchyAfterAuthorAndDateSorts() {
         try (Playwright playwright = Playwright.create();
-                Browser browser = playwright.chromium().launch()) {
+                Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setTimeout(15_000))) {
             Page page = browser.newPage();
+            page.setDefaultTimeout(15_000);
+            page.setDefaultNavigationTimeout(15_000);
             // Match the hierarchy markers and indentation emitted by HierDataTableRender.
             page.setContent("""
                 <style>body { font-size: 16px; } td { padding-left: 0; }</style>

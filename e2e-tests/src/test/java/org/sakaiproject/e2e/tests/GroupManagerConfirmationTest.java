@@ -18,6 +18,7 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
@@ -35,8 +36,10 @@ class GroupManagerConfirmationTest {
         String script = source.substring(start, source.indexOf("</script>", start));
 
         try (Playwright playwright = Playwright.create();
-                Browser browser = playwright.chromium().launch()) {
+                Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setTimeout(15_000))) {
             Page page = browser.newPage();
+            page.setDefaultTimeout(15_000);
+            page.setDefaultNavigationTimeout(15_000);
             page.setContent("""
                 <input id="group-manager-index-select-all" type="checkbox">
                 <form id="group-manager-form">

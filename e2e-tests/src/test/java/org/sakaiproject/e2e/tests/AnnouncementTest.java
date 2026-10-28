@@ -67,7 +67,7 @@ class AnnouncementTest extends SakaiUiTestBase {
 
         submitAnnouncementForm();
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -90,9 +90,9 @@ class AnnouncementTest extends SakaiUiTestBase {
 
         submitAnnouncementForm();
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(PAST_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -109,11 +109,11 @@ class AnnouncementTest extends SakaiUiTestBase {
 
         submitAnnouncementForm();
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(PAST_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(CURRENT_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -126,11 +126,11 @@ class AnnouncementTest extends SakaiUiTestBase {
         ensureViewAll();
         Locator announcementRows = announcementRows();
         assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(CURRENT_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
         assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(0,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
         assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(PAST_ANNOUNCEMENT_TITLE))).hasCount(0,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -164,7 +164,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
+            new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         assertAnnouncementReorderChrome();
 
@@ -179,7 +179,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
+            new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         reorderedAnnouncements = page.locator("#reorder-list li.reorder-element.sakai-reorder-row")
             .filter(new Locator.FilterOptions().setHasText(titlePrefix));
@@ -210,7 +210,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
+            new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         reorderedAnnouncements = page.locator("#reorder-list li.reorder-element.sakai-reorder-row")
             .filter(new Locator.FilterOptions().setHasText(titlePrefix));
@@ -221,7 +221,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
+            new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         page.locator("input[name=\"eventSubmit_doReorderUpdate\"]").click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();

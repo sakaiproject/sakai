@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -67,12 +68,14 @@ class SharedToolComponentsTest {
         assertTrue(Files.isRegularFile(FRONTEND.resolve("bundles/base.js")),
                 "Build the webcomponents frontend with npm run bundle before running this test");
         playwright = Playwright.create();
-        browser = playwright.chromium().launch();
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setTimeout(15_000));
     }
 
     @BeforeEach
     void openContext() {
         context = browser.newContext();
+        context.setDefaultTimeout(15_000);
+        context.setDefaultNavigationTimeout(15_000);
         page = context.newPage();
         page.route("http://sakai.test/**", this::respond);
     }

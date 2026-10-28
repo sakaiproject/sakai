@@ -21,7 +21,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <axe.core.version>4.11.3</axe.core.version>
     <junit.jupiter.version>5.12.1</junit.jupiter.version>
-    <playwright.version>1.63.0</playwright.version>
+    <playwright.version>1.64.0</playwright.version>
     <sakai.test.forks>1</sakai.test.forks>
   </properties>
 

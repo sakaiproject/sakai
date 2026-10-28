@@ -139,7 +139,7 @@ class ResourcesReorderTest extends SakaiUiTestBase {
         page.waitForFunction(
             "() => document.querySelector('#resources-reorderer')?.updateComplete",
             null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
+            new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         assertThat(page.locator("#reorder-list li.reorder-element " + DRAG_HANDLE).first()).isVisible();
     }

@@ -352,7 +352,7 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
         Locator results = page.locator("sakai-search .search-result-link");
         Locator noResults = page.locator("sakai-search").getByText("No results", new Locator.GetByTextOptions().setExact(false));
         results.first().or(noResults).waitFor(new Locator.WaitForOptions()
-            .setState(WaitForSelectorState.VISIBLE).setTimeout(30_000));
+            .setState(WaitForSelectorState.VISIBLE).setTimeout(15_000));
         return results;
     }
 
@@ -361,7 +361,7 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
             page.locator("button[data-bs-target='#sakai-search-panel']:visible").first().click();
         }
         Locator input = page.locator("#sakai-search-input");
-        input.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(30_000));
+        input.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(15_000));
         input.fill(terms);
         page.locator("#sakai-search-button").click();
     }

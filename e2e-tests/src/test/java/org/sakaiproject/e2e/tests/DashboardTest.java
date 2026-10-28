@@ -47,7 +47,7 @@ class DashboardTest extends SakaiUiTestBase {
             try {
                 page.navigate(sakaiUrl, new com.microsoft.playwright.Page.NavigateOptions()
                     .setWaitUntil(com.microsoft.playwright.options.WaitUntilState.DOMCONTENTLOADED)
-                    .setTimeout(60_000));
+                    .setTimeout(15_000));
                 opened = true;
                 break;
             } catch (RuntimeException ignored) {

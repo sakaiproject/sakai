@@ -53,7 +53,7 @@ class BecomeUserTest extends SakaiUiTestBase {
         page.locator("#su\\:become").click();
 
         try {
-            page.waitForURL(Pattern.compile("/portal(?:/|$)"), new Page.WaitForURLOptions().setTimeout(30_000));
+            page.waitForURL(Pattern.compile("/portal(?:/|$)"), new Page.WaitForURLOptions().setTimeout(15_000));
         } catch (RuntimeException ignored) {
         }
 

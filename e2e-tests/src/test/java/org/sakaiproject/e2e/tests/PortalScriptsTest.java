@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Clock;
 import com.microsoft.playwright.Page;
@@ -50,7 +51,7 @@ class PortalScriptsTest {
     @BeforeAll
     static void launchBrowser() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch();
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setTimeout(15_000));
     }
 
     @AfterAll
@@ -73,6 +74,8 @@ class PortalScriptsTest {
         List<String> saves = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         try (BrowserContext context = browser.newContext()) {
+            context.setDefaultTimeout(15_000);
+            context.setDefaultNavigationTimeout(15_000);
             Page page = context.newPage();
             page.emulateMedia(new Page.EmulateMediaOptions().setColorScheme(osTheme));
             page.onPageError(errors::add);
@@ -124,6 +127,8 @@ class PortalScriptsTest {
     void pinChoicesSaveOnceWithDebounceOrImmediateBulk(boolean bulk) throws IOException {
         List<String> saves = new ArrayList<>();
         try (BrowserContext context = browser.newContext()) {
+            context.setDefaultTimeout(15_000);
+            context.setDefaultNavigationTimeout(15_000);
             Page page = context.newPage();
             List<String> errors = new ArrayList<>();
             page.onPageError(errors::add);

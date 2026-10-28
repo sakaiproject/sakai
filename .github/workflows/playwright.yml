@@ -211,15 +211,7 @@ jobs:
         run: |
           mkdir -p playwright-java-artifacts
           FAILED_KEYS_FILE=playwright-java-artifacts/failed-keys.txt
-          FAILED_MAP_FILE=playwright-java-artifacts/failed-test-artifacts.txt
           : > "$FAILED_KEYS_FILE"
-          : > "$FAILED_MAP_FILE"
-          if [ -d e2e-tests/target/playwright-artifacts ]; then
-            mkdir -p playwright-java-artifacts/playwright-artifacts
-            rsync -a --prune-empty-dirs \
-              e2e-tests/target/playwright-artifacts/ \
-              playwright-java-artifacts/playwright-artifacts/
-          fi
           if [ -d e2e-tests/target/surefire-reports ]; then
             cp -R e2e-tests/target/surefire-reports playwright-java-artifacts/
           fi
@@ -252,40 +244,11 @@ jobs:
             ' e2e-tests/target/surefire-reports/TEST-*.xml | sort -u > "$FAILED_KEYS_FILE"
           fi
 
-          if [ -s "$FAILED_KEYS_FILE" ] && [ -d e2e-tests/target/playwright-artifacts ]; then
-            mkdir -p playwright-java-artifacts/failure-media
-            while IFS= read -r key; do
-              [ -z "$key" ] && continue
-              while IFS= read -r test_dir; do
-                [ -z "$test_dir" ] && continue
-                rel_dir=${test_dir#e2e-tests/target/playwright-artifacts/}
-                printf '%s|%s\n' "$key" "$rel_dir" >> "$FAILED_MAP_FILE"
-
-                mkdir -p "playwright-java-artifacts/failure-media/$rel_dir"
-                if [ -f "$test_dir/trace.zip" ]; then
-                  cp "$test_dir/trace.zip" "playwright-java-artifacts/failure-media/$rel_dir/"
-                fi
-              done < <(find e2e-tests/target/playwright-artifacts -mindepth 1 -maxdepth 1 -type d -name "${key}-*" 2>/dev/null | sort)
-            done < "$FAILED_KEYS_FILE"
-          fi
-
-          if [ -s "$FAILED_MAP_FILE" ]; then
-            sort -u "$FAILED_MAP_FILE" -o "$FAILED_MAP_FILE"
-          else
-            rm -f "$FAILED_MAP_FILE"
-          fi
-
-          if [ -d playwright-java-artifacts/failure-media ] \
-            && [ -z "$(find playwright-java-artifacts/failure-media -mindepth 1 -print -quit)" ]; then
-            rmdir playwright-java-artifacts/failure-media
-          fi
-
           if [ ! -s "$FAILED_KEYS_FILE" ]; then
             rm -f "$FAILED_KEYS_FILE"
           fi
 
-          if [ ! -e playwright-java-artifacts/playwright-artifacts ] \
-            && [ ! -e playwright-java-artifacts/surefire-reports ] \
+          if [ ! -e playwright-java-artifacts/surefire-reports ] \
             && [ ! -f playwright-java-artifacts/playwright-java-run.log ]; then
             echo "No Playwright Java artifacts were produced in this run." > playwright-java-artifacts/README.txt
           fi
@@ -297,16 +260,6 @@ jobs:
         with:
           name: playwright-java-artifacts
           path: playwright-java-artifacts
-          retention-days: 5
-
-      - name: Upload Playwright Java failure media
-        id: upload-playwright-java-failure-media
-        if: always()
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: playwright-java-failure-media
-          path: playwright-java-artifacts/failure-media
-          if-no-files-found: ignore
           retention-days: 5
 
       - name: Summarize Playwright Java failures
@@ -340,25 +293,11 @@ jobs:
               echo "- Full artifact bundle: \`playwright-java-artifacts\`"
             fi
 
-            if [ -n "${{ steps.upload-playwright-java-failure-media.outputs.artifact-url }}" ]; then
-              echo "- Failure traces: [playwright-java-failure-media](${{ steps.upload-playwright-java-failure-media.outputs.artifact-url }})"
-            fi
-
-            if [ -f playwright-java-artifacts/failed-test-artifacts.txt ]; then
+            if [ -f playwright-java-artifacts/failed-keys.txt ]; then
               echo ""
               echo "### Failing Tests"
-              echo "| Test | Artifact Directory | Trace |"
-              echo "| --- | --- | --- |"
-              while IFS='|' read -r key rel_dir; do
-                [ -z "$key" ] && continue
-                [ -z "$rel_dir" ] && continue
-                trace="no"
-                if [ -f "playwright-java-artifacts/failure-media/$rel_dir/trace.zip" ]; then
-                  trace="yes"
-                fi
-                echo "| \`$key\` | \`$rel_dir\` | $trace |"
-              done < playwright-java-artifacts/failed-test-artifacts.txt
-              echo ""
-              echo "Open a trace locally with \`npx playwright show-trace trace.zip\`."
+              while IFS= read -r key; do
+                echo "- \`$key\`"
+              done < playwright-java-artifacts/failed-keys.txt
             fi
           } >> "$GITHUB_STEP_SUMMARY"

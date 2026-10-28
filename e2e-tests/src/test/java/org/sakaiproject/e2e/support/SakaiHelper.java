@@ -25,9 +25,11 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.RequestOptions;
 import com.microsoft.playwright.options.WaitForSelectorState;
 import com.microsoft.playwright.options.WaitUntilState;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -94,22 +96,18 @@ public class SakaiHelper {
         String resolvedUsername = resolveUser(username);
 
         page.context().clearCookies();
-        page.navigate("about:blank");
-        // Go straight to the login form: /portal/ shows a guest landing page instead of the
-        // form when guest access is enabled, which would otherwise leave the session anonymous.
-        gotoPath("/portal/xlogin");
-        // The login page focuses the username on window.load, so wait before filling either field.
-        page.waitForLoadState();
-
-        Locator usernameInput = page.locator("input[name=\"eid\"], #eid").first();
-        if (waitForVisible(usernameInput, 5000)) {
-            usernameInput.fill(resolvedUsername);
-            page.locator("input[name=\"pw\"], #pw").first().fill(passwordFor(resolvedUsername));
-
-            Locator submit = page.locator("#submit, button[type=\"submit\"], input[type=\"submit\"]").first();
-            submit.click();
-            page.waitForLoadState();
+        APIResponse response = page.request().post(baseUrl + "/portal/xlogin", RequestOptions.create()
+            .setTimeout(15_000).setForm(FormData.create()
+                .set("eid", resolvedUsername).set("pw", passwordFor(resolvedUsername))));
+        try {
+            if (!response.ok()) {
+                throw new IllegalStateException("Unable to log in as " + resolvedUsername + ": HTTP " + response.status());
+            }
+        } finally {
+            response.dispose();
         }
+        gotoPath("/portal/");
+        assertThat(page.locator("#sakai-account-panel")).hasCount(1);
 
         dismissTutorial();
         setTutorialFlags();
@@ -118,7 +116,7 @@ public class SakaiHelper {
 
     public void toolClick(String label) {
         // Tool actions can refresh the portal; wait before inspecting its navigation.
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         Locator expandButtons = page.locator("li.site-list-item.is-current-site button[data-bs-toggle='collapse'][aria-expanded='false']");
         if (expandButtons.count() > 0 && expandButtons.first().isVisible()) {
             expandButtons.first().click();
@@ -212,6 +210,30 @@ public class SakaiHelper {
         return siteUrl;
     }
 
+    /** Creates a published assignment fixture without exercising the authoring form. */
+    public String createAssignment(String siteUrl, String title) {
+        long now = Instant.now().toEpochMilli();
+        RequestOptions options = RequestOptions.create().setTimeout(15_000)
+            .setQueryParam("sessionId", fixtureSession())
+            .setQueryParam("context", siteIdFromUrl(siteUrl))
+            .setQueryParam("title", title)
+            .setQueryParam("openTime", Long.toString(now - 60_000))
+            .setQueryParam("dueTime", Long.toString(now + 86_400_000))
+            .setQueryParam("closeTime", Long.toString(now + 172_800_000))
+            .setQueryParam("maxPoints", "1").setQueryParam("gradeType", "3")
+            .setQueryParam("subType", "1").setQueryParam("instructions", "Reorder fixture");
+        APIResponse response = fixtureRequest.get("/sakai-ws/rest/assignments/createAssignment", options);
+        try {
+            String id = response.text().trim();
+            if (!response.ok() || !id.matches("[0-9a-fA-F-]{36}")) {
+                throw new IllegalStateException("Unable to create assignment fixture: HTTP " + response.status() + " " + id);
+            }
+            return id;
+        } finally {
+            response.dispose();
+        }
+    }
+
     /**
      * Adds a group with the given members to a site from createCourse or createProject.
      *
@@ -279,7 +301,7 @@ public class SakaiHelper {
                 new Page.GetByRoleOptions().setName(Pattern.compile("^Create New Site$", Pattern.CASE_INSENSITIVE))).first())
                 || clickVisible(page.locator(".navIntraTool a:has-text(\"Create New Site\"), .navIntraTool button:has-text(\"Create New Site\"), a:has-text(\"Create New Site\"), button:has-text(\"Create New Site\")").first());
             if (opened) {
-                page.waitForLoadState();
+                page.waitForLoadState(LoadState.DOMCONTENTLOADED);
             }
         }
 
@@ -303,7 +325,7 @@ public class SakaiHelper {
 
             Locator submitBuildOwn = page.locator("input#submitBuildOwn").first();
             submitBuildOwn.click(new Locator.ClickOptions().setForce(true));
-            page.waitForLoadState();
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         }
 
         if ("project".equals(siteType)) {
@@ -403,7 +425,7 @@ public class SakaiHelper {
             createSiteButton.click(new Locator.ClickOptions().setForce(true));
         }
 
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         String href = null;
         Locator flash = page.locator("#flashNotif").first();
@@ -601,7 +623,7 @@ public class SakaiHelper {
                     "input#continueButton, button#continueButton, input[name=\"Continue\"], button[name=\"Continue\"], input[name=\"continue\"], button[name=\"continue\"], input[type=\"submit\"][value*=\"Continue\"], button:has-text(\"Continue\")"
                 );
                 if (clickVisible(scopedControls.first())) {
-                    page.waitForLoadState();
+                    page.waitForLoadState(LoadState.DOMCONTENTLOADED);
                     page.waitForTimeout(250);
                     return;
                 }
@@ -611,7 +633,7 @@ public class SakaiHelper {
                 "input#continueButton, button#continueButton, .act input[name=\"Continue\"], .act button[name=\"Continue\"], .act input[name=\"continue\"], .act button[name=\"continue\"], .act input[value*=\"Continue\"], .act button:has-text(\"Continue\"), input[type=\"submit\"][value*=\"Continue\"], button:has-text(\"Continue\")"
             );
             if (clickVisible(continueControl.first())) {
-                page.waitForLoadState();
+                page.waitForLoadState(LoadState.DOMCONTENTLOADED);
                 page.waitForTimeout(250);
                 return;
             }
@@ -629,7 +651,7 @@ public class SakaiHelper {
             return false;
         }
         tool.click();
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         return true;
     }
 

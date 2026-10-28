@@ -61,7 +61,7 @@ class CalendarTest extends SakaiUiTestBase {
 
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(EVENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -79,7 +79,7 @@ class CalendarTest extends SakaiUiTestBase {
 
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(UPDATED_EVENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -95,7 +95,7 @@ class CalendarTest extends SakaiUiTestBase {
 
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(UPDATED_EVENT_TITLE))).hasCount(0,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -125,14 +125,14 @@ class CalendarTest extends SakaiUiTestBase {
         sakai.toolClick("Calendar");
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(eventTitle))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
 
         sakai.login("student0012");
         sakai.gotoPath(sakaiUrl);
         sakai.toolClick("Calendar");
         switchToListView();
         assertThat(eventRows().filter(new Locator.FilterOptions().setHasText(eventTitle))).hasCount(0,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     private void ensureSiteParticipant(String eid) {

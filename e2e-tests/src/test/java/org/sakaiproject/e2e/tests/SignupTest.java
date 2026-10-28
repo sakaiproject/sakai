@@ -98,7 +98,7 @@ class SignupTest extends SakaiUiTestBase {
 
         page.locator("button:has-text(\"Next\"), input[type=\"submit\"][value*=\"Next\"], .act button:has-text(\"Next\"), .act input[value*=\"Next\"]").first().click(new Locator.ClickOptions().setForce(true));
         page.locator("form#meeting input#meeting\\:goNextPage[value=\"Publish\"]").first().click();
-        page.waitForURL(Pattern.compile(".*/signupMeetings(?:\\?.*)?$"), new Page.WaitForURLOptions().setTimeout(30_000));
+        page.waitForURL(Pattern.compile(".*/signupMeetings(?:\\?.*)?$"), new Page.WaitForURLOptions().setTimeout(15_000));
 
         sakai.toolClick("Sign-up");
         Locator meetingsTable = page.locator("[id=\"items:meetinglist\"], [id=\"meetinglist\"], [id$=\":meetinglist\"]").first();
