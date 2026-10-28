@@ -154,6 +154,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private final SecurityService securityService;
 	private final ServerConfigurationService serverConfigurationService;
 	private final SessionManager sessionManager;
+	private final SimplePageToolDao simplePageToolDao;
 	private final SiteNeighbourhoodService siteNeighbourhoodService;
 	private final SiteService siteService;
 	private final ThreadLocalManager threadLocalManager;
@@ -163,9 +164,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private boolean lookForPageAliases;
 	private Portal portal;
 
-	public PortalSiteHelperImpl(Portal portal, boolean lookForPageAliases) {
+	public PortalSiteHelperImpl(Portal portal, boolean lookForPageAliases, SimplePageToolDao simplePageToolDao) {
 		this.portal = portal;
 		this.lookForPageAliases = lookForPageAliases;
+		this.simplePageToolDao = simplePageToolDao;
 
 		aliasService = ComponentManager.get(AliasService.class);
 		authzGroupService = ComponentManager.get(AuthzGroupService.class);
@@ -1591,12 +1593,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (lessonPageIds.isEmpty()) {
 			return Collections.emptyMap();
 		}
-		SimplePageToolDao dao = ComponentManager.get(SimplePageToolDao.class);
-		if (dao == null) {
+		if (simplePageToolDao == null) {
 			return Collections.emptyMap();
 		}
 		try {
-			return dao.findSimplePagesBySitePageIds(lessonPageIds).stream()
+			return simplePageToolDao.findSimplePagesBySitePageIds(lessonPageIds).stream()
 					.collect(Collectors.toMap(SimplePage::getToolId, SimplePage::isHiddenFromNavigation, (first, next) -> first));
 		} catch (RuntimeException e) {
 			log.warn("Error checking hiddenFromNavigation for Lessons pages {}", lessonPageIds, e);

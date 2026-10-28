@@ -57,6 +57,7 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.portal.api.Editor;
@@ -225,6 +226,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SessionManager sessionManager;
+    @Autowired(required = false) private SimplePageToolDao simplePageToolDao;
     @Autowired private SiteNeighbourhoodService siteNeighbourhoodService;
     @Autowired private SiteService siteService;
     @Autowired private ThreadLocalManager threadLocalManager;
@@ -319,7 +321,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         portalContext = config.getInitParameter("portal.context");
         if (StringUtils.isBlank(portalContext)) portalContext = DEFAULT_PORTAL_CONTEXT;
 
-        siteHelper = new PortalSiteHelperImpl(this, serverConfigurationService.getBoolean(PROP_USE_PAGE_ALIAS, false));
+        siteHelper = new PortalSiteHelperImpl(this, serverConfigurationService.getBoolean(PROP_USE_PAGE_ALIAS, false), simplePageToolDao);
 
         basicAuth = new BasicAuth();
         basicAuth.init();
