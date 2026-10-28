@@ -108,28 +108,6 @@ jobs:
         id: start-tomcat
         run: tomcat/bin/catalina.sh start
 
-      - name: Wait for Sakai
-        id: wait-for-sakai
-        run: |
-          for i in {1..180}; do
-            if grep -nE "$SAKAI_FATAL_ERRORS" tomcat/logs/*; then
-              echo "::error::Fatal Sakai startup error; see Tomcat logs."
-              exit 1
-            fi
-            if ! kill -0 "$(cat tomcat/sakai.pid)" 2>/dev/null; then
-              echo "::error::Tomcat exited before Sakai became ready."
-              exit 1
-            fi
-            if grep -q "Server startup in" tomcat/logs/catalina.out \
-              && curl -fsS --connect-timeout 3 --max-time 5 http://localhost:8080/portal/ > /dev/null; then
-              exit 0
-            fi
-            sleep 10
-          done
-          echo "::error::Sakai did not become ready in time."
-          tail -n 80 tomcat/logs/catalina.out
-          exit 1
-
       - name: Cache Playwright browsers
         uses: actions/cache@v6.1.0
         with:
@@ -152,6 +130,28 @@ jobs:
 
       - name: Install Playwright browser
         run: ./.playwright-cli/node_modules/.bin/playwright install chromium --only-shell
+
+      - name: Wait for Sakai
+        id: wait-for-sakai
+        run: |
+          for i in {1..180}; do
+            if grep -nE "$SAKAI_FATAL_ERRORS" tomcat/logs/*; then
+              echo "::error::Fatal Sakai startup error; see Tomcat logs."
+              exit 1
+            fi
+            if ! kill -0 "$(cat tomcat/sakai.pid)" 2>/dev/null; then
+              echo "::error::Tomcat exited before Sakai became ready."
+              exit 1
+            fi
+            if grep -q "Server startup in" tomcat/logs/catalina.out \
+              && curl -fsS --connect-timeout 3 --max-time 5 http://localhost:8080/portal/ > /dev/null; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Sakai did not become ready in time."
+          tail -n 80 tomcat/logs/catalina.out
+          exit 1
 
       - name: Run Playwright Java tests
         id: playwright-tests
