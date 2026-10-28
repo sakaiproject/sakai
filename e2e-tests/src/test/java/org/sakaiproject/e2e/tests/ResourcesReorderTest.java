@@ -89,7 +89,7 @@ class ResourcesReorderTest extends SakaiUiTestBase {
         assertPrecedes("#reorder-list", folderB, folderA);
 
         page.locator("#save").click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folderC).setExact(true))).isVisible();
 
         String listing = page.locator("body").innerText();

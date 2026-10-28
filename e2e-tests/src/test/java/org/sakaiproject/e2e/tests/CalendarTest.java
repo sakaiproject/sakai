@@ -138,11 +138,11 @@ class CalendarTest extends SakaiUiTestBase {
     private void ensureSiteParticipant(String eid) {
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add Participants$", Pattern.CASE_INSENSITIVE)))
             .first().click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         page.locator("#officialAccountParticipant").fill(eid);
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         // Nothing to add if eid is already a site member: the wizard re-shows step 1 with a
         // warning banner instead of advancing to role/email selection.
@@ -163,14 +163,14 @@ class CalendarTest extends SakaiUiTestBase {
                 accessChoice.check(new Locator.CheckOptions().setForce(true));
             }
             page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
-            page.waitForLoadState();
+            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         }
 
         Locator dontSendEmail = page.locator("#dont-send-email");
         if (dontSendEmail.count() > 0 && dontSendEmail.isVisible()) {
             dontSendEmail.check(new Locator.CheckOptions().setForce(true));
             page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
-            page.waitForLoadState();
+            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         }
     }
 
@@ -186,11 +186,11 @@ class CalendarTest extends SakaiUiTestBase {
 
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Groups$", Pattern.CASE_INSENSITIVE)))
             .first().click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Create New Group$", Pattern.CASE_INSENSITIVE)))
             .first().click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         Locator groupTitleInput = page.locator("#groupTitle");
         assertThat(groupTitleInput).isVisible();
@@ -215,7 +215,7 @@ class CalendarTest extends SakaiUiTestBase {
         Locator submit = page.locator("#create-group-submit-button");
         assertThat(submit).isEnabled();
         submit.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
     }
 
     private void restrictEventToGroup(String groupTitle) {

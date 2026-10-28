@@ -41,7 +41,7 @@ class ViewSiteAsTest extends SakaiUiTestBase {
             usernameInput.fill("admin");
             page.locator("input[name=\"pw\"], #pw").first().fill("admin");
             page.locator("#submit, button[type=\"submit\"], input[type=\"submit\"]").first().click();
-            page.waitForLoadState();
+            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         }
 
         URI portalUri = URI.create(page.url());
@@ -58,7 +58,7 @@ class ViewSiteAsTest extends SakaiUiTestBase {
         } else {
             roleSwitcher.locator("#roleSwitchAnchor").click();
         }
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         assertThat(page.locator("#roleSwitchAnchor.Mrphs-roleSwitch__exit")).isVisible();
 
@@ -69,7 +69,7 @@ class ViewSiteAsTest extends SakaiUiTestBase {
 
         page.navigate(configuredSiteUrl);
         page.locator("#roleSwitchAnchor.Mrphs-roleSwitch__exit").click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         page.navigate(adminSiteUrl);
         assertThat(page.getByRole(AriaRole.LINK,

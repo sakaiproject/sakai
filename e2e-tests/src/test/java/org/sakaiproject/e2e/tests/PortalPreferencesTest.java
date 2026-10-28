@@ -26,7 +26,6 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Request;
 import com.microsoft.playwright.options.ColorScheme;
-import com.microsoft.playwright.options.FormData;
 import com.microsoft.playwright.options.RequestOptions;
 import com.microsoft.playwright.options.WaitUntilState;
 import java.util.ArrayList;
@@ -34,12 +33,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Pattern;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 
 class PortalPreferencesTest extends SakaiUiTestBase {
 
@@ -48,7 +47,7 @@ class PortalPreferencesTest extends SakaiUiTestBase {
 
     @ParameterizedTest
     @EnumSource(value = ColorScheme.class, names = {"DARK", "LIGHT"})
-    void navigationReadsPreferencesAndExplicitChoicesSurviveReload(ColorScheme osTheme) {
+    void navigationReadsPreferencesAndExplicitChoicesSurviveReload(ColorScheme osTheme) throws Exception {
         page.emulateMedia(new Page.EmulateMediaOptions().setColorScheme(osTheme));
         // Reserve a separate account for account-wide navigation and theme changes.
         String username = sakai.resolveUsername("student0152");
@@ -66,7 +65,12 @@ class PortalPreferencesTest extends SakaiUiTestBase {
                 writes.add(request);
             }
         });
-        try {
+        try (AutoCloseable cleanup = () -> {
+            savePreferences(THEME, Map.of("theme", valueOr(originalTheme, "theme", "sakaiUserTheme-notSet")));
+            savePreferences(NAVIGATION, Map.of(
+                "currentExpanded", valueOr(originalNavigation, "currentExpanded", "true"),
+                "expandedSite", valueOr(originalNavigation, "expandedSite", "~" + userId)));
+        }) {
             savePreferences(THEME, Map.of("theme", "sakaiUserTheme-notSet"));
             savePreferences(NAVIGATION, Map.of("currentExpanded", "false", "expandedSite", siteId));
             Map<String, Map<?, ?>> before = snapshot();
@@ -106,29 +110,14 @@ class PortalPreferencesTest extends SakaiUiTestBase {
             assertThat(page.locator("html")).hasClass(Pattern.compile(".*" + chosen + ".*"));
             assertEquals(after, snapshot());
             assertEquals(1, writes.size(), "Reload must not save the chosen theme again");
-        } finally {
-            savePreferences(THEME, Map.of("theme", valueOr(originalTheme, "theme", "sakaiUserTheme-notSet")));
-            savePreferences(NAVIGATION, Map.of(
-                "currentExpanded", valueOr(originalNavigation, "currentExpanded", "true"),
-                "expandedSite", valueOr(originalNavigation, "expandedSite", "~" + userId)));
         }
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void immediatePinSaveCancelsPendingIndividualSave(boolean reorder) {
-        String username = "portal-pins-" + UUID.randomUUID();
-        sakai.login("admin");
-        APIResponse created = page.request().post("/direct/user/new", RequestOptions.create().setForm(FormData.create()
-            .set("eid", username).set("firstName", "Portal").set("lastName", "Pins")
-            .set("email", username + "@example.com").set("type", "registered")
-            .set("password", sakai.passwordFor(username))));
-        try {
-            assertTrue(created.ok(), "Unable to create isolated pin-test account: HTTP " + created.status());
-        } finally {
-            created.dispose();
-        }
-        try {
+        try (TestUser user = sakai.createUser("portal-pins")) {
+            String username = user.username();
             sakai.login(username);
             String firstSite = sakai.createProject(username, List.of("sakai.announcements"));
             sakai.createProject(username, List.of("sakai.announcements", "sakai.schedule"));
@@ -176,14 +165,6 @@ class PortalPreferencesTest extends SakaiUiTestBase {
                 Object selectedIds = page.evaluate("allsites.getPinnedSiteIds()");
                 assertEquals(new HashSet<>((List<?>) selectedIds), new HashSet<>(actualIds),
                     "The final pin selection must be persisted");
-            }
-        } finally {
-            sakai.login("admin");
-            APIResponse removed = page.request().delete("/direct/user/" + username);
-            try {
-                assertTrue(removed.ok(), "Unable to remove isolated pin-test account: HTTP " + removed.status());
-            } finally {
-                removed.dispose();
             }
         }
     }

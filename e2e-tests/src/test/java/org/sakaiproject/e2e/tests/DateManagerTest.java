@@ -192,7 +192,7 @@ class DateManagerTest extends SakaiUiTestBase {
             .first();
         assertThat(dateManager).isVisible();
         dateManager.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         assertNoTemplateRenderingError();
     }
 

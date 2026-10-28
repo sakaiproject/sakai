@@ -36,7 +36,7 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class PaSystemTest extends SakaiUiTestBase {
 
     @Test
-    void administrationWorkspacePaSystem() {
+    void administrationWorkspacePaSystem() throws Exception {
         String message = "SAK-52958 " + UUID.randomUUID();
         sakai.login("admin");
 
@@ -75,7 +75,9 @@ class PaSystemTest extends SakaiUiTestBase {
 
         Locator saveBanner = page.locator("form input[name=\"save\"], form input[value*=\"Save\"], form button:has-text(\"Save\")").first();
         assertThat(saveBanner).isVisible();
-        try {
+        try (AutoCloseable cleanup = () -> {
+            deleteBanner(message);
+        }) {
             saveBanner.click();
             Locator bannerAlerts = page.locator(".pasystem-banner-alerts").first();
             assertThat(bannerAlerts).containsText(message);
@@ -164,20 +166,24 @@ class PaSystemTest extends SakaiUiTestBase {
             assertThat(bannerRow).containsText(message + " edited");
             assertThat(bannerRow.locator("td").nth(2)).hasText("false");
             assertThat(bannerAlerts).not().containsText(message);
-        } finally {
-            deleteBanner(message);
         }
     }
 
     @Test
-    void restoreWaitsForPendingBannerDismissal() {
+    void restoreWaitsForPendingBannerDismissal() throws Exception {
         String firstMessage = "SAK-52958 first " + UUID.randomUUID();
         String secondMessage = "SAK-52958 second " + UUID.randomUUID();
         sakai.login("admin");
         sakai.gotoPath("/portal/site/!admin");
         sakai.toolClick("PA System");
 
-        try {
+        try (AutoCloseable cleanup = () -> {
+            try {
+                deleteBanner(firstMessage);
+            } finally {
+                deleteBanner(secondMessage);
+            }
+        }) {
             createMediumBanner(firstMessage);
             createMediumBanner(secondMessage);
             Locator firstBanner = page.locator(".pasystem-banner-alert").filter(
@@ -229,24 +235,20 @@ class PaSystemTest extends SakaiUiTestBase {
             page.reload();
             assertThat(firstBanner).isVisible();
             assertThat(secondBanner).isVisible();
-        } finally {
-            try {
-                deleteBanner(firstMessage);
-            } finally {
-                deleteBanner(secondMessage);
-            }
         }
     }
 
     @Test
-    void dismissalSurvivesBannerRefresh() {
+    void dismissalSurvivesBannerRefresh() throws Exception {
         String message = "SAK-52958 refresh " + UUID.randomUUID();
         String timezoneMessage = "SAK-52958 timezone " + UUID.randomUUID();
         sakai.login("admin");
         sakai.gotoPath("/portal/site/!admin");
         sakai.toolClick("PA System");
 
-        try {
+        try (AutoCloseable cleanup = () -> {
+            deleteBanner(message);
+        }) {
             createMediumBanner(message);
             Locator banner = page.locator(".pasystem-banner-alert").filter(
                 new Locator.FilterOptions().setHasText(message));
@@ -273,8 +275,6 @@ class PaSystemTest extends SakaiUiTestBase {
 
             page.reload();
             assertThat(banner).isHidden();
-        } finally {
-            deleteBanner(message);
         }
     }
 

@@ -43,7 +43,7 @@ class NotificationsTest extends SakaiUiTestBase {
         });
 
         sakai.login("instructor1");
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         page.waitForTimeout(1000);
 
         assertEquals(0, notificationRequests.size());

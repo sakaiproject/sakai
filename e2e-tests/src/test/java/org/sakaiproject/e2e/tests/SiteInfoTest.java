@@ -51,7 +51,7 @@ class SiteInfoTest extends SakaiUiTestBase {
             .first();
         assertThat(manageGroups).isVisible();
         manageGroups.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         assertNoTemplateRenderingError();
         assertThat(page.locator("body")).containsText(Pattern.compile("Group List|No groups", Pattern.CASE_INSENSITIVE));
@@ -61,7 +61,7 @@ class SiteInfoTest extends SakaiUiTestBase {
             .first();
         assertThat(createGroup).isVisible();
         createGroup.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         assertNoTemplateRenderingError();
         assertThat(page.locator("#creategroup-form")).isVisible();
@@ -135,21 +135,21 @@ class SiteInfoTest extends SakaiUiTestBase {
             .first();
         assertThat(addParticipants).isVisible();
         addParticipants.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         assertNoTemplateRenderingError();
         assertThat(page.locator("#participant-helper")).isVisible();
         assertThat(page.locator("nav[aria-label=\"Add participants progress\"] .breadcrumb-item").last()).hasText("Finish");
         page.locator("#officialAccountParticipant").fill("instructor1");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         Locator existingParticipantMessage = page.locator("#participant-helper .sak-banner-warn")
                 .filter(new Locator.FilterOptions().setHasText("instructor1"));
         assertThat(existingParticipantMessage).containsText("instructor1");
         assertThat(existingParticipantMessage).not().containsText("[Ljava.lang.Object;");
         page.locator("#officialAccountParticipant").fill("instructor1\nstudent0011\nstudent0011");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         assertThat(existingParticipantMessage).isVisible();
         assertThat(existingParticipantMessage).containsText("instructor1");
@@ -158,7 +158,7 @@ class SiteInfoTest extends SakaiUiTestBase {
 
         page.locator("#different-role").check(new Locator.CheckOptions().setForce(true));
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#participant-helper .sak-banner-error")).isVisible();
         assertThat(page.locator("#participant-role-0")).hasValue("");
 
@@ -168,7 +168,7 @@ class SiteInfoTest extends SakaiUiTestBase {
         sameRole.check(new Locator.CheckOptions().setForce(true));
         assertThat(page.locator("#same-role-participants")).not().isVisible();
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         Locator sendEmail = page.locator("#send-email");
         assertThat(sendEmail).isVisible();
@@ -176,17 +176,17 @@ class SiteInfoTest extends SakaiUiTestBase {
         page.locator("#participant-helper form button")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Back$", Pattern.CASE_INSENSITIVE)))
             .click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#send-email")).isChecked();
 
         Locator dontSend = page.locator("#dont-send-email");
         dontSend.check(new Locator.CheckOptions().setForce(true));
         assertThat(page.locator("#participant-helper")).containsText("student0011");
         page.locator("#participant-helper form").first().locator("button[type=\"submit\"]").first().click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         assertNoTemplateRenderingError();
         assertThat(page.locator("body")).containsText("Manage Participants");
@@ -203,12 +203,12 @@ class SiteInfoTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add Participants$", Pattern.CASE_INSENSITIVE)))
             .first();
         addParticipants.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         page.locator("#participant-helper button")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Cancel$", Pattern.CASE_INSENSITIVE)))
             .click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         assertThat(page.locator("body")).containsText(Pattern.compile("Site Information|Site Info", Pattern.CASE_INSENSITIVE));
     }

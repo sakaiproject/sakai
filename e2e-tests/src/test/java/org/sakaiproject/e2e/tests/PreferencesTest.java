@@ -25,28 +25,18 @@ import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
-import com.microsoft.playwright.options.FormData;
 import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.RequestOptions;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 
 class PreferencesTest extends SakaiUiTestBase {
 
     @Test
     void userCanSaveATimeZoneAndReadItInANewSession() {
-        String username = "timezone-" + UUID.randomUUID();
-        sakai.login("admin");
-        APIResponse created = page.request().post("/direct/user/new", RequestOptions.create().setForm(FormData.create()
-            .set("eid", username).set("firstName", "Time").set("lastName", "Zone")
-            .set("email", username + "@example.com").set("type", "registered")
-            .set("password", sakai.passwordFor(username))));
-        try {
-            assertTrue(created.ok(), "Unable to create timezone-test account: HTTP " + created.status());
-        } finally {
-            created.dispose();
-        }
-        try {
+        try (TestUser user = sakai.createUser("timezone")) {
+            String username = user.username();
             openUserTimeZone(username);
             Locator timeZones = page.locator("[id='timezone_form'] select");
             String selected = "Europe/Paris";
@@ -56,16 +46,6 @@ class PreferencesTest extends SakaiUiTestBase {
                     new Page.GetByTextOptions().setExact(true))).isVisible();
             openUserTimeZone(username);
             assertThat(page.locator("[id='timezone_form'] select")).hasValue(selected);
-        } finally {
-            // The server's default timezone may have no corresponding dropdown option.
-            // Delete this isolated account instead of trying to restore an empty selection.
-            sakai.login("admin");
-            APIResponse removed = page.request().delete("/direct/user/" + username);
-            try {
-                assertTrue(removed.ok(), "Unable to remove timezone-test account: HTTP " + removed.status());
-            } finally {
-                removed.dispose();
-            }
         }
     }
 
@@ -79,7 +59,7 @@ class PreferencesTest extends SakaiUiTestBase {
     }
 
     @Test
-    void administratorCanReviewAndResubmitAConflictingEdit() {
+    void administratorCanReviewAndResubmitAConflictingEdit() throws Exception {
         sakai.login("instructor1");
         String siteUrl = sakai.createProject("instructor1", List.of("sakai.admin.prefs"));
         sakai.login("admin");
@@ -88,7 +68,20 @@ class PreferencesTest extends SakaiUiTestBase {
         String toolUrl = page.url();
         String editedName = "e2e-edited-" + UUID.randomUUID();
         String concurrentName = "e2e-concurrent-" + UUID.randomUUID();
-        try {
+        try (AutoCloseable cleanup = () -> {
+            page.navigate(toolUrl);
+            if (page.locator("[id='prefs_form']").isVisible()) {
+                page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+            }
+            openAdminPreferences();
+            for (String name : List.of(editedName, concurrentName)) {
+                Locator input = valueInput(name);
+                if (input.count() > 0) {
+                    input.fill("");
+                }
+            }
+            save();
+        }) {
             setPreference(editedName, "original");
             openAdminPreferences();
             valueInput(editedName).fill("pending");
@@ -106,19 +99,6 @@ class PreferencesTest extends SakaiUiTestBase {
             openAdminPreferences();
             assertThat(valueInput(editedName)).hasValue("pending");
             assertThat(valueInput(concurrentName)).hasValue("concurrent");
-        } finally {
-            page.navigate(toolUrl);
-            if (page.locator("[id='prefs_form']").isVisible()) {
-                page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
-            }
-            openAdminPreferences();
-            for (String name : List.of(editedName, concurrentName)) {
-                Locator input = valueInput(name);
-                if (input.count() > 0) {
-                    input.fill("");
-                }
-            }
-            save();
         }
     }
 

@@ -76,7 +76,7 @@ class GradebookTest extends SakaiUiTestBase {
 
     @Test
     @Order(3)
-    void canCreateGradebookItems() {
+    void canCreateGradebookItems() throws Exception {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
         sakai.toolClick("Gradebook");
@@ -86,34 +86,15 @@ class GradebookTest extends SakaiUiTestBase {
 
         page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
-        boolean dialogVisible = false;
-        for (int attempt = 0; attempt < 3 && !dialogVisible; attempt++) {
-            assertThat(addButton).isVisible();
-            try {
-                page.waitForFunction("() => { const button = document.querySelector('button.gb-add-gradebook-item-button'); return Boolean(button && window.Wicket && window.Wicket.Ajax); }");
-            } catch (RuntimeException ignored) {
-            }
-
-            addButton.click();
-
-            try {
-                dialog.waitFor(new Locator.WaitForOptions().setTimeout(10_000));
-                dialogVisible = true;
-            } catch (RuntimeException error) {
-                if (page.url().contains("grades?0-1.-form")) {
-                    page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
-                    page.waitForTimeout(250);
-                } else if (attempt == 2) {
-                    throw error;
-                }
-            }
-        }
-
+        page.waitForFunction("() => Boolean(window.Wicket && window.Wicket.Ajax)");
+        addButton.click();
         assertThat(dialog).isVisible();
 
         Locator closeLink = dialog.locator(".gb-modal-close");
         String originalTheme = page.locator("html").getAttribute("class");
-        try {
+        try (AutoCloseable cleanup = () -> {
+            page.locator("html").evaluate("(element, originalTheme) => { if (originalTheme === null) element.removeAttribute('class'); else element.setAttribute('class', originalTheme); }", originalTheme);
+        }) {
             for (String theme : List.of("light", "dark")) {
                 page.locator("html").evaluate("(element, theme) => { element.classList.remove('sakaiUserTheme-light', 'sakaiUserTheme-dark'); element.classList.add('sakaiUserTheme-' + theme); }", theme);
                 String headerColor = (String) dialog.locator(".gb-modal-titlebar")
@@ -126,8 +107,6 @@ class GradebookTest extends SakaiUiTestBase {
                 assertThat(closeLink).isFocused();
                 assertThat(closeLink).hasCSS("color", headerColor);
             }
-        } finally {
-            page.locator("html").evaluate("(element, originalTheme) => { if (originalTheme === null) element.removeAttribute('class'); else element.setAttribute('class', originalTheme); }", originalTheme);
         }
 
         Locator cancelButton = dialog.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
@@ -139,7 +118,7 @@ class GradebookTest extends SakaiUiTestBase {
 
     @Test
     @Order(4)
-    void canNavigateToNextStudent() {
+    void canNavigateToNextStudent() throws Exception {
         sakai.login("instructor1");
         page.navigate(sakaiUrl);
         sakai.toolClick("Gradebook");
@@ -155,7 +134,9 @@ class GradebookTest extends SakaiUiTestBase {
         assertThat(dialog.locator("[data-studentid]").first()).hasAttribute("data-studentid", nextStudentId);
         int originalWidth = page.viewportSize().width;
         int originalHeight = page.viewportSize().height;
-        try {
+        try (AutoCloseable cleanup = () -> {
+            page.setViewportSize(originalWidth, originalHeight);
+        }) {
             for (int width : List.of(1280, 640)) {
                 page.setViewportSize(width, originalHeight);
                 assertTrue((Boolean) dialog.evaluate("element => { "
@@ -166,8 +147,6 @@ class GradebookTest extends SakaiUiTestBase {
                     + "&& (print.left - done.right >= 6 || print.top - done.bottom >= 6); }"),
                     "Student navigation and footer actions should have space between them at width " + width);
             }
-        } finally {
-            page.setViewportSize(originalWidth, originalHeight);
         }
         dialog.locator(".gb-summary-close").click();
         assertThat(dialog).isHidden();

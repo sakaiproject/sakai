@@ -437,14 +437,14 @@ class SamigoTest extends SakaiUiTestBase {
         sakai.toolClick("Tests");
 
         editWorkingCopyFromAssessmentsTable();
-        page.waitForLoadState(LoadState.NETWORKIDLE);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator printLink = page.locator("#assessmentForm a").filter(
             new Locator.FilterOptions().setHasText(Pattern.compile("^Print$", Pattern.CASE_INSENSITIVE))
         ).first();
         assertThat(printLink).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
         printLink.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(LoadState.NETWORKIDLE);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator previewIframe = page.locator("#print-pdf-preview");
         assertThat(previewIframe).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
@@ -479,7 +479,7 @@ class SamigoTest extends SakaiUiTestBase {
         Locator showAnswerKey = page.locator("#assessmentForm\\:showKeys");
         if (isVisible(showAnswerKey, 5_000)) {
             showAnswerKey.check(new Locator.CheckOptions().setForce(true));
-            page.waitForLoadState(LoadState.NETWORKIDLE);
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
             assertThat(previewIframe).isVisible();
         }
@@ -562,7 +562,7 @@ class SamigoTest extends SakaiUiTestBase {
             page.locator("[id='selectIndexForm:selectTable'] a[id$=':takeAssessment']")
                 .filter(new Locator.FilterOptions().setHasText(title)).click();
             assertThat(page.locator("#takeAssessmentForm")).containsText(title);
-            page.waitForLoadState();
+            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
             Locator honorPledge = page.locator("[id='takeAssessmentForm:honor_pledge']");
             if (honorPledge.isVisible()) {
                 honorPledge.check();

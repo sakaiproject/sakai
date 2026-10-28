@@ -154,7 +154,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         Locator pageSizeSelect = page.locator("select[id^=\"selectPageSize\"]").first();
         assertThat(pageSizeSelect).isVisible();
         pageSizeSelect.selectOption("10");
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         Locator reorderLink = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).first();
@@ -175,7 +175,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertThat(reorderedAnnouncements.first().locator(".sakai-reorder-drag-handle.drag-handle, .drag-handle")).isVisible();
 
         page.locator("#reorder-list-sortingToolBar a.title").click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
@@ -201,7 +201,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
 
         page.locator("input[name=\"eventSubmit_doReorderUpdate\"]").click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         Locator reorderLinkAgain = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).first();
@@ -217,19 +217,19 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
 
         page.locator("#reorder-list-sortingToolBar a.title").click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
             new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         page.locator("input[name=\"eventSubmit_doReorderUpdate\"]").click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         assertAnnouncementOrder(titlePrefix, 1, 10);
 
         page.locator("input[name=\"eventSubmit_doList_next\"]").first().click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         assertAnnouncementOrder(titlePrefix, 11, 20);
     }
 
@@ -397,7 +397,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         ).first();
         assertThat(submit).isVisible();
         submit.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("body")).containsText(Pattern.compile("Announcements", Pattern.CASE_INSENSITIVE));
     }
 
@@ -410,7 +410,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         try {
             if (!"view.all".equals(viewSelect.inputValue())) {
                 viewSelect.selectOption("view.all");
-                page.waitForLoadState();
+                page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
             }
         } catch (PlaywrightException ignored) {
             // Not all Announcements contexts expose the same view filter controls.

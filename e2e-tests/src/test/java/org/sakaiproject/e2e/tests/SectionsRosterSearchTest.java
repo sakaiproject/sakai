@@ -19,6 +19,8 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Response;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -66,6 +68,9 @@ class SectionsRosterSearchTest extends SakaiUiTestBase {
 
     /** Runs an action that posts the roster form and waits for the page it answers with. */
     private void submits(Runnable action) {
-        page.waitForResponse(r -> "POST".equals(r.request().method()) && r.url().contains("/roster"), action);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        Response response = page.waitForResponse(r -> "POST".equals(r.request().method()) && r.url().contains("/roster"), action);
+        response.finished();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 }

@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Response;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.AriaRole;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -89,16 +91,22 @@ class MessagesSearchTest extends SakaiUiTestBase {
     }
 
     private void saveDraft(String courseUrl, String subject, String body) {
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Messages");
         page.locator("#messagesComposeMenuLink").click();
         page.locator("#compose\\:subject").fill(subject);
-        assertTrue(sakai.typeFirstCkEditorIfPresent(body));
+        sakai.typeCkEditor("compose:pvt_message_body_inputRichText", body);
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Draft").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("#compose\\:errorMessages:visible")).hasText(new String[0]);
+        assertThat(page.locator("#compose\\:subject")).hasCount(0);
     }
 
     /** Runs an action that posts the messages form and waits for the page it answers with. */
     private void submits(Runnable action) {
-        page.waitForResponse(r -> "POST".equals(r.request().method()) && r.url().contains("/privateMsg/"), action);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        Response response = page.waitForResponse(r -> "POST".equals(r.request().method()) && r.url().contains("/privateMsg/"), action);
+        response.finished();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 }

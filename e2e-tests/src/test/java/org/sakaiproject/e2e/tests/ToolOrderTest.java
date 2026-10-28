@@ -61,7 +61,7 @@ class ToolOrderTest extends SakaiUiTestBase {
             new Page.GetByRoleOptions().setName(Pattern.compile("Tool Order", Pattern.CASE_INSENSITIVE))).first();
         assertThat(toolOrderTab).isVisible();
         toolOrderTab.click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         Locator app = page.locator("#tool-order-app");
         assertThat(app).isVisible();
@@ -95,7 +95,7 @@ class ToolOrderTest extends SakaiUiTestBase {
         assertThat(statusAlert).containsText(orderSavedMessage);
 
         page.reload();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         String firstTitleAfter = page.locator(".tool-order-row").first().locator(".tool-order-title").innerText();
         assertNotEquals(firstTitleBefore, firstTitleAfter);
 
@@ -117,7 +117,7 @@ class ToolOrderTest extends SakaiUiTestBase {
             .containsText(titleBeforeMoveDown);
 
         page.reload();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         assertThat(page.locator(".tool-order-row").first().locator(".tool-order-title"))
             .containsText(titleBeforeMoveDown);
 
@@ -170,7 +170,7 @@ class ToolOrderTest extends SakaiUiTestBase {
 
         page.getByRole(AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName(Pattern.compile("Done", Pattern.CASE_INSENSITIVE))).click();
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#tool-order-app")).hasCount(0);
         assertThat(page.locator(".navIntraTool .current")
                 .filter(new Locator.FilterOptions().setHasText(Pattern.compile("Site Information", Pattern.CASE_INSENSITIVE)))

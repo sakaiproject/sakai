@@ -111,7 +111,7 @@ class SignupTest extends SakaiUiTestBase {
 
                 for (String viewValue : viewValues) {
                     viewByRange.selectOption(viewValue);
-                    page.waitForLoadState();
+                    page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
                     if (meetingTitleVisible(meetingsTable)) {
                         return;
                     }

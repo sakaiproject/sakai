@@ -46,7 +46,7 @@ class MessagesTest extends SakaiUiTestBase {
         String subject = "Tagged draft " + System.currentTimeMillis();
         String tag = "Draft tag " + System.currentTimeMillis();
         page.locator("#compose\\:subject").fill(subject);
-        assertTrue(sakai.typeFirstCkEditorIfPresent("<p>Tagged draft.</p>"));
+        sakai.typeCkEditor("compose:pvt_message_body_inputRichText", "<p>Tagged draft.</p>");
         Locator selector = page.locator("sakai-tag-selector");
         selector.getByRole(AriaRole.COMBOBOX).fill(tag);
         selector.getByRole(AriaRole.COMBOBOX).press("Enter");
@@ -67,7 +67,7 @@ class MessagesTest extends SakaiUiTestBase {
         selector.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Retry").setExact(true)).click();
         Locator remove = selector.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Deselect: " + tag).setExact(true));
         assertThat(remove).isVisible();
-        assertTrue(sakai.typeFirstCkEditorIfPresent("<p>Updated draft.</p>"));
+        sakai.typeCkEditor("compose:pvt_message_body_inputRichText", "<p>Updated draft.</p>");
         remove.click();
         assertThat(page.locator("#compose\\:tag_selector")).hasValue("");
         // With no recipients, preview redisplays the form with a validation error.

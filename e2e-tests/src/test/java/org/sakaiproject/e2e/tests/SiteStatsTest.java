@@ -473,7 +473,7 @@ class SiteStatsTest extends SakaiUiTestBase {
 
     @Test
     @Order(12)
-    void searchesNestedResourcesAndPreservesSelectionsThroughReportFlows() {
+    void searchesNestedResourcesAndPreservesSelectionsThroughReportFlows() throws Exception {
         sakai.login("instructor1");
         String resourcesSiteUrl = createNestedResourceFixture();
         String root = "/group/" + sakai.siteIdFromUrl(resourcesSiteUrl) + "/";
@@ -505,7 +505,10 @@ class SiteStatsTest extends SakaiUiTestBase {
             new Locator.GetByRoleOptions().setName("Previous results").setExact(true))).hasCount(0);
         matches.first().getByRole(AriaRole.BUTTON).click();
         String portalLocale = (String) page.evaluate("() => window.portal?.locale || ''");
-        try {
+        try (AutoCloseable cleanup = () -> {
+            page.evaluate("locale => { if (locale) window.portal.locale = locale; else delete window.portal.locale; }",
+                    portalLocale);
+        }) {
             page.evaluate("() => { window.portal ||= {}; window.portal.locale = 'tr_TR'; }");
             search.fill("istanbul");
             assertThat(matches).hasCount(1);
@@ -513,9 +516,6 @@ class SiteStatsTest extends SakaiUiTestBase {
             search.fill("ırmak");
             assertThat(matches).hasCount(1);
             assertThat(matches.locator(".resource-name")).hasText("IRMAK.txt");
-        } finally {
-            page.evaluate("locale => { if (locale) window.portal.locale = locale; else delete window.portal.locale; }",
-                    portalLocale);
         }
         search.fill("Week 5 Reading");
         assertThat(matches).hasCount(0);
@@ -638,9 +638,12 @@ class SiteStatsTest extends SakaiUiTestBase {
             "form => new FormData(form).get('whatResourceIds')"));
     }
 
-    private void assertResourceInputThemes(Locator component, Locator search) {
+    private void assertResourceInputThemes(Locator component, Locator search) throws Exception {
         String rootClasses = (String) page.evaluate("() => document.documentElement.className");
-        try {
+        try (AutoCloseable cleanup = () -> {
+            page.evaluate("classes => document.documentElement.className = classes", rootClasses);
+            page.setViewportSize(1280, 720);
+        }) {
             for (String theme : List.of("light", "dark", "light")) {
                 page.evaluate("""
                     theme => {
@@ -667,9 +670,6 @@ class SiteStatsTest extends SakaiUiTestBase {
                     }
                 }
             }
-        } finally {
-            page.evaluate("classes => document.documentElement.className = classes", rootClasses);
-            page.setViewportSize(1280, 720);
         }
     }
 

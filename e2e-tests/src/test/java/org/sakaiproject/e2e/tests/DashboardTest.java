@@ -42,21 +42,7 @@ class DashboardTest extends SakaiUiTestBase {
     void canEditAndSaveDashboard() {
         sakai.login("instructor1");
 
-        boolean opened = false;
-        for (int attempt = 0; attempt < 3; attempt++) {
-            try {
-                page.navigate(sakaiUrl, new com.microsoft.playwright.Page.NavigateOptions()
-                    .setWaitUntil(com.microsoft.playwright.options.WaitUntilState.DOMCONTENTLOADED)
-                    .setTimeout(15_000));
-                opened = true;
-                break;
-            } catch (RuntimeException ignored) {
-                page.waitForTimeout(1000);
-            }
-        }
-        if (!opened) {
-            page.navigate("/portal/");
-        }
+        sakai.gotoPath(sakaiUrl);
 
         sakai.toolClick("Dashboard");
 

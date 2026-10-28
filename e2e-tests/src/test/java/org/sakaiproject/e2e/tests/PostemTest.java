@@ -42,7 +42,7 @@ class PostemTest extends SakaiUiTestBase {
             .first();
         assertThat(addFeedback).isVisible();
         addFeedback.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         assertNoTemplateRenderingError();
         assertThat(page.locator("body")).containsText(Pattern.compile("Add/Update Feedback File", Pattern.CASE_INSENSITIVE));

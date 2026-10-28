@@ -215,7 +215,7 @@ class VideoTrainingTest extends SakaiUiTestBase {
         assertThat(row).isVisible();
         row.locator("form[action$='/publish'] button[type='submit']").first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         assertThat(videoTableRow(title).locator("td").nth(2)).containsText(Pattern.compile("PUBLISHED"));
     }
 
@@ -237,7 +237,7 @@ class VideoTrainingTest extends SakaiUiTestBase {
     private void clickPagerPage(int pageNumber) {
         page.locator(".vt-pager-controls button[value='" + pageNumber + "']").first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
     }
 
     private String currentTableTitle() {
@@ -267,7 +267,7 @@ class VideoTrainingTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile(linkLabel, Pattern.CASE_INSENSITIVE))).first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
     }
 
     private void verifyPagedPreferenceList(String firstTitle, String secondTitle) {

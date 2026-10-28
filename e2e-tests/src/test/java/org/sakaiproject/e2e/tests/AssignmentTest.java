@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AssignmentTest extends SakaiUiTestBase {
@@ -215,36 +217,48 @@ class AssignmentTest extends SakaiUiTestBase {
     @Order(7)
     void canAllowStudentToResubmit() {
         String courseUrl = ensureCourseUrl();
-        sakai.login("instructor1");
-        sakai.gotoPath(courseUrl);
-        sakai.toolClick("Assignments");
-
-        Locator gradeAction = page.locator(".itemAction a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Grade|View Submissions", Pattern.CASE_INSENSITIVE))).first();
-        if (gradeAction.count() == 0) {
-            fail("Missing grader action for assignment submission; expected Grade/View Submissions link before resubmission flow.");
-        }
-
-        gradeAction.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
-
-        Locator newGraderToggle = page.locator("sakai-grader-toggle input").first();
-        if (newGraderToggle.count() > 0) {
-            newGraderToggle.check(new Locator.CheckOptions().setForce(true));
-        }
-
-        Locator studentSubmission = page.locator("#submissionList a").filter(new Locator.FilterOptions().setHasText("student0012")).first();
-        if (studentSubmission.count() > 0) {
-            studentSubmission.click(new Locator.ClickOptions().setForce(true));
-
-            Locator resubmitInput = page.locator(".resubmission-checkbox input").first();
-            if (resubmitInput.count() > 0) {
-                resubmitInput.check(new Locator.CheckOptions().setForce(true));
-            }
-
-            Locator returnButton = page.locator("#grader-save-buttons button[name=\"return\"], input#save-and-return, button:has-text(\"Save and Release\"), input[value*=\"Save and Release\"]").first();
-            if (returnButton.count() > 0) {
-                returnButton.click(new Locator.ClickOptions().setForce(true));
-            }
+        try (TestUser grader = sakai.createUser("resubmission-grader")) {
+            sakai.addMember(courseUrl, grader.username(), "Instructor");
+            String title = "Resubmission " + System.currentTimeMillis();
+            sakai.login("instructor1");
+            sakai.gotoPath(courseUrl);
+            sakai.toolClick("Assignments");
+            goToAssignmentsList();
+            openAddAssignmentForm();
+            page.locator("#new_assignment_title").fill(title);
+            page.locator("#gradeAssignment").check();
+            page.locator("#new_assignment_grade_points").fill("10");
+            fillAssignmentInstructions("<p>Resubmission fixture.</p>");
+            submitAssignmentForm();
+            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+            sakai.addMember(courseUrl, "student0012", "Student");
+            sakai.login("student0012");
+            sakai.gotoPath(courseUrl);
+            sakai.toolClick("Assignments");
+            page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(title).setExact(true)).click();
+            sakai.typeCkEditor("Assignment.view_submission_text", "<p>Work to resubmit.</p>");
+            page.locator("#confirm").click();
+            page.locator("#post").click();
+            assertThat(page.locator("body")).containsText("Submission Confirmation");
+            sakai.login(grader.username());
+            sakai.setAssignmentGrader(true);
+            sakai.gotoPath(courseUrl);
+            sakai.toolClick("Assignments");
+            Locator row = page.locator("tr").filter(new Locator.FilterOptions().setHasText(title));
+            row.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions()
+                .setName("Grade " + title).setExact(true)).click();
+            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+            Locator student = page.locator("#submissionList a")
+                .filter(new Locator.FilterOptions().setHasText(Pattern.compile("\\bstudent0012\\b"))).first();
+            assertThat(student).isVisible();
+            student.click();
+            assertThat(page.locator("sakai-grader #grader")).isVisible(
+                new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
+            Locator resubmit = page.locator(".resubmission-checkbox input").first();
+            assertThat(resubmit).isVisible();
+            resubmit.check();
+            assertThat(resubmit).isChecked();
+            page.locator("#grader-save-buttons button[name=return]").click();
         }
     }
 

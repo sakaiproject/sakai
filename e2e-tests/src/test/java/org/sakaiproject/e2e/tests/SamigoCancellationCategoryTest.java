@@ -131,8 +131,7 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         openCancellation();
         Locator reduction = modal().getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Reduce total points"));
         assertThat(reduction).isEnabled();
-        Page settingsPage = context.newPage();
-        try {
+        try (Page settingsPage = context.newPage()) {
             settingsPage.navigate(siteUrl);
             new SakaiHelper(settingsPage, SakaiEnvironment.baseUrl(), settingsPage.request()).toolClick("Gradebook");
             changeCategorySettings(settingsPage, true, false);
@@ -141,8 +140,6 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
             openCancellation();
             assertRestrictedDialog();
             modal().getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Do not cancel question")).click();
-        } finally {
-            settingsPage.close();
         }
         openPublishedAuthoring(siteUrl, FIRST_QUIZ);
         assertAuthoringPoints("3");

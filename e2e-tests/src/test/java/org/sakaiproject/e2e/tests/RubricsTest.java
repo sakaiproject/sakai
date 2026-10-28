@@ -67,8 +67,7 @@ class RubricsTest extends SakaiUiTestBase {
 
         assertThat(page.locator("body")).containsText(RUBRIC_TITLE);
 
-        Page stalePage = context.newPage();
-        try {
+        try (Page stalePage = context.newPage()) {
             stalePage.navigate(page.url());
             Locator staleRubric = stalePage.locator("sakai-rubric").filter(new Locator.FilterOptions().setHasText(RUBRIC_TITLE)).first();
             staleRubric.locator("sakai-rubric-edit button.edit-button").click();
@@ -90,8 +89,6 @@ class RubricsTest extends SakaiUiTestBase {
             assertThat(staleModal.locator("input")).hasValue("Unsaved concurrent title");
             page.reload();
             assertThat(page.locator("body")).containsText(RUBRIC_TITLE + " updated");
-        } finally {
-            stalePage.close();
         }
     }
 

@@ -75,12 +75,12 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Import from Site$", Pattern.CASE_INSENSITIVE)))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
                 .setName(Pattern.compile("replace my data", Pattern.CASE_INSENSITIVE)))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
 
         String sourceSiteId = sakai.siteIdFromUrl(sourceSite);
         page.locator("input[name=\"importSites\"][value=\"" + sourceSiteId + "\"]").check(new Locator.CheckOptions().setForce(true));
@@ -148,7 +148,7 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
         ).first();
         assertThat(submit).isVisible();
         submit.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
     }
 
     private void clickContinueOrFinish() {
@@ -158,7 +158,7 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
         ).first();
         assertThat(button).isVisible();
         button.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
     }
 
 }
