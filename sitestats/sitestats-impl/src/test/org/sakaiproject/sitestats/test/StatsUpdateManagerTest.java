@@ -289,6 +289,62 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 
 	@Test
+	public void testPresenceEndWithUnknownUserResolvesUsageSession() {
+		Instant begin = Instant.parse("2025-03-20T12:00:00Z");
+		String resource = "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX;
+		Event start = statsUpdateManager.buildEvent(Date.from(begin), StatsManager.SITEVISIT_EVENTID,
+				resource, null, FakeData.USER_A_ID, "presence-session-user-a");
+		Event end = statsUpdateManager.buildEvent(Date.from(begin.plusSeconds(40)), StatsManager.SITEVISITEND_EVENTID,
+				resource, null, EventTrackingService.UNKNOWN_USER, "presence-session-user-a");
+
+		assertTrue(statsUpdateManager.collectEvents(List.of(start)));
+		assertTrue(statsUpdateManager.collectEvents(List.of(end)));
+
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		assertEquals(FakeData.USER_A_ID, results.get(0).getUserId());
+		assertEquals(Duration.ofSeconds(40).toMillis(), results.get(0).getDuration());
+		assertEquals(Integer.valueOf(0), results.get(0).getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testPresenceEndWithUnknownUserInSameBatchResolvesUsageSession() throws Exception {
+		((StatsManagerImpl) ((Advised) statsManager).getTargetSource().getTarget()).setShowAnonymousAccessEvents(false);
+		Instant begin = Instant.parse("2025-03-20T12:00:00Z");
+		String resource = "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX;
+		Event start = statsUpdateManager.buildEvent(Date.from(begin), StatsManager.SITEVISIT_EVENTID,
+				resource, null, FakeData.USER_A_ID, "presence-session-user-a");
+		Event end = statsUpdateManager.buildEvent(Date.from(begin.plusSeconds(40)), StatsManager.SITEVISITEND_EVENTID,
+				resource, null, EventTrackingService.UNKNOWN_USER, "presence-session-user-a");
+
+		assertTrue(statsUpdateManager.collectEvents(List.of(start, end)));
+
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		assertEquals(FakeData.USER_A_ID, results.get(0).getUserId());
+		assertEquals(Duration.ofSeconds(40).toMillis(), results.get(0).getDuration());
+		assertEquals(Integer.valueOf(0), results.get(0).getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testAnonymousPresenceRetainsUnknownUserWhenUsageSessionHasNoUser() {
+		Instant begin = Instant.parse("2025-03-20T12:00:00Z");
+		String resource = "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX;
+		Event start = statsUpdateManager.buildEvent(Date.from(begin), StatsManager.SITEVISIT_EVENTID,
+				resource, null, EventTrackingService.UNKNOWN_USER, "presence-anonymous-session");
+		Event end = statsUpdateManager.buildEvent(Date.from(begin.plusSeconds(40)), StatsManager.SITEVISITEND_EVENTID,
+				resource, null, EventTrackingService.UNKNOWN_USER, "presence-anonymous-session");
+
+		assertTrue(statsUpdateManager.collectEvents(List.of(start, end)));
+
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		assertEquals(EventTrackingService.UNKNOWN_USER, results.get(0).getUserId());
+		assertEquals(Duration.ofSeconds(40).toMillis(), results.get(0).getDuration());
+		assertEquals(Integer.valueOf(0), results.get(0).getCurrentOpenSessions());
+	}
+
+	@Test
 	public void testSitePresenceSplitUpdates() {
 	    // Start and end across collections.
 		{

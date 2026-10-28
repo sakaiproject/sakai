@@ -500,9 +500,10 @@ public class StatsUpdateManagerImpl implements Runnable, StatsUpdateManager, Obs
 			}
 			
 			// user check
-			if(userId == null) {
+			// Cleanup events can have an unknown thread user but still identify the usage session.
+			if(userId == null || EventTrackingService.UNKNOWN_USER.equals(userId)) {
 				UsageSession session = usageSessionService.getSession(e.getSessionId());
-				if(session != null) {
+				if(session != null && session.getUserId() != null) {
 					userId = session.getUserId();
 				}
 			}
