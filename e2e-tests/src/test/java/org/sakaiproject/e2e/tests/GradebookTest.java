@@ -243,6 +243,9 @@ class GradebookTest extends SakaiUiTestBase {
         page.locator(".gb-view-grade-summary").first().press("Enter");
         Locator summary = page.locator(".gb-modal-dialog:visible");
         assertThat(summary).isVisible();
+        // Let the modal finish its initial focus move before focusing the rubric opener.
+        assertThat(summary.getByRole(com.microsoft.playwright.options.AriaRole.TAB,
+            new Locator.GetByRoleOptions().setName("Grade Summary").setExact(true))).isFocused();
         Locator rubricLink = summary.locator("tr").filter(new Locator.FilterOptions().setHasText(itemTitle))
             .locator("sakai-rubric-student-button a");
         // Establish the opener's focus before checking that closing the preview restores it.
