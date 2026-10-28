@@ -888,32 +888,27 @@ public class PortalServiceImpl implements PortalService, Observer
 	public void reorderPinnedSites(String userId, List<String> siteIds) {
 		if (StringUtils.isBlank(userId)) return;
 
-		if(!serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
-			pinnedSiteRepository.deleteByUserId(userId);
+		List<String> orderedSiteIds = new ArrayList<>(siteIds);
+		if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
+			Collections.reverse(orderedSiteIds);
+		}
 
-			for (int i = 0; i < siteIds.size(); i++) {
-
-				PinnedSite pin = new PinnedSite();
-				pin.setUserId(userId);
-				pin.setSiteId(siteIds.get(i));
-				pin.setPosition(i);
-				pinnedSiteRepository.save(pin);
+		Map<String, PinnedSite> currentPins = pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
+				.collect(Collectors.toMap(PinnedSite::getSiteId, pin -> pin));
+		for (int i = 0; i < orderedSiteIds.size(); i++) {
+			String siteId = orderedSiteIds.get(i);
+			PinnedSite pin = currentPins.remove(siteId);
+			if (pin == null) {
+				pin = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId)
+						.orElseGet(() -> new PinnedSite(userId, siteId));
 			}
-		} else {
-			List<String> reversedSiteIds = new ArrayList<>(siteIds);
-			Collections.reverse(reversedSiteIds);
-
-			pinnedSiteRepository.deleteByUserId(userId);
-
-			for (int i = 0; i < reversedSiteIds.size(); i++) {
-
-				PinnedSite pin = new PinnedSite();
-				pin.setUserId(userId);
-				pin.setSiteId(reversedSiteIds.get(i));
+			if (pin.getId() == null || pin.getPosition() != i || Boolean.TRUE.equals(pin.getHasBeenUnpinned())) {
 				pin.setPosition(i);
+				pin.setHasBeenUnpinned(false);
 				pinnedSiteRepository.save(pin);
 			}
 		}
+		pinnedSiteRepository.deleteByUserIdAndSiteIds(userId, new ArrayList<>(currentPins.keySet()));
 	}
 
 	@Override

@@ -73,6 +73,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalSiteHelper;
@@ -362,7 +364,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			.collect(Collectors.toList());
 	}
 
-	private Map<String, Object> getPageMap(SitePage page, boolean includeSubPage) {
+	private Map<String, Object> getPageMap(SitePage page, boolean includeSubPage,
+			Map<String, Boolean> lessonPageVisibility, boolean lessonbuilderUpdater) {
 
 		Map<String, Object> pageMap = new HashMap<>();
 		List<ToolConfiguration> toolList = page.getTools();
@@ -430,17 +433,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			pageMap.put("wellKnownToolId", firstTool.getToolId());
 
 			if ("sakai.lessonbuildertool".equals(firstTool.getToolId())) {
-				try {
-					Site pageSite = siteService.getSite(page.getSiteId());
-					boolean lessonbuilderUpdater = securityService.unlock("lessonbuilder.upd", pageSite.getReference());
-					boolean lbHidden = isLessonBuilderPageHiddenFromNavigation(page.getId(), page.getSiteId());
-					boolean hideFromNavEffective = !lessonbuilderUpdater && lbHidden;
-					pageMap.put("isHiddenFromNavigation", hideFromNavEffective);
-					if (lbHidden) {
-						pageMap.put("hidden", Boolean.TRUE);
-					}
-				} catch (IdUnusedException e) {
-					pageMap.put("isHiddenFromNavigation", Boolean.FALSE);
+				boolean lbHidden = lessonPageVisibility.getOrDefault(page.getId(), false);
+				pageMap.put("isHiddenFromNavigation", !lessonbuilderUpdater && lbHidden);
+				if (lbHidden) {
+					pageMap.put("hidden", Boolean.TRUE);
 				}
 			}
 		}
@@ -453,7 +449,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		final boolean siteUpdater = securityService.unlock("site.upd", site.getReference());
 
 		boolean includeSubPage = Boolean.parseBoolean(site.getProperties().getProperty("subpagenav"));
-		return pages.stream().map(p -> getPageMap(p, includeSubPage))
+		Map<String, Boolean> lessonPageVisibility = getLessonPageVisibility(pages);
+		boolean lessonbuilderUpdater = !lessonPageVisibility.isEmpty()
+				&& securityService.unlock("lessonbuilder.upd", site.getReference());
+		return pages.stream().map(p -> getPageMap(p, includeSubPage, lessonPageVisibility, lessonbuilderUpdater))
 			.filter(m -> !((Boolean) m.get("hidden")) || siteUpdater).collect(Collectors.toList());
 	}
 
@@ -1583,27 +1582,26 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return site != null && site.isJoinable() && site.getUserRole(userId) == null;
 	}
 
-	/**
-	 * Check if a LessonBuilder page is marked as hidden from navigation.
-	 */
-	private boolean isLessonBuilderPageHiddenFromNavigation(String pageId, String siteId) {
-		try {
-			Object simplePageToolDao = ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
-
-			if (simplePageToolDao != null) {
-				java.lang.reflect.Method findPageMethod = simplePageToolDao.getClass().getMethod("findSimplePageBySitePageId", String.class);
-				Object simplePage = findPageMethod.invoke(simplePageToolDao, pageId);
-
-				if (simplePage != null) {
-					java.lang.reflect.Method isHiddenMethod = simplePage.getClass().getMethod("isHiddenFromNavigation");
-					Boolean isHiddenFromNavigation = (Boolean) isHiddenMethod.invoke(simplePage);
-					return Boolean.TRUE.equals(isHiddenFromNavigation);
-				}
-			}
-		} catch (Exception e) {
-			log.warn("Error checking hiddenFromNavigation for LessonBuilder pageId={} siteId={}", pageId, siteId, e);
+	private Map<String, Boolean> getLessonPageVisibility(Collection<SitePage> pages) {
+		List<String> lessonPageIds = pages.stream()
+				.filter(page -> !page.getTools().isEmpty()
+						&& "sakai.lessonbuildertool".equals(page.getTools().get(0).getToolId()))
+				.map(SitePage::getId)
+				.collect(Collectors.toList());
+		if (lessonPageIds.isEmpty()) {
+			return Collections.emptyMap();
 		}
-		return Boolean.FALSE;
+		SimplePageToolDao dao = ComponentManager.get(SimplePageToolDao.class);
+		if (dao == null) {
+			return Collections.emptyMap();
+		}
+		try {
+			return dao.findSimplePagesBySitePageIds(lessonPageIds).stream()
+					.collect(Collectors.toMap(SimplePage::getToolId, SimplePage::isHiddenFromNavigation, (first, next) -> first));
+		} catch (RuntimeException e) {
+			log.warn("Error checking hiddenFromNavigation for Lessons pages {}", lessonPageIds, e);
+			return Collections.emptyMap();
+		}
 	}
 
 }

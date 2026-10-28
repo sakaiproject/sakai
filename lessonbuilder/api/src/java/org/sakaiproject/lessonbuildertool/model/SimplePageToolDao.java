@@ -209,6 +209,13 @@ public interface SimplePageToolDao {
 	 */
 	public SimplePage findSimplePageBySitePageId(String sitePageId);
 
+	/**
+	 * Find top-level Lessons pages for the supplied Sakai site page IDs.
+	 * @param sitePageIds the site page IDs (toolId in Lessons)
+	 * @return matching top-level pages, or an empty list if none exist
+	 */
+	public List<SimplePage> findSimplePagesBySitePageIds(Collection<String> sitePageIds);
+
 	public String getPageUrl(long pageId);
 
 	// list of all pages in the site, not just top level

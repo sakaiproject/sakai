@@ -227,6 +227,41 @@ class LessonsTest extends SakaiUiTestBase {
         assertThat(lessonsPage).isChecked();
     }
 
+    @Test
+    @Order(9)
+    void hiddenTopLevelPageStaysOutOfStudentNavigation() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
+        page.navigate(siteUrl);
+        sakai.toolClick("Lessons");
+        createTopLevelPage("Hidden navigation page");
+
+        page.locator("#edit-title").click();
+        Locator settings = page.locator("#edit-title-dialog");
+        settings.locator("input[type=radio][value=hideFromNav]").check();
+        settings.locator("input[type=submit]").click();
+        page.navigate(siteUrl);
+        assertNavigationLinkCount("Hidden navigation page", 1);
+        assertNavigationLinkCount("Lessons", 1);
+
+        sakai.login("student0011");
+        page.navigate(siteUrl);
+        assertNavigationLinkCount("Hidden navigation page", 0);
+        assertNavigationLinkCount("Lessons", 1);
+        page.reload();
+        assertNavigationLinkCount("Hidden navigation page", 0);
+
+        sakai.login("instructor1");
+        page.navigate(siteUrl);
+        sakai.toolClick("Hidden navigation page");
+        page.locator("#edit-title").click();
+        settings.locator("input[type=radio][value=visible]").check();
+        settings.locator("input[type=submit]").click();
+        sakai.login("student0011");
+        page.navigate(siteUrl);
+        assertNavigationLinkCount("Hidden navigation page", 1);
+    }
+
     private void restoreTopLevelPageAfterRemoval(String title, java.util.function.Consumer<String> removePage) {
         if (sakaiUrl == null) {
             canCreateNewCourse();
