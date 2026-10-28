@@ -204,6 +204,29 @@ class LessonsTest extends SakaiUiTestBase {
         }
     }
 
+    @Test
+    @Order(8)
+    void manageToolsListsLessonsPageOnlyOnce() {
+        sakai.login("instructor1");
+        String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
+        page.navigate(siteUrl);
+        sakai.toolClick("Lessons");
+        assertThat(page.locator("#content")).isVisible();
+
+        sakai.toolClick("Site Info");
+        page.locator(".navIntraTool").getByRole(AriaRole.LINK,
+            new Locator.GetByRoleOptions().setName("Manage Tools").setExact(true)).click();
+
+        Locator lessonsCheckboxes = page.locator(
+            "#toolHolder input[name=\"selectedTools\"][value$=\"sakai.lessonbuildertool\"]");
+        assertThat(lessonsCheckboxes).hasCount(2);
+        assertThat(page.locator("#toolHolder input[id=\"sakai.lessonbuildertool\"]")).hasCount(1);
+        Locator lessonsPage = page.locator(
+            "#toolHolder .indnt3 input[name=\"selectedTools\"][value$=\"sakai.lessonbuildertool\"]");
+        assertThat(lessonsPage).hasCount(1);
+        assertThat(lessonsPage).isChecked();
+    }
+
     private void restoreTopLevelPageAfterRemoval(String title, java.util.function.Consumer<String> removePage) {
         if (sakaiUrl == null) {
             canCreateNewCourse();
