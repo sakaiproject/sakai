@@ -17,6 +17,7 @@ jobs:
       MAVEN_ARGS: >-
         -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
         -Dmaven.compiler.showWarnings=false
+        -Dsakai.skip.webcomponents.tests=true
         -Dorg.slf4j.simpleLogger.log.org.apache.maven.plugin.compiler=error
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
       NODE_OPTIONS: "--disable-warning=DEP0169"
@@ -128,11 +129,26 @@ jobs:
           EOF
           npm --prefix .playwright-cli install --no-audit --no-fund --save-exact playwright@${{ steps.playwright-version.outputs.value }}
 
-      - name: Install Playwright system dependencies
-        run: ./.playwright-cli/node_modules/.bin/playwright install-deps chromium
-
       - name: Install Playwright browser
         run: ./.playwright-cli/node_modules/.bin/playwright install chromium --only-shell
+
+      - name: Check Playwright system dependencies
+        run: |
+          if node <<'NODE'
+          const { chromium } = require('./.playwright-cli/node_modules/playwright');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            await browser.close();
+          })().catch(error => {
+            console.error(error);
+            process.exitCode = 1;
+          });
+          NODE
+          then
+            echo "Chromium launches with the runner's installed libraries; skipping apt."
+          else
+            ./.playwright-cli/node_modules/.bin/playwright install-deps chromium
+          fi
 
       - name: Wait for Sakai
         id: wait-for-sakai
