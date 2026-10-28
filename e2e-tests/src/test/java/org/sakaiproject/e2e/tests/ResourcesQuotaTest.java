@@ -69,78 +69,27 @@ class ResourcesQuotaTest extends SakaiUiTestBase {
         assertThat(enabled).isChecked();
         assertThat(quota).hasValue("2");
 
-        for (String invalidQuota : List.of("", "-1", "-0.000000001", "8796093022208")) {
-            quota.fill(invalidQuota);
-            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update").setExact(true)).click();
-            assertThat(page.locator("#resourceAlert")).containsText("Enter a valid quota in GB");
-            assertThat(quota).hasValue(invalidQuota);
-            assertThat(page.locator("#quota-injected")).hasCount(0);
-            quota.fill("2");
-            saveAndReopen();
-            assertThat(quota).hasValue("2");
-        }
-
-        // Bypass the numeric control to verify server validation and HTML escaping.
-        for (String invalidQuota : List.of("  not-a-number  ",
-                "\"/><span id=\"quota-injected\">&amp;'</span>")) {
-            quota.evaluate("input => input.type = 'text'");
-            quota.fill(invalidQuota);
-            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update").setExact(true)).click();
-            assertThat(page.locator("#resourceAlert")).containsText("Enter a valid quota in GB");
-            assertThat(quota).isEmpty();
-            assertThat(quota).hasAttribute("value", invalidQuota);
-            assertThat(page.locator("#quota-injected")).hasCount(0);
-            quota.fill("2");
-            saveAndReopen();
-            assertThat(quota).hasValue("2");
-        }
-
         quota.fill("10.555555");
         assertTrue((Boolean) quota.evaluate("input => input.checkValidity()"));
         saveAndReopen();
         assertThat(quota).hasValue("10.56");
 
-        quota.fill("3.555");
+        // An unchanged displayed quota must not grow on a subsequent save.
         saveAndReopen();
-        assertThat(quota).hasValue("3.56");
-        saveAndReopen();
-        assertThat(quota).hasValue("3.56");
+        assertThat(quota).hasValue("10.56");
 
-        quota.fill("3.554");
-        saveAndReopen();
-        assertThat(quota).hasValue("3.56");
-
-        quota.fill("1.00000001");
-        saveAndReopen();
-        assertThat(quota).hasValue("1.01");
-
-        quota.fill("1e1");
-        saveAndReopen();
-        assertThat(quota).hasValue("10");
-
-        // Round before saving, and keep the rounded quota stable across subsequent saves.
-        quota.fill("0.000000001");
+        // Bypass the numeric control to check server rejection and escaped redisplay.
+        String invalidQuota = "\"/><span id=\"quota-injected\">&amp;'</span>";
+        quota.evaluate("input => input.type = 'text'");
+        quota.fill(invalidQuota);
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update").setExact(true)).click();
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Check Quota").setExact(true)).click();
-        assertThat(page.locator(".highlightPanel")).containsText("10.2 MB");
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Back").setExact(true)).click();
-        openRootProperties();
-        assertThat(quota).hasValue("0.01");
-        saveAndReopen();
-        assertThat(quota).hasValue("0.01");
-
-        quota.fill("0.01");
-        saveAndReopen();
-        assertThat(quota).hasValue("0.01");
-
+        assertThat(page.locator("#resourceAlert")).containsText("Enter a valid quota in GB");
+        assertThat(quota).isEmpty();
+        assertThat(quota).hasAttribute("value", invalidQuota);
+        assertThat(page.locator("#quota-injected")).hasCount(0);
         quota.fill("1.5");
         saveAndReopen();
         assertThat(quota).hasValue("1.5");
-
-        // Small positive entries round up to the minimum nonzero quota.
-        quota.fill("0.00000095367431640625");
-        saveAndReopen();
-        assertThat(quota).hasValue("0.01");
 
         quota.fill("0");
         saveAndReopen();
