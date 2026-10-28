@@ -21,6 +21,8 @@
 
 package org.sakaiproject.content.tool;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -1645,7 +1647,20 @@ public class ListItem
 				{
 					try
 					{
-						this.quota = Long.toString(ResourceQuota.parseGigabytes(quota));
+						BigDecimal gigabytes = new BigDecimal(quota.trim());
+						BigDecimal kilobytes = gigabytes.multiply(BigDecimal.valueOf(1024L * 1024L));
+						if (kilobytes.signum() < 0 || kilobytes.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)
+						{
+							this.quotaIsInvalid = true;
+						}
+						else
+						{
+							// Round GB up to two decimal places before converting to whole KB.
+							BigDecimal roundedGigabytes = gigabytes.signum() == 0 ? BigDecimal.ZERO
+									: gigabytes.max(BigDecimal.valueOf(1L, 2)).setScale(2, RoundingMode.CEILING);
+							this.quota = Long.toString(roundedGigabytes.multiply(BigDecimal.valueOf(1024L * 1024L))
+									.setScale(0, RoundingMode.CEILING).longValueExact());
+						}
 					}
 					catch (NumberFormatException | ArithmeticException e)
 					{
@@ -3558,7 +3573,10 @@ public class ListItem
 		{
 			return null;
 		}
-		return ResourceQuota.formatGigabytes(Long.parseLong(quota));
+		BigDecimal gigabytes = new BigDecimal(quota).divide(BigDecimal.valueOf(1024L * 1024L));
+		BigDecimal rounded = gigabytes.setScale(2, RoundingMode.HALF_UP);
+		// Existing positive quotas smaller than 0.01 GB must not display as unlimited (0).
+		return (gigabytes.signum() > 0 ? rounded.max(BigDecimal.valueOf(1L, 2)) : rounded).stripTrailingZeros().toPlainString();
 	}
 
 	public String getQuota() 
