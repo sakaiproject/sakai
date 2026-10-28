@@ -25,32 +25,25 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.assessment.shared.api.assessment.QuestionContentHash;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
 /**
  * Fixed questions and the random candidates that do not match their content.
  * Owns its collections so preparing a draw never changes a section's item set.
+ * Hash resolution is supplied by the caller; this helper performs no service lookup.
  */
 public final class QuestionPoolDraw {
     private final List<ItemDataIfc> fixedItems;
     private final List<ItemDataIfc> eligibleRandomItems;
-
-    public QuestionPoolDraw(List<? extends ItemDataIfc> fixedItems, List<? extends ItemDataIfc> randomItems) {
-        this(fixedItems, randomItems, item -> {
-            String hash = item.getHash();
-            return StringUtils.isNotBlank(hash) ? hash
-                    : ComponentManager.get(QuestionContentHash.class).hashItemUnchecked(item);
-        });
-    }
+    private final boolean hashesResolved;
 
     public QuestionPoolDraw(List<? extends ItemDataIfc> fixedItems, List<? extends ItemDataIfc> randomItems,
                             Function<ItemDataIfc, String> hashResolver) {
         this.fixedItems = List.copyOf(fixedItems);
         Set<Long> fixedIds = new HashSet<>();
         Set<String> fixedHashes = new HashSet<>();
+        boolean resolved = true;
         for (ItemDataIfc item : fixedItems) {
             if (item.getItemId() != null) {
                 fixedIds.add(item.getItemId());
@@ -58,25 +51,35 @@ public final class QuestionPoolDraw {
             String hash = hashResolver.apply(item);
             if (StringUtils.isNotBlank(hash)) {
                 fixedHashes.add(hash);
+            } else {
+                resolved = false;
             }
         }
         this.eligibleRandomItems = new ArrayList<>();
         for (ItemDataIfc item : randomItems) {
-            if (!fixedIds.contains(item.getItemId())
-                    && (fixedItems.isEmpty() || !fixedHashes.contains(hashResolver.apply(item)))) {
+            if (fixedIds.contains(item.getItemId())) {
+                continue;
+            }
+            String hash = fixedItems.isEmpty() ? null : hashResolver.apply(item);
+            if (!fixedItems.isEmpty() && StringUtils.isBlank(hash)) {
+                resolved = false;
+            }
+            if (!fixedHashes.contains(hash)) {
                 this.eligibleRandomItems.add(item);
             }
         }
+        this.hashesResolved = resolved;
     }
 
-    public static QuestionPoolDraw fromSection(SectionDataIfc section) {
+    public static QuestionPoolDraw fromSection(SectionDataIfc section, Function<ItemDataIfc, String> hashResolver) {
         String authorType = section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
         Integer type = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)
                 ? SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL : SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL;
-        return fromItems(section.getItemArray(), type);
+        return fromItems(section.getItemArray(), type, hashResolver);
     }
 
-    public static QuestionPoolDraw fromItems(List<? extends ItemDataIfc> items, Integer authorType) {
+    public static QuestionPoolDraw fromItems(List<? extends ItemDataIfc> items, Integer authorType,
+                                            Function<ItemDataIfc, String> hashResolver) {
         List<ItemDataIfc> fixed = new ArrayList<>();
         List<ItemDataIfc> random = new ArrayList<>();
         for (ItemDataIfc item : items) {
@@ -87,7 +90,7 @@ public final class QuestionPoolDraw {
                 random.add(item);
             }
         }
-        return new QuestionPoolDraw(fixed, random);
+        return new QuestionPoolDraw(fixed, random, hashResolver);
     }
 
     public List<ItemDataIfc> getFixedItems() {
@@ -105,7 +108,7 @@ public final class QuestionPoolDraw {
     }
 
     public boolean isValid(int count) {
-        return count > 0 && count <= eligibleRandomItems.size();
+        return hashesResolved && count > 0 && count <= eligibleRandomItems.size();
     }
 
     /** Selects fixed questions and exactly count random candidates; zero selects only fixed questions. */
@@ -120,6 +123,9 @@ public final class QuestionPoolDraw {
     }
 
     private List<ItemDataIfc> select(int count, List<ItemDataIfc> random) {
+        if (!hashesResolved) {
+            throw new IllegalStateException("Question content hashes are unavailable");
+        }
         if (count < 0 || count > eligibleRandomItems.size()) {
             throw new IllegalArgumentException("Requested " + count + " random questions, but "
                     + eligibleRandomItems.size() + " are eligible after excluding fixed questions");

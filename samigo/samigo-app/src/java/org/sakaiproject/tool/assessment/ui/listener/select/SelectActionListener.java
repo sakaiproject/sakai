@@ -37,6 +37,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
@@ -691,7 +692,8 @@ public class SelectActionListener extends SpringBeanAutowiringSupport implements
                 try{
                     //We need the total score of the assessment
                     PublishedAssessmentData assessmentData = publishedAssessmentFacadeQueries.loadPublishedAssessment(p.getPublishedAssessmentId());
-                    double maxScore = assessmentData.getTotalScore() != null ? assessmentData.getTotalScore().doubleValue() : 0.0;
+                    Double totalScore = AssessmentService.getPublishedAssessmentScore(assessmentData);
+                    double maxScore = totalScore != null ? totalScore : 0.0;
                     Double earnedScorePercentage = maxScore != 0.0 ? new Double(finalScore.doubleValue() * 100.0 / maxScore) : new Double(0.0);
                     Double scoreThresholdDouble = p.getFeedbackScoreThreshold();
                     //Display when the earned score percentage is lower than the score threshold

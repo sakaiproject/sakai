@@ -55,7 +55,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.sakaiproject.tool.assessment.util.QuestionPoolDraw;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -224,7 +224,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
       setNumber(section.getSequence().toString());
       // do teh rest later
       if (section.getItemSet() != null) {
-        List<ItemDataIfc> items = QuestionPoolDraw.fromSection(section).getAllItems();
+        List<ItemDataIfc> items = AssessmentService.getSectionQuestionPoolDraw(section).getAllItems();
         setQuestions(items.size());
         for (ItemDataIfc item : items) {
           ItemContentsBean itemBean = new ItemContentsBean(item);

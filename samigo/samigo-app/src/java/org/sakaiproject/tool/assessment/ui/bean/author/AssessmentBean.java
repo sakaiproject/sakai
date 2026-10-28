@@ -186,7 +186,7 @@ public class AssessmentBean  implements Serializable {
           || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(authorType)
           || SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.equals(authorType)) {
         randomPartCount++;
-        QuestionPoolDraw draw = QuestionPoolDraw.fromItems(items, authorType);
+        QuestionPoolDraw draw = AssessmentService.getItemQuestionPoolDraw(items, authorType);
         Integer requested = sectionBean.getNumberToBeDrawn();
         boolean currentPoolValid = assessmentService == null
             || assessmentService.verifyItemsDrawSize(assessmentService.getSection(sectionBean.getSectionId()));

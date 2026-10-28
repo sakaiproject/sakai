@@ -45,6 +45,7 @@ import lombok.Getter;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -1170,7 +1171,7 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
     if (eval != null && eval.getFixedTotalScore()!=null )
       setMaxScore(eval.getFixedTotalScore().toString());
     else {
-      Double totalScore = publishedAssessment.getTotalScore();
+      Double totalScore = AssessmentService.getPublishedAssessmentScore(publishedAssessment);
       setMaxScore(totalScore == null ? "" : totalScore.toString());
     }
   }

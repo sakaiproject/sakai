@@ -98,6 +98,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.QuestionPoolDraw;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -2759,7 +2760,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             Map<Integer, Double> sectionScores = new TreeMap<>();
             while (sectionsIter.hasNext()) {
                 PublishedSectionData publishedSection = sectionsIter.next();
-                List<ItemDataIfc> itemsArray = QuestionPoolDraw.fromSection(publishedSection).getAllItems();
+                List<ItemDataIfc> itemsArray = AssessmentService.getSectionQuestionPoolDraw(publishedSection).getAllItems();
 
                 Iterator<ItemDataIfc> itemsIter = itemsArray.iterator();
                 // Iterate through the assessment questions (items)
@@ -4397,7 +4398,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                     numberToBeDrawn = Integer.parseInt(publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
                 }
 
-                QuestionPoolDraw draw = QuestionPoolDraw.fromSection(publishedSectionData);
+                QuestionPoolDraw draw = AssessmentService.getSectionQuestionPoolDraw(publishedSectionData);
                 int available = draw.getEligibleRandomItems().size();
                 if (numberToBeDrawn > available) {
                     // Complete existing attempts even if an older published section has an invalid draw.

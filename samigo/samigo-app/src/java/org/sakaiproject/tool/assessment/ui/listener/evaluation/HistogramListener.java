@@ -71,7 +71,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc.TypeId;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.util.QuestionPoolDraw;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -458,7 +458,7 @@ public class HistogramListener extends SpringBeanAutowiringSupport
 				  + section.getSequence().toString();
 				  title += ", " + rb.getString("question") + " ";
 
-                  List<ItemDataIfc> itemlist = QuestionPoolDraw.fromSection(section).getAllItems();
+                  List<ItemDataIfc> itemlist = AssessmentService.getSectionQuestionPoolDraw(section).getAllItems();
                   Collections.sort(itemlist);
 
 				  int seq = 1;

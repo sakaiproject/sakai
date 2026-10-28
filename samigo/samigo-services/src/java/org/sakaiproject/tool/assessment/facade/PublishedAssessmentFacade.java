@@ -37,6 +37,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
@@ -758,7 +759,7 @@ public class PublishedAssessmentFacade
 
   /** Returns null when an invalid published draw makes the maximum score unavailable. */
   public Double getTotalScore(){
-    Double total = data.getTotalScore();
+    Double total = AssessmentService.getPublishedAssessmentScore(data);
     if (total == null) {
       log.warn("Maximum score unavailable for published assessment {}: invalid question pool draw",
           getPublishedAssessmentId());

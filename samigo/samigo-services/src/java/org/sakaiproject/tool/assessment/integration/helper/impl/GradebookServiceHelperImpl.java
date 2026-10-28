@@ -32,6 +32,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
@@ -141,7 +142,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
       return false;
     }
 
-    Double totalScore = publishedAssessment.getTotalScore();
+    Double totalScore = AssessmentService.getPublishedAssessmentScore(publishedAssessment);
     if (totalScore == null) {
       log.warn("Cannot add published assessment {} to gradebook: maximum score is unavailable",
           publishedAssessment.getPublishedAssessmentId());
@@ -205,7 +206,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		  List<String> gradebookList, Map<String, String> gradebookCategoryMap, GradingService g) throws Exception
   {
     log.debug("updateGradebook start");
-    Double totalScore = publishedAssessment.getTotalScore();
+    Double totalScore = AssessmentService.getPublishedAssessmentScore(publishedAssessment);
     if (totalScore == null) {
       log.warn("Cannot update gradebook for published assessment {}: maximum score is unavailable",
           publishedAssessment.getPublishedAssessmentId());

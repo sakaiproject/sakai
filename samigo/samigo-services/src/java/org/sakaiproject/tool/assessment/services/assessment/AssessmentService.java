@@ -76,6 +76,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.util.QuestionPoolDraw;
+import org.sakaiproject.tool.assessment.util.PublishedAssessmentScore;
+import org.sakaiproject.tool.assessment.facade.ItemHashUtil;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
@@ -450,6 +453,24 @@ public class AssessmentService {
 		return itemlist;
 	}
 
+	private static String resolveQuestionHash(ItemDataIfc item) {
+		String hash = item.getHash();
+		return StringUtils.isNotBlank(hash) ? hash
+				: ComponentManager.get(ItemHashUtil.class).hashItemUnchecked(item);
+	}
+
+	public static QuestionPoolDraw getSectionQuestionPoolDraw(SectionDataIfc section) {
+		return QuestionPoolDraw.fromSection(section, AssessmentService::resolveQuestionHash);
+	}
+
+	public static QuestionPoolDraw getItemQuestionPoolDraw(List<? extends ItemDataIfc> items, Integer authorType) {
+		return QuestionPoolDraw.fromItems(items, authorType, AssessmentService::resolveQuestionHash);
+	}
+
+	public static Double getPublishedAssessmentScore(PublishedAssessmentIfc assessment) {
+		return PublishedAssessmentScore.calculate(assessment, AssessmentService::resolveQuestionHash);
+	}
+
 	/** Returns null if a selected fixed question no longer exists. */
 	public QuestionPoolDraw getQuestionPoolDraw(List<String> fixedQuestionIds, List<String> randomPoolIds) {
 		ItemService itemService = new ItemService();
@@ -467,7 +488,7 @@ public class AssessmentService {
 		for (String poolId : randomPoolIds) {
 			randomItems.addAll(poolService.getAllItems(Long.valueOf(poolId)));
 		}
-		return new QuestionPoolDraw(fixedItems, randomItems);
+		return new QuestionPoolDraw(fixedItems, randomItems, AssessmentService::resolveQuestionHash);
 	}
 
 	private QuestionPoolDraw getQuestionPoolDraw(SectionFacade section) {

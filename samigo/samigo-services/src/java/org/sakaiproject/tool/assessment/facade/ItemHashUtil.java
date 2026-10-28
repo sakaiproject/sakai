@@ -42,7 +42,6 @@ import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.Session;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.tool.assessment.shared.api.assessment.QuestionContentHash;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -67,7 +66,7 @@ import lombok.extern.slf4j.Slf4j;
  * any scope, e.g. published and un-published.
  */
 @Slf4j
-public class ItemHashUtil implements QuestionContentHash {
+public class ItemHashUtil {
 
     @Setter private ContentHostingService contentHostingService;
     @Setter private GradingService gradingService;
@@ -360,7 +359,6 @@ public class ItemHashUtil implements QuestionContentHash {
     }
 
     /** Computes a content hash without saving or changing the question. */
-    @Override
     public String hashItemUnchecked(ItemDataIfc item) {
         try {
             return hashItem(item);

@@ -34,6 +34,7 @@ import jakarta.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
@@ -150,7 +151,7 @@ public class SectionActivityListener extends SpringBeanAutowiringSupport impleme
             Set<PublishedSectionData> sectionSet = publishedAssessmentFacadeQueries.getSectionSetForAssessment(assessmentData);
             assessmentData.setSectionSet(sectionSet);
 
-            Double maxScore = assessmentData.getTotalScore();
+            Double maxScore = AssessmentService.getPublishedAssessmentScore(assessmentData);
             Double percentage = 0.0;
             boolean notAvailableGrade = false;
             if(maxScore != null && maxScore != 0) {

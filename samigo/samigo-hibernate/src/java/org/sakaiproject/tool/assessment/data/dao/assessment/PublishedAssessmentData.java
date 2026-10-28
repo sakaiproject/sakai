@@ -22,7 +22,6 @@
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -42,7 +41,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.util.QuestionPoolDraw;
+import org.sakaiproject.tool.assessment.util.PublishedAssessmentScore;
 
 public class PublishedAssessmentData
     implements java.io.Serializable,
@@ -688,35 +687,9 @@ public class PublishedAssessmentData
     return this.feedbackDate;
   }
 
-  /** Returns null when a published draw cannot supply the configured question count. */
+  /** Uses stored hashes only; returns null if the draw or required hashes are unavailable. */
   public Double getTotalScore(){
-    BigDecimal total = BigDecimal.ZERO;
-    for (Object sectionObject : this.sectionSet) {
-      SectionDataIfc section = (SectionDataIfc) sectionObject;
-      List<ItemDataIfc> items = section.getItemArray();
-      String authorType = section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
-      if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)
-          || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(authorType)
-          || SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)) {
-        QuestionPoolDraw draw = QuestionPoolDraw.fromSection(section);
-        int requested;
-        try {
-          requested = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-        } catch (NumberFormatException e) {
-          return null;
-        }
-        if (!draw.isValid(requested)) {
-          return null;
-        }
-        items = draw.select(requested);
-      }
-      for (ItemDataIfc item : items) {
-        if (!item.getIsExtraCredit()) {
-          total = total.add(BigDecimal.valueOf(item.getScore()));
-        }
-      }
-    }
-    return total.doubleValue();
+    return PublishedAssessmentScore.calculate(this, ItemDataIfc::getHash);
   }
 
   public Set getAssessmentAttachmentSet() {

@@ -19,10 +19,6 @@
     
     <dependencies>
       <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>sakai-component-manager</artifactId>
-      </dependency>
-      <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
         <version>${sakai.jackson.version}</version>

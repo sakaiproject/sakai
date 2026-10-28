@@ -78,6 +78,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.QuestionPoolDraw;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
@@ -2800,7 +2801,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
          part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
          part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()))) {
 
-      QuestionPoolDraw draw = QuestionPoolDraw.fromSection(part);
+      QuestionPoolDraw draw = AssessmentService.getSectionQuestionPoolDraw(part);
       boolean existingAttempt = delivery.getActionMode() == DeliveryBean.REVIEW_ASSESSMENT
           || delivery.getActionMode() == DeliveryBean.GRADE_ASSESSMENT;
       try {
