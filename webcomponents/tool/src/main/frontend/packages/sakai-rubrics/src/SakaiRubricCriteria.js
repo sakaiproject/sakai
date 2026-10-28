@@ -552,11 +552,9 @@ export class SakaiRubricCriteria extends RubricsElement {
                 <span>${this.maxPoints}</span>
               </div>
             </div>
-            ${!this.isDraft && !this.validWeight ? html`
-              <div id="weight-save-help-${this.rubricId}" class="sak-banner-warn weight-save-help" role="status">
-                ${this.tr("published_invalid_weights")}
-              </div>
-            ` : nothing}
+            <div id="weight-save-help-${this.rubricId}"
+                class="weight-save-help ${!this.isDraft && !this.validWeight ? "sak-banner-warn" : ""}"
+                role="status">${!this.isDraft && !this.validWeight ? this.tr("published_invalid_weights") : nothing}</div>
             <button type="button" class="btn btn-link save-weights"
                 @click="${this.saveWeights}"
                 aria-describedby=${ifDefined(!this.isDraft && !this.validWeight ? `weight-save-help-${this.rubricId}` : undefined)}

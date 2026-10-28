@@ -55,6 +55,7 @@ class RubricWeightsTest extends SakaiUiTestBase {
         assertThat(save).hasCSS("pointer-events", "none");
         assertThat(rubric.locator(".weight-save-help")).containsText("100%");
         assertThat(rubric.locator(".weight-save-help")).containsText("Save as Draft");
+        assertThat(rubric.locator(".weight-save-help")).containsText("unlink it");
         assertThat(save).hasAttribute("aria-describedby", Pattern.compile(".+"));
 
         page.reload();
@@ -66,7 +67,8 @@ class RubricWeightsTest extends SakaiUiTestBase {
                 && response.request().method().equals("PATCH") && response.status() == 200,
                 () -> rubric.locator("button.draft").click());
         assertThat(save).isEnabled();
-        assertThat(rubric.locator(".weight-save-help")).hasCount(0);
+        assertThat(rubric.locator(".weight-save-help")).hasText("");
+        assertThat(rubric.locator(".weight-save-help")).not().hasClass(Pattern.compile(".*sak-banner-warn.*"));
         Response saved = page.waitForResponse(response -> response.url().contains("/rubrics/")
                 && response.request().method().equals("PATCH"), () -> save.click());
         assertEquals(200, saved.status());
@@ -81,6 +83,11 @@ class RubricWeightsTest extends SakaiUiTestBase {
                 && response.request().method().equals("PATCH") && response.status() == 200,
                 () -> rubric.locator("button.draft").click());
         assertThat(save).isEnabled();
-        assertThat(rubric.locator(".weight-save-help")).hasCount(0);
+        assertThat(rubric.locator(".weight-save-help")).hasText("");
+        assertThat(rubric.locator(".weight-save-help")).not().hasClass(Pattern.compile(".*sak-banner-warn.*"));
+        page.reload();
+        rubric.locator(".rubric-toggle").click();
+        assertThat(weight).hasValue("100");
+        assertThat(rubric.locator("button.draft")).hasAttribute("aria-label", "Save as Draft - Weights will be saved.");
     }
 }
