@@ -242,6 +242,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         sakai.toolClick("Announcements");
         ensureViewAll();
         page.locator("select[id^=\"selectPageSize\"]").first().selectOption("5");
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator selectAll = page.getByRole(AriaRole.CHECKBOX,
             new Page.GetByRoleOptions().setName("Select all announcements on this page").setExact(true));
@@ -273,6 +274,7 @@ class AnnouncementTest extends SakaiUiTestBase {
 
         selectAll.check();
         page.locator("input[name=\"eventSubmit_doList_next\"]").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(selected).hasCount(0);
         assertThat(selectAll).not().isChecked();
 
@@ -290,6 +292,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertThat(page.locator("table.table-bordered")).containsText(FUTURE_ANNOUNCEMENT_TITLE);
         assertThat(page.locator("table.table-bordered")).not().containsText(CURRENT_ANNOUNCEMENT_TITLE);
         page.locator("input[name=\"eventSubmit_doCancel\"]").click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         search.fill("No matching SAK-49926 announcement");
         search.press("Enter");
