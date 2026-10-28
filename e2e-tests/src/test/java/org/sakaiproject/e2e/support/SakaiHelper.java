@@ -280,10 +280,7 @@ public class SakaiHelper {
         }
     }
 
-    /**
-     * Creates list/reorder fixtures. Grading fixtures use the UI to initialize
-     * grading metadata that the assignment web service does not populate.
-     */
+    /** Creates a published assignment fixture through the existing web service. */
     public String createAssignment(String siteUrl, String title) {
         long now = Instant.now().toEpochMilli();
         RequestOptions options = RequestOptions.create().setTimeout(15_000)

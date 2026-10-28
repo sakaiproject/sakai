@@ -1947,7 +1947,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.access = a.getTypeOfAccess().toString();
             this.instructions = a.getInstructions();
             if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
-                this.maxGradePoint = assignmentService.getMaxPointGradeDisplay(a.getScaleFactor(), a.getMaxGradePoint());
+                this.maxGradePoint = assignmentService.getGradeDisplay(
+                    Integer.toString(a.getMaxGradePoint()), a.getTypeOfGrade(), a.getScaleFactor());
             }
 
             this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);

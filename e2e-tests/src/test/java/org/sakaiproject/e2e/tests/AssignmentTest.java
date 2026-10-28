@@ -16,6 +16,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -221,17 +222,7 @@ class AssignmentTest extends SakaiUiTestBase {
         try (TestUser grader = sakai.createUser("resubmission-grader")) {
             sakai.addMember(courseUrl, grader.username(), "Instructor");
             String title = "Resubmission " + System.currentTimeMillis();
-            sakai.login("instructor1");
-            sakai.gotoPath(courseUrl);
-            sakai.toolClick("Assignments");
-            goToAssignmentsList();
-            openAddAssignmentForm();
-            page.locator("#new_assignment_title").fill(title);
-            page.locator("#gradeAssignment").check();
-            page.locator("#new_assignment_grade_points").fill("10");
-            fillAssignmentInstructions("<p>Resubmission fixture.</p>");
-            submitAssignmentForm();
-            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+            String assignmentId = sakai.createAssignment(courseUrl, title);
             sakai.addMember(courseUrl, "student0012", "Student");
             sakai.login("student0012");
             sakai.gotoPath(courseUrl);
@@ -252,7 +243,9 @@ class AssignmentTest extends SakaiUiTestBase {
             Locator student = page.locator("#submissionList a")
                 .filter(new Locator.FilterOptions().setHasText(Pattern.compile("\\bstudent0012\\b"))).first();
             assertThat(student).isVisible();
-            student.click();
+            Response gradable = page.waitForResponse(response -> response.url().contains("/direct/assignment/gradable.json")
+                    && response.url().contains("gradableId=" + assignmentId), student::click);
+            assertEquals(200, gradable.status(), "The grader must accept an API-created assignment with a missing scale factor");
             assertThat(page.locator("sakai-grader #grader")).isVisible(
                 new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
             Locator resubmit = page.locator(".resubmission-checkbox input").first();
