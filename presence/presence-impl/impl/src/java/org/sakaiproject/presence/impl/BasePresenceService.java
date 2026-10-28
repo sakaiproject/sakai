@@ -41,6 +41,7 @@ import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.SimpleEvent;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.presence.api.PresenceService;
@@ -306,7 +307,7 @@ public abstract class BasePresenceService implements PresenceService
 			// bind a presence tracking object to the sakai session for auto-cleanup when logout or inactivity invalidates the sakai session
 			Session session = m_sessionManager.getCurrentSession();
 			ToolSession ts = session.getToolSession(SESSION_KEY);
-			Presence p = new Presence(curSession, locationId, timeout);
+			Presence p = new Presence(curSession, locationId, timeout, event.getUserId());
 			ts.setAttribute(locationId, p);
 		}
 
@@ -620,6 +621,9 @@ public abstract class BasePresenceService implements PresenceService
 		/** The session. */
 		protected UsageSession m_session = null;
 
+		/** Effective user from the begin event, including RoleView impersonation. */
+		protected final String m_userId;
+
 		/** The location id. */
 		protected String m_locationId = null;
 
@@ -634,7 +638,13 @@ public abstract class BasePresenceService implements PresenceService
 
 		public Presence(UsageSession session, String locationId, int timeout)
 		{
+			this(session, locationId, timeout, m_sessionManager.getCurrentSessionUserId());
+		}
+
+		public Presence(UsageSession session, String locationId, int timeout, String userId)
+		{
 			m_session = session;
+			m_userId = userId;
 			m_locationId = locationId;
 			m_presence_timeout = timeout;
 			m_expireTime = System.currentTimeMillis() + m_presence_timeout * 1000;
@@ -680,7 +690,9 @@ public abstract class BasePresenceService implements PresenceService
 				m_storage.removePresence(m_session.getId(), m_locationId);
 
 				// generate the event
-				Event event = m_eventTrackingService.newEvent(EVENT_ABSENCE, presenceReference(m_locationId), true);
+				SimpleEvent event = new SimpleEvent(
+						m_eventTrackingService.newEvent(EVENT_ABSENCE, presenceReference(m_locationId), true), m_session.getServer());
+				event.setUserId(m_userId);
 				m_eventTrackingService.post(event, m_session);
 			}
 		}
