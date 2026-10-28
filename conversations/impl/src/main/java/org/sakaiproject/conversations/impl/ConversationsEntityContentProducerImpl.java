@@ -16,6 +16,7 @@
 package org.sakaiproject.conversations.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -52,6 +54,7 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
     @Autowired private ConversationsService conversationsService;
     @Autowired private ConversationsPostRepository postRepository;
     @Autowired private TagService tagService;
+    @Autowired private SiteService siteService;
     @Autowired private ConversationsTopicRepository topicRepository;
     @Autowired private UserDirectoryService userDirectoryService;
 
@@ -177,6 +180,11 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
 
     @Override
     public Iterator<String> getSiteContentIterator(String siteId) {
+
+        if (siteService.getOptionalSite(siteId)
+                .map(site -> site.getToolForCommonId(ConversationsService.TOOL_ID)).isEmpty()) {
+            return Collections.emptyIterator();
+        }
 
         List<String> ids = topicRepository.findBySiteId(siteId).stream().map(t -> {
             return ConversationsReferenceReckoner.reckoner().topic(t).reckon().toString();
