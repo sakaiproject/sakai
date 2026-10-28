@@ -251,7 +251,7 @@ public class AgentResults
    if (totalAutoScore!= null){
 	   try {
 		   String newscore = ContextUtil.getRoundedValue(totalAutoScore.replace(',', '.'), 2);
-		   return Validator.check(newscore, "N/A").replace(',', '.');
+		   return Validator.check(newscore, "N/A");
 	   }
 	   catch (Exception e) {
 		   // encountered some weird number format/locale

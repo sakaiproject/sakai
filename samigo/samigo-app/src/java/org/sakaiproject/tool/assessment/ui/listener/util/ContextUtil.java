@@ -46,8 +46,10 @@ import jakarta.servlet.http.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.LocaleService;
 
 /**
  * <p>Description: Action Listener helper utility</p>
@@ -334,7 +336,7 @@ public static ArrayList paramArrayValueLike(String paramPart)
   }
 
   public static String getRoundedValue(Double orig, int maxdigit) {
-      Locale loc = new ResourceLoader().getLocale();
+      Locale loc = ComponentManager.get(LocaleService.class).getLocaleForCurrentSiteAndUser();
       NumberFormat nf = NumberFormat.getInstance(loc);
       nf.setGroupingUsed(false);
       nf.setMaximumFractionDigits(maxdigit);
