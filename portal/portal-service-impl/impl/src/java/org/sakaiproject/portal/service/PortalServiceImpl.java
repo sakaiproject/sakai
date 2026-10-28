@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -125,6 +126,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Setter private TransactionTemplate transactionTemplate;
 
 	public static final int DEFAULT_MAX_RECENT_SITES = 3;
+	public static final int DEFAULT_MAX_PINNED_SITES = 20;
 
 	public void init() {
 		eventTrackingService.addLocalObserver(this);
@@ -809,6 +811,11 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		if (StringUtils.isAnyBlank(userId, siteId) || siteService.isUserSite(siteId)) return;
 
+		if (isPinned) {
+			List<String> pinnedSites = getPinnedSites(userId);
+			if (!pinnedSites.contains(siteId) && pinnedSites.size() >= getMaxPinnedSites()) return;
+		}
+
 		PinnedSite pin = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId)
 			.orElseGet(() -> new PinnedSite(userId, siteId));
 
@@ -852,10 +859,8 @@ public class PortalServiceImpl implements PortalService, Observer
 	public void savePinnedSites(String userId, List<String> siteIds) {
 		if (StringUtils.isBlank(userId)) return;
 
-		List<String> sitesToPin = new ArrayList<>(siteIds);
+		List<String> sitesToPin = limitPinnedSites(siteIds);
 		List<String> sitesToUnpin = new ArrayList<>();
-		// user sites should never be pinned
-		sitesToPin.removeIf(siteService::isSpecialSite);
 
 		List<String> currentPinned = getPinnedSites(userId);
 
@@ -883,12 +888,24 @@ public class PortalServiceImpl implements PortalService, Observer
 		});
 	}
 
+	private int getMaxPinnedSites() {
+		return Math.max(0, serverConfigurationService.getInt("portal.pinned.max", DEFAULT_MAX_PINNED_SITES));
+	}
+
+	private List<String> limitPinnedSites(List<String> siteIds) {
+		return siteIds.stream()
+				.filter(Predicate.not(siteService::isSpecialSite))
+				.distinct()
+				.limit(getMaxPinnedSites())
+				.collect(Collectors.toList());
+	}
+
 	@Transactional
 	@Override
 	public void reorderPinnedSites(String userId, List<String> siteIds) {
 		if (StringUtils.isBlank(userId)) return;
 
-		List<String> orderedSiteIds = new ArrayList<>(siteIds);
+		List<String> orderedSiteIds = limitPinnedSites(siteIds);
 		if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
 			Collections.reverse(orderedSiteIds);
 		}
@@ -1037,13 +1054,11 @@ public class PortalServiceImpl implements PortalService, Observer
 		List<String> unPinnedSites =  getUnpinnedSites(userId);
 		List<String> recentSites = getRecentSites(userId);
 
-		Set<String> sitesToPin = new HashSet<>();
+		Set<String> sitesToPin = new LinkedHashSet<>();
 		Set<String> sitesToUnpin = new HashSet<>(unPinnedSites);
 		Set<String> sitesToRemove = new HashSet<>(excludedSites);
-		Set<String> combinedSiteIds = new HashSet<>(excludedSites);
-		combinedSiteIds.addAll(pinnedSites);
-		combinedSiteIds.addAll(unPinnedSites);
-		combinedSiteIds.addAll(recentSites);
+		// Preserve existing pin order, then migrated favorites, then newest member sites.
+		Set<String> combinedSiteIds = new LinkedHashSet<>(pinnedSites);
 
 		// if the user has favorites data in preferences lets migrate
 		if (!favoriteSiteIds.isEmpty() || !seenSiteIds.isEmpty()) {
@@ -1067,6 +1082,9 @@ public class PortalServiceImpl implements PortalService, Observer
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
 		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null);
 		combinedSiteIds.addAll(userSiteIds);
+		combinedSiteIds.addAll(excludedSites);
+		combinedSiteIds.addAll(unPinnedSites);
+		combinedSiteIds.addAll(recentSites);
 
 		// all the possible sites the user has access to have been collected into combinedSiteIds
 		// next test each site to see if the user can access them sorting them into 2 sets
@@ -1077,6 +1095,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		// remove unpinned as they should not be pinned
 		sitesToPin.removeAll(sitesToUnpin);
+		sitesToPin.removeAll(sitesToRemove);
 		// any remaining sites should be auto pinned
 		savePinnedSites(userId, new ArrayList<>(sitesToPin));
 
