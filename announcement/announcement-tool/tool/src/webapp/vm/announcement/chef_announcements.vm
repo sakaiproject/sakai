@@ -555,8 +555,9 @@
 									
 									##if ($!view != "view.bygroup") ## SAK-13850 The delete option must be there even when it is viewed by groups
 										#if ($allow_delete)
-											<th class="screenOnly" id="checkbox">
-												 $tlang.getString("gen.select")
+											<th class="screenOnly" id="checkbox" scope="col">
+												<input type="checkbox" class="form-check-input" id="announcement-select-all" aria-label="$tlang.getString("gen.selectall.page")" />
+												<label for="announcement-select-all" title="$tlang.getString("gen.selectall.page")">$tlang.getString("gen.selectall")</label>
 											</th>
 										#end
 									

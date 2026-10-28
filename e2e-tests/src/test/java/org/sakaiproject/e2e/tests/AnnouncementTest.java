@@ -18,6 +18,7 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.BoundingBox;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -230,6 +231,74 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.locator("input[name=\"eventSubmit_doList_next\"]").first().click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
         assertAnnouncementOrder(titlePrefix, 11, 20);
+    }
+
+    @Test
+    @Order(7)
+    void canSelectAnnouncementsOnTheCurrentPage() {
+        sakai.login("instructor1");
+        sakai.gotoPath(sakaiUrl);
+        sakai.toolClick("Announcements");
+        ensureViewAll();
+        page.locator("select[id^=\"selectPageSize\"]").first().selectOption("5");
+
+        Locator selectAll = page.getByRole(AriaRole.CHECKBOX,
+            new Page.GetByRoleOptions().setName("Select all announcements on this page").setExact(true));
+        Locator selected = page.locator(".announcement-select-checkbox:checked");
+        assertThat(page.locator(".announcement-select-checkbox:enabled")).hasCount(5);
+        assertThat(selectAll).not().isChecked();
+        selectAll.check();
+        assertThat(selected).hasCount(5);
+        assertThat(page.locator("#announcement-publish-button")).isEnabled();
+        assertThat(page.locator("#announcement-unpublish-button")).isEnabled();
+        assertThat(page.locator("#announcement-remove-button")).isEnabled();
+
+        page.locator(".announcement-select-checkbox").first().uncheck();
+        assertThat(selectAll).hasJSProperty("indeterminate", true);
+        selectAll.focus();
+        page.keyboard().press("Space");
+        assertThat(selected).hasCount(5);
+        assertThat(selectAll).hasJSProperty("indeterminate", false);
+        selectAll.uncheck();
+        assertThat(selected).hasCount(0);
+        assertThat(page.locator("#announcement-publish-button")).isDisabled();
+
+        page.locator(".announcement-select-checkbox").first().check();
+        page.locator("#announcement-reset-button").click();
+        assertThat(selected).hasCount(0);
+        assertThat(selectAll).not().isChecked();
+        assertThat(selectAll).hasJSProperty("indeterminate", false);
+        assertThat(page.locator("#announcement-reset-button")).isDisabled();
+
+        selectAll.check();
+        page.locator("input[name=\"eventSubmit_doList_next\"]").first().click();
+        assertThat(selected).hasCount(0);
+        assertThat(selectAll).not().isChecked();
+
+        selectAll.check();
+        Locator search = page.locator(".sakai-table-searchFilter-searchField");
+        search.fill(FUTURE_ANNOUNCEMENT_TITLE);
+        search.press("Enter");
+        assertThat(page.locator(".announcement-select-checkbox:enabled")).hasCount(1);
+        assertThat(selectAll).not().isChecked();
+        assertThat(selected).hasCount(0);
+        selectAll.check();
+        assertThat(selected).hasCount(1);
+        page.locator("#announcement-publish-button").click();
+        assertThat(page.locator(".sak-banner-warn")).isVisible();
+        assertThat(page.locator("table.table-bordered")).containsText(FUTURE_ANNOUNCEMENT_TITLE);
+        assertThat(page.locator("table.table-bordered")).not().containsText(CURRENT_ANNOUNCEMENT_TITLE);
+        page.locator("input[name=\"eventSubmit_doCancel\"]").click();
+
+        search.fill("No matching SAK-49926 announcement");
+        search.press("Enter");
+        assertThat(page.locator(".announcement-select-checkbox")).hasCount(0);
+        assertThat(page.locator("#announcement-publish-button")).isDisabled();
+        search.fill("");
+        assertThat(page.locator(".announcement-select-checkbox:enabled")).hasCount(5);
+        assertThat(selectAll).not().isChecked();
+        selectAll.check();
+        assertThat(selected).hasCount(5);
     }
 
     private void assertAnnouncementReorderChrome() {
