@@ -58,15 +58,16 @@ independent of POM changes, operating system, and CPU architecture. Maven downlo
 missing dependencies during each build. Only pushes to `master` save the cache,
 seeding it when no reusable cache exists.
 
-Failure screenshots and traces are written to `target/playwright-artifacts/`.
-Traces are recorded for every test and exported only for failing tests. Passing
-recordings are discarded without exporting a ZIP. Video recording is disabled.
+Failure traces are written to `target/playwright-artifacts/`. Traces retain DOM
+snapshots, action timings, and network details, with screenshot capture disabled.
+Passing recordings are discarded without exporting a ZIP. Video recording and
+standalone screenshots are disabled.
 
 ## Test helpers
 
 Shared helpers live in `src/test/java/org/sakaiproject/e2e/support`:
 
-- `SakaiUiTestBase`: browser/context lifecycle + failure traces/screenshots.
+- `SakaiUiTestBase`: browser/context lifecycle + failure traces.
 - `SakaiHelper`: login/navigation/tool actions/site creation/date selection.
 - `SakaiEnvironment`: base URL, browser/headless flags.
 

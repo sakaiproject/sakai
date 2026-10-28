@@ -503,13 +503,6 @@ class SiteStatsTest extends SakaiUiTestBase {
             new Locator.GetByRoleOptions().setName("More results").setExact(true))).hasCount(0);
         assertThat(component.getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Previous results").setExact(true))).hasCount(0);
-        for (int width : List.of(1280, 390)) {
-            page.setViewportSize(width, 900);
-            search.scrollIntoViewIfNeeded();
-            page.screenshot(new Page.ScreenshotOptions().setPath(
-                ARTIFACT_ROOT.resolve("resource-search-refine-" + width + ".png")));
-        }
-        page.setViewportSize(1280, 720);
         matches.first().getByRole(AriaRole.BUTTON).click();
         String portalLocale = (String) page.evaluate("() => window.portal?.locale || ''");
         try {
@@ -670,8 +663,6 @@ class SiteStatsTest extends SakaiUiTestBase {
                     for (int width : List.of(1280, 390)) {
                         page.setViewportSize(width, 900);
                         component.scrollIntoViewIfNeeded();
-                        component.screenshot(new Locator.ScreenshotOptions().setPath(
-                            ARTIFACT_ROOT.resolve("resource-search-dark-" + width + ".png")));
                         assertThat(search).hasCSS("background-color", background);
                     }
                 }

@@ -243,9 +243,6 @@ jobs:
                 printf '%s|%s\n' "$key" "$rel_dir" >> "$FAILED_MAP_FILE"
 
                 mkdir -p "playwright-java-artifacts/failure-media/$rel_dir"
-                if [ -f "$test_dir/final.png" ]; then
-                  cp "$test_dir/final.png" "playwright-java-artifacts/failure-media/$rel_dir/"
-                fi
                 if [ -f "$test_dir/trace.zip" ]; then
                   cp "$test_dir/trace.zip" "playwright-java-artifacts/failure-media/$rel_dir/"
                 fi
@@ -325,26 +322,22 @@ jobs:
             fi
 
             if [ -n "${{ steps.upload-playwright-java-failure-media.outputs.artifact-url }}" ]; then
-              echo "- Failure-only media: [playwright-java-failure-media](${{ steps.upload-playwright-java-failure-media.outputs.artifact-url }})"
+              echo "- Failure traces: [playwright-java-failure-media](${{ steps.upload-playwright-java-failure-media.outputs.artifact-url }})"
             fi
 
             if [ -f playwright-java-artifacts/failed-test-artifacts.txt ]; then
               echo ""
               echo "### Failing Tests"
-              echo "| Test | Artifact Directory | Screenshot | Trace |"
-              echo "| --- | --- | --- | --- |"
+              echo "| Test | Artifact Directory | Trace |"
+              echo "| --- | --- | --- |"
               while IFS='|' read -r key rel_dir; do
                 [ -z "$key" ] && continue
                 [ -z "$rel_dir" ] && continue
-                screenshot="no"
                 trace="no"
-                if [ -f "playwright-java-artifacts/failure-media/$rel_dir/final.png" ]; then
-                  screenshot="yes"
-                fi
                 if [ -f "playwright-java-artifacts/failure-media/$rel_dir/trace.zip" ]; then
                   trace="yes"
                 fi
-                echo "| \`$key\` | \`$rel_dir\` | $screenshot | $trace |"
+                echo "| \`$key\` | \`$rel_dir\` | $trace |"
               done < playwright-java-artifacts/failed-test-artifacts.txt
               echo ""
               echo "Open a trace locally with \`npx playwright show-trace trace.zip\`."

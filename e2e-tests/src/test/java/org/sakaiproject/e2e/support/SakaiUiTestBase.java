@@ -104,7 +104,8 @@ public abstract class SakaiUiTestBase {
         context.setDefaultNavigationTimeout(120_000);
 
         context.tracing().start(new Tracing.StartOptions()
-            .setScreenshots(true)
+            .setScreenshots(false)
+            .setScreenSnapshots(false)
             .setSnapshots(true)
             .setSources(true));
 
@@ -119,14 +120,6 @@ public abstract class SakaiUiTestBase {
             return;
         }
         Path testDir = ARTIFACT_ROOT.resolve(artifactSlug);
-
-        try {
-            if (failed && page != null) {
-                page.screenshot(new Page.ScreenshotOptions().setPath(testDir.resolve("final.png")).setFullPage(true));
-            }
-        } catch (RuntimeException ignored) {
-            // Ignore teardown screenshot failures.
-        }
 
         try {
             if (context != null) {
