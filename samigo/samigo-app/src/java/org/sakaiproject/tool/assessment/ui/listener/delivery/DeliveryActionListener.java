@@ -2819,7 +2819,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
             part.getSectionId(), part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
         // Recover the submitted questions, rather than drawing a different sample or changing the configured count.
         Set<Long> submittedIds = new HashSet<>();
-        for (Object gradingObject : delivery.getAssessmentGrading().getItemGradingSet()) {
+        for (Object gradingObject : gradingService.getItemGradingSet(delivery.getAssessmentGradingId().toString())) {
           ItemGradingData grading = (ItemGradingData) gradingObject;
           submittedIds.add(grading.getPublishedItemId());
         }
