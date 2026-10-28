@@ -87,6 +87,9 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
         assertThat(score).hasValue("2,5");
         page.locator("[id='editTotalResults:save']").click();
         assertThat(score).hasValue("2,5");
+        score.fill("1.234,5");
+        page.locator("[id='editTotalResults:save']").click();
+        assertThat(score).hasValue("1234,5");
         score.fill("1,75");
         page.locator("[id='editTotalResults:save']").click();
         assertThat(score).hasValue("1,75");
@@ -101,7 +104,10 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
         adjusted.fill("2,25");
         page.locator("[id='editStudentResults:save']").click();
         assertThat(adjusted).hasValue("2,25");
-        // Rubrics and the existing change handler can also submit canonical decimal points.
+        adjusted.fill("1.234,5");
+        page.locator("[id='editStudentResults:save']").click();
+        assertThat(adjusted).hasValue("1234,5");
+        // Rubrics can also submit canonical decimal points.
         adjusted.fill("2.5");
         page.locator("[id='editStudentResults:save']").click();
         assertThat(adjusted).hasValue("2,5");

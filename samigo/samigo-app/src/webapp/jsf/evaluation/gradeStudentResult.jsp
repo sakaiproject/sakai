@@ -101,12 +101,6 @@ $Id$
 <!-- $Id:  -->
 <!-- content... -->
 <script>
-function toPoint(id)
-{
-  var x=document.getElementById(id).value
-  document.getElementById(id).value=x.replace(',','.')
-}
-
   function initRubricDialogWrapper(gradingId) {
 
     initRubricDialog(gradingId
@@ -233,7 +227,7 @@ function toPoint(id)
                     <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} " />
                     <h:outputText value="#{part.numbering}#{deliveryMessages.column}  " />
                   </p>
-                  <h:inputText styleClass="form-control #{delivery.trackingQuestions && question.formattedTimeElapsed ? '' : 'form-control-center'} adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" converter="#{decimalScoreConverter}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}" disabled="#{question.cancelled}">
+                  <h:inputText styleClass="form-control #{delivery.trackingQuestions && question.formattedTimeElapsed ? '' : 'form-control-center'} adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" converter="#{decimalScoreConverter}" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}" disabled="#{question.cancelled}">
                     <f:validateDoubleRange/>
                   </h:inputText>
                   <p class="input-group-addon">

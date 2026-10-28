@@ -51,12 +51,6 @@ $Id$
     currentLink.html(currentLink.find('a').text());
   });
 
-  function toPoint(id) {
-
-    var x = document.getElementById(id).value;
-    document.getElementById(id).value = x.replace(',', '.');
-  }
-
   function downloadAll(url) {
 	window.location = url;
   }
@@ -894,8 +888,7 @@ $Id$
                     id="qscore"
                     styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
                     required="false"
-                    disabled="#{questionScores.deliveryItemCancelled}"
-                    onchange="toPoint(this.id);">
+                    disabled="#{questionScores.deliveryItemCancelled}">
       </h:inputText>
       <h:message for="qscore" styleClass="text-danger"/>
        <h:outputLink title="#{evaluationMessages.saverubricgrading}"
@@ -925,8 +918,7 @@ $Id$
                     size="5"
                     id="qscore2"
                     styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
-                    required="false"
-                    onchange="toPoint(this.id);">
+                    required="false">
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
       <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{questionScores.itemData.minScore > 0 || questionScores.itemData.discount > 0}">
@@ -962,8 +954,7 @@ $Id$
                     size="5"
                     id="qscore3"
                     styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
-                    required="false"
-                    onchange="toPoint(this.id);">
+                    required="false">
 	  </h:inputText>
 	  <h:message for="qscore2" styleClass="text-danger"/>
       <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{questionScores.itemData.minScore > 0 || questionScores.itemData.discount > 0}">

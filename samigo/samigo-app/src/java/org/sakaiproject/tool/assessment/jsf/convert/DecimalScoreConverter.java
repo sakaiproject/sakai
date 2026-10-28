@@ -34,11 +34,12 @@ public class DecimalScoreConverter implements Converter<String> {
 
     @Override
     public String getAsObject(FacesContext context, UIComponent component, String value) {
-        return value == null ? null : value.replace(localeService.getDecimalSeparator(), ".");
+        Double score = localeService.parseDouble(value);
+        return score == null ? value : score.toString();
     }
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, String value) {
-        return value == null ? "" : value.replace(".", localeService.getDecimalSeparator());
+        return value == null ? "" : localeService.normalizeDouble(value);
     }
 }
