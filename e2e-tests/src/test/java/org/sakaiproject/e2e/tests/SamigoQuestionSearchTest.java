@@ -90,7 +90,11 @@ class SamigoQuestionSearchTest extends SakaiUiTestBase {
         page.locator("#authorIndexForm a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add$"))).click();
         page.locator("#authorIndexForm\\:title").fill(title);
         page.locator("#authorIndexForm\\:createnew").click();
+        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#assessmentForm\\:parts\\:0\\:changeQType")).isVisible();
+        assumeTrue(page.locator("#assessmentForm\\:parts\\:0\\:changeQType option")
+            .filter(new Locator.FilterOptions().setHasText(SEARCH_QUESTIONS)).count() > 0,
+            "samigo.question.show.showSearchQuestion is off on this server");
     }
 
     private void addMultipleChoiceQuestion(String text) {
@@ -110,12 +114,12 @@ class SamigoQuestionSearchTest extends SakaiUiTestBase {
     private Locator search(String word) {
         Locator type = page.locator("#assessmentForm\\:parts\\:0\\:changeQType");
         Locator searchOption = type.locator("option").filter(new Locator.FilterOptions().setHasText(SEARCH_QUESTIONS));
-        assumeTrue(searchOption.count() > 0, "samigo.question.show.showSearchQuestion is off on this server");
+        assertThat(searchOption).hasCount(1);
         type.selectOption(searchOption.first().getAttribute("value"));
 
         Locator result = page.locator("[id='editform:searchquestions-questions'] > tbody > tr")
             .filter(new Locator.FilterOptions().setHasText(word));
-        long deadline = System.currentTimeMillis() + 90_000;
+        long deadline = System.currentTimeMillis() + 15_000;
         do {
             page.locator("[id='editform:textToSearch']").fill(word);
             page.locator("[id='editform:searchByTextOR']").click();

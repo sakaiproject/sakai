@@ -59,7 +59,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
 
-    private static final long INDEX_TIMEOUT_MS = 180_000;
+    private static final long INDEX_TIMEOUT_MS = 15_000;
     private static final long POLL_INTERVAL_MS = 3_000;
     // Content markup a tool may keep. The search UI renders titles and snippets as HTML, so none of it may run.
     protected static final String HOSTILE_MARKUP = "<b>bold</b> &lt;img src=x onerror=\"window.searchXss=1\"&gt;";
