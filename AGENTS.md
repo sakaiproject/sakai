@@ -74,7 +74,8 @@
 - **Commit Messages**: `<issue key> <component> <brief description>` (e.g., `SAK-12345 Assignments add option x`)
 - **Indentation**: Maintain consistent format (tabs/spaces) as in existing files
 - **kebab-case**: Prefer kebab-case for values of HTML class and id attributes
-- **Internationalization**: Ensure code supports different languages
+- **Internationalization**: Use translation resources and Sakai's effective locale for user-facing text and formatting. Keep changes within the issue's scope; this requirement does not authorize adding new numeral systems, calendars, or locale-specific input rules.
+- **Numeric Input**: Keep editable numeric values in Latin digits (`0–9`), supporting the effective locale's decimal separator where required (for example, Spanish `2,5`). Do not add Arabic/Persian digit parsing or support for other numeral systems unless explicitly requested. Ensure formatting an editable value never produces digits that its parser cannot read.
 - **Locale/Timezone**: Use Sakai's centrally resolved locale and timezone, not browser/request defaults (`Accept-Language`, `HttpServletRequest#getLocale()`, browser timezone, or framework default resolvers).
 - **Effective Locale**: Respect Sakai's effective locale for the current context, which may come from a site locale when configured, otherwise the user's preferences.
 - **Formatting**: UI messages, numbers, dates, and times must use the same Sakai-resolved locale; dates and times must display in the site or user's preferred timezone from account preferences.
