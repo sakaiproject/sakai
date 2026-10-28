@@ -20,6 +20,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -260,7 +261,7 @@ class LessonsTest extends SakaiUiTestBase {
         newPageDialog.locator("#newPage").fill(title);
         newPageDialog.getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Save").setExact(true)).click();
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         sakai.toolClick(title);
         assertThat(page.locator(".neoPortletTitleWrap")).containsText(title);
     }
@@ -275,7 +276,7 @@ class LessonsTest extends SakaiUiTestBase {
         assertThat(page.locator("#remove-page-dialog")).isVisible();
         page.locator("#remove-page-submit").click();
         page.waitForURL(Pattern.compile(".*/portal/site/.*"));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 
     private void removeTopLevelPageViaManageTools(String title) {
@@ -284,7 +285,7 @@ class LessonsTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Tools$", Pattern.CASE_INSENSITIVE)))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator expandAll = page.locator("#expandAll");
         if (expandAll.count() > 0 && expandAll.isVisible()) {
@@ -305,9 +306,9 @@ class LessonsTest extends SakaiUiTestBase {
         checkbox.uncheck(new Locator.UncheckOptions().setForce(true));
 
         page.locator("#btnContinue").click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         clickContinueOrFinish();
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.navigate(sakaiUrl);
         assertNavigationLinkCount(title, 0);
     }
@@ -316,7 +317,7 @@ class LessonsTest extends SakaiUiTestBase {
         sakai.toolClick("Site Info");
         page.locator(".navIntraTool").getByRole(AriaRole.LINK,
             new Locator.GetByRoleOptions().setName("Tool Order").setExact(true)).click();
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator app = page.locator("#tool-order-app");
         assertThat(app).isVisible();
@@ -342,7 +343,7 @@ class LessonsTest extends SakaiUiTestBase {
 
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName(Pattern.compile("Done", Pattern.CASE_INSENSITIVE))).click();
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.navigate(sakaiUrl);
         assertNavigationLinkCount(title, 0);
     }
@@ -363,7 +364,7 @@ class LessonsTest extends SakaiUiTestBase {
         ).first();
         assertThat(button).isVisible();
         button.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 
     private void addSubpage(String title) {

@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -89,7 +90,7 @@ class ResourcesReorderTest extends SakaiUiTestBase {
         assertPrecedes("#reorder-list", folderB, folderA);
 
         page.locator("#save").click();
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(folderC).setExact(true))).isVisible();
 
         String listing = page.locator("body").innerText();

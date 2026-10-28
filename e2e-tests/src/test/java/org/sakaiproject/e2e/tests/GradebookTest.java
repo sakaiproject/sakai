@@ -25,6 +25,7 @@ import com.deque.html.axecore.results.Rule;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -84,7 +85,7 @@ class GradebookTest extends SakaiUiTestBase {
         Locator dialog = page.locator(".gb-modal-dialog:visible, dialog:visible, div[role=\"dialog\"]:visible, .wicket-modal:visible, .modal:visible").first();
         Locator addButton = page.locator("button.gb-add-gradebook-item-button").first();
 
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         page.waitForFunction("() => Boolean(window.Wicket && window.Wicket.Ajax)");
         addButton.click();

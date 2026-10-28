@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Response;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class NotificationsTest extends SakaiUiTestBase {
         });
 
         sakai.login("instructor1");
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.waitForTimeout(1000);
 
         assertEquals(0, notificationRequests.size());

@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -90,7 +91,7 @@ class SamigoQuestionSearchTest extends SakaiUiTestBase {
         page.locator("#authorIndexForm a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Add$"))).click();
         page.locator("#authorIndexForm\\:title").fill(title);
         page.locator("#authorIndexForm\\:createnew").click();
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#assessmentForm\\:parts\\:0\\:changeQType")).isVisible();
         assumeTrue(page.locator("#assessmentForm\\:parts\\:0\\:changeQType option")
             .filter(new Locator.FilterOptions().setHasText(SEARCH_QUESTIONS)).count() > 0,

@@ -562,7 +562,7 @@ class SamigoTest extends SakaiUiTestBase {
             page.locator("[id='selectIndexForm:selectTable'] a[id$=':takeAssessment']")
                 .filter(new Locator.FilterOptions().setHasText(title)).click();
             assertThat(page.locator("#takeAssessmentForm")).containsText(title);
-            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
             Locator honorPledge = page.locator("[id='takeAssessmentForm:honor_pledge']");
             if (honorPledge.isVisible()) {
                 honorPledge.check();

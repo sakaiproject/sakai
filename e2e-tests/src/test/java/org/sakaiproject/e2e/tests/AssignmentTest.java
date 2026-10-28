@@ -24,6 +24,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
 import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -230,7 +231,7 @@ class AssignmentTest extends SakaiUiTestBase {
             page.locator("#new_assignment_grade_points").fill("10");
             fillAssignmentInstructions("<p>Resubmission fixture.</p>");
             submitAssignmentForm();
-            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
             sakai.addMember(courseUrl, "student0012", "Student");
             sakai.login("student0012");
             sakai.gotoPath(courseUrl);
@@ -247,7 +248,7 @@ class AssignmentTest extends SakaiUiTestBase {
             Locator row = page.locator("tr").filter(new Locator.FilterOptions().setHasText(title));
             row.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions()
                 .setName("Grade " + title).setExact(true)).click();
-            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
             Locator student = page.locator("#submissionList a")
                 .filter(new Locator.FilterOptions().setHasText(Pattern.compile("\\bstudent0012\\b"))).first();
             assertThat(student).isVisible();
@@ -343,7 +344,7 @@ class AssignmentTest extends SakaiUiTestBase {
         assertTrue(lastAssignment.locator("[data-action=\"move-up\"]").isDisabled());
 
         page.locator("input[name=\"save\"][value=\"Save\"], input[name=\"save\"]").first().click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         goToAssignmentsList();
         String assignmentListText = page.locator("body").innerText();
@@ -586,7 +587,7 @@ class AssignmentTest extends SakaiUiTestBase {
             .first();
         assertThat(reorderLink).isVisible();
         reorderLink.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#assignments-reorderer")).isVisible();
         assertThat(page.locator("#reorder-list")).isVisible();
         page.waitForFunction(
@@ -664,7 +665,7 @@ class AssignmentTest extends SakaiUiTestBase {
             .first();
         if (assignmentsNav.count() > 0) {
             assignmentsNav.click(new Locator.ClickOptions().setForce(true));
-            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         }
     }
 

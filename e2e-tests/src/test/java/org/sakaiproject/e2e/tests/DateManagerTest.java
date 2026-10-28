@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.FilePayload;
+import com.microsoft.playwright.options.LoadState;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
@@ -192,7 +193,7 @@ class DateManagerTest extends SakaiUiTestBase {
             .first();
         assertThat(dateManager).isVisible();
         dateManager.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertNoTemplateRenderingError();
     }
 

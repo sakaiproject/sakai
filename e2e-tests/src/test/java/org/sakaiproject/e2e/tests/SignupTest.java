@@ -20,6 +20,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.LocatorAssertions;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -111,7 +112,7 @@ class SignupTest extends SakaiUiTestBase {
 
                 for (String viewValue : viewValues) {
                     viewByRange.selectOption(viewValue);
-                    page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+                    page.waitForLoadState(LoadState.DOMCONTENTLOADED);
                     if (meetingTitleVisible(meetingsTable)) {
                         return;
                     }
