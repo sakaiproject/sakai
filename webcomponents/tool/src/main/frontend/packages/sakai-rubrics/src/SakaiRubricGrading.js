@@ -114,8 +114,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
         <h3>
           <span>
             ${this._rubric.title}
-            ${this._maxPoints !== undefined ? html`
-              (${this._maxPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 })} ${this._i18n.points})
+            ${this._rubric.maxPoints != null ? html`
+              (${this._rubric.maxPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 })} ${this._i18n.points})
             ` : nothing }
           </span>
 

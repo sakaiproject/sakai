@@ -240,6 +240,41 @@ describe("sakai-rubric-grading tests", () => {
     expect(criterion2Points.textContent.trim()).to.equal("0.8");
   });
 
+  it ("shows the server maximum points of a weighted rubric in the heading", async () => {
+
+    // Summing the per criterion scores rounded to 2 decimals (0.33 + 0.33 + 0.34) would give 1,
+    // while the server (and the PDF) report 1.01.
+    const ratings = id => [ { id, title: "Max", description: "Max", points: 1.01 } ];
+    const rubric = {
+      ...data.weightedRubric,
+      maxPoints: 1.01,
+      criteria: [
+        { id: 20, title: "C1", description: "C1", weight: 33, ratings: ratings(20) },
+        { id: 21, title: "C2", description: "C2", weight: 33, ratings: ratings(21) },
+        { id: 22, title: "C3", description: "C3", weight: 34, ratings: ratings(22) },
+      ],
+    };
+
+    fetchMock.get(data.weightedRubricUrl, rubric)
+      .get(data.weightedAssociationUrl, data.weightedAssociation)
+      .get(data.weightedEvaluationUrl, data.weightedEvaluation);
+
+    const el = await fixture(html`
+      <sakai-rubric-grading
+          site-id="${data.siteId}"
+          tool-id="${data.toolId}"
+          entity-id="weighted-entity"
+          evaluated-item-id="weighted-item"
+          evaluated-item-owner-id="${data.evaluatedItemOwnerId}">
+      </sakai-rubric-grading>
+    `);
+
+    await waitUntil(() => el.querySelector(".criterion-row"), "No criterion rows rendered");
+
+    const heading = el.querySelector(".rubric-details h3 span");
+    expect(heading.textContent).to.match(/\(1[.,]01 Points\)/);
+  });
+
   it ("hides summary views for peer or self evaluation", async () => {
 
     fetchMock.get(data.rubric1Url, data.rubric1)
