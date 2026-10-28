@@ -246,16 +246,29 @@ $(window).load( function() {
   <h:dataTable id="parts" width="100%" value="#{assessmentBean.sections}" var="partBean">
     <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
     <h:column>
-	<h:panelGroup rendered="#{!author.isEditPoolFlow}">
+    <h:panelGroup rendered="#{!author.isEditPoolFlow}">
      <details open="open" style="border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px;" data-part-id="<h:outputText value="#{assessmentBean.assessmentId}"/>-<h:outputText value="#{partBean.sectionId}"/>">
-     <summary style="padding: 3px; font-size: 1.1em; font-weight: bold;"><h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1')}" value="#{partBean.title}" escape="false"/></summary>
-	</h:panelGroup>
+     <h:panelGroup rendered="#{(partBean.sectionAuthorType == null || partBean.sectionAuthorTypeString == '1')}">
+      <summary style="padding: 3px; font-size: 1.1em; font-weight: bold;"><h:outputText value="#{partBean.title}" escape="false"/></summary>
+     </h:panelGroup>
+     <h:panelGroup rendered="#{partBean.sectionAuthorType != null}">
+      <h:panelGroup rendered="#{partBean.sectionAuthorTypeString == '3' && (partBean.numberToBeFixedString >= 1 && partBean.numberToBeDrawnString < 1 )}">
+       <summary style="padding: 3px; font-size: 1.1em; font-weight: bold;"><h:outputText value="#{partBean.poolNameToBeFixed}" escape="false"/></summary>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{partBean.sectionAuthorTypeString == '3' && partBean.numberToBeDrawnString >= 1}">
+       <summary style="padding: 3px; font-size: 1.1em; font-weight: bold;"><h:outputText value="#{partBean.poolNameToBeFixed} & #{partBean.poolNameToBeDrawn}" escape="false"/></summary>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{(partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && partBean.numberToBeDrawnString >= 1}">
+       <summary style="padding: 3px; font-size: 1.1em; font-weight: bold;"><h:outputText value="#{partBean.poolNameToBeDrawn}" escape="false"/></summary>
+      </h:panelGroup>
+     </h:panelGroup>
+    </h:panelGroup>
 	  <h:panelGrid styleClass="table table-striped" columns="2" width="100%" columnClasses="navView,navList" border="0">
        <h:panelGroup rendered="#{!author.isEditPoolFlow}">
           <h:outputLabel for="number" value="#{authorMessages.p}" />
           <h:outputText value="&#160;" escape="false" />
           <h:selectOneMenu id="number" value="#{partBean.number}" onchange="enableOrderUpdate()" rendered="#{!author.isEditPoolFlow}" >
-            <f:selectItems value="#{assessmentBean.partNumbers}" />          
+            <f:selectItems value="#{assessmentBean.partNumbers}" />
           </h:selectOneMenu>
         <h:outputText value="#{partBean.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
         <h:outputText value="&#160;" escape="false" />
