@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.HashSet;
 
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
@@ -1019,7 +1020,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
       List<ItemDataIfc> itemlist = secFacade.getItemArray();
       long seed = getSeed(secFacade, delivery, (long) AgentFacade.getAgentString().hashCode());
 
-      questionCount = getItemArraySortedWithRandom(secFacade, itemlist, seed).size();
+      questionCount = getItemArraySortedWithRandom(secFacade, itemlist, seed, delivery).size();
 
       if ((delivery.isNoQuestions() || questionCount != 0) && itemIndex > (questionCount - 1) && sectionCount == sectionIndex) {
         sectionIndex++;
@@ -1101,7 +1102,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
       seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
     }
 
-    List<ItemDataIfc> itemSet = getItemArraySortedWithRandom(part, itemlist, seed);
+    List<ItemDataIfc> itemSet = getItemArraySortedWithRandom(part, itemlist, seed, delivery);
 
     // i think this is already set by new SectionContentsBean(part) - daisyf
     sec.setQuestions(itemSet.size()); 
@@ -1181,7 +1182,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
     List<ItemDataIfc> itemlist = part.getItemArray();
     long seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
 
-    List<ItemDataIfc> itemSet = getItemArraySortedWithRandom(part, itemlist, seed);
+    List<ItemDataIfc> itemSet = getItemArraySortedWithRandom(part, itemlist, seed, delivery);
 
     sec.setQuestions(itemSet.size());
 
@@ -2614,7 +2615,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
     			seed = getSeed(section, delivery, (long) AgentFacade.getAgentString().hashCode());
     		}
 
-        i2 = getItemArraySortedWithRandom(section, itemlist, seed).iterator();
+        i2 = getItemArraySortedWithRandom(section, itemlist, seed, delivery).iterator();
 
     		while (i2.hasNext()) {
     			items = items + 1; // bug 464
@@ -2791,7 +2792,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
   
   /* this method takes the list returned from the data/dao class, and checks for part type and returns a sorted list of items. If part type is not random then return the original list
   */
-  private List<ItemDataIfc> getItemArraySortedWithRandom(SectionDataIfc part, List<ItemDataIfc> list, long seed) {
+  private List<ItemDataIfc> getItemArraySortedWithRandom(SectionDataIfc part, List<ItemDataIfc> list, long seed, DeliveryBean delivery) {
 
     Integer numberToBeDrawn= null;
 
@@ -2799,10 +2800,39 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
          part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
          part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()))) {
 
-      if (part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) != null) {
+      QuestionPoolDraw draw = QuestionPoolDraw.fromSection(part);
+      boolean existingAttempt = delivery.getActionMode() == DeliveryBean.REVIEW_ASSESSMENT
+          || delivery.getActionMode() == DeliveryBean.GRADE_ASSESSMENT;
+      try {
         numberToBeDrawn = Integer.valueOf(part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+      } catch (NumberFormatException e) {
+        if (!existingAttempt) {
+          throw e;
+        }
+        numberToBeDrawn = -1;
       }
-      return QuestionPoolDraw.fromSection(part).select(numberToBeDrawn == null ? 0 : numberToBeDrawn, seed);
+      if (!draw.isValid(numberToBeDrawn)) {
+        if (!existingAttempt) {
+          throw new IllegalArgumentException("Invalid random draw count for section " + part.getSectionId());
+        }
+        log.warn("Reviewing or grading recorded questions for published section {} with invalid draw count {}",
+            part.getSectionId(), part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+        // Recover the submitted questions, rather than drawing a different sample or changing the configured count.
+        Set<Long> submittedIds = new HashSet<>();
+        for (Object gradingObject : delivery.getAssessmentGrading().getItemGradingSet()) {
+          ItemGradingData grading = (ItemGradingData) gradingObject;
+          submittedIds.add(grading.getPublishedItemId());
+        }
+        List<ItemDataIfc> recordedItems = new ArrayList<>();
+        for (ItemDataIfc item : list) {
+          if (submittedIds.contains(item.getItemId())) {
+            recordedItems.add(item);
+          }
+        }
+        Collections.sort(recordedItems);
+        return recordedItems;
+      }
+      return draw.select(numberToBeDrawn, seed);
 
     }
     else if((part.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING)!=null ) && (part.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING).equals(SectionDataIfc.RANDOM_WITHIN_PART.toString())) ){

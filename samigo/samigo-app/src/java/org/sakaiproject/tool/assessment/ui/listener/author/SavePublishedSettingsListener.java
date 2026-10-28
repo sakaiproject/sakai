@@ -960,7 +960,13 @@ implements ActionListener
 		boolean gbError = false;
 
 		if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(assessmentSettings.getToDefaultGradebook())) {
-			if (assessment.getTotalScore() <= 0) {
+			Double totalScore = assessment.getTotalScore();
+			if (totalScore == null) {
+			    String message = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "invalid_pool_draw_totals");
+			    context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
+			    return true;
+			}
+			if (totalScore <= 0) {
 				String gb_err = (String) ContextUtil.getLocalizedString(
 						"org.sakaiproject.tool.assessment.bundle.AuthorMessages","gradebook_exception_min_points");
 				context.addMessage(null, new FacesMessage(gb_err));

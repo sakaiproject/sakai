@@ -41,6 +41,7 @@ import java.util.TreeSet;
 
 import jakarta.faces.component.html.HtmlSelectOneMenu;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.event.AbortProcessingException;
 import jakarta.faces.event.ActionEvent;
 import jakarta.faces.event.ActionListener;
@@ -375,7 +376,11 @@ public class HistogramListener extends SpringBeanAutowiringSupport
 			  List info = new ArrayList();
 			  Iterator partsIter = parts.iterator();
 			  int secseq = 1;
-			  double totalpossible = 0;
+			  Double totalpossible = pub.getTotalScore();
+			  if (totalpossible == null) {
+				  String message = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "invalid_pool_draw_totals");
+				  FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
+			  }
 			  boolean hasRandompart = false;
 			  boolean isRandompart = false;
 			  String poolName = null;
@@ -613,9 +618,6 @@ public class HistogramListener extends SpringBeanAutowiringSupport
 					  info.add(questionScores);
 				  } // end-while - items
 
-
-				  totalpossible = pub.getTotalScore().doubleValue();
-
 			  } // end-while - parts
 			  histogramScores.setInfo(info);
 			  histogramScores.setRandomType(hasRandompart);
@@ -716,8 +718,7 @@ public class HistogramListener extends SpringBeanAutowiringSupport
 				  histogramScores.setQ4((String) assessmentMap.get("q4"));
 				  histogramScores.setTotalScore((String) assessmentMap
 						  .get("totalScore"));
-				  histogramScores.setTotalPossibleScore(Double
-						  .toString(totalpossible));
+				  histogramScores.setTotalPossibleScore(totalpossible == null ? rb.getString("na") : totalpossible.toString());
 				  HistogramBarBean[] bars = new HistogramBarBean[histogramScores
 				                                                 .getColumnHeight().length];
 				  for (int i = 0; i < histogramScores.getColumnHeight().length; i++) {

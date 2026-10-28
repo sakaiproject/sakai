@@ -450,11 +450,17 @@ public class AssessmentService {
 		return itemlist;
 	}
 
+	/** Returns null if a selected fixed question no longer exists. */
 	public QuestionPoolDraw getQuestionPoolDraw(List<String> fixedQuestionIds, List<String> randomPoolIds) {
 		ItemService itemService = new ItemService();
 		List<ItemDataIfc> fixedItems = new ArrayList<>();
 		for (String itemId : fixedQuestionIds) {
-			fixedItems.add(itemService.getItem(itemId));
+			ItemDataIfc item = itemService.getItem(itemId);
+			if (item == null) {
+				log.warn("Fixed question {} no longer exists", itemId);
+				return null;
+			}
+			fixedItems.add(item);
 		}
 		QuestionPoolService poolService = new QuestionPoolService();
 		List<ItemDataIfc> randomItems = new ArrayList<>();
@@ -473,20 +479,40 @@ public class AssessmentService {
 
 	private QuestionPoolDraw getQuestionPoolDraw(SectionFacade section) {
 		List<String> fixedQuestionIds = new ArrayList<>();
-		String authorType = section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
-		if (SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)) {
-			int fixedCount = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
-			for (int i = 1; i <= fixedCount; i++) {
-				fixedQuestionIds.add(section.getSectionMetaDataByLabel(SectionDataIfc.FIXED_QUESTION_IDS + SectionDataIfc.SEPARATOR_MULTI + i));
-			}
-		}
 		List<String> poolIds = new ArrayList<>();
-		poolIds.add(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
-		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(authorType)) {
-			int poolCount = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
-			for (int i = 1; i < poolCount; i++) {
-				poolIds.add(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + "_" + i));
+		try {
+			String authorType = section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
+			if (SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)) {
+				int fixedCount = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+				if (fixedCount <= 0) {
+					return null;
+				}
+				for (int i = 1; i <= fixedCount; i++) {
+					String itemId = section.getSectionMetaDataByLabel(SectionDataIfc.FIXED_QUESTION_IDS + SectionDataIfc.SEPARATOR_MULTI + i);
+					if (Long.parseLong(itemId) <= 0) {
+						return null;
+					}
+					fixedQuestionIds.add(itemId);
+				}
 			}
+			poolIds.add(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+			if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(authorType)) {
+				int poolCount = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+				if (poolCount <= 0) {
+					return null;
+				}
+				for (int i = 1; i < poolCount; i++) {
+					poolIds.add(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + "_" + i));
+				}
+			}
+			for (String poolId : poolIds) {
+				if (Long.parseLong(poolId) <= 0) {
+					return null;
+				}
+			}
+		} catch (NumberFormatException e) {
+			log.warn("Invalid question pool metadata for section {}", section.getSectionId());
+			return null;
 		}
 		return getQuestionPoolDraw(fixedQuestionIds, poolIds);
 	}
@@ -504,7 +530,7 @@ public class AssessmentService {
 
 	private boolean verifyItemsDrawSize(QuestionPoolDraw draw, String numberDrawn) {
 		try {
-			return draw.isValid(Integer.parseInt(numberDrawn));
+			return draw != null && draw.isValid(Integer.parseInt(numberDrawn));
 		} catch (NumberFormatException e) {
 			return false;
 		}
@@ -524,10 +550,10 @@ public class AssessmentService {
 			ItemService itemService = new ItemService();
 			boolean isFixed = StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
 			QuestionPoolDraw draw = getQuestionPoolDraw(section);
-			List<ItemDataIfc> itemlist = draw.getEligibleRandomItems();
 			if (!verifyItemsDrawSize(draw, section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN))) {
 				return UPDATE_ERROR_DRAW_SIZE_TOO_LARGE;
 			}
+			List<ItemDataIfc> itemlist = draw.getEligibleRandomItems();
 			int i = 0;
 
 			boolean hasRandomPartScore = false;

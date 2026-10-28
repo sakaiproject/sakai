@@ -1169,8 +1169,10 @@ public class TotalScoresBean extends SpringBeanAutowiringSupport implements Seri
  
     if (eval != null && eval.getFixedTotalScore()!=null )
       setMaxScore(eval.getFixedTotalScore().toString());
-    else if (publishedAssessment.getTotalScore()!=null)
-      setMaxScore(publishedAssessment.getTotalScore().toString());
+    else {
+      Double totalScore = publishedAssessment.getTotalScore();
+      setMaxScore(totalScore == null ? "" : totalScore.toString());
+    }
   }
 
   private Map assessmentGradingHash = new HashMap();

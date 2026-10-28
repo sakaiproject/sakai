@@ -758,6 +758,7 @@ public class PublishedAssessmentFacade
     return service.getPublishedAssessmentOwner(this.publishedAssessmentId);
   }
 
+  /** Returns null when an invalid published draw makes the maximum score unavailable. */
   public Double getTotalScore(){
     BigDecimal total = BigDecimal.valueOf(0);
     Iterator iter = this.publishedSectionSet.iterator();
@@ -769,8 +770,21 @@ public class PublishedAssessmentFacade
       if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)
           || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(authorType)
           || SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)) {
-        int numberToBeDrawn = Integer.parseInt(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-        list = QuestionPoolDraw.fromSection(s).select(numberToBeDrawn);
+        QuestionPoolDraw draw = QuestionPoolDraw.fromSection(s);
+        int numberToBeDrawn;
+        try {
+          numberToBeDrawn = Integer.parseInt(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+        } catch (NumberFormatException e) {
+          log.warn("Maximum score unavailable for published assessment {}: invalid draw count in section {}",
+              getPublishedAssessmentId(), s.getSectionId());
+          return null;
+        }
+        if (!draw.isValid(numberToBeDrawn)) {
+          log.warn("Maximum score unavailable for published assessment {}: section {} requests {} random questions with {} eligible",
+              getPublishedAssessmentId(), s.getSectionId(), numberToBeDrawn, draw.getEligibleRandomItems().size());
+          return null;
+        }
+        list = draw.select(numberToBeDrawn);
       }
       Iterator<ItemDataIfc> iter2 = list.iterator();
 

@@ -435,12 +435,12 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 
     public String getNumberToBeDrawnString()
   {
-    return numberToBeDrawn.toString();
+    return numberToBeDrawn == null ? "" : numberToBeDrawn.toString();
   }
 
     public String getNumberToBeFixedString()
   {
-    return numberToBeFixed.toString();
+    return numberToBeFixed == null ? "" : numberToBeFixed.toString();
   }
 
     /**

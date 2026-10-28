@@ -389,9 +389,14 @@ public class SavePartListener
      boolean fixedAndRandom = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionBean.getType());
      List<String> fixedQuestionIds = fixedAndRandom
          ? ContextUtil.paramArrayValueLike("randomizationTypesFixed") : List.of();
-     List<String> poolIds = StringUtils.isNotEmpty(sectionBean.getSelectedPool())
-         ? List.of(sectionBean.getSelectedPool()) : Arrays.asList(sectionBean.getSelectedPoolsMultiple());
+     List<String> poolIds = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(sectionBean.getType())
+         ? Arrays.asList(sectionBean.getSelectedPoolsMultiple()) : List.of(sectionBean.getSelectedPool());
      QuestionPoolDraw draw = new AssessmentService().getQuestionPoolDraw(fixedQuestionIds, poolIds);
+     if (draw == null) {
+         err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "notfixedquestionselected_error");
+         context.addMessage(null, new FacesMessage(err));
+         return false;
+     }
      int itemcount = draw.getEligibleRandomItems().size();
      String itemcountString=" "+Integer.toString(itemcount);
 

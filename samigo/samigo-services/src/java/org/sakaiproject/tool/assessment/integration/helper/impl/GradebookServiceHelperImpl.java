@@ -198,6 +198,12 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		  List<String> gradebookList, Map<String, String> gradebookCategoryMap, GradingService g) throws Exception
   {
     log.debug("updateGradebook start");
+    Double totalScore = publishedAssessment.getTotalScore();
+    if (totalScore == null) {
+      log.warn("Cannot update gradebook for published assessment {}: maximum score is unavailable",
+          publishedAssessment.getPublishedAssessmentId());
+      return false;
+    }
 
     for (String gradebookUid : gradebookList) {
       String category = gradebookCategoryMap != null ? gradebookCategoryMap.get(gradebookUid) : null;
@@ -209,7 +215,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
                 null,
                 publishedAssessment.getTitle(),
                 category != null ? Long.parseLong(category) : null,
-                publishedAssessment.getTotalScore(),
+                totalScore,
                 publishedAssessment.getAssessmentAccessControl().getDueDate(),
                 null);
     }
