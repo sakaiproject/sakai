@@ -812,6 +812,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		if (StringUtils.isAnyBlank(userId, siteId) || siteService.isUserSite(siteId)) return;
 
 		if (isPinned) {
+			if (siteService.isSpecialSite(siteId)) return;
 			List<String> pinnedSites = getPinnedSites(userId);
 			if (!pinnedSites.contains(siteId) && pinnedSites.size() >= getMaxPinnedSites()) return;
 		}
@@ -1096,8 +1097,12 @@ public class PortalServiceImpl implements PortalService, Observer
 		// remove unpinned as they should not be pinned
 		sitesToPin.removeAll(sitesToUnpin);
 		sitesToPin.removeAll(sitesToRemove);
-		// any remaining sites should be auto pinned
-		savePinnedSites(userId, new ArrayList<>(sitesToPin));
+		// Select before reversing so the cap always favors the newest eligible candidates.
+		List<String> selectedSites = limitPinnedSites(new ArrayList<>(sitesToPin));
+		if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
+			Collections.reverse(selectedSites);
+		}
+		savePinnedSites(userId, selectedSites);
 
 		// unpin sites not already unpinned
 		sitesToUnpin.removeAll(unPinnedSites);

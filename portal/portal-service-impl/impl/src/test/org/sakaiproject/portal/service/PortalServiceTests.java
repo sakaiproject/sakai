@@ -183,6 +183,9 @@ public class PortalServiceTests extends SakaiTests {
     @Test
     public void testAddAndReorderPinnedSitesCap() {
         when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(2);
+        when(siteService.isSpecialSite("special")).thenReturn(true);
+        portalService.addPinnedSite(user1, "special", true);
+        Assert.assertFalse(pinnedSiteRepository.findByUserIdAndSiteId(user1, "special").isPresent());
         portalService.addPinnedSite(user1, "site1", true);
         portalService.addPinnedSite(user1, "site2", true);
         portalService.addPinnedSite(user1, "site3", true);
@@ -233,6 +236,39 @@ public class PortalServiceTests extends SakaiTests {
         portalService.syncUserSitesWithPortalNav(user1);
         portalService.addPinnedSite(user1, "older", true);
         Assert.assertTrue(portalService.getPinnedSites(user1).isEmpty());
+    }
+
+    @Test
+    public void testSyncPinsNewestSitesAtTop() throws IdUnusedException, PermissionException {
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(4);
+        when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(true);
+        when(securityService.isSuperUser(user1)).thenReturn(false);
+        Preferences preferences = createMockPreferences(user1, PreferencesService.SITENAV_PREFS_KEY, new BaseResourceProperties());
+        when(preferencesService.getPreferences(user1)).thenReturn(preferences);
+
+        List<String> siteIds = List.of("unpinned", "newest", "newer", "older", "existing2", "existing1");
+        Member member = createMockMember(user1, true);
+        for (String siteId : siteIds) {
+            Site site = mock(Site.class);
+            when(site.getMember(user1)).thenReturn(member);
+            when(siteService.getSiteVisit(siteId)).thenReturn(site);
+        }
+        when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null))
+            .thenReturn(siteIds);
+        portalService.addPinnedSite(user1, "existing1", true);
+        portalService.addPinnedSite(user1, "existing2", true);
+        portalService.addPinnedSite(user1, "unpinned", false);
+
+        portalService.syncUserSitesWithPortalNav(user1);
+        Assert.assertEquals(List.of("newest", "newer", "existing2", "existing1"), portalService.getPinnedSites(user1));
+        portalService.syncUserSitesWithPortalNav(user1);
+        Assert.assertEquals(List.of("newest", "newer", "existing2", "existing1"), portalService.getPinnedSites(user1));
+        Assert.assertEquals(List.of("unpinned"), portalService.getUnpinnedSites(user1));
+
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(3);
+        portalService.syncUserSitesWithPortalNav(user1);
+        Assert.assertEquals(List.of("newest", "newer", "existing2"), portalService.getPinnedSites(user1));
+        Assert.assertTrue(portalService.getUnpinnedSites(user1).containsAll(List.of("unpinned", "existing1")));
     }
 
     @Test
