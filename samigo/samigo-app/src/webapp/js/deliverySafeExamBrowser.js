@@ -185,7 +185,8 @@ function configureLinks() {
     configureLink(downloadConfigLinkId, getDownloadConfigLink());
 
     const launchLink = document.getElementById(launchSebLinkId);
-    if (launchLink && !launchLink.classList.contains("disabled")) {
+    // Inside SEB the launch link can only trigger a (denied) reconfiguration: stay on the exam page
+    if (launchLink && !launchLink.classList.contains("disabled") && !isSebUserAgent()) {
         launchLink.addEventListener("click", () => {
             // Keep the regular browser on the T&Q landing page after SEB launches.
             window.setTimeout(() => {
@@ -210,7 +211,10 @@ if (sebApi) {
         } else {
             console.error(`SEB user agent detected but SafeExamBrowser API not available after ${sebApiTimeoutMs} ms`);
             domLoadedPromise.then(() => {
-                showStartView();
+                // Only the sebSetup view was hidden while waiting
+                if (isStartView()) {
+                    showStartView();
+                }
                 configureLinks();
             });
         }
