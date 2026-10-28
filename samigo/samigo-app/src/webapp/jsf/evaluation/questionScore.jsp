@@ -889,7 +889,7 @@ $Id$
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
       </f:facet>
-      <h:inputText value="#{description.roundedTotalAutoScore}"
+      <h:inputText value="#{description.roundedTotalAutoScore}" converter="#{decimalScoreConverter}"
                     size="5"
                     id="qscore"
                     styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
@@ -921,7 +921,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-	  <h:inputText value="#{description.roundedTotalAutoScore}"
+	  <h:inputText value="#{description.roundedTotalAutoScore}" converter="#{decimalScoreConverter}"
                     size="5"
                     id="qscore2"
                     styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
@@ -958,7 +958,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-	  <h:inputText value="#{description.roundedTotalAutoScore}"
+	  <h:inputText value="#{description.roundedTotalAutoScore}" converter="#{decimalScoreConverter}"
                     size="5"
                     id="qscore3"
                     styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"

@@ -15,31 +15,30 @@
  */
 package org.sakaiproject.tool.assessment.jsf.convert;
 
-import java.text.DecimalFormatSymbols;
-
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
-import jakarta.faces.convert.FacesConverter;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.api.LocaleService;
+import org.springframework.stereotype.Component;
 
 /** Localizes decimal score strings while keeping validation and model values in canonical form. */
-@FacesConverter("org.sakaiproject.tool.assessment.jsf.convert.DecimalScoreConverter")
+@Component("decimalScoreConverter")
 public class DecimalScoreConverter implements Converter<String> {
+
+    private final LocaleService localeService;
+
+    public DecimalScoreConverter(LocaleService localeService) {
+        this.localeService = localeService;
+    }
 
     @Override
     public String getAsObject(FacesContext context, UIComponent component, String value) {
-        return value == null ? null : value.replace(decimalSeparator(), '.');
+        return value == null ? null : value.replace(localeService.getDecimalSeparator(), ".");
     }
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, String value) {
-        return value == null ? "" : value.replace('.', decimalSeparator());
-    }
-
-    private char decimalSeparator() {
-        return DecimalFormatSymbols.getInstance(ComponentManager.get(LocaleService.class).getLocaleForCurrentSiteAndUser()).getDecimalSeparator();
+        return value == null ? "" : value.replace(".", localeService.getDecimalSeparator());
     }
 }
