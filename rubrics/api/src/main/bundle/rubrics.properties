@@ -37,6 +37,7 @@ weight=Weight
 save_weights=Save Weights
 total_weight=Total Weight:
 total_weight_wrong=Weighting for the criterions must equal 100%
+published_invalid_weights=Weights must total 100% to save a published rubric. To save incomplete weights, choose Save as Draft.
 total_grade=Total Grade:
 min_max_points=From {} to {} points
 saved_successfully=Saved successfully!

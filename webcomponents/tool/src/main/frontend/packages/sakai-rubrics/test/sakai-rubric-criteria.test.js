@@ -131,6 +131,42 @@ describe("sakai-rubric-criteria tests", () => {
     });
   }
 
+  it ("explains incomplete weights after changing a new published rubric to weighted", async () => {
+    const rubric = structuredClone(data.rubric4);
+    rubric.draft = false;
+    rubric.weighted = false;
+    rubric.criteria.forEach(criterion => criterion.weight = 0);
+    const el = await fixture(html`
+      <sakai-rubric site-id="${data.siteId}" .rubric=${rubric}></sakai-rubric>
+    `);
+    await waitUntil(() => el.renderRoot.querySelector(".rubric-toggle"));
+    el.renderRoot.querySelector(".rubric-toggle").click();
+    el.renderRoot.querySelector("button.weighted").click();
+    await waitUntil(() => el.renderRoot.querySelector(".save-weights"));
+    const save = el.renderRoot.querySelector(".save-weights");
+    expect(save.disabled).to.be.false;
+    const input = el.renderRoot.querySelector("input[data-criterion-id]");
+    expect(input.value).to.equal("100");
+    input.value = "50";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    await waitUntil(() => save.disabled);
+    const help = el.renderRoot.querySelector(".weight-save-help");
+    expect(help).to.exist;
+    expect(help.textContent).to.contain("100%");
+    expect(help.textContent).to.contain("Save as Draft");
+    expect(save.getAttribute("aria-describedby")).to.equal(help.id);
+    const savesBefore = fetchMock.callHistory.calls(data.rubric4OwnerUrl).length;
+    save.click();
+    expect(fetchMock.callHistory.calls(data.rubric4OwnerUrl)).to.have.length(savesBefore);
+    el.renderRoot.querySelector("button.draft").click();
+    await waitUntil(() => !save.disabled);
+    expect(el.renderRoot.querySelector(".weight-save-help")).to.be.null;
+    save.click();
+    await waitUntil(() => !el.renderRoot.querySelector(".sak-banner-success").classList.contains("d-none"));
+    expect(JSON.parse(fetchMock.callHistory.lastCall(data.rubric4OwnerUrl).options.body))
+      .to.deep.include({ op: "replace", path: "/criteria/0/weight", value: 50 });
+  });
+
   it ("Criterion reorder, then mark as draft", async () => {
 
     const el = await fixture(html`
