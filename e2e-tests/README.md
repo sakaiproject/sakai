@@ -44,8 +44,9 @@ mvn -P e2e -Dtest=AssignmentTest#canCreatePointsAssignment test
 export PLAYWRIGHT_BROWSER=chromium  # default, or firefox/webkit
 ```
 
-CI runs four separate test processes against the same Sakai server. Methods within each
-class remain sequential. To use the same parallelism locally:
+CI runs four separate test processes against the same Sakai server. Each process reuses
+one browser across classes, with a fresh browser context for every test. Methods within
+each class remain sequential. To use the same parallelism locally:
 
 ```bash
 mvn -Pe2e -Dsakai.test.forks=4 test
@@ -58,7 +59,8 @@ missing dependencies during each build. Only pushes to `master` save the cache,
 seeding it when no reusable cache exists.
 
 Failure screenshots and traces are written to `target/playwright-artifacts/`.
-Successful traces are discarded and video recording is disabled.
+Traces are recorded for every test and exported only for failing tests. Passing
+recordings are discarded without exporting a ZIP. Video recording is disabled.
 
 ## Test helpers
 

@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Map;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
@@ -62,19 +61,21 @@ public abstract class SakaiUiTestBase {
             BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
                 .setHeadless(SakaiEnvironment.headless());
             browser = browserType.launch(launchOptions);
+            // Surefire can create a separate JUnit root for each class within the same fork.
+            Runtime.getRuntime().addShutdownHook(new Thread(SakaiUiTestBase::closeBrowser,
+                "sakai-e2e-browser-cleanup"));
         }
     }
 
-    @AfterAll
-    static void closeBrowser() {
-        if (browser != null) {
-            browser.close();
-            browser = null;
-        }
-
-        if (playwright != null) {
-            playwright.close();
-            playwright = null;
+    private static void closeBrowser() {
+        try {
+            if (browser != null) {
+                browser.close();
+            }
+        } finally {
+            if (playwright != null) {
+                playwright.close();
+            }
         }
     }
 
@@ -129,8 +130,11 @@ public abstract class SakaiUiTestBase {
 
         try {
             if (context != null) {
-                // Export before cleanup: a passing test can still fail while closing resources.
-                context.tracing().stop(new Tracing.StopOptions().setPath(testDir.resolve("trace.zip")));
+                if (failed) {
+                    context.tracing().stop(new Tracing.StopOptions().setPath(testDir.resolve("trace.zip")));
+                } else {
+                    context.tracing().stop();
+                }
             }
         } catch (RuntimeException ignored) {
             // Ignore tracing failures so context close still runs.
@@ -146,7 +150,6 @@ public abstract class SakaiUiTestBase {
             }
         }
         if (!failed) {
-            Files.deleteIfExists(testDir.resolve("trace.zip"));
             Files.deleteIfExists(testDir);
         }
         artifactSlug = null;
