@@ -253,7 +253,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	public List<ServerWideStatsRecord> getDailyTotalLogins() {
 		
 		String mysql = "select date(ACTIVITY_DATE) as session_date, " +
-				" ACTIVITY_COUNT as user_logins" +
+				" sum(ACTIVITY_COUNT) as user_logins" +
 				" from " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS" +
 				" where EVENT_ID='user.login' " +
 				" and ACTIVITY_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY)" +
@@ -436,7 +436,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			mysqlPeriod = "STR_TO_DATE(date_format(ACTIVITY_DATE, '%Y-%m-01'),'%Y-%m-%d') as event_period";
 		}
 		String mysql = "select " + mysqlPeriod + ", "
-				+ " ACTIVITY_COUNT as new_user"
+				+ " sum(ACTIVITY_COUNT) as new_user"
 				+ " FROM " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS"
 				+ " where EVENT_ID='user.add'";
 				
