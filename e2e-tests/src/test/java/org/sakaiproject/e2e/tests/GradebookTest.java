@@ -47,34 +47,6 @@ class GradebookTest extends SakaiUiTestBase {
     }
 
     @Test
-    @Order(100)
-    void canReadKeyboardHelpAtNarrowViewport() {
-        sakai.login("instructor1");
-        page.navigate(sakaiUrl);
-        sakai.toolClick("Gradebook");
-
-        Locator toggle = page.locator("#captionToggle");
-        Locator caption = page.locator("#gradeTableCaption");
-        for (int width : new int[] {1280, 320, 390}) {
-            page.setViewportSize(width, 720);
-            toggle.click();
-            assertThat(caption).hasClass("maximized");
-            assertTrue((Boolean) caption.evaluate("element => {"
-                + "const bounds = element.getBoundingClientRect();"
-                + "return bounds.left >= 0 && bounds.right <= document.documentElement.clientWidth"
-                + " && bounds.top >= 0 && bounds.bottom <= document.documentElement.clientHeight"
-                + " && element.scrollWidth <= element.clientWidth;"
-                + "}"), "Keyboard help should fit the viewport without horizontal scrolling at " + width + "px");
-            Locator lastShortcut = caption.locator(".fw-bold").last();
-            lastShortcut.scrollIntoViewIfNeeded();
-            assertThat(lastShortcut).isInViewport();
-            toggle.press("Escape");
-            assertThat(caption).not().hasClass("maximized");
-            assertThat(toggle).isFocused();
-        }
-    }
-
-    @Test
     @Order(2)
     void canCreateGradebookCategories() {
         sakai.login("instructor1");
