@@ -2700,12 +2700,12 @@
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
+        <version>3.16.0</version>
         <configuration>
-          <compilerVersion>${sakai.jdk.version}</compilerVersion>
           <source>${sakai.jdk.version}</source>
           <target>${sakai.jdk.version}</target>
-          <forceJavacCompilerUse>true</forceJavacCompilerUse>
+          <forceLegacyJavacApi>true</forceLegacyJavacApi>
+          <proc>full</proc>
           <compilerArgs>
             <arg>--add-exports=java.base/java.io=ALL-UNNAMED</arg>
             <arg>--add-exports=java.base/java.lang.invoke=ALL-UNNAMED</arg>
