@@ -2704,7 +2704,6 @@
         <configuration>
           <source>${sakai.jdk.version}</source>
           <target>${sakai.jdk.version}</target>
-          <forceLegacyJavacApi>true</forceLegacyJavacApi>
           <proc>full</proc>
           <compilerArgs>
             <arg>--add-exports=java.base/java.io=ALL-UNNAMED</arg>
