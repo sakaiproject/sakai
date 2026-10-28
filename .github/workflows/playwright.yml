@@ -14,7 +14,10 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       MAVEN_VERSION: 3.9.16
-      MAVEN_ARGS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
+      MAVEN_ARGS: >-
+        -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
+        -Dmaven.compiler.showWarnings=false
+        -Dorg.slf4j.simpleLogger.log.org.apache.maven.plugin.compiler=error
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
       NODE_OPTIONS: "--disable-warning=DEP0169"
       PLAYWRIGHT_BROWSER: "chromium"
