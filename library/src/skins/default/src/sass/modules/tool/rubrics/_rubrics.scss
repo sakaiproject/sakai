@@ -522,6 +522,12 @@ sakai-rubric-grading {
     }
 }
 
+sakai-rubric-student-comment button.btn:disabled {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
 sakai-rubric-grading-comment,
 sakai-rubric-student-comment {
 
