@@ -57,6 +57,14 @@ public interface PinnedSiteRepository extends SpringCrudRepository<PinnedSite, L
     Optional<Integer> findMaxPositionByUserId(String userId);
 
     /**
+     * Writes the complete position order for the supplied pinned sites in one update.
+     *
+     * @param userId the user whose pinned sites to reorder
+     * @param siteIds site IDs in ascending position order
+     */
+    void updatePositions(String userId, List<String> siteIds);
+
+    /**
      * Finds the single record for the given user and site, in either pinned state.
      *
      * @param userId the user

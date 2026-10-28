@@ -54,6 +54,11 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,6 +69,7 @@ public class PortalServiceTests extends SakaiTests {
 
     @Autowired private PinnedSiteRepository pinnedSiteRepository;
     @Autowired private PortalService portalService;
+    @Autowired private PlatformTransactionManager transactionManager;
     @Autowired private PreferencesService preferencesService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -79,6 +85,30 @@ public class PortalServiceTests extends SakaiTests {
     public void setup() {
         super.setup();
         when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(false);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void testReorderPinnedSitesWithAnOlderTransactionSnapshot() {
+        String userId = "stale-reorder";
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        TransactionTemplate independent = new TransactionTemplate(transactionManager);
+        independent.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        portalService.savePinnedSites(userId, List.of("A", "B", "C"));
+        try {
+            transaction.executeWithoutResult(status -> {
+                // Both reorders start with A=0, B=1, C=2. Commit one while the other retains that snapshot.
+                pinnedSiteRepository.findByUserIdOrderByPosition(userId);
+                independent.executeWithoutResult(other -> portalService.reorderPinnedSites(userId, List.of("B", "A", "C")));
+                portalService.reorderPinnedSites(userId, List.of("A", "C", "B"));
+            });
+            Assert.assertEquals(List.of("A", "C", "B"), portalService.getPinnedSites(userId));
+            transaction.executeWithoutResult(status -> Assert.assertEquals(List.of(0, 1, 2),
+                pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
+                    .map(PinnedSite::getPosition).toList()));
+        } finally {
+            portalService.reorderPinnedSites(userId, List.of());
+        }
     }
 
     @Test

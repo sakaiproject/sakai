@@ -232,6 +232,7 @@ class LessonsTest extends SakaiUiTestBase {
     void hiddenTopLevelPageStaysOutOfStudentNavigation() {
         sakai.login("instructor1");
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.lessonbuildertool"));
+        sakai.addMemberToSite(siteUrl, "student0011", "Student");
         page.navigate(siteUrl);
         sakai.toolClick("Lessons");
         createTopLevelPage("Hidden navigation page");

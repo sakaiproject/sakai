@@ -902,12 +902,14 @@ public class PortalServiceImpl implements PortalService, Observer
 				pin = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId)
 						.orElseGet(() -> new PinnedSite(userId, siteId));
 			}
-			if (pin.getId() == null || pin.getPosition() != i || Boolean.TRUE.equals(pin.getHasBeenUnpinned())) {
-				pin.setPosition(i);
-				pin.setHasBeenUnpinned(false);
+			pin.setPosition(i);
+			pin.setHasBeenUnpinned(false);
+			if (pin.getId() == null) {
 				pinnedSiteRepository.save(pin);
 			}
 		}
+		// Write every requested position, including those unchanged in this transaction's snapshot.
+		pinnedSiteRepository.updatePositions(userId, orderedSiteIds);
 		pinnedSiteRepository.deleteByUserIdAndSiteIds(userId, new ArrayList<>(currentPins.keySet()));
 	}
 
