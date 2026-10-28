@@ -1589,7 +1589,11 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         PdfPTable table = new PdfPTable(1);
         PdfPCell header = new PdfPCell();
 
-        Paragraph paragraph = new Paragraph(resourceLoader.getFormattedMessage("export_rubric_title", rubric.getTitle() + "\n"), BOLD_FONT);
+        String titleWithMaxPoints = rubric.getTitle();
+        if (rubric.getMaxPoints() != null) {
+            titleWithMaxPoints += " (" + numberFormat.format(rubric.getMaxPoints()) + " " + resourceLoader.getString("points") + ")";
+        }
+        Paragraph paragraph = new Paragraph(resourceLoader.getFormattedMessage("export_rubric_title", titleWithMaxPoints + "\n"), BOLD_FONT);
         paragraph.setAlignment(com.lowagie.text.Element.ALIGN_LEFT);
         try {
             String siteTitle = siteService.getSite(rubric.getOwnerId()).getTitle();
