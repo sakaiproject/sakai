@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
@@ -97,6 +98,8 @@ class ResourcesQuotaTest extends SakaiUiTestBase {
         assertThat(quota).hasValue("0");
 
         quota.fill("");
+        assertThat(quota).isEmpty();
+        assertThat(enabled).isChecked();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Update").setExact(true)).click();
         assertThat(page.locator("#resourceAlert")).containsText("Enter a valid quota in GB");
         enabled.uncheck();
@@ -108,8 +111,10 @@ class ResourcesQuotaTest extends SakaiUiTestBase {
     }
 
     private void openRootProperties() {
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("button[title='Actions']").first().click();
         page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Edit Details").setExact(true)).first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("input[name^='quota']")).isVisible();
     }
 

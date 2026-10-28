@@ -218,14 +218,15 @@ class AssignmentTest extends SakaiUiTestBase {
     @Test
     @Order(7)
     void canAllowStudentToResubmit() {
-        String courseUrl = ensureCourseUrl();
+        sakai.login("instructor1");
+        String siteUrl = sakai.createProject("instructor1", List.of("sakai\\.assignment\\.grades"));
         try (TestUser grader = sakai.createUser("resubmission-grader")) {
-            sakai.addMember(courseUrl, grader.username(), "Instructor");
+            sakai.addMember(siteUrl, grader.username(), "maintain");
             String title = "Resubmission " + System.currentTimeMillis();
-            String assignmentId = sakai.createAssignment(courseUrl, title);
-            sakai.addMember(courseUrl, "student0012", "Student");
+            String assignmentId = sakai.createAssignment(siteUrl, title);
+            sakai.addMember(siteUrl, "student0012", "access");
             sakai.login("student0012");
-            sakai.gotoPath(courseUrl);
+            sakai.gotoPath(siteUrl);
             sakai.toolClick("Assignments");
             page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(title).setExact(true)).click();
             sakai.typeCkEditor("Assignment.view_submission_text", "<p>Work to resubmit.</p>");
@@ -234,7 +235,7 @@ class AssignmentTest extends SakaiUiTestBase {
             assertThat(page.locator("body")).containsText("Submission Confirmation");
             sakai.login(grader.username());
             sakai.setAssignmentGrader(true);
-            sakai.gotoPath(courseUrl);
+            sakai.gotoPath(siteUrl);
             sakai.toolClick("Assignments");
             Locator row = page.locator("tr").filter(new Locator.FilterOptions().setHasText(title));
             row.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions()

@@ -18,6 +18,7 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,7 @@ class GroupTitleValidationTest extends SakaiUiTestBase {
 
         page.locator("#group-manager-form a").filter(new Locator.FilterOptions().setHasText(
                 Pattern.compile("^Original Set$"))).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("#groupTitle").fill("<em>other set</em>");
         page.locator("#save-joinableset-submit-button").click();
         assertThat(page.locator(".portletBody:has(#createnewjoinableset-form) .sak-banner-error"))
@@ -41,6 +43,7 @@ class GroupTitleValidationTest extends SakaiUiTestBase {
         assertThat(page.locator("#groupCollapsible li")).hasText("Original Set 1");
 
         // Saving the original name must remain valid when editing the same set.
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("#groupTitle").fill("Original Set");
         page.locator("#save-joinableset-submit-button").click();
         assertThat(page.locator("#group-manager-form")).isVisible();
@@ -57,6 +60,7 @@ class GroupTitleValidationTest extends SakaiUiTestBase {
     void rejectsExistingAutoGroupTitleBeforeConfirmation() {
         openFreshGroupManager();
         page.locator(".navIntraTool a[href$='/group']").click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("#groupTitle").fill("Workshop-1");
         page.locator("#groupMembers").selectOption(page.locator("#groupMembers option").first().getAttribute("value"));
         page.locator("#groupTitle").press("End");
@@ -97,6 +101,7 @@ class GroupTitleValidationTest extends SakaiUiTestBase {
 
     private void createJoinableSet(String title) {
         page.locator(".navIntraTool a[href$='/joinableset']").click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("#groupTitle").fill(title);
         page.locator("#groupNumber").fill("1");
         page.locator("#groupMaxMembers").fill("5");

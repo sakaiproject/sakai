@@ -47,6 +47,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
 
         openGroups(courseUrl);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("#groupTitle").fill(groupTitle);
         // Group creation enables its submit button on keyup.
         page.locator("#groupTitle").press("End");
@@ -189,6 +190,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
     private void createGroupThroughUi(String courseUrl, String title, String student) {
         openGroups(courseUrl);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("#groupTitle").fill(title);
         page.locator("#groupTitle").press("End");
         Locator member = page.locator("#groupMembers option").filter(new Locator.FilterOptions().setHasText(student));
