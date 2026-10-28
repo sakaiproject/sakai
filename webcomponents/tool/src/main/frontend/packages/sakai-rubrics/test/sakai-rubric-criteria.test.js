@@ -29,7 +29,7 @@ describe("sakai-rubric-criteria tests", () => {
   });
 
 
-  for (const locale of [ "en-US", "es-ES" ]) {
+  for (const locale of [ "en-US", "es-ES", "ar-EG" ]) {
     it (`validates rating points with and without a configured range (${locale})`, async () => {
 
       const rubric = structuredClone(data.rubric4);
@@ -61,6 +61,8 @@ describe("sakai-rubric-criteria tests", () => {
         await editor.updateComplete;
         const input = editor.renderRoot.querySelector("input[name=quantity]");
         const save = modal.querySelector("button.btn-primary");
+        // Existing integer ratings must remain editable with ASCII digits in every locale.
+        expect(input.value).to.equal(String(rating.points));
         input.value = "";
         save.click();
         expect(input.validity.valid).to.be.false;

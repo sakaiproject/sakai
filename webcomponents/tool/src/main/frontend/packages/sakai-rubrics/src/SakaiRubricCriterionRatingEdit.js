@@ -88,7 +88,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
                       id="rating-points-${this.rating.id}"
                       class="form-control hide-input-arrows"
                       name="quantity"
-                      .value=${this.rating.points.toLocaleString(this.locale, { useGrouping: false })}
+                      .value=${this.rating.points.toLocaleString(this.locale, { useGrouping: false, numberingSystem: "latn" })}
                       min="${ifDefined(this.minpoints)}"
                       max="${ifDefined(this.maxpoints)}">
                 </div>
@@ -118,7 +118,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
   resetFields() {
 
     document.getElementById(`rating-title-edit-${this.rating.id}`).value = this.rating.title;
-    document.getElementById(`rating-points-${this.rating.id}`).value = this.rating.points.toLocaleString(this.locale, { useGrouping: false });
+    document.getElementById(`rating-points-${this.rating.id}`).value = this.rating.points.toLocaleString(this.locale, { useGrouping: false, numberingSystem: "latn" });
     document.getElementById(`rating-description-${this.rating.id}`).value = this.rating.description;
   }
 
@@ -134,7 +134,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     const pointsInput = this.renderRoot.querySelector(`#rating-points-${this.rating.id}`);
     // Accept the Sakai locale's decimal separator, retaining native number/range validation.
-    const decimalSeparator = (1.1).toLocaleString(this.locale).charAt(1);
+    const decimalSeparator = (1.1).toLocaleString(this.locale, { numberingSystem: "latn" }).charAt(1);
     const numberInput = document.createElement("input");
     numberInput.type = "number";
     numberInput.required = true;
