@@ -70,6 +70,7 @@ public class AssessmentBean  implements Serializable {
   private List partNumbers = new ArrayList();
   private int questionSize=0;
   private double totalScore=0;
+  @Getter private boolean questionPoolDrawValid = true;
   private String newQuestionTypeId;
   private String firstSectionId;
   private boolean hasRandomDrawPart;
@@ -173,6 +174,7 @@ public class AssessmentBean  implements Serializable {
   public void setQuestionSizeAndTotalScore() {
    this.questionSize = 0;
    this.totalScore = 0;
+   this.questionPoolDrawValid = true;
    int randomPartCount = 0;
 
    for (SectionContentsBean sectionBean : this.sections) {
@@ -183,7 +185,14 @@ public class AssessmentBean  implements Serializable {
           || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(authorType)
           || SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.equals(authorType)) {
         randomPartCount++;
-        items = QuestionPoolDraw.fromItems(items, authorType).select(sectionBean.getNumberToBeDrawn());
+        QuestionPoolDraw draw = QuestionPoolDraw.fromItems(items, authorType);
+        Integer requested = sectionBean.getNumberToBeDrawn();
+        if (requested == null || !draw.isValid(requested)) {
+          this.questionPoolDrawValid = false;
+          this.questionSize += draw.getFixedItems().size() + (requested == null ? 0 : Math.max(0, requested));
+          continue;
+        }
+        items = draw.select(requested);
       }
       this.questionSize += items.size();
       for (ItemDataIfc item : items) {
@@ -191,6 +200,9 @@ public class AssessmentBean  implements Serializable {
           this.totalScore += item.getScore();
         }
       }
+    }
+    if (!this.questionPoolDrawValid) {
+      this.totalScore = 0;
     }
     if (randomPartCount >0) {
 	setHasRandomDrawPart(true);
@@ -209,6 +221,7 @@ public class AssessmentBean  implements Serializable {
 			  if(success == AssessmentService.UPDATE_SUCCESS){
 				  //need to update section since it has changed
 				  sections.set(i, new SectionContentsBean(assessmentService.getSection(sectionBean.getSectionId())));
+				  setQuestionSizeAndTotalScore();
 			  }else{
 				  return success;
 			  }

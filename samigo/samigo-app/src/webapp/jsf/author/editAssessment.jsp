@@ -110,7 +110,10 @@ $(window).load( function() {
     </h1>
   </div>
 
-  <div class="navList">
+  <h:panelGroup layout="block" styleClass="sak-banner-error" rendered="#{!assessmentBean.questionPoolDrawValid}">
+    <h:outputText value="#{authorMessages.invalid_pool_draw_totals}" />
+  </h:panelGroup>
+  <h:panelGroup layout="block" styleClass="navList" rendered="#{assessmentBean.questionPoolDrawValid}">
     <h:outputText value="#{assessmentBean.questionSize} #{authorMessages.existing_qs} #{authorMessages.dash} " rendered="#{assessmentBean.questionSize > 1}" />
     <h:outputText value="#{assessmentBean.questionSize} #{authorMessages.existing_q} #{authorMessages.dash} " rendered="#{assessmentBean.questionSize == 1}" />
     <h:outputText value="#{assessmentBean.questionSize} #{authorMessages.existing_qs} #{authorMessages.dash} " rendered="#{assessmentBean.questionSize == 0}" />
@@ -121,7 +124,7 @@ $(window).load( function() {
     <h:outputText value="#{authorMessages.total_pts}" rendered="#{assessmentBean.totalScore > 1}" />
     <h:outputText value="#{authorMessages.total_pt}" rendered="#{assessmentBean.totalScore == 1}" />
     <h:outputText value="#{authorMessages.total_pts}" rendered="#{assessmentBean.totalScore == 0}" />
-   </div>
+  </h:panelGroup>
  
    <p class="navViewAction">
       <h:commandLink title="#{authorMessages.t_addPart}" id="addPart" action="editPart" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">

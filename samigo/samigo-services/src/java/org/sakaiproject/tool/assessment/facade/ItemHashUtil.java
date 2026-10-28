@@ -358,7 +358,8 @@ public class ItemHashUtil {
         return hashString(hashBase.toString());
     }
 
-    String hashItemUnchecked(ItemDataIfc item) {
+    /** Computes a content hash without saving or changing the question. */
+    public String hashItemUnchecked(ItemDataIfc item) {
         try {
             return hashItem(item);
         } catch ( RuntimeException e ) {

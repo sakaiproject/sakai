@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -41,16 +42,27 @@ public final class QuestionPoolDraw {
     private final List<ItemDataIfc> eligibleRandomItems;
 
     public QuestionPoolDraw(List<? extends ItemDataIfc> fixedItems, List<? extends ItemDataIfc> randomItems) {
+        this(fixedItems, randomItems, ItemDataIfc::getHash);
+    }
+
+    public QuestionPoolDraw(List<? extends ItemDataIfc> fixedItems, List<? extends ItemDataIfc> randomItems,
+                            Function<ItemDataIfc, String> hashResolver) {
         this.fixedItems = List.copyOf(fixedItems);
+        Set<Long> fixedIds = new HashSet<>();
         Set<String> fixedHashes = new HashSet<>();
         for (ItemDataIfc item : fixedItems) {
-            if (StringUtils.isNotBlank(item.getHash())) {
-                fixedHashes.add(item.getHash());
+            if (item.getItemId() != null) {
+                fixedIds.add(item.getItemId());
+            }
+            String hash = hashResolver.apply(item);
+            if (StringUtils.isNotBlank(hash)) {
+                fixedHashes.add(hash);
             }
         }
         this.eligibleRandomItems = new ArrayList<>();
         for (ItemDataIfc item : randomItems) {
-            if (!fixedHashes.contains(item.getHash())) {
+            if (!fixedIds.contains(item.getItemId())
+                    && (fixedItems.isEmpty() || !fixedHashes.contains(hashResolver.apply(item)))) {
                 this.eligibleRandomItems.add(item);
             }
         }
