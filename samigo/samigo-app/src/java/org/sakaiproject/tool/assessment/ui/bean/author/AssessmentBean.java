@@ -37,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -44,6 +45,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.QuestionPoolDraw;
 import org.sakaiproject.tool.assessment.ui.bean.util.QuestionCancellationEligibility;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
@@ -173,34 +175,21 @@ public class AssessmentBean  implements Serializable {
    this.totalScore = 0;
    int randomPartCount = 0;
 
-   AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-   
-   for(int i=0;i<this.sections.size();i++){
-      SectionContentsBean sectionBean = (SectionContentsBean) sections.get(i);
-      List<ItemContentsBean> items = sectionBean.getItemContents();
-
-      int itemsInThisSection =0;
-      if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(sectionBean.getSectionAuthorType()) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(sectionBean.getSectionAuthorType())) {
-        // for random draw parts, add
-   	randomPartCount++ ;
-        itemsInThisSection = sectionBean.getNumberToBeDrawn().intValue();
-      } else if (sectionBean.getSectionAuthorType().equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL)) {
-          randomPartCount++;
-          itemsInThisSection = sectionBean.getNumberToBeFixed().intValue();
-          itemsInThisSection += sectionBean.getNumberToBeDrawn().intValue();
+   for (SectionContentsBean sectionBean : this.sections) {
+      List<ItemDataIfc> items = sectionBean.getItemContents().stream()
+          .map(ItemContentsBean::getItemData).toList();
+      Integer authorType = sectionBean.getSectionAuthorType();
+      if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(authorType)
+          || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(authorType)
+          || SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.equals(authorType)) {
+        randomPartCount++;
+        items = QuestionPoolDraw.fromItems(items, authorType).select(sectionBean.getNumberToBeDrawn());
       }
-      else {
-	itemsInThisSection = items.size();
-      }
-
-      this.questionSize += itemsInThisSection;
-      for (int j=0; j<itemsInThisSection && j<items.size(); j++){
-          ItemContentsBean item = items.get(j);
-          if (item.getItemData().getScore()!=null){
-            if(!item.getItemData().getIsExtraCredit()) {
-              this.totalScore += item.getItemData().getScore();
-            }
-          }
+      this.questionSize += items.size();
+      for (ItemDataIfc item : items) {
+        if (item.getScore() != null && !item.getIsExtraCredit()) {
+          this.totalScore += item.getScore();
+        }
       }
     }
     if (randomPartCount >0) {

@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -58,6 +57,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.QuestionPoolDraw;
 
 @Slf4j
 public class PublishedAssessmentFacade
@@ -765,60 +765,14 @@ public class PublishedAssessmentFacade
       SectionDataIfc s = (SectionDataIfc) iter.next();
       List<ItemDataIfc> list = s.getItemArray();
 
-      // adding fixed questions (could be empty if not fixed and draw part)
-      List<ItemDataIfc> sortedList = list.stream()
-          .filter(item -> ((PublishedItemData) item).getIsFixed())
-          .collect(Collectors.toList());
-
-      // getting all hashes from the sortedListt
-      List<String> distinctHashValues = sortedList.stream()
-          .filter(item -> item instanceof PublishedItemData)
-          .map(item -> ((PublishedItemData) item).getHash())
-          .distinct()
-          .collect(Collectors.toList());
-
-      // removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
-      list.removeIf(item -> item instanceof PublishedItemData &&
-                            !item.getIsFixed() &&
-                            distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
-
-      Iterator iter2 = null;
-      if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE
-).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) || s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString())))
-{
-        ArrayList randomsample = new ArrayList();
-        Integer numberToBeDrawn= Integer.valueOf(0);
-        if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-          numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-        }
-
-        int samplesize = numberToBeDrawn.intValue();
-        for (int i=0; i<samplesize; i++){
-          randomsample.add(list.get(i));
-        }
-        iter2 = randomsample.iterator();
-      } else if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE
-).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
-
-          List<ItemDataIfc> fixedAndRandom = new ArrayList();
-          List<ItemDataIfc> randomsample = new ArrayList();
-          Integer numberToBeDrawn= Integer.valueOf(0);
-          if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-            numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-          }
-
-          int samplesize = numberToBeDrawn.intValue();
-          for (int i=0; i<samplesize; i++){
-            randomsample.add(list.get(i));
-          }
-
-          fixedAndRandom.addAll(sortedList);
-          fixedAndRandom.addAll(randomsample);
-          iter2 = fixedAndRandom.iterator();
+      String authorType = s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
+      if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)
+          || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(authorType)
+          || SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)) {
+        int numberToBeDrawn = Integer.parseInt(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+        list = QuestionPoolDraw.fromSection(s).select(numberToBeDrawn);
       }
-      else {
-        iter2 = list.iterator();
-      }
+      Iterator<ItemDataIfc> iter2 = list.iterator();
 
       while (iter2.hasNext()){
         ItemDataIfc item = (ItemDataIfc)iter2.next();

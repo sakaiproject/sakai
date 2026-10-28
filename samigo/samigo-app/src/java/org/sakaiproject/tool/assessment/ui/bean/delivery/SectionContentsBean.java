@@ -38,7 +38,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -56,6 +55,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.services.assessment.QuestionPoolDraw;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -223,30 +223,10 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
       }
       setNumber(section.getSequence().toString());
       // do teh rest later
-      Set<ItemDataIfc> itemSet = section.getItemSet();
-
-      if (itemSet != null) {
-        // adding fixed questions (could be empty if not fixed and draw part)
-        Set<ItemDataIfc> sortedSet = itemSet.stream()
-            .filter(item -> ((ItemDataIfc) item).getIsFixed())
-            .collect(Collectors.toSet());
-
-        if (!sortedSet.isEmpty()) {
-             // getting all hashes from the sortedSet
-             List<String> distinctHashValues = sortedSet.stream()
-                 .map(item -> ((ItemDataIfc) item).getHash())
-                 .distinct()
-                 .collect(Collectors.toList());
-
-              // removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
-              itemSet.removeIf(item -> !item.getIsFixed() &&
-                                       distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
-
-              section.setItemSet(itemSet);
-        }
-
-        setQuestions(itemSet.size());
-        for (ItemDataIfc item : itemSet) {
+      if (section.getItemSet() != null) {
+        List<ItemDataIfc> items = QuestionPoolDraw.fromSection(section).getAllItems();
+        setQuestions(items.size());
+        for (ItemDataIfc item : items) {
           ItemContentsBean itemBean = new ItemContentsBean(item);
           this.itemContents.add(itemBean);
         }

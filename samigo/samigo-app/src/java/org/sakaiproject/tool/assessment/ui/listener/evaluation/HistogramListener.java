@@ -38,7 +38,6 @@ import java.util.Set;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import jakarta.faces.component.html.HtmlSelectOneMenu;
 import jakarta.faces.context.FacesContext;
@@ -71,6 +70,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc.TypeId;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.QuestionPoolDraw;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -453,27 +453,8 @@ public class HistogramListener extends SpringBeanAutowiringSupport
 				  + section.getSequence().toString();
 				  title += ", " + rb.getString("question") + " ";
 
-				  List<ItemDataIfc> itemlist = section.getItemArraySortedForGrading();
-
-				  Set<ItemDataIfc> sortedSet = itemlist.stream()
-						  .filter(item -> ((PublishedItemData) item).getIsFixed())
-						  .collect(Collectors.toSet());
-
-				  if (!sortedSet.isEmpty()) {
-					// getting all hashes from the sortedSet
-					List<String> distinctHashValues = sortedSet.stream()
-						.filter(item -> item instanceof PublishedItemData)
-						.map(item -> ((PublishedItemData) item).getHash())
-						.distinct()
-						.collect(Collectors.toList());
-
-					// removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
-					itemlist.removeIf(item -> item instanceof PublishedItemData &&
-											!item.getIsFixed() &&
-											distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
-
-					section.setItemSet(new HashSet<>(itemlist));
-				  }
+                  List<ItemDataIfc> itemlist = QuestionPoolDraw.fromSection(section).getAllItems();
+                  Collections.sort(itemlist);
 
 				  int seq = 1;
 				  Iterator<ItemDataIfc> itemsIter = itemlist.iterator();

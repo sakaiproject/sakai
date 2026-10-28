@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -98,6 +97,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.QuestionPoolDraw;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -2759,24 +2759,7 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
             Map<Integer, Double> sectionScores = new TreeMap<>();
             while (sectionsIter.hasNext()) {
                 PublishedSectionData publishedSection = sectionsIter.next();
-                List<ItemDataIfc> itemsArray = publishedSection.getItemArraySortedForGrading();
-
-                // adding fixed questions (could be empty if not fixed and draw part)
-                List<ItemDataIfc> sortedList = itemsArray.stream()
-                        .filter(ItemDataIfc::getIsFixed)
-                        .toList();
-
-                // getting all hashes from the sortedList
-                List<String> distinctHashValues = sortedList.stream()
-                        .filter(item -> item instanceof PublishedItemData)
-                        .map(ItemDataIfc::getHash)
-                        .distinct()
-                        .toList();
-
-                // removing from itemSet if there are hashes repeated and getFixed false -> itemArray with only fixed and not repeated fixed on the randow draw
-                itemsArray.removeIf(item -> item instanceof PublishedItemData &&
-                        !item.getIsFixed() &&
-                        distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+                List<ItemDataIfc> itemsArray = QuestionPoolDraw.fromSection(publishedSection).getAllItems();
 
                 Iterator<ItemDataIfc> itemsIter = itemsArray.iterator();
                 // Iterate through the assessment questions (items)
@@ -4409,37 +4392,22 @@ public AssessmentGradingData load(Long id, boolean loadGradingAttachment) {
                             .toString() + "_" + publishedSectionData.getSectionId().toString()).hashCode();
                 }
 
-                if (authorType.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
-                    // adding fixed questions
-                    List<ItemDataIfc> sortedlist = itemArrayList.stream()
-                        .filter(ItemDataIfc::getIsFixed)
-                        .toList();
-
-                    // removing isFixed questions from itemlist
-                    itemArrayList.removeIf(ItemDataIfc::getIsFixed);
-
-                    // getting all hashes from the sortedlist
-                    List<String> distinctHashValues = sortedlist.stream()
-                        .filter(item -> item instanceof PublishedItemData)
-                        .map(ItemDataIfc::getHash)
-                        .distinct()
-                        .toList();
-
-                    // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
-                    itemArrayList.removeIf(item -> item instanceof PublishedItemData &&
-                                                   distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
-                }
-
-                Collections.shuffle(itemArrayList, new Random(seed));
-
                 int numberToBeDrawn = 0;
                 if (publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) != null) {
                     numberToBeDrawn = Integer.parseInt(publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
                 }
 
-                int samplesize = Math.min(numberToBeDrawn, itemArrayList.size());
-                for (int i = 0; i < samplesize; i++) {
-                    publishedItemData = (PublishedItemData) itemArrayList.get(i);
+                QuestionPoolDraw draw = QuestionPoolDraw.fromSection(publishedSectionData);
+                int available = draw.getEligibleRandomItems().size();
+                if (numberToBeDrawn > available) {
+                    // Complete existing attempts even if an older published section has an invalid draw.
+                    // Save and publish validation prevent creating new sections with this configuration.
+                    log.warn("Completing grades for assessment {} section {} with {} eligible random questions instead of {}",
+                            publishedAssessmentId, publishedSectionData.getSectionId(), available, numberToBeDrawn);
+                }
+                itemArrayList = draw.select(Math.min(numberToBeDrawn, available), seed);
+                for (ItemDataIfc selectedItem : itemArrayList) {
+                    publishedItemData = (PublishedItemData) selectedItem;
                     publishedItemId = publishedItemData.getItemId();
                     log.debug("publishedItemId = {}", publishedItemId);
                     if (!answeredPublishedItemIdList.contains(publishedItemId)) {

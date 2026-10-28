@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
@@ -58,7 +57,6 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -78,6 +76,7 @@ import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.QuestionPoolDraw;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
@@ -1020,28 +1019,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
       List<ItemDataIfc> itemlist = secFacade.getItemArray();
       long seed = getSeed(secFacade, delivery, (long) AgentFacade.getAgentString().hashCode());
 
-      // adding fixed questions
-      List<ItemDataIfc> sortedlist = itemlist.stream()
-          .filter(item -> ((PublishedItemData) item).getIsFixed())
-          .collect(Collectors.toList());
-
-       // removing isFixed questions from itemlist
-      itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
-
-      // getting all hashes from the sortedlist
-      List<String> distinctHashValues = sortedlist.stream()
-          .filter(item -> item instanceof PublishedItemData)
-          .map(item -> ((PublishedItemData) item).getHash())
-          .distinct()
-          .collect(Collectors.toList());
-
-      // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
-      itemlist.removeIf(item -> item instanceof PublishedItemData &&
-                                distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
-
-      // adding randow draw
-      sortedlist.addAll(getItemArraySortedWithRandom(secFacade, itemlist, seed));
-      questionCount = sortedlist.size();
+      questionCount = getItemArraySortedWithRandom(secFacade, itemlist, seed).size();
 
       if ((delivery.isNoQuestions() || questionCount != 0) && itemIndex > (questionCount - 1) && sectionCount == sectionIndex) {
         sectionIndex++;
@@ -1115,25 +1093,6 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
 
     List<ItemDataIfc> itemlist = part.getItemArray();
 
-    // adding fixed questions
-    List<ItemDataIfc> itemSet = itemlist.stream()
-        .filter(item -> ((PublishedItemData) item).getIsFixed())
-        .collect(Collectors.toList());
-
-    // removing isFixed questions from itemlist
-    itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
-
-    // getting all hashes from the sortedlist
-    List<String> distinctHashValues = itemSet.stream()
-        .filter(item -> item instanceof PublishedItemData)
-        .map(item -> ((PublishedItemData) item).getHash())
-        .distinct()
-        .collect(Collectors.toList());
-
-    // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
-    itemlist.removeIf(item -> item instanceof PublishedItemData &&
-                              distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
-
     long seed = 0;
     if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
       StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
@@ -1142,8 +1101,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
       seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
     }
 
-    // adding randow draw
-    itemSet.addAll(getItemArraySortedWithRandom(part, itemlist, seed));
+    List<ItemDataIfc> itemSet = getItemArraySortedWithRandom(part, itemlist, seed);
 
     // i think this is already set by new SectionContentsBean(part) - daisyf
     sec.setQuestions(itemSet.size()); 
@@ -1223,27 +1181,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
     List<ItemDataIfc> itemlist = part.getItemArray();
     long seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
 
-    // adding fixed questions
-    List<ItemDataIfc> itemSet = itemlist.stream()
-        .filter(item -> ((PublishedItemData) item).getIsFixed())
-        .collect(Collectors.toList());
-
-    // removing isFixed questions from itemlist
-    itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
-
-    // getting all hashes from the sortedlist
-    List<String> distinctHashValues = itemSet.stream()
-        .filter(item -> item instanceof PublishedItemData)
-        .map(item -> ((PublishedItemData) item).getHash())
-        .distinct()
-        .collect(Collectors.toList());
-
-    // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
-    itemlist.removeIf(item -> item instanceof PublishedItemData &&
-                              distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
-
-    // adding randow draw
-    itemSet.addAll(getItemArraySortedWithRandom(part, itemlist, seed));
+    List<ItemDataIfc> itemSet = getItemArraySortedWithRandom(part, itemlist, seed);
 
     sec.setQuestions(itemSet.size());
 
@@ -2676,28 +2614,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
     			seed = getSeed(section, delivery, (long) AgentFacade.getAgentString().hashCode());
     		}
 
-    		// adding fixed questions
-    		List<ItemDataIfc> sortedlist = itemlist.stream()
-    			.filter(item -> ((PublishedItemData) item).getIsFixed())
-    			.collect(Collectors.toList());
-
-    		// removing isFixed questions from itemlist
-    		itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
-
-    		// getting all hashes from the sortedlist
-    		List<String> distinctHashValues = sortedlist.stream()
-    			.filter(item -> item instanceof PublishedItemData)
-    			.map(item -> ((PublishedItemData) item).getHash())
-    			.distinct()
-    		 	.collect(Collectors.toList());
-
-    		// removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
-    		itemlist.removeIf(item -> item instanceof PublishedItemData &&
-    								  distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
-
-    		// adding randow draw
-    		sortedlist.addAll(getItemArraySortedWithRandom(section, itemlist, seed));
-    		i2 = sortedlist.iterator();
+        i2 = getItemArraySortedWithRandom(section, itemlist, seed).iterator();
 
     		while (i2.hasNext()) {
     			items = items + 1; // bug 464
@@ -2882,23 +2799,10 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
          part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
          part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()))) {
 
-      // same ordering for each student
-      List randomsample = new ArrayList();
-      Collections.shuffle(list,  new Random(seed));
-
-      if (part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-        numberToBeDrawn= Integer.valueOf(part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+      if (part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) != null) {
+        numberToBeDrawn = Integer.valueOf(part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
       }
-
-      int samplesize = 0;
-      if (numberToBeDrawn != null) {
-    	  samplesize = numberToBeDrawn.intValue();
-      }
-
-      for (int i=0; i<samplesize; i++){
-        randomsample.add(list.get(i));
-      }
-      return randomsample;
+      return QuestionPoolDraw.fromSection(part).select(numberToBeDrawn == null ? 0 : numberToBeDrawn, seed);
 
     }
     else if((part.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING)!=null ) && (part.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING).equals(SectionDataIfc.RANDOM_WITHIN_PART.toString())) ){

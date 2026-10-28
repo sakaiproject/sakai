@@ -449,29 +449,57 @@ public class AssessmentService {
 		return itemlist;
 	}
 
-	public boolean verifyItemsDrawSize(SectionFacade section){
-		if (section != null && section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null
-				&& (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) ||
- 				SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))) {
-
-			List<ItemDataIfc> itemlist = getItemListFromPools(section);
-			return verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-		}else{
-			return true;
+	public QuestionPoolDraw getQuestionPoolDraw(List<String> fixedQuestionIds, List<String> randomPoolIds) {
+		ItemService itemService = new ItemService();
+		List<ItemDataIfc> fixedItems = new ArrayList<>();
+		for (String itemId : fixedQuestionIds) {
+			fixedItems.add(itemService.getItem(itemId));
 		}
+		QuestionPoolService poolService = new QuestionPoolService();
+		List<ItemDataIfc> randomItems = new ArrayList<>();
+		for (String poolId : randomPoolIds) {
+			randomItems.addAll(poolService.getAllItems(Long.valueOf(poolId)));
+		}
+		return new QuestionPoolDraw(fixedItems, randomItems);
 	}
 
-	private boolean verifyItemsDrawSize(int itemcount, String numberDrawn){
-		try{
-			int numberDrawnInt = Integer.parseInt(numberDrawn);
-			if(numberDrawnInt <=0 || numberDrawnInt>itemcount){
-				return false;
+	private QuestionPoolDraw getQuestionPoolDraw(SectionFacade section) {
+		List<String> fixedQuestionIds = new ArrayList<>();
+		String authorType = section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
+		if (SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(authorType)) {
+			int fixedCount = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+			for (int i = 1; i <= fixedCount; i++) {
+				fixedQuestionIds.add(section.getSectionMetaDataByLabel(SectionDataIfc.FIXED_QUESTION_IDS + SectionDataIfc.SEPARATOR_MULTI + i));
 			}
-		} catch(NumberFormatException e){
+		}
+		List<String> poolIds = new ArrayList<>();
+		poolIds.add(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(authorType)) {
+			int poolCount = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+			for (int i = 1; i < poolCount; i++) {
+				poolIds.add(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + "_" + i));
+			}
+		}
+		return getQuestionPoolDraw(fixedQuestionIds, poolIds);
+	}
+
+	public boolean verifyItemsDrawSize(SectionFacade section) {
+		if (section != null && section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null
+				&& (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) ||
+						SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) ||
+						SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))) {
+			QuestionPoolDraw draw = getQuestionPoolDraw(section);
+			return verifyItemsDrawSize(draw, section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+		}
+		return true;
+	}
+
+	private boolean verifyItemsDrawSize(QuestionPoolDraw draw, String numberDrawn) {
+		try {
+			return draw.isValid(Integer.parseInt(numberDrawn));
+		} catch (NumberFormatException e) {
 			return false;
 		}
-
-		return true;
 	}
 
 	public int updateRandomPoolQuestions(SectionFacade section){
@@ -487,6 +515,11 @@ public class AssessmentService {
 			QuestionPoolService qpService = new QuestionPoolService();
 			ItemService itemService = new ItemService();
 			boolean isFixed = StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
+			QuestionPoolDraw draw = getQuestionPoolDraw(section);
+			List<ItemDataIfc> itemlist = draw.getEligibleRandomItems();
+			if (!verifyItemsDrawSize(draw, section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN))) {
+				return UPDATE_ERROR_DRAW_SIZE_TOO_LARGE;
+			}
 			int i = 0;
 
 			boolean hasRandomPartScore = false;
@@ -528,15 +561,8 @@ public class AssessmentService {
 			section = getSection(section.getSectionId().toString());
 
 			if (isFixed) {
-				int numQuestionsFixed = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
-				List<String> fixedQuestionIdsList = new ArrayList<>();
-				for (int j=0; j<numQuestionsFixed; j++) {
-					fixedQuestionIdsList.add(section.getSectionMetaDataByLabel(SectionDataIfc.FIXED_QUESTION_IDS + SectionDataIfc.SEPARATOR_MULTI + (j+1)));
-				}
-
-				for (String itemId : fixedQuestionIdsList) {
-					ItemFacade item = itemService.getItem(itemId);
-					item = qpService.copyItemFacade2(item);
+				for (ItemDataIfc fixedItem : draw.getFixedItems()) {
+					ItemFacade item = qpService.copyItemFacade2(fixedItem);
 					item.setSection(section);
 					item.setSequence(Integer.valueOf(i + 1));
 					if (hasRandomPartScore)
@@ -592,72 +618,64 @@ public class AssessmentService {
 				section.addSectionMetaData(SectionDataIfc.QUESTIONS_FIXED_DRAW_DATE, df.format(new Date()));
 			}
 			
-			List<ItemDataIfc> itemlist = getItemListFromPools(section);
-
-			if(verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN))){
-				Iterator iter = itemlist.iterator();
-				while (iter.hasNext()) {
-					ItemFacade item = (ItemFacade) iter.next();
-					// copy item so we can have it in more than one assessment
-					item = qpService.copyItemFacade2(item);
-					item.setSection(section);
-					item.setSequence(Integer.valueOf(i + 1));
-//					if (hasRandomPartScore || hasRandomPartDiscount) {
-						if (hasRandomPartScore)
-							item.setScore(score);
-						long itemTypeId = item.getTypeId().longValue();
-						String mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
-						if (hasRandomPartDiscount &&
-								(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
-								itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
-								itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
-								(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
-							item.setDiscount(discount);
-						ItemDataIfc data = item.getData();
-						Set itemTextSet = data.getItemTextSet();
-						if (itemTextSet != null) {
-							Iterator iterITS = itemTextSet.iterator();
-							while (iterITS.hasNext()) {
-								ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
+			Iterator iter = itemlist.iterator();
+			while (iter.hasNext()) {
+				ItemFacade item = (ItemFacade) iter.next();
+				// copy item so we can have it in more than one assessment
+				item = qpService.copyItemFacade2(item);
+				item.setSection(section);
+				item.setSequence(Integer.valueOf(i + 1));
+				if (hasRandomPartScore)
+					item.setScore(score);
+				long itemTypeId = item.getTypeId().longValue();
+				String mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
+				if (hasRandomPartDiscount &&
+						(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() ||
+						itemTypeId == TypeFacade.TRUE_FALSE.longValue() ||
+						itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+						(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
+					item.setDiscount(discount);
+				ItemDataIfc data = item.getData();
+				Set itemTextSet = data.getItemTextSet();
+				if (itemTextSet != null) {
+					Iterator iterITS = itemTextSet.iterator();
+					while (iterITS.hasNext()) {
+						ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
+						if(publishing){
+							itemText.setText(copyContentHostingAttachments(itemText.getText(), AgentFacade.getCurrentSiteId()));
+						}
+						Set answerSet = itemText.getAnswerSet();
+						if (answerSet != null) {
+							Iterator iterAS = answerSet.iterator();
+							while (iterAS.hasNext()) {
+								AnswerIfc answer = (AnswerIfc) iterAS
+								.next();
 								if(publishing){
-									itemText.setText(copyContentHostingAttachments(itemText.getText(), AgentFacade.getCurrentSiteId()));
+									answer.setText(copyContentHostingAttachments(answer.getText(), AgentFacade.getCurrentSiteId()));
 								}
-								Set answerSet = itemText.getAnswerSet();
-								if (answerSet != null) {
-									Iterator iterAS = answerSet.iterator();
-									while (iterAS.hasNext()) {
-										AnswerIfc answer = (AnswerIfc) iterAS
-										.next();
-										if(publishing){
-											answer.setText(copyContentHostingAttachments(answer.getText(), AgentFacade.getCurrentSiteId()));
-										}
-										if (hasRandomPartScore)
-											answer.setScore(score);
-										if (hasRandomPartDiscount && 
-											(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
-											itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
-											itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
-											(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
-											answer.setDiscount(discount);
-									}
-								}
+								if (hasRandomPartScore)
+									answer.setScore(score);
+								if (hasRandomPartDiscount &&
+									(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() ||
+									itemTypeId == TypeFacade.TRUE_FALSE.longValue() ||
+									itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+									(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
+									answer.setDiscount(discount);
 							}
 						}
-//					}
-					section.addItem(item);
-					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + item.getItemId().toString(), true));
-					i = i + 1;
+					}
 				}
-
-				//update meta data for date:
-				//We need this in a standard format so it can be parsed later. This is ISO8601 format -DH
-				DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-				section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, df.format(new Date()));
-
-				saveOrUpdateSection(section);
-			}else{
-				return UPDATE_ERROR_DRAW_SIZE_TOO_LARGE;
+				section.addItem(item);
+				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + item.getItemId().toString(), true));
+				i = i + 1;
 			}
+
+			//update meta data for date:
+			//We need this in a standard format so it can be parsed later. This is ISO8601 format -DH
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+			section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, df.format(new Date()));
+
+			saveOrUpdateSection(section);
 		}
 
 		return UPDATE_SUCCESS;		
@@ -677,7 +695,10 @@ public class AssessmentService {
 
 		//passed all tests, so update pool questions:
 		for(SectionFacade section : (List<SectionFacade>) assessment.getSectionArray()){
-			updateRandomPoolQuestions(section, publishing);
+			int result = updateRandomPoolQuestions(section, publishing);
+			if (result != UPDATE_SUCCESS) {
+				return result;
+			}
 		}
 
 		return UPDATE_SUCCESS;

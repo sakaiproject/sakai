@@ -54,6 +54,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.QuestionPoolDraw;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
@@ -384,53 +385,29 @@ public class SavePartListener
   public boolean validateItemsDrawn(SectionBean sectionBean){
      FacesContext context = FacesContext.getCurrentInstance();
      String numberDrawn = sectionBean.getNumberSelected();
-     String numberSelectedFixed = sectionBean.getNumberSelectedFixed();
      String err;
-    
-     QuestionPoolService qpservice = new QuestionPoolService();
-
-     String selectedPool = sectionBean.getSelectedPool();
-     String selectedPoolFixed = sectionBean.getSelectedPoolFixed();
-     List itemlist = new ArrayList<>();
-     if (StringUtils.isNotEmpty(sectionBean.getSelectedPool())) {
-       itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()));
-     } else {
-       for (String pool : sectionBean.getSelectedPoolsMultiple()) {
-         itemlist.addAll(qpservice.getAllItems(Long.valueOf(pool)));
-       }
-     }
-     int itemcount = itemlist.size();
+     boolean fixedAndRandom = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionBean.getType());
+     List<String> fixedQuestionIds = fixedAndRandom
+         ? ContextUtil.paramArrayValueLike("randomizationTypesFixed") : List.of();
+     List<String> poolIds = StringUtils.isNotEmpty(sectionBean.getSelectedPool())
+         ? List.of(sectionBean.getSelectedPool()) : Arrays.asList(sectionBean.getSelectedPoolsMultiple());
+     QuestionPoolDraw draw = new AssessmentService().getQuestionPoolDraw(fixedQuestionIds, poolIds);
+     int itemcount = draw.getEligibleRandomItems().size();
      String itemcountString=" "+Integer.toString(itemcount);
 
      try{
 	 int numberDrawnInt = Integer.parseInt(numberDrawn);
-	 if(numberDrawnInt <=0 || numberDrawnInt>itemcount){
+	 if (!draw.isValid(numberDrawnInt)) {
 	     err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_error");
 	     context.addMessage(null,new FacesMessage(err+itemcountString ));
 	     return false;
 
 	 }
 
-     if (sectionBean.getType().equals(Integer.toString(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL))) {
-		if ((StringUtils.isNotEmpty(numberSelectedFixed)) && (StringUtils.isNotEmpty(selectedPoolFixed))) {
-			int numberSelectedInt = Integer.parseInt(numberSelectedFixed);
-
-			// checking at least one fixed
-			if (numberSelectedInt == 0) {
-				err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","notfixedquestionselected_error");
-				context.addMessage(null,new FacesMessage(err));
-				return false;
-			}
-
-			int totalFixedPlusDrawInt = numberSelectedInt + numberDrawnInt;
-
-			// checking if selected same pool for fixed and drawn and there is not enough questions
-			if ((selectedPool.equals(selectedPoolFixed)) && (totalFixedPlusDrawInt > itemcount)) {
-				err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","notenough_error");
-				context.addMessage(null,new FacesMessage(err));
-				return false;
-			}
-		}
+     if (fixedAndRandom && fixedQuestionIds.isEmpty()) {
+         err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "notfixedquestionselected_error");
+         context.addMessage(null, new FacesMessage(err));
+         return false;
      }
 
      } catch(NumberFormatException e){
