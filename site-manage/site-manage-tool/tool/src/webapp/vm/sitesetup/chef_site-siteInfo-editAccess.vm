@@ -658,13 +658,13 @@
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<div class ="act">
 			#if($!site)
-				<input type="submit" accesskey="s" id="updateButton" onclick="SPNR.disableControlsAndSpin( this, null );" 
+				<input type="submit" accesskey="s" id="updateButton"
 					class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
-				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.can")" />
 			#else
-				<input type="submit" accesskey="s" id="continueButton" class="active" name="eventSubmit_doUpdate_site_access" #if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('ediacc.con')" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
-				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("ediacc.bac")" /onclick="SPNR.disableControlsAndSpin( this, null );" >
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("ediacc.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="s" id="continueButton" class="active" name="eventSubmit_doUpdate_site_access" #if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('ediacc.con')" #end />
+				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("ediacc.bac")" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("ediacc.can")" />
 			#end
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
