@@ -53,6 +53,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
@@ -72,6 +74,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.util.GradebookAssociationHelper;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
@@ -464,8 +468,46 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		updateEntityReferencesInternal(toContext, transversalMap, mcx);
 	}
 
+	/**
+	 * Remap TO_SELECTED_GRADEBOOK item ids using {@code gb/oldId → gb/newId} from the shared transversal map.
+	 * Existing target-site ids are preserved, including assessments outside this transfer. Any id
+	 * confirmed absent in the target site is dropped; if none remain, reset to
+	 * NOT_TO_GRADEBOOK.
+	 */
+	void remapGradebookAssociations(String toContext, Map<String, String> transversalMap) {
+		AssessmentService service = new AssessmentService();
+		List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
+		GradingService gradingService = ComponentManager.get(GradingService.class);
+
+		for (AssessmentData assessment : assessmentList) {
+			AssessmentFacade assessmentFacade = service.getAssessment(assessment.getAssessmentId().toString());
+			if (assessmentFacade == null || assessmentFacade.getEvaluationModel() == null) {
+				continue;
+			}
+			EvaluationModelIfc evaluation = assessmentFacade.getEvaluationModel();
+			if (!EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+				continue;
+			}
+
+			String originalIds = assessmentFacade.getAssessmentToGradebookNameMetaData();
+			String remappedIds = GradebookAssociationHelper.remapItemIds(originalIds, transversalMap, toContext, gradingService);
+			if (remappedIds.equals(StringUtils.defaultString(originalIds))) {
+				continue;
+			}
+			if (StringUtils.isBlank(remappedIds) && StringUtils.isNotBlank(originalIds)) {
+				evaluation.setToGradeBook(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString());
+			}
+			assessmentFacade.updateAssessmentToGradebookNameMetaData(remappedIds);
+			service.saveAssessment(assessmentFacade);
+			log.debug("Updated TO_SELECTED gradebook ids for assessment {} in site {} from [{}] to [{}]",
+					assessmentFacade.getAssessmentId(), toContext, originalIds, remappedIds);
+		}
+	}
+
 	// Internal, usable in either transferCopyEntities or merge()
 	public void updateEntityReferencesInternal(String toContext, Map<String, String> transversalMap, MergeConfig mcx){
+		remapGradebookAssociations(toContext, transversalMap);
+
 		if (mcx != null || (transversalMap != null && !transversalMap.isEmpty()) ) {
 			Set<Entry<String, String>> entrySet = transversalMap.entrySet();
 

@@ -17,6 +17,7 @@
 package org.sakaiproject.samigo.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -28,7 +29,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.util.GradebookAssociationHelper;
 
 @Slf4j
 public class SamigoObserver implements Observer {
@@ -71,7 +79,85 @@ public class SamigoObserver implements Observer {
             samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD, notiValues, event);
         } else if (SamigoConstants.AUTHZ_GROUP_DELETED.equals(eventType)) {
             authzQueriesFacade.hardDeleteAuthzData(event.getResource());
+        } else if (SamigoConstants.EVENT_GRADEBOOK_DELETE_ITEM.equals(eventType)) {
+            handleGradebookItemDeleted(event.getResource());
         }
+    }
+
+    /**
+     * Resource format: {@code /gradebookng/{gradebookId}/{assignmentId}/{role}}.
+     */
+    void handleGradebookItemDeleted(String resource) {
+        if (StringUtils.isBlank(resource)) {
+            return;
+        }
+        String[] parts = StringUtils.split(resource, '/');
+        // parts: ["gradebookng", gradebookId, assignmentId, role]
+        if (parts.length < 3 || !"gradebookng".equals(parts[0])) {
+            log.warn("Unexpected gradebook.deleteItem resource format: {}", resource);
+            return;
+        }
+        String assignmentId = parts[2];
+        log.debug("Gradebook item {} deleted; clearing Samigo TO_SELECTED links", assignmentId);
+        unlinkGradebookItemFromDraftAssessments(assignmentId);
+        unlinkGradebookItemFromPublishedAssessments(assignmentId);
+    }
+
+    private void unlinkGradebookItemFromDraftAssessments(String assignmentId) {
+        AssessmentService assessmentService = new AssessmentService();
+        List<Long> assessmentIds = PersistenceService.getInstance().getAssessmentFacadeQueries()
+                .findAssessmentIdsLinkedToGradebookItem(assignmentId);
+        for (Long assessmentId : assessmentIds) {
+            AssessmentFacade facade = assessmentService.getAssessment(assessmentId.toString());
+            if (facade == null || facade.getEvaluationModel() == null) {
+                continue;
+            }
+            if (unlinkSelectedGradebookItem(facade.getEvaluationModel(),
+                    facade.getAssessmentToGradebookNameMetaData(),
+                    facade::updateAssessmentToGradebookNameMetaData,
+                    assignmentId)) {
+                assessmentService.saveAssessment(facade);
+                log.debug("Cleared deleted gradebook item {} from draft assessment {}", assignmentId, assessmentId);
+            }
+        }
+    }
+
+    private void unlinkGradebookItemFromPublishedAssessments(String assignmentId) {
+        PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+        List<Long> publishedIds = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+                .findPublishedAssessmentIdsLinkedToGradebookItem(assignmentId);
+        for (Long publishedId : publishedIds) {
+            PublishedAssessmentFacade facade = publishedAssessmentService.getPublishedAssessment(publishedId.toString());
+            if (facade == null || facade.getEvaluationModel() == null) {
+                continue;
+            }
+            if (unlinkSelectedGradebookItem(facade.getEvaluationModel(),
+                    facade.getAssessmentToGradebookNameMetaData(),
+                    facade::updateAssessmentToGradebookNameMetaData,
+                    assignmentId)) {
+                publishedAssessmentService.saveAssessment(facade);
+                log.debug("Cleared deleted gradebook item {} from published assessment {}", assignmentId, publishedId);
+            }
+        }
+    }
+
+    /**
+     * @return true if evaluation/metadata were changed
+     */
+    private boolean unlinkSelectedGradebookItem(EvaluationModelIfc evaluation, String currentIds,
+            java.util.function.Consumer<String> updateMetadata, String assignmentId) {
+        if (!EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+            return false;
+        }
+        if (!GradebookAssociationHelper.parseItemIds(currentIds).contains(assignmentId)) {
+            return false;
+        }
+        String remaining = GradebookAssociationHelper.removeItemId(currentIds, assignmentId);
+        if (StringUtils.isBlank(remaining)) {
+            evaluation.setToGradeBook(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString());
+        }
+        updateMetadata.accept(remaining);
+        return true;
     }
 
     /*

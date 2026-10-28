@@ -2795,4 +2795,30 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		return session.createQuery(cq).getResultStream().collect(Collectors.toSet());
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Long> findAssessmentIdsLinkedToGradebookItem(String gradebookAssignmentId) {
+		if (StringUtils.isBlank(gradebookAssignmentId)) {
+			return Collections.emptyList();
+		}
+		final String label = AssessmentMetaDataIfc.TO_GRADEBOOK_ID;
+		try {
+			Session session = sessionFactory.getCurrentSession();
+			return session.createQuery(
+					"select distinct m.assessment.assessmentBaseId from AssessmentMetaData m "
+							+ "where m.label = :label and ("
+							+ "m.entry = :id or m.entry like :idComma or m.entry like :commaId or m.entry like :commaIdComma)",
+					Long.class)
+					.setParameter("label", label)
+					.setParameter("id", gradebookAssignmentId)
+					.setParameter("idComma", gradebookAssignmentId + ",%")
+					.setParameter("commaId", "%," + gradebookAssignmentId)
+					.setParameter("commaIdComma", "%," + gradebookAssignmentId + ",%")
+					.list();
+		} catch (Exception e) {
+			log.warn("Error finding assessments linked to gradebook item {}: {}", gradebookAssignmentId, e.toString());
+			return Collections.emptyList();
+		}
+	}
+
 }

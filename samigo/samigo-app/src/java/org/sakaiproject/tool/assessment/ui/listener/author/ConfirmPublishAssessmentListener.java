@@ -401,6 +401,12 @@ public class ConfirmPublishAssessmentListener extends SpringBeanAutowiringSuppor
     catch(Exception e){
       log.warn("external assessment in GB has the same title:"+e.getMessage());
     }
+
+    if (SavePublishedSettingsListener.addSelectedGradebookValidationError(context,
+            assessmentSettings.getToDefaultGradebook(), assessmentSettings.getGradebookName(),
+            AgentFacade.getCurrentSiteId(), g)) {
+      error = true;
+    }
    
     if (!isFromActionSelect) {
     	// To convertFormattedTextToPlaintext for the fields that have been through convertPlaintextToFormattedTextNoHighUnicode

@@ -487,6 +487,10 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
 
         this.gradebookEnabled = populateGradebookEnabled();
 
+        if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(this.toDefaultGradebook) && StringUtils.isNotBlank(this.gradebookName)) {
+          this.gradebookName = org.sakaiproject.tool.assessment.util.GradebookAssociationHelper.filterPresentItemIds(this.gradebookName, this.currentSiteId, gradingService);
+        }
+
         if (this.gradebookGroupEnabled) {
           Object categoryListMetaData = assessment.getAssessmentMetaDataMap().get(AssessmentMetaDataIfc.CATEGORY_LIST);
           this.categorySelected = categoryListMetaData != null ? (String) categoryListMetaData : "-1";
