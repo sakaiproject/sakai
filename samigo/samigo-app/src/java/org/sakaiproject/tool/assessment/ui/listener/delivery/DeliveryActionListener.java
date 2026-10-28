@@ -2815,17 +2815,26 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
         if (!existingAttempt) {
           throw new IllegalArgumentException("Invalid random draw count for section " + part.getSectionId());
         }
-        log.warn("Reviewing or grading recorded questions for published section {} with invalid draw count {}",
+        log.warn("Recovering questions for published section {} with invalid draw count {} while reviewing or grading",
             part.getSectionId(), part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-        // Recover the submitted questions, rather than drawing a different sample or changing the configured count.
-        Set<Long> submittedIds = new HashSet<>();
+        Set<Long> selectedIds = new HashSet<>();
+        if (numberToBeDrawn > 0) {
+          // Grading rows omit unvisited questions in linear attempts. Reconstruct the draw with the original seed.
+          for (ItemDataIfc selectedItem : draw.select(Math.min(numberToBeDrawn, draw.getEligibleRandomItems().size()), seed)) {
+            selectedIds.add(selectedItem.getItemId());
+          }
+        }
+        // Preserve recorded random-question IDs, including legacy copies excluded from current eligibility.
         for (Object gradingObject : gradingService.getItemGradingSet(delivery.getAssessmentGradingId().toString())) {
           ItemGradingData grading = (ItemGradingData) gradingObject;
-          submittedIds.add(grading.getPublishedItemId());
+          selectedIds.add(grading.getPublishedItemId());
+        }
+        for (ItemDataIfc fixedItem : draw.getFixedItems()) {
+          selectedIds.add(fixedItem.getItemId());
         }
         List<ItemDataIfc> recordedItems = new ArrayList<>();
         for (ItemDataIfc item : list) {
-          if (submittedIds.contains(item.getItemId())) {
+          if (selectedIds.contains(item.getItemId())) {
             recordedItems.add(item);
           }
         }
