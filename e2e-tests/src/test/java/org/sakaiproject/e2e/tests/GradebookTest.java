@@ -163,24 +163,24 @@ class GradebookTest extends SakaiUiTestBase {
         page.locator(".navIntraTool a")
             .filter(new Locator.FilterOptions().setHasText("Settings"))
             .first()
-            .click(new Locator.ClickOptions().setForce(true));
+            .click();
 
         Locator gradeReleaseButton = page.locator(".accordion button")
             .filter(new Locator.FilterOptions().setHasText("Grade Release Rules"))
             .first();
         assertThat(gradeReleaseButton).isVisible();
         if (!"true".equals(gradeReleaseButton.getAttribute("aria-expanded"))) {
-            gradeReleaseButton.click(new Locator.ClickOptions().setForce(true));
+            ElementHandle releasePanel = page.locator("#settingsGradeRelease").elementHandle();
+            gradeReleaseButton.click();
+            // Bootstrap reveals the old panel before Wicket replaces it via AJAX.
+            page.waitForFunction("panel => !panel.isConnected", releasePanel);
+            releasePanel.dispose();
         }
 
-        Locator displayCourseGrade = page.locator("label")
-            .filter(new Locator.FilterOptions().setHasText("Display final course grade to students"))
-            .locator("input[type=\"checkbox\"]")
-            .first();
-        assertThat(displayCourseGrade).isVisible();
-        if (!displayCourseGrade.isChecked()) {
-            displayCourseGrade.check(new Locator.CheckOptions().setForce(true));
-        }
+        Locator displayCourseGrade = page.getByLabel("Display final course grade to students",
+            new Page.GetByLabelOptions().setExact(true));
+        displayCourseGrade.check();
+        assertThat(displayCourseGrade).isChecked();
 
         Locator preview = page.locator("#settingsGradeRelease .form-group")
             .filter(new Locator.FilterOptions().setHasText("Preview"))
