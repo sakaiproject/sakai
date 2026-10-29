@@ -90,9 +90,12 @@ public interface ProfileService {
     boolean removePronunciationRecording(String userId);
 
     /**
-     * Get the bytes of user pronunciation ogg audio
-     * @param uuid The user id
-     * @return MimeTypeByteArray of ogg audio
+     * Get a user's pronunciation recording. The caller must be logged in and may
+     * retrieve another user's recording.
+     *
+     * @param uuid the ID of the user whose recording is requested
+     * @return the Ogg audio bytes and MIME type, or {@code null} if no recording is available
+     * @throws SecurityException if the caller is not logged in
      */
     MimeTypeByteArray getUserNamePronunciation(String uuid);
 
