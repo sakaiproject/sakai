@@ -340,7 +340,7 @@
       <h:outputLink id="sebDownloadSeb" value="#{delivery.sebDownloadLink}" target="_blank">
         <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
       </h:outputLink >
-      <div id="sebApiTimeoutMessage" class="sak-banner-error" style="display: none;">
+      <div id="sebApiTimeoutMessage" class="sak-banner-error" role="alert" style="display: none;">
         <h:outputText value="#{deliveryMessages.begin_assessment_msg_seb_api_timeout}"/>
       </div>
     </h:panelGroup>
