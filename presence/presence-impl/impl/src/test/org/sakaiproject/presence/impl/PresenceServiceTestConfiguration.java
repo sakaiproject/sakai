@@ -13,16 +13,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.Date;
 
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.event.api.Event;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.event.impl.ClusterEventTracking;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -82,18 +84,36 @@ public class PresenceServiceTestConfiguration {
     }
 
     @Bean
+    public ClusterEventTracking eventFactory() {
+        ClusterEventTracking service = new ClusterEventTracking();
+        service.setSessionManager(sessionManager());
+        service.setEntityManager(entityManager());
+        service.setToolManager(toolManager());
+        service.setSchedulingService(schedulingService());
+        return service;
+    }
+
+    @Bean
+    public SchedulingService schedulingService() {
+        return mock(SchedulingService.class);
+    }
+
+    @Bean
+    public EntityManager entityManager() {
+        return mock(EntityManager.class);
+    }
+
+    @Bean
+    public ToolManager toolManager() {
+        return mock(ToolManager.class);
+    }
+
+    @Bean
     public EventTrackingService eventTrackingService() {
         EventTrackingService service = mock(EventTrackingService.class);
-        SessionManager manager = sessionManager();
-        when(service.newEvent(anyString(), anyString(), eq(true))).thenAnswer(invocation -> {
-            Event event = mock(Event.class);
-            String userId = manager.getCurrentSessionUserId();
-            when(event.getUserId()).thenReturn(userId == null ? EventTrackingService.UNKNOWN_USER : userId);
-            when(event.getEvent()).thenReturn(invocation.getArgument(0));
-            when(event.getResource()).thenReturn(invocation.getArgument(1));
-            when(event.getEventTime()).thenReturn(new Date());
-            return event;
-        });
+        ClusterEventTracking factory = eventFactory();
+        when(service.newEvent(anyString(), anyString(), eq(true))).thenAnswer(invocation ->
+                factory.newEvent(invocation.getArgument(0), invocation.getArgument(1), invocation.getArgument(2)));
         return service;
     }
 }

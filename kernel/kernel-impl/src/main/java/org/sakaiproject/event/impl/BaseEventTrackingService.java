@@ -761,7 +761,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService {
 		}
 
 		public Date getEventTime() {
-			return new Date(this.time.getTime());
+			return this.time == null ? null : new Date(this.time.getTime());
 		}
 	}
 }

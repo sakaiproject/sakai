@@ -7,6 +7,9 @@
 package org.sakaiproject.presence.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.times;
@@ -19,7 +22,10 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.SimpleEvent;
 import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.impl.ClusterEventTracking;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
@@ -36,10 +42,28 @@ public class PresenceServiceTest {
     @Autowired private SessionManager sessionManager;
     @Autowired private ToolSession toolSession;
     @Autowired private UsageSession usageSession;
+    @Autowired private ClusterEventTracking eventFactory;
 
     @Before
     public void clearBoundaryCalls() {
         clearInvocations(eventTrackingService, toolSession);
+    }
+
+    @Test
+    public void realEventCanBeCopiedBeforePostingAndReceivesTimeWhenPosted() {
+        when(sessionManager.getCurrentSessionUserId()).thenReturn("real-user");
+        Event event = eventFactory.newEvent(PresenceService.EVENT_ABSENCE, "/presence/site-presence",
+                null, true, NotificationService.NOTI_OPTIONAL, true);
+        assertNull(event.getEventTime());
+        SimpleEvent copy = new SimpleEvent(event, "test-server");
+        assertNull(copy.getEventTime());
+        assertEquals("real-user", copy.getUserId());
+
+        eventFactory.post(event, usageSession);
+        assertNotNull(event.getEventTime());
+        assertEquals(usageSession.getId(), event.getSessionId());
+        event.getEventTime().setTime(0);
+        assertNotEquals(0L, event.getEventTime().getTime());
     }
 
     @Test
