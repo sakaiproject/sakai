@@ -25,6 +25,7 @@ export class SakaiRubricsList extends RubricsElement {
     _lastSortAscending: { state: true },
     _lastCreatedRubricId: { state: true },
     _paginatedRubrics: { state: true },
+    _loadError: { state: true },
   };
 
   constructor() {
@@ -34,6 +35,7 @@ export class SakaiRubricsList extends RubricsElement {
     this._currentPage = 1;
     this._itemsPerPage = 20;
     this._lastSortAscending = true;
+    this._loadError = false;
   }
 
   set siteId(value) {
@@ -89,6 +91,12 @@ export class SakaiRubricsList extends RubricsElement {
 
   render() {
 
+    if (this._loadError) {
+      return html`
+        <div class="sak-banner-error">${this._i18n.operation_failed}</div>
+      `;
+    }
+
     if (!this._rubrics) {
       return html`
         <div class="sak-banner-warn">${this._i18n.loading}</div>
@@ -131,6 +139,7 @@ export class SakaiRubricsList extends RubricsElement {
 
   getRubrics() {
 
+    this._loadError = false;
     const url = `/api/sites/${this.siteId}/rubrics`;
     fetch(url, {
       headers: { "Content-Type": "application/json" },
@@ -147,7 +156,11 @@ export class SakaiRubricsList extends RubricsElement {
       this._currentPage = 1;
       this.repage();
     })
-    .catch (error => console.error(error));
+    .catch(error => {
+      console.error(error);
+      this._loadError = true;
+      this._rubrics = [];
+    });
   }
 
   createRubricResponse(nr) {
@@ -186,6 +199,7 @@ export class SakaiRubricsList extends RubricsElement {
     this._rubrics = tmp;
 
     this.dispatchEvent(new SharingChangeEvent());
+    this.dispatchEvent(new CustomEvent("rubric-soft-deleted", { bubbles: true, composed: true }));
 
     this.repage();
     if (this._currentPage > this._totalPages) {

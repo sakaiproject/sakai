@@ -107,6 +107,14 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return rubricsService.getRubricsForSite(siteId).stream().map(b -> entityModelForRubricBean(b)).collect(Collectors.toList());
     }
 
+    @GetMapping(value = "/sites/{siteId}/deleted-rubrics", produces = MediaType.APPLICATION_JSON_VALUE)
+    List<EntityModel<RubricTransferBean>> getDeletedRubricsForSite(@PathVariable("siteId") String siteId) {
+
+        checkSakaiSession();
+
+        return rubricsService.getDeletedRubricsForSite(siteId).stream().map(b -> entityModelForRubricBean(b)).collect(Collectors.toList());
+    }
+
     @GetMapping(value = "/rubrics/shared", produces = MediaType.APPLICATION_JSON_VALUE)
     List<EntityModel<RubricTransferBean>> getSharedRubrics() {
 
@@ -361,9 +369,33 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-	}
+    }
 
-    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/restore")
+    public ResponseEntity restoreRubric(@PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
+
+        checkSakaiSession();
+
+        if (rubricsService.restoreRubric(rubricId, parseRevision(revision))) {
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/permanent")
+    public ResponseEntity permanentlyDeleteRubric(@PathVariable("rubricId") Long rubricId, @RequestHeader("If-Match") String revision) {
+
+        checkSakaiSession();
+
+        if (rubricsService.permanentlyDeleteRubric(rubricId, parseRevision(revision))) {
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId:\\d+}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EntityModel<RubricTransferBean>> getRubric(@PathVariable("siteId") String siteId, @PathVariable("rubricId") Long rubricId) throws Exception {
 
         checkSakaiSession();

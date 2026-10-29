@@ -240,6 +240,9 @@ export const evaluatedItemOwnerId = "fisha";
 export const rubricsUrl = /api\/sites\/xyz\/rubrics(\?withshared=true)?$/;
 export const rubrics = [ rubric1, rubric2 ];
 
+export const deletedRubricsUrl = `/api/sites/${siteId}/deleted-rubrics`;
+export const deletedRubrics = [];
+
 export const rubric1Url = `/api/sites/${siteId}/rubrics/${rubric1.id}`;
 export const rubric1OwnerUrl = `/api/sites/${ownerId}/rubrics/${rubric1.id}`;
 export const rubric3OwnerUrl = `/api/sites/${ownerId}/rubrics/${rubric3.id}`;

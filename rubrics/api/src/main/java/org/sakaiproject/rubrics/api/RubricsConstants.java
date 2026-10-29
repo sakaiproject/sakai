@@ -57,6 +57,8 @@ public interface RubricsConstants {
     public static final String EVENT_RUBRIC_CREATED = "rubric.created";
     public static final String EVENT_RUBRIC_UPDATED = "rubric.updated";
     public static final String EVENT_RUBRIC_DELETED = "rubric.deleted";
+    public static final String EVENT_RUBRIC_RESTORED = "rubric.restored";
+    public static final String EVENT_RUBRIC_PERMANENTLY_DELETED = "rubric.permanently.deleted";
 
     //samigo custom props
     public static final String RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX = "pub.";

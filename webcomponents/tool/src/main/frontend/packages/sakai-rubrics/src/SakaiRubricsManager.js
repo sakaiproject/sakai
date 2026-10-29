@@ -3,6 +3,7 @@ import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "../sakai-rubrics-list.js";
 import "../sakai-rubrics-shared-list.js";
+import "../sakai-rubrics-deleted-list.js";
 
 export class SakaiRubricsManager extends RubricsElement {
 
@@ -45,6 +46,16 @@ export class SakaiRubricsManager extends RubricsElement {
 
     sharedRubricsBlock.addEventListener("hide.bs.collapse", () => {
       this.querySelector("#shared-rubrics-toggle span.fa").classList.replace("fa-chevron-down", "fa-chevron-right");
+    });
+
+    const deletedRubricsBlock = this.querySelector("#deleted_rubrics");
+
+    deletedRubricsBlock.addEventListener("show.bs.collapse", () => {
+      this.querySelector("#deleted-rubrics-toggle span.fa").classList.replace("fa-chevron-right", "fa-chevron-down");
+    });
+
+    deletedRubricsBlock.addEventListener("hide.bs.collapse", () => {
+      this.querySelector("#deleted-rubrics-toggle span.fa").classList.replace("fa-chevron-down", "fa-chevron-right");
     });
   }
 
@@ -127,8 +138,65 @@ export class SakaiRubricsManager extends RubricsElement {
           <sakai-rubrics-list site-id="${this.siteId}"
               @sharing-change=${this.handleSharingChange}
               @copy-share-site=${this.handleRubricList}
+              @rubric-soft-deleted=${this.handleDeletedList}
               ?enable-pdf-export=${this.enablePdfExport}>
           </sakai-rubrics-list>
+        </div>
+
+        <hr>
+        <div class="d-flex align-items-center">
+          <button class="btn btn-icon btn-xs me-1"
+              id="deleted-rubrics-toggle"
+              data-bs-toggle="collapse"
+              data-bs-target="#deleted_rubrics"
+              aria-expanded="false"
+              title="${this.tr("toggle_deleted_rubrics")}"
+              aria-label="${this.tr("toggle_deleted_rubrics")}"
+              aria-controls="deleted_rubrics">
+            <span class="collpase-icon fa fa-chevron-right" aria-hidden="true"></span>
+          </button>
+          <span class="fw-bold">${this.tr("trash")}</span>
+        </div>
+
+        <div class="collapse" id="deleted_rubrics">
+          <div class="rubric-title-sorting p-3 rounded-top">
+            <div>
+              <button class="btn p-0"
+                  @click=${this.sortRubrics}
+                  data-key="deleted-name">
+                ${this.tr("site_name")}
+                <span class="collpase-icon fa fa-chevron-up deleted-name sort-element-deleted" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div>
+              <button class="btn p-0"
+                  @click=${this.sortRubrics}
+                  data-key="deleted-title">
+                ${this.tr("site_title")}
+                <span class="collpase-icon fa deleted-title sort-element-deleted" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div>
+              <button class="btn p-0"
+                  @click=${this.sortRubrics}
+                  data-key="deleted-creator">
+                ${this.tr("creator_name")}
+                <span class="collpase-icon fa deleted-creator sort-element-deleted" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div>
+              <button class="btn p-0"
+                  @click=${this.sortRubrics}
+                  data-key="deleted-modified">
+                ${this.tr("deleted_on")}
+                <span class="collpase-icon fa deleted-modified sort-element-deleted" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="actions">${this.tr("actions")}</div>
+          </div>
+          <sakai-rubrics-deleted-list site-id="${this.siteId}"
+              @rubric-restored=${this.refreshSiteAndDeletedLists}>
+          </sakai-rubrics-deleted-list>
         </div>
 
         <hr>
@@ -188,10 +256,10 @@ export class SakaiRubricsManager extends RubricsElement {
               <div class="actions">${this.tr("actions")}</div>
             </div>
             <sakai-rubrics-shared-list site-id="${this.siteId}"
-                @copy-share-site=${this.handleRubricList}
-                @update-rubric-list=${this.handleRubricList}
-                ?enable-pdf-export=${this.enablePdfExport}
-                ?is-super-user=${this.isSuperUser}>
+              @copy-share-site=${this.handleRubricList}
+              @update-rubric-list=${this.refreshSiteAndDeletedLists}
+              ?enable-pdf-export=${this.enablePdfExport}
+              ?is-super-user=${this.isSuperUser}>
             </sakai-rubrics-shared-list>
           </div>
         </div>
@@ -209,10 +277,21 @@ export class SakaiRubricsManager extends RubricsElement {
     this.querySelector("sakai-rubrics-list").refresh();
   }
 
+  handleDeletedList() {
+
+    this.querySelector("sakai-rubrics-deleted-list")?.refresh();
+  }
+
+  refreshSiteAndDeletedLists() {
+
+    this.handleRubricList();
+    this.handleDeletedList();
+  }
+
   filterRubrics() {
 
     this._searchTerm = this.renderRoot.querySelector("#rubrics-search-bar").value;
-    this.renderRoot.querySelectorAll("sakai-rubrics-list, sakai-rubrics-shared-list").forEach(rubricList => {
+    this.renderRoot.querySelectorAll("sakai-rubrics-list, sakai-rubrics-shared-list, sakai-rubrics-deleted-list").forEach(rubricList => {
       rubricList.search(this._searchTerm);
     });
   }
@@ -247,7 +326,12 @@ export class SakaiRubricsManager extends RubricsElement {
     event.currentTarget.querySelector(selector).classList.add(ascending ? arrowDownIcon : arrowUpIcon);
     ascending = !ascending;
 
-    const list = this.querySelector(rubricClass === "site" ? "sakai-rubrics-list" : "sakai-rubrics-shared-list");
-    list.sortRubrics(rubricType, ascending);
+    const listSelector = {
+      site: "sakai-rubrics-list",
+      shared: "sakai-rubrics-shared-list",
+      deleted: "sakai-rubrics-deleted-list",
+    }[rubricClass];
+    const list = this.querySelector(listSelector);
+    list?.sortRubrics(rubricType, ascending);
   }
 }

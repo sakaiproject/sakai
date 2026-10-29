@@ -11,6 +11,7 @@ describe("sakai-rubric-manager tests", () => {
       .get(data.i18nUrl, data.i18n)
       .get(data.sharedRubricsUrl, data.sharedRubrics)
       .get(data.rubricsUrl, data.rubrics)
+      .get(data.deletedRubricsUrl, data.deletedRubrics)
       .get("*", 500);
   });
 
@@ -29,5 +30,7 @@ describe("sakai-rubric-manager tests", () => {
 
     expect(el.querySelector("h1:first-child")).to.exist;
     expect(el.querySelector("h1:first-child").innerHTML).to.contain(el._i18n.manage_rubrics);
+    expect(el.querySelector("#deleted_rubrics")).to.exist;
+    expect(el.querySelector("sakai-rubrics-deleted-list")).to.exist;
   });
 });
