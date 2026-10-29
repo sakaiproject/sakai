@@ -175,7 +175,8 @@ public class PortalServiceTests extends SakaiTests {
 
         when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(2);
         when(siteService.isSpecialSite("special")).thenReturn(true);
-        portalService.savePinnedSites(user1, List.of("special", "site1", "site1", "site2", "site3"));
+        when(siteService.isUserSite("~user1")).thenReturn(true);
+        portalService.savePinnedSites(user1, List.of("special", "~user1", "site1", "site1", "site2", "site3"));
         Assert.assertEquals(List.of("site1", "site2"), portalService.getPinnedSites(user1));
         Assert.assertTrue(portalService.getUnpinnedSites(user1).contains("site3"));
     }
@@ -197,7 +198,8 @@ public class PortalServiceTests extends SakaiTests {
         portalService.addPinnedSite(user1, "site3", true);
         Assert.assertEquals(List.of("site2", "site3"), portalService.getPinnedSites(user1));
 
-        portalService.reorderPinnedSites(user1, List.of("site3", "site2", "site1"));
+        when(siteService.isUserSite("~user1")).thenReturn(true);
+        portalService.reorderPinnedSites(user1, List.of("~user1", "site3", "site2", "site1"));
         Assert.assertEquals(List.of("site3", "site2"), portalService.getPinnedSites(user1));
         when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(true);
         portalService.reorderPinnedSites(user1, List.of("site2", "site3", "site1"));
@@ -268,7 +270,13 @@ public class PortalServiceTests extends SakaiTests {
         when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(3);
         portalService.syncUserSitesWithPortalNav(user1);
         Assert.assertEquals(List.of("newest", "newer", "existing2"), portalService.getPinnedSites(user1));
-        Assert.assertTrue(portalService.getUnpinnedSites(user1).containsAll(List.of("unpinned", "existing1")));
+        Assert.assertEquals(List.of("unpinned"), portalService.getUnpinnedSites(user1));
+        Assert.assertFalse(pinnedSiteRepository.findByUserIdAndSiteId(user1, "existing1").isPresent());
+
+        when(serverConfigurationService.getInt("portal.pinned.max", PortalServiceImpl.DEFAULT_MAX_PINNED_SITES)).thenReturn(5);
+        portalService.syncUserSitesWithPortalNav(user1);
+        Assert.assertEquals(List.of("older", "existing1", "newest", "newer", "existing2"), portalService.getPinnedSites(user1));
+        Assert.assertEquals(List.of("unpinned"), portalService.getUnpinnedSites(user1));
     }
 
     @Test

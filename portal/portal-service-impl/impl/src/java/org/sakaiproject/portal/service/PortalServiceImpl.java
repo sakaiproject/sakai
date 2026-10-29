@@ -896,6 +896,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	private List<String> limitPinnedSites(List<String> siteIds) {
 		return siteIds.stream()
 				.filter(Predicate.not(siteService::isSpecialSite))
+				.filter(Predicate.not(siteService::isUserSite))
 				.distinct()
 				.limit(getMaxPinnedSites())
 				.collect(Collectors.toList());
@@ -1099,6 +1100,11 @@ public class PortalServiceImpl implements PortalService, Observer
 		sitesToPin.removeAll(sitesToRemove);
 		// Select before reversing so the cap always favors the newest eligible candidates.
 		List<String> selectedSites = limitPinnedSites(new ArrayList<>(sitesToPin));
+		// A cap is not an explicit user unpin: allow trimmed sites to be auto-pinned later.
+		pinnedSites.stream()
+				.filter(sitesToPin::contains)
+				.filter(Predicate.not(selectedSites::contains))
+				.forEach(id -> removePinnedSite(userId, id));
 		if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
 			Collections.reverse(selectedSites);
 		}
