@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.hierarchy.impl.test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +28,7 @@ import org.sakaiproject.hierarchy.impl.HierarchyServiceImpl;
 import org.sakaiproject.hierarchy.impl.test.data.TestDataPreload;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.hierarchy.repository.HierarchyNodeRepository;
+import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -358,6 +360,59 @@ public class HierarchyServiceTest {
                 tdp.node8.getId().toString()), result.get(node4Id));
         // leaf has no children but is present with an empty set
         assertEquals(Set.of(), result.get(node5Id));
+    }
+
+    @Test
+    public void testTraversalWithSharedAncestors() {
+        String hierarchyId = UUID.randomUUID().toString();
+        String rootId = hierarchyService.createHierarchy(hierarchyId).getId().toString();
+        String leftId = hierarchyService.addNode(hierarchyId, rootId).getId().toString();
+        String rightId = hierarchyService.addNode(hierarchyId, rootId).getId().toString();
+        String leafId = hierarchyService.addNode(hierarchyId, leftId).getId().toString();
+        hierarchyService.addChildRelation(rightId, leafId);
+
+        assertEquals(Set.of(rootId, leftId, rightId), hierarchyService.getParentNodes(leafId, false)
+                .stream().map(n -> n.getId().toString()).collect(Collectors.toSet()));
+        assertEquals(Set.of(leftId, rightId, leafId), hierarchyService.getChildNodes(rootId, false)
+                .stream().map(n -> n.getId().toString()).collect(Collectors.toSet()));
+        assertEquals(Map.of(leafId, Set.of(rootId, leftId, rightId), leftId, Set.of(rootId)),
+                hierarchyService.getParentNodeIds(new String[]{leafId, leftId}));
+        assertEquals(Map.of(rootId, Set.of(leftId, rightId, leafId), leftId, Set.of(leafId)),
+                hierarchyService.getChildNodeIds(new String[]{rootId, leftId}));
+    }
+
+    @Test
+    public void testBatchedTraversalAcrossParameterLimit() {
+        List<String> ids = new ArrayList<>();
+        String parentId = tdp.node3.getId().toString();
+        String leafId = tdp.node5.getId().toString();
+        String rootId = tdp.node1.getId().toString();
+        ids.add(parentId);
+        // Missing ids fill the first chunk; the leaf must be resolved in a later chunk.
+        for (int i = 1; i < HibernateCriterionUtils.MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST; i++) {
+            ids.add(Long.toString(-i));
+        }
+        ids.add(leafId);
+        String[] nodeIds = ids.toArray(String[]::new);
+
+        Map<String, Set<String>> parents = hierarchyService.getParentNodeIds(nodeIds);
+        assertEquals(ids.size(), parents.size());
+        assertEquals(Set.of(rootId), parents.get(parentId));
+        assertEquals(Set.of(rootId, parentId), parents.get(leafId));
+        assertEquals(Set.of(), parents.get("-1"));
+        assertEquals(Set.of(rootId), hierarchyService.getDirectParentNodeIds(nodeIds).get(parentId));
+        assertEquals(Set.of(parentId), hierarchyService.getDirectParentNodeIds(nodeIds).get(leafId));
+
+        // Put an origin with descendants in the second chunk, too.
+        ids.set(0, leafId);
+        ids.set(ids.size() - 1, parentId);
+        nodeIds = ids.toArray(String[]::new);
+        Map<String, Set<String>> children = hierarchyService.getChildNodeIds(nodeIds);
+        assertEquals(ids.size(), children.size());
+        assertEquals(Set.of(leafId), children.get(parentId));
+        assertEquals(Set.of(), children.get(leafId));
+        assertEquals(Set.of(), children.get("-1"));
+        assertEquals(Set.of(leafId), hierarchyService.getDirectChildNodeIds(nodeIds).get(parentId));
     }
 
     @Test

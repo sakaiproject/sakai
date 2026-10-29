@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -44,49 +43,51 @@ public class HierarchyNodeRepositoryImpl
         extends SpringCrudRepositoryImpl<HierarchyNode, Long>
         implements HierarchyNodeRepository {
 
-    // TODO: Hibernate 6 supports CTEs natively in HQL/Criteria (JpaCriteriaQuery#with / CteCriteria).
-    // These recursive-CTE native queries are the only native SQL in this repository; migrate them to
-    // the Criteria CTE API on the Hibernate 6 upgrade so the data layer is fully native-SQL free.
-    // This also resolves the Oracle "WITH RECURSIVE" syntax incompatibility (Oracle omits the keyword).
-    private static final String ANCESTORS_IDS_CTE =
-        "WITH RECURSIVE ancestors (ID) AS (" +
-        "  SELECT PARENT_NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE NODE_ID = :nodeId " +
-        "  UNION ALL " +
-        "  SELECT p.PARENT_NODE_ID FROM HIERARCHY_NODE_PARENTS p " +
-        "  INNER JOIN ancestors a ON p.NODE_ID = a.ID" +
-        ") SELECT ID FROM ancestors";
+    private static final String ANCESTORS_IDS_CTE = """
+        with ancestors as (
+            select p.id as id from HierarchyNode n join n.parents p where n.id = :nodeId
+            union all
+            select p.id as id from ancestors a join HierarchyNode n on n.id = a.id join n.parents p
+        )
+        select a.id from ancestors a
+        """;
 
-    private static final String DESCENDANTS_IDS_CTE =
-        "WITH RECURSIVE descendants (ID) AS (" +
-        "  SELECT NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE PARENT_NODE_ID = :nodeId " +
-        "  UNION ALL " +
-        "  SELECT p.NODE_ID FROM HIERARCHY_NODE_PARENTS p " +
-        "  INNER JOIN descendants d ON p.PARENT_NODE_ID = d.ID" +
-        ") SELECT ID FROM descendants";
+    private static final String DESCENDANTS_IDS_CTE = """
+        with descendants as (
+            select c.id as id from HierarchyNode n join n.children c where n.id = :nodeId
+            union all
+            select c.id as id from descendants d join HierarchyNode n on n.id = d.id join n.children c
+        )
+        select d.id from descendants d
+        """;
 
-    // Batch, origin-tracking variants: each row is (ORIGIN node id, related node id) so a single
+    // Batch, origin-tracking variants: each row is (origin node id, related node id) so a single
     // query resolves the closure for many origin nodes at once.
-    private static final String ANCESTOR_IDS_BATCH_CTE =
-        "WITH RECURSIVE ancestors (ORIGIN, ID) AS (" +
-        "  SELECT NODE_ID, PARENT_NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE NODE_ID IN (:nodeIds) " +
-        "  UNION ALL " +
-        "  SELECT a.ORIGIN, p.PARENT_NODE_ID FROM HIERARCHY_NODE_PARENTS p " +
-        "  INNER JOIN ancestors a ON p.NODE_ID = a.ID" +
-        ") SELECT ORIGIN, ID FROM ancestors";
+    private static final String ANCESTOR_IDS_BATCH_CTE = """
+        with ancestors as (
+            select n.id as origin, p.id as id from HierarchyNode n join n.parents p where n.id in (:nodeIds)
+            union all
+            select a.origin as origin, p.id as id
+            from ancestors a join HierarchyNode n on n.id = a.id join n.parents p
+        )
+        select a.origin, a.id from ancestors a
+        """;
 
-    private static final String DESCENDANT_IDS_BATCH_CTE =
-        "WITH RECURSIVE descendants (ORIGIN, ID) AS (" +
-        "  SELECT PARENT_NODE_ID, NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE PARENT_NODE_ID IN (:nodeIds) " +
-        "  UNION ALL " +
-        "  SELECT d.ORIGIN, p.NODE_ID FROM HIERARCHY_NODE_PARENTS p " +
-        "  INNER JOIN descendants d ON p.PARENT_NODE_ID = d.ID" +
-        ") SELECT ORIGIN, ID FROM descendants";
+    private static final String DESCENDANT_IDS_BATCH_CTE = """
+        with descendants as (
+            select n.id as origin, c.id as id from HierarchyNode n join n.children c where n.id in (:nodeIds)
+            union all
+            select d.origin as origin, c.id as id
+            from descendants d join HierarchyNode n on n.id = d.id join n.children c
+        )
+        select d.origin, d.id from descendants d
+        """;
 
     private static final String DIRECT_PARENT_IDS_BATCH =
-        "SELECT NODE_ID, PARENT_NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE NODE_ID IN (:nodeIds)";
+        "select n.id, p.id from HierarchyNode n join n.parents p where n.id in (:nodeIds)";
 
     private static final String DIRECT_CHILD_IDS_BATCH =
-        "SELECT PARENT_NODE_ID, NODE_ID FROM HIERARCHY_NODE_PARENTS WHERE PARENT_NODE_ID IN (:nodeIds)";
+        "select n.id, c.id from HierarchyNode n join n.children c where n.id in (:nodeIds)";
 
     @Override
     @Transactional(readOnly = true)
@@ -224,32 +225,24 @@ public class HierarchyNodeRepositoryImpl
 
     @Override
     @Transactional(readOnly = true)
-    @SuppressWarnings("unchecked")
     public Set<HierarchyNode> findAllAncestors(Long nodeId) {
-        List<Object> ids = sessionFactory.getCurrentSession()
-                .createNativeQuery(ANCESTORS_IDS_CTE)
+        List<Long> ids = sessionFactory.getCurrentSession()
+                .createQuery(ANCESTORS_IDS_CTE, Long.class)
                 .setParameter("nodeId", nodeId)
                 .getResultList();
         if (ids.isEmpty()) return new HashSet<>();
-        List<Long> longIds = ids.stream()
-                .map(o -> ((Number) o).longValue())
-                .collect(Collectors.toList());
-        return new HashSet<>(findByIdIn(longIds));
+        return new HashSet<>(findByIdIn(ids));
     }
 
     @Override
     @Transactional(readOnly = true)
-    @SuppressWarnings("unchecked")
     public Set<HierarchyNode> findAllDescendants(Long nodeId) {
-        List<Object> ids = sessionFactory.getCurrentSession()
-                .createNativeQuery(DESCENDANTS_IDS_CTE)
+        List<Long> ids = sessionFactory.getCurrentSession()
+                .createQuery(DESCENDANTS_IDS_CTE, Long.class)
                 .setParameter("nodeId", nodeId)
                 .getResultList();
         if (ids.isEmpty()) return new HashSet<>();
-        List<Long> longIds = ids.stream()
-                .map(o -> ((Number) o).longValue())
-                .collect(Collectors.toList());
-        return new HashSet<>(findByIdIn(longIds));
+        return new HashSet<>(findByIdIn(ids));
     }
 
     @Override
@@ -277,11 +270,10 @@ public class HierarchyNodeRepositoryImpl
     }
 
     /**
-     * Runs a native query that returns (origin id, related id) pairs and groups it into a map keyed
+     * Runs an HQL query that returns (origin id, related id) pairs and groups it into a map keyed
      * by origin id. The id collection is chunked to stay within the SQL parameter-list limit.
      */
-    @SuppressWarnings("unchecked")
-    private Map<Long, Set<Long>> queryIdPairs(String sql, Collection<Long> nodeIds) {
+    private Map<Long, Set<Long>> queryIdPairs(String hql, Collection<Long> nodeIds) {
         Map<Long, Set<Long>> result = new HashMap<>();
         if (nodeIds == null || nodeIds.isEmpty()) return result;
         List<Long> ids = new ArrayList<>(nodeIds);
@@ -289,12 +281,12 @@ public class HierarchyNodeRepositoryImpl
         for (int i = 0; i < ids.size(); i += chunkSize) {
             List<Long> chunk = ids.subList(i, Math.min(i + chunkSize, ids.size()));
             List<Object[]> rows = sessionFactory.getCurrentSession()
-                    .createNativeQuery(sql)
+                    .createQuery(hql, Object[].class)
                     .setParameterList("nodeIds", chunk)
                     .getResultList();
             for (Object[] row : rows) {
-                Long origin = ((Number) row[0]).longValue();
-                Long related = ((Number) row[1]).longValue();
+                Long origin = (Long) row[0];
+                Long related = (Long) row[1];
                 result.computeIfAbsent(origin, k -> new HashSet<>()).add(related);
             }
         }
