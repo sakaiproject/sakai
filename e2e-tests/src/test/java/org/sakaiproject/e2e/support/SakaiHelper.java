@@ -405,27 +405,25 @@ public class SakaiHelper {
             clickContinue();
         } else {
             assertThat(addCourseForm).isVisible();
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
             String addCourseText = text(addCourseForm);
             if (addCourseText.contains("select anyway")) {
                 Locator selectAnyway = page.getByRole(AriaRole.LINK,
                     new Page.GetByRoleOptions().setName(Pattern.compile("select anyway", Pattern.CASE_INSENSITIVE))).first();
                 if (selectAnyway.count() > 0 && selectAnyway.isVisible()) {
-                    selectAnyway.click(new Locator.ClickOptions().setForce(true));
+                    selectAnyway.click();
                 }
             }
 
-            ensureAnyVisibleCheckboxChecked(addCourseForm.locator("input[type=\"checkbox\"]"));
-
-            Locator courseDesc = page.locator("form input#courseDesc1");
-            if (courseDesc.count() > 0 && courseDesc.first().isVisible()) {
-                courseDesc.first().click(new Locator.ClickOptions().setForce(true));
-            }
+            Locator roster = addCourseForm.locator("input[name=providerCourseAdd]:enabled").first();
+            roster.check();
+            assertThat(roster).isChecked();
 
             clickContinue();
-            Locator siteTitle = page.locator("textarea").last();
-            assertThat(siteTitle).isVisible();
-            siteTitle.fill("Playwright Java Testing " + randomId());
+            Locator description = page.locator("#short_description");
+            assertThat(description).isVisible();
+            description.fill("Playwright Java Testing " + randomId());
             clickContinue();
         }
 
@@ -659,34 +657,6 @@ public class SakaiHelper {
         } catch (PlaywrightException e) {
             return false;
         }
-    }
-
-    private void ensureAnyVisibleCheckboxChecked(Locator checkboxes) {
-        int count = checkboxes.count();
-
-        for (int index = 0; index < count; index++) {
-            Locator box = checkboxes.nth(index);
-            if (box.isVisible() && box.isChecked()) {
-                return;
-            }
-        }
-
-        for (int index = 0; index < count; index++) {
-            Locator box = checkboxes.nth(index);
-            if (!box.isVisible()) {
-                continue;
-            }
-            try {
-                box.check(new Locator.CheckOptions().setForce(true));
-            } catch (PlaywrightException ex) {
-                box.click(new Locator.ClickOptions().setForce(true));
-            }
-            if (box.isChecked()) {
-                return;
-            }
-        }
-
-        throw new IllegalStateException("Unable to select a visible course/section during site creation");
     }
 
     private String text(Locator locator) {

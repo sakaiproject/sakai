@@ -82,8 +82,11 @@ class SharedToolComponentsTest {
 
     @AfterEach
     void closeContext() {
-        if (context != null) {
-            context.close();
+        try (BrowserContext closingContext = context) {
+            if (page != null) {
+                // Remove interception while its page is still open.
+                page.unrouteAll();
+            }
         }
     }
 

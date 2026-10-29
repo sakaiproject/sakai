@@ -94,9 +94,10 @@ public abstract class SakaiUiTestBase {
 
     @AfterEach
     void closeContext() {
-        try {
-            if (context != null) {
-                context.close();
+        try (BrowserContext closingContext = context) {
+            if (page != null) {
+                // Route callbacks can still be queued when the test finishes.
+                page.unrouteAll();
             }
         } finally {
             if (fixtureRequest != null) {

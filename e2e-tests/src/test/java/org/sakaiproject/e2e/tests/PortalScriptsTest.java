@@ -119,6 +119,7 @@ class PortalScriptsTest {
                 assertEquals(List.of(selected), saves, "Reload must preserve the choice without saving again");
             }
             assertTrue(errors.isEmpty(), errors.toString());
+            page.unrouteAll();
         }
     }
 
@@ -185,6 +186,7 @@ class PortalScriptsTest {
             assertThat(page.locator(".site-favorite-btn[aria-pressed=true]")).hasCount(bulk ? 2 : 1);
             assertThat(page.locator("#allsites-refresh-notification")).isVisible();
             assertTrue(errors.isEmpty(), errors.toString());
+            page.unrouteAll();
         }
     }
 }
