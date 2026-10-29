@@ -2895,7 +2895,7 @@ public class DeliveryActionListener extends SpringBeanAutowiringSupport implemen
     	  samplesize = numberToBeDrawn.intValue();
       }
 
-      for (int i=0; i<samplesize; i++){
+      for (int i=0; i<samplesize && i<list.size(); i++){
         randomsample.add(list.get(i));
       }
       return randomsample;
