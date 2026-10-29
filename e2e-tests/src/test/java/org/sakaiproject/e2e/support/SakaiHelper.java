@@ -180,6 +180,11 @@ public class SakaiHelper {
         return createSite(username, toolIds, "course");
     }
 
+    public void addMemberToSite(String siteUrl, String username, String role) {
+        callSakaiScript("addMemberToSiteWithRole", fixtureSession(), Map.of(
+            "siteid", siteIdFromUrl(siteUrl), "eid", resolveUser(username), "roleid", role));
+    }
+
     public String createProject(String username, List<String> toolIds) {
         return createSite(username, toolIds, "project");
     }

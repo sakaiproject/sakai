@@ -1185,6 +1185,19 @@ public class SimplePageToolDaoImpl implements SimplePageToolDao, PortalSubPageNa
 		return findPageWithToolId(sitePageId);
 	}
 
+	@Override
+	public List<SimplePage> findSimplePagesBySitePageIds(Collection<String> sitePageIds) {
+		if (sitePageIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+		Session session = currentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SimplePage> query = cb.createQuery(SimplePage.class);
+		Root<SimplePageImpl> root = query.from(SimplePageImpl.class);
+		query.select(root).where(cb.and(root.get("toolId").in(sitePageIds), cb.isNull(root.get("parent"))));
+		return session.createQuery(query).setCacheable(true).getResultList();
+	}
+
 	public List<ToolConfiguration> getSiteTools(String siteId) {
 
 		try {

@@ -161,6 +161,10 @@ class PortalPreferencesTest extends SakaiUiTestBase {
             if (reorder) {
                 assertFalse(actualIds.contains(siteId), "Reordering must not pin the site just unpinned");
                 assertEquals(expectedIds, actualIds, "The final pin order must be persisted");
+                page.reload();
+                List<?> reloadedIds = (List<?>) page.evaluate(
+                    "async () => (await (await fetch('/portal/favorites/list')).json()).favoriteSiteIds");
+                assertEquals(expectedIds, reloadedIds, "Reload must retain the reordered pins");
             } else {
                 Object selectedIds = page.evaluate("allsites.getPinnedSiteIds()");
                 assertEquals(new HashSet<>((List<?>) selectedIds), new HashSet<>(actualIds),
