@@ -194,7 +194,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         return ResponseEntity.badRequest().build();
                     }
 
-                    if (!canUpdateAssessment(userId, assessment)) {
+                    if (!canUpdateAssessment(siteId, assessment)) {
                         log.debug("canUpdateAssessment failed", patchEntity.getId());
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                     }
@@ -439,9 +439,11 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     updatedEntities.add(SiteEntityRestBean.of(updatedResource));
                     break;
                 case FORUM:
-                    DiscussionForum updatedForum = discussionForumManager.updateForumAvailability(site.getId(),
-                            Long.valueOf(patchEntity.getId()), Boolean.TRUE.equals(dateRestricted),
-                            patchEntity.getOpenDate(), patchEntity.getCloseDate());
+                    DiscussionForum updatedForum = dateRestricted == null
+                            ? (DiscussionForum) toolEntities.get(entityKey(patchEntity))
+                            : discussionForumManager.updateForumAvailability(site.getId(),
+                                    Long.valueOf(patchEntity.getId()), dateRestricted,
+                                    patchEntity.getOpenDate(), patchEntity.getCloseDate());
                     updatedEntities.add(SiteEntityRestBean.of(updatedForum));
                     break;
                 default:
@@ -454,8 +456,8 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 .collect(Collectors.toSet()));
     }
 
-    private boolean canUpdateAssessment(String userId, PublishedAssessmentFacade assessment) {
-        return publishedAssessmentService.canEditPublishedAssessment(assessment);
+    private boolean canUpdateAssessment(String siteId, PublishedAssessmentFacade assessment) {
+        return publishedAssessmentService.canEditPublishedAssessment(siteId, assessment);
     }
 
     private boolean canUpdateAssignment(String userId, Assignment assignment) {

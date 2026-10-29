@@ -329,6 +329,53 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
+    public void privateDraftReplyIsNotVisibleToItsParentAuthor() throws Exception {
+        switchToUser1();
+        topicBean.draft = false;
+        TopicTransferBean topic = conversationsService.saveTopic(topicBean, false);
+        postBean.topic = topic.id;
+        postBean.draft = false;
+        PostTransferBean parent = conversationsService.savePost(postBean, false);
+        switchToUser2();
+        PostTransferBean reply = new PostTransferBean();
+        reply.siteId = site1Id;
+        reply.topic = topic.id;
+        reply.parentPost = parent.id;
+        reply.parentThread = parent.id;
+        reply.privatePost = true;
+        reply.draft = true;
+        reply.message = "Private unsent reply";
+        PostTransferBean saved = conversationsService.savePost(reply, false);
+        ConversationsPost stored = postRepository.findById(saved.id).orElseThrow();
+        assertTrue(conversationsService.currentUserCanViewPost(stored));
+        switchToUser1();
+        assertFalse(conversationsService.currentUserCanViewPost(stored));
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvotePost(site1Id, topic.id, saved.id));
+        assertFalse(conversationsService.getPostsByTopicId(site1Id, topic.id, 1, null, null).stream().anyMatch(p -> saved.id.equals(p.id)));
+        stored.setDraft(false);
+        postRepository.save(stored);
+        assertTrue(conversationsService.currentUserCanViewPost(stored));
+    }
+
+    @Test
+    public void hiddenPostCannotBeVotedOnInVisibleTopic() throws Exception {
+        switchToUser1();
+        topicBean.draft = false;
+        TopicTransferBean topic = conversationsService.saveTopic(topicBean, false);
+        postBean.topic = topic.id;
+        postBean.draft = false;
+        PostTransferBean post = conversationsService.savePost(postBean, false);
+        switchToUser2();
+        conversationsService.upvotePost(site1Id, topic.id, post.id);
+        ConversationsPost stored = postRepository.findById(post.id).orElseThrow();
+        stored.setHidden(true);
+        postRepository.save(stored);
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvotePost(site1Id, topic.id, post.id));
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.unUpvotePost(site1Id, topic.id, post.id));
+        assertEquals(1, stored.getUpvotes().intValue());
+    }
+
+    @Test
     public void scopedPostAuthorRetainsCreateAndUpdateWithoutSiteVisit() throws Exception {
         switchToUser1();
         topicBean.draft = false;

@@ -1319,6 +1319,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (!post.getDraft() && securityService.isSuperUser()) return true;
 
         if (post.getMetadata().getCreator().equals(currentUserId)) return true;
+        if (post.getDraft()) return false;
 
         if (post.getPrivatePost()) {
             String parentPostId = post.getParentPostId();
@@ -2173,8 +2174,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (!Objects.equals(post.getSiteId(), siteId) || !Objects.equals(post.getTopic().getId(), topicId)) {
             throw new ConversationsPermissionsException("Post does not belong to this site and topic");
         }
-        if (!currentUserCanViewPost(post)) {
-            throw new ConversationsPermissionsException("Current user cannot view this post");
+        if (post.getHidden() || !currentUserCanViewPost(post)) {
+            throw new ConversationsPermissionsException("Current user cannot vote on this post");
         }
 
         if (post.getMetadata().getCreator().equals(currentUserId)) {
@@ -2231,8 +2232,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (!Objects.equals(post.getSiteId(), siteId) || !Objects.equals(post.getTopic().getId(), topicId)) {
             throw new ConversationsPermissionsException("Post does not belong to this site and topic");
         }
-        if (!currentUserCanViewPost(post)) {
-            throw new ConversationsPermissionsException("Current user cannot view this post");
+        if (post.getHidden() || !currentUserCanViewPost(post)) {
+            throw new ConversationsPermissionsException("Current user cannot vote on this post");
         }
 
         if (post.getMetadata().getCreator().equals(currentUserId)) {

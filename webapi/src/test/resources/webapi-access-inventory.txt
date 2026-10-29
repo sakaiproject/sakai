@@ -48,7 +48,7 @@
 [GET] /sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId} AUTHENTICATED_SITE RubricsRestController.getEvaluationsForItem | READ | RubricsService | actual associated-site evaluator or permitted evaluation subject under evaluation visibility rules
 [GET] /sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}/evaluations/{evaluatedItemId} AUTHENTICATED_SITE RubricsRestController.getEvaluation | READ | RubricsService | actual associated-site evaluator or permitted evaluation subject under evaluation visibility rules
 [GET] /sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}/evaluations/{evaluatedItemId}/owners/{evaluatedItemOwnerId} AUTHENTICATED_SITE RubricsRestController.getEvaluation | READ | RubricsService | actual associated-site evaluator or permitted evaluation subject under evaluation visibility rules
-[GET] /sites/{siteId}/rubric-evaluations/{evaluationId}/cancel AUTHENTICATED_SITE RubricsRestController.cancelEvaluation | WRITE | RubricsService | actual associated-site evaluator or permitted evaluation subject under evaluation visibility rules
+[GET] /sites/{siteId}/rubric-evaluations/{evaluationId}/cancel AUTHENTICATED_SITE RubricsRestController.cancelEvaluation | WRITE | RubricsService | authorized grader under canGrade for actual association/site; self or peer actor must satisfy configured grading rules
 [GET] /sites/{siteId}/rubrics AUTHENTICATED_SITE RubricsRestController.getRubricsForSite | READ | RubricsService | authorized rubric reader/editor under RubricsService; shared status only grants reading
 [GET] /sites/{siteId}/rubrics/{rubricId} AUTHENTICATED_SITE RubricsRestController.getRubric | READ | RubricsService | authorized rubric reader/editor under RubricsService; shared status only grants reading
 [GET] /sites/{siteId}/rubrics/{rubricId}/criteria/{sourceId}/copy AUTHENTICATED_SITE RubricsRestController.copyCriterion | WRITE | RubricsService | editor of actual stored rubric/site; copy additionally requires authorized or shared source
@@ -72,10 +72,10 @@
 [GET] /sites/{siteId}/topics/{topicId}/unupvote AUTHENTICATED_SITE ConversationsController.unUpvoteTopic | WRITE | ConversationsService | permitted non-author upvoter of actual stored site content
 [GET] /sites/{siteId}/topics/{topicId}/upvote AUTHENTICATED_SITE ConversationsController.upvoteTopic | WRITE | ConversationsService | permitted non-author upvoter of actual stored site content
 [GET] /sites/{siteId}/videos AUTHENTICATED_SITE VideoTrainingController.getSiteVideos | READ | VideoTrainingService | permitted viewer or actual video/category/lesson library manager
-[GET] /sites/{siteId}/videos/analytics AUTHENTICATED_SITE VideoTrainingController.getAnalytics | READ | VideoTrainingService | permitted viewer or actual video/category/lesson library manager
+[GET] /sites/{siteId}/videos/analytics AUTHENTICATED_SITE VideoTrainingController.getAnalytics | READ | VideoTrainingService | superuser or video.training.analytics in requested site
 [GET] /sites/{siteId}/videos/categories AUTHENTICATED_SITE VideoTrainingController.getCategories | READ | VideoTrainingService | permitted viewer or actual video/category/lesson library manager
-[GET] /sites/{siteId}/videos/categories/tree AUTHENTICATED_SITE VideoTrainingController.getCategoryTree | READ | VideoTrainingService | permitted viewer or actual video/category/lesson library manager
-[GET] /sites/{siteId}/videos/quota AUTHENTICATED_SITE VideoTrainingController.getQuota | READ | VideoTrainingService | permitted viewer or actual video/category/lesson library manager
+[GET] /sites/{siteId}/videos/categories/tree AUTHENTICATED_SITE VideoTrainingController.getCategoryTree | READ | VideoTrainingService | superuser or video.training.categories.manage in requested site
+[GET] /sites/{siteId}/videos/quota AUTHENTICATED_SITE VideoTrainingController.getQuota | READ | VideoTrainingService | superuser or video.training.manage.all in requested site
 [GET] /tool-entities/tools/{toolId} AUTHENTICATED EntityController.getToolEntityMaps | READ | SiteService + EntityTransferrer | editor of every source site before draft inventories are fetched
 [GET] /user/roles PUBLIC UserController.checkSuperUser | READ | SecurityService | public harmless role boolean
 [GET] /users/current/calendar AUTHENTICATED CalendarController.getCurrentUserCalendar | READ | CalendarService | site members or current user with calendar read permission

@@ -128,7 +128,7 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     public void ownAssessmentEditorOnlySeesTheirAssessmentsWithoutSiteVisit() {
         when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN,
             "/site/" + siteId)).thenReturn(true);
-        assertFalse(service.canEditPublishedAssessment(assessment));
+        assertFalse(service.canEditPublishedAssessment(siteId, assessment));
         List<PublishedAssessmentFacade> authored = service.getPublishedAssessmentsForAuthor(siteId);
         assertEquals(1, authored.size());
         PublishedAssessmentData authorized = new PublishedAssessmentData();
@@ -149,6 +149,16 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
             "/site/" + siteId)).thenReturn(true);
         assertEquals(1, service.getPublishedAssessmentsForAuthor(siteId).size());
         assertThrows(SecurityException.class, () -> service.getPublishedAssessmentsForAuthor("foreign-site"));
+    }
+
+    @Test
+    public void assessmentDateEditorMustUseOwningSiteEvenWithEditAnyInBothSites() {
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+            "/site/" + siteId)).thenReturn(true);
+        when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+            "/site/foreign-site")).thenReturn(true);
+        assertTrue(service.canEditPublishedAssessment(siteId, assessment));
+        assertFalse(service.canEditPublishedAssessment("foreign-site", assessment));
     }
 
     @Test

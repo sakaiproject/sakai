@@ -119,13 +119,13 @@ public class PublishedAssessmentService extends AssessmentService{
         .collect(Collectors.toList());
   }
 
-  public boolean canEditPublishedAssessment(PublishedAssessmentFacade assessment) {
+  public boolean canEditPublishedAssessment(String siteId, PublishedAssessmentFacade assessment) {
     String userId = AgentFacade.getAgentString();
     if (assessment == null || StringUtils.isBlank(userId)) {
       return false;
     }
-    String siteId = assessment.getOwnerSiteId();
-    return StringUtils.isNotBlank(siteId) && PersistenceService.getInstance().getAuthzQueriesFacade()
+    return StringUtils.isNotBlank(siteId) && siteId.equals(assessment.getOwnerSiteId())
+        && PersistenceService.getInstance().getAuthzQueriesFacade()
         .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
   }
 

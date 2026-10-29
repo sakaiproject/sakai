@@ -1053,7 +1053,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
         submitter.setSubmitter(user2);
         submission.setSubmitters(new HashSet<>(Set.of(submitter)));
-        when(assignmentService.getSubmission("peer-submission")).thenReturn(submission);
+        when(assignmentService.getSubmissionForPeerAssessment("peer-submission", user1)).thenReturn(submission);
         PeerAssessmentItem peer = new PeerAssessmentItem();
         peer.setAssignmentId(assignment.getId());
         peer.setId(new AssessorSubmissionId("peer-submission", user1));
@@ -1089,10 +1089,10 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         AssignmentSubmission submission = new AssignmentSubmission();
         submission.setAssignment(assignment);
         submission.setGroupId("reviewed-group");
-        when(assignmentService.getSubmission("group-peer-submission")).thenReturn(submission);
         when(authzGroupService.getUserRole(user1, siteRef + "/group/assessor-group")).thenReturn("access");
         switchToUser1();
         for (String assessor : List.of(user1, "assessor-group")) {
+            when(assignmentService.getSubmissionForPeerAssessment("group-peer-submission", assessor)).thenReturn(submission);
             PeerAssessmentItem peer = new PeerAssessmentItem();
             peer.setId(new AssessorSubmissionId("group-peer-submission", assessor));
             when(assignmentPeerAssessmentService.getPeerAssessmentItems(assignment.getId(), assessor, null)).thenReturn(List.of(peer));

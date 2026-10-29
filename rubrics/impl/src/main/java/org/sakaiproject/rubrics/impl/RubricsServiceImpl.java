@@ -2333,7 +2333,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 if (Boolean.TRUE.equals(peer.getRemoved())) {
                     continue;
                 }
-                AssignmentSubmission submission = assignmentService.getSubmission(peer.getId().getSubmissionId());
+                AssignmentSubmission submission = assignmentService.getSubmissionForPeerAssessment(peer.getId().getSubmissionId(), eval.getEvaluatedItemId());
                 if (submission == null) {
                     continue;
                 }
