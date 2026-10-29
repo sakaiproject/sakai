@@ -111,18 +111,62 @@ class RubricsTest extends SakaiUiTestBase {
 
     @Test
     @Order(4)
-    void canDeleteRubric() {
+    void canSoftDeleteRestoreAndPermanentlyDeleteRubric() {
         sakai.createRubric("instructor1", sakaiUrl);
 
-        Locator cancelButton = page.locator("button:visible").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Cancel", Pattern.CASE_INSENSITIVE)));
+        Locator cancelButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
+            .setName(Pattern.compile("^Cancel$", Pattern.CASE_INSENSITIVE)));
         if (cancelButton.count() > 0) {
             cancelButton.first().click(new Locator.ClickOptions().setForce(true));
         }
 
-        page.locator("sakai-item-delete.sakai-rubric").last().click(new Locator.ClickOptions().setForce(true));
-        page.locator("button:visible").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Save", Pattern.CASE_INSENSITIVE))).first().click(new Locator.ClickOptions().setForce(true));
+        Locator siteRubrics = page.locator("#site_rubrics sakai-rubric");
+        int siteRubricsBefore = siteRubrics.count();
+        softDeleteLastSiteRubric();
+        assertThat(siteRubrics).hasCount(siteRubricsBefore - 1);
 
-        assertThat(page.locator("#site_rubrics rubric-item")).hasCount(0);
+        openDeletedRubrics();
+        Locator deletedNames = page.locator("#deleted_rubrics .rubric-name");
+        assertThat(deletedNames).not().hasCount(0);
+
+        page.waitForResponse(
+            response -> response.url().contains("/restore") && "POST".equals(response.request().method()) && response.ok(),
+            () -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
+                .setName(Pattern.compile("^(Restore|Restaurar)\\b", Pattern.CASE_INSENSITIVE))).first().click());
+        assertThat(siteRubrics).hasCount(siteRubricsBefore);
+
+        softDeleteLastSiteRubric();
+        openDeletedRubrics();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
+            .setName(Pattern.compile("^(Permanently delete|Eliminar definitivamente)\\b", Pattern.CASE_INSENSITIVE)))
+            .first().click();
+        page.waitForResponse(
+            response -> response.url().contains("/permanent") && "DELETE".equals(response.request().method()) && response.ok(),
+            () -> page.locator("#permanent-delete-modal.show").getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions()
+                    .setName(Pattern.compile("Delete permanently|Eliminar definitivamente", Pattern.CASE_INSENSITIVE)))
+                .click());
+        assertThat(deletedNames).hasCount(0);
+    }
+
+    private void softDeleteLastSiteRubric() {
+        page.locator("sakai-item-delete.sakai-rubric").last().click(new Locator.ClickOptions().setForce(true));
+        Locator confirmRemove = page.locator(".modal.show").getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName(Pattern.compile("^Remove$", Pattern.CASE_INSENSITIVE)));
+        page.waitForResponse(
+            response -> response.url().matches(".*/rubrics/\\d+$")
+                && "DELETE".equals(response.request().method())
+                && response.ok(),
+            confirmRemove::click);
+    }
+
+    private void openDeletedRubrics() {
+        Locator toggle = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
+            .setName(Pattern.compile("Toggle Trash|Ver/ocultar la papelera", Pattern.CASE_INSENSITIVE)));
+        if (!"true".equals(toggle.getAttribute("aria-expanded"))) {
+            toggle.click();
+        }
+        assertThat(page.locator("#deleted_rubrics")).hasClass(Pattern.compile("\\bshow\\b"));
     }
 
     @Test
