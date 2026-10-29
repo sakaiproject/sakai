@@ -1,0 +1,10 @@
+## Copy the relevant lines into $CATALINA_HOME/sakai/sakai.properties when
+## Tomcat runs on the host and MariaDB runs via: docker compose up db
+
+vendor@org.sakaiproject.db.api.SqlService=mysql
+driverClassName@javax.sql.BaseDataSource=org.mariadb.jdbc.Driver
+url@javax.sql.BaseDataSource=jdbc:mariadb://127.0.0.1:53306/sakai?useUnicode=true&characterEncoding=UTF-8
+username@javax.sql.BaseDataSource=sakai
+password@javax.sql.BaseDataSource=ironchef
+validationQuery@javax.sql.BaseDataSource=select 1 from DUAL
+defaultTransactionIsolationString@javax.sql.BaseDataSource=TRANSACTION_READ_COMMITTED
