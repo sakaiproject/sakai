@@ -22,6 +22,7 @@ import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -126,6 +127,7 @@ class TagsTest extends SakaiUiTestBase {
     }
 
     private Locator collectionRow(String name, String scope) {
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         Locator row = page.locator(".tagservice-table tbody tr").filter(new Locator.FilterOptions().setHasText(name))
             .filter(new Locator.FilterOptions().setHasText(scope));
         Locator pager = page.locator("sakai-pager");
@@ -161,6 +163,9 @@ class TagsTest extends SakaiUiTestBase {
 
     private void selectTag(Locator selector, String label) {
         selector.getByRole(AriaRole.COMBOBOX).fill(label);
+        // The catalog loads asynchronously; Enter before it arrives selects nothing.
+        assertThat(selector.getByRole(AriaRole.OPTION,
+            new Locator.GetByRoleOptions().setName(label).setExact(true))).isVisible();
         selector.getByRole(AriaRole.COMBOBOX).press("ArrowDown");
         selector.getByRole(AriaRole.COMBOBOX).press("Enter");
         assertThat(selector.getByRole(AriaRole.BUTTON,

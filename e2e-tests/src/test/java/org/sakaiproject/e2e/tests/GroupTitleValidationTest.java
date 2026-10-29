@@ -61,9 +61,9 @@ class GroupTitleValidationTest extends SakaiUiTestBase {
         openFreshGroupManager();
         page.locator(".navIntraTool a[href$='/group']").click();
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        page.locator("#groupTitle").fill("Workshop-1");
+        assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        page.locator("#groupTitle").pressSequentially("Workshop-1");
         page.locator("#groupMembers").selectOption(page.locator("#groupMembers option").first().getAttribute("value"));
-        page.locator("#groupTitle").press("End");
         page.locator("#create-group-submit-button").click();
 
         page.locator(".navIntraTool a[href$='/autogroups']").click();

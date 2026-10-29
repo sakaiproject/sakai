@@ -193,6 +193,7 @@ class CalendarTest extends SakaiUiTestBase {
             .first().click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
+        assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
         Locator groupTitleInput = page.locator("#groupTitle");
         assertThat(groupTitleInput).isVisible();
         groupTitleInput.fill(groupTitle);

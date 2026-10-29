@@ -48,9 +48,9 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         openGroups(courseUrl);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        page.locator("#groupTitle").fill(groupTitle);
-        // Group creation enables its submit button on keyup.
-        page.locator("#groupTitle").press("End");
+        assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        // Use real key events after the form's member picker has initialized.
+        page.locator("#groupTitle").pressSequentially(groupTitle);
         assertThat(page.locator("#groupTitle")).hasValue(groupTitle);
         String member = page.locator("#groupMembers option").last().getAttribute("value");
         page.locator("#groupMembers").selectOption(member);
@@ -191,8 +191,8 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         openGroups(courseUrl);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        page.locator("#groupTitle").fill(title);
-        page.locator("#groupTitle").press("End");
+        assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        page.locator("#groupTitle").pressSequentially(title);
         Locator member = page.locator("#groupMembers option").filter(new Locator.FilterOptions().setHasText(student));
         assertThat(member).hasCount(1);
         page.locator("#groupMembers").selectOption(member.getAttribute("value"));

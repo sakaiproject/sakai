@@ -115,9 +115,9 @@ class SiteInfoTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Manage Groups$", Pattern.CASE_INSENSITIVE)))
             .first().click(new Locator.ClickOptions().setForce(true));
         page.locator(".navIntraTool a[href$='/group']").click();
-        page.locator("#groupTitle").fill("<em>Workshop</em>");
+        assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        page.locator("#groupTitle").pressSequentially("<em>Workshop</em>");
         page.locator("#groupMembers").selectOption(page.locator("#groupMembers option").first().getAttribute("value"));
-        page.locator("#groupTitle").press("End");
         page.locator("#create-group-submit-button").click();
 
         assertThat(page.locator("#group-manager-form a")

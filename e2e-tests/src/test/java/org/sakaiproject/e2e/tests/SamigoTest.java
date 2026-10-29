@@ -395,6 +395,8 @@ class SamigoTest extends SakaiUiTestBase {
         assertPoolTagRequest(() -> selectQuestionType(Pattern.compile("(select|copy|import).*pool", Pattern.CASE_INSENSITIVE)));
         Locator filterInput = page.locator("#tag-search").getByRole(AriaRole.COMBOBOX);
         filterInput.fill(secondTag);
+        assertThat(page.locator("#tag-search").getByRole(AriaRole.OPTION,
+            new Locator.GetByRoleOptions().setName(secondTag).setExact(true))).isVisible();
         filterInput.press("ArrowDown");
         filterInput.press("Enter");
         page.locator("#questionpool\\:searchByTags").click();

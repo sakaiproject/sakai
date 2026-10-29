@@ -380,6 +380,8 @@ class AssignmentTest extends SakaiUiTestBase {
         goToAssignmentsList();
 
         selector.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
+        assertThat(selector.getByRole(AriaRole.OPTION,
+            new Locator.GetByRoleOptions().setName(tagLabel).setExact(true))).isVisible();
         selector.getByRole(AriaRole.COMBOBOX).press("ArrowDown");
         selector.getByRole(AriaRole.COMBOBOX).press("Enter");
         String selectedIds = page.locator("#tag_selector").inputValue();
