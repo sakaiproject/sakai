@@ -18,6 +18,7 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,8 @@ class ParticipantSearchTest extends SakaiUiTestBase {
         sakai.toolClick("Site Info");
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions()
             .setHasText(Pattern.compile("^\\s*Manage Participants\\s*$"))).first().click();
+        // The server streams the roster rows; visibility alone can expose a partial count.
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator search = page.locator("#searchFilter1");
         Locator participants = page.locator("#siteMembers > tbody > tr");

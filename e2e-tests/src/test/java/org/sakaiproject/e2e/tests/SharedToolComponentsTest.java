@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
@@ -36,7 +38,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,29 +56,50 @@ class SharedToolComponentsTest {
         {"id":"score-or","siteId":"site","toolId":"sakai.lessonbuildertool","itemId":"source","type":"SCORE",
          "operator":"GREATER_THAN","argument":"20"}
         """;
-    private Playwright playwright;
-    private Browser browser;
+    private static Playwright playwright;
+    private static Browser browser;
+    private BrowserContext context;
     private Page page;
     private String markup;
     private final List<String> writes = new ArrayList<>();
 
-    @BeforeEach
-    void openBrowser() {
+    @BeforeAll
+    static void openBrowser() {
         assertTrue(Files.isRegularFile(FRONTEND.resolve("bundles/base.js")),
                 "Build the webcomponents frontend with npm run bundle before running this test");
         playwright = Playwright.create();
-        browser = playwright.chromium().launch();
-        page = browser.newPage();
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setTimeout(15_000));
+    }
+
+    @BeforeEach
+    void openContext() {
+        context = browser.newContext();
+        context.setDefaultTimeout(15_000);
+        context.setDefaultNavigationTimeout(15_000);
+        page = context.newPage();
         page.route("http://sakai.test/**", this::respond);
     }
 
     @AfterEach
-    void closeBrowser() {
-        if (browser != null) {
-            browser.close();
+    void closeContext() {
+        try (BrowserContext closingContext = context) {
+            if (page != null) {
+                // Remove interception while its page is still open.
+                page.unrouteAll();
+            }
         }
-        if (playwright != null) {
-            playwright.close();
+    }
+
+    @AfterAll
+    static void closeBrowser() {
+        try {
+            if (browser != null) {
+                browser.close();
+            }
+        } finally {
+            if (playwright != null) {
+                playwright.close();
+            }
         }
     }
 

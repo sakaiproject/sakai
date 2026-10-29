@@ -26,12 +26,14 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.RequestOptions;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 
 class AssignmentGroupLockTest extends SakaiUiTestBase {
 
@@ -45,9 +47,11 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
 
         openGroups(courseUrl);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
-        page.locator("#groupTitle").fill(groupTitle);
-        // Group creation enables its submit button on keyup.
-        page.locator("#groupTitle").press("End");
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        sakai.waitForPortalFocus();
+        // Use real key events after the form's member picker has initialized.
+        page.locator("#groupTitle").pressSequentially(groupTitle);
         assertThat(page.locator("#groupTitle")).hasValue(groupTitle);
         String member = page.locator("#groupMembers option").last().getAttribute("value");
         page.locator("#groupMembers").selectOption(member);
@@ -118,56 +122,60 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         String assignmentTitle = "Preserve group work " + suffix;
         sakai.login("instructor1");
         String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.assignment\\.grades"));
-        addStudent(courseUrl, "student0011");
-        addStudent(courseUrl, "student0012");
-        addStudent(courseUrl, "student0013");
-        createGroupThroughUi(courseUrl, submittedGroup, "student0011");
-        createGroupThroughUi(courseUrl, gradedGroup, "student0012");
-        createGroupThroughUi(courseUrl, emptyGroup, "student0013");
-        createGradedGroupAssignment(courseUrl, assignmentTitle, List.of(submittedGroup, gradedGroup, emptyGroup));
+        try (TestUser grader = sakai.createUser("group-grader")) {
+            sakai.addMember(courseUrl, grader.username(), "Instructor");
+            addStudent(courseUrl, "student0011");
+            addStudent(courseUrl, "student0012");
+            addStudent(courseUrl, "student0013");
+            createGroupThroughUi(courseUrl, submittedGroup, "student0011");
+            createGroupThroughUi(courseUrl, gradedGroup, "student0012");
+            createGroupThroughUi(courseUrl, emptyGroup, "student0013");
+            createGradedGroupAssignment(courseUrl, assignmentTitle, List.of(submittedGroup, gradedGroup, emptyGroup));
 
-        sakai.login("student0011");
-        openAssignments(courseUrl);
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(assignmentTitle).setExact(true)).click();
-        sakai.typeCkEditor("Assignment.view_submission_text", "<p>Submitted work for group A.</p>");
-        page.locator("#confirm").click();
-        page.locator("#post").click();
-        assertThat(page.locator("body")).containsText("Submission Confirmation");
+            sakai.login("student0011");
+            openAssignments(courseUrl);
+            page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(assignmentTitle).setExact(true)).click();
+            sakai.typeCkEditor("Assignment.view_submission_text", "<p>Submitted work for group A.</p>");
+            page.locator("#confirm").click();
+            page.locator("#post").click();
+            assertThat(page.locator("body")).containsText("Submission Confirmation");
 
-        sakai.login("instructor1");
-        openGroupGrading(courseUrl, assignmentTitle, gradedGroup);
-        assertThat(page.locator("body")).containsText("There is no student submitted text.");
-        page.locator("#grade").first().fill("7");
-        sakai.typeCkEditor("grade_submission_feedback_comment", "<p>Keep this unreleased group feedback.</p>");
-        page.locator("#save").click();
-        assertThat(page.locator("#gradeForm")).isVisible();
-        assertThat(page.locator(".sak-banner-error:visible")).hasCount(0);
+            sakai.login(grader.username());
+            sakai.setAssignmentGrader(false);
+            openGroupGrading(courseUrl, assignmentTitle, gradedGroup);
+            assertThat(page.locator("body")).containsText("There is no student submitted text.");
+            page.locator("#grade").first().fill("7");
+            sakai.typeCkEditor("grade_submission_feedback_comment", "<p>Keep this unreleased group feedback.</p>");
+            page.locator("#save").click();
+            assertThat(page.locator("#gradeForm")).isVisible();
+            assertThat(page.locator(".sak-banner-error:visible")).hasCount(0);
 
-        editAssignment(courseUrl, assignmentTitle);
-        assertGroupOption(submittedGroup, true, true);
-        assertGroupOption(gradedGroup, true, true);
-        assertGroupOption(emptyGroup, true, false);
-        openGroupChoices();
-        assertThat(groupCheckbox(submittedGroup)).isChecked();
-        assertThat(groupCheckbox(submittedGroup)).isDisabled();
-        assertThat(groupCheckbox(gradedGroup)).isChecked();
-        assertThat(groupCheckbox(gradedGroup)).isDisabled();
-        assertThat(groupCheckbox(emptyGroup)).isEnabled();
-        groupCheckbox(emptyGroup).uncheck();
-        openGroupChoices();
-        saveAssignment(assignmentTitle);
+            editAssignment(courseUrl, assignmentTitle);
+            assertGroupOption(submittedGroup, true, true);
+            assertGroupOption(gradedGroup, true, true);
+            assertGroupOption(emptyGroup, true, false);
+            openGroupChoices();
+            assertThat(groupCheckbox(submittedGroup)).isChecked();
+            assertThat(groupCheckbox(submittedGroup)).isDisabled();
+            assertThat(groupCheckbox(gradedGroup)).isChecked();
+            assertThat(groupCheckbox(gradedGroup)).isDisabled();
+            assertThat(groupCheckbox(emptyGroup)).isEnabled();
+            groupCheckbox(emptyGroup).uncheck();
+            openGroupChoices();
+            saveAssignment(assignmentTitle);
 
-        editAssignment(courseUrl, assignmentTitle);
-        assertGroupOption(submittedGroup, true, true);
-        assertGroupOption(gradedGroup, true, true);
-        assertGroupOption(emptyGroup, false, false);
-        openGroupGrading(courseUrl, assignmentTitle, gradedGroup);
-        assertEquals(0, new BigDecimal("7").compareTo(new BigDecimal(page.locator("#grade").first().inputValue())));
-        assertTrue(page.locator("#grade_submission_feedback_comment").inputValue()
-                .contains("Keep this unreleased group feedback."));
-        assertThat(page.locator("#grade-is-released")).hasValue("false");
-        openGroupGrading(courseUrl, assignmentTitle, submittedGroup);
-        assertThat(page.locator("body")).containsText("Submitted work for group A.");
+            editAssignment(courseUrl, assignmentTitle);
+            assertGroupOption(submittedGroup, true, true);
+            assertGroupOption(gradedGroup, true, true);
+            assertGroupOption(emptyGroup, false, false);
+            openGroupGrading(courseUrl, assignmentTitle, gradedGroup);
+            assertEquals(0, new BigDecimal("7").compareTo(new BigDecimal(page.locator("#grade").first().inputValue())));
+            assertTrue(page.locator("#grade_submission_feedback_comment").inputValue()
+                    .contains("Keep this unreleased group feedback."));
+            assertThat(page.locator("#grade-is-released")).hasValue("false");
+            openGroupGrading(courseUrl, assignmentTitle, submittedGroup);
+            assertThat(page.locator("body")).containsText("Submitted work for group A.");
+        }
     }
 
     private void addStudent(String courseUrl, String eid) {
@@ -183,8 +191,10 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
     private void createGroupThroughUi(String courseUrl, String title, String student) {
         openGroups(courseUrl);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
-        page.locator("#groupTitle").fill(title);
-        page.locator("#groupTitle").press("End");
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        sakai.waitForPortalFocus();
+        page.locator("#groupTitle").pressSequentially(title);
         Locator member = page.locator("#groupMembers option").filter(new Locator.FilterOptions().setHasText(student));
         assertThat(member).hasCount(1);
         page.locator("#groupMembers").selectOption(member.getAttribute("value"));
@@ -230,9 +240,10 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
 
     private void saveAssignment(String title) {
         page.locator(".act input[name=post]").click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator(".sak-banner-error:visible")).hasText(new String[0]);
         assertThat(assignmentRow(title)).isVisible();
         assertThat(page.locator("#assignments-list")).isVisible();
-        assertThat(page.locator(".sak-banner-error:visible")).hasCount(0);
     }
 
     private void openGroupGrading(String courseUrl, String title, String group) {
@@ -240,12 +251,6 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         assignmentRow(title).getByRole(AriaRole.LINK,
                 new Locator.GetByRoleOptions().setName("Grade " + title).setExact(true)).click();
         assertThat(page.locator("#submissionList")).isVisible();
-        Locator toggle = page.locator("sakai-grader-toggle input");
-        assertThat(toggle).isVisible();
-        if (toggle.isChecked()) {
-            page.waitForResponse(response -> response.url().contains("/direct/userPrefs/updateKey/")
-                    && response.request().method().equals("PUT"), () -> toggle.uncheck());
-        }
         page.locator("#submissionList").getByRole(AriaRole.LINK,
                 new Locator.GetByRoleOptions().setName(group).setExact(true)).click();
         assertThat(page.locator("#gradeForm")).isVisible();

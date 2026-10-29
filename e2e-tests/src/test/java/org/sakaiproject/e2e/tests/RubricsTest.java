@@ -59,16 +59,18 @@ class RubricsTest extends SakaiUiTestBase {
             }
         }
 
-        page.locator("input[title=\"Rubric Title\"]:visible").first().fill(RUBRIC_TITLE);
+        Locator initialEditor = page.locator("sakai-rubric-edit .modal.show");
+        initialEditor.locator("input[title=\"Rubric Title\"]").fill(RUBRIC_TITLE);
         Response saveResponse = page.waitForResponse(response -> response.url().contains("/rubrics/") && response.request().method().equals("PATCH"),
-            () -> page.locator("button:visible").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Save", Pattern.CASE_INSENSITIVE))).first().click(new Locator.ClickOptions().setForce(true)));
+            () -> initialEditor.getByRole(AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Save").setExact(true)).click());
         assertEquals(200, saveResponse.status());
         assertEquals("application/json", saveResponse.headerValue("Content-Type").split(";")[0]);
 
+        assertThat(initialEditor).hasCount(0);
         assertThat(page.locator("body")).containsText(RUBRIC_TITLE);
 
-        Page stalePage = context.newPage();
-        try {
+        try (Page stalePage = context.newPage()) {
             stalePage.navigate(page.url());
             Locator staleRubric = stalePage.locator("sakai-rubric").filter(new Locator.FilterOptions().setHasText(RUBRIC_TITLE)).first();
             staleRubric.locator("sakai-rubric-edit button.edit-button").click();
@@ -90,8 +92,6 @@ class RubricsTest extends SakaiUiTestBase {
             assertThat(staleModal.locator("input")).hasValue("Unsaved concurrent title");
             page.reload();
             assertThat(page.locator("body")).containsText(RUBRIC_TITLE + " updated");
-        } finally {
-            stalePage.close();
         }
     }
 

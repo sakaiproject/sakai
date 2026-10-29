@@ -22,6 +22,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Route;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
@@ -32,19 +33,27 @@ class MessagesTest extends SakaiUiTestBase {
     void canSaveAndRemoveDraftTags() {
         sakai.login("instructor1");
         String courseUrl = sakai.createCourse("instructor1", List.of("sakai\\.messages"));
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Messages");
+        // Saving a draft returns to the folder the compose form was opened from.
+        Locator draftFolder = page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("Draft").setExact(true));
+        if (!draftFolder.isVisible()) {
+            page.locator("#messagesMainMenuLink a").click();
+        }
+        draftFolder.click();
         page.locator("#messagesComposeMenuLink").click();
         String subject = "Tagged draft " + System.currentTimeMillis();
         String tag = "Draft tag " + System.currentTimeMillis();
         page.locator("#compose\\:subject").fill(subject);
-        assertTrue(sakai.typeFirstCkEditorIfPresent("<p>Tagged draft.</p>"));
+        sakai.typeCkEditor("compose:pvt_message_body_inputRichText", "<p>Tagged draft.</p>");
         Locator selector = page.locator("sakai-tag-selector");
         selector.getByRole(AriaRole.COMBOBOX).fill(tag);
         selector.getByRole(AriaRole.COMBOBOX).press("Enter");
         assertThat(page.locator("#compose\\:tag_selector")).hasValue(tag);
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save Draft").setExact(true)).click();
-        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Draft").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        assertThat(page.locator("#compose\\:errorMessages:visible")).hasText(new String[0]);
         String tagRequests = "**/api/sites/*/tools/*/tags/*";
         page.route(tagRequests, route -> route.fulfill(new Route.FulfillOptions().setStatus(503)));
         page.waitForResponse(response -> response.url().contains("/tools/privatemessages/tags/")
@@ -58,7 +67,7 @@ class MessagesTest extends SakaiUiTestBase {
         selector.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Retry").setExact(true)).click();
         Locator remove = selector.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Deselect: " + tag).setExact(true));
         assertThat(remove).isVisible();
-        assertTrue(sakai.typeFirstCkEditorIfPresent("<p>Updated draft.</p>"));
+        sakai.typeCkEditor("compose:pvt_message_body_inputRichText", "<p>Updated draft.</p>");
         remove.click();
         assertThat(page.locator("#compose\\:tag_selector")).hasValue("");
         // With no recipients, preview redisplays the form with a validation error.

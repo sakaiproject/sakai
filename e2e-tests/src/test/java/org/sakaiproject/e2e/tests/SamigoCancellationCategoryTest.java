@@ -19,6 +19,7 @@ import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -131,8 +132,7 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
         openCancellation();
         Locator reduction = modal().getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Reduce total points"));
         assertThat(reduction).isEnabled();
-        Page settingsPage = context.newPage();
-        try {
+        try (Page settingsPage = context.newPage()) {
             settingsPage.navigate(siteUrl);
             new SakaiHelper(settingsPage, SakaiEnvironment.baseUrl(), settingsPage.request()).toolClick("Gradebook");
             changeCategorySettings(settingsPage, true, false);
@@ -141,8 +141,6 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
             openCancellation();
             assertRestrictedDialog();
             modal().getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Do not cancel question")).click();
-        } finally {
-            settingsPage.close();
         }
         openPublishedAuthoring(siteUrl, FIRST_QUIZ);
         assertAuthoringPoints("3");
@@ -275,6 +273,8 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
     }
 
     private void openCancellation() {
+        // Samigo attaches these click handlers on window.load.
+        page.waitForLoadState(LoadState.LOAD);
         page.locator("[data-item-cancellable]").first().click();
         assertThat(modal()).isVisible();
     }

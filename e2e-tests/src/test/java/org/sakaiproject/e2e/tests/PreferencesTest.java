@@ -25,45 +25,41 @@ import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.RequestOptions;
 import org.junit.jupiter.api.Test;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 
 class PreferencesTest extends SakaiUiTestBase {
 
     @Test
     void userCanSaveATimeZoneAndReadItInANewSession() {
-        openUserTimeZone();
-        Locator timeZones = page.locator("[id='timezone_form'] select");
-        String original = timeZones.inputValue();
-        String selected = "Europe/Paris".equals(original) ? "America/New_York" : "Europe/Paris";
-        try {
+        try (TestUser user = sakai.createUser("timezone")) {
+            String username = user.username();
+            openUserTimeZone(username);
+            Locator timeZones = page.locator("[id='timezone_form'] select");
+            String selected = "Europe/Paris";
             timeZones.selectOption(selected);
             page.locator("[id='timezone_form:submit']").click();
             assertThat(page.getByText("Your preferences have been updated successfully.",
                     new Page.GetByTextOptions().setExact(true))).isVisible();
-            openUserTimeZone();
+            openUserTimeZone(username);
             assertThat(page.locator("[id='timezone_form'] select")).hasValue(selected);
-        } finally {
-            page.locator("[id='timezone_form'] select").selectOption(original);
-            page.locator("[id='timezone_form:submit']").click();
-            assertThat(page.getByText("Your preferences have been updated successfully.",
-                    new Page.GetByTextOptions().setExact(true))).isVisible();
         }
     }
 
-    private void openUserTimeZone() {
-        // Keep timezone changes away from instructor1, which other parallel tests use.
-        String username = sakai.resolveUsername("student0151");
+    private void openUserTimeZone(String username) {
         sakai.login(username);
-        page.navigate("/portal/site/~" + username);
+        sakai.gotoPath("/portal/site/~" + username);
         sakai.toolClick("Preferences");
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Time Zone").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("[id='timezone_form']")).isVisible();
     }
 
     @Test
-    void administratorCanReviewAndResubmitAConflictingEdit() {
+    void administratorCanReviewAndResubmitAConflictingEdit() throws Exception {
         sakai.login("instructor1");
         String siteUrl = sakai.createProject("instructor1", List.of("sakai.admin.prefs"));
         sakai.login("admin");
@@ -72,7 +68,20 @@ class PreferencesTest extends SakaiUiTestBase {
         String toolUrl = page.url();
         String editedName = "e2e-edited-" + UUID.randomUUID();
         String concurrentName = "e2e-concurrent-" + UUID.randomUUID();
-        try {
+        try (AutoCloseable cleanup = () -> {
+            page.navigate(toolUrl);
+            if (page.locator("[id='prefs_form']").isVisible()) {
+                page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
+            }
+            openAdminPreferences();
+            for (String name : List.of(editedName, concurrentName)) {
+                Locator input = valueInput(name);
+                if (input.count() > 0) {
+                    input.fill("");
+                }
+            }
+            save();
+        }) {
             setPreference(editedName, "original");
             openAdminPreferences();
             valueInput(editedName).fill("pending");
@@ -90,19 +99,6 @@ class PreferencesTest extends SakaiUiTestBase {
             openAdminPreferences();
             assertThat(valueInput(editedName)).hasValue("pending");
             assertThat(valueInput(concurrentName)).hasValue("concurrent");
-        } finally {
-            page.navigate(toolUrl);
-            if (page.locator("[id='prefs_form']").isVisible()) {
-                page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
-            }
-            openAdminPreferences();
-            for (String name : List.of(editedName, concurrentName)) {
-                Locator input = valueInput(name);
-                if (input.count() > 0) {
-                    input.fill("");
-                }
-            }
-            save();
         }
     }
 

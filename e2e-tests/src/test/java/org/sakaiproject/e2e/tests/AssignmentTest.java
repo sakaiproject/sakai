@@ -16,14 +16,16 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.options.AriaRole;
-import com.microsoft.playwright.options.BoundingBox;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -33,6 +35,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AssignmentTest extends SakaiUiTestBase {
@@ -67,7 +70,7 @@ class AssignmentTest extends SakaiUiTestBase {
     void canCreateLetterGradeAssignment() {
         String courseUrl = ensureCourseUrl();
         sakai.login("instructor1");
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
 
         openAddAssignmentForm();
@@ -90,7 +93,7 @@ class AssignmentTest extends SakaiUiTestBase {
     void canCreatePointsAssignment() {
         String courseUrl = ensureCourseUrl();
         sakai.login("instructor1");
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
 
         openAddAssignmentForm();
@@ -129,7 +132,7 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("sakai-rubric .rubric-name")
                 .filter(new Locator.FilterOptions().setHasText(rubricTitle))).hasText(rubricTitle);
 
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
         goToAssignmentsList();
         openAddAssignmentForm();
@@ -171,14 +174,14 @@ class AssignmentTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Cancel").setExact(true)).click();
         assertThat(page.locator("#assignments-list")).isVisible();
 
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Rubrics");
         Locator rubric = page.locator("sakai-rubric").filter(new Locator.FilterOptions().setHasText(rubricTitle));
         Locator draftButton = rubric.locator("button.draft");
         assertThat(draftButton).hasAttribute("aria-disabled", "true");
         assertThat(draftButton).hasAttribute("title", "Unlink this rubric from all items before saving it as a draft.");
 
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
         assertThat(page.locator("#assignments-list")).isVisible();
         editAssignment(rubricAssignmentTitle);
@@ -189,7 +192,7 @@ class AssignmentTest extends SakaiUiTestBase {
         submitAssignmentForm();
         assertThat(page.locator("#assignments-list")).isVisible();
 
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Rubrics");
         assertThat(draftButton).hasAttribute("aria-disabled", "false");
         Response draftSave = page.waitForResponse(response -> response.url().endsWith("/rubrics/" + rubricId)
@@ -215,37 +218,42 @@ class AssignmentTest extends SakaiUiTestBase {
     @Test
     @Order(7)
     void canAllowStudentToResubmit() {
-        String courseUrl = ensureCourseUrl();
         sakai.login("instructor1");
-        page.navigate(courseUrl);
-        sakai.toolClick("Assignments");
-
-        Locator gradeAction = page.locator(".itemAction a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Grade|View Submissions", Pattern.CASE_INSENSITIVE))).first();
-        if (gradeAction.count() == 0) {
-            fail("Missing grader action for assignment submission; expected Grade/View Submissions link before resubmission flow.");
-        }
-
-        gradeAction.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
-
-        Locator newGraderToggle = page.locator("sakai-grader-toggle input").first();
-        if (newGraderToggle.count() > 0) {
-            newGraderToggle.check(new Locator.CheckOptions().setForce(true));
-        }
-
-        Locator studentSubmission = page.locator("#submissionList a").filter(new Locator.FilterOptions().setHasText("student0012")).first();
-        if (studentSubmission.count() > 0) {
-            studentSubmission.click(new Locator.ClickOptions().setForce(true));
-
-            Locator resubmitInput = page.locator(".resubmission-checkbox input").first();
-            if (resubmitInput.count() > 0) {
-                resubmitInput.check(new Locator.CheckOptions().setForce(true));
-            }
-
-            Locator returnButton = page.locator("#grader-save-buttons button[name=\"return\"], input#save-and-return, button:has-text(\"Save and Release\"), input[value*=\"Save and Release\"]").first();
-            if (returnButton.count() > 0) {
-                returnButton.click(new Locator.ClickOptions().setForce(true));
-            }
+        String siteUrl = sakai.createProject("instructor1", List.of("sakai\\.assignment\\.grades"));
+        try (TestUser grader = sakai.createUser("resubmission-grader")) {
+            sakai.addMember(siteUrl, grader.username(), "maintain");
+            String title = "Resubmission " + System.currentTimeMillis();
+            String assignmentId = sakai.createAssignment(siteUrl, title);
+            sakai.addMember(siteUrl, "student0012", "access");
+            sakai.login("student0012");
+            sakai.gotoPath(siteUrl);
+            sakai.toolClick("Assignments");
+            page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(title).setExact(true)).click();
+            sakai.typeCkEditor("Assignment.view_submission_text", "<p>Work to resubmit.</p>");
+            page.locator("#confirm").click();
+            page.locator("#post").click();
+            assertThat(page.locator("body")).containsText("Submission Confirmation");
+            sakai.login(grader.username());
+            sakai.setAssignmentGrader(true);
+            sakai.gotoPath(siteUrl);
+            sakai.toolClick("Assignments");
+            Locator row = page.locator("tr").filter(new Locator.FilterOptions().setHasText(title));
+            row.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions()
+                .setName("Grade " + title).setExact(true)).click();
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+            Locator student = page.locator("#submissionList a")
+                .filter(new Locator.FilterOptions().setHasText(Pattern.compile("\\bstudent0012\\b"))).first();
+            assertThat(student).isVisible();
+            Response gradable = page.waitForResponse(response -> response.url().contains("/direct/assignment/gradable.json")
+                    && response.url().contains("gradableId=" + assignmentId), student::click);
+            assertEquals(200, gradable.status(), "The grader must accept an API-created assignment with a missing scale factor");
+            assertThat(page.locator("sakai-grader #grader")).isVisible(
+                new LocatorAssertions.IsVisibleOptions().setTimeout(15_000));
+            Locator resubmit = page.locator(".resubmission-checkbox input").first();
+            assertThat(resubmit).isVisible();
+            resubmit.check();
+            assertThat(resubmit).isChecked();
+            page.locator("#grader-save-buttons button[name=return]").click();
         }
     }
 
@@ -256,7 +264,7 @@ class AssignmentTest extends SakaiUiTestBase {
         String courseUrl = ensureCourseUrl();
 
         sakai.login("instructor1");
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
         goToAssignmentsList();
 
@@ -289,13 +297,15 @@ class AssignmentTest extends SakaiUiTestBase {
         String lastTitle = titlePrefix + "21";
 
         sakai.login("instructor1");
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
 
         for (int i = 1; i <= 21; i++) {
-            createSimpleAssignment(titlePrefix + String.format("%02d", i));
+            sakai.createAssignment(courseUrl, titlePrefix + String.format("%02d", i));
         }
 
+        // Reload the tool list after creating fixtures through the assignment API.
+        sakai.toolClick("Assignments");
         openReorderAssignments();
         assertAssignmentReorderChrome();
 
@@ -328,7 +338,7 @@ class AssignmentTest extends SakaiUiTestBase {
         assertTrue(lastAssignment.locator("[data-action=\"move-up\"]").isDisabled());
 
         page.locator("input[name=\"save\"][value=\"Save\"], input[name=\"save\"]").first().click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         goToAssignmentsList();
         String assignmentListText = page.locator("body").innerText();
@@ -351,11 +361,12 @@ class AssignmentTest extends SakaiUiTestBase {
         String otherTitle = "Other assignment " + suffix;
         String tagLabel = "Assignment tag " + suffix;
         sakai.login("instructor1");
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
         createSimpleAssignment(otherTitle);
 
         openAddAssignmentForm();
+        sakai.waitForPortalFocus();
         page.locator("#new_assignment_title").fill(taggedTitle);
         Locator gradeAssignment = page.locator("#gradeAssignment").first();
         if (gradeAssignment.count() > 0 && gradeAssignment.isChecked()) {
@@ -368,8 +379,11 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("#tag_selector")).hasValue(tagLabel);
         submitAssignmentForm();
         goToAssignmentsList();
+        sakai.waitForPortalFocus();
 
         selector.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
+        assertThat(selector.getByRole(AriaRole.OPTION,
+            new Locator.GetByRoleOptions().setName(tagLabel).setExact(true))).isVisible();
         selector.getByRole(AriaRole.COMBOBOX).press("ArrowDown");
         selector.getByRole(AriaRole.COMBOBOX).press("Enter");
         String selectedIds = page.locator("#tag_selector").inputValue();
@@ -397,7 +411,7 @@ class AssignmentTest extends SakaiUiTestBase {
         String title = "Preserved tags " + System.currentTimeMillis();
         String label = "Saved assignment tag " + System.currentTimeMillis();
         sakai.login("instructor1");
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
         openAddAssignmentForm();
         page.locator("#new_assignment_title").fill(title);
@@ -463,7 +477,7 @@ class AssignmentTest extends SakaiUiTestBase {
     void externalToolPickerDisplaysItsContent() {
         String courseUrl = ensureCourseUrl();
         sakai.login("instructor1");
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
         openAddAssignmentForm();
 
@@ -509,7 +523,7 @@ class AssignmentTest extends SakaiUiTestBase {
         String courseUrl = ensureCourseUrl();
         String title = "Deleted lesson assignment " + System.currentTimeMillis();
         sakai.login("instructor1");
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
         createSimpleAssignment(title);
 
@@ -541,7 +555,7 @@ class AssignmentTest extends SakaiUiTestBase {
         String title = "Literal tag " + System.currentTimeMillis();
         String label = "<img src=x onerror=alert(1)> & \"literal\"";
         sakai.login("instructor1");
-        page.navigate(courseUrl);
+        sakai.gotoPath(courseUrl);
         sakai.toolClick("Assignments");
         openAddAssignmentForm();
         page.locator("#new_assignment_title").fill(title);
@@ -571,13 +585,13 @@ class AssignmentTest extends SakaiUiTestBase {
             .first();
         assertThat(reorderLink).isVisible();
         reorderLink.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#assignments-reorderer")).isVisible();
         assertThat(page.locator("#reorder-list")).isVisible();
         page.waitForFunction(
             "() => document.querySelector('#assignments-reorderer')?.updateComplete",
             null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
+            new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         assertThat(page.locator("#reorder-list li.reorder-element .sakai-reorder-drag-handle.drag-handle, #reorder-list li.reorder-element .drag-handle").first())
             .isVisible();
@@ -595,26 +609,6 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("#reorder-list-sortingToolBar .bi-sort-up, #reorder-list-sortingToolBar .bi-sort-down, #reorder-list-sortingToolBar a").first()).isVisible();
         assertThat(page.locator("#reorder-list li.reorder-element [data-action=\"move-up\"]").first()).isVisible();
         assertThat(page.locator("#reorder-list li.reorder-element [data-action=\"move-down\"]").first()).isVisible();
-    }
-
-    private void dragAssignmentBefore(Locator source, Locator target) {
-        BoundingBox sourceBox = source.boundingBox();
-        BoundingBox targetBox = target.boundingBox();
-        if (sourceBox == null || targetBox == null) {
-            fail("Expected assignment reorder items to have bounding boxes.");
-            return;
-        }
-
-        double sourceX = sourceBox.x + sourceBox.width / 2;
-        double sourceY = sourceBox.y + sourceBox.height / 2;
-        double targetY = targetBox.y + targetBox.height / 4;
-
-        page.mouse().move(sourceX, sourceY);
-        page.mouse().down();
-        for (int step = 1; step <= 10; step++) {
-            page.mouse().move(sourceX, sourceY + (targetY - sourceY) * step / 10);
-        }
-        page.mouse().up();
     }
 
     private Locator moveAssignmentToTop(Locator reorderItems, String title, int reorderCount) {
@@ -661,12 +655,15 @@ class AssignmentTest extends SakaiUiTestBase {
     }
 
     private void goToAssignmentsList() {
+        if (page.locator("#assignments-list").isVisible()) {
+            return;
+        }
         Locator assignmentsNav = page.locator(".navIntraTool a, .navIntraTool button")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Assignments$", Pattern.CASE_INSENSITIVE)))
             .first();
         if (assignmentsNav.count() > 0) {
             assignmentsNav.click(new Locator.ClickOptions().setForce(true));
-            page.waitForLoadState(com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED);
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         }
     }
 

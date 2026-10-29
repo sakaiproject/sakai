@@ -14,7 +14,11 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       MAVEN_VERSION: 3.9.16
-      MAVEN_ARGS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
+      MAVEN_ARGS: >-
+        -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
+        -Dmaven.compiler.showWarnings=false
+        -Dsakai.skip.webcomponents.tests=true
+        -Dorg.slf4j.simpleLogger.log.org.apache.maven.plugin.compiler=error
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
       NODE_OPTIONS: "--disable-warning=DEP0169"
       PLAYWRIGHT_BROWSER: "chromium"
@@ -102,11 +106,49 @@ jobs:
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai";
           cd ..
-          mvn -B -ntp -V -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
+          mvn -B -ntp -V -Dmaven.test.skip=true -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
 
       - name: Start Tomcat
         id: start-tomcat
         run: tomcat/bin/catalina.sh start
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-java-${{ steps.playwright-version.outputs.value }}-chromium-shell
+
+      - name: Install Playwright CLI package
+        run: |
+          mkdir -p .playwright-cli
+          cat > .playwright-cli/package.json <<'EOF'
+          {
+            "name": "playwright-cli-bootstrap",
+            "private": true
+          }
+          EOF
+          npm --prefix .playwright-cli install --no-audit --no-fund --save-exact playwright@${{ steps.playwright-version.outputs.value }}
+
+      - name: Install Playwright browser
+        run: ./.playwright-cli/node_modules/.bin/playwright install chromium --only-shell
+
+      - name: Check Playwright system dependencies
+        run: |
+          if node <<'NODE'
+          const { chromium } = require('./.playwright-cli/node_modules/playwright');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            await browser.close();
+          })().catch(error => {
+            console.error(error);
+            process.exitCode = 1;
+          });
+          NODE
+          then
+            echo "Chromium launches with the runner's installed libraries; skipping apt."
+          else
+            ./.playwright-cli/node_modules/.bin/playwright install-deps chromium
+          fi
 
       - name: Wait for Sakai
         id: wait-for-sakai
@@ -129,29 +171,6 @@ jobs:
           echo "::error::Sakai did not become ready in time."
           tail -n 80 tomcat/logs/catalina.out
           exit 1
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-java-${{ steps.playwright-version.outputs.value }}-chromium-shell
-
-      - name: Install Playwright CLI package
-        run: |
-          mkdir -p .playwright-cli
-          cat > .playwright-cli/package.json <<'EOF'
-          {
-            "name": "playwright-cli-bootstrap",
-            "private": true
-          }
-          EOF
-          npm --prefix .playwright-cli install --no-audit --no-fund --save-exact playwright@${{ steps.playwright-version.outputs.value }}
-
-      - name: Install Playwright system dependencies
-        run: ./.playwright-cli/node_modules/.bin/playwright install-deps chromium
-
-      - name: Install Playwright browser
-        run: ./.playwright-cli/node_modules/.bin/playwright install chromium --only-shell
 
       - name: Run Playwright Java tests
         id: playwright-tests
@@ -178,12 +197,6 @@ jobs:
             exit 1
           fi
 
-      - name: Check number of MySQL statements
-        if: always()
-        run: |
-          export QUERIES=$(grep StandardClient.debug tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
-          echo "::notice title={MySQL Queries}::$QUERIES"
-
       - name: Upload Tomcat log for review
         id: upload-tomcat-log
         if: always()
@@ -198,15 +211,7 @@ jobs:
         run: |
           mkdir -p playwright-java-artifacts
           FAILED_KEYS_FILE=playwright-java-artifacts/failed-keys.txt
-          FAILED_MAP_FILE=playwright-java-artifacts/failed-test-artifacts.txt
           : > "$FAILED_KEYS_FILE"
-          : > "$FAILED_MAP_FILE"
-          if [ -d e2e-tests/target/playwright-artifacts ]; then
-            mkdir -p playwright-java-artifacts/playwright-artifacts
-            rsync -a --prune-empty-dirs \
-              e2e-tests/target/playwright-artifacts/ \
-              playwright-java-artifacts/playwright-artifacts/
-          fi
           if [ -d e2e-tests/target/surefire-reports ]; then
             cp -R e2e-tests/target/surefire-reports playwright-java-artifacts/
           fi
@@ -239,43 +244,11 @@ jobs:
             ' e2e-tests/target/surefire-reports/TEST-*.xml | sort -u > "$FAILED_KEYS_FILE"
           fi
 
-          if [ -s "$FAILED_KEYS_FILE" ] && [ -d e2e-tests/target/playwright-artifacts ]; then
-            mkdir -p playwright-java-artifacts/failure-media
-            while IFS= read -r key; do
-              [ -z "$key" ] && continue
-              while IFS= read -r test_dir; do
-                [ -z "$test_dir" ] && continue
-                rel_dir=${test_dir#e2e-tests/target/playwright-artifacts/}
-                printf '%s|%s\n' "$key" "$rel_dir" >> "$FAILED_MAP_FILE"
-
-                mkdir -p "playwright-java-artifacts/failure-media/$rel_dir"
-                if [ -f "$test_dir/final.png" ]; then
-                  cp "$test_dir/final.png" "playwright-java-artifacts/failure-media/$rel_dir/"
-                fi
-                if [ -f "$test_dir/trace.zip" ]; then
-                  cp "$test_dir/trace.zip" "playwright-java-artifacts/failure-media/$rel_dir/"
-                fi
-              done < <(find e2e-tests/target/playwright-artifacts -mindepth 1 -maxdepth 1 -type d -name "${key}-*" 2>/dev/null | sort)
-            done < "$FAILED_KEYS_FILE"
-          fi
-
-          if [ -s "$FAILED_MAP_FILE" ]; then
-            sort -u "$FAILED_MAP_FILE" -o "$FAILED_MAP_FILE"
-          else
-            rm -f "$FAILED_MAP_FILE"
-          fi
-
-          if [ -d playwright-java-artifacts/failure-media ] \
-            && [ -z "$(find playwright-java-artifacts/failure-media -mindepth 1 -print -quit)" ]; then
-            rmdir playwright-java-artifacts/failure-media
-          fi
-
           if [ ! -s "$FAILED_KEYS_FILE" ]; then
             rm -f "$FAILED_KEYS_FILE"
           fi
 
-          if [ ! -e playwright-java-artifacts/playwright-artifacts ] \
-            && [ ! -e playwright-java-artifacts/surefire-reports ] \
+          if [ ! -e playwright-java-artifacts/surefire-reports ] \
             && [ ! -f playwright-java-artifacts/playwright-java-run.log ]; then
             echo "No Playwright Java artifacts were produced in this run." > playwright-java-artifacts/README.txt
           fi
@@ -287,16 +260,6 @@ jobs:
         with:
           name: playwright-java-artifacts
           path: playwright-java-artifacts
-          retention-days: 5
-
-      - name: Upload Playwright Java failure media
-        id: upload-playwright-java-failure-media
-        if: always()
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: playwright-java-failure-media
-          path: playwright-java-artifacts/failure-media
-          if-no-files-found: ignore
           retention-days: 5
 
       - name: Summarize Playwright Java failures
@@ -330,29 +293,11 @@ jobs:
               echo "- Full artifact bundle: \`playwright-java-artifacts\`"
             fi
 
-            if [ -n "${{ steps.upload-playwright-java-failure-media.outputs.artifact-url }}" ]; then
-              echo "- Failure-only media: [playwright-java-failure-media](${{ steps.upload-playwright-java-failure-media.outputs.artifact-url }})"
-            fi
-
-            if [ -f playwright-java-artifacts/failed-test-artifacts.txt ]; then
+            if [ -f playwright-java-artifacts/failed-keys.txt ]; then
               echo ""
               echo "### Failing Tests"
-              echo "| Test | Artifact Directory | Screenshot | Trace |"
-              echo "| --- | --- | --- | --- |"
-              while IFS='|' read -r key rel_dir; do
-                [ -z "$key" ] && continue
-                [ -z "$rel_dir" ] && continue
-                screenshot="no"
-                trace="no"
-                if [ -f "playwright-java-artifacts/failure-media/$rel_dir/final.png" ]; then
-                  screenshot="yes"
-                fi
-                if [ -f "playwright-java-artifacts/failure-media/$rel_dir/trace.zip" ]; then
-                  trace="yes"
-                fi
-                echo "| \`$key\` | \`$rel_dir\` | $screenshot | $trace |"
-              done < playwright-java-artifacts/failed-test-artifacts.txt
-              echo ""
-              echo "Open a trace locally with \`npx playwright show-trace trace.zip\`."
+              while IFS= read -r key; do
+                echo "- \`$key\`"
+              done < playwright-java-artifacts/failed-keys.txt
             fi
           } >> "$GITHUB_STEP_SUMMARY"

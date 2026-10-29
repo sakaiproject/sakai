@@ -20,6 +20,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -75,12 +76,12 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Import from Site$", Pattern.CASE_INSENSITIVE)))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
                 .setName(Pattern.compile("replace my data", Pattern.CASE_INSENSITIVE)))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         String sourceSiteId = sakai.siteIdFromUrl(sourceSite);
         page.locator("input[name=\"importSites\"][value=\"" + sourceSiteId + "\"]").check(new Locator.CheckOptions().setForce(true));
@@ -148,7 +149,7 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
         ).first();
         assertThat(submit).isVisible();
         submit.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 
     private void clickContinueOrFinish() {
@@ -158,7 +159,7 @@ class AssignmentImportAnnouncementTest extends SakaiUiTestBase {
         ).first();
         assertThat(button).isVisible();
         button.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 
 }

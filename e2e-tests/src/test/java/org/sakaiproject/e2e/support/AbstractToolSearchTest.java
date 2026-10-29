@@ -59,7 +59,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
 
-    private static final long INDEX_TIMEOUT_MS = 180_000;
+    private static final long INDEX_TIMEOUT_MS = 15_000;
     private static final long POLL_INTERVAL_MS = 3_000;
     // Content markup a tool may keep. The search UI renders titles and snippets as HTML, so none of it may run.
     protected static final String HOSTILE_MARKUP = "<b>bold</b> &lt;img src=x onerror=\"window.searchXss=1\"&gt;";
@@ -352,7 +352,7 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
         Locator results = page.locator("sakai-search .search-result-link");
         Locator noResults = page.locator("sakai-search").getByText("No results", new Locator.GetByTextOptions().setExact(false));
         results.first().or(noResults).waitFor(new Locator.WaitForOptions()
-            .setState(WaitForSelectorState.VISIBLE).setTimeout(30_000));
+            .setState(WaitForSelectorState.VISIBLE).setTimeout(15_000));
         return results;
     }
 
@@ -361,7 +361,7 @@ public abstract class AbstractToolSearchTest extends SakaiUiTestBase {
             page.locator("button[data-bs-target='#sakai-search-panel']:visible").first().click();
         }
         Locator input = page.locator("#sakai-search-input");
-        input.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(30_000));
+        input.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(15_000));
         input.fill(terms);
         page.locator("#sakai-search-button").click();
     }

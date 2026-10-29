@@ -20,6 +20,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -50,7 +51,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         addSubpage(PRESERVED_PAGE);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(PRESERVED_PAGE).setExact(true))
             .click();
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         addSubpage(PRESERVED_CONTENT);
 
         page.navigate(destinationSite);
@@ -88,7 +89,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
 
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Delete permanently")).click();
         deleteDialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Delete permanently")).click();
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Index of pages"))).isVisible();
         assertThat(page.locator(".sak-banner-success")).containsText("Deleted one page permanently");
@@ -101,7 +102,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         addExistingSubpage(PRESERVED_PAGE);
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(PRESERVED_PAGE).setExact(true)).click();
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("body")).containsText(PRESERVED_CONTENT);
     }
 
@@ -147,7 +148,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         assertThat(subpageDialog).isVisible();
         subpageDialog.getByRole(AriaRole.BUTTON,
             new Locator.GetByRoleOptions().setName("Pick a Page").setExact(true)).click();
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         assertThat(page.getByRole(AriaRole.HEADING,
             new Page.GetByRoleOptions().setName("Removed pages"))).isVisible();
@@ -157,7 +158,7 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         pageChoice.locator("input[type=\"radio\"]").check();
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName("Use selected item").setExact(true)).click();
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         assertThat(page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(title).setExact(true))).isVisible();
@@ -170,12 +171,12 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Import from Site$", Pattern.CASE_INSENSITIVE)))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions()
                 .setName(Pattern.compile("replace my data", Pattern.CASE_INSENSITIVE)))
             .first()
             .click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         String sourceSiteId = sakai.siteIdFromUrl(sourceSite);
         page.locator("input[name=\"importSites\"][value=\"" + sourceSiteId + "\"]")
@@ -195,6 +196,6 @@ class LessonsImportReplaceTest extends SakaiUiTestBase {
         ).first();
         assertThat(button).isVisible();
         button.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 }

@@ -26,19 +26,19 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Request;
 import com.microsoft.playwright.options.ColorScheme;
-import com.microsoft.playwright.options.FormData;
 import com.microsoft.playwright.options.RequestOptions;
+import com.microsoft.playwright.options.WaitUntilState;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Pattern;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sakaiproject.e2e.support.SakaiUiTestBase;
+import org.sakaiproject.e2e.support.SakaiHelper.TestUser;
 
 class PortalPreferencesTest extends SakaiUiTestBase {
 
@@ -47,14 +47,14 @@ class PortalPreferencesTest extends SakaiUiTestBase {
 
     @ParameterizedTest
     @EnumSource(value = ColorScheme.class, names = {"DARK", "LIGHT"})
-    void navigationReadsPreferencesAndExplicitChoicesSurviveReload(ColorScheme osTheme) {
+    void navigationReadsPreferencesAndExplicitChoicesSurviveReload(ColorScheme osTheme) throws Exception {
         page.emulateMedia(new Page.EmulateMediaOptions().setColorScheme(osTheme));
         // Reserve a separate account for account-wide navigation and theme changes.
         String username = sakai.resolveUsername("student0152");
         sakai.login(username);
         String firstSite = sakai.createProject(username, List.of("sakai.announcements"));
         String secondSite = sakai.createProject(username, List.of("sakai.announcements", "sakai.schedule"));
-        page.navigate(firstSite);
+        sakai.gotoPath(firstSite);
         String siteId = firstSite.substring(firstSite.lastIndexOf('/') + 1);
         String userId = (String) page.evaluate("portal.user.id");
         Map<?, ?> originalTheme = preferences(THEME);
@@ -65,21 +65,26 @@ class PortalPreferencesTest extends SakaiUiTestBase {
                 writes.add(request);
             }
         });
-        try {
+        try (AutoCloseable cleanup = () -> {
+            savePreferences(THEME, Map.of("theme", valueOr(originalTheme, "theme", "sakaiUserTheme-notSet")));
+            savePreferences(NAVIGATION, Map.of(
+                "currentExpanded", valueOr(originalNavigation, "currentExpanded", "true"),
+                "expandedSite", valueOr(originalNavigation, "expandedSite", "~" + userId)));
+        }) {
             savePreferences(THEME, Map.of("theme", "sakaiUserTheme-notSet"));
             savePreferences(NAVIGATION, Map.of("currentExpanded", "false", "expandedSite", siteId));
             Map<String, Map<?, ?>> before = snapshot();
             writes.clear();
 
-            page.navigate(firstSite);
+            sakai.gotoPath(firstSite);
             assertThat(currentSiteTools()).not().hasClass(Pattern.compile(".*\\bshow\\b.*"));
-            page.reload();
+            page.reload(new Page.ReloadOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
             assertThat(currentSiteTools()).not().hasClass(Pattern.compile(".*\\bshow\\b.*"));
             assertEquals(before, snapshot(), "Reload must retain an explicit collapsed choice without saving");
-            page.navigate(secondSite);
+            sakai.gotoPath(secondSite);
             assertThat(currentSiteTools()).hasClass(Pattern.compile(".*\\bshow\\b.*"));
             assertEquals(before, snapshot(), "Switching sites must derive expansion without changing preferences");
-            page.navigate(firstSite);
+            sakai.gotoPath(firstSite);
             assertThat(currentSiteTools()).not().hasClass(Pattern.compile(".*\\bshow\\b.*"));
             assertEquals(before, snapshot());
             assertTrue(writes.isEmpty(), "Page loads must not issue preference mutations");
@@ -88,7 +93,7 @@ class PortalPreferencesTest extends SakaiUiTestBase {
                     && response.url().contains("currentExpanded=true"),
                 () -> page.locator("li.is-current-site button[data-bs-toggle=collapse]").first().click());
             assertEquals("true", preferences(NAVIGATION).get("currentExpanded"));
-            page.reload();
+            page.reload(new Page.ReloadOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
             assertThat(currentSiteTools()).hasClass(Pattern.compile(".*\\bshow\\b.*"));
 
             page.locator("[data-bs-target='#sakai-account-panel']:visible").first().click();
@@ -101,38 +106,23 @@ class PortalPreferencesTest extends SakaiUiTestBase {
             assertEquals(chosen, preferences(THEME).get("theme"));
             assertEquals(1, writes.size(), "One explicit theme click must save exactly once");
             Map<String, Map<?, ?>> after = snapshot();
-            page.reload();
+            page.reload(new Page.ReloadOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
             assertThat(page.locator("html")).hasClass(Pattern.compile(".*" + chosen + ".*"));
             assertEquals(after, snapshot());
             assertEquals(1, writes.size(), "Reload must not save the chosen theme again");
-        } finally {
-            savePreferences(THEME, Map.of("theme", valueOr(originalTheme, "theme", "sakaiUserTheme-notSet")));
-            savePreferences(NAVIGATION, Map.of(
-                "currentExpanded", valueOr(originalNavigation, "currentExpanded", "true"),
-                "expandedSite", valueOr(originalNavigation, "expandedSite", "~" + userId)));
         }
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void immediatePinSaveCancelsPendingIndividualSave(boolean reorder) {
-        String username = "portal-pins-" + UUID.randomUUID();
-        sakai.login("admin");
-        APIResponse created = page.request().post("/direct/user/new", RequestOptions.create().setForm(FormData.create()
-            .set("eid", username).set("firstName", "Portal").set("lastName", "Pins")
-            .set("email", username + "@example.com").set("type", "registered")
-            .set("password", sakai.passwordFor(username))));
-        try {
-            assertTrue(created.ok(), "Unable to create isolated pin-test account: HTTP " + created.status());
-        } finally {
-            created.dispose();
-        }
-        try {
+        try (TestUser user = sakai.createUser("portal-pins")) {
+            String username = user.username();
             sakai.login(username);
             String firstSite = sakai.createProject(username, List.of("sakai.announcements"));
             sakai.createProject(username, List.of("sakai.announcements", "sakai.schedule"));
             sakai.createProject(username, List.of("sakai.schedule"));
-            page.navigate(firstSite);
+            sakai.gotoPath(firstSite);
             String siteId = sakai.siteIdFromUrl(firstSite);
             List<Object> expectedIds = new ArrayList<>((List<?>) page.evaluate(
                 "async () => (await (await fetch('/portal/favorites/list')).json()).favoriteSiteIds"));
@@ -175,14 +165,6 @@ class PortalPreferencesTest extends SakaiUiTestBase {
                 Object selectedIds = page.evaluate("allsites.getPinnedSiteIds()");
                 assertEquals(new HashSet<>((List<?>) selectedIds), new HashSet<>(actualIds),
                     "The final pin selection must be persisted");
-            }
-        } finally {
-            sakai.login("admin");
-            APIResponse removed = page.request().delete("/direct/user/" + username);
-            try {
-                assertTrue(removed.ok(), "Unable to remove isolated pin-test account: HTTP " + removed.status());
-            } finally {
-                removed.dispose();
             }
         }
     }

@@ -78,16 +78,18 @@ class LoginTest extends SakaiUiTestBase {
     @Order(4)
     void canBypassUiAndStillLoginByRequest() {
         String username = effectiveUsername();
-        APIResponse response = page.request().post("/portal/",
+        APIResponse response = page.request().post("/portal/xlogin",
             RequestOptions.create().setForm(FormData.create()
-                .set("username", username)
-                .set("password", sakai.passwordFor(username))));
+                .set("eid", username)
+                .set("pw", sakai.passwordFor(username))));
 
         int status = response.status();
         assertTrue(status == 200 || status == 302 || status == 303);
         List<Cookie> cookies = page.context().cookies();
         boolean hasSakaiCookie = cookies.stream().anyMatch(cookie -> "SAKAIID".equals(cookie.name));
         assertTrue(hasSakaiCookie);
+        sakai.gotoPath("/portal/site/~" + username);
+        assertThat(page.locator("#sakai-account-panel")).hasCount(1);
     }
 
     @Test

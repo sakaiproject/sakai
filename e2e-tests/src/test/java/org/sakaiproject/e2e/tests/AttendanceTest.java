@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -71,6 +72,7 @@ class AttendanceTest extends SakaiUiTestBase {
         String name = "Attendance status " + sakai.randomId();
         createEvent(name);
         eventRow(name).getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName(name).setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#takeAttendanceTable tbody tr").first()).isVisible();
         page.locator("select[name$='set-all-status']").selectOption(new SelectOption().setLabel("Present"));
         assertThat(page.locator("#feedbackSpan")).containsText("set to PRESENT");
@@ -102,12 +104,15 @@ class AttendanceTest extends SakaiUiTestBase {
         // Exercise server-side validation even when the client disables the submit button.
         page.locator("input[type=file]").evaluate("input => input.form.requestSubmit()");
         assertThat(page.locator("#feedbackSpan")).containsText("No file was provided");
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("input[type=file]").setInputFiles(new FilePayload("bad.txt", "text/plain", "not excel".getBytes(StandardCharsets.UTF_8)));
         page.locator("#import-button").click();
         assertThat(page.locator("#feedbackSpan")).containsText("Please use a .xls file");
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("input[type=file]").setInputFiles(new FilePayload("empty.xls", "application/vnd.ms-excel", new byte[0]));
         page.locator("#import-button").click();
         assertThat(page.locator("#feedbackSpan")).containsText("contains no data");
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("input[type=file]").setInputFiles(new FilePayload("corrupt.xls", "application/vnd.ms-excel", "not excel".getBytes(StandardCharsets.UTF_8)));
         page.locator("#import-button").click();
         assertThat(page.locator("#feedbackSpan")).containsText("not the right format");
@@ -134,6 +139,7 @@ class AttendanceTest extends SakaiUiTestBase {
                 new Locator.GetByRoleOptions().setName("Attendance").setExact(true)).click();
         page.locator(".navIntraTool").getByRole(AriaRole.LINK,
                 new Locator.GetByRoleOptions().setName("Import/Export").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.locator("input[type=file]").setInputFiles(new FilePayload("attendance.XLS", "application/vnd.ms-excel", changedWorkbook));
         page.locator("#import-button").click();
         assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Changes identified in import file:"))).isVisible();
@@ -205,6 +211,7 @@ class AttendanceTest extends SakaiUiTestBase {
     private String openAttendance() {
         sakai.login("instructor1");
         String siteUrl = sakai.createCourse("instructor1", List.of("sakai\\.attendance"));
+        sakai.addMember(siteUrl, "student0011", "Student");
         page.navigate(siteUrl);
         sakai.toolClick("Attendance");
         assertThat(page.locator("#overviewTable")).isVisible();

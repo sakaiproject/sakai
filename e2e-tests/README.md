@@ -12,7 +12,7 @@ mvn -P e2e test
 ### Run tests against a running Sakai instance:
 
 ```bash
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PLAYWRIGHT_BASE_URL=https://sakai.example
 mvn -P e2e test
 ```
@@ -20,7 +20,7 @@ mvn -P e2e test
 ### Run headed (watch browser) against a running Sakai instance:
 
 ```bash
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PLAYWRIGHT_BASE_URL=https://sakai.example
 export PLAYWRIGHT_HEADLESS=false
 mvn -P e2e test
@@ -44,8 +44,9 @@ mvn -P e2e -Dtest=AssignmentTest#canCreatePointsAssignment test
 export PLAYWRIGHT_BROWSER=chromium  # default, or firefox/webkit
 ```
 
-CI runs four separate test processes against the same Sakai server. Methods within each
-class remain sequential. To use the same parallelism locally:
+CI runs four separate test processes against the same Sakai server. Each process reuses
+one browser across classes, with a fresh browser context for every test. Methods within
+each class remain sequential. To use the same parallelism locally:
 
 ```bash
 mvn -Pe2e -Dsakai.test.forks=4 test
@@ -57,15 +58,16 @@ independent of POM changes, operating system, and CPU architecture. Maven downlo
 missing dependencies during each build. Only pushes to `master` save the cache,
 seeding it when no reusable cache exists.
 
-Failure screenshots and traces are written to `target/playwright-artifacts/`.
-Successful traces are discarded and video recording is disabled.
+Browser recording is disabled entirely: no traces, DOM snapshots, screenshots, or
+video are collected. CI retains Surefire reports, test output, and Tomcat logs.
+Browser actions and navigation waits are capped at 15 seconds.
 
 ## Test helpers
 
 Shared helpers live in `src/test/java/org/sakaiproject/e2e/support`:
 
-- `SakaiUiTestBase`: browser/context lifecycle + failure traces/screenshots.
-- `SakaiHelper`: login/navigation/tool actions/site creation/date selection.
+- `SakaiUiTestBase`: browser/context lifecycle and 15-second wait limits.
+- `SakaiHelper`: request-based login/navigation/tool actions/site creation/date selection.
 - `SakaiEnvironment`: base URL, browser/headless flags.
 
 ## Adding tests

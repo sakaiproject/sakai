@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.BoundingBox;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.PlaywrightException;
@@ -67,7 +68,7 @@ class AnnouncementTest extends SakaiUiTestBase {
 
         submitAnnouncementForm();
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -90,9 +91,9 @@ class AnnouncementTest extends SakaiUiTestBase {
 
         submitAnnouncementForm();
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(PAST_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -109,11 +110,11 @@ class AnnouncementTest extends SakaiUiTestBase {
 
         submitAnnouncementForm();
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(PAST_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
         assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(CURRENT_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -126,11 +127,11 @@ class AnnouncementTest extends SakaiUiTestBase {
         ensureViewAll();
         Locator announcementRows = announcementRows();
         assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(CURRENT_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
         assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(0,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
         assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(PAST_ANNOUNCEMENT_TITLE))).hasCount(0,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+            new LocatorAssertions.HasCountOptions().setTimeout(15_000));
     }
 
     @Test
@@ -154,7 +155,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         Locator pageSizeSelect = page.locator("select[id^=\"selectPageSize\"]").first();
         assertThat(pageSizeSelect).isVisible();
         pageSizeSelect.selectOption("10");
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator reorderLink = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).first();
@@ -164,7 +165,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
+            new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         assertAnnouncementReorderChrome();
 
@@ -175,11 +176,11 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertThat(reorderedAnnouncements.first().locator(".sakai-reorder-drag-handle.drag-handle, .drag-handle")).isVisible();
 
         page.locator("#reorder-list-sortingToolBar a.title").click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
+            new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         reorderedAnnouncements = page.locator("#reorder-list li.reorder-element.sakai-reorder-row")
             .filter(new Locator.FilterOptions().setHasText(titlePrefix));
@@ -201,7 +202,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
 
         page.locator("input[name=\"eventSubmit_doReorderUpdate\"]").click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator reorderLinkAgain = page.locator(".navIntraTool a, .navIntraTool button, .navIntraTool [role=\"button\"]")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("^Reorder$", Pattern.CASE_INSENSITIVE))).first();
@@ -210,26 +211,26 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
+            new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         reorderedAnnouncements = page.locator("#reorder-list li.reorder-element.sakai-reorder-row")
             .filter(new Locator.FilterOptions().setHasText(titlePrefix));
         assertAnnouncementPrecedes("#reorder-list", titlePrefix + "02", titlePrefix + "01");
 
         page.locator("#reorder-list-sortingToolBar a.title").click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         page.waitForFunction(
             "() => document.querySelector('#announcements-reorderer')?.updateComplete",
             null,
-            new Page.WaitForFunctionOptions().setTimeout(20_000)
+            new Page.WaitForFunctionOptions().setTimeout(15_000)
         );
         page.locator("input[name=\"eventSubmit_doReorderUpdate\"]").click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         assertAnnouncementOrder(titlePrefix, 1, 10);
 
         page.locator("input[name=\"eventSubmit_doList_next\"]").first().click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertAnnouncementOrder(titlePrefix, 11, 20);
     }
 
@@ -241,6 +242,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         sakai.toolClick("Announcements");
         ensureViewAll();
         page.locator("select[id^=\"selectPageSize\"]").first().selectOption("5");
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         Locator selectAll = page.getByRole(AriaRole.CHECKBOX,
             new Page.GetByRoleOptions().setName("Select all announcements on this page").setExact(true));
@@ -272,6 +274,7 @@ class AnnouncementTest extends SakaiUiTestBase {
 
         selectAll.check();
         page.locator("input[name=\"eventSubmit_doList_next\"]").first().click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(selected).hasCount(0);
         assertThat(selectAll).not().isChecked();
 
@@ -289,6 +292,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         assertThat(page.locator("table.table-bordered")).containsText(FUTURE_ANNOUNCEMENT_TITLE);
         assertThat(page.locator("table.table-bordered")).not().containsText(CURRENT_ANNOUNCEMENT_TITLE);
         page.locator("input[name=\"eventSubmit_doCancel\"]").click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         search.fill("No matching SAK-49926 announcement");
         search.press("Enter");
@@ -397,7 +401,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         ).first();
         assertThat(submit).isVisible();
         submit.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("body")).containsText(Pattern.compile("Announcements", Pattern.CASE_INSENSITIVE));
     }
 
@@ -410,7 +414,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         try {
             if (!"view.all".equals(viewSelect.inputValue())) {
                 viewSelect.selectOption("view.all");
-                page.waitForLoadState();
+                page.waitForLoadState(LoadState.DOMCONTENTLOADED);
             }
         } catch (PlaywrightException ignored) {
             // Not all Announcements contexts expose the same view filter controls.

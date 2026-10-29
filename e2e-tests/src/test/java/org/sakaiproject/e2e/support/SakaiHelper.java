@@ -17,6 +17,8 @@ package org.sakaiproject.e2e.support;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.microsoft.playwright.APIRequestContext;
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.ElementHandle;
@@ -25,9 +27,13 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.FormData;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.RequestOptions;
 import com.microsoft.playwright.options.WaitForSelectorState;
 import com.microsoft.playwright.options.WaitUntilState;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -93,32 +99,36 @@ public class SakaiHelper {
     public void login(String username) {
         String resolvedUsername = resolveUser(username);
 
-        page.context().clearCookies();
+        // Cancel the previous page before replacing its authenticated session.
         page.navigate("about:blank");
-        // Go straight to the login form: /portal/ shows a guest landing page instead of the
-        // form when guest access is enabled, which would otherwise leave the session anonymous.
-        gotoPath("/portal/xlogin");
-        // The login page focuses the username on window.load, so wait before filling either field.
-        page.waitForLoadState();
-
-        Locator usernameInput = page.locator("input[name=\"eid\"], #eid").first();
-        if (waitForVisible(usernameInput, 5000)) {
-            usernameInput.fill(resolvedUsername);
-            page.locator("input[name=\"pw\"], #pw").first().fill(passwordFor(resolvedUsername));
-
-            Locator submit = page.locator("#submit, button[type=\"submit\"], input[type=\"submit\"]").first();
-            submit.click();
-            page.waitForLoadState();
+        page.context().clearCookies();
+        APIResponse response = page.request().post(baseUrl + "/portal/xlogin", RequestOptions.create()
+            .setTimeout(15_000).setForm(FormData.create()
+                .set("eid", resolvedUsername).set("pw", passwordFor(resolvedUsername))));
+        try {
+            if (!response.ok()) {
+                throw new IllegalStateException("Unable to log in as " + resolvedUsername + ": HTTP " + response.status());
+            }
+        } finally {
+            response.dispose();
         }
+        gotoPath("/portal/");
+        assertThat(page.locator("#sakai-account-panel")).hasCount(1);
 
         dismissTutorial();
         setTutorialFlags();
         assertThat(page.locator("body")).isVisible();
     }
 
+    public void waitForPortalFocus() {
+        // The portal moves focus here in a timer after window.load.
+        page.waitForLoadState(LoadState.LOAD);
+        assertThat(page.locator(".Mrphs-portalWrapper")).isFocused();
+    }
+
     public void toolClick(String label) {
         // Tool actions can refresh the portal; wait before inspecting its navigation.
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         Locator expandButtons = page.locator("li.site-list-item.is-current-site button[data-bs-toggle='collapse'][aria-expanded='false']");
         if (expandButtons.count() > 0 && expandButtons.first().isVisible()) {
             expandButtons.first().click();
@@ -212,6 +222,94 @@ public class SakaiHelper {
         return siteUrl;
     }
 
+    /** A disposable account keeps account-wide preferences out of parallel tests. */
+    public final class TestUser implements AutoCloseable {
+        private final String username;
+
+        private TestUser(String username) {
+            this.username = username;
+        }
+
+        public String username() {
+            return username;
+        }
+
+        @Override
+        public void close() {
+            String result = sakaiScript("removeUser", Map.of("eid", username));
+            if (!"success".equals(result)) {
+                throw new IllegalStateException("Unable to delete test account: " + result);
+            }
+        }
+    }
+
+    public TestUser createUser(String prefix) {
+        String username = prefix + "-" + UUID.randomUUID();
+        String result = sakaiScript("addNewUser", Map.of("eid", username, "firstname", "E2E", "lastname", "Test",
+            "email", username + "@example.com", "type", "registered", "password", passwordFor(username)));
+        if (!"success".equals(result)) {
+            throw new IllegalStateException("Unable to create test account: " + result);
+        }
+        return new TestUser(username);
+    }
+
+    public void addMember(String siteUrl, String username, String role) {
+        callSakaiScript("addMemberToSiteWithRole", fixtureSession(), Map.of(
+            "siteid", siteIdFromUrl(siteUrl), "eid", username, "roleid", role));
+    }
+
+    /** Fixture configuration for a disposable grader account, not a shared demo user. */
+    public void setAssignmentGrader(boolean enabled) {
+        String userId = (String) page.evaluate("portal.user.id");
+        APIResponse current = page.request().get("/direct/userPrefs/key/" + userId + "/viewpreferences.json");
+        JsonObject preferences;
+        try {
+            if (!current.ok()) {
+                throw new IllegalStateException("Unable to read grader preferences: HTTP " + current.status());
+            }
+            JsonObject data = JsonParser.parseString(current.text()).getAsJsonObject().getAsJsonObject("data");
+            preferences = data.has("assignments") && !data.get("assignments").isJsonNull()
+                ? JsonParser.parseString(URLDecoder.decode(data.get("assignments").getAsString(), StandardCharsets.UTF_8)).getAsJsonObject()
+                : new JsonObject();
+        } finally {
+            current.dispose();
+        }
+        preferences.addProperty("usegrader", enabled);
+        APIResponse saved = page.request().put("/direct/userPrefs/updateKey/" + userId + "/viewpreferences",
+            RequestOptions.create().setQueryParam("assignments", preferences.toString()));
+        try {
+            if (!saved.ok()) {
+                throw new IllegalStateException("Unable to save grader preferences: HTTP " + saved.status());
+            }
+        } finally {
+            saved.dispose();
+        }
+    }
+
+    /** Creates a published assignment fixture through the existing web service. */
+    public String createAssignment(String siteUrl, String title) {
+        long now = Instant.now().toEpochMilli();
+        RequestOptions options = RequestOptions.create().setTimeout(15_000)
+            .setQueryParam("sessionId", fixtureSession())
+            .setQueryParam("context", siteIdFromUrl(siteUrl))
+            .setQueryParam("title", title)
+            .setQueryParam("openTime", Long.toString(now - 60_000))
+            .setQueryParam("dueTime", Long.toString(now + 86_400_000))
+            .setQueryParam("closeTime", Long.toString(now + 172_800_000))
+            .setQueryParam("maxPoints", "1").setQueryParam("gradeType", "3")
+            .setQueryParam("subType", "1").setQueryParam("instructions", "Reorder fixture");
+        APIResponse response = fixtureRequest.get("/sakai-ws/rest/assignments/createAssignment", options);
+        try {
+            String id = response.text().trim();
+            if (!response.ok() || !id.matches("[0-9a-fA-F-]{36}")) {
+                throw new IllegalStateException("Unable to create assignment fixture: HTTP " + response.status() + " " + id);
+            }
+            return id;
+        } finally {
+            response.dispose();
+        }
+    }
+
     /**
      * Adds a group with the given members to a site from createCourse or createProject.
      *
@@ -279,7 +377,7 @@ public class SakaiHelper {
                 new Page.GetByRoleOptions().setName(Pattern.compile("^Create New Site$", Pattern.CASE_INSENSITIVE))).first())
                 || clickVisible(page.locator(".navIntraTool a:has-text(\"Create New Site\"), .navIntraTool button:has-text(\"Create New Site\"), a:has-text(\"Create New Site\"), button:has-text(\"Create New Site\")").first());
             if (opened) {
-                page.waitForLoadState();
+                page.waitForLoadState(LoadState.DOMCONTENTLOADED);
             }
         }
 
@@ -303,38 +401,36 @@ public class SakaiHelper {
 
             Locator submitBuildOwn = page.locator("input#submitBuildOwn").first();
             submitBuildOwn.click(new Locator.ClickOptions().setForce(true));
-            page.waitForLoadState();
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         }
 
         if ("project".equals(siteType)) {
             Locator siteTitle = page.locator("#title").first();
             assertThat(siteTitle).isVisible();
             siteTitle.fill("Playwright Java Testing " + randomId());
-            clickContinue(null);
+            clickContinue();
         } else {
             assertThat(addCourseForm).isVisible();
+            page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
             String addCourseText = text(addCourseForm);
             if (addCourseText.contains("select anyway")) {
                 Locator selectAnyway = page.getByRole(AriaRole.LINK,
                     new Page.GetByRoleOptions().setName(Pattern.compile("select anyway", Pattern.CASE_INSENSITIVE))).first();
                 if (selectAnyway.count() > 0 && selectAnyway.isVisible()) {
-                    selectAnyway.click(new Locator.ClickOptions().setForce(true));
+                    selectAnyway.click();
                 }
             }
 
-            ensureAnyVisibleCheckboxChecked(addCourseForm.locator("input[type=\"checkbox\"]"));
+            Locator roster = addCourseForm.locator("input[name=providerCourseAdd]:enabled").first();
+            roster.check();
+            assertThat(roster).isChecked();
 
-            Locator courseDesc = page.locator("form input#courseDesc1");
-            if (courseDesc.count() > 0 && courseDesc.first().isVisible()) {
-                courseDesc.first().click(new Locator.ClickOptions().setForce(true));
-            }
-
-            clickContinue(addCourseForm);
-            Locator siteTitle = page.locator("textarea").last();
-            assertThat(siteTitle).isVisible();
-            siteTitle.fill("Playwright Java Testing " + randomId());
-            clickContinue(null);
+            clickContinue();
+            Locator description = page.locator("#short_description");
+            assertThat(description).isVisible();
+            description.fill("Playwright Java Testing " + randomId());
+            clickContinue();
         }
 
         Locator manageTools = page.getByRole(AriaRole.HEADING,
@@ -382,7 +478,7 @@ public class SakaiHelper {
             }
         }
 
-        clickContinue(null);
+        clickContinue();
 
         Locator manualPublishing = page.locator("#manualPublishing").first();
         if (manualPublishing.count() > 0 && manualPublishing.isVisible()) {
@@ -394,7 +490,7 @@ public class SakaiHelper {
             publish.click(new Locator.ClickOptions().setForce(true));
         }
 
-        clickContinue(null);
+        clickContinue();
 
         Locator createSiteButton = page.locator(
             "input#addSite, button#addSite, input[type=\"submit\"][value*=\"Create Site\"], input[type=\"submit\"][value*=\"Add Site\"], button:has-text(\"Create Site\"), button:has-text(\"Add Site\")"
@@ -403,7 +499,7 @@ public class SakaiHelper {
             createSiteButton.click(new Locator.ClickOptions().setForce(true));
         }
 
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         String href = null;
         Locator flash = page.locator("#flashNotif").first();
@@ -440,89 +536,29 @@ public class SakaiHelper {
         if (editorId == null || editorId.isBlank()) {
             throw new IllegalArgumentException("editorId is required");
         }
-
         String desiredHtml = html == null ? "" : html;
-        String expectedPlainText = desiredHtml.replaceAll("<[^>]+>", " ").replaceAll("\\s+", " ").trim();
-        boolean populated = false;
-
-        try {
-            page.waitForFunction(
-                "(id) => {" +
-                    "const inst = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances[id];" +
-                    "return Boolean(inst && (inst.status === 'ready' || inst.status === 'loaded' || inst.document));" +
-                    "}",
-                editorId,
-                new Page.WaitForFunctionOptions().setTimeout(15_000)
-            );
-            page.evaluate(
-                "(args) => {" +
-                    "const id = args[0];" +
-                    "const html = args[1];" +
-                    "const inst = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances[id];" +
-                    "if (!inst) { return false; }" +
-                    "return new Promise((resolve) => inst.setData(html, { callback: () => {" +
-                        "try { inst.updateElement(); } catch (e) {}" +
-                        "resolve(true);" +
-                    "} }));" +
-                    "}",
-                Arrays.asList(editorId, desiredHtml)
-            );
-            populated = Boolean.TRUE.equals(page.evaluate(
-                "(args) => {" +
-                    "const id = args[0];" +
-                    "const expected = args[1];" +
-                    "const inst = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances[id];" +
-                    "if (inst) {" +
-                        "try { inst.updateElement(); } catch (e) {}" +
-                        "const data = (inst.getData() || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();" +
-                        "if (expected.length === 0 || data.length > 0) { return true; }" +
-                    "}" +
-                    "const el = document.getElementById(id);" +
-                    "if (!el) { return false; }" +
-                    "const value = ('value' in el ? el.value : el.textContent) || '';" +
-                    "const normalized = value.replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();" +
-                    "return expected.length === 0 ? true : normalized.length > 0;" +
-                    "}",
-                Arrays.asList(editorId, expectedPlainText)
-            ));
-        } catch (RuntimeException ignored) {
-            populated = false;
-        }
-
-        if (populated) {
-            return;
-        }
-
-        Boolean wroteBackingElement = Boolean.TRUE.equals(page.evaluate(
-            "(args) => {" +
-                "const id = args[0];" +
-                "const html = args[1];" +
-                "const expected = args[2];" +
-                "const element = document.getElementById(id);" +
-                "if (!element || !('value' in element)) { return false; }" +
-                "element.value = html;" +
-                "element.dispatchEvent(new Event('input', { bubbles: true }));" +
-                "element.dispatchEvent(new Event('change', { bubbles: true }));" +
-                "element.dispatchEvent(new Event('blur', { bubbles: true }));" +
-                "const normalized = (element.value || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();" +
-                "return expected.length === 0 ? true : normalized.length > 0;" +
-                "}",
-            Arrays.asList(editorId, desiredHtml, expectedPlainText)
-        ));
-        if (wroteBackingElement) {
-            return;
-        }
-
-        Locator visibleFallback = page.locator("textarea:visible, [contenteditable=\"true\"]:visible, div[role=\"textbox\"]:visible").first();
-        if (visibleFallback.count() > 0 && visibleFallback.isVisible()) {
-            visibleFallback.fill(expectedPlainText);
-            visibleFallback.dispatchEvent("input");
-            visibleFallback.dispatchEvent("change");
-            visibleFallback.dispatchEvent("blur");
-            return;
-        }
-
-        throw new IllegalStateException("Unable to populate CKEditor content for editor id: " + editorId);
+        // An existing instance or document is not necessarily ready for setData().
+        page.waitForFunction("id => window.CKEDITOR?.instances[id]?.status === 'ready'",
+            editorId, new Page.WaitForFunctionOptions().setTimeout(15_000));
+        page.evaluate("""
+            ([id, html]) => {
+                const editor = window.CKEDITOR.instances[id];
+                editor.setData(html, { callback: () => editor.updateElement() });
+            }
+            """, Arrays.asList(editorId, desiredHtml));
+        // Check the named form field as well as the editor. Never fall back to a
+        // hidden textarea which the editor can overwrite during submission.
+        page.waitForFunction("""
+            ([id, expected]) => {
+                const editor = window.CKEDITOR.instances[id];
+                const input = document.getElementById(id);
+                const data = editor.getData();
+                const text = html => new DOMParser().parseFromString(html, 'text/html')
+                    .body.textContent.replace(/\\s+/g, ' ').trim();
+                return editor.status === 'ready' && input?.value === data
+                    && (!expected.trim() || data.trim()) && text(data) === text(expected);
+            }
+            """, Arrays.asList(editorId, desiredHtml), new Page.WaitForFunctionOptions().setTimeout(15_000));
     }
 
     public boolean typeCkEditorIfPresent(String editorId, String html) {
@@ -592,34 +628,11 @@ public class SakaiHelper {
         }
     }
 
-    private void clickContinue(Locator scope) {
-        for (int attempt = 0; attempt < 6; attempt++) {
-            dismissTutorial();
-
-            if (scope != null && scope.count() > 0 && scope.first().isVisible()) {
-                Locator scopedControls = scope.locator(
-                    "input#continueButton, button#continueButton, input[name=\"Continue\"], button[name=\"Continue\"], input[name=\"continue\"], button[name=\"continue\"], input[type=\"submit\"][value*=\"Continue\"], button:has-text(\"Continue\")"
-                );
-                if (clickVisible(scopedControls.first())) {
-                    page.waitForLoadState();
-                    page.waitForTimeout(250);
-                    return;
-                }
-            }
-
-            Locator continueControl = page.locator(
-                "input#continueButton, button#continueButton, .act input[name=\"Continue\"], .act button[name=\"Continue\"], .act input[name=\"continue\"], .act button[name=\"continue\"], .act input[value*=\"Continue\"], .act button:has-text(\"Continue\"), input[type=\"submit\"][value*=\"Continue\"], button:has-text(\"Continue\")"
-            );
-            if (clickVisible(continueControl.first())) {
-                page.waitForLoadState();
-                page.waitForTimeout(250);
-                return;
-            }
-
-            page.waitForTimeout(250);
-        }
-
-        throw new IllegalStateException("Unable to click Continue in site creation flow");
+    private void clickContinue() {
+        dismissTutorial();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Continue").setExact(true)).click();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 
     private boolean clickToolByText(String label) {
@@ -629,7 +642,7 @@ public class SakaiHelper {
             return false;
         }
         tool.click();
-        page.waitForLoadState();
+        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         return true;
     }
 
@@ -650,34 +663,6 @@ public class SakaiHelper {
         } catch (PlaywrightException e) {
             return false;
         }
-    }
-
-    private void ensureAnyVisibleCheckboxChecked(Locator checkboxes) {
-        int count = checkboxes.count();
-
-        for (int index = 0; index < count; index++) {
-            Locator box = checkboxes.nth(index);
-            if (box.isVisible() && box.isChecked()) {
-                return;
-            }
-        }
-
-        for (int index = 0; index < count; index++) {
-            Locator box = checkboxes.nth(index);
-            if (!box.isVisible()) {
-                continue;
-            }
-            try {
-                box.check(new Locator.CheckOptions().setForce(true));
-            } catch (PlaywrightException ex) {
-                box.click(new Locator.ClickOptions().setForce(true));
-            }
-            if (box.isChecked()) {
-                return;
-            }
-        }
-
-        throw new IllegalStateException("Unable to select a visible course/section during site creation");
     }
 
     private String text(Locator locator) {

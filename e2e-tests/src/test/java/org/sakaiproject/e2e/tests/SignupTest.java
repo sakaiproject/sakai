@@ -20,6 +20,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.LocatorAssertions;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -98,7 +99,7 @@ class SignupTest extends SakaiUiTestBase {
 
         page.locator("button:has-text(\"Next\"), input[type=\"submit\"][value*=\"Next\"], .act button:has-text(\"Next\"), .act input[value*=\"Next\"]").first().click(new Locator.ClickOptions().setForce(true));
         page.locator("form#meeting input#meeting\\:goNextPage[value=\"Publish\"]").first().click();
-        page.waitForURL(Pattern.compile(".*/signupMeetings(?:\\?.*)?$"), new Page.WaitForURLOptions().setTimeout(30_000));
+        page.waitForURL(Pattern.compile(".*/signupMeetings(?:\\?.*)?$"), new Page.WaitForURLOptions().setTimeout(15_000));
 
         sakai.toolClick("Sign-up");
         Locator meetingsTable = page.locator("[id=\"items:meetinglist\"], [id=\"meetinglist\"], [id$=\":meetinglist\"]").first();
@@ -111,7 +112,7 @@ class SignupTest extends SakaiUiTestBase {
 
                 for (String viewValue : viewValues) {
                     viewByRange.selectOption(viewValue);
-                    page.waitForLoadState();
+                    page.waitForLoadState(LoadState.DOMCONTENTLOADED);
                     if (meetingTitleVisible(meetingsTable)) {
                         return;
                     }
