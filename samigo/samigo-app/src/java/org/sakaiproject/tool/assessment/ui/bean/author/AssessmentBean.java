@@ -193,7 +193,7 @@ public class AssessmentBean  implements Serializable {
 	itemsInThisSection = items.size();
       }
 
-      this.questionSize += itemsInThisSection;
+      this.questionSize += Math.min(itemsInThisSection, items.size());
       for (int j=0; j<itemsInThisSection && j<items.size(); j++){
           ItemContentsBean item = items.get(j);
           if (item.getItemData().getScore()!=null){
