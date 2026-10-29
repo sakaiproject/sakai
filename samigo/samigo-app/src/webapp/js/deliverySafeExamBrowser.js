@@ -10,6 +10,7 @@ const launchSebLinkId = "sebLaunchSeb";
 const downloadSebLink = seb.downloadLink;
 const downloadSebLinkId = "sebDownloadSeb";
 const downloadConfigLinkId = "sebDownloadConfiguration";
+const apiTimeoutMessageId = "sebApiTimeoutMessage";
 const relativeConfigLink = seb.relativeConfigLink;
 const assessmentId = seb.assessmentId;
 const loadingMessage = window.please_wait;
@@ -82,10 +83,15 @@ async function hideStartView() {
     }
 }
 
-function showStartView() {
-    const form = document.getElementById(formId);
-    if (form) {
-        form.style.display = "";
+function showApiTimeoutView() {
+    // Launching or downloading SEB from inside SEB cannot help: keep the start view hidden and ask to restart SEB
+    const downloadSebLinkElement = document.getElementById(downloadSebLinkId);
+    if (downloadSebLinkElement) {
+        downloadSebLinkElement.style.display = "none";
+    }
+    const message = document.getElementById(apiTimeoutMessageId);
+    if (message) {
+        message.style.display = "";
     }
     if (window.$ && $.unblockUI) {
         $.unblockUI();
@@ -185,8 +191,7 @@ function configureLinks() {
     configureLink(downloadConfigLinkId, getDownloadConfigLink());
 
     const launchLink = document.getElementById(launchSebLinkId);
-    // Inside SEB the launch link can only trigger a (denied) reconfiguration: stay on the exam page
-    if (launchLink && !launchLink.classList.contains("disabled") && !isSebUserAgent()) {
+    if (launchLink && !launchLink.classList.contains("disabled")) {
         launchLink.addEventListener("click", () => {
             // Keep the regular browser on the T&Q landing page after SEB launches.
             window.setTimeout(() => {
@@ -213,9 +218,8 @@ if (sebApi) {
             domLoadedPromise.then(() => {
                 // Only the sebSetup view was hidden while waiting
                 if (isStartView()) {
-                    showStartView();
+                    showApiTimeoutView();
                 }
-                configureLinks();
             });
         }
     });
