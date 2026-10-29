@@ -117,6 +117,7 @@ class AttendanceTest extends SakaiUiTestBase {
         page.locator("#import-button").click();
         assertThat(page.locator("#feedbackSpan")).containsText("not the right format");
 
+        sakai.waitForPortalFocus();
         Download download = page.waitForDownload(() -> page.locator("#exportSave").click());
         byte[] changedWorkbook;
         try (InputStream input = Files.newInputStream(download.path());

@@ -56,6 +56,7 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
     }
 
     private void assertSearchClears(String table) {
+        sakai.waitForPortalFocus();
         Locator search = page.locator("[id='editTotalResults:searchString']");
         Locator students = page.locator(table + " > tbody > tr")
             .filter(new Locator.FilterOptions().setHasText(Pattern.compile("student0011", Pattern.CASE_INSENSITIVE)));
@@ -76,9 +77,10 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
         assertThat(search).hasValue("");
     }
 
-    /** Runs an action that posts the evaluation form and waits for the page it answers with. */
+    /** Waits for navigation and the portal's delayed focus before the next input action. */
     private void submits(Runnable action) {
-        page.waitForResponse(r -> "POST".equals(r.request().method()) && r.url().contains("/jsf/evaluation/"), action);
+        page.waitForNavigation(action);
+        sakai.waitForPortalFocus();
     }
 
     private void createQuiz(String title) {

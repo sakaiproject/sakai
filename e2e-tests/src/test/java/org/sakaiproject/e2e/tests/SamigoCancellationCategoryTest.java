@@ -194,6 +194,8 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
             assertThat(page.locator("#assessmentForm\\:parts .samigo-question-callout")).hasCount(question);
         }
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Settings").setExact(true)).first().click();
+        sakai.waitForPortalFocus();
+        assertThat(page.locator("#jqueryui-accordion.ui-accordion")).isVisible();
         page.locator("#expandLink").click();
         DateTimeFormatter dateTime12h = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US);
         sakai.selectDate("#assessmentSettingsAction\\:startDate",
@@ -270,6 +272,8 @@ class SamigoCancellationCategoryTest extends SakaiUiTestBase {
             confirmation.first().click();
         }
         assertThat(page.locator("input[id$='answerptr']")).hasCount(3);
+        // Authoring cancellation handlers are attached on window.load, including keyboard activation.
+        page.waitForLoadState(LoadState.LOAD);
     }
 
     private void openCancellation() {

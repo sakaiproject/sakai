@@ -80,6 +80,7 @@ class SiteInfoTest extends SakaiUiTestBase {
             .first().click(new Locator.ClickOptions().setForce(true));
         page.locator(".navIntraTool a[href$='/joinableset']").click();
 
+        sakai.waitForPortalFocus();
         page.locator("#groupTitle").fill("<em></em>");
         page.locator("#groupNumber").fill("1");
         page.locator("#groupMaxMembers").fill("5");
@@ -87,6 +88,7 @@ class SiteInfoTest extends SakaiUiTestBase {
         page.locator("#create-joinableset-submit-button").click();
         assertThat(page.locator(".portletBody:has(#createnewjoinableset-form) .sak-banner-error")).hasText("You must provide a set title.");
 
+        sakai.waitForPortalFocus();
         page.locator("#groupTitle").fill("<em>Planning & Review</em>");
         page.locator("#groupNumber").fill("1");
         page.locator("#groupMaxMembers").fill("5");
@@ -97,6 +99,7 @@ class SiteInfoTest extends SakaiUiTestBase {
         assertThat(page.locator("#group-manager-form")).not().containsText("<em>Planning & Review</em>");
 
         page.locator(".navIntraTool a[href$='/joinableset']").click();
+        sakai.waitForPortalFocus();
         page.locator("#groupTitle").fill("<strong>Planning & Review</strong>");
         page.locator("#groupNumber").fill("1");
         page.locator("#groupMaxMembers").fill("5");

@@ -50,16 +50,18 @@ class ViewSiteAsTest extends SakaiUiTestBase {
         String adminSiteUrl = portalUri.resolve("/portal/site/!admin").toString();
         page.navigate(configuredSiteUrl);
 
+        sakai.waitForPortalFocus();
         Locator roleSwitcher = page.locator("#roleSwitch");
         assertThat(roleSwitcher).isVisible();
 
         Locator roleSelect = roleSwitcher.locator("#roleSwitchSelect");
-        if (roleSelect.count() > 0 && roleSelect.isVisible()) {
-            roleSelect.selectOption(new SelectOption().setIndex(1));
-        } else {
-            roleSwitcher.locator("#roleSwitchAnchor").click();
-        }
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        page.waitForNavigation(() -> {
+            if (roleSelect.count() > 0 && roleSelect.isVisible()) {
+                roleSelect.selectOption(new SelectOption().setIndex(1));
+            } else {
+                roleSwitcher.locator("#roleSwitchAnchor").click();
+            }
+        });
 
         assertThat(page.locator("#roleSwitchAnchor.Mrphs-roleSwitch__exit")).isVisible();
 
@@ -69,8 +71,7 @@ class ViewSiteAsTest extends SakaiUiTestBase {
                 .setName(Pattern.compile("^Site Unavailable$", Pattern.CASE_INSENSITIVE))).first()).isVisible();
 
         page.navigate(configuredSiteUrl);
-        page.locator("#roleSwitchAnchor.Mrphs-roleSwitch__exit").click();
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        page.waitForNavigation(() -> page.locator("#roleSwitchAnchor.Mrphs-roleSwitch__exit").click());
 
         page.navigate(adminSiteUrl);
         assertThat(page.getByRole(AriaRole.LINK,
