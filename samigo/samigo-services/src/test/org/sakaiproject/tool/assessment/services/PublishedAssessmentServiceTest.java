@@ -170,11 +170,17 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
             .setParameter("function", "TAKE_PUBLISHED_ASSESSMENT").executeUpdate();
         data().getAssessmentAccessControl().setReleaseTo(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS);
         sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
         when(securityService.unlock(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
             "/site/" + siteId)).thenReturn(true);
         assertTrue(persistenceService.getPublishedAssessmentFacadeQueries().getBasicInfoOfAllPublishedAssessments("publishedAssessmentId", true, siteId).isEmpty());
-        assertEquals(assessment.getPublishedAssessmentId(),
-            service.getPublishedAssessmentsForAuthor(siteId).get(0).getPublishedAssessmentId());
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("group-without-editor");
+        when(group.getTitle()).thenReturn("Released group");
+        when(site.getGroups()).thenReturn(List.of(group));
+        PublishedAssessmentFacade summary = service.getPublishedAssessmentsForAuthor(siteId).get(0);
+        assertEquals(assessment.getPublishedAssessmentId(), summary.getPublishedAssessmentId());
+        assertEquals(Map.of("group-without-editor", "Released group"), summary.getReleaseToGroups());
     }
 
     @Test
@@ -189,7 +195,9 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
         statistics.setStatisticsEnabled(true);
         statistics.clear();
         try {
-            assertEquals(2, service.getPublishedAssessmentsForAuthor(siteId).size());
+            List<PublishedAssessmentFacade> summaries = service.getPublishedAssessmentsForAuthor(siteId);
+            assertEquals(2, summaries.size());
+            summaries.forEach(summary -> assertNull(summary.getReleaseToGroups()));
             assertEquals(0, statistics.getEntityLoadCount());
             assertEquals(0, statistics.getCollectionFetchCount());
         } finally {

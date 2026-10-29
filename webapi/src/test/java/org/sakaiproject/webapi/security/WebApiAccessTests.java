@@ -62,6 +62,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.WebApiAccessConfiguration;
@@ -183,6 +184,14 @@ public class WebApiAccessTests {
         assertEquals(400, context.getBean(SiteEntityController.class).updateSiteEntities("course", batch).getStatusCode().value());
         verify(forumManager).getForumForUpdate("course", 1L);
         verify(forumManager, never()).updateForumAvailability(anyString(), anyLong(), anyBoolean(), any(), any());
+    }
+
+    @Test
+    public void assessmentResponseRetainsGroupReleaseReferences() {
+        PublishedAssessmentFacade assessment = new PublishedAssessmentFacade(1L, "Group assessment", null,
+            null, null, Map.of("selected-group", "Selected group"));
+        SiteEntityRestBean response = SiteEntityRestBean.of(assessment, Set.of(), "course");
+        assertEquals(Set.of("/site/course/group/selected-group"), response.getGroupRefs());
     }
 
     @Test

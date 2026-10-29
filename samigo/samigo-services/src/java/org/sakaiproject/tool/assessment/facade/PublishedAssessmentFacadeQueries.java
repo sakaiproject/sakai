@@ -1574,7 +1574,17 @@ public class PublishedAssessmentFacadeQueries implements PublishedAssessmentFaca
 
     @Override
     public List<PublishedAssessmentFacade> getBasicInfoOfPublishedAssessmentsForAuthor(String siteId) {
-        return getBasicInfoOfAllPublishedAssessments("publishedAssessmentId", true, siteId, true);
+        List<PublishedAssessmentFacade> assessments = getBasicInfoOfAllPublishedAssessments("publishedAssessmentId", true, siteId, true);
+        Map<String, String> groupsForSite = null;
+        for (PublishedAssessmentFacade assessment : assessments) {
+            if (AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(assessment.getReleaseTo())) {
+                if (groupsForSite == null) {
+                    groupsForSite = getGroupsForSite(siteId);
+                }
+                assessment.setReleaseToGroups(getReleaseToGroups(groupsForSite, assessment.getPublishedAssessmentId()));
+            }
+        }
+        return assessments;
     }
 
     private List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(
