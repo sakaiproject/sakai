@@ -267,7 +267,7 @@ public class MainController {
                     .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).readValue(requestForm);
         } catch (JsonProcessingException e) {
             // Do not attach Jackson's exception: its message can contain the submitted password.
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid password reset request");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         return resetResponse(avService.completePasswordReset(tokenId, input), userLocale).toJSONString();
     }
