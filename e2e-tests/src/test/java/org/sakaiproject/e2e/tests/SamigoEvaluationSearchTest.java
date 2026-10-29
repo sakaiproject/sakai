@@ -76,9 +76,9 @@ class SamigoEvaluationSearchTest extends SakaiUiTestBase {
         assertThat(search).hasValue("");
     }
 
-    /** Runs an action that posts the evaluation form and waits for the page it answers with. */
+    /** Waits for the submitted page to load before interacting with its search field. */
     private void submits(Runnable action) {
-        page.waitForResponse(r -> "POST".equals(r.request().method()) && r.url().contains("/jsf/evaluation/"), action);
+        page.waitForNavigation(action);
     }
 
     private void createQuiz(String title) {
