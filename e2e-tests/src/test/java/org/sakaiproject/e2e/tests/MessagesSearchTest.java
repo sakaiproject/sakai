@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.AriaRole;
 import java.util.List;
@@ -50,6 +49,9 @@ class MessagesSearchTest extends SakaiUiTestBase {
         assertThat(page.locator(".dt-search")).hasCount(0);
         assertThat(ours).hasCount(2);
 
+        // Wait for the table and portal focus before sending keystrokes.
+        sakai.waitForPortalFocus();
+        assertThat(page.locator("[id='prefs_pvt_form:pvtmsgs'].dataTable")).isVisible();
         // typing filters the listed messages
         search.pressSequentially("Lab " + id);
         assertThat(ours).hasCount(1);
@@ -104,9 +106,7 @@ class MessagesSearchTest extends SakaiUiTestBase {
 
     /** Runs an action that posts the messages form and waits for the page it answers with. */
     private void submits(Runnable action) {
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-        Response response = page.waitForResponse(r -> "POST".equals(r.request().method()) && r.url().contains("/privateMsg/"), action);
-        response.finished();
-        page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+        page.waitForNavigation(action);
+        sakai.waitForPortalFocus();
     }
 }
