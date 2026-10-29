@@ -32,6 +32,7 @@ import java.util.Set;
 import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import static org.mockito.Mockito.*;
@@ -67,6 +68,72 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
     private String student = "student";
     private String instructor = "instructor";
 
+    @Before
+    public void selectStudent() {
+        switchToStudent();
+    }
+
+    @Test
+    public void userAuthoredSiteTaskRequiresCreatePermission() throws Exception {
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setDescription("Unauthorized class task");
+        input.setSiteId(siteId);
+        input.setAssignationType("site");
+        input.setPriority(Priorities.HIGH);
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        assertThrows(SecurityException.class, () -> taskService.createUserAuthoredTask(input));
+        assertTrue(taskService.getCurrentTasksForCurrentUser().isEmpty());
+    }
+
+    @Test
+    public void existingPersonalTaskWithoutTaskOwnerCanStillBeEdited() {
+        Task legacy = new Task();
+        legacy.setReference("/user/" + student);
+        legacy.setDescription("Before upgrade");
+        legacy.setSystem(false);
+        taskService.createTask(legacy, Set.of(student), Priorities.HIGH);
+        UserTaskAdapterBean bean = taskService.getCurrentTasksForCurrentUser().get(0);
+        assertNull(bean.getOwner());
+        bean.setDescription("After upgrade");
+        taskService.saveUserTask(bean);
+        assertEquals("After upgrade", taskService.getCurrentTasksForCurrentUser().get(0).getDescription());
+    }
+
+    @Test
+    public void anotherUserCannotUpdateOrDeleteTask() {
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setDescription("Private task");
+        input.setPriority(Priorities.HIGH);
+        taskService.createSingleUserTask(input);
+        UserTaskAdapterBean task = taskService.getCurrentTasksForCurrentUser().get(0);
+        switchToInstructor();
+        task.setDescription("Changed by another user");
+        assertThrows(SecurityException.class, () -> taskService.saveUserTask(task));
+        assertThrows(SecurityException.class, () -> taskService.removeUserTask(task.getUserTaskId()));
+        switchToStudent();
+        assertEquals("Private task", taskService.getCurrentTasksForCurrentUser().get(0).getDescription());
+    }
+
+    @Test
+    public void updatingTaskCannotTransferOwnershipOrSystemIdentity() {
+        UserTaskAdapterBean input = new UserTaskAdapterBean();
+        input.setDescription("Private task");
+        input.setPriority(Priorities.HIGH);
+        taskService.createSingleUserTask(input);
+        UserTaskAdapterBean task = taskService.getCurrentTasksForCurrentUser().get(0);
+        String reference = task.getReference();
+        task.setUserId(instructor);
+        task.setOwner(instructor);
+        task.setSystem(true);
+        task.setReference("/forged");
+        taskService.saveUserTask(task);
+        UserTaskAdapterBean saved = taskService.getCurrentTasksForCurrentUser().get(0);
+        assertEquals(student, saved.getUserId());
+        assertEquals(student, saved.getOwner());
+        assertFalse(saved.getSystem());
+        assertEquals(reference, saved.getReference());
+    }
+
     private Task createTask(String reference) {
 
         String siteId = "python101";
@@ -79,6 +146,7 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         task.setSiteId(siteId);
         task.setReference(reference);
         task.setSystem(false);
+        task.setOwner(sessionManager.getCurrentSessionUserId());
         task.setDescription(description);
         return taskService.createTask(task, userIds, Priorities.HIGH);
     }

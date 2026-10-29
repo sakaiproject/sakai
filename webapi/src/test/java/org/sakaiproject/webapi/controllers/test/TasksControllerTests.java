@@ -207,7 +207,7 @@ public class TasksControllerTests extends BaseControllerTests {
         assigns.setType(AssignationType.site);
         when(taskService.getTaskAssignments(task.getId())).thenReturn(List.of(assigns));
 
-        when(taskService.createSingleUserTask(any())).thenReturn(userTask);
+        when(taskService.createUserAuthoredTask(any())).thenReturn(userTask);
 
         mockMvc.perform(post("/tasks").contentType("application/json").content(json))
             .andExpect(status().isOk())
@@ -221,6 +221,7 @@ public class TasksControllerTests extends BaseControllerTests {
     public void testCreateSingleUserTask() throws Exception {
 
         Map<String, Object> map = getUserTaskMap();
+        map.put("userTaskId", 1L);
 
         ObjectMapper jsonMapper = new ObjectMapper();
         String json = jsonMapper.writeValueAsString(map);
@@ -249,7 +250,7 @@ public class TasksControllerTests extends BaseControllerTests {
         assigns.setType(AssignationType.user);
         when(taskService.getTaskAssignments(task.getId())).thenReturn(List.of(assigns));
 
-        when(taskService.createSingleUserTask(any())).thenReturn(userTask);
+        when(taskService.createUserAuthoredTask(any())).thenReturn(userTask);
 
         mockMvc.perform(post("/tasks").contentType("application/json").content(json))
             .andExpect(status().isOk())
@@ -263,6 +264,7 @@ public class TasksControllerTests extends BaseControllerTests {
     public void testUpdateTask() throws Exception {
 
         Map<String, Object> map = getUserTaskMap();
+        map.put("userTaskId", 1L);
 
         ObjectMapper jsonMapper = new ObjectMapper();
         String json = jsonMapper.writeValueAsString(map);

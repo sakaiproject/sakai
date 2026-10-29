@@ -13,6 +13,8 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.sakaiproject.webapi.security.PublicApi;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.messaging.api.UserMessagingService;
 
@@ -39,6 +41,7 @@ public class EventsController extends AbstractSakaiApiController {
     @Autowired
     private UserMessagingService userMessagingService;
 
+    @PublicApi("VAPID public key is distributed to subscription clients.")
     @GetMapping("/keys/sakaipush")
     public ResponseEntity<String> getPushKey() {
 

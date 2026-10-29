@@ -13,6 +13,8 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.sakaiproject.webapi.security.PublicApi;
+
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +61,8 @@ public class LoginController extends AbstractSakaiApiController {
     @Resource
     private AuthenticationManager authenticationManager;
 
-	@PostMapping("/login")
+	@PublicApi("Login establishes a Sakai session.")
+    @PostMapping("/login")
     public ResponseEntity<String> login(LoginRestBean loginBean, HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
         String username = loginBean.getUsername();

@@ -13,6 +13,8 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.sakaiproject.webapi.security.ServiceSiteAccess;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -209,6 +211,7 @@ public class GradesController extends AbstractSakaiApiController {
         return Map.of("grades", grades, "sites", getPinnedSiteList());
     }
 
+    @ServiceSiteAccess("GradingService authorizes the requested gradebook operation; scoped callers need no site.visit.")
     @GetMapping(value = "/sites/{siteId}/grades", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List> getSiteGrades(@PathVariable("siteId") String siteId) throws UserNotDefinedException {
 
@@ -217,6 +220,7 @@ public class GradesController extends AbstractSakaiApiController {
         return Map.of("grades", gradeDataSupplierForSite.apply(siteId));
     }
 
+    @ServiceSiteAccess("GradingService authorizes the requested gradebook operation; scoped callers need no site.visit.")
     @GetMapping(value = "/sites/{siteId}/grading/item-data", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List> getSiteCategories(@PathVariable("siteId") String siteId) {
 
@@ -225,6 +229,7 @@ public class GradesController extends AbstractSakaiApiController {
         return Map.<String, List>of("categories", gradingService.getCategoryDefinitions(siteId, siteId), "items", gradingService.getAssignments(siteId, siteId, SortType.SORT_BY_NONE));
     }
 
+    @ServiceSiteAccess("GradingService authorizes the requested gradebook operation; scoped callers need no site.visit.")
     @PostMapping(value = "/sites/{siteId}/grades/{gradingItemId}/{userId}")
     public void submitGrade(@PathVariable("siteId") String siteId, @PathVariable("gradingItemId") Long gradingItemId, @PathVariable("userId") String userId, @RequestBody Map<String, String> body) {
 
@@ -239,6 +244,7 @@ public class GradesController extends AbstractSakaiApiController {
         }
     }
 
+    @ServiceSiteAccess("GradingService authorizes the requested gradebook operation; scoped callers need no site.visit.")
     @GetMapping(value = {"/sites/{siteId}/items/{appName}", "/sites/{siteId}/items/{appName}/{userId}", "/sites/{siteId}/items/{appName}/{userId}/{gbUid}"}, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<GradebookRestBean> getSiteItems(@PathVariable("siteId") String siteId, @PathVariable("appName") String appName, @PathVariable(value = "gbUid", required = false) Optional<String> gbUid, @PathVariable(value = "userId", required = false) Optional<String> userId) throws UserNotDefinedException {
 
@@ -301,6 +307,7 @@ public class GradesController extends AbstractSakaiApiController {
         return gbWithItems;
     }
 
+    @ServiceSiteAccess("GradingService authorizes the requested gradebook operation; scoped callers need no site.visit.")
     @GetMapping(value = "/sites/{siteId}/categories", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<GradebookRestBean> getGroupCategoriesList(@PathVariable("siteId") String siteId) throws UserNotDefinedException {
 

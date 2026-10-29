@@ -1038,6 +1038,9 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
 
     @Override
     public MimeTypeByteArray getUserNamePronunciation(String uuid) {
+        if (StringUtils.isBlank(sakaiProxy.getCurrentUserId())) {
+            throw new SecurityException("You must be logged in to read a pronunciation recording.");
+        }
         String resourceId = getUserNamePronunciationResourceId(uuid);
         return sakaiProxy.getResource(resourceId);
     }

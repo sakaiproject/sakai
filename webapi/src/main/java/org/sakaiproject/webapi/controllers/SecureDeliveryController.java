@@ -13,6 +13,8 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.sakaiproject.webapi.security.PublicApi;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -111,6 +113,7 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
         }
     }
 
+    @PublicApi("SEB bootstrap download is required before login and uses the sentinel site any.")
     @GetMapping(value = "/sites/{siteId}/assessments/published/{publishedAssessmentId}/sebConfig")
     public ResponseEntity<?> getSebConfig(@PathVariable("siteId") String siteId, @PathVariable("publishedAssessmentId") String publishedAssessmentId,
             @RequestParam(name = "launch", defaultValue = "false") boolean launch, HttpServletRequest request) {

@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -1114,6 +1115,32 @@ public class DiscussionForumManagerImpl implements DiscussionForumManager {
    * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForum(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
+  @Override
+  public DiscussionForum getForumForUpdate(String siteId, Long forumId) {
+      DiscussionForum forum = getForumById(forumId);
+      if (forum == null) {
+          throw new IllegalArgumentException("Forum not found");
+      }
+      if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())
+              || !uiPermissionsManager.isChangeSettings(forum, siteId)) {
+          throw new SecurityException("Not allowed to update this forum");
+      }
+      return forum;
+  }
+
+  @Override
+  public DiscussionForum updateForumAvailability(String siteId, Long forumId, boolean restricted,
+          java.time.Instant openDate, java.time.Instant closeDate) {
+      DiscussionForum forum = getForumForUpdate(siteId, forumId);
+      if (restricted && (openDate == null || closeDate == null || closeDate.isBefore(openDate))) {
+          throw new IllegalArgumentException("Invalid forum availability dates");
+      }
+      forum.setAvailabilityRestricted(restricted);
+      forum.setOpenDate(restricted ? Date.from(openDate) : null);
+      forum.setCloseDate(restricted ? Date.from(closeDate) : null);
+      return saveForum(siteId, forum);
+  }
+
   public DiscussionForum saveForum(DiscussionForum forum)
   {
     if (log.isDebugEnabled())

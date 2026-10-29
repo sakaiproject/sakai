@@ -33,6 +33,11 @@ public interface ConditionService {
 
     public Condition getCondition(String conditionId);
 
+    /** User-facing operations bind the condition to the requested site and authorize the caller. */
+    public Condition getConditionForSite(String siteId, String conditionId);
+    public Condition saveConditionForSite(String siteId, Condition condition);
+    public boolean deleteConditionForSite(String siteId, String conditionId);
+
     public List<Condition> getConditionsForSite(String siteId);
 
     public List<Condition> getConditionsForItem(String siteId, String toolId, String itemId);

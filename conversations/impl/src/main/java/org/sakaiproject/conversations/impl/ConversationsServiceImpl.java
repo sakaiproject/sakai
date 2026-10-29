@@ -309,7 +309,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         final String siteRef = siteService.siteReference(topic.getSiteId());
 
         if (!securityService.unlock(SiteService.SITE_VISIT, siteRef)) return false;
+        return canViewTopicContent(topic, currentUserId, siteRef);
+    }
 
+    private boolean canViewTopicContent(ConversationsTopic topic, String currentUserId, String siteRef) {
         if (!topic.getDraft() && securityService.isSuperUser()) return true;
 
         Instant now = Instant.now();
@@ -328,7 +331,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             return true;
         }
 
-        if (topic.getVisibility() == TopicVisibility.GROUP) {
+        if (!topic.getDraft() && topic.getVisibility() == TopicVisibility.GROUP) {
             if (securityService.unlock(Permissions.VIEW_GROUP_TOPICS.label, siteRef)) return true;
 
             ArrayList<String> groups = new ArrayList<>(topic.getGroups());
@@ -418,7 +421,16 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     @Transactional
     public TopicTransferBean saveTopic(final TopicTransferBean topicBean, boolean sendMessage) throws ConversationsPermissionsException {
 
-        String currentUserId = StringUtils.isNotBlank(topicBean.creator) ? topicBean.creator : getCheckedCurrentUserId();
+        String currentUserId = getCheckedCurrentUserId();
+        ConversationsTopic storedTopic = StringUtils.isBlank(topicBean.id) ? null : topicRepository.findById(topicBean.id)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicBean.id));
+        if (storedTopic != null) {
+            if (!Objects.equals(storedTopic.getSiteId(), topicBean.siteId)) {
+                throw new ConversationsPermissionsException("Topic does not belong to this site");
+            }
+            topicBean.creator = storedTopic.getMetadata().getCreator();
+            topicBean.created = storedTopic.getMetadata().getCreated();
+        }
 
         String siteRef = siteService.siteReference(topicBean.siteId);
 
@@ -431,7 +443,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
 
         boolean isNew = StringUtils.isBlank(topicBean.id);
-        boolean isMine = !isNew && topicBean.creator.equals(currentUserId);
+        boolean isMine = storedTopic != null && Objects.equals(storedTopic.getMetadata().getCreator(), currentUserId);
 
         if (isNew) {
             if (!securityService.unlock(Permissions.QUESTION_CREATE.label, siteRef)
@@ -439,7 +451,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                 throw new ConversationsPermissionsException("Current user cannot create topic.");
             }
         } else if (!securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, siteRef)
-                && (isMine && !securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef))) {
+                && (!isMine || !securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef))) {
             throw new ConversationsPermissionsException("Current user cannot update topic.");
         }
 
@@ -813,6 +825,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         ConversationsTopic topic = topicRepository.getReferenceById(topicId);
 
+        if (!currentUserCanViewTopic(topic)) {
+            throw new ConversationsPermissionsException("Current user cannot view topic");
+        }
         TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
             .orElseGet(() -> new TopicStatus(topic, currentUserId));
         topicStatus.setBookmarked(bookmarked);
@@ -830,7 +845,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         boolean isMine = topic.getMetadata().getCreator().equals(currentUserId);
         if (!securityService.unlock(Permissions.TOPIC_DELETE_ANY.label, siteRef)
-            && (isMine && !securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef))) {
+            && (!isMine || !securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef))) {
             throw new ConversationsPermissionsException("Current user is not allowed to delete topic.");
         }
 
@@ -877,6 +892,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         ConversationsTopic topic = topicRepository.findById(topicId)
             .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
 
+        if (!currentUserCanViewTopic(topic) || !securityService.unlock(Permissions.POST_REACT.label, siteService.siteReference(topic.getSiteId()))) {
+            throw new ConversationsPermissionsException("Current user cannot view topic");
+        }
         if (topic.getMetadata().getCreator().equals(currentUserId)) {
             throw new ConversationsPermissionsException("You can't react to your own topics");
         }
@@ -947,6 +965,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         ConversationsTopic topic = topicRepository.findById(topicId)
             .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
 
+        if (!Objects.equals(topic.getSiteId(), siteId)) {
+            throw new ConversationsPermissionsException("Topic does not belong to this site");
+        }
         if (topic.getMetadata().getCreator().equals(currentUserId)) {
             throw new IllegalArgumentException("Users cannot upvote their own topics");
         }
@@ -987,6 +1008,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         ConversationsTopic topic = topicRepository.findById(topicId)
             .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
 
+        if (!Objects.equals(topic.getSiteId(), siteId)) {
+            throw new ConversationsPermissionsException("Topic does not belong to this site");
+        }
         if (topic.getMetadata().getCreator().equals(currentUserId)) {
             throw new IllegalArgumentException("Users cannot unupvote their own topics");
         }
@@ -1016,6 +1040,16 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     public PostTransferBean savePost(PostTransferBean postBean, boolean sendMessage) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
+        ConversationsPost storedPost = StringUtils.isBlank(postBean.id) ? null : postRepository.findById(postBean.id)
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + postBean.id));
+        if (storedPost != null) {
+            if (!Objects.equals(storedPost.getSiteId(), postBean.siteId)
+                    || !Objects.equals(storedPost.getTopic().getId(), postBean.topic)) {
+                throw new ConversationsPermissionsException("Post does not belong to this site and topic");
+            }
+            postBean.creator = storedPost.getMetadata().getCreator();
+            postBean.created = storedPost.getMetadata().getCreated();
+        }
 
         String siteRef = siteService.siteReference(postBean.siteId);
 
@@ -1026,20 +1060,30 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
 
         boolean isNew = StringUtils.isBlank(postBean.id);
-        boolean isMine = !isNew && postBean.creator.equals(currentUserId);
+        boolean isMine = storedPost != null && Objects.equals(storedPost.getMetadata().getCreator(), currentUserId);
 
         if (isNew) {
             if (!securityService.unlock(Permissions.POST_CREATE.label, siteRef)) {
                 throw new ConversationsPermissionsException("Current user cannot create posts.");
             }
         } else if (!securityService.unlock(Permissions.POST_UPDATE_ANY.label, siteRef)
-                && (isMine && !securityService.unlock(Permissions.POST_UPDATE_OWN.label, siteRef))) {
+                && (!isMine || !securityService.unlock(Permissions.POST_UPDATE_OWN.label, siteRef))) {
             throw new ConversationsPermissionsException("Current user cannot update posts.");
         }
 
         final ConversationsTopic topic = topicRepository.findById(postBean.topic)
             .orElseThrow(() -> new IllegalArgumentException("No topic for id " + postBean.topic));
 
+        if (!Objects.equals(topic.getSiteId(), postBean.siteId) || !canViewTopicContent(topic, currentUserId, siteRef)) {
+            throw new ConversationsPermissionsException("Topic does not belong to this site or is not visible");
+        }
+        if (StringUtils.isNotBlank(postBean.parentThread)) {
+            ConversationsPost thread = postRepository.findById(postBean.parentThread)
+                .orElseThrow(() -> new IllegalArgumentException("No thread for id " + postBean.parentThread));
+            if (!Objects.equals(thread.getTopic().getId(), topic.getId())) {
+                throw new ConversationsPermissionsException("Parent thread does not belong to this topic");
+            }
+        }
         boolean wasDraft = false;
 
         // We're creating a new topic, so set the initial dates of creation and modification
@@ -1066,6 +1110,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             parent = postRepository.findById(postBean.parentPost);
 
             if (parent.isPresent()) {
+                if (!Objects.equals(parent.get().getTopic().getId(), topic.getId())) {
+                    throw new ConversationsPermissionsException("Parent post does not belong to this topic");
+                }
                 post.setDepth(parent.get().getDepth() + 1);
             } else {
                 throw new IllegalArgumentException("No post for id " + postBean.parentPost);
@@ -1179,7 +1226,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         String currentUserId = sessionManager.getCurrentSessionUserId();
         if (StringUtils.isBlank(currentUserId)) return false;
 
-        return canUserViewPost(post, currentUserId);
+        return currentUserCanViewTopic(post.getTopic()) && canUserViewPost(post, currentUserId);
     }
 
     public boolean currentUserCanViewComment(ConversationsComment comment) {
@@ -1309,6 +1356,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
 
         ConversationsTopic topic = topicRepository.findById(topicId).orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        if (!Objects.equals(siteId, topic.getSiteId()) || !currentUserCanViewTopic(topic)) {
+            throw new ConversationsPermissionsException("Current user cannot view this topic");
+        }
 
         if (topic.getMustPostBeforeViewing() && !securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteService.siteReference(siteId))) {
             ConversationsPermissionsException cpe
@@ -1482,6 +1533,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         ConversationsPost post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
+        if (!Objects.equals(post.getSiteId(), siteId) || !Objects.equals(post.getTopic().getId(), topicId)) {
+            throw new ConversationsPermissionsException("Post does not belong to this site and topic");
+        }
+
 
         String siteRef = siteService.siteReference(siteId);
 
@@ -1534,6 +1589,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         ConversationsPost post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
+        if (!Objects.equals(post.getSiteId(), siteId) || !Objects.equals(post.getTopic().getId(), topicId)) {
+            throw new ConversationsPermissionsException("Post does not belong to this site and topic");
+        }
+
 
         if (!securityService.unlock(Permissions.MODERATE.label, siteService.siteReference(siteId))) {
             throw new ConversationsPermissionsException("Current user cannot lock/unlock posts.");
@@ -1571,6 +1630,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         ConversationsPost post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
+        if (!Objects.equals(post.getSiteId(), siteId) || !Objects.equals(post.getTopic().getId(), topicId)) {
+            throw new ConversationsPermissionsException("Post does not belong to this site and topic");
+        }
+
 
         post.setHidden(hidden);
         Settings settings = getSettingsForSite(siteId);
@@ -1587,6 +1650,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         ConversationsPost post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
 
+        if (!Objects.equals(post.getTopic().getId(), topicId) || !currentUserCanViewPost(post)
+                || !securityService.unlock(Permissions.POST_REACT.label, siteService.siteReference(post.getSiteId()))) {
+            throw new ConversationsPermissionsException("Current user cannot view post in this topic");
+        }
         if (post.getMetadata().getCreator().equals(currentUserId)) {
             throw new ConversationsPermissionsException("You can't react to your own posts");
         }
@@ -1663,12 +1730,19 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     }
 
     public void markPostsViewed(Set<String> postIds, String topicId) throws ConversationsPermissionsException {
-
         String currentUserId = getCheckedCurrentUserId();
-        postRepository.findAllById(postIds).forEach(post -> this.markPostViewed(topicId, post, currentUserId));
-
         ConversationsTopic topic = topicRepository.findById(topicId)
             .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+        if (!currentUserCanViewTopic(topic)) {
+            throw new ConversationsPermissionsException("Current user cannot view topic");
+        }
+        Iterable<ConversationsPost> posts = postRepository.findAllById(postIds);
+        for (ConversationsPost post : posts) {
+            if (!Objects.equals(post.getTopic().getId(), topicId) || !currentUserCanViewPost(post)) {
+                throw new ConversationsPermissionsException("Post does not belong to this visible topic");
+            }
+        }
+        posts.forEach(post -> this.markPostViewed(topicId, post, currentUserId));
 
         long numberOfPosts = getNumberOfPostsInTopic(topic, currentUserId);
         long read = postStatusRepository
@@ -1725,21 +1799,38 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     public CommentTransferBean saveComment(CommentTransferBean commentBean) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
+        ConversationsComment storedComment = StringUtils.isBlank(commentBean.id) ? null : commentRepository.findById(commentBean.id)
+            .orElseThrow(() -> new IllegalArgumentException("No comment for id " + commentBean.id));
+        ConversationsPost parentPost = postRepository.findById(commentBean.postId)
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + commentBean.postId));
+        if (!Objects.equals(parentPost.getSiteId(), commentBean.siteId)
+                || !Objects.equals(parentPost.getTopic().getId(), commentBean.topicId)
+                || (storedComment != null && (!Objects.equals(storedComment.getPost().getId(), parentPost.getId())
+                    || !Objects.equals(storedComment.getSiteId(), commentBean.siteId)))) {
+            throw new ConversationsPermissionsException("Comment does not belong to this site, topic and post");
+        }
+        if (storedComment != null) {
+            commentBean.creator = storedComment.getMetadata().getCreator();
+            commentBean.created = storedComment.getMetadata().getCreated();
+        }
 
         String siteRef = "/site/" + commentBean.siteId;
 
         boolean isNew = StringUtils.isBlank(commentBean.id);
-        boolean isMine = !isNew && commentBean.creator.equals(currentUserId);
+        boolean isMine = storedComment != null && Objects.equals(storedComment.getMetadata().getCreator(), currentUserId);
 
         if (isNew) {
             if (!securityService.unlock(Permissions.COMMENT_CREATE.label, siteRef)) {
                 throw new ConversationsPermissionsException("Current user cannot create comments.");
             }
         } else if (!securityService.unlock(Permissions.COMMENT_UPDATE_ANY.label, siteRef)
-                && (isMine && !securityService.unlock(Permissions.COMMENT_UPDATE_OWN.label, siteRef))) {
+                && (!isMine || !securityService.unlock(Permissions.COMMENT_UPDATE_OWN.label, siteRef))) {
             throw new ConversationsPermissionsException("Current user cannot update comments.");
         }
 
+        if (!canViewTopicContent(parentPost.getTopic(), currentUserId, siteRef) || !canUserViewPost(parentPost, currentUserId)) {
+            throw new ConversationsPermissionsException("Current user cannot view this topic");
+        }
         // We're creating a new topic, so set the initial dates of creation and modification
         Instant now = Instant.now();
         if (isNew) {
@@ -1787,11 +1878,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         ConversationsComment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new IllegalArgumentException("No comment with id " + commentId));
 
+        if (!Objects.equals(comment.getSiteId(), siteId)) {
+            throw new ConversationsPermissionsException("Comment does not belong to this site");
+        }
         String siteRef = siteService.siteReference(siteId);
 
         boolean isMine = comment.getMetadata().getCreator().equals(currentUserId);
         if (!securityService.unlock(Permissions.COMMENT_DELETE_ANY.label, siteRef)
-            && (isMine && !securityService.unlock(Permissions.COMMENT_DELETE_OWN.label, siteRef))) {
+            && (!isMine || !securityService.unlock(Permissions.COMMENT_DELETE_OWN.label, siteRef))) {
             throw new ConversationsPermissionsException("Current user cannot delete comment");
         }
         commentRepository.deleteById(commentId);
@@ -2068,6 +2162,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         ConversationsPost post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
+        if (!Objects.equals(post.getSiteId(), siteId) || !Objects.equals(post.getTopic().getId(), topicId)) {
+            throw new ConversationsPermissionsException("Post does not belong to this site and topic");
+        }
+
 
         if (post.getMetadata().getCreator().equals(currentUserId)) {
             throw new IllegalArgumentException("Users cannot upvote their own posts");
@@ -2120,6 +2218,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         ConversationsPost post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
+        if (!Objects.equals(post.getSiteId(), siteId)) {
+            throw new ConversationsPermissionsException("Post does not belong to this site and topic");
+        }
+
 
         if (post.getMetadata().getCreator().equals(currentUserId)) {
             throw new IllegalArgumentException("Users cannot unupvote their own posts");

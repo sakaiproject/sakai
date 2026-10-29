@@ -61,6 +61,11 @@ public class RubricsTestConfiguration extends SakaiTestConfiguration {
     @Getter
     protected AdditionalHibernateMappings additionalHibernateMappings;
 
+    @Bean(name = "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService")
+    public org.sakaiproject.assignment.api.AssignmentPeerAssessmentService assignmentPeerAssessmentService() {
+        return mock(org.sakaiproject.assignment.api.AssignmentPeerAssessmentService.class);
+    }
+
     @Bean(name="org.sakaiproject.rubrics.api.repository.CriterionRepository")
     public CriterionRepository criterionRepository(SessionFactory sessionFactory) {
 

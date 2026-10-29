@@ -169,6 +169,25 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void pronunciationReadRequiresLoginBeforePrivilegedContentRead() throws Exception {
+        assertThrows(SecurityException.class, () -> profileService.getUserNamePronunciation(user1Id));
+        verify(contentHostingService, never()).getResource(anyString());
+    }
+
+    @Test
+    public void loggedInUserCanHearAnotherUsersPronunciation() throws Exception {
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user2Id);
+        org.sakaiproject.content.api.ContentResource recording = mock(org.sakaiproject.content.api.ContentResource.class);
+        byte[] audio = new byte[] { 1, 2, 3 };
+        when(recording.getContent()).thenReturn(audio);
+        when(recording.getContentType()).thenReturn("audio/ogg");
+        when(contentHostingService.getResource("/private/namePronunciation/" + user1Id + ".ogg")).thenReturn(recording);
+        org.sakaiproject.profile2.api.MimeTypeByteArray result = profileService.getUserNamePronunciation(user1Id);
+        assertArrayEquals(audio, result.getBytes());
+        assertEquals("audio/ogg", result.getMimeType());
+    }
+
+    @Test
     public void removePronunciationRecordingRequiresLoggedInUser() throws Exception {
 
         Exception exception = assertThrows(SecurityException.class, () -> profileService.removePronunciationRecording(user1Id));

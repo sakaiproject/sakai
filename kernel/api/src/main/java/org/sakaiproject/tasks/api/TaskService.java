@@ -21,6 +21,8 @@ import java.util.Set;
 
 public interface TaskService {
 
+    /** Create a user-authored task, checking permissions and deriving recipients server-side. */
+    UserTask createUserAuthoredTask(UserTaskAdapterBean transfer) throws org.sakaiproject.exception.IdUnusedException;
     UserTask createSingleUserTask(UserTaskAdapterBean transfer);
     UserTask saveUserTask(UserTaskAdapterBean transfer);
     UserTask createUserTask(Task task, UserTaskAdapterBean transfer);

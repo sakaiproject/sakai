@@ -172,6 +172,20 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
         return queries;
     }
 
+    @Bean
+    public org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries extendedTimeQueries() {
+        org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries queries = new org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries();
+        queries.setSessionFactory(sessionFactory());
+        return queries;
+    }
+
+    @Bean
+    public org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade extendedTimeFacade() {
+        org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade facade = new org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade();
+        facade.setExtendedTimeQueries(extendedTimeQueries());
+        return facade;
+    }
+
     @Bean(name = "PersistenceService")
     public PersistenceService persistenceService() {
         ItemFacadeQueries items = applicationContext.getBean("itemFacadeQueries", ItemFacadeQueries.class);
@@ -187,6 +201,7 @@ public class SamigoCancellationTestConfiguration extends SakaiTestConfiguration 
         grades.setLocaleService(localeService());
         PersistenceService service = new PersistenceService();
         service.setTypeFacadeQueries(typeFacadeQueries());
+        service.setExtendedTimeFacade(extendedTimeFacade());
         service.setItemFacadeQueries(items);
         service.setPublishedItemFacadeQueries(publishedItems);
         service.setPublishedAssessmentFacadeQueries(publishedAssessmentFacadeQueries());

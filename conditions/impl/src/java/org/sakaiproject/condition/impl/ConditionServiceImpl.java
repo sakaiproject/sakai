@@ -19,6 +19,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Objects;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
@@ -51,6 +56,12 @@ public class ConditionServiceImpl implements ConditionService {
     @Autowired
     private FunctionManager functionManager;
 
+    @Autowired
+    private SiteService siteService;
+
+    @Autowired
+    private SessionManager sessionManager;
+
     @Setter
     private Map<String, ConditionEvaluator> conditionEvaluators;
 
@@ -71,6 +82,67 @@ public class ConditionServiceImpl implements ConditionService {
 
         // Register permissions
         functionManager.registerFunction(PERMISSION_UPDATE_CONDITION);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Condition getConditionForSite(String siteId, String conditionId) {
+        if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId()) || (!siteService.allowAccessSite(siteId)
+                && !securityService.unlock(PERMISSION_UPDATE_CONDITION, siteService.siteReference(siteId)))) {
+            throw new SecurityException("Not allowed to read conditions in this site");
+        }
+        Condition condition = getCondition(conditionId);
+        if (condition != null && !Objects.equals(condition.getSiteId(), siteId)) {
+            throw new SecurityException("Condition does not belong to this site");
+        }
+        return condition;
+    }
+
+    @Override
+    @Transactional
+    public Condition saveConditionForSite(String siteId, Condition condition) {
+        requireConditionEditor(siteId);
+        validateConditionSite(condition, siteId, new HashSet<>());
+        return saveCondition(condition);
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteConditionForSite(String siteId, String conditionId) {
+        requireConditionEditor(siteId);
+        Condition condition = getCondition(conditionId);
+        if (condition != null && !Objects.equals(condition.getSiteId(), siteId)) {
+            throw new SecurityException("Condition does not belong to this site");
+        }
+        if (condition != null) {
+            validateConditionSite(condition, siteId, new HashSet<>());
+        }
+        return deleteCondition(conditionId);
+    }
+
+    private void requireConditionEditor(String siteId) {
+        if (StringUtils.isBlank(sessionManager.getCurrentSessionUserId())
+                || !securityService.unlock(PERMISSION_UPDATE_CONDITION, siteService.siteReference(siteId))) {
+            throw new SecurityException("Not allowed to edit conditions in this site");
+        }
+    }
+
+    private void validateConditionSite(Condition condition, String siteId, Set<Condition> visited) {
+        if (condition == null || !Objects.equals(siteId, condition.getSiteId())) {
+            throw new SecurityException("Condition does not belong to this site");
+        }
+        Condition stored = StringUtils.isBlank(condition.getId()) ? null : getCondition(condition.getId());
+        if (stored != null && !Objects.equals(siteId, stored.getSiteId())) {
+            throw new SecurityException("Condition does not belong to this site");
+        }
+        if (visited.add(condition)) {
+            if (condition.getSubConditions() != null) {
+                condition.getSubConditions().forEach(child -> validateConditionSite(child, siteId, visited));
+            }
+            if (condition.getParentConditions() != null) {
+                condition.getParentConditions().forEach(parent -> validateConditionSite(parent, siteId, visited));
+            }
+        }
     }
 
     @Override

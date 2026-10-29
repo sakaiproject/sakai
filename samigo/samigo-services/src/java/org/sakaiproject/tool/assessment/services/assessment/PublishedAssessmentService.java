@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.grading.api.model.Gradebook;
@@ -99,6 +100,33 @@ public class PublishedAssessmentService extends AssessmentService{
         getBasicInfoOfAllPublishedAssessments(orderBy, ascending, siteId);
   }
   
+  /** Author metadata, including accommodation identities, is only available to assessment editors. */
+  public List<PublishedAssessmentFacade> getPublishedAssessmentsForAuthor(String siteId) {
+    String userId = AgentFacade.getAgentString();
+    if (StringUtils.isBlank(userId)
+        || !(PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId)
+            || PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN, siteId))) {
+      throw new SecurityException("Assessment editing permission required");
+    }
+    return getBasicInfoOfAllPublishedAssessments(userId, "publishedAssessmentId", true, siteId).stream()
+        .map(summary -> getPublishedAssessment(summary.getPublishedAssessmentId().toString()))
+        .filter(assessment -> assessment != null && siteId.equals(assessment.getOwnerSiteId())
+            && canEditPublishedAssessment(assessment))
+        .collect(Collectors.toList());
+  }
+
+  public boolean canEditPublishedAssessment(PublishedAssessmentFacade assessment) {
+    String userId = AgentFacade.getAgentString();
+    if (assessment == null || StringUtils.isBlank(userId) || StringUtils.isBlank(assessment.getOwnerSiteId())) {
+      return false;
+    }
+    return PersistenceService.getInstance().getAuthzQueriesFacade()
+        .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, assessment.getOwnerSiteId())
+        || (PersistenceService.getInstance().getAuthzQueriesFacade()
+            .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN, assessment.getOwnerSiteId())
+            && userId.equals(assessment.getCreatedBy()));
+  }
+
   public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String orderBy, boolean ascending, String siteId) {
 
 	  // 2. get all takeable assessment available

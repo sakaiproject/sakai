@@ -13,6 +13,8 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.sakaiproject.webapi.security.ServiceSiteAccess;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +34,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.service.LessonItemService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -78,8 +81,12 @@ public class LessonsController extends AbstractSakaiApiController {
     @Autowired
     private SecurityService securityService;
 
+    @Autowired
+    private LessonItemService lessonItemService;
+
 
     // lessonId = itemId of lesson's root page
+    @ServiceSiteAccess("The actual lesson site and lessonbuilder.upd permission authorize this operation.")
     @DeleteMapping(value = "/sites/{siteId}/lessons/{lessonId}/items")
     public ResponseEntity<String> deleteLessonItems(@PathVariable("siteId") String siteId, @PathVariable("lessonId") Long lessonId) {
         String userId = checkSakaiSession().getUserId();
@@ -139,6 +146,7 @@ public class LessonsController extends AbstractSakaiApiController {
         return ResponseEntity.status(status).body(message);
     }
 
+    @ServiceSiteAccess("The actual lesson site and lessonbuilder.upd permission authorize this operation.")
     @DeleteMapping("/sites/{siteId}/lessons/{lessonId}/conditions")
     public ResponseEntity<String> deleteLessonConditions(@PathVariable("siteId") String siteId, @PathVariable("lessonId") Long lessonId) {
         String userId = checkSakaiSession().getUserId();
@@ -165,7 +173,7 @@ public class LessonsController extends AbstractSakaiApiController {
                             LessonBuilderConstants.TOOL_ID, Long.valueOf(pageItem.getId()).toString()))
                     .flatMap(Optional::stream)
                     .map(Condition::getId)
-                    .forEach(conditionService::deleteCondition);
+                    .forEach(conditionId -> conditionService.deleteConditionForSite(siteId, conditionId));
         } catch (Exception e) {
             log.error("Condition could not be deleted due to {} {}", e.toString(), ExceptionUtils.getStackTrace(e));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Conditions could not be deleted");
@@ -174,6 +182,7 @@ public class LessonsController extends AbstractSakaiApiController {
         return ResponseEntity.ok().build();
     }
 
+    @ServiceSiteAccess("The actual lesson site and lessonbuilder.upd permission authorize this operation.")
     @PostMapping(value = "/sites/{siteId}/lessons/{lessonId}/items/bulk", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LessonItemRestBean>> createLessonItems(@PathVariable("siteId") String siteId, @PathVariable("lessonId") Long lessonId,
             @RequestBody List<LessonItemRestBean> lessonItems) {
@@ -213,7 +222,7 @@ public class LessonsController extends AbstractSakaiApiController {
         }
 
         // Create Lesson items and collect results
-        List<Boolean> createdStatuses = new ArrayList<>(); 
+        List<SimplePageItem> itemsToCreate = new ArrayList<>();
 
         // Get resource properties for resource items
         Map<String, ResourceProperties> resourcePropertiesMap = new HashMap<>();
@@ -246,36 +255,25 @@ public class LessonsController extends AbstractSakaiApiController {
                     break;
             }
             lessonItem.setSequence(sequence);
-            boolean lessonItemCreated = createLessonItem(lessonItem);
-            createdStatuses.add(lessonItemCreated);
+            itemsToCreate.add(createLessonItem(lessonItem));
             sequence++;
         }
 
-        int requestedCount = lessonItems.size();
-        int failedCount = createdStatuses.stream().filter(status -> !status).collect(Collectors.counting()).intValue();
-
-        if (failedCount > 0) {
-            log.error("Could not create all lesson items. Created {} of requested {}",
-                    requestedCount - failedCount, requestedCount);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
-        List<SimplePageItem> updatedPageItems = lessonService.findPageItemsByPageId(lesson.getPageId());
+        List<SimplePageItem> updatedPageItems = lessonItemService.createItems(siteId, lessonId, itemsToCreate);
 
         return ResponseEntity.ok(updatedPageItems.stream()
                 .map(LessonItemRestBean::of)
                 .collect(Collectors.toList()));
     }
 
-    private boolean createLessonItem(LessonItemRestBean lessonItem) {
+    private SimplePageItem createLessonItem(LessonItemRestBean lessonItem) {
         SimplePageItem  itemToSave = lessonService.makeItem(lessonItem.getPageId(), lessonItem.getSequence(),
                 lessonItem.getType(), lessonItem.getContentRef(), lessonItem.getTitle());
 
         Optional.ofNullable(lessonItem.getFormat()).ifPresent(format -> itemToSave.setFormat(format));
         Optional.ofNullable(lessonItem.getHtml()).ifPresent(html -> itemToSave.setHtml(html));
 
-        return lessonService.quickSaveItem(itemToSave);
+        return itemToSave;
     }
 
     private boolean canUpdateConditions(String userId, String siteRef) {

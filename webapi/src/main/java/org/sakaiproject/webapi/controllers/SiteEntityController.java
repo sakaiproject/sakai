@@ -13,6 +13,8 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.sakaiproject.webapi.security.ServiceSiteAccess;
+
 import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.Date;
@@ -108,6 +110,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
     private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
 
+    @ServiceSiteAccess("PublishedAssessmentService requires assessment author permission before returning author metadata.")
     @GetMapping(value = "/sites/{siteId}/entities/assessments", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Set<SiteEntityRestBean>> getSiteAssessments(@PathVariable("siteId") String siteId) {
         String userId = checkSakaiSession().getUserId();
@@ -115,8 +118,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
         ExtendedTimeFacade extendedTimeFacade = persistenceService.getExtendedTimeFacade();
 
-        List<PublishedAssessmentFacade> publishedAssessments = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments(
-                userId, "publishedAssessmentId", true, siteId);
+        List<PublishedAssessmentFacade> publishedAssessments = publishedAssessmentService.getPublishedAssessmentsForAuthor(siteId);
 
         Map<Long, List<ExtendedTime>> assessmentExtendedTimesMap = publishedAssessments.stream()
                 .map(assessment -> {
@@ -276,16 +278,8 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         return ResponseEntity.badRequest().build();
                     }
 
-                    Area forumArea = discussionForumManager.getDiscussionForumArea(siteId);
-
-                    Optional<OpenForum> optForum = findForumInArea(forumArea, patchEntity.getId());
-
-                    if (optForum.isEmpty()) {
-                        log.debug("Forum with id {} not found", patchEntity.getId());
-                        return ResponseEntity.badRequest().build();
-                    }
-
-                    toolEntities.put(entityKey(patchEntity), optForum.get());
+                    DiscussionForum forumForUpdate = discussionForumManager.getForumForUpdate(siteId, Long.valueOf(patchEntity.getId()));
+                    toolEntities.put(entityKey(patchEntity), forumForUpdate);
                     break;
                 default:
                     log.debug("Unhandled entity type {}", patchEntity.getType());
@@ -452,22 +446,9 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     updatedEntities.add(SiteEntityRestBean.of(updatedResource));
                     break;
                 case FORUM:
-                    DiscussionForum forum = (DiscussionForum) toolEntities.get(entityKey(patchEntity));
-
-                    if (dateRestricted != null && dateRestricted) {
-                        forum.setOpenDate(Date.from(patchEntity.getOpenDate()));
-                        forum.setCloseDate(Date.from(patchEntity.getCloseDate()));
-                        forum.setAvailabilityRestricted(true);
-                        forum.setAvailability(patchEntity.getOpenDate().isBefore(Instant.now())
-                                && patchEntity.getCloseDate().isAfter(Instant.now()));
-                    } else {
-                        forum.setOpenDate(null);
-                        forum.setCloseDate(null);
-                        forum.setAvailabilityRestricted(false);
-                        forum.setAvailability(false);
-                    }
-
-                    DiscussionForum updatedForum = discussionForumManager.saveForum(site.getId(), forum);
+                    DiscussionForum updatedForum = discussionForumManager.updateForumAvailability(site.getId(),
+                            Long.valueOf(patchEntity.getId()), Boolean.TRUE.equals(dateRestricted),
+                            patchEntity.getOpenDate(), patchEntity.getCloseDate());
                     updatedEntities.add(SiteEntityRestBean.of(updatedForum));
                     break;
                 default:
@@ -481,9 +462,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
     }
 
     private boolean canUpdateAssessment(String userId, PublishedAssessmentFacade assessment) {
-        String siteRef = SITE_SEGMENT + assessment.getOwnerSiteId();
-
-        return securityService.unlock(userId, SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteRef);
+        return publishedAssessmentService.canEditPublishedAssessment(assessment);
     }
 
     private boolean canUpdateAssignment(String userId, Assignment assignment) {

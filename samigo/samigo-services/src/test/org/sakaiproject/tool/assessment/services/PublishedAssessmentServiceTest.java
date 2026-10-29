@@ -66,6 +66,7 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
     @Autowired private SessionFactory sessionFactory;
     @Autowired private org.sakaiproject.grading.api.GradingService gradebookService;
     @Autowired private SiteService siteService;
+    @Autowired private org.sakaiproject.authz.api.SecurityService securityService;
     @Autowired private ToolManager toolManager;
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private ApplicationContext applicationContext;
@@ -83,7 +84,8 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
 
     @Before
     public void setup() throws Exception {
-        reset(gradebookService, siteService, toolManager, userDirectoryService);
+        reset(gradebookService, siteService, toolManager, userDirectoryService, securityService);
+        ComponentManager.loadComponent(org.sakaiproject.authz.api.SecurityService.class, securityService);
         ComponentManager.loadComponent("agentHelper", applicationContext.getBean("agentHelper"));
         ComponentManager.loadComponent("gradebookServiceHelper", applicationContext.getBean("gradebookServiceHelper"));
         ComponentManager.loadComponent(org.sakaiproject.grading.api.GradingService.class,
@@ -107,6 +109,42 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
         when(gradebookService.getGradebookUidByExternalId(anyString())).thenReturn(Collections.emptyList());
         assessment = createAssessment(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), 10L);
         itemId = service.preparePublishedItemHash(assessment).keySet().stream().min(Long::compareTo).get();
+        ExtendedTime accommodation = new ExtendedTime(data());
+        accommodation.setUser("synthetic-accommodated-student");
+        accommodation.setTimeMinutes(30);
+        sessionFactory.getCurrentSession().persist(accommodation);
+        sessionFactory.getCurrentSession().flush();
+    }
+
+    @Test
+    public void ordinaryReaderCannotLoadAuthorMetadata() {
+        assertThrows(SecurityException.class, () -> service.getPublishedAssessmentsForAuthor(siteId));
+    }
+
+    @Test
+    public void ownAssessmentEditorOnlySeesTheirAssessmentsWithoutSiteVisit() {
+        when(securityService.unlock(org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_EDIT_ASSESSMENT_OWN,
+            "/site/" + siteId)).thenReturn(true);
+        List<PublishedAssessmentFacade> authored = service.getPublishedAssessmentsForAuthor(siteId);
+        assertEquals(1, authored.size());
+        PublishedAssessmentData authorized = new PublishedAssessmentData();
+        authorized.setPublishedAssessmentId(authored.get(0).getPublishedAssessmentId());
+        List<ExtendedTime> accommodations = persistenceService.getExtendedTimeFacade().getEntriesForPub(authorized);
+        assertEquals(1, accommodations.size());
+        assertEquals("synthetic-accommodated-student", accommodations.get(0).getUser());
+        data().setCreatedBy("another-author");
+        sessionFactory.getCurrentSession().flush();
+        assertTrue(service.getPublishedAssessmentsForAuthor(siteId).isEmpty());
+    }
+
+    @Test
+    public void anyAssessmentEditorSeesOtherAuthorsButCannotUseForeignSitePermission() {
+        data().setCreatedBy("another-author");
+        sessionFactory.getCurrentSession().flush();
+        when(securityService.unlock(org.sakaiproject.samigo.util.SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY,
+            "/site/" + siteId)).thenReturn(true);
+        assertEquals(1, service.getPublishedAssessmentsForAuthor(siteId).size());
+        assertThrows(SecurityException.class, () -> service.getPublishedAssessmentsForAuthor("foreign-site"));
     }
 
     @Test
@@ -476,6 +514,9 @@ public class PublishedAssessmentServiceTest extends AbstractTransactionalJUnit4S
         access.setAssessment(data);
         access.setReleaseTo(siteId);
         data.setAssessmentAccessControl(access);
+        PublishedFeedback feedback = new PublishedFeedback();
+        feedback.setAssessment(data);
+        data.setAssessmentFeedback(feedback);
         PublishedSectionData section = new PublishedSectionData(0, 1, "Part 1", "", 1L, 1, "instructor", now, "instructor", now);
         section.setAssessment(data);
         section.setSectionMetaDataSet(new HashSet<>());

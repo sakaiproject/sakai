@@ -143,9 +143,28 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         return getForumItemsByCurrentUser(forum).stream().anyMatch(ifChangeSettings);
     }
 
+    @Override
+    public boolean isChangeSettings(DiscussionForum forum, String siteId) {
+        if (forum.getArea() == null || !Objects.equals(forum.getArea().getContextId(), siteId)) {
+            return false;
+        }
+        if (isSuperUser()) return true;
+        String siteRef = siteService.siteReference(siteId);
+        boolean instructor = securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef);
+        if (instructor && (!Boolean.TRUE.equals(forum.getRestrictPermissionsForGroups())
+                || isAllowedGroupMember(forum.getId(), true, siteId, getCurrentUserId())
+                || forumManager.isForumOwner(forum))) {
+            return true;
+        }
+        return getForumItemsByCurrentUser(forum, siteId).stream().filter(Objects::nonNull).anyMatch(ifChangeSettings);
+    }
+
     private boolean isInstructorForAllowedGroup(Long forumId, boolean isForum, String siteId, String userId) {
         if (forumId == null || !isInstructor()) return false;
+        return isAllowedGroupMember(forumId, isForum, siteId, userId);
+    }
 
+    private boolean isAllowedGroupMember(Long forumId, boolean isForum, String siteId, String userId) {
         List<String> groupTitle;
         if (isForum) {
             groupTitle = forumManager.getAllowedGroupForRestrictedForum(forumId, PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
@@ -494,6 +513,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
 
     private List<DBMembershipItem> getForumItemsByCurrentUser(DiscussionForum forum) {
+        return getForumItemsByCurrentUser(forum, getContextId());
+    }
+
+    private List<DBMembershipItem> getForumItemsByCurrentUser(DiscussionForum forum, String siteId) {
         List<DBMembershipItem> forumItems = new ArrayList<>();
 
         Set<DBMembershipItem> forumItemsInThread = getForumMemberships(forum.getArea());
@@ -509,17 +532,16 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
             forum.getMembershipItemSet().stream().filter(item -> ".anon".equals(item.getName())).forEach(thisForumItemSet::add);
         }
 
-        forumItems.add(forumManager.getDBMember(thisForumItemSet, getCurrentUserRole(), MembershipItem.TYPE_ROLE));
+        forumItems.add(forumManager.getDBMember(thisForumItemSet, getCurrentUserRole(siteId), MembershipItem.TYPE_ROLE, siteService.siteReference(siteId)));
 
         //  for group awareness
-        String siteId = getContextId();
         try {
             Site site = siteService.getSite(siteId);
             Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
 
             if (groups != null) {
                 groups.stream().map(site::getGroup)
-                        .map(g -> forumManager.getDBMember(thisForumItemSet, g.getTitle(), MembershipItem.TYPE_GROUP))
+                        .map(g -> forumManager.getDBMember(thisForumItemSet, g.getTitle(), MembershipItem.TYPE_GROUP, siteService.siteReference(siteId)))
                         .filter(Objects::nonNull)
                         .forEach(forumItems::add);
             }

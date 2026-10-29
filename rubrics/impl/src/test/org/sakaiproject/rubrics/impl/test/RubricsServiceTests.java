@@ -116,6 +116,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
     @Autowired private AssociationRepository associationRepository;
     @Autowired private AssignmentService assignmentService;
+    @Autowired private org.sakaiproject.assignment.api.AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Autowired private CriterionRepository criterionRepository;
     @Autowired private EventTrackingService eventTrackingService;
     @Autowired private EvaluationRepository evaluationRepository;
@@ -982,6 +983,122 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         switchToUser1();
         assertEquals(1, rubricsService.deleteEvaluationsForToolAndEvaluatedItems(toolId, Set.of("10.200"), siteId));
         assertFalse(evaluationRepository.findById(evaluation.getId()).isPresent());
+    }
+
+    @Test
+    public void evaluationDeletionRequiresPermissionOnItsStoredSite() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        EvaluationTransferBean evaluation = saveToolEvaluation(rubric, "sakai.assignment", "secured-item", "secured-submission", siteId);
+        switchToUser1();
+        assertThrows(SecurityException.class, () -> rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(
+                "sakai.assignment", "secured-item", "secured-submission", siteId));
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+        assertTrue(evaluationRepository.findById(evaluation.getId()).isPresent());
+        assertTrue(returnedEvaluationRepository.findByOriginalEvaluationId(evaluation.getId()).isPresent());
+    }
+
+    @Test
+    public void anotherSitesEditorCannotEditCriterionOrReadEvaluation() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        CriterionTransferBean criterion = rubric.getCriteria().get(0);
+        EvaluationTransferBean evaluation = saveToolEvaluation(rubric, "sakai.assignment", "secured-item", "secured-submission", siteId);
+        String title = criterion.getTitle();
+        reset(securityService);
+        switchToInstructor("other-site");
+        assertFalse(rubricsService.getEvaluation(evaluation.getId(), "other-site").isPresent());
+        criterion.setTitle("Foreign update");
+        assertThrows(SecurityException.class, () -> rubricsService.updateCriterion(criterion, "other-site"));
+        assertEquals(title, criterionRepository.findById(criterion.getId()).orElseThrow().getTitle());
+    }
+
+    @Test
+    public void sortingCriteriaRequiresItsStoredRubricPermission() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        List<Long> original = rubric.getCriteria().stream().map(CriterionTransferBean::getId).collect(Collectors.toList());
+        switchToUser1();
+        assertThrows(SecurityException.class, () -> rubricsService.sortRubricCriteria(
+                rubric.getId(), List.of(original.get(1), original.get(0)), rubric.getVersion()));
+        assertEquals(original, rubricRepository.findById(rubric.getId()).orElseThrow().getCriteria().stream()
+                .map(Criterion::getId).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void assignedPeerCanEvaluateOnlyAssignedSubmissionWhileReviewIsOpen() throws Exception {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT_GRADES,
+                "peer-assignment", Map.of(RubricsConstants.RBCS_ASSOCIATE, "1",
+                    RubricsConstants.RBCS_LIST, rubric.getId().toString())).orElseThrow();
+        org.sakaiproject.assignment.api.model.Assignment assignment = new org.sakaiproject.assignment.api.model.Assignment();
+        assignment.setId("peer-assignment");
+        assignment.setContext(siteId);
+        assignment.setAllowPeerAssessment(true);
+        when(assignmentService.getAssignment(assignment.getId())).thenReturn(assignment);
+        when(assignmentService.isPeerAssessmentOpen(assignment)).thenReturn(true);
+        org.sakaiproject.assignment.api.model.AssignmentSubmission submission = new org.sakaiproject.assignment.api.model.AssignmentSubmission();
+        submission.setAssignment(assignment);
+        org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter submitter = new org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter();
+        submitter.setSubmitter(user2);
+        submission.setSubmitters(new java.util.HashSet<>(Set.of(submitter)));
+        when(assignmentService.getSubmission("peer-submission")).thenReturn(submission);
+        org.sakaiproject.assignment.api.model.PeerAssessmentItem peer = new org.sakaiproject.assignment.api.model.PeerAssessmentItem();
+        peer.setAssignmentId(assignment.getId());
+        peer.setId(new org.sakaiproject.assignment.api.model.AssessorSubmissionId("peer-submission", user1));
+        when(assignmentPeerAssessmentService.getPeerAssessmentItems(assignment.getId(), user1, null)).thenReturn(List.of(peer));
+        EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, user1);
+        evaluation.setEvaluatedItemOwnerId(user2);
+        switchToUser1();
+        EvaluationTransferBean saved = rubricsService.saveEvaluation(evaluation, siteId);
+        assertNotNull(saved.getId());
+        peer.setRemoved(true);
+        assertThrows(SecurityException.class, () -> rubricsService.saveEvaluation(saved, siteId));
+        peer.setRemoved(false);
+        when(assignmentService.isPeerAssessmentOpen(assignment)).thenReturn(false);
+        assertThrows(SecurityException.class, () -> rubricsService.saveEvaluation(saved, siteId));
+        when(assignmentService.isPeerAssessmentOpen(assignment)).thenReturn(true);
+        saved.setEvaluatedItemOwnerId(user3);
+        assertThrows(SecurityException.class, () -> rubricsService.saveEvaluation(saved, siteId));
+    }
+
+    @Test
+    public void configuredSelfEvaluationIsAllowedWithoutTrustingClientFlag() throws Exception {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = RubricsConstants.RBCS_TOOL_ASSIGNMENT_GRADES;
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, "self-assignment",
+                Map.of(RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString(),
+                    RubricsConstants.RBCS_CONFIG + RubricsConstants.RBCS_STUDENT_SELF_REPORT, "1")).orElseThrow();
+        org.sakaiproject.assignment.api.model.Assignment assignment = new org.sakaiproject.assignment.api.model.Assignment();
+        assignment.setId("self-assignment");
+        assignment.setContext(siteId);
+        when(assignmentService.getAssignment("self-assignment")).thenReturn(assignment);
+        EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, user1);
+        evaluation.setEvaluatedItemOwnerId(user1);
+        evaluation.setPeerOrSelf(false);
+        switchToUser1();
+        EvaluationTransferBean saved = rubricsService.saveEvaluation(evaluation, siteId);
+        assertNotNull(saved.getId());
+        association.getParameters().put(RubricsConstants.RBCS_STUDENT_SELF_REPORT, 0);
+        associationRepository.save(association);
+        saved.setPeerOrSelf(true);
+        assertThrows(SecurityException.class, () -> rubricsService.saveEvaluation(saved, siteId));
+    }
+
+    @Test
+    public void clientPeerFlagCannotAuthorizeAnUnassignedEvaluation() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation("sakai.assignment", "secured-item",
+                Map.of(RubricsConstants.RBCS_ASSOCIATE, "1", RubricsConstants.RBCS_LIST, rubric.getId().toString())).orElseThrow();
+        EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, user1);
+        evaluation.setPeerOrSelf(true);
+        switchToUser1();
+        assertThrows(SecurityException.class, () -> rubricsService.saveEvaluation(evaluation, siteId));
+        assertTrue(evaluationRepository.findByAssociationId(association.getId()).isEmpty());
     }
 
     @Test

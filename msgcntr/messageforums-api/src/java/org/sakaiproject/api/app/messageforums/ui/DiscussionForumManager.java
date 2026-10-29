@@ -46,6 +46,10 @@ import org.sakaiproject.user.api.User;
  */
 public interface DiscussionForumManager
 {
+  DiscussionForum getForumForUpdate(String siteId, Long forumId);
+  DiscussionForum updateForumAvailability(String siteId, Long forumId, boolean restricted,
+      java.time.Instant openDate, java.time.Instant closeDate);
+
   public List searchTopicMessages(Long topicId, String searchText);
     
   public Topic getTopicByIdWithAttachments(Long topicId);

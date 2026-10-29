@@ -5,6 +5,8 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.sakaiproject.webapi.security.ServiceSiteAccess;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,6 +38,7 @@ public class SiteStatsController extends AbstractSakaiApiController {
 	@Setter
 	private SiteStatsViewService siteStatsViewService;
 
+	@ServiceSiteAccess("SiteStats authorization checks the specific report permission, including statistics administrators.")
 	@GetMapping(value = SiteStatsApiUrls.OVERVIEW_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public SiteStatsOverview getOverview(@PathVariable("siteId") String siteId) {
 		checkSakaiSession();
@@ -47,6 +50,7 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		}
 	}
 
+	@ServiceSiteAccess("SiteStats authorization checks the specific report permission, including statistics administrators.")
 	@GetMapping(value = SiteStatsApiUrls.REPORTS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<SiteStatsReportSummary> getReports(@PathVariable("siteId") String siteId) {
 		checkSakaiSession();
@@ -58,6 +62,7 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		}
 	}
 
+	@ServiceSiteAccess("SiteStats authorization checks the specific report permission, including statistics administrators.")
 	@GetMapping(value = SiteStatsApiUrls.REPORT_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public SiteStatsReportView getReport(@PathVariable("siteId") String siteId, @PathVariable("reportId") long reportId,
 			@RequestParam(value = "include", required = false) String include,
@@ -74,6 +79,7 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		}
 	}
 
+	@ServiceSiteAccess("SiteStats authorization checks the specific report permission, including statistics administrators.")
 	@GetMapping(value = SiteStatsApiUrls.REPORT_PREVIEW_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public SiteStatsReportView getPreviewReport(@PathVariable("siteId") String siteId, @PathVariable("previewId") String previewId,
 			@RequestParam(value = "include", required = false) String include,
@@ -90,6 +96,7 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		}
 	}
 
+	@ServiceSiteAccess("SiteStats authorization checks the specific report permission, including statistics administrators.")
 	@GetMapping(value = SiteStatsApiUrls.WIDGET_REPORT_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public SiteStatsReportView getWidgetReport(@PathVariable("siteId") String siteId, @PathVariable("widgetId") String widgetId, @PathVariable("tabId") String tabId,
 			@RequestParam(value = "include", required = false) String include,
@@ -123,6 +130,7 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		}
 	}
 
+	@ServiceSiteAccess("SiteStats authorization checks the specific report permission, including statistics administrators.")
 	@GetMapping(value = SiteStatsApiUrls.WIDGET_METRICS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<SiteStatsWidgetMetric> getWidgetMetrics(@PathVariable("siteId") String siteId, @PathVariable("widgetId") String widgetId,
 			@RequestParam(value = "date", required = false) String date,
@@ -152,6 +160,7 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		}
 	}
 
+	@ServiceSiteAccess("SiteStats authorization checks the specific report permission, including statistics administrators.")
 	@GetMapping(value = SiteStatsApiUrls.WIDGET_HIGHLIGHTS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<SiteStatsChart> getWidgetHighlights(@PathVariable("siteId") String siteId, @PathVariable("widgetId") String widgetId,
 			@RequestParam(value = "date", required = false) String date,
@@ -181,6 +190,7 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		}
 	}
 
+	@ServiceSiteAccess("SiteStats authorization checks the specific report permission, including statistics administrators.")
 	@GetMapping(value = SiteStatsApiUrls.WIDGET_METRIC_REPORT_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public SiteStatsReportView getWidgetMetricReport(@PathVariable("siteId") String siteId, @PathVariable("widgetId") String widgetId, @PathVariable("metricId") String metricId,
 			@RequestParam(value = "include", required = false) String include,
@@ -197,6 +207,7 @@ public class SiteStatsController extends AbstractSakaiApiController {
 		}
 	}
 
+	@ServiceSiteAccess("SiteStats authorization checks the specific report permission, including statistics administrators.")
 	@GetMapping(value = SiteStatsApiUrls.SERVER_WIDE_REPORT_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public SiteStatsReportView getServerWideReport(@PathVariable("siteId") String siteId, @PathVariable("reportType") String reportType) {
 		checkSakaiSession();

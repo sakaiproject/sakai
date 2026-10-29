@@ -24,6 +24,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerMapping;
+import org.sakaiproject.conversations.api.ConversationsPermissionsException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.InUseException;
@@ -56,6 +57,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SecurityException.class)
     public ResponseEntity<Object> handleSecurityException(SecurityException ex, WebRequest request) {
         return createErrorResponse(HttpStatus.FORBIDDEN, "Access forbidden", ex, request);
+    }
+
+    @ExceptionHandler(ConversationsPermissionsException.class)
+    public ResponseEntity<Object> handleConversationsPermissionsException(ConversationsPermissionsException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.FORBIDDEN, "Permission denied", ex, request);
     }
 
     @ExceptionHandler(PermissionException.class)

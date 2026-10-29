@@ -43,6 +43,9 @@ public class EntityController extends AbstractSakaiApiController {
     @GetMapping(value = "/tool-entities/tools/{toolId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List<Map<String, String>>> getToolEntityMaps(@PathVariable("toolId") String toolId, @RequestParam("sites") List<String> sites) {
 
+        if (sites.stream().anyMatch(siteId -> !siteService.allowUpdateSite(siteId))) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN);
+        }
         Map<String, List<Map<String, String>>> map = new HashMap<>();
         for (EntityProducer ep : entityManager.getEntityProducers()) {
             if (ep instanceof EntityTransferrer) {
