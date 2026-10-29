@@ -16,12 +16,14 @@
 package org.sakaiproject.component.app.syllabus;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -88,6 +90,35 @@ public class SyllabusContentProducerTest {
 
         assertTrue(content, content.contains("notes.pdf"));
         assertTrue(content, content.contains("Photosynthesis lecture"));
+    }
+
+    @Test
+    public void attachmentNameIsIncludedOnceWhenTheTextStartsWithIt() {
+        attach("/attachment/site1/Syllabus/notes.pdf", "notes.pdf");
+        when(searchIndexBuilder.newEntityContentProducer("/content/attachment/site1/Syllabus/notes.pdf")).thenReturn(resourcesProducer);
+        when(resourcesProducer.getContent("/content/attachment/site1/Syllabus/notes.pdf")).thenReturn("notes.pdf Photosynthesis lecture");
+
+        String content = producer.getContent(REFERENCE);
+
+        assertEquals(content, content.indexOf("notes.pdf"), content.lastIndexOf("notes.pdf"));
+    }
+
+    @Test
+    public void wordsOfTheAttachmentNamesAreSearchedButNotShown() {
+        attach("/attachment/site1/Syllabus/Course_ReadingGuide.pdf", "Course_ReadingGuide.pdf");
+
+        assertEquals(Map.of("attachment_names", List.of("Course_ReadingGuide Course ReadingGuide Course Reading Guide")),
+            producer.getCustomProperties(REFERENCE));
+        assertFalse(producer.getContent(REFERENCE).contains("Reading Guide"));
+    }
+
+    @Test
+    public void wordsOfTheAttachmentName() {
+        assertEquals("Course_Syllabus_2026 Course Syllabus 2026", SyllabusContentProducer.getNameWords("Course_Syllabus_2026.pdf"));
+        assertEquals("SyllabusTest Syllabus Test", SyllabusContentProducer.getNameWords("SyllabusTest.pdf"));
+        assertEquals("week-one reading week one reading", SyllabusContentProducer.getNameWords("week-one reading.pdf"));
+        assertEquals("notes", SyllabusContentProducer.getNameWords("notes.pdf"));
+        assertEquals("README", SyllabusContentProducer.getNameWords("README"));
     }
 
     @Test
