@@ -48,11 +48,11 @@ class DashboardTest extends SakaiUiTestBase {
 
         com.microsoft.playwright.Locator editButton = page.locator("#course-dashboard-edit");
         assertThat(editButton).isVisible();
-        editButton.click(new com.microsoft.playwright.Locator.ClickOptions().setForce(true));
+        editButton.click();
 
         com.microsoft.playwright.Locator saveButton = page.locator("#course-dashboard-save");
         if (saveButton.count() > 0) {
-            saveButton.click(new com.microsoft.playwright.Locator.ClickOptions().setForce(true));
+            saveButton.click();
         }
 
         assertThat(page.locator("main#content")).isVisible();
