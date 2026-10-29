@@ -819,7 +819,7 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 				Set<String> commonKeys = new HashSet<>(keysReleaseToGroups);
 				commonKeys.retainAll(keysGroupIdsMap);
 
-				if (!commonKeys.isEmpty() || (siteGroups.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId))) {
+				if (!commonKeys.isEmpty() || (releaseToGroups.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId))) {
 					AssessmentFacade f = new AssessmentFacade(a.getAssessmentBaseId(), a.getTitle(), a.getLastModifiedDate(), a.getStartDate(), a.getDueDate(), a.getReleaseTo(), releaseToGroups, lastModifiedBy, questionSize);
 					assessmentList.add(f);
 				}
@@ -2106,7 +2106,8 @@ public class AssessmentFacadeQueries implements AssessmentFacadeQueriesAPI {
 		switch (releaseTo) {
 			case AssessmentAccessControl.ANONYMOUS_USERS:
 				break;
-			// case AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS:
+			case AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS:
+				break;
 			default:
 				// if not anonymous or group then set releaseTo to the site title
 				if (toContext != null) {
