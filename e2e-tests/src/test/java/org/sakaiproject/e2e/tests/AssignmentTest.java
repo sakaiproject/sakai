@@ -366,6 +366,7 @@ class AssignmentTest extends SakaiUiTestBase {
         createSimpleAssignment(otherTitle);
 
         openAddAssignmentForm();
+        sakai.waitForPortalFocus();
         page.locator("#new_assignment_title").fill(taggedTitle);
         Locator gradeAssignment = page.locator("#gradeAssignment").first();
         if (gradeAssignment.count() > 0 && gradeAssignment.isChecked()) {
@@ -378,6 +379,7 @@ class AssignmentTest extends SakaiUiTestBase {
         assertThat(page.locator("#tag_selector")).hasValue(tagLabel);
         submitAssignmentForm();
         goToAssignmentsList();
+        sakai.waitForPortalFocus();
 
         selector.getByRole(AriaRole.COMBOBOX).fill(tagLabel);
         assertThat(selector.getByRole(AriaRole.OPTION,

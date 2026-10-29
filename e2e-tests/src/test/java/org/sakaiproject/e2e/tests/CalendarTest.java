@@ -194,6 +194,7 @@ class CalendarTest extends SakaiUiTestBase {
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        sakai.waitForPortalFocus();
         Locator groupTitleInput = page.locator("#groupTitle");
         assertThat(groupTitleInput).isVisible();
         groupTitleInput.fill(groupTitle);

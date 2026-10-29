@@ -49,6 +49,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        sakai.waitForPortalFocus();
         // Use real key events after the form's member picker has initialized.
         page.locator("#groupTitle").pressSequentially(groupTitle);
         assertThat(page.locator("#groupTitle")).hasValue(groupTitle);
@@ -192,6 +193,7 @@ class AssignmentGroupLockTest extends SakaiUiTestBase {
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Create New Group").setExact(true)).click();
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
         assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        sakai.waitForPortalFocus();
         page.locator("#groupTitle").pressSequentially(title);
         Locator member = page.locator("#groupMembers option").filter(new Locator.FilterOptions().setHasText(student));
         assertThat(member).hasCount(1);

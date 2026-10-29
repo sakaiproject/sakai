@@ -116,6 +116,7 @@ class SiteInfoTest extends SakaiUiTestBase {
             .first().click(new Locator.ClickOptions().setForce(true));
         page.locator(".navIntraTool a[href$='/group']").click();
         assertThat(page.locator("#groupMembers + .select2-container")).isVisible();
+        sakai.waitForPortalFocus();
         page.locator("#groupTitle").pressSequentially("<em>Workshop</em>");
         page.locator("#groupMembers").selectOption(page.locator("#groupMembers option").first().getAttribute("value"));
         page.locator("#create-group-submit-button").click();

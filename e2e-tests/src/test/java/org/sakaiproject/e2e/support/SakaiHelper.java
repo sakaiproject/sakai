@@ -120,6 +120,12 @@ public class SakaiHelper {
         assertThat(page.locator("body")).isVisible();
     }
 
+    public void waitForPortalFocus() {
+        // The portal moves focus here in a timer after window.load.
+        page.waitForLoadState(LoadState.LOAD);
+        assertThat(page.locator(".Mrphs-portalWrapper")).isFocused();
+    }
+
     public void toolClick(String label) {
         // Tool actions can refresh the portal; wait before inspecting its navigation.
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);

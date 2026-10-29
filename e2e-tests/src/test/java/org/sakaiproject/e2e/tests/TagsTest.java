@@ -75,16 +75,19 @@ class TagsTest extends SakaiUiTestBase {
 
         sakai.toolClick("Assignments");
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Add").setExact(true)).click();
+        sakai.waitForPortalFocus();
         selectTag(page.locator("sakai-tag-selector"), globalLabel);
         selectTag(page.locator("sakai-tag-selector"), localLabel);
         assertFalse(page.locator("#tag_selector").inputValue().contains(globalLabel));
 
         sakai.toolClick("Messages");
         page.locator("#messagesComposeMenuLink").click();
+        sakai.waitForPortalFocus();
         selectTag(page.locator("sakai-tag-selector"), globalLabel);
         selectTag(page.locator("sakai-tag-selector"), localLabel);
 
         sakai.toolClick("Conversation");
+        sakai.waitForPortalFocus();
         page.locator("#conv-add-topic").click();
         selectTag(page.locator("sakai-add-topic sakai-tag-selector"), globalLabel);
         selectTag(page.locator("sakai-add-topic sakai-tag-selector"), localLabel);
@@ -103,6 +106,7 @@ class TagsTest extends SakaiUiTestBase {
         sakai.toolClick("Tests");
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Question Pools").setExact(true)).click();
         page.locator("#questionpool\\:add").click();
+        sakai.waitForPortalFocus();
         selectTag(page.locator("#tag-selector"), globalLabel);
 
         String otherUrl = sakai.createProject("instructor1", List.of("sakai\\.tagservice"));

@@ -393,6 +393,7 @@ class SamigoTest extends SakaiUiTestBase {
         page.locator("#authorIndexForm\\:title").fill("Pool Tags Assessment " + RUN_ID);
         page.locator("#authorIndexForm\\:createnew").click();
         assertPoolTagRequest(() -> selectQuestionType(Pattern.compile("(select|copy|import).*pool", Pattern.CASE_INSENSITIVE)));
+        sakai.waitForPortalFocus();
         Locator filterInput = page.locator("#tag-search").getByRole(AriaRole.COMBOBOX);
         filterInput.fill(secondTag);
         assertThat(page.locator("#tag-search").getByRole(AriaRole.OPTION,
